@@ -16,7 +16,7 @@
 
 
 GSDB is a database of Hi-C data chromosome and genome structures. Our goal is that this database will enable the exploration of the dynamic architecture of the different Hi-C 3D structure in a variety of cells and tissues.
-\
+<br/><br/>
 Over 50,000 structures from 12 start-of-the-art Hi-C data structure prediction algorithms for 32 Hi-C datasets each containing varying resolutions.
 
 
@@ -33,6 +33,18 @@ For each algorithm, we have described the type of input they accept and the inpu
 
 | Algorithm|  Input Type	| GSDB Input filename suffix |
 | --- | --- |--- |
+|LorDG ||
+|3DMax||
+|MOGEN||
+|Pastis||
+|Chromosome3D||
+|HSA||
+|miniMDS||
+|ShRec3D||
+|GEM||
+|ChromSDE||
+|SIMBA3D	||
+|InfMod3DGen||
 
 ## 3. Disclaimer ##
 
