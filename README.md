@@ -1,14 +1,6 @@
-----------
 
 ## GSDB : Genome Structure Database
 
-The scripts, web pages, and documents of the genome structure database (GSDB)
-
-GSDB is a database of Hi-C data chromosome and genome structures. In recent years, several Hi-C datasets have been generated, likewise, several genome structure construction algorithms have been developed. However, there is no common repository for Hi-C data three dimensional (3D) genome structures.
-
-GSDB aims to create a comprehensive and common respository that contains 3D structures for Hi-C data from novel 3D structure prediction tools developed over the years. Our goal is that this database will enable the exploration of the dynamic architecture of the different Hi-C 3D structure in a variety of cells and tissues.
-
-Over 50,000 structures from 12 start-of-the-art Hi-C data structure prediction algorithms for 32 Hi-C datasets each containing varying resolutions.
 ----------
 
 #### Bioinformatics, Data Mining, Machine Learning (BDM) Laboratory, 
@@ -23,6 +15,14 @@ Over 50,000 structures from 12 start-of-the-art Hi-C data structure prediction a
 &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; Department of Computer Science <br/>
 &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; University of Missouri, Columbia <br/>
 &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; Email: chengji@missouri.edu <br/>
+
+The scripts, web pages, and documents of the genome structure database (GSDB)
+
+GSDB is a database of Hi-C data chromosome and genome structures. In recent years, several Hi-C datasets have been generated, likewise, several genome structure construction algorithms have been developed. However, there is no common repository for Hi-C data three dimensional (3D) genome structures.
+
+GSDB aims to create a comprehensive and common respository that contains 3D structures for Hi-C data from novel 3D structure prediction tools developed over the years. Our goal is that this database will enable the exploration of the dynamic architecture of the different Hi-C 3D structure in a variety of cells and tissues.
+
+Over 50,000 structures from 12 start-of-the-art Hi-C data structure prediction algorithms for 32 Hi-C datasets each containing varying resolutions.
 
 
 
