@@ -16,7 +16,7 @@
 
 
 GSDB is a database of Hi-C data chromosome and genome structures. Our goal is that this database will enable the exploration of the dynamic architecture of the different Hi-C 3D structure in a variety of cells and tissues.
-<br/>
+\
 Over 50,000 structures from 12 start-of-the-art Hi-C data structure prediction algorithms for 32 Hi-C datasets each containing varying resolutions.
 
 
