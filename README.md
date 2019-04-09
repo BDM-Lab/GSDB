@@ -27,9 +27,9 @@ Over 50,000 structures from 12 start-of-the-art Hi-C data structure prediction a
 
 
 ## 1. Content of folders:
-- *src*: source code for the website
-- *GSDB_Scripts*: All the scripts and parameter settings used for 3D structure generation for each algortihm
-- *Algorithms*:  The algorithms and parameter settings used for 3D sructure prediction
+- **src**: source code for the website
+- **GSDB_Scripts**: All the scripts and parameter settings used for 3D structure generation for each algortihm
+- **Algorithms**:  The algorithms and parameter settings used for 3D sructure prediction
 
 
 ## 2. Algorithms Input ##
