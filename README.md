@@ -29,22 +29,22 @@ Over 50,000 structures from 12 start-of-the-art Hi-C data structure prediction a
 
 ## 2. Algorithms Input ##
 
-For each algorithm, we have described the type of input they accept and the input file name extension/suffix used for the 3D structure Construction
+For each algorithm, we have described the contact matrix input format they accept and the input file name extension/suffix used for the 3D structure Construction
 
-| Algorithm|  Input Type	| GSDB Input filename suffix |
+| Algorithm|  Input Format	| GSDB Input filename suffix |
 | --- | --- |--- |
-|LorDG ||
-|3DMax||
-|MOGEN||
-|Pastis||
-|Chromosome3D||
-|HSA||
-|miniMDS||
-|ShRec3D||
-|GEM||
-|ChromSDE||
-|SIMBA3D	||
-|InfMod3DGen||
+|LorDG | 3-column Matrix | |
+|3DMax| 3-column Matrix||
+|MOGEN| 3-column Matrix||
+|Pastis|||
+|Chromosome3D| n x n Square Matrix||
+|HSA| 2-column Bin posiiton with n x n Square Matrix||
+|miniMDS|||
+|ShRec3D|||
+|GEM|||
+|ChromSDE|||
+|SIMBA3D	|||
+|InfMod3DGen|||
 
 ## 3. Disclaimer ##
 
