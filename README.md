@@ -38,7 +38,7 @@ For each algorithm, we have described the contact matrix input format they accep
 |MOGEN| 3-column Matrix||
 |Pastis|||
 |Chromosome3D| n x n Square Matrix||
-|HSA| 2-column Bin posiiton with n x n Square Matrix||
+|HSA| 2-column bin posiiton with n x n Square Matrix||
 |miniMDS|||
 |ShRec3D|||
 |GEM|||
