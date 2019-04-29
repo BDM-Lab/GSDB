@@ -33,18 +33,18 @@ For each algorithm, we have described the contact matrix input format they accep
 
 | Algorithm|  Input Format	| GSDB Input filename suffix |
 | --- | --- |--- |
-|LorDG | 3-column Matrix | |
-|3DMax| 3-column Matrix||
-|MOGEN| 3-column Matrix||
-|Pastis|||
-|Chromosome3D| n x n Square Matrix||
-|HSA| 2-column bin posiiton with n x n Square Matrix||
-|miniMDS|||
-|ShRec3D|||
-|GEM|||
-|ChromSDE|||
-|SIMBA3D	|||
-|InfMod3DGen|||
+|LorDG | 3-column Matrix | _list.txt |
+|3DMax| 3-column Matrix| _list.txt|
+|MOGEN| 3-column Matrix| _list.txt|
+|Pastis|3-column Matrix(bin1,bin2,IF), and mapping coordinate(chr, start_pos,end_pos, bin) | .n_contact, .cbins|
+|Chromosome3D| n x n Square Matrix| _matrix.txt|
+|HSA| 2-column bin posiiton with n x n Square Matrix|_HSA.txt|
+|miniMDS|Chromosome,positon,IF(chr,start_pos1,end_pos1,chr, start_pos2,end_pos2,IF)|.bed|
+|ShRec3D|n x n Square Matrix| _matrix.txt|
+|GEM|2-column bin posiiton with n x n Square Matrix|_HSA.txt|
+|ChromSDE|3-column Matrix, and mapping coordinate|.n_contact, .cbins|
+|SIMBA3D	|n x n Square Matrix|.npy|
+|InfMod3DGen|n x n Square Matrix| _matrix.txt|
 
 ## 3. Disclaimer ##
 
