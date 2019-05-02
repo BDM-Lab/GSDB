@@ -1,0 +1,355 @@
+#!/bin/csh -f
+#
+# install CNSsolve
+#
+# written by: Paul Adams 20-10-98
+#
+# copyright Yale University
+#
+# =========================================================================
+#
+set links=1
+set compile=1
+set fft_lib=default
+set update=0
+set g77=0
+set target=cnssolve
+#
+# to do expansions - unset noglob just in case user has it otherwise
+unset noglob
+#
+foreach arg ( $argv[*] )
+ switch ( $arg )
+ case -copy:
+   set links=0
+   breaksw
+ case -update:
+   set update=1
+   breaksw
+ case -nocompile:
+   set compile=0
+   breaksw
+ case -fft_generic:
+   set fft_lib=generic
+   breaksw
+ case -g77:
+   set g77=1
+   breaksw
+ case -compiler*:
+   set compiler=`echo $arg | cut -d= -f2`
+   if ( "$compiler" == "" ) then
+     echo "error: empty compiler string definition"
+     exit 1
+   endif
+   breaksw
+ case -arch*:
+   set archtmp=`echo $arg | awk 'BEGIN{FS="="}{print $2}'`
+   if ( "$archtmp" == "" ) then
+     echo "error: empty architecture string definition"
+     exit 1
+   else
+     setenv CNS_ARCH $archtmp
+   endif
+   breaksw
+ case -help:
+   echo "usage: install [-update] [-copy] [-nocompile]"
+   echo "               [-fft_generic] [-g77] [-compiler=string] [-arch=string]"
+   exit 0
+ default:
+   echo "install: unknown option $arg"
+   exit 1
+ endsw
+end
+#
+if ( ! ${?CNS_SOLVE} ) then
+ echo 'environmental variable $CNS_SOLVE is undefined'
+ echo 'this variable is set in cns_solve_env - modify this file'
+ exit 1
+endif
+#
+if ( ${CNS_SOLVE} == "_CNSsolve_location_" ) then
+ echo 'environmental variable $CNS_SOLVE has been defined incorrectly'
+ echo 'this variable is set in cns_solve_env - modify this file'
+ exit 1
+endif
+#
+if ( ! -w ${CNS_SOLVE} ) then
+ echo 'no write permission for directory $CNS_SOLVE'
+ echo 'check CNS directory permissions'
+ exit 1
+endif
+#
+if ( $CNS_ARCH == "" ) then
+ echo 'something is wrong with the machine architecture - CNS_ARCH is blank'
+ echo 'type unsetenv CNS_ARCH and then make install'
+ exit 1
+endif
+#
+if ( $CNS_ARCH =~ unknown* ) then
+ echo "the architecture of the machine is unknown - CNS_ARCH=$CNS_ARCH"
+ echo 'aborting installation'
+ exit 1
+endif
+#
+set prod=`echo $CNS_ARCH | awk 'BEGIN{FS="-"}{print $1}'`
+set cpu=`echo $CNS_ARCH | awk 'BEGIN{FS="-"}{print $2}' | sed 's/[0-9]*\.*[0-9]*$//'`
+set os=`echo $CNS_ARCH | awk 'BEGIN{FS="-"}{print $3}'`
+set version=`echo $CNS_ARCH | awk 'BEGIN{FS="-"}{print $4}'`
+#
+set found=0
+set source=""
+set supported=0
+if ( -d $CNS_SOLVE/instlib/machine/supported/${prod}-${cpu}-${os}-${version} && \
+    ! $found ) then
+ set found=1; set source=${prod}-${cpu}-${os}-${version}; set supported=1
+endif
+if ( -d $CNS_SOLVE/instlib/machine/unsupported/${prod}-${cpu}-${os}-${version} && \
+    ! $found ) then
+ set found=1; set source=${prod}-${cpu}-${os}-${version}; set supported=0
+endif
+if ( -d $CNS_SOLVE/instlib/machine/supported/${prod}-${cpu}-${os} && \
+    ! $found ) then
+ set found=1; set source=${prod}-${cpu}-${os}; set supported=1
+endif
+if ( -d $CNS_SOLVE/instlib/machine/unsupported/${prod}-${cpu}-${os} && \
+    ! $found ) then
+ set found=1; set source=${prod}-${cpu}-${os}; set supported=0
+endif
+if ( -d $CNS_SOLVE/instlib/machine/supported/${prod}-${cpu} && \
+    ! $found ) then
+ set found=1; set source=${prod}-${cpu}; set supported=1
+endif
+if ( -d $CNS_SOLVE/instlib/machine/unsupported/${prod}-${cpu} && \
+    ! $found ) then
+ set found=1; set source=${prod}-${cpu}; set supported=0
+endif
+if ( -d $CNS_SOLVE/instlib/machine/supported/${prod}-${os} && \
+    ! $found ) then
+ set found=1; set source=${prod}-${os}; set supported=1
+endif
+if ( -d $CNS_SOLVE/instlib/machine/unsupported/${prod}-${os} && \
+    ! $found ) then
+ set found=1; set source=${prod}-${os}; set supported=0
+endif
+if ( -d $CNS_SOLVE/instlib/machine/supported/${prod} && \
+    ! $found ) then
+ set found=1; set source=${prod}; set supported=1
+endif
+if ( -d $CNS_SOLVE/instlib/machine/unsupported/${prod} && \
+    ! $found ) then
+ set found=1; set source=${prod}; set supported=0
+endif
+if ( -d $CNS_SOLVE/instlib/machine/supported/${os} && \
+    ! $found ) then
+ set found=1; set source=${os}; set supported=1
+endif
+if ( -d $CNS_SOLVE/instlib/machine/unsupported/${os} && \
+    ! $found ) then
+ set found=1; set source=${os}; set supported=0
+endif
+#
+if ( $g77 ) then
+ set found=1; set source='g77-unix'; set supported=0
+ if ( $CNS_ARCH !~ *_g77 ) then
+   setenv CNS_ARCH {$CNS_ARCH}_g77
+ endif
+endif
+#
+if ( $found ) then
+ if ( ! -e $CNS_SOLVE/$CNS_ARCH && $update ) then
+   echo "$CNS_ARCH does not exist - cannot update this directory"
+   if ( $g77 ) then
+     echo "use: make g77install to install using g77"
+   else
+     echo "use: make install to install on this machine"
+   endif
+   exit 0
+ endif
+ echo "Installation directory: $CNS_SOLVE/$CNS_ARCH"
+ if ( ! -e $CNS_SOLVE/$CNS_ARCH ) then
+   mkdir $CNS_SOLVE/$CNS_ARCH
+ endif
+ if ( $supported ) then
+   echo "copying files in instlib directory $source to $CNS_ARCH"
+   ( cd $CNS_SOLVE/instlib/machine/supported/$source; \
+     tar cf - * ) | ( cd $CNS_SOLVE/$CNS_ARCH; tar xvf - )
+ else
+   echo "copying files in instlib directory $source to $CNS_ARCH"
+   ( cd $CNS_SOLVE/instlib/machine/unsupported/$source; \
+     tar cf - * ) | ( cd $CNS_SOLVE/$CNS_ARCH; tar xvf - )
+   echo '>>>> WARNING: this is an unsupported machine type'
+ endif
+
+
+# Joe Krahn's version of compiler selection:
+# Makefile header files are matched by "Makefile.header*.<compiler_name>"
+# The '*' allows for additional letters, which makes it easy to give
+# each a priority by controlling the ASCII sort order, i.e.:
+#    Makefile.header.1.ifort
+#    Makefile.header.2.gfortran
+#    Makefile.header.3.pathscale
+#
+#  Either the environment variable FC or the -compiler= flag can be used
+#  to force a choice, but the matching Makefile.header*.<compiler> must exist.
+
+ ls $CNS_SOLVE/$CNS_ARCH/Makefile.header*.* >& /dev/null
+ if ( $status == 0 ) then
+   # Create a space delimited list of compilers:
+   set list = ( `ls -1 $CNS_SOLVE/$CNS_ARCH/Makefile.header*.* | sed 's/.*\.//;'` )
+   # Create a comma+or delimited list for printing:
+   set list2 = `echo $list | sed 's/ \([^ ]*\)$/__OR__\1/;s/ /, /g;s/__OR__/ or /;'`
+
+   if ($?FC) then
+     ls $CNS_SOLVE/$CNS_ARCH/Makefile.header*.$FC >& /dev/null
+     if ( $status == 0 ) then
+       set compiler=$FC
+     endif
+   endif
+   if (! $?compiler) then
+     foreach compiler ( $list )
+       @ ok = ! `which $compiler >& /dev/null; echo $status` 
+       if ($ok) then
+         break
+       endif
+     end
+     if (! $ok) then
+       echo ">>>> Error: no suitable compiler ($list2) found"
+       exit 1
+     endif
+   else
+     ls $CNS_SOLVE/$CNS_ARCH/Makefile.header*.$compiler >& /dev/null
+     if ( $status ) then
+       echo ">>>> Error: Makefile template for compiler $compiler is not available"
+       exit 1
+     endif
+   endif
+   echo "Using Makefile template for compiler: $compiler"
+   ( cd $CNS_SOLVE/$CNS_ARCH; ln -sf Makefile.header*.$compiler Makefile.header ) 
+ endif
+else
+ echo "no machine directory present for $CNS_ARCH"
+ exit 1
+endif
+#
+if ( ! -e $CNS_SOLVE/$CNS_ARCH/arch_env ) then
+ echo $CNS_SOLVE/$CNS_ARCH/arch_env does not exist
+ exit 1
+else
+ setenv CNS_INST $CNS_SOLVE/$CNS_ARCH
+ setenv CNS_SOURCE $CNS_INST/source
+ source $CNS_INST/arch_env
+endif
+#
+if ( ! ${?TMPDIR} ) then
+ if ( -d /usr/tmp ) then
+   setenv TMPDIR /usr/tmp
+ else if ( -d /var/tmp ) then 
+   setenv TMPDIR /var/tmp
+ endif
+endif
+#
+if ( $CNS_ARCH =~ *linux* ) then
+ alias make 'make --no-print-directory'
+endif
+#
+if ( $target == "cnssolve" ) then
+#
+ if ( ! -d $CNS_SOURCE ) then
+   echo "making source directory in $CNS_ARCH"
+   mkdir $CNS_SOURCE
+ endif
+#
+ if ( ! -d $CNS_INST/bin ) then
+   echo "making bin directory in $CNS_ARCH"
+   mkdir $CNS_INST/bin
+ endif
+#
+ if ( ! -d $CNS_INST/utils ) then
+   echo "making utils directory in $CNS_ARCH"
+   mkdir $CNS_INST/utils
+ endif
+#
+ if ( ! -d $CNS_INST/test ) then
+   echo "making test directory in $CNS_ARCH"
+   mkdir $CNS_INST/test
+ endif
+#
+ if ( ! $update ) then
+   if ( -d $CNS_SOURCE ) then
+     /bin/ls $CNS_SOURCE/*.f $CNS_SOURCE/*.c $CNS_SOURCE/*.inc >& /dev/null
+     if ( $status == 0 ) then
+       echo "removing old source files"
+       /bin/rm -f $CNS_SOURCE/*.f >& /dev/null
+       /bin/rm -f $CNS_SOURCE/*.c >& /dev/null
+       /bin/rm -f $CNS_SOURCE/*.inc >& /dev/null
+     endif
+     if ( $links ) then
+       echo "linking source files to $CNS_ARCH/source"
+       cd $CNS_SOURCE; ln -s ../../source/*.* .
+     else
+       echo "copying source files to $CNS_ARCH/source"
+       cp $CNS_SOLVE/source/*.* $CNS_SOURCE
+     endif
+     /bin/ls $CNS_SOURCE/*.o >& /dev/null
+     if ( $status == 0 ) then
+       echo "removing old object files"
+       /bin/rm -f $CNS_SOURCE/*.o >& /dev/null
+     endif
+   endif
+ endif
+#
+ if ( -d $CNS_SOURCE && \
+      -e $CNS_SOLVE/instlib/source/Makefile.proto && \
+    ! -e $CNS_SOURCE/Makefile.proto ) then
+   cd $CNS_SOURCE; ln -s ../../instlib/source/Makefile.proto .
+ endif
+#
+ if ( -e $CNS_SOLVE/instlib/utils/Makefile && \
+    ! -e $CNS_INST/utils/Makefile ) then
+   cd $CNS_INST/utils; ln -s ../../instlib/utils/Makefile .
+ endif
+#
+ cd $CNS_SOLVE
+ make machinefile
+ if ( $fft_lib == "default" ) then
+   make fftfile
+ else
+   make fftfile-generic
+ endif
+ make makefiles
+ if ( $compile ) then
+   make compiler-test
+   if ( $status != 0 ) then
+     echo "compiler problems - stopping installation"
+     echo "please check compilers before retrying installation"
+     exit 1
+   endif
+   echo 'making utility programs'
+   make utils
+   make cns_solve
+ endif
+#
+else if ( $target == "cnsutil" ) then
+#
+ if ( ! -d $CNS_INST/utils ) then
+   echo "making utils directory in $CNS_ARCH"
+   mkdir $CNS_INST/utils
+ endif
+#
+ if ( -e $CNS_SOLVE/instlib/utils/Makefile && \
+    ! -e $CNS_INST/utils/Makefile ) then
+   cd $CNS_INST/utils; ln -s ../../instlib/utils/Makefile .
+ endif
+#
+ cd $CNS_SOLVE
+#
+ echo 'making utility programs'
+ make utils
+#
+else
+#
+ echo 'unknown target'
+ exit 1
+#
+endif
+#

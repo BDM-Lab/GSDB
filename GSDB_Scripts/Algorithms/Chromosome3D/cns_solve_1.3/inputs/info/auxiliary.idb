@@ -1,0 +1,256 @@
+###############################################################################
+# Parameter names matched in common.idb:
+#     a
+#     b
+#     c
+#     alpha
+#     beta
+#     gamma
+#     coordinate_infile
+#     grid
+#     high_res
+#     low_res
+#     obs_f
+#     obs_i
+#     obs_pa
+#     obs_pb
+#     obs_pc
+#     obs_pd
+#     obs_sigf
+#     obs_sigi
+#     reflection_infile_\d+
+#     sg
+#     test_flag
+#     test_set
+#     output_root
+#     write_map
+#     map_mode
+#     xmax
+#     xmin
+#     ymax
+#     ymin
+#     zmax
+#     zmin
+#     minimize_nstep
+#     num_cycles
+#     reftarget
+#     bfactor_nstep
+#     map_type
+#     anneal
+###############################################################################
+#
+vars: bases_planar
+info: Atom selection defining bases whose planarity will be
+restrained. The selection of the appropriate atoms which form a plane
+is performed automatically. This selection should only include
+nucleotides, selection of other atoms may lead to inappropriate
+restraints for non-nucleotide residues.
+#
+vars: pucker_\d+
+info: Atom selection defining residues whose ribose sugar pucker will
+be restrained. 
+#
+vars: form_\d+
+info: String defining the ribose sugar pucker for the selected
+atoms. Puckers can be either A-form or B-form DNA/RNA or user
+defined. Puckers are maintained by the application of dihedral angle
+restraints in the ribose ring. The restraints for A-form and B-form are:
+<TABLE ALIGN=CENTER>
+<TR><TD>Form</TD><TD>Nu2</TD><TD>Nu3</TD><TD>Nu4</TD></TR>
+<TR><TD>A</TD><TD>37.053</TD><TD>-155.59</TD><TD>144.26</TD></TR>
+<TR><TD>B</TD><TD>-34.90</TD><TD>-86.40</TD><TD>106.4</TD></TR>
+</TABLE>
+#
+vars: dihedral_nu2_\d+
+info: User defined dihedral angle restraint for the Nu2 dihedral in
+the selected ribose rings. 
+#
+vars: dihedral_nu3_\d+
+info: User defined dihedral angle restraint for the Nu3 dihedral in
+the selected ribose rings.
+#
+vars: dihedral_nu4_\d+
+info: User defined dihedral angle restraint for the Nu4 dihedral in
+the selected ribose rings.
+#
+vars: base_a_\d+
+info: Atom selection defining the first base in a Watson-Crick base
+pair. Only one base should be selected. Watson-Crick base pairing is
+maintained by the use of distance restraints between the non-hydrogen
+atoms involved in Watson-Crick hydrogen bonding.
+#
+vars: base_b_\d+
+info: Atom selection defining the second base in a Watson-Crick base
+pair. Only one base should be selected. Watson-Crick base pairing is
+maintained by the use of distance restraints between the non-hydrogen
+atoms involved in Watson-Crick hydrogen bonding.
+#
+vars: site.action_\d+
+info: String defining how this heavy atom site will be treated. Sites
+can be marked for inclusion in heavy atom calculations either as
+refined or fixed. Alternatively sites can be marked as ignored. The
+latter is useful if incorrect sites are present in a site database
+file which are to be excluded from subsequent calculations.
+#
+vars: site.segid_\d+
+info: String defining the derivative name, this can be a maximum of 4
+characters. In MAD refinement all active sites in a site database file
+are used (unwanted sites should be marked as ignored). In isomorphous
+replacement refinement the derivative name given in the task file will
+be matched against the derivative names in the input site database file.
+#
+vars: site.type_\d+
+info: String defining the chemical type of the heavy atom site. This
+is used to obtain atomic scattering factors for the heavy atom. The
+chemical type should match the chemical types defined in the
+scattering libraries (see CNS_XRAYLIB:scatter.lib). The 2 letter
+atomic symbol is usually appropriate.
+#
+vars: site.x_\d+
+info: X coordinate of heavy atom in orthogonal &Aring; (using the PDB
+convention).
+#
+vars: site.y_\d+
+info: Y coordinate of heavy atom in orthogonal &Aring; (using the PDB
+convention).
+#
+vars: site.z_\d+
+info: Z coordinate of heavy atom in orthogonal &Aring; (using the PDB
+convention).
+#
+vars: site.b_\d+
+info: B-value of heavy atom in &Aring;^2.
+#
+vars: site.q_\d+
+info: Occupancy of heavy atom.
+#
+vars: site.g_\d+
+info: Group identifier (string). Heavy atom sites with the same group
+identifier will be refined as a rigid body (coordinates, B-values,
+occupancies and f'/f''). This can be used to refine heavy atom
+clusters as a rigid body. The group identifier should be a maximum of
+4 characters in length. Usually the group identifier is left blank, in
+which case all heavy atoms will be refined individually.
+#
+vars: ncs_type
+info: Defines the type of non-crystallographic symmetry (NCS) to be
+applied. There are two choices, either strict NCS (NCS constraints) or
+restrained NCS. In the strict case the model contains only the basic
+protomer and the NCS defines all the operations that generate the
+complete molecular assembly. The NCS operators are applied to all
+atoms in the input model. In the restrained case the model contains
+the full molecular assembly and restraints are defined between
+molecules in the asymmetric unit. The restraints maintain a similar
+conformation between NCS related molecules. The NCS operators relating
+the molecules are not defined, and are thus not fixed during
+refinement.
+#
+vars: skew_use
+info: Flag indicating whether a skew matrix is to be used for strict
+NCS.
+#
+vars: skew_matrix
+info: CNS matrix defining the rotational component of the skew
+operator. The matrix format is:
+<PRE>
+( a11 a12 a13 )
+( a21 a22 a23 )
+( a31 a32 a33 )
+</PRE>
+#
+vars: skew_vector
+info: CNS vector defining the translational component of the skew
+operator. The vector format is:
+<PRE>
+( a1 a2 a3 )
+</PRE>
+#
+vars: ncs_op_\d+
+info: Flag indicating whether this strict NCS operator should be
+used. This operator will be used to generate the full asymmetric unit
+for the calculation of structure factors and nonbonded interactions
+between NCS related molecules within the asymmetric
+unit. Crystallographic interactions between the input model and NCS
+related molecules are not calculated.
+#
+vars: ncs_matrix_\d+
+info: CNS matrix defining the rotational component of the NCS
+operator. The matrix format is:
+<PRE>
+( a11 a12 a13 )
+( a21 a22 a23 )
+( a31 a32 a33 )
+</PRE>
+#
+vars: ncs_vector_\d+
+info: CNS vector defining the translational component of the NCS
+operator. The vector format is in orthogonal &Aring;:
+<PRE>
+( a1 a2 a3 )
+</PRE>
+#
+vars: nb_ncs_op_\d+
+info: Flag indicating whether this strict nonbonded NCS operator
+should be used. This operator will be used to generate additional
+nonbonded interactions between NCS related molecules. These operators
+are usually used to define the full crystallographic environment
+around the input model. These can be used to replace the missing
+crystallographic interactions between the input model and NCS related
+molecules.
+#
+vars: nb_ncs_matrix_\d+
+info: CNS matrix defining the rotational component of the nonbonded NCS
+operator. The matrix format is:
+<PRE>
+( a11 a12 a13 )
+( a21 a22 a23 )
+( a31 a32 a33 )
+</PRE>
+#
+vars: nb_ncs_vector_\d+
+info: CNS vector defining the translational component of the nonbonded NCS
+operator. The vector format is in orthogonal &Aring;:
+<PRE>
+( a1 a2 a3 )
+</PRE>
+#
+vars: group.\d+.weight
+info: The restraint weight in kcal/mole/&Aring;^2 for this NCS
+group. Each NCS group defines a set of molecules, domains or atoms
+that are related by NCS symmetry. The restraint weight determines how
+tightly the NCS is restrained. A weight of 300 to 500 will result in
+very tight restraints (the NCS related atoms will superimpose with a
+low RMSD). A restraint weight of 10 will result in very weak
+restraints (the NCS related atoms may superimpose with a high RMSD). A
+high weight should be used initially, this weight can then be
+decreased and the free R-value monitored to determine the optimal
+weight.
+#
+vars: group.\d+.sigb
+info: The target deviation in &Aring;^2 for B-values between NCS
+related atoms. This is used in restrained B-value refinement and
+determines the deviation from the average B-value for NCS related
+atoms. A value of 2 is suggested by default. NCS related molecules
+which show large differences in overall B-values may require a
+increased target deviation.
+#
+vars: group.\d+.equiv.\d+
+info: Atom selection specifying a set of atoms who are related to the
+other atom sets by non-crystallographic symmetry. The first selected
+atom set is used as the reference for superimposing molecules in order
+to calculate the NCS restraint energy term and forces. This does not
+imply that the equivalent atoms will be restrainted to the
+reference. Instead all equivalent sets, including the reference, will
+be restrained to the average of all sets.
+#
+vars: map_coeff_\d+
+info: Coefficients for the output electron density map. The type of
+map (Sigma-A weighted, phase combined etc) is set elsewhere. The
+possible options are:
+<UL>
+<LI>gradient: coefficients are -dtarget/dFc</LI>
+<LI>fofc: coefficients are |Fo|-|Fc| phic</LI>
+<LI>2fofc: coefficients are 2|Fo|-|Fc| phic</LI>
+<LI>3fo2fc: coefficients are 3|Fo|-2|Fc| phic</LI>
+</UL>
+#

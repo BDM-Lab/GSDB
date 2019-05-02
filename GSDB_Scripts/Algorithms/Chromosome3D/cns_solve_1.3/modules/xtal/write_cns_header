@@ -1,0 +1,52 @@
+! Module file: write_cns_header
+!
+! CNS module
+! **********
+!
+! Authors: Axel Brunger and Paul Adams
+!
+! copyright Yale University
+!
+! Function:
+!    Writes out a CNS input file header
+!
+! Requirements:
+!    
+
+module {write_cns_header}
+
+(
+&output=OUTPUT;
+&description="";
+&buffer;
+)
+
+set message ? end
+evaluate ($message_old=$result)
+set echo ? end
+evaluate ($echo_old=$result)
+if ( $log_level = verbose ) then
+  set echo=on message=normal end
+else
+  set echo=off message=off end
+end if
+
+set display=? end
+evaluate ($curr_display=$result)
+
+checkversion 1.3
+
+set display=&output end
+
+display {+ file: &STRIP%output +}
+display {+ description: &STRIP%description +}
+display {+ comment:
+buffer &buffer
+  to display
+  dump
+end
+display +}
+
+set display=$curr_display end
+
+set message=$message_old echo=$echo_old end

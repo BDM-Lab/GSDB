@@ -1,0 +1,149 @@
+! Module file: sigmaacoorderr
+!
+! CNS module
+! **********
+!
+! Authors: Jian-Sheng Jiang and Axel T. Brunger
+!
+! copyright Yale University
+!
+! Function:
+! 1. Estimate coordinates error by using SIGMAA,
+!    return the estimated error in "&ESDERR_SIGMAA".
+! 2. Produce the list file for the SIGMAA plot.
+!
+! Requirements:
+! 1. This module is used within xray.
+!
+! Warnings:
+! Data lower than 5 angstroms resolution are not appropriate
+! for estimating coordinate error, unless the solvent refinement 
+! had been done properly.
+!
+! References:
+! 1. Read R.J. (1986). Acta Cryst. A42, 140-149.
+!    "Improved Fourier coefficients for maps using phases from 
+!    partial structures with errors."
+!  
+module { sigmaacoorderr } 
+(
+   &bins=20;              { number of bins for output     }
+   &fobs=fobs;            { observed data                 }
+   &fcalc=fcalc;          { calculated data               }
+   &fpart=fpart;          { bulk solvent correction       }
+   &sel=(amplitude(&fobs)>0 and &low >= d >= &high);
+                          { reflections selection         }
+   &disp=OUTPUT;          { display output filename       }
+   &mess=LONG;            { SHORT | LONG display messages }
+
+   &ESDERR_SIGMAA=$ESDERR_SIGMAA;  { Output: symbol for coord. err. }
+)
+
+set message ? end
+evaluate ($message_old=$result)
+set echo ? end
+evaluate ($echo_old=$result)
+if ( $log_level = verbose ) then
+  set echo=on message=normal end
+else
+  set echo=off message=off end
+end if
+
+set display=? end
+evaluate ($curr_display=$result)
+
+checkversion 1.3
+
+evaluate ($old_bins=$bin_number) 
+evaluate ($old_bin_res_low=$bin_resolution_low) 
+evaluate ($old_bin_res_high=$bin_resolution_high)
+
+
+{* Declare local arrays *}
+declare domain=reci type=real name=sigmaa_oa end
+declare domain=reci type=real name=sigmaa_ob end
+declare domain=reci type=real name=sigmaa_oc end
+
+evaluate ($SigModu_nbins=&bins)
+evaluate ($SigModu_display=&disp)
+
+show max (d) (&sel )
+evaluate ($sigmodu_low_res=$result+0.0001) 
+show min (d) (&sel )
+evaluate ($sigmodu_high_res=$result-0.0001) 
+binresolution $sigmodu_low_res $sigmodu_high_res
+
+if ($SigModu_display = " ") then
+  evaluate ($SigModu_display="sigmaacoorderr.list")
+end if
+evaluate ($SigModu_mess=&mess)
+
+{* check the low resolution and the number of bins *}
+if ($SigModu_low_res > 5.0) then
+  display %ESDERR-WRN: below 5A resolution are not appropriate for estimating 
+  display %ESDERR-WRN: coord. error, unless solvent refinement has been done properly.
+end if
+if ($SigModu_nbins < 4) then
+  display %ESDERR-WRN: at least 4 bins for estimating coord. error.
+  evaluate ($SigModu_nbins=4)
+end if 
+bins=$SigModu_nbins
+
+  
+
+{* determine the coord. error via by the SHAPE function     *}
+{* compute SIGMAA -  Read (1986), Acta Cryst. A42, 140-149. *}
+{* SIGMAA = (sig_p/sig_n)^(1/2)*                            *}
+{*          exp(-pi^3*<|delta_r|>^2*(sin(theta)/lambda)^2)  *}
+{* where <|delta_r|>^2 is the mean square coordinate error  *}
+
+{* compute normalized structure factor moduli *}
+do (sigmaa_OA=NORM(amplitude(&fobs))) ( &sel ) 
+do (sigmaa_OB=NORM(amplitude(&fcalc+&fpart))) ( &sel ) 
+do (sigmaa_OC=SIGACV[sigma=0.07](sigmaa_OA,sigmaa_OB)) ( &sel ) 
+
+{* determine K scale and B value by the SHAPE function      *}
+{* SHAPE(Y,X) = Y/X = K*exp(-B*(sin(theta)/lambda)^2)       *}
+do (sigmaa_OA=1.0) ( &sel )
+
+bins=1 
+do (sigmaa_OB=SHAPE(sigmaa_OC,sigmaa_OA)) ( &sel ) 
+evaluate ($SigModu_K_SIGMAA=$K_BIN1)
+evaluate ($SigModu_B_SIGMAA=$B_BIN1)
+bins=$SigModu_nbins
+
+{* thus, the coord. error can be obtained from B value by   *}
+{*   <|delta_r|> = sqrt(B/pi^3)                             *}
+evaluate (&ESDERR_SIGMAA=sign($SigModu_B_SIGMAA)*
+                         sqrt(abs($SigModu_B_SIGMAA)/($pi)^3))
+
+if ($SigModu_mess = LONG) then
+
+  set display=$SigModu_display end
+
+  evaluate ($SigModu_sigmaa=&ESDERR_SIGMAA)
+  display  K= $SigModu_K_SIGMAA  B= $SigModu_B_SIGMAA  ESDERR_SIGMAA= $SigModu_sigmaa[f8.4]
+
+{* produce a list file for the SIGMMA plot *}
+
+  statistic
+    output=$SigModu_display
+    ( s^2/4.0 )
+    ( log(sigmaa_OC) )
+    ( log($SigModu_K_SIGMAA)-$SigModu_B_SIGMAA*s^2/4.0 )
+    selection=( &sel )
+  end
+
+  set display=$curr_display end
+
+end if
+
+undeclare domain=reci name=sigmaa_oa end
+undeclare domain=reci name=sigmaa_ob end
+undeclare domain=reci name=sigmaa_oc end
+
+bins=$old_bins
+binresolution $old_bin_res_low $old_bin_res_high
+
+set message=$message_old echo=$echo_old end
+

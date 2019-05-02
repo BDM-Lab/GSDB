@@ -1,0 +1,134 @@
+remarks file: modulebugs.inp
+
+set abort=off end
+
+
+!======================================================================
+! bug with define and with multiple line parameters when calling
+! a module and the multi-line parameter is referenced on the same
+! line as the module invocation
+
+set display=moduletest.dat end
+literal module ( &p1 )
+literal &p1 ! embedded
+set display=OUTPUT end
+close moduletest.dat end
+
+eval ($test=10)
+
+define (
+&pp2 = energy 
+end  ;
+) 
+
+!-----------------------------
+! the following is OK
+&pp2
+
+!-----------------------------
+! the next call is OK 
+@moduletest.dat ( 
+     p1 = &pp2 ; )
+
+!-----------------------------
+! the next call is not OK
+@moduletest.dat ( p1 = &pp2 ; )
+
+
+!======================================================================
+! bug with parenthesis right after module filename
+
+!-----------------------
+! this is OK
+@moduletest.dat (p1=display hello;)
+
+!---------------------------
+! the next call is not OK
+@moduletest.dat(p1=display hello;)
+
+
+!
+
+!======================================================================
+! bug with indexed module parameters  
+! ====================================================================
+! indexed module parameters
+
+!
+! works OK - ignore the error message about the ttuuii symbol
+
+set display=moduletest2.dat end
+literal module ( 
+literal     test_1=1;
+literal     test_2=2;
+literal     test_3=3;
+literal     test_4=4;
+literal      )
+literal  
+literal     evaluate ($ttuuii=3)
+literal     @moduletest.dat (
+literal           p1=&test_$ttuuii ;
+literal               )
+literal  display  &test_$ttuuii    !!should be literal 33
+literal 
+literal     evaluate ($ttuuii=2)
+literal     @moduletest.dat (
+literal           p1=&test_$ttuuii ;
+literal               )
+literal  display  &test_$ttuuii    !!should be literal 22
+literal 
+ 
+close moduletest2.dat end
+set display=OUTPUT end
+
+@moduletest2.dat (
+   test_1=display 11; 
+   test_2=display 22;
+   test_3=display 33;
+   test_4=display 44;
+     )
+
+
+!
+
+
+!
+! doesn't work within loops
+
+set display=moduletest2.dat end
+literal module ( 
+literal     test_1=1;
+literal     test_2=2;
+literal     test_3=3;
+literal     test_4=4;
+literal      )
+literal  
+literal  eval ($count=1)
+literal  while ($count < 5 ) loop main
+literal     display  >>>>> $count    &test_$count
+literal     @moduletest.dat (
+literal           p1=&test_$count ;
+literal               )
+literal     evaluate ($count=$count+1)
+literal  end loop main
+literal  display  &test_$count    !!3
+literal 
+ 
+close moduletest2.dat end
+set display=OUTPUT end
+
+@moduletest2.dat (
+   test_1=display 11; 
+   test_2=display 22;
+   test_3=display 33;
+   test_4=display 44;
+     )
+
+
+!
+
+
+
+stop
+
+

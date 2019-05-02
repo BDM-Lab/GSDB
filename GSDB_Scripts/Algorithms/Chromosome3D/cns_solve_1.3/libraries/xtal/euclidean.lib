@@ -1,0 +1,1757 @@
+! file:  libraries/xtal/euclidean.lib
+! Library for Euclidean normalizers of 230 space groups,
+! Information was taken from the International Tables (1987).
+! Library for CNS
+
+! Authors: Jian-Sheng Jiang and Axel T. Brunger
+
+set message ? end
+evaluate ($message_old_eulib=$result)
+set echo ? end
+evaluate ($echo_old_eulib=$result)
+set echo=off message=off end
+
+ checkversion 1.3
+
+
+! Requirements:
+! INPUT: the space group number needs to be defined in symbol $sg.
+!
+! OUTPUT: returns the Euclidean normalizer symbol in $euclid_group,
+! the Euclid spacegroup number in $sg_euclid, the Euclid cell matrix in 
+! $euclid_$i_$j, and the box surrounding the Euclid cell $xmin, 
+! $xmax, $ymin, $ymax, $zmin, $zmax (in fractional coordinates 
+! of the spacegroup).
+! 
+! References:
+! 1. Hirshfeld, F.L., Acta Cryst. (1968). A24, 301-311.
+!    "Symmetry in the Generation of Trial Structures".
+! 2. International Tables for Crystallography (1987), Volume A, 858-863. 
+!    "Euclidean and Affine Normalizers of Space Groups", in Table 15.3.2.
+! 
+! Remarks:
+!
+! 1. There are total 30 Euclidean groups, 20 of them are corresponding
+!    to a particular space group ("Z(3)-1" is regarded as "P1")
+!    and 10 of them are the groups with vanishing axes (Z-type lattices). 
+!
+! 2. The Z-type lattices (Hirshfeld, 1968) are defined as the symbol
+!    "Z(n)" where n denotes the number of vanishing axes.
+!
+! 3. The Euclidean group number is defined as the same as corresponding
+!    space group number.  For Euclidean groups with Z-type lattice
+!    the number is added up n*1000 to that of P-type space group,
+!    i.e. the number of "Z(2)2/m" = 2*1000 + the number of "P2/m" = 2010
+!
+! 4. There are 6 Euclidean groups having different basis vectors
+!    (choices of Bravais lattices). In order to distinguish them
+!    we donote a fraction value to their Euclidean group number,
+!    for example, "191.1" and "191" are the same Euclidean group
+!    "P6/mmm" but with different basis vectors.    
+!
+! 5. The basis vectors (unit cell dimmensions) for Euclidean normalizer
+!           A'(j) = ( a', b', c' )
+!    is related to its original basis vectors  A(j) = (a, b, c) by
+!           A'(j) = M(i,j) A(j)
+!    where M(i,j) is the transform matrix "$euclid_$i_$j".
+!
+! 6. The basis vectors are defined in hexagonal axes (as default) 
+!    for the R* spacegroups. 
+!
+
+
+  if ( $sg = "P1" ) then
+    evaluate ( $sg_number =  1  )
+  elseif ( $sg = "P-1" ) then
+    evaluate ( $sg_number =  2  )
+  elseif ( $sg = "P2" ) then
+    evaluate ( $sg_number =  3  )
+  elseif ( $sg = "P2(1)" ) then
+    evaluate ( $sg_number =  4  )
+  elseif ( $sg = "C2" ) then
+    evaluate ( $sg_number =  5  )
+  elseif ( $sg = "Pm" ) then
+    evaluate ( $sg_number =  6  )
+  elseif ( $sg = "Pc" ) then
+    evaluate ( $sg_number =  7  )
+  elseif ( $sg = "Cm" ) then
+    evaluate ( $sg_number =  8  )
+  elseif ( $sg = "Cc" ) then
+    evaluate ( $sg_number =  9  )
+  elseif ( $sg = "P2/m" ) then
+    evaluate ( $sg_number =  10  )
+  elseif ( $sg = "P2(1)/m" ) then
+    evaluate ( $sg_number =  11  )
+  elseif ( $sg = "C2/m" ) then
+    evaluate ( $sg_number =  12  )
+  elseif ( $sg = "P2/c" ) then
+    evaluate ( $sg_number =  13  )
+  elseif ( $sg = "P2(1)/c" ) then
+    evaluate ( $sg_number =  14  )
+  elseif ( $sg = "C2/c" ) then
+    evaluate ( $sg_number =  15  )
+  elseif ( $sg = "P222" ) then
+    evaluate ( $sg_number =  16  )
+  elseif ( $sg = "P222(1)" ) then
+    evaluate ( $sg_number =  17  )
+  elseif ( $sg = "P2(1)2(1)2" ) then
+    evaluate ( $sg_number =  18  )
+  elseif ( $sg = "P2(1)2(1)2(1)" ) then
+    evaluate ( $sg_number =  19  )
+  elseif ( $sg = "C222(1)" ) then
+    evaluate ( $sg_number =  20  )
+  elseif ( $sg = "C222" ) then
+    evaluate ( $sg_number =  21  )
+  elseif ( $sg = "F222" ) then
+    evaluate ( $sg_number =  22  )
+  elseif ( $sg = "I222" ) then
+    evaluate ( $sg_number =  23  )
+  elseif ( $sg = "I2(1)2(1)2(1)" ) then
+    evaluate ( $sg_number =  24  )
+  elseif ( $sg = "Pmm2" ) then
+    evaluate ( $sg_number =  25  )
+  elseif ( $sg = "Pmc2(1)" ) then
+    evaluate ( $sg_number =  26  )
+  elseif ( $sg = "Pcc2" ) then
+    evaluate ( $sg_number =  27  )
+  elseif ( $sg = "Pma2" ) then
+    evaluate ( $sg_number =  28  )
+  elseif ( $sg = "Pca2(1)" ) then
+    evaluate ( $sg_number =  29  )
+  elseif ( $sg = "Pnc2" ) then
+    evaluate ( $sg_number =  30  )
+  elseif ( $sg = "Pmn2(1)" ) then
+    evaluate ( $sg_number =  31  )
+  elseif ( $sg = "Pba2" ) then
+    evaluate ( $sg_number =  32  )
+  elseif ( $sg = "Pna2(1)" ) then
+    evaluate ( $sg_number =  33  )
+  elseif ( $sg = "Pnn2" ) then
+    evaluate ( $sg_number =  34  )
+  elseif ( $sg = "Cmm2" ) then
+    evaluate ( $sg_number =  35  )
+  elseif ( $sg = "Cmc2(1)" ) then
+    evaluate ( $sg_number =  36  )
+  elseif ( $sg = "Ccc2" ) then
+    evaluate ( $sg_number =  37  )
+  elseif ( $sg = "Amm2" ) then
+    evaluate ( $sg_number =  38  )
+  elseif ( $sg = "Abm2" ) then
+    evaluate ( $sg_number =  39  )
+  elseif ( $sg = "Ama2" ) then
+    evaluate ( $sg_number =  40  )
+  elseif ( $sg = "Aba2" ) then
+    evaluate ( $sg_number =  41  )
+  elseif ( $sg = "Fmm2" ) then
+    evaluate ( $sg_number =  42  )
+  elseif ( $sg = "Fdd2" ) then
+    evaluate ( $sg_number =  43  )
+  elseif ( $sg = "Imm2" ) then
+    evaluate ( $sg_number =  44  )
+  elseif ( $sg = "Iba2" ) then
+    evaluate ( $sg_number =  45  )
+  elseif ( $sg = "Ima2" ) then
+    evaluate ( $sg_number =  46  )
+  elseif ( $sg = "Pmmm" ) then
+    evaluate ( $sg_number =  47  )
+  elseif ( $sg = "Pnnn" ) then
+    evaluate ( $sg_number =  48  )
+  elseif ( $sg = "Pccm" ) then
+    evaluate ( $sg_number =  49  )
+  elseif ( $sg = "Pban" ) then
+    evaluate ( $sg_number =  50  )
+  elseif ( $sg = "Pmma" ) then
+    evaluate ( $sg_number =  51  )
+  elseif ( $sg = "Pnna" ) then
+    evaluate ( $sg_number =  52  )
+  elseif ( $sg = "Pmna" ) then
+    evaluate ( $sg_number =  53  )
+  elseif ( $sg = "Pcca" ) then
+    evaluate ( $sg_number =  54  )
+  elseif ( $sg = "Pbam" ) then
+    evaluate ( $sg_number =  55  )
+  elseif ( $sg = "Pccn" ) then
+    evaluate ( $sg_number =  56  )
+  elseif ( $sg = "Pbcm" ) then
+    evaluate ( $sg_number =  57  )
+  elseif ( $sg = "Pnnm" ) then
+    evaluate ( $sg_number =  58  )
+  elseif ( $sg = "Pmmn" ) then
+    evaluate ( $sg_number =  59  )
+  elseif ( $sg = "Pbcn" ) then
+    evaluate ( $sg_number =  60  )
+  elseif ( $sg = "Pbca" ) then
+    evaluate ( $sg_number =  61  )
+  elseif ( $sg = "Pnma" ) then
+    evaluate ( $sg_number =  62  )
+  elseif ( $sg = "Cmcm" ) then
+    evaluate ( $sg_number =  63  )
+  elseif ( $sg = "Cmca" ) then
+    evaluate ( $sg_number =  64  )
+  elseif ( $sg = "Cmmm" ) then
+    evaluate ( $sg_number =  65  )
+  elseif ( $sg = "Cccm" ) then
+    evaluate ( $sg_number =  66  )
+  elseif ( $sg = "Cmma" ) then
+    evaluate ( $sg_number =  67  )
+  elseif ( $sg = "Ccca" ) then
+    evaluate ( $sg_number =  68  )
+  elseif ( $sg = "Fmmm" ) then
+    evaluate ( $sg_number =  69  )
+  elseif ( $sg = "Fddd" ) then
+    evaluate ( $sg_number =  70  )
+  elseif ( $sg = "Immm" ) then
+    evaluate ( $sg_number =  71  )
+  elseif ( $sg = "Ibam" ) then
+    evaluate ( $sg_number =  72  )
+  elseif ( $sg = "Ibca" ) then
+    evaluate ( $sg_number =  73  )
+  elseif ( $sg = "Imma" ) then
+    evaluate ( $sg_number =  74  )
+  elseif ( $sg = "P4" ) then
+    evaluate ( $sg_number =  75  )
+  elseif ( $sg = "P4(1)" ) then
+    evaluate ( $sg_number =  76  )
+  elseif ( $sg = "P4(2)" ) then
+    evaluate ( $sg_number =  77  )
+  elseif ( $sg = "P4(3)" ) then
+    evaluate ( $sg_number =  78  )
+  elseif ( $sg = "I4" ) then
+    evaluate ( $sg_number =  79  )
+  elseif ( $sg = "I4(1)" ) then
+    evaluate ( $sg_number =  80  )
+  elseif ( $sg = "P-4" ) then
+    evaluate ( $sg_number =  81  )
+  elseif ( $sg = "I-4" ) then
+    evaluate ( $sg_number =  82  )
+  elseif ( $sg = "P4/m" ) then
+    evaluate ( $sg_number =  83  )
+  elseif ( $sg = "P4(2)/m" ) then
+    evaluate ( $sg_number =  84  )
+  elseif ( $sg = "P4/n" ) then
+    evaluate ( $sg_number =  85  )
+  elseif ( $sg = "P4(2)/n" ) then
+    evaluate ( $sg_number =  86  )
+  elseif ( $sg = "I4/m" ) then
+    evaluate ( $sg_number =  87  )
+  elseif ( $sg = "I4(1)/a" ) then
+    evaluate ( $sg_number =  88  )
+  elseif ( $sg = "P422" ) then
+    evaluate ( $sg_number =  89  )
+  elseif ( $sg = "P42(1)2" ) then
+    evaluate ( $sg_number =  90  )
+  elseif ( $sg = "P4(1)22" ) then
+    evaluate ( $sg_number =  91  )
+  elseif ( $sg = "P4(1)2(1)2" ) then
+    evaluate ( $sg_number =  92  )
+  elseif ( $sg = "P4(2)22" ) then
+    evaluate ( $sg_number =  93  )
+  elseif ( $sg = "P4(2)2(1)2" ) then
+    evaluate ( $sg_number =  94  )
+  elseif ( $sg = "P4(3)22" ) then
+    evaluate ( $sg_number =  95  )
+  elseif ( $sg = "P4(3)2(1)2" ) then
+    evaluate ( $sg_number =  96  )
+  elseif ( $sg = "I422" ) then
+    evaluate ( $sg_number =  97  )
+  elseif ( $sg = "I4(1)22" ) then
+    evaluate ( $sg_number =  98  )
+  elseif ( $sg = "P4mm" ) then
+    evaluate ( $sg_number =  99  )
+  elseif ( $sg = "P4bm" ) then
+    evaluate ( $sg_number =  100  )
+  elseif ( $sg = "P4(2)cm" ) then
+    evaluate ( $sg_number =  101  )
+  elseif ( $sg = "P4(2)nm" ) then
+    evaluate ( $sg_number =  102  )
+  elseif ( $sg = "P4cc" ) then
+    evaluate ( $sg_number =  103  )
+  elseif ( $sg = "P4nc" ) then
+    evaluate ( $sg_number =  104  )
+  elseif ( $sg = "P4(2)mc" ) then
+    evaluate ( $sg_number =  105  )
+  elseif ( $sg = "P4(2)bc" ) then
+    evaluate ( $sg_number =  106  )
+  elseif ( $sg = "I4mm" ) then
+    evaluate ( $sg_number =  107  )
+  elseif ( $sg = "I4cm" ) then
+    evaluate ( $sg_number =  108  )
+  elseif ( $sg = "I4(1)md" ) then
+    evaluate ( $sg_number =  109  )
+  elseif ( $sg = "I4(1)cd" ) then
+    evaluate ( $sg_number =  110  )
+  elseif ( $sg = "P-42m" ) then
+    evaluate ( $sg_number =  111  )
+  elseif ( $sg = "P-42c" ) then
+    evaluate ( $sg_number =  112  )
+  elseif ( $sg = "P-42(1)m" ) then
+    evaluate ( $sg_number =  113  )
+  elseif ( $sg = "P-42(1)c" ) then
+    evaluate ( $sg_number =  114  )
+  elseif ( $sg = "P-4m2" ) then
+    evaluate ( $sg_number =  115  )
+  elseif ( $sg = "P-4c2" ) then
+    evaluate ( $sg_number =  116  )
+  elseif ( $sg = "P-4b2" ) then
+    evaluate ( $sg_number =  117  )
+  elseif ( $sg = "P-4n2" ) then
+    evaluate ( $sg_number =  118  )
+  elseif ( $sg = "I-4m2" ) then
+    evaluate ( $sg_number =  119  )
+  elseif ( $sg = "I-4c2" ) then
+    evaluate ( $sg_number =  120  )
+  elseif ( $sg = "I-42m" ) then
+    evaluate ( $sg_number =  121  )
+  elseif ( $sg = "I-42d" ) then
+    evaluate ( $sg_number =  122  )
+  elseif ( $sg = "P4/mmm" ) then
+    evaluate ( $sg_number =  123  )
+  elseif ( $sg = "P4/mcc" ) then
+    evaluate ( $sg_number =  124  )
+  elseif ( $sg = "P4/nbm" ) then
+    evaluate ( $sg_number =  125  )
+  elseif ( $sg = "P4/nnc" ) then
+    evaluate ( $sg_number =  126  )
+  elseif ( $sg = "P4/mbm" ) then
+    evaluate ( $sg_number =  127  )
+  elseif ( $sg = "P4/mnc" ) then
+    evaluate ( $sg_number =  128  )
+  elseif ( $sg = "P4/nmm" ) then
+    evaluate ( $sg_number =  129  )
+  elseif ( $sg = "P4/ncc" ) then
+    evaluate ( $sg_number =  130  )
+  elseif ( $sg = "P4(2)/mmc" ) then
+    evaluate ( $sg_number =  131  )
+  elseif ( $sg = "P4(2)/mcm" ) then
+    evaluate ( $sg_number =  132  )
+  elseif ( $sg = "P4(2)/nbc" ) then
+    evaluate ( $sg_number =  133  )
+  elseif ( $sg = "P4(2)/nnm" ) then
+    evaluate ( $sg_number =  134  )
+  elseif ( $sg = "P4(2)/mbc" ) then
+    evaluate ( $sg_number =  135  )
+  elseif ( $sg = "P4(2)/mnm" ) then
+    evaluate ( $sg_number =  136  )
+  elseif ( $sg = "P4(2)/nmc" ) then
+    evaluate ( $sg_number =  137  )
+  elseif ( $sg = "P4(2)/ncm" ) then
+    evaluate ( $sg_number =  138  )
+  elseif ( $sg = "I4/mmm" ) then
+    evaluate ( $sg_number =  139  )
+  elseif ( $sg = "I4/mcm" ) then
+    evaluate ( $sg_number =  140  )
+  elseif ( $sg = "I4(1)/amd" ) then
+    evaluate ( $sg_number =  141  )
+  elseif ( $sg = "I4(1)/acd" ) then
+    evaluate ( $sg_number =  142  )
+  elseif ( $sg = "P3" ) then
+    evaluate ( $sg_number =  143  )
+  elseif ( $sg = "P3(1)" ) then
+    evaluate ( $sg_number =  144  )
+  elseif ( $sg = "P3(2)" ) then
+    evaluate ( $sg_number =  145  )
+  elseif ( $sg = "R3" ) then
+    evaluate ( $sg_number =  146  )
+  elseif ( $sg = "P-3" ) then
+    evaluate ( $sg_number =  147  )
+  elseif ( $sg = "R-3" ) then
+    evaluate ( $sg_number =  148  )
+  elseif ( $sg = "P312" ) then
+    evaluate ( $sg_number =  149  )
+  elseif ( $sg = "P321" ) then
+    evaluate ( $sg_number =  150  )
+  elseif ( $sg = "P3(1)12" ) then
+    evaluate ( $sg_number =  151  )
+  elseif ( $sg = "P3(1)21" ) then
+    evaluate ( $sg_number =  152  )
+  elseif ( $sg = "P3(2)12" ) then
+    evaluate ( $sg_number =  153  )
+  elseif ( $sg = "P3(2)21" ) then
+    evaluate ( $sg_number =  154  )
+  elseif ( $sg = "R32" ) then
+    evaluate ( $sg_number =  155  )
+  elseif ( $sg = "P3m1" ) then
+    evaluate ( $sg_number =  156  )
+  elseif ( $sg = "P31m" ) then
+    evaluate ( $sg_number =  157  )
+  elseif ( $sg = "P3c1" ) then
+    evaluate ( $sg_number =  158  )
+  elseif ( $sg = "P31c" ) then
+    evaluate ( $sg_number =  159  )
+  elseif ( $sg = "R3m" ) then
+    evaluate ( $sg_number =  160  )
+  elseif ( $sg = "R3c" ) then
+    evaluate ( $sg_number =  161  )
+  elseif ( $sg = "P-31m" ) then
+    evaluate ( $sg_number =  162  )
+  elseif ( $sg = "P-31c" ) then
+    evaluate ( $sg_number =  163  )
+  elseif ( $sg = "P-3m1" ) then
+    evaluate ( $sg_number =  164  )
+  elseif ( $sg = "P-3c1" ) then
+    evaluate ( $sg_number =  165  )
+  elseif ( $sg = "R-3m" ) then
+    evaluate ( $sg_number =  166  )
+  elseif ( $sg = "R-3c" ) then
+    evaluate ( $sg_number =  167  )
+  elseif ( $sg = "P6" ) then
+    evaluate ( $sg_number =  168  )
+  elseif ( $sg = "P6(1)" ) then
+    evaluate ( $sg_number =  169  )
+  elseif ( $sg = "P6(5)" ) then
+    evaluate ( $sg_number =  170  )
+  elseif ( $sg = "P6(2)" ) then
+    evaluate ( $sg_number =  171  )
+  elseif ( $sg = "P6(4)" ) then
+    evaluate ( $sg_number =  172  )
+  elseif ( $sg = "P6(3)" ) then
+    evaluate ( $sg_number =  173  )
+  elseif ( $sg = "P-6" ) then
+    evaluate ( $sg_number =  174  )
+  elseif ( $sg = "P6/m" ) then
+    evaluate ( $sg_number =  175  )
+  elseif ( $sg = "P6(3)/m" ) then
+    evaluate ( $sg_number =  176  )
+  elseif ( $sg = "P622" ) then
+    evaluate ( $sg_number =  177  )
+  elseif ( $sg = "P6(1)22" ) then
+    evaluate ( $sg_number =  178  )
+  elseif ( $sg = "P6(5)22" ) then
+    evaluate ( $sg_number =  179  )
+  elseif ( $sg = "P6(2)22" ) then
+    evaluate ( $sg_number =  180  )
+  elseif ( $sg = "P6(4)22" ) then
+    evaluate ( $sg_number =  181  )
+  elseif ( $sg = "P6(3)22" ) then
+    evaluate ( $sg_number =  182  )
+  elseif ( $sg = "P6mm" ) then
+    evaluate ( $sg_number =  183  )
+  elseif ( $sg = "P6cc" ) then
+    evaluate ( $sg_number =  184  )
+  elseif ( $sg = "P6(3)cm" ) then
+    evaluate ( $sg_number =  185  )
+  elseif ( $sg = "P6(3)mc" ) then
+    evaluate ( $sg_number =  186  )
+  elseif ( $sg = "P-6m2" ) then
+    evaluate ( $sg_number =  187  )
+  elseif ( $sg = "P-6c2" ) then
+    evaluate ( $sg_number =  188  )
+  elseif ( $sg = "P-62m" ) then
+    evaluate ( $sg_number =  189  )
+  elseif ( $sg = "P-62c" ) then
+    evaluate ( $sg_number =  190  )
+  elseif ( $sg = "P6/mmm" ) then
+    evaluate ( $sg_number =  191  )
+  elseif ( $sg = "P6/mcc" ) then
+    evaluate ( $sg_number =  192  )
+  elseif ( $sg = "P6(3)/mcm" ) then
+    evaluate ( $sg_number =  193  )
+  elseif ( $sg = "P6(3)/mmc" ) then
+    evaluate ( $sg_number =  194  )
+  elseif ( $sg = "P23" ) then
+    evaluate ( $sg_number =  195  )
+  elseif ( $sg = "F23" ) then
+    evaluate ( $sg_number =  196  )
+  elseif ( $sg = "I23" ) then
+    evaluate ( $sg_number =  197  )
+  elseif ( $sg = "P2(1)3" ) then
+    evaluate ( $sg_number =  198  )
+  elseif ( $sg = "I2(1)3" ) then
+    evaluate ( $sg_number =  199  )
+  elseif ( $sg = "Pm-3" ) then
+    evaluate ( $sg_number =  200  )
+  elseif ( $sg = "Pn-3" ) then
+    evaluate ( $sg_number =  201  )
+  elseif ( $sg = "Fm-3" ) then
+    evaluate ( $sg_number =  202  )
+  elseif ( $sg = "Fd-3" ) then
+    evaluate ( $sg_number =  203  )
+  elseif ( $sg = "Im-3" ) then
+    evaluate ( $sg_number =  204  )
+  elseif ( $sg = "Pa-3" ) then
+    evaluate ( $sg_number =  205  )
+  elseif ( $sg = "Ia-3" ) then
+    evaluate ( $sg_number =  206  )
+  elseif ( $sg = "P432" ) then
+    evaluate ( $sg_number =  207  )
+  elseif ( $sg = "P4(2)32" ) then
+    evaluate ( $sg_number =  208  )
+  elseif ( $sg = "F432" ) then
+    evaluate ( $sg_number =  209  )
+  elseif ( $sg = "F4(1)32" ) then
+    evaluate ( $sg_number =  210  )
+  elseif ( $sg = "I432" ) then
+    evaluate ( $sg_number =  211  )
+  elseif ( $sg = "P4(3)32" ) then
+    evaluate ( $sg_number =  212  )
+  elseif ( $sg = "P4(1)32" ) then
+    evaluate ( $sg_number =  213  )
+  elseif ( $sg = "I4(1)32" ) then
+    evaluate ( $sg_number =  214  )
+  elseif ( $sg = "P-43m" ) then
+    evaluate ( $sg_number =  215  )
+  elseif ( $sg = "F-43m" ) then
+    evaluate ( $sg_number =  216  )
+  elseif ( $sg = "I-43m" ) then
+    evaluate ( $sg_number =  217  )
+  elseif ( $sg = "P-43n" ) then
+    evaluate ( $sg_number =  218  )
+  elseif ( $sg = "F-43c" ) then
+    evaluate ( $sg_number =  219  )
+  elseif ( $sg = "I-43d" ) then
+    evaluate ( $sg_number =  220  )
+  elseif ( $sg = "Pm-3m" ) then
+    evaluate ( $sg_number =  221  )
+  elseif ( $sg = "Pn-3n" ) then
+    evaluate ( $sg_number =  222  )
+  elseif ( $sg = "Pm-3n" ) then
+    evaluate ( $sg_number =  223  )
+  elseif ( $sg = "Pn-3m" ) then
+    evaluate ( $sg_number =  224  )
+  elseif ( $sg = "Fm-3m" ) then
+    evaluate ( $sg_number =  225  )
+  elseif ( $sg = "Fm-3c" ) then
+    evaluate ( $sg_number =  226  )
+  elseif ( $sg = "Fd-3m" ) then
+    evaluate ( $sg_number =  227  )
+  elseif ( $sg = "Fd-3c" ) then
+    evaluate ( $sg_number =  228  )
+  elseif ( $sg = "Im-3m" ) then
+    evaluate ( $sg_number =  229  )
+  elseif ( $sg = "Ia-3d" ) then
+    evaluate ( $sg_number =  230  )
+
+{ additional Euclidean groups }
+  elseif ( $sg = "Z(3)-1" ) then
+    evaluate ( $sg_number =  3002  )
+  elseif ( $sg = "Z(1)2/m" ) then
+    evaluate ( $sg_number =  1010  )
+  elseif ( $sg = "Z(2)2/m" ) then
+    evaluate ( $sg_number =  2010  )
+  elseif ( $sg = "Z(1)mmm" ) then
+    evaluate ( $sg_number =  1047  )
+  elseif ( $sg = "Z(1)ban" ) then
+    evaluate ( $sg_number =  1050  )
+  elseif ( $sg = "Z(1)4/mmm" ) then
+    evaluate ( $sg_number =  1123  )
+  elseif ( $sg = "Z(1)422" ) then
+    evaluate ( $sg_number =  1089  )
+  elseif ( $sg = "Z(1)4/nbm" ) then
+    evaluate ( $sg_number =  1125  )
+  elseif ( $sg = "Z(1)6/mmm" ) then
+    evaluate ( $sg_number =  1191  )
+  elseif ( $sg = "Z(1)622" ) then
+    evaluate ( $sg_number =  1177  )
+  elseif ( $sg = "Z(1)-31m" ) then
+    evaluate ( $sg_number =  1162  )
+
+  else
+    { take SG literally }
+    evaluate ($sg_number=$sg) 
+  end if
+
+ 
+
+{ ============= The library consists of three sections =========== }
+
+{ I. Definition of the symbol and number for Euclidean normalizer. }
+
+  { This gives the Euclidean symbol in "$euclid_group"             }
+  { and the corresponding group number in "$sg_euclid"             }
+
+
+{ for TRICLINIC and MONOCLINIC, numbers from 1 to 15 }
+
+    if ($sg_number = 1) then
+      evaluate ($euclid_group="Z(3)-1")
+      evaluate ($sg_euclid=3002)
+    elseif ($sg_number = 2) then
+      evaluate ($euclid_group="P-1")
+      evaluate ($sg_euclid=2)
+    elseif ($sg_number < 6) then
+      evaluate ($euclid_group="Z(1)2/m")
+      evaluate ($sg_euclid=1010)
+    elseif ($sg_number < 10) then
+      evaluate ($euclid_group="Z(2)2/m")
+      evaluate ($sg_euclid=2010)
+    elseif ($sg_number < 16) then
+      evaluate ($euclid_group="P2/m")
+      evaluate ($sg_euclid=10)
+
+{ for ORTHORHOMBIC, numbers from 16 to 74 }
+
+    elseif ($sg_number = 22) then
+      evaluate ($euclid_group="Immm")
+      evaluate ($sg_euclid=71)
+    elseif ($sg_number = 43) then
+      evaluate ($euclid_group="Z(1)ban")
+      evaluate ($sg_euclid=1050)
+    elseif ($sg_number = 70) then
+      evaluate ($euclid_group="Pnnn")
+      evaluate ($sg_euclid=48)
+    elseif ($sg_number < 25) then
+      evaluate ($euclid_group="Pmmm")
+      evaluate ($sg_euclid=47)
+    elseif ($sg_number < 47) then
+      evaluate ($euclid_group="Z(1)mmm")
+      evaluate ($sg_euclid=1047)
+    elseif ($sg_number < 75) then
+      evaluate ($euclid_group="Pmmm")
+      evaluate ($sg_euclid=47)
+
+
+{ for TETRAGONAL, numbers from 75 to 142 }
+
+    elseif ($sg_number = 75) then
+      evaluate ($euclid_group="Z(1)4/mmm")
+      evaluate ($sg_euclid=1123)
+    elseif ($sg_number = 76) then
+      evaluate ($euclid_group="Z(1)422")
+      evaluate ($sg_euclid=1089)
+    elseif ($sg_number = 77) then
+      evaluate ($euclid_group="Z(1)4/mmm")
+      evaluate ($sg_euclid=1123)
+    elseif ($sg_number = 78) then
+      evaluate ($euclid_group="Z(1)422")
+      evaluate ($sg_euclid=1089)
+    elseif ($sg_number = 79) then
+      evaluate ($euclid_group="Z(1)4/mmm")
+      evaluate ($sg_euclid=1123)
+    elseif ($sg_number = 80) then
+      evaluate ($euclid_group="Z(1)4/nbm")
+      evaluate ($sg_euclid=1125)
+    elseif ($sg_number = 81) then
+      evaluate ($euclid_group="P4/mmm")
+      evaluate ($sg_euclid=123)
+    elseif ($sg_number = 82) then
+      evaluate ($euclid_group="I4/mmm")
+      evaluate ($sg_euclid=139)
+    elseif ($sg_number < 88) then
+      evaluate ($euclid_group="P4/mmm")
+      evaluate ($sg_euclid=123)
+    elseif ($sg_number = 88) then
+      evaluate ($euclid_group="P4(2)/nnm")
+      evaluate ($sg_euclid=134)
+    elseif ($sg_number = 89) then
+      evaluate ($euclid_group="P4/mmm")
+      evaluate ($sg_euclid=123)
+    elseif ($sg_number = 90) then
+      evaluate ($euclid_group="P4/mmm")
+      evaluate ($sg_euclid=123)
+    elseif ($sg_number = 91) then
+      evaluate ($euclid_group="P4(2)22")
+      evaluate ($sg_euclid=93)
+    elseif ($sg_number = 92) then
+      evaluate ($euclid_group="P4(2)22")
+      evaluate ($sg_euclid=93)
+    elseif ($sg_number = 93) then
+      evaluate ($euclid_group="P4/mmm")
+      evaluate ($sg_euclid=123)
+    elseif ($sg_number = 94) then
+      evaluate ($euclid_group="P4/mmm")
+      evaluate ($sg_euclid=123)
+    elseif ($sg_number = 95) then
+      evaluate ($euclid_group="P4(2)22")
+      evaluate ($sg_euclid=93)
+    elseif ($sg_number = 96) then
+      evaluate ($euclid_group="P4(2)22")
+      evaluate ($sg_euclid=93)
+    elseif ($sg_number = 97) then
+      evaluate ($euclid_group="P4/mmm")
+      evaluate ($sg_euclid=123)
+    elseif ($sg_number = 98) then
+      evaluate ($euclid_group="P4(2)/nnm")
+      evaluate ($sg_euclid=134)
+    elseif ($sg_number < 109) then
+      evaluate ($euclid_group="Z(1)4/mmm")
+      evaluate ($sg_euclid=1123)
+    elseif ($sg_number = 109) then
+      evaluate ($euclid_group="Z(1)4/nbm")
+      evaluate ($sg_euclid=1125)
+    elseif ($sg_number = 110) then
+      evaluate ($euclid_group="Z(1)4/nbm")
+      evaluate ($sg_euclid=1125)
+    elseif ($sg_number < 119) then
+      evaluate ($euclid_group="P4/mmm")
+      evaluate ($sg_euclid=123)
+    elseif ($sg_number = 119) then
+      evaluate ($euclid_group="I4/mmm")
+      evaluate ($sg_euclid=139)
+    elseif ($sg_number = 120) then
+      evaluate ($euclid_group="I4/mmm")
+      evaluate ($sg_euclid=139)
+    elseif ($sg_number = 121) then
+      evaluate ($euclid_group="P4/mmm")
+      evaluate ($sg_euclid=123)
+    elseif ($sg_number = 122) then
+      evaluate ($euclid_group="P4(2)/nnm")
+      evaluate ($sg_euclid=134)
+    elseif ($sg_number < 141) then
+      evaluate ($euclid_group="P4/mmm")
+      evaluate ($sg_euclid=123)
+    elseif ($sg_number = 141) then
+      evaluate ($euclid_group="P4(2)/nnm")
+      evaluate ($sg_euclid=134)
+    elseif ($sg_number = 142) then
+      evaluate ($euclid_group="P4(2)/nnm")
+      evaluate ($sg_euclid=134)
+
+{ for TRIGONAL, numbers from 143 to 167 }
+
+    elseif ($sg_number = 143) then
+      evaluate ($euclid_group="Z(1)6/mmm")
+      evaluate ($sg_euclid=1191)
+    elseif ($sg_number = 144) then
+      evaluate ($euclid_group="Z(1)622")
+      evaluate ($sg_euclid=1177)
+    elseif ($sg_number = 145) then
+      evaluate ($euclid_group="Z(1)622")
+      evaluate ($sg_euclid=1177)
+    elseif ($sg_number = 146) then
+      evaluate ($euclid_group="Z(1)-31m")
+      evaluate ($sg_euclid=1162)
+    elseif ($sg_number = 147) then
+      evaluate ($euclid_group="P6/mmm")
+      evaluate ($sg_euclid=191.1)
+    elseif ($sg_number = 148) then
+      evaluate ($euclid_group="R-3m")
+      evaluate ($sg_euclid=166)
+    elseif ($sg_number = 149) then
+      evaluate ($euclid_group="P6/mmm")
+      evaluate ($sg_euclid=191)
+    elseif ($sg_number = 150) then
+      evaluate ($euclid_group="P6/mmm")
+      evaluate ($sg_euclid=191.1)
+    elseif ($sg_number = 151) then
+      evaluate ($euclid_group="P6(2)22")
+      evaluate ($sg_euclid=180)
+    elseif ($sg_number = 152) then
+      evaluate ($euclid_group="P6(2)22")
+      evaluate ($sg_euclid=180.1)
+    elseif ($sg_number = 153) then
+      evaluate ($euclid_group="P6(4)22")
+      evaluate ($sg_euclid=181)
+    elseif ($sg_number = 154) then
+      evaluate ($euclid_group="P6(4)22")
+      evaluate ($sg_euclid=181.1)
+    elseif ($sg_number = 155) then
+      evaluate ($euclid_group="R-3m")
+      evaluate ($sg_euclid=166)
+    elseif ($sg_number = 156) then
+      evaluate ($euclid_group="Z(1)6/mmm")
+      evaluate ($sg_euclid=1191)
+    elseif ($sg_number = 157) then
+      evaluate ($euclid_group="Z(1)6/mmm")
+      evaluate ($sg_euclid=1191.1)
+    elseif ($sg_number = 158) then
+      evaluate ($euclid_group="Z(1)6/mmm")
+      evaluate ($sg_euclid=1191)
+    elseif ($sg_number = 159) then
+      evaluate ($euclid_group="Z(1)6/mmm")
+      evaluate ($sg_euclid=1191.1)
+    elseif ($sg_number = 160) then
+      evaluate ($euclid_group="Z(1)-31m")
+      evaluate ($sg_euclid=1162)
+    elseif ($sg_number = 161) then
+      evaluate ($euclid_group="Z(1)-31m")
+      evaluate ($sg_euclid=1162)
+    elseif ($sg_number < 166) then
+      evaluate ($euclid_group="P6/mmm")
+      evaluate ($sg_euclid=191.1)
+    elseif ($sg_number = 166) then
+      evaluate ($euclid_group="R-3m")
+      evaluate ($sg_euclid=166)
+    elseif ($sg_number = 167) then
+      evaluate ($euclid_group="R-3m")
+      evaluate ($sg_euclid=166)
+
+{ for HEXAGONAL, numbers from 168 to 194 }
+
+    elseif ($sg_number = 168) then
+      evaluate ($euclid_group="Z(1)6/mmm")
+      evaluate ($sg_euclid=1191.1)
+    elseif ($sg_number < 173) then
+      evaluate ($euclid_group="Z(1)622")
+      evaluate ($sg_euclid=1177.1)
+    elseif ($sg_number = 173) then
+      evaluate ($euclid_group="Z(1)6/mmm")
+      evaluate ($sg_euclid=1191.1)
+    elseif ($sg_number = 174) then
+      evaluate ($euclid_group="P6/mmm")
+      evaluate ($sg_euclid=191)
+    elseif ($sg_number < 178) then
+      evaluate ($euclid_group="P6/mmm")
+      evaluate ($sg_euclid=191.1)
+    elseif ($sg_number = 178) then
+      evaluate ($euclid_group="P6(2)22")
+      evaluate ($sg_euclid=180.1)
+    elseif ($sg_number = 179) then
+      evaluate ($euclid_group="P6(4)22")
+      evaluate ($sg_euclid=181.1)
+    elseif ($sg_number = 180) then
+      evaluate ($euclid_group="P6(4)22")
+      evaluate ($sg_euclid=181.1)
+    elseif ($sg_number = 180.1) then                 { self-definition }
+      evaluate ($euclid_group="P6(2)22")
+      evaluate ($sg_euclid=180.1)
+    elseif ($sg_number = 181) then
+      evaluate ($euclid_group="P6(2)22")
+      evaluate ($sg_euclid=180.1)
+    elseif ($sg_number = 181.1) then                 { self-definition }
+      evaluate ($euclid_group="P6(4)22")
+      evaluate ($sg_euclid=181.1)
+    elseif ($sg_number = 182) then
+      evaluate ($euclid_group="P6/mmm")
+      evaluate ($sg_euclid=191.1)
+    elseif ($sg_number < 187) then
+      evaluate ($euclid_group="Z(1)6/mmm")
+      evaluate ($sg_euclid=1191.1)
+    elseif ($sg_number = 191.1) then                 { self-definition }
+      evaluate ($euclid_group="P6/mmm")
+      evaluate ($sg_euclid=191.1)
+    elseif ($sg_number < 195) then
+      evaluate ($euclid_group="P6/mmm")
+      evaluate ($sg_euclid=191)
+
+{ for CUBIC, numbers from 195 to 230 }
+
+    elseif ($sg_number = 195) then
+      evaluate ($euclid_group="Im-3m")
+      evaluate ($sg_euclid=229)
+    elseif ($sg_number = 196) then
+      evaluate ($euclid_group="Im-3m")
+      evaluate ($sg_euclid=229.1)
+    elseif ($sg_number = 197) then
+      evaluate ($euclid_group="Im-3m")
+      evaluate ($sg_euclid=229)
+    elseif ($sg_number = 198) then
+      evaluate ($euclid_group="Ia-3d")
+      evaluate ($sg_euclid=230)
+    elseif ($sg_number = 199) then
+      evaluate ($euclid_group="Ia-3d")
+      evaluate ($sg_euclid=230)
+    elseif ($sg_number < 202) then
+      evaluate ($euclid_group="Im-3m")
+      evaluate ($sg_euclid=229)
+    elseif ($sg_number = 202) then
+      evaluate ($euclid_group="Pm-3m")
+      evaluate ($sg_euclid=221)
+    elseif ($sg_number = 203) then
+      evaluate ($euclid_group="Pn-3m")
+      evaluate ($sg_euclid=224)
+    elseif ($sg_number = 204) then
+      evaluate ($euclid_group="Im-3m")
+      evaluate ($sg_euclid=229)
+    elseif ($sg_number = 205) then
+      evaluate ($euclid_group="Ia-3")
+      evaluate ($sg_euclid=206)
+    elseif ($sg_number = 206) then
+      evaluate ($euclid_group="Ia-3d")
+      evaluate ($sg_euclid=230)
+    elseif ($sg_number = 207) then
+      evaluate ($euclid_group="Im-3m")
+      evaluate ($sg_euclid=229)
+    elseif ($sg_number = 208) then
+      evaluate ($euclid_group="Im-3m")
+      evaluate ($sg_euclid=229)
+    elseif ($sg_number = 209) then
+      evaluate ($euclid_group="Pm-3m")
+      evaluate ($sg_euclid=221)
+    elseif ($sg_number = 210) then
+      evaluate ($euclid_group="Pn-3m")
+      evaluate ($sg_euclid=224)
+    elseif ($sg_number = 211) then
+      evaluate ($euclid_group="Im-3m")
+      evaluate ($sg_euclid=229)
+    elseif ($sg_number = 212) then
+      evaluate ($euclid_group="I4(1)32")
+      evaluate ($sg_euclid=214)
+    elseif ($sg_number = 213) then
+      evaluate ($euclid_group="I4(1)32")
+      evaluate ($sg_euclid=214)
+    elseif ($sg_number = 214) then
+      evaluate ($euclid_group="Ia-3d")
+      evaluate ($sg_euclid=230)
+    elseif ($sg_number = 215) then
+      evaluate ($euclid_group="Im-3m")
+      evaluate ($sg_euclid=229)
+    elseif ($sg_number = 216) then
+      evaluate ($euclid_group="Im-3m")
+      evaluate ($sg_euclid=229.1)
+    elseif ($sg_number = 217) then
+      evaluate ($euclid_group="Im-3m")
+      evaluate ($sg_euclid=229)
+    elseif ($sg_number = 218) then
+      evaluate ($euclid_group="Im-3m")
+      evaluate ($sg_euclid=229)
+    elseif ($sg_number = 219) then
+      evaluate ($euclid_group="Im-3m")
+      evaluate ($sg_euclid=229.1)
+    elseif ($sg_number = 220) then
+      evaluate ($euclid_group="Ia-3d")
+      evaluate ($sg_euclid=230)
+    elseif ($sg_number < 225) then
+      evaluate ($euclid_group="Im-3m")
+      evaluate ($sg_euclid=229)
+    elseif ($sg_number = 225) then
+      evaluate ($euclid_group="Pm-3m")
+      evaluate ($sg_euclid=221)
+    elseif ($sg_number = 226) then
+      evaluate ($euclid_group="Pm-3m")
+      evaluate ($sg_euclid=221)
+    elseif ($sg_number = 227) then
+      evaluate ($euclid_group="Pn-3m")
+      evaluate ($sg_euclid=224)
+    elseif ($sg_number = 228) then
+      evaluate ($euclid_group="Pn-3m")
+      evaluate ($sg_euclid=224)
+    elseif ($sg_number = 229) then
+      evaluate ($euclid_group="Im-3m")
+      evaluate ($sg_euclid=229)
+    elseif ($sg_number = 229.1) then                 { self-definition }
+      evaluate ($euclid_group="Im-3m")
+      evaluate ($sg_euclid=229.1)
+    elseif ($sg_number = 230) then
+      evaluate ($euclid_group="Ia-3d")
+      evaluate ($sg_euclid=230)
+
+ { self-definition for Z-type lattice Euclidean groups }
+
+    elseif ($sg_number = 3002) then
+      evaluate ($euclid_group="Z(3)-1")
+      evaluate ($sg_euclid=3002)
+    elseif ($sg_number = 1010) then
+      evaluate ($euclid_group="Z(1)2/m")
+      evaluate ($sg_euclid=1010)
+    elseif ($sg_number = 2010) then
+      evaluate ($euclid_group="Z(2)2/m")
+      evaluate ($sg_euclid=2010)
+    elseif ($sg_number = 1047) then
+      evaluate ($euclid_group="Z(1)mmm")
+      evaluate ($sg_euclid=1047)
+    elseif ($sg_number = 1050) then
+      evaluate ($euclid_group="Z(1)ban")
+      evaluate ($sg_euclid=1050)
+    elseif ($sg_number = 1089) then
+      evaluate ($euclid_group="Z(1)422")
+      evaluate ($sg_euclid=1089)
+    elseif ($sg_number = 1123) then
+      evaluate ($euclid_group="Z(1)4/mmm")
+      evaluate ($sg_euclid=1123)
+    elseif ($sg_number = 1125) then
+      evaluate ($euclid_group="Z(1)4/nbm")
+      evaluate ($sg_euclid=1125)
+    elseif ($sg_number = 1162) then
+      evaluate ($euclid_group="Z(1)-31m")
+      evaluate ($sg_euclid=1162)
+    elseif ($sg_number = 1177) then
+      evaluate ($euclid_group="Z(1)622")
+      evaluate ($sg_euclid=1177)
+    elseif ($sg_number = 1177.1) then
+      evaluate ($euclid_group="Z(1)622")
+      evaluate ($sg_euclid=1177.1)
+    elseif ($sg_number = 1191) then
+      evaluate ($euclid_group="Z(1)6/mmm")
+      evaluate ($sg_euclid=1191)
+    elseif ($sg_number = 1191.1) then
+      evaluate ($euclid_group="Z(1)6/mmm")
+      evaluate ($sg_euclid=1191.1)
+
+    else
+
+      display %-ERR: Euclidean group does not exist for $sg
+
+    end if
+
+
+{ II. Define the matrix for basis vectors of Euclidean normalizer  }
+
+  { This gives the description of the Euclidean normalizer in      }
+  { relation to its parent space group, in "$euclid_$i_$j".        }
+
+  { An infinitesimal value "$eps" on defining vanishing axes       }
+  { can be set to arbitraryly small value, default "$eps=0.0"      }
+{===>}
+  evaluate ($eps=0.0)
+
+  { For R-type space groups use the hexagonal axis system by default.  }
+{===>}
+  evaluate ($latt="H")
+
+
+!  if ($euclid_group = "Z(3)-1") then
+  if ($sg_euclid = 3002) then
+    evaluate ($euclid_1_1=$eps)
+    evaluate ($euclid_1_2=0)
+    evaluate ($euclid_1_3=0)
+    evaluate ($euclid_2_1=0)
+    evaluate ($euclid_2_2=$eps)
+    evaluate ($euclid_2_3=0)
+    evaluate ($euclid_3_1=0)
+    evaluate ($euclid_3_2=0)
+    evaluate ($euclid_3_3=$eps)
+    
+    evaluate ($xmin=0)
+    evaluate ($xmax=0)
+    evaluate ($ymin=0)
+    evaluate ($ymax=0)
+    evaluate ($zmin=0)
+    evaluate ($zmax=0)
+    
+!  elseif ($euclid_group = "P-1") then
+  elseif ($sg_euclid = 2) then
+    evaluate ($euclid_1_1=1/2)
+    evaluate ($euclid_1_2=0)
+    evaluate ($euclid_1_3=0)
+    evaluate ($euclid_2_1=0)
+    evaluate ($euclid_2_2=1/2)
+    evaluate ($euclid_2_3=0)
+    evaluate ($euclid_3_1=0)
+    evaluate ($euclid_3_2=0)
+    evaluate ($euclid_3_3=1/2)
+    
+    evaluate ($xmin=0)
+    evaluate ($xmax=1/2)
+    evaluate ($ymin=0)
+    evaluate ($ymax=1/2)
+    evaluate ($zmin=0)
+    evaluate ($zmax=1/2)
+
+!  elseif ($euclid_group = "P2/m") then
+  elseif ($sg_euclid = 10) then
+    evaluate ($euclid_1_1=1/2)
+    evaluate ($euclid_1_2=0)
+    evaluate ($euclid_1_3=0)
+    evaluate ($euclid_2_1=0)
+    evaluate ($euclid_2_2=1/2)
+    evaluate ($euclid_2_3=0)
+    evaluate ($euclid_3_1=0)
+    evaluate ($euclid_3_2=0)
+    evaluate ($euclid_3_3=1/2)
+    
+    evaluate ($xmin=0)
+    evaluate ($xmax=1/2)
+    evaluate ($ymin=0)
+    evaluate ($ymax=1/2)
+    evaluate ($zmin=0)
+    evaluate ($zmax=1/2)
+
+!  elseif ($euclid_group = "Z(1)2/m") then
+  elseif ($sg_euclid = 1010) then
+    evaluate ($euclid_1_1=1/2)
+    evaluate ($euclid_1_2=0)
+    evaluate ($euclid_1_3=0)
+    evaluate ($euclid_2_1=0)
+    evaluate ($euclid_2_2=$eps)
+    evaluate ($euclid_2_3=0)
+    evaluate ($euclid_3_1=0)
+    evaluate ($euclid_3_2=0)
+    evaluate ($euclid_3_3=1/2)
+    
+    evaluate ($xmin=0)
+    evaluate ($xmax=1/2)
+    evaluate ($ymin=0)
+    evaluate ($ymax=0)
+    evaluate ($zmin=0)
+    evaluate ($zmax=1/2)
+    
+!  elseif ($euclid_group = "Z(2)2/m") then
+  elseif ($sg_euclid = 2010) then
+    evaluate ($euclid_1_1=$eps)
+    evaluate ($euclid_1_2=0)
+    evaluate ($euclid_1_3=0)
+    evaluate ($euclid_2_1=0)
+    evaluate ($euclid_2_2=1/2)
+    evaluate ($euclid_2_3=0)
+    evaluate ($euclid_3_1=0)
+    evaluate ($euclid_3_2=0)
+    evaluate ($euclid_3_3=$eps)
+
+    evaluate ($xmin=0)
+    evaluate ($xmax=0)
+    evaluate ($ymin=0)
+    evaluate ($ymax=1/2)
+    evaluate ($zmin=0)
+    evaluate ($zmax=0)
+
+!  elseif ($euclid_group = "Pmmm") then
+  elseif ($sg_euclid = 47) then
+    evaluate ($euclid_1_1=1/2)
+    evaluate ($euclid_1_2=0)
+    evaluate ($euclid_1_3=0)
+    evaluate ($euclid_2_1=0)
+    evaluate ($euclid_2_2=1/2)
+    evaluate ($euclid_2_3=0)
+    evaluate ($euclid_3_1=0)
+    evaluate ($euclid_3_2=0)
+    evaluate ($euclid_3_3=1/2)
+
+    evaluate ($xmin=0)
+    evaluate ($xmax=1/2)
+    evaluate ($ymin=0)
+    evaluate ($ymax=1/2)
+    evaluate ($zmin=0)
+    evaluate ($zmax=1/2)
+    
+!  elseif ($euclid_group = "Pnnn") then
+  elseif ($sg_euclid = 48) then
+    evaluate ($euclid_1_1=1/2)
+    evaluate ($euclid_1_2=0)
+    evaluate ($euclid_1_3=0)
+    evaluate ($euclid_2_1=0)
+    evaluate ($euclid_2_2=1/2)
+    evaluate ($euclid_2_3=0)
+    evaluate ($euclid_3_1=0)
+    evaluate ($euclid_3_2=0)
+    evaluate ($euclid_3_3=1/2)
+
+    evaluate ($xmin=0)
+    evaluate ($xmax=1/2)
+    evaluate ($ymin=0)
+    evaluate ($ymax=1/2)
+    evaluate ($zmin=0)
+    evaluate ($zmax=1/2)
+
+!  elseif ($euclid_group = "Immm") then
+  elseif ($sg_euclid = 71) then
+    evaluate ($euclid_1_1=1/2)
+    evaluate ($euclid_1_2=0)
+    evaluate ($euclid_1_3=0)
+    evaluate ($euclid_2_1=0)
+    evaluate ($euclid_2_2=1/2)
+    evaluate ($euclid_2_3=0)
+    evaluate ($euclid_3_1=0)
+    evaluate ($euclid_3_2=0)
+    evaluate ($euclid_3_3=1/2)
+    
+    evaluate ($xmin=0)
+    evaluate ($xmax=1/2)
+    evaluate ($ymin=0)
+    evaluate ($ymax=1/2)
+    evaluate ($zmin=0)
+    evaluate ($zmax=1/2)
+
+!  elseif ($euclid_group = "Z(1)mmm") then
+  elseif ($sg_euclid = 1047) then
+    evaluate ($euclid_1_1=1/2)
+    evaluate ($euclid_1_2=0)
+    evaluate ($euclid_1_3=0)
+    evaluate ($euclid_2_1=0)
+    evaluate ($euclid_2_2=1/2)
+    evaluate ($euclid_2_3=0)
+    evaluate ($euclid_3_1=0)
+    evaluate ($euclid_3_2=0)
+    evaluate ($euclid_3_3=$eps)
+
+    evaluate ($xmin=0)
+    evaluate ($xmax=1/2)
+    evaluate ($ymin=0)
+    evaluate ($ymax=1/2)
+    evaluate ($zmin=0)
+    evaluate ($zmax=0)
+    
+!  elseif ($euclid_group = "Z(1)ban") then
+  elseif ($sg_euclid = 1050) then
+    evaluate ($euclid_1_1=1/2)
+    evaluate ($euclid_1_2=0)
+    evaluate ($euclid_1_3=0)
+    evaluate ($euclid_2_1=0)
+    evaluate ($euclid_2_2=1/2)
+    evaluate ($euclid_2_3=0)
+    evaluate ($euclid_3_1=0)
+    evaluate ($euclid_3_2=0)
+    evaluate ($euclid_3_3=$eps)
+
+    evaluate ($xmin=0)
+    evaluate ($xmax=1/2)
+    evaluate ($ymin=0)
+    evaluate ($ymax=1/2)
+    evaluate ($zmin=0)
+    evaluate ($zmax=0)
+    
+!  elseif ($euclid_group = "P4(2)22") then
+  elseif ($sg_euclid = 93) then
+    evaluate ($euclid_1_1=1/2)
+    evaluate ($euclid_1_2=-1/2)
+    evaluate ($euclid_1_3=0)
+    evaluate ($euclid_2_1=1/2)
+    evaluate ($euclid_2_2=1/2)
+    evaluate ($euclid_2_3=0)
+    evaluate ($euclid_3_1=0)
+    evaluate ($euclid_3_2=0)
+    evaluate ($euclid_3_3=1/2)
+
+    evaluate ($xmin=0)
+    evaluate ($xmax=1)
+    evaluate ($ymin=0)
+    evaluate ($ymax=1/2)
+    evaluate ($zmin=0)
+    evaluate ($zmax=1/2)
+
+!  elseif ($euclid_group = "Z(1)422") then
+  elseif ($sg_euclid = 1089) then
+    evaluate ($euclid_1_1=1/2)
+    evaluate ($euclid_1_2=-1/2)
+    evaluate ($euclid_1_3=0)
+    evaluate ($euclid_2_1=1/2)
+    evaluate ($euclid_2_2=1/2)
+    evaluate ($euclid_2_3=0)
+    evaluate ($euclid_3_1=0)
+    evaluate ($euclid_3_2=0)
+    evaluate ($euclid_3_3=$eps)
+
+    evaluate ($xmin=0)
+    evaluate ($xmax=1)
+    evaluate ($ymin=0)
+    evaluate ($ymax=1/2)
+    evaluate ($zmin=0)
+    evaluate ($zmax=0)
+    
+!  elseif ($euclid_group = "P4/mmm") then
+  elseif ($sg_euclid = 123) then
+    evaluate ($euclid_1_1=1/2)
+    evaluate ($euclid_1_2=-1/2)
+    evaluate ($euclid_1_3=0)
+    evaluate ($euclid_2_1=1/2)
+    evaluate ($euclid_2_2=1/2)
+    evaluate ($euclid_2_3=0)
+    evaluate ($euclid_3_1=0)
+    evaluate ($euclid_3_2=0)
+    evaluate ($euclid_3_3=1/2)
+
+    evaluate ($xmin=0)
+    evaluate ($xmax=1)
+    evaluate ($ymin=0)
+    evaluate ($ymax=1/2)
+    evaluate ($zmin=0)
+    evaluate ($zmax=1/2)
+    
+!  elseif ($euclid_group = "P4(2)/nnm") then
+  elseif ($sg_euclid = 134) then
+    evaluate ($euclid_1_1=1/2)
+    evaluate ($euclid_1_2=-1/2)
+    evaluate ($euclid_1_3=0)
+    evaluate ($euclid_2_1=1/2)
+    evaluate ($euclid_2_2=1/2)
+    evaluate ($euclid_2_3=0)
+    evaluate ($euclid_3_1=0)
+    evaluate ($euclid_3_2=0)
+    evaluate ($euclid_3_3=1/2)
+
+    evaluate ($xmin=0)
+    evaluate ($xmax=1)
+    evaluate ($ymin=0)
+    evaluate ($ymax=1/2)
+    evaluate ($zmin=0)
+    evaluate ($zmax=1/2)
+    
+!  elseif ($euclid_group = "I4/mmm") then
+  elseif ($sg_euclid = 139) then
+    evaluate ($euclid_1_1=1/2)
+    evaluate ($euclid_1_2=-1/2)
+    evaluate ($euclid_1_3=0)
+    evaluate ($euclid_2_1=1/2)
+    evaluate ($euclid_2_2=1/2)
+    evaluate ($euclid_2_3=0)
+    evaluate ($euclid_3_1=0)
+    evaluate ($euclid_3_2=0)
+    evaluate ($euclid_3_3=1/2)
+
+    evaluate ($xmin=0)
+    evaluate ($xmax=1)
+    evaluate ($ymin=0)
+    evaluate ($ymax=1/2)
+    evaluate ($zmin=0)
+    evaluate ($zmax=1/2)
+
+!  elseif ($euclid_group = "Z(1)4/mmm") then
+  elseif ($sg_euclid = 1123) then
+    evaluate ($euclid_1_1=1/2)
+    evaluate ($euclid_1_2=-1/2)
+    evaluate ($euclid_1_3=0)
+    evaluate ($euclid_2_1=1/2)
+    evaluate ($euclid_2_2=1/2)
+    evaluate ($euclid_2_3=0)
+    evaluate ($euclid_3_1=0)
+    evaluate ($euclid_3_2=0)
+    evaluate ($euclid_3_3=$eps)
+
+    evaluate ($xmin=0)
+    evaluate ($xmax=1)
+    evaluate ($ymin=0)
+    evaluate ($ymax=1/2)
+    evaluate ($zmin=0)
+    evaluate ($zmax=0)
+    
+!  elseif ($euclid_group = "Z(1)4/nbm") then
+  elseif ($sg_euclid = 1125) then
+    evaluate ($euclid_1_1=1/2)
+    evaluate ($euclid_1_2=-1/2)
+    evaluate ($euclid_1_3=0)
+    evaluate ($euclid_2_1=1/2)
+    evaluate ($euclid_2_2=1/2)
+    evaluate ($euclid_2_3=0)
+    evaluate ($euclid_3_1=0)
+    evaluate ($euclid_3_2=0)
+    evaluate ($euclid_3_3=$eps)
+
+    evaluate ($xmin=0)
+    evaluate ($xmax=1)
+    evaluate ($ymin=0)
+    evaluate ($ymax=1/2)
+    evaluate ($zmin=0)
+    evaluate ($zmax=0)
+    
+!  elseif ($euclid_group = "R-3m") then
+  elseif ($sg_euclid = 166) then
+    if ($latt = "R") then         { use rhombohedral axes }
+      evaluate ($euclid_1_1=-1/2)
+      evaluate ($euclid_1_2=1/2)
+      evaluate ($euclid_1_3=1/2)
+      evaluate ($euclid_2_1=1/2)
+      evaluate ($euclid_2_2=-1/2)
+      evaluate ($euclid_2_3=1/2)
+      evaluate ($euclid_3_1=1/2)
+      evaluate ($euclid_3_2=1/2)
+      evaluate ($euclid_3_3=-1/2)
+      
+      evaluate ($xmin=0)
+      evaluate ($xmax=1)
+      evaluate ($ymin=0)
+      evaluate ($ymax=1)
+      evaluate ($zmin=0)
+      evaluate ($zmax=1)
+    else                          { use hexagonal axes }
+      evaluate ($euclid_1_1=-1)
+      evaluate ($euclid_1_2=0)
+      evaluate ($euclid_1_3=0)
+      evaluate ($euclid_2_1=0)
+      evaluate ($euclid_2_2=-1)
+      evaluate ($euclid_2_3=0)
+      evaluate ($euclid_3_1=0)
+      evaluate ($euclid_3_2=0)
+      evaluate ($euclid_3_3=1/2)
+      
+      evaluate ($xmin=0)
+      evaluate ($xmax=1)
+      evaluate ($ymin=0)
+      evaluate ($ymax=1)
+      evaluate ($zmin=0)
+      evaluate ($zmax=1/2)
+    
+    end if
+!  elseif ($euclid_group = "Z(1)-31m") then
+  elseif ($sg_euclid = 1162) then
+    if ($latt = "R") then         { use rhombohedral axes }
+      evaluate ($euclid_1_1=2/3)
+      evaluate ($euclid_1_2=-1/3)
+      evaluate ($euclid_1_3=-1/3)
+      evaluate ($euclid_2_1=-1/3)
+      evaluate ($euclid_2_2=2/3)
+      evaluate ($euclid_2_3=-1/3)
+      evaluate ($euclid_3_1=$eps)
+      evaluate ($euclid_3_2=$eps)
+      evaluate ($euclid_3_3=$eps)
+      
+      evaluate ($xmin=0)
+      evaluate ($xmax=1)
+      evaluate ($ymin=0)
+      evaluate ($ymax=1)
+      evaluate ($zmin=0)
+      evaluate ($zmax=0)
+    else                          { use hexagonal axes }
+      evaluate ($euclid_1_1=2/3)
+      evaluate ($euclid_1_2=1/3)
+      evaluate ($euclid_1_3=0)
+      evaluate ($euclid_2_1=-1/3)
+      evaluate ($euclid_2_2=1/3)
+      evaluate ($euclid_2_3=0)
+      evaluate ($euclid_3_1=0)
+      evaluate ($euclid_3_2=0)
+      evaluate ($euclid_3_3=$eps)
+
+      evaluate ($xmin=0)
+      evaluate ($xmax=2/3)
+      evaluate ($ymin=0)
+      evaluate ($ymax=2/3)
+      evaluate ($zmin=0)
+      evaluate ($zmax=0)
+    end if
+!  elseif ($euclid_group = "Z(1)6/mmm") then
+  elseif ($sg_euclid = 1191) then
+    evaluate ($euclid_1_1=2/3)
+    evaluate ($euclid_1_2=1/3)
+    evaluate ($euclid_1_3=0)
+    evaluate ($euclid_2_1=-1/3)
+    evaluate ($euclid_2_2=1/3)
+    evaluate ($euclid_2_3=0)
+    evaluate ($euclid_3_1=0)
+    evaluate ($euclid_3_2=0)
+    evaluate ($euclid_3_3=$eps)
+    
+    evaluate ($xmin=0)
+    evaluate ($xmax=2/3)
+    evaluate ($ymin=0)
+    evaluate ($ymax=2/3)
+    evaluate ($zmin=0)
+    evaluate ($zmax=0)
+
+!  elseif ($euclid_group = "Z(1)6/mmm") then
+  elseif ($sg_euclid = 1191.1) then
+    evaluate ($euclid_1_1=1)
+    evaluate ($euclid_1_2=0)
+    evaluate ($euclid_1_3=0)
+    evaluate ($euclid_2_1=0)
+    evaluate ($euclid_2_2=1)
+    evaluate ($euclid_2_3=0)
+    evaluate ($euclid_3_1=0)
+    evaluate ($euclid_3_2=0)
+    evaluate ($euclid_3_3=$eps)
+    
+    evaluate ($xmin=0)
+    evaluate ($xmax=1)
+    evaluate ($ymin=0)
+    evaluate ($ymax=1)
+    evaluate ($zmin=0)
+    evaluate ($zmax=0)
+
+!  elseif ($euclid_group = "Z(1)622") then
+  elseif ($sg_euclid = 1177) then
+    evaluate ($euclid_1_1=2/3)
+    evaluate ($euclid_1_2=1/3)
+    evaluate ($euclid_1_3=0)
+    evaluate ($euclid_2_1=-1/3)
+    evaluate ($euclid_2_2=1/3)
+    evaluate ($euclid_2_3=0)
+    evaluate ($euclid_3_1=0)
+    evaluate ($euclid_3_2=0)
+    evaluate ($euclid_3_3=$eps)
+
+    evaluate ($xmin=0)
+    evaluate ($xmax=2/3)
+    evaluate ($ymin=0)
+    evaluate ($ymax=2/3)
+    evaluate ($zmin=0)
+    evaluate ($zmax=0)
+
+!  elseif ($euclid_group = "Z(1)622") then
+  elseif ($sg_euclid = 1177.1) then
+    evaluate ($euclid_1_1=1)
+    evaluate ($euclid_1_2=0)
+    evaluate ($euclid_1_3=0)
+    evaluate ($euclid_2_1=0)
+    evaluate ($euclid_2_2=1)
+    evaluate ($euclid_2_3=0)
+    evaluate ($euclid_3_1=0)
+    evaluate ($euclid_3_2=0)
+    evaluate ($euclid_3_3=$eps)
+
+    evaluate ($xmin=0)
+    evaluate ($xmax=1)
+    evaluate ($ymin=0)
+    evaluate ($ymax=1)
+    evaluate ($zmin=0)
+    evaluate ($zmax=0)
+
+!  elseif ($euclid_group = "P6/mmm") then
+  elseif ($sg_euclid = 191) then
+    evaluate ($euclid_1_1=2/3)
+    evaluate ($euclid_1_2=1/3)
+    evaluate ($euclid_1_3=0)
+    evaluate ($euclid_2_1=-1/3)
+    evaluate ($euclid_2_2=1/3)
+    evaluate ($euclid_2_3=0)
+    evaluate ($euclid_3_1=0)
+    evaluate ($euclid_3_2=0)
+    evaluate ($euclid_3_3=1/2)
+
+    evaluate ($xmin=0)
+    evaluate ($xmax=2/3)
+    evaluate ($ymin=0)
+    evaluate ($ymax=2/3)
+    evaluate ($zmin=0)
+    evaluate ($zmax=1/2)
+
+!  elseif ($euclid_group = "P6/mmm") then
+  elseif ($sg_euclid = 191.1) then
+    evaluate ($euclid_1_1=1)
+    evaluate ($euclid_1_2=0)
+    evaluate ($euclid_1_3=0)
+    evaluate ($euclid_2_1=0)
+    evaluate ($euclid_2_2=1)
+    evaluate ($euclid_2_3=0)
+    evaluate ($euclid_3_1=0)
+    evaluate ($euclid_3_2=0)
+    evaluate ($euclid_3_3=1/2)
+
+    evaluate ($xmin=0)
+    evaluate ($xmax=1)
+    evaluate ($ymin=0)
+    evaluate ($ymax=1)
+    evaluate ($zmin=0)
+    evaluate ($zmax=1/2)
+
+!  elseif ($euclid_group = "P6(2)22") then
+  elseif ($sg_euclid = 180) then
+    evaluate ($euclid_1_1=2/3)
+    evaluate ($euclid_1_2=1/3)
+    evaluate ($euclid_1_3=0)
+    evaluate ($euclid_2_1=-1/3)
+    evaluate ($euclid_2_2=1/3)
+    evaluate ($euclid_2_3=0)
+    evaluate ($euclid_3_1=0)
+    evaluate ($euclid_3_2=0)
+    evaluate ($euclid_3_3=1/2)
+
+    evaluate ($xmin=0)
+    evaluate ($xmax=2/3)
+    evaluate ($ymin=0)
+    evaluate ($ymax=2/3)
+    evaluate ($zmin=0)
+    evaluate ($zmax=1/2)
+
+!  elseif ($euclid_group = "P6(2)22") then
+  elseif ($sg_euclid = 180.1) then
+    evaluate ($euclid_1_1=1)
+    evaluate ($euclid_1_2=0)
+    evaluate ($euclid_1_3=0)
+    evaluate ($euclid_2_1=0)
+    evaluate ($euclid_2_2=1)
+    evaluate ($euclid_2_3=0)
+    evaluate ($euclid_3_1=0)
+    evaluate ($euclid_3_2=0)
+    evaluate ($euclid_3_3=1/2)
+
+    evaluate ($xmin=0)
+    evaluate ($xmax=1)
+    evaluate ($ymin=0)
+    evaluate ($ymax=1)
+    evaluate ($zmin=0)
+    evaluate ($zmax=1/2)
+
+!  elseif ($euclid_group = "P6(4)22") then
+  elseif ($sg_euclid = 181) then
+    evaluate ($euclid_1_1=2/3)
+    evaluate ($euclid_1_2=1/3)
+    evaluate ($euclid_1_3=0)
+    evaluate ($euclid_2_1=-1/3)
+    evaluate ($euclid_2_2=1/3)
+    evaluate ($euclid_2_3=0)
+    evaluate ($euclid_3_1=0)
+    evaluate ($euclid_3_2=0)
+    evaluate ($euclid_3_3=1/2)
+
+    evaluate ($xmin=0)
+    evaluate ($xmax=2/3)
+    evaluate ($ymin=0)
+    evaluate ($ymax=2/3)
+    evaluate ($zmin=0)
+    evaluate ($zmax=1/2)
+
+!  elseif ($euclid_group = "P6(4)22") then
+  elseif ($sg_euclid = 181.1) then
+    evaluate ($euclid_1_1=1)
+    evaluate ($euclid_1_2=0)
+    evaluate ($euclid_1_3=0)
+    evaluate ($euclid_2_1=0)
+    evaluate ($euclid_2_2=1)
+    evaluate ($euclid_2_3=0)
+    evaluate ($euclid_3_1=0)
+    evaluate ($euclid_3_2=0)
+    evaluate ($euclid_3_3=1/2)
+
+    evaluate ($xmin=0)
+    evaluate ($xmax=1)
+    evaluate ($ymin=0)
+    evaluate ($ymax=1)
+    evaluate ($zmin=0)
+    evaluate ($zmax=1/2)
+
+!  elseif ($euclid_group = "Ia-3") then
+  elseif ($sg_euclid = 206) then
+    evaluate ($euclid_1_1=1)
+    evaluate ($euclid_1_2=0)
+    evaluate ($euclid_1_3=0)
+    evaluate ($euclid_2_1=0)
+    evaluate ($euclid_2_2=1)
+    evaluate ($euclid_2_3=0)
+    evaluate ($euclid_3_1=0)
+    evaluate ($euclid_3_2=0)
+    evaluate ($euclid_3_3=1)
+
+    evaluate ($xmin=0)
+    evaluate ($xmax=1)
+    evaluate ($ymin=0)
+    evaluate ($ymax=1)
+    evaluate ($zmin=0)
+    evaluate ($zmax=1)
+    
+!  elseif ($euclid_group = "I4(1)32") then
+  elseif ($sg_euclid = 214) then
+    evaluate ($euclid_1_1=1)
+    evaluate ($euclid_1_2=0)
+    evaluate ($euclid_1_3=0)
+    evaluate ($euclid_2_1=0)
+    evaluate ($euclid_2_2=1)
+    evaluate ($euclid_2_3=0)
+    evaluate ($euclid_3_1=0)
+    evaluate ($euclid_3_2=0)
+    evaluate ($euclid_3_3=1)
+
+    evaluate ($xmin=0)
+    evaluate ($xmax=1)
+    evaluate ($ymin=0)
+    evaluate ($ymax=1)
+    evaluate ($zmin=0)
+    evaluate ($zmax=1)
+    
+!  elseif ($euclid_group = "Pm-3m") then
+  elseif ($sg_euclid = 221) then
+    evaluate ($euclid_1_1=1/2)
+    evaluate ($euclid_1_2=0)
+    evaluate ($euclid_1_3=0)
+    evaluate ($euclid_2_1=0)
+    evaluate ($euclid_2_2=1/2)
+    evaluate ($euclid_2_3=0)
+    evaluate ($euclid_3_1=0)
+    evaluate ($euclid_3_2=0)
+    evaluate ($euclid_3_3=1/2)
+
+    evaluate ($xmin=0)
+    evaluate ($xmax=1/2)
+    evaluate ($ymin=0)
+    evaluate ($ymax=1/2)
+    evaluate ($zmin=0)
+    evaluate ($zmax=1/2)
+
+!  elseif ($euclid_group = "Pn-3m") then
+  elseif ($sg_euclid = 224) then
+    evaluate ($euclid_1_1=1/2)
+    evaluate ($euclid_1_2=0)
+    evaluate ($euclid_1_3=0)
+    evaluate ($euclid_2_1=0)
+    evaluate ($euclid_2_2=1/2)
+    evaluate ($euclid_2_3=0)
+    evaluate ($euclid_3_1=0)
+    evaluate ($euclid_3_2=0)
+    evaluate ($euclid_3_3=1/2)
+
+    evaluate ($xmin=0)
+    evaluate ($xmax=1/2)
+    evaluate ($ymin=0)
+    evaluate ($ymax=1/2)
+    evaluate ($zmin=0)
+    evaluate ($zmax=1/2)
+    
+!  elseif ($euclid_group = "Im-3m") then
+  elseif ($sg_euclid = 229) then
+    evaluate ($euclid_1_1=1)
+    evaluate ($euclid_1_2=0)
+    evaluate ($euclid_1_3=0)
+    evaluate ($euclid_2_1=0)
+    evaluate ($euclid_2_2=1)
+    evaluate ($euclid_2_3=0)
+    evaluate ($euclid_3_1=0)
+    evaluate ($euclid_3_2=0)
+    evaluate ($euclid_3_3=1)
+
+    evaluate ($xmin=0)
+    evaluate ($xmax=1)
+    evaluate ($ymin=0)
+    evaluate ($ymax=1)
+    evaluate ($zmin=0)
+    evaluate ($zmax=1)
+    
+!  elseif ($euclid_group = "Im-3m") then
+  elseif ($sg_euclid = 229.1) then
+    evaluate ($euclid_1_1=1/2)
+    evaluate ($euclid_1_2=0)
+    evaluate ($euclid_1_3=0)
+    evaluate ($euclid_2_1=0)
+    evaluate ($euclid_2_2=1/2)
+    evaluate ($euclid_2_3=0)
+    evaluate ($euclid_3_1=0)
+    evaluate ($euclid_3_2=0)
+    evaluate ($euclid_3_3=1/2)
+
+    evaluate ($xmin=0)
+    evaluate ($xmax=1/2)
+    evaluate ($ymin=0)
+    evaluate ($ymax=1/2)
+    evaluate ($zmin=0)
+    evaluate ($zmax=1/2)
+    
+!  elseif ($euclid_group = "Ia-3d") then
+  elseif ($sg_euclid = 230) then
+    evaluate ($euclid_1_1=1)
+    evaluate ($euclid_1_2=0)
+    evaluate ($euclid_1_3=0)
+    evaluate ($euclid_2_1=0)
+    evaluate ($euclid_2_2=1)
+    evaluate ($euclid_2_3=0)
+    evaluate ($euclid_3_1=0)
+    evaluate ($euclid_3_2=0)
+    evaluate ($euclid_3_3=1)
+
+    evaluate ($xmin=0)
+    evaluate ($xmax=1)
+    evaluate ($ymin=0)
+    evaluate ($ymax=1)
+    evaluate ($zmin=0)
+    evaluate ($zmax=1)
+    
+  else
+
+    display %-ERR: Euclidean group (normalizer) does not exist:  $sg
+
+    evaluate ($euclid_1_1=1)
+    evaluate ($euclid_1_2=0)
+    evaluate ($euclid_1_3=0)
+    evaluate ($euclid_2_1=0)
+    evaluate ($euclid_2_2=1)
+    evaluate ($euclid_2_3=0)
+    evaluate ($euclid_3_1=0)
+    evaluate ($euclid_3_2=0)
+    evaluate ($euclid_3_3=1)
+
+    evaluate ($xmin=0)
+    evaluate ($xmax=1)
+    evaluate ($ymin=0)
+    evaluate ($ymax=1)
+    evaluate ($zmin=0)
+    evaluate ($zmax=1)
+    
+  end if
+
+  display  --------------------------------------------------------------------
+  display  Euclidean cell matrix for basis vector transformation
+  display  (a', b', c') = M * ( a, b, c)
+  display  Matrix=
+  display         ( $euclid_1_1[f6.2] $euclid_1_2[f6.2] $euclid_1_3[f6.2]  )
+  display         ( $euclid_2_1[f6.2] $euclid_2_2[f6.2] $euclid_2_3[f6.2]  )
+  display         ( $euclid_3_1[f6.2] $euclid_3_2[f6.2] $euclid_3_3[f6.2]  )
+  display 
+  display  Minimal fractional coord. box surrounding the Euclid cell
+  display  xmin=$xmin[f6.2]  xmax=$xmax[f6.2]
+  display  ymin=$ymin[f6.2]  ymax=$ymax[f6.2]
+  display  zmin=$zmin[f6.2]  zmax=$zmax[f6.2]
+  display  --------------------------------------------------------------------
+  
+{ III. Define spacegroup number for Eucledian group.  }
+
+  { If the Euclidean number is corresponding to a space group number, }
+  { then take them from the symmetry library "symlib+au.sym" directly;}
+  { For Z-type lattice Euclidean groups we assume the corresponding   }
+  { the P-type space group by the removal of multiple thousands from  }
+  { its Euclidean group number.                                       }
+
+  if ($sg_euclid < 231 ) then
+    evaluate ($sg_euclid=int($sg_euclid))
+  else
+    evaluate ($sg_euclid=int($sg_euclid - 1000*int($sg_euclid/1000)))    
+  end if
+  
+  display  Euclid group $euclid_group
+  display  Spacegroup number for Eucledian group $sg_euclid
+
+set message=$message_old_eulib echo=$echo_old_eulib end

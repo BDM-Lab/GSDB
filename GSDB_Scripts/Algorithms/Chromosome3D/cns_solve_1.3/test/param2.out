@@ -1,0 +1,3063 @@
+          ============================================================
+          |                                                          |
+          |            Crystallography & NMR System (CNS)            |
+          |                         CNSsolve                         |
+          |                                                          |
+          ============================================================
+           Version: 1.3
+           Status: General release
+          ============================================================
+           Written by: A.T.Brunger, P.D.Adams, G.M.Clore, W.L.DeLano,
+                       P.Gros, R.W.Grosse-Kunstleve,J.-S.Jiang,J.M.Krahn,
+                       J.Kuszewski, M.Nilges, N.S.Pannu, R.J.Read,
+                       L.M.Rice, G.F.Schroeder, T.Simonson, G.L.Warren.
+           Copyright (c) 1997-2010 Yale University
+          ============================================================
+           Running on machine: lewis4-r710-login-node223 (x86_64/Linux,64-bit)
+                               with 16 threads
+           Program started by: oeow39
+           Program started at: 16:08:04 on 05-Jul-2018
+          ============================================================
+
+ FFT3C: Using FFTPACK4.1
+
+ CNSsolve>remarks learn2.inp 
+ CNSsolve>remarks test parameter learning and reduction facilities 
+ CNSsolve>remarks Thomas Simonson 
+ CNSsolve>remarks ================ 
+ CNSsolve> 
+ CNSsolve>topology  @CNS_TOPPAR:protein.top end 
+ ASSFIL: file protein.top opened.
+ RTFRDR>remarks file toppar/protein.top 
+ RTFRDR>remarks   protein topology with polar hydrogens 
+ RTFRDR> 
+ RTFRDR>! 
+ RTFRDR>! Please cite the following reference when using these parameters: 
+ RTFRDR>! Engh, R.A. and  Huber, R. (1991). Accurate Bond and 
+ RTFRDR>!  Angle Parameters for X-ray Protein-Structure Refinement, 
+ RTFRDR>!  Acta Cryst. A47, 392-400. 
+ RTFRDR>! 
+ RTFRDR>! 
+ RTFRDR> 
+ RTFRDR>set message ? end eval ($old_message=$result) set echo ? end eval ($old_echo=$result) 
+ MESSage=NORM
+ EVALUATE: symbol $OLD_MESSAGE set to "NORM" (string)
+ ECHO=TRUE {ON}
+ EVALUATE: symbol $OLD_ECHO set to TRUE (logical)
+ RTFRDR>set message=off echo=off end 
+ RTFRDR> 
+ RTFRDR> 
+ RTFRDR> end 
+ CNSsolve>parameter @CNS_TOPPAR:protein.param end 
+ ASSFIL: file protein.param opened.
+ PARRDR>remarks file toppar/protein.param 
+ PARRDR>remarks   protein parameters with Lennard-Jones van der Waals parameters 
+ PARRDR>remarks   for crystallographic structure determination 
+ PARRDR> 
+ PARRDR>! 
+ PARRDR>! Please cite the following reference when using these parameters: 
+ PARRDR>! Engh, R.A. and  Huber, R. (1991). Accurate Bond and 
+ PARRDR>!  Angle Parameters for X-ray Protein-Structure Refinement, 
+ PARRDR>!  Acta Cryst. A47, 392-400. 
+ PARRDR>! 
+ PARRDR>! 
+ PARRDR> 
+ PARRDR>set message ? end eval ($old_message=$result) set echo ? end eval ($old_echo=$result) 
+ MESSage=NORM
+ EVALUATE: symbol $OLD_MESSAGE set to "NORM" (string)
+ ECHO=TRUE {ON}
+ EVALUATE: symbol $OLD_ECHO set to TRUE (logical)
+ PARRDR>set message=off echo=off end 
+ PARRDR> 
+ PARRDR> end 
+ CNSsolve>parameter 
+ PARRDR>  nbonds 
+ NBDSET>     atom cdie shift eps=1.0 
+ NBDSET>     cutnb=100.0 
+ NBDSET>     nbxmod=5 vswitch 
+ NBDSET>  end 
+ PARRDR>end 
+ CNSsolve> 
+ CNSsolve>segment 
+ SEGMENT>  name=tryp 
+ SEGMENT>  chain 
+ CHAIN>     @CNS_TOPPAR:protein.link 
+ ASSFIL: file protein.link opened.
+ CHAIN>remarks file toppar/protein.link 
+ CHAIN>remarks 
+ CHAIN>remarks this is a macro to define standard protein peptide bonds 
+ CHAIN>remarks and termini to generate a protein sequence. 
+ CHAIN> 
+ CHAIN>set message ? end eval ($old_message=$result) set echo ? end eval ($old_echo=$result) 
+ MESSage=NORM
+ EVALUATE: symbol $OLD_MESSAGE set to "NORM" (string)
+ ECHO=TRUE {ON}
+ EVALUATE: symbol $OLD_ECHO set to TRUE (logical)
+ CHAIN>set message=off echo=off end 
+ CHAIN>     sequence 
+ SEQUENCE>        TRP 
+ SEQUence-element (terminate with END) =     end 
+ SEGMNT:     1 residues were inserted into segment "TRYP"
+ CHAIN>  end 
+ SEGMENT>end 
+ Status of internal molecular topology database:
+ -> NATOM=         19(MAXA=     1000000)  NBOND=         20(MAXB=     1000000)
+ -> NTHETA=        30(MAXT=     2000000)  NGRP=           3(MAXGRP=   1000000)
+ -> NPHI=          10(MAXP=     2000000)  NIMPHI=        15(MAXIMP=   1000000)
+ -> NNB=            0(MAXNB=    1000000) 
+ CNSsolve> 
+ CNSsolve>coor 
+ COOR>ATOM      1  HT1 TRP     1       0.101   0.574  -1.385  1.00  0.00      TRYP 
+ COOR>ATOM      2  HT2 TRP     1       1.711   0.436  -1.904  1.00  0.00      TRYP 
+ CNSsolve> 
+ CNSsolve> 
+ CNSsolve> 
+ CNSsolve>!----------------------------------------- 
+ CNSsolve>! atomic parameters before learn procedure 
+ CNSsolve>!----------------------------------------- 
+ CNSsolve> 
+ CNSsolve>parameters ?  verbose  end 
+
+ BOND  C    CH1E    1342.404 {sd=     0.015}      1.525
+ BOND  C    CH2E     947.200 {sd=     0.018}      1.516
+ BOND  C    CH2G    1827.161 {sd=     0.013}      1.516
+ BOND  C    HA       350.000 {sd=     0.029}      1.080
+ BOND  C    N       2312.500 {sd=     0.011}      1.341
+ BOND  C    NC2     1827.161 {sd=     0.013}      1.326
+ BOND  C    NH1     3020.408 {sd=     0.010}      1.329
+ BOND  C    NH2     1342.404 {sd=     0.015}      1.328
+ BOND  C    O       1480.000 {sd=     0.014}      1.231
+ BOND  C    OC      1639.889 {sd=     0.013}      1.249
+ BOND  C    OH1     1223.141 {sd=     0.016}      1.304
+ BOND  C5   CH2E    3020.408 {sd=     0.010}      1.497
+ BOND  C5   CR1E    4892.562 {sd=     0.008}      1.356
+ BOND  C5   CR1H    4892.562 {sd=     0.008}      1.354
+ BOND  C5   NH1     4892.562 {sd=     0.008}      1.378
+ BOND  C5   NR      2048.443 {sd=     0.012}      1.371
+ BOND  C5W  CH2E     616.025 {sd=     0.022}      1.498
+ BOND  C5W  CR1E     947.200 {sd=     0.018}      1.365
+ BOND  C5W  CW      1827.161 {sd=     0.013}      1.433
+ BOND  CF   CH2E    1119.093 {sd=     0.016}      1.502
+ BOND  CF   CR1E    1342.404 {sd=     0.015}      1.384
+ BOND  CH1E CH1E     812.071 {sd=     0.019}      1.540
+ BOND  CH1E CH2E    1480.000 {sd=     0.014}      1.530
+ BOND  CH1E CH3E     543.618 {sd=     0.023}      1.521
+ BOND  CH1E N       2631.111 {sd=     0.011}      1.466
+ BOND  CH1E NH1     1639.889 {sd=     0.013}      1.458
+ BOND  CH1E NH3     1342.404 {sd=     0.015}      1.491
+ BOND  CH1E OH1     2312.500 {sd=     0.011}      1.433
+ BOND  CH2E CH2E     657.778 {sd=     0.021}      1.520
+ BOND  CH2E CH2P     236.800 {sd=     0.035}      1.492
+ BOND  CH2E CH3E     389.218 {sd=     0.028}      1.513
+ BOND  CH2E CY      1223.141 {sd=     0.016}      1.512
+ BOND  CH2E NH1     1827.161 {sd=     0.013}      1.460
+ BOND  CH2E NH3      657.778 {sd=     0.021}      1.489
+ BOND  CH2E OH1     1480.000 {sd=     0.014}      1.417
+ BOND  CH2E S       1480.000 {sd=     0.014}      1.822
+ BOND  CH2E SE       500.000 {sd=     0.024}      1.930
+ BOND  CH2E SH1E     543.618 {sd=     0.023}      1.808
+ BOND  CH2E SM       512.111 {sd=     0.024}      1.803
+ BOND  CH2G NH1     2312.500 {sd=     0.011}      1.451
+ BOND  CH2G NH3      657.778 {sd=     0.021}      1.489
+ BOND  CH2P CH2P     512.111 {sd=     0.024}      1.503
+ BOND  CH2P N       3020.408 {sd=     0.010}      1.473
+ BOND  CH2P NH3     3020.408 {sd=     0.010}      1.473
+ BOND  CH3E NH1     1827.161 {sd=     0.013}      1.460
+ BOND  CH3E NH3      657.778 {sd=     0.021}      1.489
+ BOND  CH3E SE       500.000 {sd=     0.024}      1.930
+ BOND  CH3E SM       170.066 {sd=     0.042}      1.791
+ BOND  CR1E CR1E     657.778 {sd=     0.021}      1.382
+ BOND  CR1E CR1W     947.200 {sd=     0.018}      1.400
+ BOND  CR1E CW      2312.500 {sd=     0.011}      1.398
+ BOND  CR1E CY      1342.404 {sd=     0.015}      1.389
+ BOND  CR1E CY2     1027.778 {sd=     0.017}      1.378
+ BOND  CR1E NH1     1342.404 {sd=     0.015}      1.374
+ BOND  CR1E NR       657.778 {sd=     0.021}      1.382
+ BOND  CR1H NH1     4892.562 {sd=     0.008}      1.374
+ BOND  CR1W CR1W    1639.889 {sd=     0.013}      1.368
+ BOND  CR1W CW      1342.404 {sd=     0.015}      1.394
+ BOND  CRH  NH1     1480.000 {sd=     0.014}      1.345
+ BOND  CRH  NR      3502.958 {sd=     0.009}      1.319
+ BOND  CRHH NH1     5920.000 {sd=     0.007}      1.321
+ BOND  CT   HA       300.000 {sd=     0.031}      1.080
+ BOND  CW   CW      2048.443 {sd=     0.012}      1.409
+ BOND  CW   NH1     4892.562 {sd=     0.008}      1.370
+ BOND  CY2  OH1     1342.404 {sd=     0.015}      1.376
+ BOND  H    NH1      405.000 {sd=     0.027}      0.980
+ BOND  H    NH2      405.000 {sd=     0.027}      0.980
+ BOND  H    OH1      450.000 {sd=     0.026}      0.960
+ BOND  HC   NC2      405.000 {sd=     0.027}      1.000
+ BOND  HC   NH1      405.000 {sd=     0.027}      0.980
+ BOND  HC   NH3      405.000 {sd=     0.027}      1.040
+ BOND  S    S       2410.110 {sd=     0.011}      2.030
+
+ ANGLe  C    CH1E CH1E     401.53 {sd=     1.556}    109.1000
+ ANGLe  C    CH1E CH2E     538.35 {sd=     1.344}    110.1000
+ ANGLe  C    CH1E CH3E     863.74 {sd=     1.061}    110.5000
+ ANGLe  C    CH1E N        310.95 {sd=     1.768}    111.8000
+ ANGLe  C    CH1E NH1      247.89 {sd=     1.980}    111.2000
+ ANGLe  C    CH1E NH3      247.89 {sd=     1.980}    111.2000
+ ANGLe  C    CH2E CH1E    1943.42 {sd=     0.707}    112.6000
+ ANGLe  C    CH2E CH2E     672.47 {sd=     1.202}    112.6000
+ ANGLe  C    CH2G NH1      231.09 {sd=     2.051}    112.5000
+ ANGLe  C    CH2G NH3      231.09 {sd=     2.051}    112.5000
+ ANGLe  C    N    CH1E      77.74 {sd=     3.536}    122.6000
+ ANGLe  C    N    CH2P     115.61 {sd=     2.900}    125.0000
+ ANGLe  C    NC2  HC        35.00 {sd=     5.270}    120.0000
+ ANGLe  C    NH1  CH1E     599.82 {sd=     1.273}    121.7000
+ ANGLe  C    NH1  CH2E     863.74 {sd=     1.061}    124.2000
+ ANGLe  C    NH1  CH2G     672.47 {sd=     1.202}    120.6000
+ ANGLe  C    NH1  CH3E     672.47 {sd=     1.202}    120.6000
+ ANGLe  C    NH1  H         30.00 {sd=     5.692}    120.0000
+ ANGLe  C    NH2  H         30.00 {sd=     5.692}    120.0000
+ ANGLe  C    OH1  H         50.00 {sd=     4.409}    109.5000
+ ANGLe  C5   CH2E CH1E    1943.42 {sd=     0.707}    113.8000
+ ANGLe  C5   CR1E NH1     1943.42 {sd=     0.707}    106.5000
+ ANGLe  C5   CR1E NR       367.38 {sd=     1.627}    109.5000
+ ANGLe  C5   CR1H NH1     1943.42 {sd=     0.707}    107.2000
+ ANGLe  C5   NH1  CRH      672.47 {sd=     1.202}    109.0000
+ ANGLe  C5   NH1  CRHH     672.47 {sd=     1.202}    109.3000
+ ANGLe  C5   NH1  H         30.00 {sd=     5.692}    120.0000
+ ANGLe  C5   NR   CRH     1943.42 {sd=     0.707}    105.6000
+ ANGLe  C5W  CH2E CH1E     538.35 {sd=     1.344}    113.6000
+ ANGLe  C5W  CR1E NH1     1149.96 {sd=     0.919}    110.2000
+ ANGLe  C5W  CW   CR1E    1943.42 {sd=     0.707}    133.9000
+ ANGLe  C5W  CW   CW      1349.60 {sd=     0.849}    107.2000
+ ANGLe  C5W  NH1  H         30.00 {sd=     5.692}    120.0000
+ ANGLe  CF   CH2E CH1E    1943.42 {sd=     0.707}    113.8000
+ ANGLe  CF   CR1E CR1E     672.47 {sd=     1.202}    120.7000
+ ANGLe  CH1E C    N        863.74 {sd=     1.061}    116.9000
+ ANGLe  CH1E C    NH1      485.86 {sd=     1.414}    116.2000
+ ANGLe  CH1E C    O        672.47 {sd=     1.202}    120.8000
+ ANGLe  CH1E C    OC       310.95 {sd=     1.768}    117.0000
+ ANGLe  CH1E CH1E CH2E     672.47 {sd=     1.202}    110.4000
+ ANGLe  CH1E CH1E CH3E     672.47 {sd=     1.202}    110.5000
+ ANGLe  CH1E CH1E NH1      672.47 {sd=     1.202}    111.5000
+ ANGLe  CH1E CH1E NH3      672.47 {sd=     1.202}    111.5000
+ ANGLe  CH1E CH1E OH1      863.74 {sd=     1.061}    109.6000
+ ANGLe  CH1E CH2E CH1E     158.65 {sd=     2.475}    116.3000
+ ANGLe  CH1E CH2E CH2E     485.86 {sd=     1.414}    114.1000
+ ANGLe  CH1E CH2E CH2P     538.35 {sd=     1.344}    104.5000
+ ANGLe  CH1E CH2E CH3E     440.69 {sd=     1.485}    113.8000
+ ANGLe  CH1E CH2E CY       599.82 {sd=     1.273}    113.9000
+ ANGLe  CH1E CH2E OH1      485.86 {sd=     1.414}    111.1000
+ ANGLe  CH1E CH2E S        367.38 {sd=     1.627}    114.4000
+ ANGLe  CH1E CH2E SH1E     367.38 {sd=     1.627}    114.4000
+ ANGLe  CH1E N    CH2P     991.54 {sd=     0.990}    112.0000
+ ANGLe  CH1E NH1  H         35.00 {sd=     5.270}    120.0000
+ ANGLe  CH1E NH2  H         35.00 {sd=     5.270}    120.0000
+ ANGLe  CH1E NH3  CH2P     991.54 {sd=     0.990}    112.0000
+ ANGLe  CH1E NH3  HC        35.00 {sd=     5.270}    109.5000
+ ANGLe  CH1E OH1  H         35.00 {sd=     5.270}    109.5000
+ ANGLe  CH2E C    N        440.69 {sd=     1.485}    118.2000
+ ANGLe  CH2E C    NH1      440.69 {sd=     1.485}    116.5000
+ ANGLe  CH2E C    NH2      863.74 {sd=     1.061}    116.4000
+ ANGLe  CH2E C    O        485.86 {sd=     1.414}    120.8000
+ ANGLe  CH2E C    OC       367.38 {sd=     1.627}    118.4000
+ ANGLe  CH2E C5   CR1E    1149.96 {sd=     0.919}    129.1000
+ ANGLe  CH2E C5   CR1H    1149.96 {sd=     0.919}    131.2000
+ ANGLe  CH2E C5   NH1      863.74 {sd=     1.061}    122.7000
+ ANGLe  CH2E C5   NR       863.74 {sd=     1.061}    121.6000
+ ANGLe  CH2E C5W  CR1E     863.74 {sd=     1.061}    126.9000
+ ANGLe  CH2E C5W  CW       991.54 {sd=     0.990}    126.8000
+ ANGLe  CH2E CF   CR1E     672.47 {sd=     1.202}    120.7000
+ ANGLe  CH2E CH1E CH3E     215.94 {sd=     2.122}    110.7000
+ ANGLe  CH2E CH1E N       1606.14 {sd=     0.778}    103.0000
+ ANGLe  CH2E CH1E NH1      672.47 {sd=     1.202}    110.5000
+ ANGLe  CH2E CH1E NH3      672.47 {sd=     1.202}    110.5000
+ ANGLe  CH2E CH2E CH2E     367.38 {sd=     1.627}    111.3000
+ ANGLe  CH2E CH2E NH1      401.53 {sd=     1.556}    112.0000
+ ANGLe  CH2E CH2E NH3      189.79 {sd=     2.263}    111.9000
+ ANGLe  CH2E CH2E SE       215.94 {sd=     2.122}    112.7000
+ ANGLe  CH2E CH2E SM       215.94 {sd=     2.122}    112.7000
+ ANGLe  CH2E CH2P CH2P     189.79 {sd=     2.263}    106.1000
+ ANGLe  CH2E CY   CR1E     863.74 {sd=     1.061}    120.8000
+ ANGLe  CH2E NH1  H         35.00 {sd=     5.270}    120.0000
+ ANGLe  CH2E NH2  H         35.00 {sd=     5.270}    120.0000
+ ANGLe  CH2E NH3  CH3E      35.00 {sd=     5.270}    109.5000
+ ANGLe  CH2E NH3  HC        35.00 {sd=     5.270}    109.5000
+ ANGLe  CH2E OH1  H         35.00 {sd=     5.270}    109.5000
+ ANGLe  CH2E S    S        599.82 {sd=     1.273}    103.8000
+ ANGLe  CH2E SE   CH3E     400.00 {sd=     1.559}     98.9000
+ ANGLe  CH2E SM   CH3E     401.53 {sd=     1.556}    100.9000
+ ANGLe  CH2G C    N        440.69 {sd=     1.485}    118.2000
+ ANGLe  CH2G C    NH1      440.69 {sd=     1.485}    116.4000
+ ANGLe  CH2G C    O        440.69 {sd=     1.485}    120.8000
+ ANGLe  CH2G C    OC       367.38 {sd=     1.627}    118.4000
+ ANGLe  CH2G NH1  H         35.00 {sd=     5.270}    120.0000
+ ANGLe  CH2G NH3  HC        35.00 {sd=     5.270}    109.5000
+ ANGLe  CH2P CH2P N        863.74 {sd=     1.061}    103.2000
+ ANGLe  CH2P CH2P NH3      863.74 {sd=     1.061}    103.2000
+ ANGLe  CH2P NH3  HC       500.00 {sd=     1.394}    125.0000
+ ANGLe  CH3E CH1E CH3E     401.53 {sd=     1.556}    110.8000
+ ANGLe  CH3E CH1E NH1      863.74 {sd=     1.061}    110.4000
+ ANGLe  CH3E CH1E NH3      672.47 {sd=     1.202}    110.5000
+ ANGLe  CH3E CH1E OH1      485.86 {sd=     1.414}    109.3000
+ ANGLe  CH3E NH1  H         35.00 {sd=     5.270}    120.0000
+ ANGLe  CH3E NH3  CH3E      40.00 {sd=     4.930}    109.5000
+ ANGLe  CR1E C5   NH1     1943.42 {sd=     0.707}    105.2000
+ ANGLe  CR1E C5   NR      1943.42 {sd=     0.707}    109.2000
+ ANGLe  CR1E C5W  CW       759.15 {sd=     1.132}    106.3000
+ ANGLe  CR1E CF   CR1E     863.74 {sd=     1.061}    118.6000
+ ANGLe  CR1E CR1E CR1E     599.82 {sd=     1.273}    120.0000
+ ANGLe  CR1E CR1E CR1W    1149.96 {sd=     0.919}    121.1000
+ ANGLe  CR1E CR1E CW      1149.96 {sd=     0.919}    118.6000
+ ANGLe  CR1E CR1E CY       863.74 {sd=     1.061}    121.2000
+ ANGLe  CR1E CR1E CY2      599.82 {sd=     1.273}    119.6000
+ ANGLe  CR1E CR1W CR1W    1149.96 {sd=     0.919}    121.5000
+ ANGLe  CR1E CW   CW      1943.42 {sd=     0.707}    118.8000
+ ANGLe  CR1E CY   CR1E     863.74 {sd=     1.061}    118.1000
+ ANGLe  CR1E CY2  CR1E     485.86 {sd=     1.414}    120.3000
+ ANGLe  CR1E CY2  OH1      215.94 {sd=     2.122}    119.9000
+ ANGLe  CR1E NH1  CRH     1149.96 {sd=     0.919}    106.9000
+ ANGLe  CR1E NH1  CW       599.82 {sd=     1.273}    108.9000
+ ANGLe  CR1E NH1  H         35.00 {sd=     5.270}    120.0000
+ ANGLe  CR1E NR   CRH      215.94 {sd=     2.122}    107.0000
+ ANGLe  CR1H C5   NH1     1943.42 {sd=     0.707}    106.1000
+ ANGLe  CR1H NH1  CRHH    1943.42 {sd=     0.707}    109.0000
+ ANGLe  CR1H NH1  H         35.00 {sd=     5.270}    120.0000
+ ANGLe  CR1W CR1W CW      1149.96 {sd=     0.919}    117.5000
+ ANGLe  CR1W CW   CW      1943.42 {sd=     0.707}    122.4000
+ ANGLe  CR1W CW   NH1      863.74 {sd=     1.061}    130.1000
+ ANGLe  CRH  NH1  H         35.00 {sd=     5.270}    120.0000
+ ANGLe  CRHH NH1  H         35.00 {sd=     5.270}    120.0000
+ ANGLe  CW   CW   NH1     1149.96 {sd=     0.919}    107.4000
+ ANGLe  CW   NH1  H         30.00 {sd=     5.692}    120.0000
+ ANGLe  CY2  OH1  H         50.00 {sd=     4.409}    109.5000
+ ANGLe  H    NH2  H         40.00 {sd=     4.930}    125.0000
+ ANGLe  HC   NC2  HC        40.00 {sd=     4.930}    120.0000
+ ANGLe  HC   NH3  HC        40.00 {sd=     4.930}    109.5000
+ ANGLe  N    C    O        991.54 {sd=     0.990}    122.0000
+ ANGLe  NC2  C    NC2      599.82 {sd=     1.273}    119.7000
+ ANGLe  NC2  C    NH1      538.35 {sd=     1.344}    120.0000
+ ANGLe  NH1  C    O        759.15 {sd=     1.132}    123.0000
+ ANGLe  NH1  CRH  NR      1149.96 {sd=     0.919}    111.7000
+ ANGLe  NH1  CRHH NH1     1943.42 {sd=     0.707}    108.4000
+ ANGLe  NH2  C    O       1943.42 {sd=     0.707}    122.6000
+ ANGLe  OC   C    OC       337.40 {sd=     1.697}    122.9000
+
+ DIHEdral  C5W  CW   CW   CR1W      300.00 {sd=     1.800}    2    180.0000
+ DIHEdral  CH1E C    N    CH1E     1250.00 {sd=     0.882}    2    180.0000
+ DIHEdral  CH2E C    N    CH1E     1250.00 {sd=     0.882}    2    180.0000
+ DIHEdral  CH2G C    N    CH1E     1250.00 {sd=     0.882}    2    180.0000
+ DIHEdral  CR1E CW   CW   CR1E      300.00 {sd=     1.800}    2    180.0000
+ DIHEdral  CR1E CW   CW   CR1W      300.00 {sd=     1.800}    2    180.0000
+ DIHEdral  CR1E CW   CW   NH1       300.00 {sd=     1.800}    2    180.0000
+ DIHEdral  NC2  C    NH1  CH2E      300.00 {sd=     1.800}    2    180.0000
+ DIHEdral  X    C    CH1E X           0.00 {sd=999999.000}    3      0.0000
+ DIHEdral  X    C    CH2E X           0.00 {sd=999999.000}    3      0.0000
+ DIHEdral  X    C    CH2G X           0.00 {sd=999999.000}    3      0.0000
+ DIHEdral  X    C    CR1E X          30.00 {sd=     5.692}    2    180.0000
+ DIHEdral  X    C    N    X          24.60 {sd=     6.286}    2    180.0000
+ DIHEdral  X    C    NC2  X          24.60 {sd=     6.286}    2    180.0000
+ DIHEdral  X    C    NH1  X        1250.00 {sd=     0.882}    1      0.0000
+ DIHEdral  X    C    NH2  X          24.60 {sd=     6.286}    2    180.0000
+ DIHEdral  X    C5   CH2E X           0.00 {sd=999999.000}    3      0.0000
+ DIHEdral  X    C5W  CH2E X           0.00 {sd=999999.000}    3      0.0000
+ DIHEdral  X    CF   CH2E X           0.00 {sd=999999.000}    3      0.0000
+ DIHEdral  X    CH1E CH1E X           4.80 {sd=    14.230}    3      0.0000
+ DIHEdral  X    CH1E CH2E X           4.80 {sd=    14.230}    3      0.0000
+ DIHEdral  X    CH1E N    X           0.90 {sd=    32.864}    3      0.0000
+ DIHEdral  X    CH1E NH1  X           0.90 {sd=    32.864}    3      0.0000
+ DIHEdral  X    CH1E NH2  X           5.40 {sd=    13.416}    3      0.0000
+ DIHEdral  X    CH1E NH3  X           1.80 {sd=    23.238}    3      0.0000
+ DIHEdral  X    CH1E OH1  X           1.50 {sd=    25.456}    3      0.0000
+ DIHEdral  X    CH2E CH2E X           4.80 {sd=    14.230}    3      0.0000
+ DIHEdral  X    CH2E CH2P X           4.80 {sd=    14.230}    3      0.0000
+ DIHEdral  X    CH2E CY   X           0.00 {sd=999999.000}    3      0.0000
+ DIHEdral  X    CH2E N    X           0.90 {sd=    32.864}    3      0.0000
+ DIHEdral  X    CH2E NH1  X           0.90 {sd=    32.864}    3      0.0000
+ DIHEdral  X    CH2E NH2  X           1.80 {sd=    23.238}    3      0.0000
+ DIHEdral  X    CH2E NH3  X           1.80 {sd=    23.238}    3      0.0000
+ DIHEdral  X    CH2E OH1  X           1.50 {sd=    25.456}    3      0.0000
+ DIHEdral  X    CH2E S    X           3.60 {sd=    16.432}    2      0.0000
+ DIHEdral  X    CH2E SE   X           3.60 {sd=    16.432}    2      0.0000
+ DIHEdral  X    CH2E SM   X           3.60 {sd=    16.432}    2      0.0000
+ DIHEdral  X    CH2G NH1  X           0.90 {sd=    32.864}    3      0.0000
+ DIHEdral  X    CH2G NH3  X           1.80 {sd=    23.238}    3      0.0000
+ DIHEdral  X    CH2P CH2P X           4.80 {sd=    14.230}    3      0.0000
+ DIHEdral  X    CH2P N    X           0.90 {sd=    32.864}    3      0.0000
+ DIHEdral  X    CH2P NH3  X           0.90 {sd=    32.864}    3      0.0000
+ DIHEdral  X    CY2  OH1  X           5.40 {sd=    13.416}    2    180.0000
+ DIHEdral  X    S    S    X          12.00 {sd=     9.000}    2      0.0000
+
+ IMPRoper  C    C    CR1E CH2E      750.00 {sd=     1.138}    0      0.0000
+ IMPRoper  C    CH2P CH1E N         135.00 {sd=     2.683}    0      0.0000
+ IMPRoper  C    CR1E C    CH2E      750.00 {sd=     1.138}    0      0.0000
+ IMPRoper  C    CR1E CR1E CH2E      750.00 {sd=     1.138}    0      0.0000
+ IMPRoper  C    CR1E CR1E OH1       750.00 {sd=     1.138}    0      0.0000
+ IMPRoper  C    CR1E NH1  CH2E      750.00 {sd=     1.138}    0      0.0000
+ IMPRoper  C    H    H    NH2       135.00 {sd=     2.683}    0      0.0000
+ IMPRoper  C    OC   OC   CH1E      300.00 {sd=     1.800}    0      0.0000
+ IMPRoper  C    OC   OC   CH2E      300.00 {sd=     1.800}    0      0.0000
+ IMPRoper  C    X    X    C          75.00 {sd=     3.600}    0      0.0000
+ IMPRoper  C    X    X    CH2E      270.00 {sd=     1.897}    0      0.0000
+ IMPRoper  C    X    X    CH3E      270.00 {sd=     1.897}    0      0.0000
+ IMPRoper  C    X    X    CR1E      750.00 {sd=     1.138}    0      0.0000
+ IMPRoper  C    X    X    H         225.00 {sd=     2.078}    0      0.0000
+ IMPRoper  C    X    X    HA        225.00 {sd=     2.078}    0      0.0000
+ IMPRoper  C    X    X    NH1       300.00 {sd=     1.800}    0      0.0000
+ IMPRoper  C    X    X    O         300.00 {sd=     1.800}    0      0.0000
+ IMPRoper  C    X    X    OC        300.00 {sd=     1.800}    0      0.0000
+ IMPRoper  C    X    X    OH1       450.00 {sd=     1.470}    0      0.0000
+ IMPRoper  C5   NH1  CR1E CH2E      750.00 {sd=     1.138}    0      0.0000
+ IMPRoper  C5   NH1  CR1H CH2E      750.00 {sd=     1.138}    0      0.0000
+ IMPRoper  C5   NH1  CRHH CH2E      750.00 {sd=     1.138}    0      0.0000
+ IMPRoper  C5   X    X    CH2E      270.00 {sd=     1.897}    0      0.0000
+ IMPRoper  C5   X    X    CRH       750.00 {sd=     1.138}    0      0.0000
+ IMPRoper  C5   X    X    CRHH      750.00 {sd=     1.138}    0      0.0000
+ IMPRoper  C5   X    X    NH1       300.00 {sd=     1.800}    0      0.0000
+ IMPRoper  C5   X    X    NR         75.00 {sd=     3.600}    0      0.0000
+ IMPRoper  C5W  CR1E CW   CH2E      750.00 {sd=     1.138}    0      0.0000
+ IMPRoper  C5W  X    X    CW         75.00 {sd=     3.600}    0      0.0000
+ IMPRoper  C5W  X    X    NH1       300.00 {sd=     1.800}    0      0.0000
+ IMPRoper  CF   CR1E CR1E CH2E      750.00 {sd=     1.138}    0      0.0000
+ IMPRoper  CF   X    X    CR1E      750.00 {sd=     1.138}    0      0.0000
+ IMPRoper  CH1E X    X    CH1E      300.00 {sd=     1.800}    0     35.2644
+ IMPRoper  CH1E X    X    CH2E      300.00 {sd=     1.800}    0     35.2644
+ IMPRoper  CH1E X    X    CH3E      300.00 {sd=     1.800}    0     35.2644
+ IMPRoper  CH1E X    X    NH1       135.00 {sd=     2.683}    0      0.0000
+ IMPRoper  CH2E CR1E CR1E CY        750.00 {sd=     1.138}    0      0.0000
+ IMPRoper  CH2E X    X    N         135.00 {sd=     2.683}    0      0.0000
+ IMPRoper  CH2E X    X    NH1       135.00 {sd=     2.683}    0      0.0000
+ IMPRoper  CH3E X    X    NH1       135.00 {sd=     2.683}    0      0.0000
+ IMPRoper  CH3E X    X    NR         75.00 {sd=     3.600}    0      0.0000
+ IMPRoper  CR1E X    X    CR1E      750.00 {sd=     1.138}    0      0.0000
+ IMPRoper  CR1E X    X    CR1W      750.00 {sd=     1.138}    0      0.0000
+ IMPRoper  CR1E X    X    CRH       750.00 {sd=     1.138}    0      0.0000
+ IMPRoper  CR1E X    X    CW        750.00 {sd=     1.138}    0      0.0000
+ IMPRoper  CR1E X    X    NH1       750.00 {sd=     1.138}    0      0.0000
+ IMPRoper  CR1E X    X    NR        750.00 {sd=     1.138}    0      0.0000
+ IMPRoper  CR1H X    X    CRHH      750.00 {sd=     1.138}    0      0.0000
+ IMPRoper  CR1H X    X    NH1       750.00 {sd=     1.138}    0      0.0000
+ IMPRoper  CR1W X    X    CW        750.00 {sd=     1.138}    0      0.0000
+ IMPRoper  CT   X    X    N         135.00 {sd=     2.683}    0      0.0000
+ IMPRoper  CT   X    X    NC2       135.00 {sd=     2.683}    0      0.0000
+ IMPRoper  CT   X    X    NH1       135.00 {sd=     2.683}    0      0.0000
+ IMPRoper  CT   X    X    NR         75.00 {sd=     3.600}    0      0.0000
+ IMPRoper  CW   X    X    NH1       300.00 {sd=     1.800}    0      0.0000
+ IMPRoper  CY   X    X    CY2        75.00 {sd=     3.600}    0      0.0000
+ IMPRoper  CY2  CR1E CR1E OH1       750.00 {sd=     1.138}    0      0.0000
+ IMPRoper  H    X    X    NH1       135.00 {sd=     2.683}    0      0.0000
+ IMPRoper  H    X    X    NH2       135.00 {sd=     2.683}    0      0.0000
+ IMPRoper  H    X    X    O         135.00 {sd=     2.683}    0      0.0000
+ IMPRoper  HC   NC2  C    NH1       135.00 {sd=     2.683}    0      0.0000
+ IMPRoper  HC   X    X    NC2       135.00 {sd=     2.683}    0      0.0000
+ IMPRoper  NH1  X    X    NH1        75.00 {sd=     3.600}    0      0.0000
+ IMPRoper  NH1  X    X    NR         75.00 {sd=     3.600}    0      0.0000
+
+ !                  eps     sigma       eps(1:4) sigma(1:4)
+ NONBonded  H       0.0498   1.4254      0.0498   1.4254
+ NONBonded  HA      0.0450   2.6157      0.0450   2.6157
+ NONBonded  HC      0.0498   1.0691      0.0498   1.0691
+ NONBonded  C       0.1200   3.7418      0.1000   3.3854
+ NONBonded  C5      0.1200   3.7418      0.1000   3.3854
+ NONBonded  C5W     0.1200   3.7418      0.1000   3.3854
+ NONBonded  CF      0.1200   3.7418      0.1000   3.3854
+ NONBonded  CW      0.1200   3.7418      0.1000   3.3854
+ NONBonded  CY      0.1200   3.7418      0.1000   3.3854
+ NONBonded  CY2     0.1200   3.7418      0.1000   3.3854
+ NONBonded  CH1E    0.0486   4.2140      0.1000   3.3854
+ NONBonded  CH2E    0.1142   3.9823      0.1000   3.3854
+ NONBonded  CH2G    0.1142   3.9823      0.1000   3.3854
+ NONBonded  CH2P    0.1142   3.9823      0.1000   3.3854
+ NONBonded  CH3E    0.1811   3.8576      0.1000   3.3854
+ NONBonded  CR1E    0.1200   3.7418      0.1000   3.3854
+ NONBonded  CR1H    0.1200   3.7418      0.1000   3.3854
+ NONBonded  CR1W    0.1200   3.7418      0.1000   3.3854
+ NONBonded  CRHH    0.1200   3.7418      0.1000   3.3854
+ NONBonded  CRH     0.1200   3.7418      0.1000   3.3854
+ NONBonded  N       0.2384   2.8509      0.2384   2.8509
+ NONBonded  NC2     0.2384   2.8509      0.2384   2.8509
+ NONBonded  NH1     0.2384   2.8509      0.2384   2.8509
+ NONBonded  NH2     0.2384   2.8509      0.2384   2.8509
+ NONBonded  NH3     0.2384   2.8509      0.2384   2.8509
+ NONBonded  NP      0.2384   2.8509      0.2384   2.8509
+ NONBonded  NR      0.2384   2.8509      0.2384   2.8509
+ NONBonded  O       0.1591   2.8509      0.1591   2.8509
+ NONBonded  OC      0.6469   2.8509      0.6469   2.8509
+ NONBonded  OH1     0.1591   2.8509      0.1591   2.8509
+ NONBonded  S       0.0430   3.3676      0.0430   3.3676
+ NONBonded  SM      0.0430   3.3676      0.0430   3.3676
+ NONBonded  SH1E    0.0430   3.3676      0.0430   3.3676
+ NONBonded  SE      0.0430   3.5100      0.0430   3.5100
+
+ Listing of all atom-based (F) and type-based (T) parameters.
+
+ BOND (ATOM TRYP 1    N   ) (ATOM TRYP 1    CA  )   1342.404T      1.491T
+ BOND (ATOM TRYP 1    CA  ) (ATOM TRYP 1    C   )   1342.404T      1.525T
+ BOND (ATOM TRYP 1    C   ) (ATOM TRYP 1    O   )   1639.889T      1.249T
+ BOND (ATOM TRYP 1    CA  ) (ATOM TRYP 1    CB  )   1480.000T      1.530T
+ BOND (ATOM TRYP 1    CB  ) (ATOM TRYP 1    CG  )    616.025T      1.498T
+ BOND (ATOM TRYP 1    CG  ) (ATOM TRYP 1    CD1 )    947.200T      1.365T
+ BOND (ATOM TRYP 1    CG  ) (ATOM TRYP 1    CD2 )   1827.161T      1.433T
+ BOND (ATOM TRYP 1    CD1 ) (ATOM TRYP 1    NE1 )   1342.404T      1.374T
+ BOND (ATOM TRYP 1    CD2 ) (ATOM TRYP 1    CE2 )   2048.443T      1.409T
+ BOND (ATOM TRYP 1    NE1 ) (ATOM TRYP 1    HE1 )    405.000T      0.980T
+ BOND (ATOM TRYP 1    NE1 ) (ATOM TRYP 1    CE2 )   4892.562T      1.370T
+ BOND (ATOM TRYP 1    CD2 ) (ATOM TRYP 1    CE3 )   2312.500T      1.398T
+ BOND (ATOM TRYP 1    CE2 ) (ATOM TRYP 1    CZ2 )   1342.404T      1.394T
+ BOND (ATOM TRYP 1    CE3 ) (ATOM TRYP 1    CZ3 )    657.778T      1.382T
+ BOND (ATOM TRYP 1    CZ2 ) (ATOM TRYP 1    CH2 )   1639.889T      1.368T
+ BOND (ATOM TRYP 1    CZ3 ) (ATOM TRYP 1    CH2 )    947.200T      1.400T
+ BOND (ATOM TRYP 1    HT1 ) (ATOM TRYP 1    N   )    405.000T      1.040T
+ BOND (ATOM TRYP 1    HT2 ) (ATOM TRYP 1    N   )    405.000T      1.040T
+ BOND (ATOM TRYP 1    HT3 ) (ATOM TRYP 1    N   )    405.000T      1.040T
+ BOND (ATOM TRYP 1    C   ) (ATOM TRYP 1    OXT )   1639.889T      1.249T
+
+ ANGL (ATOM TRYP 1    N   ) (ATOM TRYP 1    CA  ) 
+                            (ATOM TRYP 1    C   )    247.886T    111.200T  UB      0.000T       0.000T
+ ANGL (ATOM TRYP 1    N   ) (ATOM TRYP 1    CA  ) 
+                            (ATOM TRYP 1    CB  )    672.465T    110.500T  UB      0.000T       0.000T
+ ANGL (ATOM TRYP 1    CA  ) (ATOM TRYP 1    C   ) 
+                            (ATOM TRYP 1    O   )    310.948T    117.000T  UB      0.000T       0.000T
+ ANGL (ATOM TRYP 1    C   ) (ATOM TRYP 1    CA  ) 
+                            (ATOM TRYP 1    CB  )    538.345T    110.100T  UB      0.000T       0.000T
+ ANGL (ATOM TRYP 1    CA  ) (ATOM TRYP 1    CB  ) 
+                            (ATOM TRYP 1    CG  )    538.345T    113.600T  UB      0.000T       0.000T
+ ANGL (ATOM TRYP 1    CB  ) (ATOM TRYP 1    CG  ) 
+                            (ATOM TRYP 1    CD1 )    863.744T    126.900T  UB      0.000T       0.000T
+ ANGL (ATOM TRYP 1    CB  ) (ATOM TRYP 1    CG  ) 
+                            (ATOM TRYP 1    CD2 )    991.543T    126.800T  UB      0.000T       0.000T
+ ANGL (ATOM TRYP 1    CD1 ) (ATOM TRYP 1    CG  ) 
+                            (ATOM TRYP 1    CD2 )    759.150T    106.300T  UB      0.000T       0.000T
+ ANGL (ATOM TRYP 1    CG  ) (ATOM TRYP 1    CD1 ) 
+                            (ATOM TRYP 1    NE1 )   1149.956T    110.200T  UB      0.000T       0.000T
+ ANGL (ATOM TRYP 1    CG  ) (ATOM TRYP 1    CD2 ) 
+                            (ATOM TRYP 1    CE2 )   1349.600T    107.200T  UB      0.000T       0.000T
+ ANGL (ATOM TRYP 1    CG  ) (ATOM TRYP 1    CD2 ) 
+                            (ATOM TRYP 1    CE3 )   1943.424T    133.900T  UB      0.000T       0.000T
+ ANGL (ATOM TRYP 1    CD1 ) (ATOM TRYP 1    NE1 ) 
+                            (ATOM TRYP 1    HE1 )     35.000T    120.000T  UB      0.000T       0.000T
+ ANGL (ATOM TRYP 1    CD1 ) (ATOM TRYP 1    NE1 ) 
+                            (ATOM TRYP 1    CE2 )    599.823T    108.900T  UB      0.000T       0.000T
+ ANGL (ATOM TRYP 1    CD2 ) (ATOM TRYP 1    CE2 ) 
+                            (ATOM TRYP 1    NE1 )   1149.956T    107.400T  UB      0.000T       0.000T
+ ANGL (ATOM TRYP 1    CE2 ) (ATOM TRYP 1    CD2 ) 
+                            (ATOM TRYP 1    CE3 )   1943.424T    118.800T  UB      0.000T       0.000T
+ ANGL (ATOM TRYP 1    CD2 ) (ATOM TRYP 1    CE2 ) 
+                            (ATOM TRYP 1    CZ2 )   1943.424T    122.400T  UB      0.000T       0.000T
+ ANGL (ATOM TRYP 1    HE1 ) (ATOM TRYP 1    NE1 ) 
+                            (ATOM TRYP 1    CE2 )     30.000T    120.000T  UB      0.000T       0.000T
+ ANGL (ATOM TRYP 1    NE1 ) (ATOM TRYP 1    CE2 ) 
+                            (ATOM TRYP 1    CZ2 )    863.744T    130.100T  UB      0.000T       0.000T
+ ANGL (ATOM TRYP 1    CD2 ) (ATOM TRYP 1    CE3 ) 
+                            (ATOM TRYP 1    CZ3 )   1149.956T    118.600T  UB      0.000T       0.000T
+ ANGL (ATOM TRYP 1    CE2 ) (ATOM TRYP 1    CZ2 ) 
+                            (ATOM TRYP 1    CH2 )   1149.956T    117.500T  UB      0.000T       0.000T
+ ANGL (ATOM TRYP 1    CE3 ) (ATOM TRYP 1    CZ3 ) 
+                            (ATOM TRYP 1    CH2 )   1149.956T    121.100T  UB      0.000T       0.000T
+ ANGL (ATOM TRYP 1    CZ2 ) (ATOM TRYP 1    CH2 ) 
+                            (ATOM TRYP 1    CZ3 )   1149.956T    121.500T  UB      0.000T       0.000T
+ ANGL (ATOM TRYP 1    HT1 ) (ATOM TRYP 1    N   ) 
+                            (ATOM TRYP 1    HT2 )     40.000T    109.500T  UB      0.000T       0.000T
+ ANGL (ATOM TRYP 1    HT2 ) (ATOM TRYP 1    N   ) 
+                            (ATOM TRYP 1    HT3 )     40.000T    109.500T  UB      0.000T       0.000T
+ ANGL (ATOM TRYP 1    HT2 ) (ATOM TRYP 1    N   ) 
+                            (ATOM TRYP 1    CA  )     35.000T    109.500T  UB      0.000T       0.000T
+ ANGL (ATOM TRYP 1    HT1 ) (ATOM TRYP 1    N   ) 
+                            (ATOM TRYP 1    HT3 )     40.000T    109.500T  UB      0.000T       0.000T
+ ANGL (ATOM TRYP 1    HT1 ) (ATOM TRYP 1    N   ) 
+                            (ATOM TRYP 1    CA  )     35.000T    109.500T  UB      0.000T       0.000T
+ ANGL (ATOM TRYP 1    HT3 ) (ATOM TRYP 1    N   ) 
+                            (ATOM TRYP 1    CA  )     35.000T    109.500T  UB      0.000T       0.000T
+ ANGL (ATOM TRYP 1    CA  ) (ATOM TRYP 1    C   ) 
+                            (ATOM TRYP 1    OXT )    310.948T    117.000T  UB      0.000T       0.000T
+ ANGL (ATOM TRYP 1    O   ) (ATOM TRYP 1    C   ) 
+                            (ATOM TRYP 1    OXT )    337.400T    122.900T  UB      0.000T       0.000T
+
+ DIHE (ATOM TRYP 1    N   ) (ATOM TRYP 1    CA  ) 
+      (ATOM TRYP 1    CB  ) (ATOM TRYP 1    CG  )       MULT   1
+                                                        4.80T   3T       0.00T
+ DIHE (ATOM TRYP 1    CA  ) (ATOM TRYP 1    CB  ) 
+      (ATOM TRYP 1    CG  ) (ATOM TRYP 1    CD1 )       MULT   1
+                                                        0.00T   3T       0.00T
+ DIHE (ATOM TRYP 1    CD1 ) (ATOM TRYP 1    CE2 ) 
+      (ATOM TRYP 1    CD2 ) (ATOM TRYP 1    CZ3 )       MULT   1
+                                                      300.00T   2T     180.00T
+ DIHE (ATOM TRYP 1    CD1 ) (ATOM TRYP 1    CD2 ) 
+      (ATOM TRYP 1    CE2 ) (ATOM TRYP 1    CH2 )       MULT   1
+                                                      300.00T   2T     180.00T
+ DIHE (ATOM TRYP 1    CZ2 ) (ATOM TRYP 1    CE2 ) 
+      (ATOM TRYP 1    CD2 ) (ATOM TRYP 1    CG  )       MULT   1
+                                                      300.00T   2T     180.00T
+ DIHE (ATOM TRYP 1    CE3 ) (ATOM TRYP 1    CD2 ) 
+      (ATOM TRYP 1    CE2 ) (ATOM TRYP 1    NE1 )       MULT   1
+                                                      300.00T   2T     180.00T
+ DIHE (ATOM TRYP 1    HT2 ) (ATOM TRYP 1    N   ) 
+      (ATOM TRYP 1    CA  ) (ATOM TRYP 1    C   )       MULT   1
+                                                        1.80T   3T       0.00T
+ DIHE (ATOM TRYP 1    HT1 ) (ATOM TRYP 1    N   ) 
+      (ATOM TRYP 1    CA  ) (ATOM TRYP 1    C   )       MULT   1
+                                                        1.80T   3T       0.00T
+ DIHE (ATOM TRYP 1    HT3 ) (ATOM TRYP 1    N   ) 
+      (ATOM TRYP 1    CA  ) (ATOM TRYP 1    C   )       MULT   1
+                                                        1.80T   3T       0.00T
+ DIHE (ATOM TRYP 1    N   ) (ATOM TRYP 1    CA  ) 
+      (ATOM TRYP 1    C   ) (ATOM TRYP 1    OXT )       MULT   1
+                                                        0.00T   3T       0.00T
+
+ IMPR (ATOM TRYP 1    CA  ) (ATOM TRYP 1    N   ) 
+      (ATOM TRYP 1    C   ) (ATOM TRYP 1    CB  )       MULT   1
+                                                      300.00T   0T      35.26T
+ IMPR (ATOM TRYP 1    CG  ) (ATOM TRYP 1    CD1 ) 
+      (ATOM TRYP 1    CD2 ) (ATOM TRYP 1    CB  )       MULT   1
+                                                      750.00T   0T       0.00T
+ IMPR (ATOM TRYP 1    NE1 ) (ATOM TRYP 1    CD1 ) 
+      (ATOM TRYP 1    CE2 ) (ATOM TRYP 1    HE1 )       MULT   1
+                                                      135.00T   0T       0.00T
+ IMPR (ATOM TRYP 1    CD2 ) (ATOM TRYP 1    CE2 ) 
+      (ATOM TRYP 1    CZ2 ) (ATOM TRYP 1    CH2 )       MULT   1
+                                                      750.00T   0T       0.00T
+ IMPR (ATOM TRYP 1    CE2 ) (ATOM TRYP 1    CZ2 ) 
+      (ATOM TRYP 1    CH2 ) (ATOM TRYP 1    CZ3 )       MULT   1
+                                                      750.00T   0T       0.00T
+ IMPR (ATOM TRYP 1    CZ2 ) (ATOM TRYP 1    CH2 ) 
+      (ATOM TRYP 1    CZ3 ) (ATOM TRYP 1    CE3 )       MULT   1
+                                                      750.00T   0T       0.00T
+ IMPR (ATOM TRYP 1    CH2 ) (ATOM TRYP 1    CZ3 ) 
+      (ATOM TRYP 1    CE3 ) (ATOM TRYP 1    CD2 )       MULT   1
+                                                      750.00T   0T       0.00T
+ IMPR (ATOM TRYP 1    CZ3 ) (ATOM TRYP 1    CE3 ) 
+      (ATOM TRYP 1    CD2 ) (ATOM TRYP 1    CE2 )       MULT   1
+                                                      750.00T   0T       0.00T
+ IMPR (ATOM TRYP 1    CE3 ) (ATOM TRYP 1    CD2 ) 
+      (ATOM TRYP 1    CE2 ) (ATOM TRYP 1    CZ2 )       MULT   1
+                                                      750.00T   0T       0.00T
+ IMPR (ATOM TRYP 1    CG  ) (ATOM TRYP 1    CD1 ) 
+      (ATOM TRYP 1    NE1 ) (ATOM TRYP 1    CE2 )       MULT   1
+                                                       75.00T   0T       0.00T
+ IMPR (ATOM TRYP 1    CD1 ) (ATOM TRYP 1    NE1 ) 
+      (ATOM TRYP 1    CE2 ) (ATOM TRYP 1    CD2 )       MULT   1
+                                                      750.00T   0T       0.00T
+ IMPR (ATOM TRYP 1    NE1 ) (ATOM TRYP 1    CE2 ) 
+      (ATOM TRYP 1    CD2 ) (ATOM TRYP 1    CG  )       MULT   1
+                                                      300.00T   0T       0.00T
+ IMPR (ATOM TRYP 1    CE2 ) (ATOM TRYP 1    CD2 ) 
+      (ATOM TRYP 1    CG  ) (ATOM TRYP 1    CD1 )       MULT   1
+                                                      750.00T   0T       0.00T
+ IMPR (ATOM TRYP 1    CD2 ) (ATOM TRYP 1    CG  ) 
+      (ATOM TRYP 1    CD1 ) (ATOM TRYP 1    NE1 )       MULT   1
+                                                      300.00T   0T       0.00T
+ IMPR (ATOM TRYP 1    C   ) (ATOM TRYP 1    CA  ) 
+      (ATOM TRYP 1    OXT ) (ATOM TRYP 1    O   )       MULT   1
+                                                      300.00T   0T       0.00T
+
+ !         slot      eps     sigma       eps(1:4) sigma(1:4)
+
+ TYPE-based parameters
+ NONBonded      1    0.0498   1.4254      0.0498   1.4254
+ NONBonded      2    0.0450   2.6157      0.0450   2.6157
+ NONBonded      3    0.0498   1.0691      0.0498   1.0691
+ NONBonded      4    0.1200   3.7418      0.1000   3.3854
+ NONBonded      5    0.1200   3.7418      0.1000   3.3854
+ NONBonded      6    0.1200   3.7418      0.1000   3.3854
+ NONBonded      7    0.1200   3.7418      0.1000   3.3854
+ NONBonded      8    0.1200   3.7418      0.1000   3.3854
+ NONBonded      9    0.1200   3.7418      0.1000   3.3854
+ NONBonded     10    0.1200   3.7418      0.1000   3.3854
+ NONBonded     11    0.0486   4.2140      0.1000   3.3854
+ NONBonded     12    0.1142   3.9823      0.1000   3.3854
+ NONBonded     13    0.1142   3.9823      0.1000   3.3854
+ NONBonded     14    0.1142   3.9823      0.1000   3.3854
+ NONBonded     15    0.1811   3.8576      0.1000   3.3854
+ NONBonded     16    0.1200   3.7418      0.1000   3.3854
+ NONBonded     17    0.1200   3.7418      0.1000   3.3854
+ NONBonded     18    0.1200   3.7418      0.1000   3.3854
+ NONBonded     19    0.1200   3.7418      0.1000   3.3854
+ NONBonded     20    0.1200   3.7418      0.1000   3.3854
+ NONBonded     21    0.2384   2.8509      0.2384   2.8509
+ NONBonded     22    0.2384   2.8509      0.2384   2.8509
+ NONBonded     23    0.2384   2.8509      0.2384   2.8509
+ NONBonded     24    0.2384   2.8509      0.2384   2.8509
+ NONBonded     25    0.2384   2.8509      0.2384   2.8509
+ NONBonded     26    0.2384   2.8509      0.2384   2.8509
+ NONBonded     27    0.2384   2.8509      0.2384   2.8509
+ NONBonded     28    0.1591   2.8509      0.1591   2.8509
+ NONBonded     29    0.6469   2.8509      0.6469   2.8509
+ NONBonded     30    0.1591   2.8509      0.1591   2.8509
+ NONBonded     31    0.0430   3.3676      0.0430   3.3676
+ NONBonded     32    0.0430   3.3676      0.0430   3.3676
+ NONBonded     33    0.0430   3.3676      0.0430   3.3676
+ NONBonded     34    0.0430   3.5100      0.0430   3.5100
+
+ ATOM-based parameters
+
+
+ Atom-selections
+   TRYP 1    HE1      slot=    1
+   TRYP 1    HT1      slot=    3
+   TRYP 1    HT2      slot=    3
+   TRYP 1    HT3      slot=    3
+   TRYP 1    C        slot=    4
+   TRYP 1    CG       slot=    6
+   TRYP 1    CD2      slot=    8
+   TRYP 1    CE2      slot=    8
+   TRYP 1    CA       slot=   11
+   TRYP 1    CB       slot=   12
+   TRYP 1    CE3      slot=   16
+   TRYP 1    CD1      slot=   16
+   TRYP 1    CZ3      slot=   16
+   TRYP 1    CZ2      slot=   18
+   TRYP 1    CH2      slot=   18
+   TRYP 1    NE1      slot=   23
+   TRYP 1    N        slot=   25
+   TRYP 1    O        slot=   29
+   TRYP 1    OXT      slot=   29
+ CNSsolve>set message=off end 
+ CNSsolve> 
+ CNSsolve>energy end 
+ NBONDS: generating intra-molecular exclusion list with mode= 5
+ MAKINB: mode   5 found     50 exclusions and     29 interactions(1-4)
+ NBONDS: found       92 intra-atom interactions
+ --------------- cycle=     1 --------------------------------------------------
+ | Etotal =77.632     grad(E)=216.893    E(BOND)=40.681     E(ANGL)=55.851     |
+ | E(DIHE)=10.798     E(IMPR)=20.775     E(VDW )=6.841      E(ELEC)=-57.313    |
+ -------------------------------------------------------------------------------
+ CNSsolve> 
+ CNSsolve>!------------------------------------------- 
+ CNSsolve>! learn parameters from modified coordinates 
+ CNSsolve>!------------------------------------------- 
+ CNSsolve> 
+ CNSsolve>evaluate ($begin=10) 
+ CNSsolve>evaluate ($skip=10) 
+ CNSsolve>evaluate ($stop=500) 
+ CNSsolve> 
+ CNSsolve>set seed=123 end 
+ CNSsolve>coor copy end 
+ CNSsolve> 
+ CNSsolve>do (x=xcomp+random(0.02)) ( all ) 
+ CNSsolve>do (y=ycomp+random(0.02)) ( all ) 
+ CNSsolve>do (z=zcomp+random(0.02)) ( all ) 
+ CNSsolve> 
+ CNSsolve>evaluate ($nframe=1) 
+ CNSsolve>while ($nframe < 50) loop lframe 
+ CNSsolve>   do (x=xcomp+random(0.02)) ( all ) 
+ CNSsolve>   do (y=ycomp+random(0.02)) ( all ) 
+ CNSsolve>   do (z=zcomp+random(0.02)) ( all ) 
+ CNSsolve>   evaluate ($filename="param2_"+encode($nframe)+".dat") 
+ CNSsolve>   write coor output=$filename end 
+ CNSsolve>   evaluate ($nframe=$nframe+1) 
+ CNSsolve>end loop lframe 
+ CNSsolve>while ($nframe < 50) loop lframe 
+ CNSsolve>   do (x=xcomp+random(0.02)) ( all ) 
+ CNSsolve>   do (y=ycomp+random(0.02)) ( all ) 
+ CNSsolve>   do (z=zcomp+random(0.02)) ( all ) 
+ CNSsolve>   evaluate ($filename="param2_"+encode($nframe)+".dat") 
+ CNSsolve>   write coor output=$filename end 
+ CNSsolve>   evaluate ($nframe=$nframe+1) 
+ CNSsolve>end loop lframe 
+ CNSsolve>while ($nframe < 50) loop lframe 
+ CNSsolve>   do (x=xcomp+random(0.02)) ( all ) 
+ CNSsolve>   do (y=ycomp+random(0.02)) ( all ) 
+ CNSsolve>   do (z=zcomp+random(0.02)) ( all ) 
+ CNSsolve>   evaluate ($filename="param2_"+encode($nframe)+".dat") 
+ CNSsolve>   write coor output=$filename end 
+ CNSsolve>   evaluate ($nframe=$nframe+1) 
+ CNSsolve>end loop lframe 
+ CNSsolve>while ($nframe < 50) loop lframe 
+ CNSsolve>   do (x=xcomp+random(0.02)) ( all ) 
+ CNSsolve>   do (y=ycomp+random(0.02)) ( all ) 
+ CNSsolve>   do (z=zcomp+random(0.02)) ( all ) 
+ CNSsolve>   evaluate ($filename="param2_"+encode($nframe)+".dat") 
+ CNSsolve>   write coor output=$filename end 
+ CNSsolve>   evaluate ($nframe=$nframe+1) 
+ CNSsolve>end loop lframe 
+ CNSsolve>while ($nframe < 50) loop lframe 
+ CNSsolve>   do (x=xcomp+random(0.02)) ( all ) 
+ CNSsolve>   do (y=ycomp+random(0.02)) ( all ) 
+ CNSsolve>   do (z=zcomp+random(0.02)) ( all ) 
+ CNSsolve>   evaluate ($filename="param2_"+encode($nframe)+".dat") 
+ CNSsolve>   write coor output=$filename end 
+ CNSsolve>   evaluate ($nframe=$nframe+1) 
+ CNSsolve>end loop lframe 
+ CNSsolve>while ($nframe < 50) loop lframe 
+ CNSsolve>   do (x=xcomp+random(0.02)) ( all ) 
+ CNSsolve>   do (y=ycomp+random(0.02)) ( all ) 
+ CNSsolve>   do (z=zcomp+random(0.02)) ( all ) 
+ CNSsolve>   evaluate ($filename="param2_"+encode($nframe)+".dat") 
+ CNSsolve>   write coor output=$filename end 
+ CNSsolve>   evaluate ($nframe=$nframe+1) 
+ CNSsolve>end loop lframe 
+ CNSsolve>while ($nframe < 50) loop lframe 
+ CNSsolve>   do (x=xcomp+random(0.02)) ( all ) 
+ CNSsolve>   do (y=ycomp+random(0.02)) ( all ) 
+ CNSsolve>   do (z=zcomp+random(0.02)) ( all ) 
+ CNSsolve>   evaluate ($filename="param2_"+encode($nframe)+".dat") 
+ CNSsolve>   write coor output=$filename end 
+ CNSsolve>   evaluate ($nframe=$nframe+1) 
+ CNSsolve>end loop lframe 
+ CNSsolve>while ($nframe < 50) loop lframe 
+ CNSsolve>   do (x=xcomp+random(0.02)) ( all ) 
+ CNSsolve>   do (y=ycomp+random(0.02)) ( all ) 
+ CNSsolve>   do (z=zcomp+random(0.02)) ( all ) 
+ CNSsolve>   evaluate ($filename="param2_"+encode($nframe)+".dat") 
+ CNSsolve>   write coor output=$filename end 
+ CNSsolve>   evaluate ($nframe=$nframe+1) 
+ CNSsolve>end loop lframe 
+ CNSsolve>while ($nframe < 50) loop lframe 
+ CNSsolve>   do (x=xcomp+random(0.02)) ( all ) 
+ CNSsolve>   do (y=ycomp+random(0.02)) ( all ) 
+ CNSsolve>   do (z=zcomp+random(0.02)) ( all ) 
+ CNSsolve>   evaluate ($filename="param2_"+encode($nframe)+".dat") 
+ CNSsolve>   write coor output=$filename end 
+ CNSsolve>   evaluate ($nframe=$nframe+1) 
+ CNSsolve>end loop lframe 
+ CNSsolve>while ($nframe < 50) loop lframe 
+ CNSsolve>   do (x=xcomp+random(0.02)) ( all ) 
+ CNSsolve>   do (y=ycomp+random(0.02)) ( all ) 
+ CNSsolve>   do (z=zcomp+random(0.02)) ( all ) 
+ CNSsolve>   evaluate ($filename="param2_"+encode($nframe)+".dat") 
+ CNSsolve>   write coor output=$filename end 
+ CNSsolve>   evaluate ($nframe=$nframe+1) 
+ CNSsolve>end loop lframe 
+ CNSsolve>while ($nframe < 50) loop lframe 
+ CNSsolve>   do (x=xcomp+random(0.02)) ( all ) 
+ CNSsolve>   do (y=ycomp+random(0.02)) ( all ) 
+ CNSsolve>   do (z=zcomp+random(0.02)) ( all ) 
+ CNSsolve>   evaluate ($filename="param2_"+encode($nframe)+".dat") 
+ CNSsolve>   write coor output=$filename end 
+ CNSsolve>   evaluate ($nframe=$nframe+1) 
+ CNSsolve>end loop lframe 
+ CNSsolve>while ($nframe < 50) loop lframe 
+ CNSsolve>   do (x=xcomp+random(0.02)) ( all ) 
+ CNSsolve>   do (y=ycomp+random(0.02)) ( all ) 
+ CNSsolve>   do (z=zcomp+random(0.02)) ( all ) 
+ CNSsolve>   evaluate ($filename="param2_"+encode($nframe)+".dat") 
+ CNSsolve>   write coor output=$filename end 
+ CNSsolve>   evaluate ($nframe=$nframe+1) 
+ CNSsolve>end loop lframe 
+ CNSsolve>while ($nframe < 50) loop lframe 
+ CNSsolve>   do (x=xcomp+random(0.02)) ( all ) 
+ CNSsolve>   do (y=ycomp+random(0.02)) ( all ) 
+ CNSsolve>   do (z=zcomp+random(0.02)) ( all ) 
+ CNSsolve>   evaluate ($filename="param2_"+encode($nframe)+".dat") 
+ CNSsolve>   write coor output=$filename end 
+ CNSsolve>   evaluate ($nframe=$nframe+1) 
+ CNSsolve>end loop lframe 
+ CNSsolve>while ($nframe < 50) loop lframe 
+ CNSsolve>   do (x=xcomp+random(0.02)) ( all ) 
+ CNSsolve>   do (y=ycomp+random(0.02)) ( all ) 
+ CNSsolve>   do (z=zcomp+random(0.02)) ( all ) 
+ CNSsolve>   evaluate ($filename="param2_"+encode($nframe)+".dat") 
+ CNSsolve>   write coor output=$filename end 
+ CNSsolve>   evaluate ($nframe=$nframe+1) 
+ CNSsolve>end loop lframe 
+ CNSsolve>while ($nframe < 50) loop lframe 
+ CNSsolve>   do (x=xcomp+random(0.02)) ( all ) 
+ CNSsolve>   do (y=ycomp+random(0.02)) ( all ) 
+ CNSsolve>   do (z=zcomp+random(0.02)) ( all ) 
+ CNSsolve>   evaluate ($filename="param2_"+encode($nframe)+".dat") 
+ CNSsolve>   write coor output=$filename end 
+ CNSsolve>   evaluate ($nframe=$nframe+1) 
+ CNSsolve>end loop lframe 
+ CNSsolve>while ($nframe < 50) loop lframe 
+ CNSsolve>   do (x=xcomp+random(0.02)) ( all ) 
+ CNSsolve>   do (y=ycomp+random(0.02)) ( all ) 
+ CNSsolve>   do (z=zcomp+random(0.02)) ( all ) 
+ CNSsolve>   evaluate ($filename="param2_"+encode($nframe)+".dat") 
+ CNSsolve>   write coor output=$filename end 
+ CNSsolve>   evaluate ($nframe=$nframe+1) 
+ CNSsolve>end loop lframe 
+ CNSsolve>while ($nframe < 50) loop lframe 
+ CNSsolve>   do (x=xcomp+random(0.02)) ( all ) 
+ CNSsolve>   do (y=ycomp+random(0.02)) ( all ) 
+ CNSsolve>   do (z=zcomp+random(0.02)) ( all ) 
+ CNSsolve>   evaluate ($filename="param2_"+encode($nframe)+".dat") 
+ CNSsolve>   write coor output=$filename end 
+ CNSsolve>   evaluate ($nframe=$nframe+1) 
+ CNSsolve>end loop lframe 
+ CNSsolve>while ($nframe < 50) loop lframe 
+ CNSsolve>   do (x=xcomp+random(0.02)) ( all ) 
+ CNSsolve>   do (y=ycomp+random(0.02)) ( all ) 
+ CNSsolve>   do (z=zcomp+random(0.02)) ( all ) 
+ CNSsolve>   evaluate ($filename="param2_"+encode($nframe)+".dat") 
+ CNSsolve>   write coor output=$filename end 
+ CNSsolve>   evaluate ($nframe=$nframe+1) 
+ CNSsolve>end loop lframe 
+ CNSsolve>while ($nframe < 50) loop lframe 
+ CNSsolve>   do (x=xcomp+random(0.02)) ( all ) 
+ CNSsolve>   do (y=ycomp+random(0.02)) ( all ) 
+ CNSsolve>   do (z=zcomp+random(0.02)) ( all ) 
+ CNSsolve>   evaluate ($filename="param2_"+encode($nframe)+".dat") 
+ CNSsolve>   write coor output=$filename end 
+ CNSsolve>   evaluate ($nframe=$nframe+1) 
+ CNSsolve>end loop lframe 
+ CNSsolve>while ($nframe < 50) loop lframe 
+ CNSsolve>   do (x=xcomp+random(0.02)) ( all ) 
+ CNSsolve>   do (y=ycomp+random(0.02)) ( all ) 
+ CNSsolve>   do (z=zcomp+random(0.02)) ( all ) 
+ CNSsolve>   evaluate ($filename="param2_"+encode($nframe)+".dat") 
+ CNSsolve>   write coor output=$filename end 
+ CNSsolve>   evaluate ($nframe=$nframe+1) 
+ CNSsolve>end loop lframe 
+ CNSsolve>while ($nframe < 50) loop lframe 
+ CNSsolve>   do (x=xcomp+random(0.02)) ( all ) 
+ CNSsolve>   do (y=ycomp+random(0.02)) ( all ) 
+ CNSsolve>   do (z=zcomp+random(0.02)) ( all ) 
+ CNSsolve>   evaluate ($filename="param2_"+encode($nframe)+".dat") 
+ CNSsolve>   write coor output=$filename end 
+ CNSsolve>   evaluate ($nframe=$nframe+1) 
+ CNSsolve>end loop lframe 
+ CNSsolve>while ($nframe < 50) loop lframe 
+ CNSsolve>   do (x=xcomp+random(0.02)) ( all ) 
+ CNSsolve>   do (y=ycomp+random(0.02)) ( all ) 
+ CNSsolve>   do (z=zcomp+random(0.02)) ( all ) 
+ CNSsolve>   evaluate ($filename="param2_"+encode($nframe)+".dat") 
+ CNSsolve>   write coor output=$filename end 
+ CNSsolve>   evaluate ($nframe=$nframe+1) 
+ CNSsolve>end loop lframe 
+ CNSsolve>while ($nframe < 50) loop lframe 
+ CNSsolve>   do (x=xcomp+random(0.02)) ( all ) 
+ CNSsolve>   do (y=ycomp+random(0.02)) ( all ) 
+ CNSsolve>   do (z=zcomp+random(0.02)) ( all ) 
+ CNSsolve>   evaluate ($filename="param2_"+encode($nframe)+".dat") 
+ CNSsolve>   write coor output=$filename end 
+ CNSsolve>   evaluate ($nframe=$nframe+1) 
+ CNSsolve>end loop lframe 
+ CNSsolve>while ($nframe < 50) loop lframe 
+ CNSsolve>   do (x=xcomp+random(0.02)) ( all ) 
+ CNSsolve>   do (y=ycomp+random(0.02)) ( all ) 
+ CNSsolve>   do (z=zcomp+random(0.02)) ( all ) 
+ CNSsolve>   evaluate ($filename="param2_"+encode($nframe)+".dat") 
+ CNSsolve>   write coor output=$filename end 
+ CNSsolve>   evaluate ($nframe=$nframe+1) 
+ CNSsolve>end loop lframe 
+ CNSsolve>while ($nframe < 50) loop lframe 
+ CNSsolve>   do (x=xcomp+random(0.02)) ( all ) 
+ CNSsolve>   do (y=ycomp+random(0.02)) ( all ) 
+ CNSsolve>   do (z=zcomp+random(0.02)) ( all ) 
+ CNSsolve>   evaluate ($filename="param2_"+encode($nframe)+".dat") 
+ CNSsolve>   write coor output=$filename end 
+ CNSsolve>   evaluate ($nframe=$nframe+1) 
+ CNSsolve>end loop lframe 
+ CNSsolve>while ($nframe < 50) loop lframe 
+ CNSsolve>   do (x=xcomp+random(0.02)) ( all ) 
+ CNSsolve>   do (y=ycomp+random(0.02)) ( all ) 
+ CNSsolve>   do (z=zcomp+random(0.02)) ( all ) 
+ CNSsolve>   evaluate ($filename="param2_"+encode($nframe)+".dat") 
+ CNSsolve>   write coor output=$filename end 
+ CNSsolve>   evaluate ($nframe=$nframe+1) 
+ CNSsolve>end loop lframe 
+ CNSsolve>while ($nframe < 50) loop lframe 
+ CNSsolve>   do (x=xcomp+random(0.02)) ( all ) 
+ CNSsolve>   do (y=ycomp+random(0.02)) ( all ) 
+ CNSsolve>   do (z=zcomp+random(0.02)) ( all ) 
+ CNSsolve>   evaluate ($filename="param2_"+encode($nframe)+".dat") 
+ CNSsolve>   write coor output=$filename end 
+ CNSsolve>   evaluate ($nframe=$nframe+1) 
+ CNSsolve>end loop lframe 
+ CNSsolve>while ($nframe < 50) loop lframe 
+ CNSsolve>   do (x=xcomp+random(0.02)) ( all ) 
+ CNSsolve>   do (y=ycomp+random(0.02)) ( all ) 
+ CNSsolve>   do (z=zcomp+random(0.02)) ( all ) 
+ CNSsolve>   evaluate ($filename="param2_"+encode($nframe)+".dat") 
+ CNSsolve>   write coor output=$filename end 
+ CNSsolve>   evaluate ($nframe=$nframe+1) 
+ CNSsolve>end loop lframe 
+ CNSsolve>while ($nframe < 50) loop lframe 
+ CNSsolve>   do (x=xcomp+random(0.02)) ( all ) 
+ CNSsolve>   do (y=ycomp+random(0.02)) ( all ) 
+ CNSsolve>   do (z=zcomp+random(0.02)) ( all ) 
+ CNSsolve>   evaluate ($filename="param2_"+encode($nframe)+".dat") 
+ CNSsolve>   write coor output=$filename end 
+ CNSsolve>   evaluate ($nframe=$nframe+1) 
+ CNSsolve>end loop lframe 
+ CNSsolve>while ($nframe < 50) loop lframe 
+ CNSsolve>   do (x=xcomp+random(0.02)) ( all ) 
+ CNSsolve>   do (y=ycomp+random(0.02)) ( all ) 
+ CNSsolve>   do (z=zcomp+random(0.02)) ( all ) 
+ CNSsolve>   evaluate ($filename="param2_"+encode($nframe)+".dat") 
+ CNSsolve>   write coor output=$filename end 
+ CNSsolve>   evaluate ($nframe=$nframe+1) 
+ CNSsolve>end loop lframe 
+ CNSsolve>while ($nframe < 50) loop lframe 
+ CNSsolve>   do (x=xcomp+random(0.02)) ( all ) 
+ CNSsolve>   do (y=ycomp+random(0.02)) ( all ) 
+ CNSsolve>   do (z=zcomp+random(0.02)) ( all ) 
+ CNSsolve>   evaluate ($filename="param2_"+encode($nframe)+".dat") 
+ CNSsolve>   write coor output=$filename end 
+ CNSsolve>   evaluate ($nframe=$nframe+1) 
+ CNSsolve>end loop lframe 
+ CNSsolve>while ($nframe < 50) loop lframe 
+ CNSsolve>   do (x=xcomp+random(0.02)) ( all ) 
+ CNSsolve>   do (y=ycomp+random(0.02)) ( all ) 
+ CNSsolve>   do (z=zcomp+random(0.02)) ( all ) 
+ CNSsolve>   evaluate ($filename="param2_"+encode($nframe)+".dat") 
+ CNSsolve>   write coor output=$filename end 
+ CNSsolve>   evaluate ($nframe=$nframe+1) 
+ CNSsolve>end loop lframe 
+ CNSsolve>while ($nframe < 50) loop lframe 
+ CNSsolve>   do (x=xcomp+random(0.02)) ( all ) 
+ CNSsolve>   do (y=ycomp+random(0.02)) ( all ) 
+ CNSsolve>   do (z=zcomp+random(0.02)) ( all ) 
+ CNSsolve>   evaluate ($filename="param2_"+encode($nframe)+".dat") 
+ CNSsolve>   write coor output=$filename end 
+ CNSsolve>   evaluate ($nframe=$nframe+1) 
+ CNSsolve>end loop lframe 
+ CNSsolve>while ($nframe < 50) loop lframe 
+ CNSsolve>   do (x=xcomp+random(0.02)) ( all ) 
+ CNSsolve>   do (y=ycomp+random(0.02)) ( all ) 
+ CNSsolve>   do (z=zcomp+random(0.02)) ( all ) 
+ CNSsolve>   evaluate ($filename="param2_"+encode($nframe)+".dat") 
+ CNSsolve>   write coor output=$filename end 
+ CNSsolve>   evaluate ($nframe=$nframe+1) 
+ CNSsolve>end loop lframe 
+ CNSsolve>while ($nframe < 50) loop lframe 
+ CNSsolve>   do (x=xcomp+random(0.02)) ( all ) 
+ CNSsolve>   do (y=ycomp+random(0.02)) ( all ) 
+ CNSsolve>   do (z=zcomp+random(0.02)) ( all ) 
+ CNSsolve>   evaluate ($filename="param2_"+encode($nframe)+".dat") 
+ CNSsolve>   write coor output=$filename end 
+ CNSsolve>   evaluate ($nframe=$nframe+1) 
+ CNSsolve>end loop lframe 
+ CNSsolve>while ($nframe < 50) loop lframe 
+ CNSsolve>   do (x=xcomp+random(0.02)) ( all ) 
+ CNSsolve>   do (y=ycomp+random(0.02)) ( all ) 
+ CNSsolve>   do (z=zcomp+random(0.02)) ( all ) 
+ CNSsolve>   evaluate ($filename="param2_"+encode($nframe)+".dat") 
+ CNSsolve>   write coor output=$filename end 
+ CNSsolve>   evaluate ($nframe=$nframe+1) 
+ CNSsolve>end loop lframe 
+ CNSsolve>while ($nframe < 50) loop lframe 
+ CNSsolve>   do (x=xcomp+random(0.02)) ( all ) 
+ CNSsolve>   do (y=ycomp+random(0.02)) ( all ) 
+ CNSsolve>   do (z=zcomp+random(0.02)) ( all ) 
+ CNSsolve>   evaluate ($filename="param2_"+encode($nframe)+".dat") 
+ CNSsolve>   write coor output=$filename end 
+ CNSsolve>   evaluate ($nframe=$nframe+1) 
+ CNSsolve>end loop lframe 
+ CNSsolve>while ($nframe < 50) loop lframe 
+ CNSsolve>   do (x=xcomp+random(0.02)) ( all ) 
+ CNSsolve>   do (y=ycomp+random(0.02)) ( all ) 
+ CNSsolve>   do (z=zcomp+random(0.02)) ( all ) 
+ CNSsolve>   evaluate ($filename="param2_"+encode($nframe)+".dat") 
+ CNSsolve>   write coor output=$filename end 
+ CNSsolve>   evaluate ($nframe=$nframe+1) 
+ CNSsolve>end loop lframe 
+ CNSsolve>while ($nframe < 50) loop lframe 
+ CNSsolve>   do (x=xcomp+random(0.02)) ( all ) 
+ CNSsolve>   do (y=ycomp+random(0.02)) ( all ) 
+ CNSsolve>   do (z=zcomp+random(0.02)) ( all ) 
+ CNSsolve>   evaluate ($filename="param2_"+encode($nframe)+".dat") 
+ CNSsolve>   write coor output=$filename end 
+ CNSsolve>   evaluate ($nframe=$nframe+1) 
+ CNSsolve>end loop lframe 
+ CNSsolve>while ($nframe < 50) loop lframe 
+ CNSsolve>   do (x=xcomp+random(0.02)) ( all ) 
+ CNSsolve>   do (y=ycomp+random(0.02)) ( all ) 
+ CNSsolve>   do (z=zcomp+random(0.02)) ( all ) 
+ CNSsolve>   evaluate ($filename="param2_"+encode($nframe)+".dat") 
+ CNSsolve>   write coor output=$filename end 
+ CNSsolve>   evaluate ($nframe=$nframe+1) 
+ CNSsolve>end loop lframe 
+ CNSsolve>while ($nframe < 50) loop lframe 
+ CNSsolve>   do (x=xcomp+random(0.02)) ( all ) 
+ CNSsolve>   do (y=ycomp+random(0.02)) ( all ) 
+ CNSsolve>   do (z=zcomp+random(0.02)) ( all ) 
+ CNSsolve>   evaluate ($filename="param2_"+encode($nframe)+".dat") 
+ CNSsolve>   write coor output=$filename end 
+ CNSsolve>   evaluate ($nframe=$nframe+1) 
+ CNSsolve>end loop lframe 
+ CNSsolve>while ($nframe < 50) loop lframe 
+ CNSsolve>   do (x=xcomp+random(0.02)) ( all ) 
+ CNSsolve>   do (y=ycomp+random(0.02)) ( all ) 
+ CNSsolve>   do (z=zcomp+random(0.02)) ( all ) 
+ CNSsolve>   evaluate ($filename="param2_"+encode($nframe)+".dat") 
+ CNSsolve>   write coor output=$filename end 
+ CNSsolve>   evaluate ($nframe=$nframe+1) 
+ CNSsolve>end loop lframe 
+ CNSsolve>while ($nframe < 50) loop lframe 
+ CNSsolve>   do (x=xcomp+random(0.02)) ( all ) 
+ CNSsolve>   do (y=ycomp+random(0.02)) ( all ) 
+ CNSsolve>   do (z=zcomp+random(0.02)) ( all ) 
+ CNSsolve>   evaluate ($filename="param2_"+encode($nframe)+".dat") 
+ CNSsolve>   write coor output=$filename end 
+ CNSsolve>   evaluate ($nframe=$nframe+1) 
+ CNSsolve>end loop lframe 
+ CNSsolve>while ($nframe < 50) loop lframe 
+ CNSsolve>   do (x=xcomp+random(0.02)) ( all ) 
+ CNSsolve>   do (y=ycomp+random(0.02)) ( all ) 
+ CNSsolve>   do (z=zcomp+random(0.02)) ( all ) 
+ CNSsolve>   evaluate ($filename="param2_"+encode($nframe)+".dat") 
+ CNSsolve>   write coor output=$filename end 
+ CNSsolve>   evaluate ($nframe=$nframe+1) 
+ CNSsolve>end loop lframe 
+ CNSsolve>while ($nframe < 50) loop lframe 
+ CNSsolve>   do (x=xcomp+random(0.02)) ( all ) 
+ CNSsolve>   do (y=ycomp+random(0.02)) ( all ) 
+ CNSsolve>   do (z=zcomp+random(0.02)) ( all ) 
+ CNSsolve>   evaluate ($filename="param2_"+encode($nframe)+".dat") 
+ CNSsolve>   write coor output=$filename end 
+ CNSsolve>   evaluate ($nframe=$nframe+1) 
+ CNSsolve>end loop lframe 
+ CNSsolve>while ($nframe < 50) loop lframe 
+ CNSsolve>   do (x=xcomp+random(0.02)) ( all ) 
+ CNSsolve>   do (y=ycomp+random(0.02)) ( all ) 
+ CNSsolve>   do (z=zcomp+random(0.02)) ( all ) 
+ CNSsolve>   evaluate ($filename="param2_"+encode($nframe)+".dat") 
+ CNSsolve>   write coor output=$filename end 
+ CNSsolve>   evaluate ($nframe=$nframe+1) 
+ CNSsolve>end loop lframe 
+ CNSsolve>while ($nframe < 50) loop lframe 
+ CNSsolve>   do (x=xcomp+random(0.02)) ( all ) 
+ CNSsolve>   do (y=ycomp+random(0.02)) ( all ) 
+ CNSsolve>   do (z=zcomp+random(0.02)) ( all ) 
+ CNSsolve>   evaluate ($filename="param2_"+encode($nframe)+".dat") 
+ CNSsolve>   write coor output=$filename end 
+ CNSsolve>   evaluate ($nframe=$nframe+1) 
+ CNSsolve>end loop lframe 
+ CNSsolve>while ($nframe < 50) loop lframe 
+ CNSsolve>   do (x=xcomp+random(0.02)) ( all ) 
+ CNSsolve>   do (y=ycomp+random(0.02)) ( all ) 
+ CNSsolve>   do (z=zcomp+random(0.02)) ( all ) 
+ CNSsolve>   evaluate ($filename="param2_"+encode($nframe)+".dat") 
+ CNSsolve>   write coor output=$filename end 
+ CNSsolve>   evaluate ($nframe=$nframe+1) 
+ CNSsolve>end loop lframe 
+ CNSsolve>while ($nframe < 50) loop lframe 
+ CNSsolve>   do (x=xcomp+random(0.02)) ( all ) 
+ CNSsolve>   do (y=ycomp+random(0.02)) ( all ) 
+ CNSsolve>   do (z=zcomp+random(0.02)) ( all ) 
+ CNSsolve>   evaluate ($filename="param2_"+encode($nframe)+".dat") 
+ CNSsolve>   write coor output=$filename end 
+ CNSsolve>   evaluate ($nframe=$nframe+1) 
+ CNSsolve>end loop lframe 
+ CNSsolve>while ($nframe < 50) loop lframe 
+ CNSsolve>   do (x=xcomp+random(0.02)) ( all ) 
+ CNSsolve>   do (y=ycomp+random(0.02)) ( all ) 
+ CNSsolve>   do (z=zcomp+random(0.02)) ( all ) 
+ CNSsolve>   evaluate ($filename="param2_"+encode($nframe)+".dat") 
+ CNSsolve>   write coor output=$filename end 
+ CNSsolve>   evaluate ($nframe=$nframe+1) 
+ CNSsolve>end loop lframe 
+ CNSsolve> 
+ CNSsolve>parameters 
+ PARRDR>   learn init sele=(all) mode=statistics end 
+ PARRDR>end 
+ CNSsolve> 
+ CNSsolve>parameters    learn accum end     end 
+ CNSsolve> 
+ CNSsolve>evaluate ($nframe=1) 
+ CNSsolve>while ($nframe < 50) loop lfra2 
+ CNSsolve>   evaluate ($filename="param2_"+encode($nframe)+".dat") 
+ CNSsolve>   coor @@$filename 
+ COOR>REMARK FILENAME="param2_1.dat" 
+ COOR>REMARK file toppar/protein.link 
+ COOR>REMARK this is a macro to define standard protein peptide bonds 
+ COOR>REMARK and termini to generate a protein sequence. 
+ COOR>REMARK DATE:05-Jul-2018  16:08:05       created by user: oeow39 
+ COOR>REMARK VERSION:1.3 
+ COOR>ATOM      1  CB  TRP     1       3.108   2.767  -0.292  1.00  0.00      TRYP 
+ COOR>ATOM      2  CG  TRP     1       4.755   1.329   0.007  1.00  0.00      TRYP 
+ CNSsolve>   parameters    learn accum end    end 
+ CNSsolve>   evaluate ($nframe=$nframe+1) 
+ CNSsolve>end loop lfra2 
+ CNSsolve>while ($nframe < 50) loop lfra2 
+ CNSsolve>   evaluate ($filename="param2_"+encode($nframe)+".dat") 
+ CNSsolve>   coor @@$filename 
+ COOR>REMARK FILENAME="param2_2.dat" 
+ COOR>REMARK file toppar/protein.link 
+ COOR>REMARK this is a macro to define standard protein peptide bonds 
+ COOR>REMARK and termini to generate a protein sequence. 
+ COOR>REMARK DATE:05-Jul-2018  16:08:05       created by user: oeow39 
+ COOR>REMARK VERSION:1.3 
+ COOR>ATOM      1  CB  TRP     1       3.552   2.832   0.154  1.00  0.00      TRYP 
+ COOR>ATOM      2  CG  TRP     1       4.493   1.624  -0.109  1.00  0.00      TRYP 
+ CNSsolve>   parameters    learn accum end    end 
+ CNSsolve>   evaluate ($nframe=$nframe+1) 
+ CNSsolve>end loop lfra2 
+ CNSsolve>while ($nframe < 50) loop lfra2 
+ CNSsolve>   evaluate ($filename="param2_"+encode($nframe)+".dat") 
+ CNSsolve>   coor @@$filename 
+ COOR>REMARK FILENAME="param2_3.dat" 
+ COOR>REMARK file toppar/protein.link 
+ COOR>REMARK this is a macro to define standard protein peptide bonds 
+ COOR>REMARK and termini to generate a protein sequence. 
+ COOR>REMARK DATE:05-Jul-2018  16:08:05       created by user: oeow39 
+ COOR>REMARK VERSION:1.3 
+ COOR>ATOM      1  CB  TRP     1       3.631   2.991   0.578  1.00  0.00      TRYP 
+ COOR>ATOM      2  CG  TRP     1       4.259   1.402   0.257  1.00  0.00      TRYP 
+ CNSsolve>   parameters    learn accum end    end 
+ CNSsolve>   evaluate ($nframe=$nframe+1) 
+ CNSsolve>end loop lfra2 
+ CNSsolve>while ($nframe < 50) loop lfra2 
+ CNSsolve>   evaluate ($filename="param2_"+encode($nframe)+".dat") 
+ CNSsolve>   coor @@$filename 
+ COOR>REMARK FILENAME="param2_4.dat" 
+ COOR>REMARK file toppar/protein.link 
+ COOR>REMARK this is a macro to define standard protein peptide bonds 
+ COOR>REMARK and termini to generate a protein sequence. 
+ COOR>REMARK DATE:05-Jul-2018  16:08:05       created by user: oeow39 
+ COOR>REMARK VERSION:1.3 
+ COOR>ATOM      1  CB  TRP     1       3.241   2.919  -0.044  1.00  0.00      TRYP 
+ COOR>ATOM      2  CG  TRP     1       4.668   1.719  -0.413  1.00  0.00      TRYP 
+ CNSsolve>   parameters    learn accum end    end 
+ CNSsolve>   evaluate ($nframe=$nframe+1) 
+ CNSsolve>end loop lfra2 
+ CNSsolve>while ($nframe < 50) loop lfra2 
+ CNSsolve>   evaluate ($filename="param2_"+encode($nframe)+".dat") 
+ CNSsolve>   coor @@$filename 
+ COOR>REMARK FILENAME="param2_5.dat" 
+ COOR>REMARK file toppar/protein.link 
+ COOR>REMARK this is a macro to define standard protein peptide bonds 
+ COOR>REMARK and termini to generate a protein sequence. 
+ COOR>REMARK DATE:05-Jul-2018  16:08:05       created by user: oeow39 
+ COOR>REMARK VERSION:1.3 
+ COOR>ATOM      1  CB  TRP     1       3.522   2.968   0.521  1.00  0.00      TRYP 
+ COOR>ATOM      2  CG  TRP     1       4.706   1.750  -0.033  1.00  0.00      TRYP 
+ CNSsolve>   parameters    learn accum end    end 
+ CNSsolve>   evaluate ($nframe=$nframe+1) 
+ CNSsolve>end loop lfra2 
+ CNSsolve>while ($nframe < 50) loop lfra2 
+ CNSsolve>   evaluate ($filename="param2_"+encode($nframe)+".dat") 
+ CNSsolve>   coor @@$filename 
+ COOR>REMARK FILENAME="param2_6.dat" 
+ COOR>REMARK file toppar/protein.link 
+ COOR>REMARK this is a macro to define standard protein peptide bonds 
+ COOR>REMARK and termini to generate a protein sequence. 
+ COOR>REMARK DATE:05-Jul-2018  16:08:05       created by user: oeow39 
+ COOR>REMARK VERSION:1.3 
+ COOR>ATOM      1  CB  TRP     1       2.910   2.865   0.611  1.00  0.00      TRYP 
+ COOR>ATOM      2  CG  TRP     1       4.541   1.897  -0.110  1.00  0.00      TRYP 
+ CNSsolve>   parameters    learn accum end    end 
+ CNSsolve>   evaluate ($nframe=$nframe+1) 
+ CNSsolve>end loop lfra2 
+ CNSsolve>while ($nframe < 50) loop lfra2 
+ CNSsolve>   evaluate ($filename="param2_"+encode($nframe)+".dat") 
+ CNSsolve>   coor @@$filename 
+ COOR>REMARK FILENAME="param2_7.dat" 
+ COOR>REMARK file toppar/protein.link 
+ COOR>REMARK this is a macro to define standard protein peptide bonds 
+ COOR>REMARK and termini to generate a protein sequence. 
+ COOR>REMARK DATE:05-Jul-2018  16:08:05       created by user: oeow39 
+ COOR>REMARK VERSION:1.3 
+ COOR>ATOM      1  CB  TRP     1       3.243   2.049   0.263  1.00  0.00      TRYP 
+ COOR>ATOM      2  CG  TRP     1       4.372   1.703  -0.240  1.00  0.00      TRYP 
+ CNSsolve>   parameters    learn accum end    end 
+ CNSsolve>   evaluate ($nframe=$nframe+1) 
+ CNSsolve>end loop lfra2 
+ CNSsolve>while ($nframe < 50) loop lfra2 
+ CNSsolve>   evaluate ($filename="param2_"+encode($nframe)+".dat") 
+ CNSsolve>   coor @@$filename 
+ COOR>REMARK FILENAME="param2_8.dat" 
+ COOR>REMARK file toppar/protein.link 
+ COOR>REMARK this is a macro to define standard protein peptide bonds 
+ COOR>REMARK and termini to generate a protein sequence. 
+ COOR>REMARK DATE:05-Jul-2018  16:08:05       created by user: oeow39 
+ COOR>REMARK VERSION:1.3 
+ COOR>ATOM      1  CB  TRP     1       3.529   2.151  -0.265  1.00  0.00      TRYP 
+ COOR>ATOM      2  CG  TRP     1       4.781   1.317  -0.206  1.00  0.00      TRYP 
+ CNSsolve>   parameters    learn accum end    end 
+ CNSsolve>   evaluate ($nframe=$nframe+1) 
+ CNSsolve>end loop lfra2 
+ CNSsolve>while ($nframe < 50) loop lfra2 
+ CNSsolve>   evaluate ($filename="param2_"+encode($nframe)+".dat") 
+ CNSsolve>   coor @@$filename 
+ COOR>REMARK FILENAME="param2_9.dat" 
+ COOR>REMARK file toppar/protein.link 
+ COOR>REMARK this is a macro to define standard protein peptide bonds 
+ COOR>REMARK and termini to generate a protein sequence. 
+ COOR>REMARK DATE:05-Jul-2018  16:08:05       created by user: oeow39 
+ COOR>REMARK VERSION:1.3 
+ COOR>ATOM      1  CB  TRP     1       3.085   2.846  -0.274  1.00  0.00      TRYP 
+ COOR>ATOM      2  CG  TRP     1       4.347   1.755   0.175  1.00  0.00      TRYP 
+ CNSsolve>   parameters    learn accum end    end 
+ CNSsolve>   evaluate ($nframe=$nframe+1) 
+ CNSsolve>end loop lfra2 
+ CNSsolve>while ($nframe < 50) loop lfra2 
+ CNSsolve>   evaluate ($filename="param2_"+encode($nframe)+".dat") 
+ CNSsolve>   coor @@$filename 
+ COOR>REMARK FILENAME="param2_10.dat" 
+ COOR>REMARK file toppar/protein.link 
+ COOR>REMARK this is a macro to define standard protein peptide bonds 
+ COOR>REMARK and termini to generate a protein sequence. 
+ COOR>REMARK DATE:05-Jul-2018  16:08:05       created by user: oeow39 
+ COOR>REMARK VERSION:1.3 
+ COOR>ATOM      1  CB  TRP     1       3.677   2.564  -0.187  1.00  0.00      TRYP 
+ COOR>ATOM      2  CG  TRP     1       4.444   2.017   0.267  1.00  0.00      TRYP 
+ CNSsolve>   parameters    learn accum end    end 
+ CNSsolve>   evaluate ($nframe=$nframe+1) 
+ CNSsolve>end loop lfra2 
+ CNSsolve>while ($nframe < 50) loop lfra2 
+ CNSsolve>   evaluate ($filename="param2_"+encode($nframe)+".dat") 
+ CNSsolve>   coor @@$filename 
+ COOR>REMARK FILENAME="param2_11.dat" 
+ COOR>REMARK file toppar/protein.link 
+ COOR>REMARK this is a macro to define standard protein peptide bonds 
+ COOR>REMARK and termini to generate a protein sequence. 
+ COOR>REMARK DATE:05-Jul-2018  16:08:05       created by user: oeow39 
+ COOR>REMARK VERSION:1.3 
+ COOR>ATOM      1  CB  TRP     1       3.461   2.635   0.266  1.00  0.00      TRYP 
+ COOR>ATOM      2  CG  TRP     1       4.138   1.624  -0.147  1.00  0.00      TRYP 
+ CNSsolve>   parameters    learn accum end    end 
+ CNSsolve>   evaluate ($nframe=$nframe+1) 
+ CNSsolve>end loop lfra2 
+ CNSsolve>while ($nframe < 50) loop lfra2 
+ CNSsolve>   evaluate ($filename="param2_"+encode($nframe)+".dat") 
+ CNSsolve>   coor @@$filename 
+ COOR>REMARK FILENAME="param2_12.dat" 
+ COOR>REMARK file toppar/protein.link 
+ COOR>REMARK this is a macro to define standard protein peptide bonds 
+ COOR>REMARK and termini to generate a protein sequence. 
+ COOR>REMARK DATE:05-Jul-2018  16:08:05       created by user: oeow39 
+ COOR>REMARK VERSION:1.3 
+ COOR>ATOM      1  CB  TRP     1       2.930   2.331  -0.231  1.00  0.00      TRYP 
+ COOR>ATOM      2  CG  TRP     1       4.166   1.602   0.183  1.00  0.00      TRYP 
+ CNSsolve>   parameters    learn accum end    end 
+ CNSsolve>   evaluate ($nframe=$nframe+1) 
+ CNSsolve>end loop lfra2 
+ CNSsolve>while ($nframe < 50) loop lfra2 
+ CNSsolve>   evaluate ($filename="param2_"+encode($nframe)+".dat") 
+ CNSsolve>   coor @@$filename 
+ COOR>REMARK FILENAME="param2_13.dat" 
+ COOR>REMARK file toppar/protein.link 
+ COOR>REMARK this is a macro to define standard protein peptide bonds 
+ COOR>REMARK and termini to generate a protein sequence. 
+ COOR>REMARK DATE:05-Jul-2018  16:08:05       created by user: oeow39 
+ COOR>REMARK VERSION:1.3 
+ COOR>ATOM      1  CB  TRP     1       2.887   2.714  -0.344  1.00  0.00      TRYP 
+ COOR>ATOM      2  CG  TRP     1       4.745   1.421   0.272  1.00  0.00      TRYP 
+ CNSsolve>   parameters    learn accum end    end 
+ CNSsolve>   evaluate ($nframe=$nframe+1) 
+ CNSsolve>end loop lfra2 
+ CNSsolve>while ($nframe < 50) loop lfra2 
+ CNSsolve>   evaluate ($filename="param2_"+encode($nframe)+".dat") 
+ CNSsolve>   coor @@$filename 
+ COOR>REMARK FILENAME="param2_14.dat" 
+ COOR>REMARK file toppar/protein.link 
+ COOR>REMARK this is a macro to define standard protein peptide bonds 
+ COOR>REMARK and termini to generate a protein sequence. 
+ COOR>REMARK DATE:05-Jul-2018  16:08:05       created by user: oeow39 
+ COOR>REMARK VERSION:1.3 
+ COOR>ATOM      1  CB  TRP     1       3.106   2.453   0.560  1.00  0.00      TRYP 
+ COOR>ATOM      2  CG  TRP     1       4.785   1.306  -0.248  1.00  0.00      TRYP 
+ CNSsolve>   parameters    learn accum end    end 
+ CNSsolve>   evaluate ($nframe=$nframe+1) 
+ CNSsolve>end loop lfra2 
+ CNSsolve>while ($nframe < 50) loop lfra2 
+ CNSsolve>   evaluate ($filename="param2_"+encode($nframe)+".dat") 
+ CNSsolve>   coor @@$filename 
+ COOR>REMARK FILENAME="param2_15.dat" 
+ COOR>REMARK file toppar/protein.link 
+ COOR>REMARK this is a macro to define standard protein peptide bonds 
+ COOR>REMARK and termini to generate a protein sequence. 
+ COOR>REMARK DATE:05-Jul-2018  16:08:05       created by user: oeow39 
+ COOR>REMARK VERSION:1.3 
+ COOR>ATOM      1  CB  TRP     1       2.738   2.738  -0.335  1.00  0.00      TRYP 
+ COOR>ATOM      2  CG  TRP     1       4.254   1.978  -0.075  1.00  0.00      TRYP 
+ CNSsolve>   parameters    learn accum end    end 
+ CNSsolve>   evaluate ($nframe=$nframe+1) 
+ CNSsolve>end loop lfra2 
+ CNSsolve>while ($nframe < 50) loop lfra2 
+ CNSsolve>   evaluate ($filename="param2_"+encode($nframe)+".dat") 
+ CNSsolve>   coor @@$filename 
+ COOR>REMARK FILENAME="param2_16.dat" 
+ COOR>REMARK file toppar/protein.link 
+ COOR>REMARK this is a macro to define standard protein peptide bonds 
+ COOR>REMARK and termini to generate a protein sequence. 
+ COOR>REMARK DATE:05-Jul-2018  16:08:05       created by user: oeow39 
+ COOR>REMARK VERSION:1.3 
+ COOR>ATOM      1  CB  TRP     1       3.676   2.461   0.044  1.00  0.00      TRYP 
+ COOR>ATOM      2  CG  TRP     1       4.455   1.464   0.277  1.00  0.00      TRYP 
+ CNSsolve>   parameters    learn accum end    end 
+ CNSsolve>   evaluate ($nframe=$nframe+1) 
+ CNSsolve>end loop lfra2 
+ CNSsolve>while ($nframe < 50) loop lfra2 
+ CNSsolve>   evaluate ($filename="param2_"+encode($nframe)+".dat") 
+ CNSsolve>   coor @@$filename 
+ COOR>REMARK FILENAME="param2_17.dat" 
+ COOR>REMARK file toppar/protein.link 
+ COOR>REMARK this is a macro to define standard protein peptide bonds 
+ COOR>REMARK and termini to generate a protein sequence. 
+ COOR>REMARK DATE:05-Jul-2018  16:08:05       created by user: oeow39 
+ COOR>REMARK VERSION:1.3 
+ COOR>ATOM      1  CB  TRP     1       3.642   2.092   0.480  1.00  0.00      TRYP 
+ COOR>ATOM      2  CG  TRP     1       3.952   1.589  -0.583  1.00  0.00      TRYP 
+ CNSsolve>   parameters    learn accum end    end 
+ CNSsolve>   evaluate ($nframe=$nframe+1) 
+ CNSsolve>end loop lfra2 
+ CNSsolve>while ($nframe < 50) loop lfra2 
+ CNSsolve>   evaluate ($filename="param2_"+encode($nframe)+".dat") 
+ CNSsolve>   coor @@$filename 
+ COOR>REMARK FILENAME="param2_18.dat" 
+ COOR>REMARK file toppar/protein.link 
+ COOR>REMARK this is a macro to define standard protein peptide bonds 
+ COOR>REMARK and termini to generate a protein sequence. 
+ COOR>REMARK DATE:05-Jul-2018  16:08:05       created by user: oeow39 
+ COOR>REMARK VERSION:1.3 
+ COOR>ATOM      1  CB  TRP     1       3.597   2.536   0.326  1.00  0.00      TRYP 
+ COOR>ATOM      2  CG  TRP     1       4.297   1.665  -0.557  1.00  0.00      TRYP 
+ CNSsolve>   parameters    learn accum end    end 
+ CNSsolve>   evaluate ($nframe=$nframe+1) 
+ CNSsolve>end loop lfra2 
+ CNSsolve>while ($nframe < 50) loop lfra2 
+ CNSsolve>   evaluate ($filename="param2_"+encode($nframe)+".dat") 
+ CNSsolve>   coor @@$filename 
+ COOR>REMARK FILENAME="param2_19.dat" 
+ COOR>REMARK file toppar/protein.link 
+ COOR>REMARK this is a macro to define standard protein peptide bonds 
+ COOR>REMARK and termini to generate a protein sequence. 
+ COOR>REMARK DATE:05-Jul-2018  16:08:05       created by user: oeow39 
+ COOR>REMARK VERSION:1.3 
+ COOR>ATOM      1  CB  TRP     1       3.095   2.461   0.164  1.00  0.00      TRYP 
+ COOR>ATOM      2  CG  TRP     1       4.820   1.882  -0.003  1.00  0.00      TRYP 
+ CNSsolve>   parameters    learn accum end    end 
+ CNSsolve>   evaluate ($nframe=$nframe+1) 
+ CNSsolve>end loop lfra2 
+ CNSsolve>while ($nframe < 50) loop lfra2 
+ CNSsolve>   evaluate ($filename="param2_"+encode($nframe)+".dat") 
+ CNSsolve>   coor @@$filename 
+ COOR>REMARK FILENAME="param2_20.dat" 
+ COOR>REMARK file toppar/protein.link 
+ COOR>REMARK this is a macro to define standard protein peptide bonds 
+ COOR>REMARK and termini to generate a protein sequence. 
+ COOR>REMARK DATE:05-Jul-2018  16:08:05       created by user: oeow39 
+ COOR>REMARK VERSION:1.3 
+ COOR>ATOM      1  CB  TRP     1       2.777   2.369   0.491  1.00  0.00      TRYP 
+ COOR>ATOM      2  CG  TRP     1       4.441   1.665  -0.191  1.00  0.00      TRYP 
+ CNSsolve>   parameters    learn accum end    end 
+ CNSsolve>   evaluate ($nframe=$nframe+1) 
+ CNSsolve>end loop lfra2 
+ CNSsolve>while ($nframe < 50) loop lfra2 
+ CNSsolve>   evaluate ($filename="param2_"+encode($nframe)+".dat") 
+ CNSsolve>   coor @@$filename 
+ COOR>REMARK FILENAME="param2_21.dat" 
+ COOR>REMARK file toppar/protein.link 
+ COOR>REMARK this is a macro to define standard protein peptide bonds 
+ COOR>REMARK and termini to generate a protein sequence. 
+ COOR>REMARK DATE:05-Jul-2018  16:08:05       created by user: oeow39 
+ COOR>REMARK VERSION:1.3 
+ COOR>ATOM      1  CB  TRP     1       2.832   2.653  -0.088  1.00  0.00      TRYP 
+ COOR>ATOM      2  CG  TRP     1       4.521   1.470   0.193  1.00  0.00      TRYP 
+ CNSsolve>   parameters    learn accum end    end 
+ CNSsolve>   evaluate ($nframe=$nframe+1) 
+ CNSsolve>end loop lfra2 
+ CNSsolve>while ($nframe < 50) loop lfra2 
+ CNSsolve>   evaluate ($filename="param2_"+encode($nframe)+".dat") 
+ CNSsolve>   coor @@$filename 
+ COOR>REMARK FILENAME="param2_22.dat" 
+ COOR>REMARK file toppar/protein.link 
+ COOR>REMARK this is a macro to define standard protein peptide bonds 
+ COOR>REMARK and termini to generate a protein sequence. 
+ COOR>REMARK DATE:05-Jul-2018  16:08:05       created by user: oeow39 
+ COOR>REMARK VERSION:1.3 
+ COOR>ATOM      1  CB  TRP     1       3.221   2.636  -0.121  1.00  0.00      TRYP 
+ COOR>ATOM      2  CG  TRP     1       4.221   1.428  -0.645  1.00  0.00      TRYP 
+ CNSsolve>   parameters    learn accum end    end 
+ CNSsolve>   evaluate ($nframe=$nframe+1) 
+ CNSsolve>end loop lfra2 
+ CNSsolve>while ($nframe < 50) loop lfra2 
+ CNSsolve>   evaluate ($filename="param2_"+encode($nframe)+".dat") 
+ CNSsolve>   coor @@$filename 
+ COOR>REMARK FILENAME="param2_23.dat" 
+ COOR>REMARK file toppar/protein.link 
+ COOR>REMARK this is a macro to define standard protein peptide bonds 
+ COOR>REMARK and termini to generate a protein sequence. 
+ COOR>REMARK DATE:05-Jul-2018  16:08:05       created by user: oeow39 
+ COOR>REMARK VERSION:1.3 
+ COOR>ATOM      1  CB  TRP     1       3.584   2.321   0.531  1.00  0.00      TRYP 
+ COOR>ATOM      2  CG  TRP     1       4.141   1.479  -0.331  1.00  0.00      TRYP 
+ CNSsolve>   parameters    learn accum end    end 
+ CNSsolve>   evaluate ($nframe=$nframe+1) 
+ CNSsolve>end loop lfra2 
+ CNSsolve>while ($nframe < 50) loop lfra2 
+ CNSsolve>   evaluate ($filename="param2_"+encode($nframe)+".dat") 
+ CNSsolve>   coor @@$filename 
+ COOR>REMARK FILENAME="param2_24.dat" 
+ COOR>REMARK file toppar/protein.link 
+ COOR>REMARK this is a macro to define standard protein peptide bonds 
+ COOR>REMARK and termini to generate a protein sequence. 
+ COOR>REMARK DATE:05-Jul-2018  16:08:05       created by user: oeow39 
+ COOR>REMARK VERSION:1.3 
+ COOR>ATOM      1  CB  TRP     1       2.936   2.124   0.187  1.00  0.00      TRYP 
+ COOR>ATOM      2  CG  TRP     1       4.341   1.571  -0.247  1.00  0.00      TRYP 
+ CNSsolve>   parameters    learn accum end    end 
+ CNSsolve>   evaluate ($nframe=$nframe+1) 
+ CNSsolve>end loop lfra2 
+ CNSsolve>while ($nframe < 50) loop lfra2 
+ CNSsolve>   evaluate ($filename="param2_"+encode($nframe)+".dat") 
+ CNSsolve>   coor @@$filename 
+ COOR>REMARK FILENAME="param2_25.dat" 
+ COOR>REMARK file toppar/protein.link 
+ COOR>REMARK this is a macro to define standard protein peptide bonds 
+ COOR>REMARK and termini to generate a protein sequence. 
+ COOR>REMARK DATE:05-Jul-2018  16:08:05       created by user: oeow39 
+ COOR>REMARK VERSION:1.3 
+ COOR>ATOM      1  CB  TRP     1       3.346   2.578   0.444  1.00  0.00      TRYP 
+ COOR>ATOM      2  CG  TRP     1       4.701   1.365   0.185  1.00  0.00      TRYP 
+ CNSsolve>   parameters    learn accum end    end 
+ CNSsolve>   evaluate ($nframe=$nframe+1) 
+ CNSsolve>end loop lfra2 
+ CNSsolve>while ($nframe < 50) loop lfra2 
+ CNSsolve>   evaluate ($filename="param2_"+encode($nframe)+".dat") 
+ CNSsolve>   coor @@$filename 
+ COOR>REMARK FILENAME="param2_26.dat" 
+ COOR>REMARK file toppar/protein.link 
+ COOR>REMARK this is a macro to define standard protein peptide bonds 
+ COOR>REMARK and termini to generate a protein sequence. 
+ COOR>REMARK DATE:05-Jul-2018  16:08:05       created by user: oeow39 
+ COOR>REMARK VERSION:1.3 
+ COOR>ATOM      1  CB  TRP     1       3.265   2.055   0.294  1.00  0.00      TRYP 
+ COOR>ATOM      2  CG  TRP     1       4.789   1.191  -0.272  1.00  0.00      TRYP 
+ CNSsolve>   parameters    learn accum end    end 
+ CNSsolve>   evaluate ($nframe=$nframe+1) 
+ CNSsolve>end loop lfra2 
+ CNSsolve>while ($nframe < 50) loop lfra2 
+ CNSsolve>   evaluate ($filename="param2_"+encode($nframe)+".dat") 
+ CNSsolve>   coor @@$filename 
+ COOR>REMARK FILENAME="param2_27.dat" 
+ COOR>REMARK file toppar/protein.link 
+ COOR>REMARK this is a macro to define standard protein peptide bonds 
+ COOR>REMARK and termini to generate a protein sequence. 
+ COOR>REMARK DATE:05-Jul-2018  16:08:05       created by user: oeow39 
+ COOR>REMARK VERSION:1.3 
+ COOR>ATOM      1  CB  TRP     1       3.449   2.397   0.409  1.00  0.00      TRYP 
+ COOR>ATOM      2  CG  TRP     1       4.390   1.362  -0.565  1.00  0.00      TRYP 
+ CNSsolve>   parameters    learn accum end    end 
+ CNSsolve>   evaluate ($nframe=$nframe+1) 
+ CNSsolve>end loop lfra2 
+ CNSsolve>while ($nframe < 50) loop lfra2 
+ CNSsolve>   evaluate ($filename="param2_"+encode($nframe)+".dat") 
+ CNSsolve>   coor @@$filename 
+ COOR>REMARK FILENAME="param2_28.dat" 
+ COOR>REMARK file toppar/protein.link 
+ COOR>REMARK this is a macro to define standard protein peptide bonds 
+ COOR>REMARK and termini to generate a protein sequence. 
+ COOR>REMARK DATE:05-Jul-2018  16:08:05       created by user: oeow39 
+ COOR>REMARK VERSION:1.3 
+ COOR>ATOM      1  CB  TRP     1       2.844   2.731  -0.141  1.00  0.00      TRYP 
+ COOR>ATOM      2  CG  TRP     1       3.983   1.814  -0.599  1.00  0.00      TRYP 
+ CNSsolve>   parameters    learn accum end    end 
+ CNSsolve>   evaluate ($nframe=$nframe+1) 
+ CNSsolve>end loop lfra2 
+ CNSsolve>while ($nframe < 50) loop lfra2 
+ CNSsolve>   evaluate ($filename="param2_"+encode($nframe)+".dat") 
+ CNSsolve>   coor @@$filename 
+ COOR>REMARK FILENAME="param2_29.dat" 
+ COOR>REMARK file toppar/protein.link 
+ COOR>REMARK this is a macro to define standard protein peptide bonds 
+ COOR>REMARK and termini to generate a protein sequence. 
+ COOR>REMARK DATE:05-Jul-2018  16:08:05       created by user: oeow39 
+ COOR>REMARK VERSION:1.3 
+ COOR>ATOM      1  CB  TRP     1       2.852   2.711   0.459  1.00  0.00      TRYP 
+ COOR>ATOM      2  CG  TRP     1       4.138   1.745  -0.629  1.00  0.00      TRYP 
+ CNSsolve>   parameters    learn accum end    end 
+ CNSsolve>   evaluate ($nframe=$nframe+1) 
+ CNSsolve>end loop lfra2 
+ CNSsolve>while ($nframe < 50) loop lfra2 
+ CNSsolve>   evaluate ($filename="param2_"+encode($nframe)+".dat") 
+ CNSsolve>   coor @@$filename 
+ COOR>REMARK FILENAME="param2_30.dat" 
+ COOR>REMARK file toppar/protein.link 
+ COOR>REMARK this is a macro to define standard protein peptide bonds 
+ COOR>REMARK and termini to generate a protein sequence. 
+ COOR>REMARK DATE:05-Jul-2018  16:08:05       created by user: oeow39 
+ COOR>REMARK VERSION:1.3 
+ COOR>ATOM      1  CB  TRP     1       3.292   2.365  -0.192  1.00  0.00      TRYP 
+ COOR>ATOM      2  CG  TRP     1       4.764   1.258  -0.568  1.00  0.00      TRYP 
+ CNSsolve>   parameters    learn accum end    end 
+ CNSsolve>   evaluate ($nframe=$nframe+1) 
+ CNSsolve>end loop lfra2 
+ CNSsolve>while ($nframe < 50) loop lfra2 
+ CNSsolve>   evaluate ($filename="param2_"+encode($nframe)+".dat") 
+ CNSsolve>   coor @@$filename 
+ COOR>REMARK FILENAME="param2_31.dat" 
+ COOR>REMARK file toppar/protein.link 
+ COOR>REMARK this is a macro to define standard protein peptide bonds 
+ COOR>REMARK and termini to generate a protein sequence. 
+ COOR>REMARK DATE:05-Jul-2018  16:08:05       created by user: oeow39 
+ COOR>REMARK VERSION:1.3 
+ COOR>ATOM      1  CB  TRP     1       3.064   2.559   0.055  1.00  0.00      TRYP 
+ COOR>ATOM      2  CG  TRP     1       4.308   1.966  -0.572  1.00  0.00      TRYP 
+ CNSsolve>   parameters    learn accum end    end 
+ CNSsolve>   evaluate ($nframe=$nframe+1) 
+ CNSsolve>end loop lfra2 
+ CNSsolve>while ($nframe < 50) loop lfra2 
+ CNSsolve>   evaluate ($filename="param2_"+encode($nframe)+".dat") 
+ CNSsolve>   coor @@$filename 
+ COOR>REMARK FILENAME="param2_32.dat" 
+ COOR>REMARK file toppar/protein.link 
+ COOR>REMARK this is a macro to define standard protein peptide bonds 
+ COOR>REMARK and termini to generate a protein sequence. 
+ COOR>REMARK DATE:05-Jul-2018  16:08:05       created by user: oeow39 
+ COOR>REMARK VERSION:1.3 
+ COOR>ATOM      1  CB  TRP     1       3.617   2.914   0.033  1.00  0.00      TRYP 
+ COOR>ATOM      2  CG  TRP     1       4.613   2.167   0.210  1.00  0.00      TRYP 
+ CNSsolve>   parameters    learn accum end    end 
+ CNSsolve>   evaluate ($nframe=$nframe+1) 
+ CNSsolve>end loop lfra2 
+ CNSsolve>while ($nframe < 50) loop lfra2 
+ CNSsolve>   evaluate ($filename="param2_"+encode($nframe)+".dat") 
+ CNSsolve>   coor @@$filename 
+ COOR>REMARK FILENAME="param2_33.dat" 
+ COOR>REMARK file toppar/protein.link 
+ COOR>REMARK this is a macro to define standard protein peptide bonds 
+ COOR>REMARK and termini to generate a protein sequence. 
+ COOR>REMARK DATE:05-Jul-2018  16:08:05       created by user: oeow39 
+ COOR>REMARK VERSION:1.3 
+ COOR>ATOM      1  CB  TRP     1       2.866   2.599  -0.052  1.00  0.00      TRYP 
+ COOR>ATOM      2  CG  TRP     1       4.320   1.819  -0.426  1.00  0.00      TRYP 
+ CNSsolve>   parameters    learn accum end    end 
+ CNSsolve>   evaluate ($nframe=$nframe+1) 
+ CNSsolve>end loop lfra2 
+ CNSsolve>while ($nframe < 50) loop lfra2 
+ CNSsolve>   evaluate ($filename="param2_"+encode($nframe)+".dat") 
+ CNSsolve>   coor @@$filename 
+ COOR>REMARK FILENAME="param2_34.dat" 
+ COOR>REMARK file toppar/protein.link 
+ COOR>REMARK this is a macro to define standard protein peptide bonds 
+ COOR>REMARK and termini to generate a protein sequence. 
+ COOR>REMARK DATE:05-Jul-2018  16:08:05       created by user: oeow39 
+ COOR>REMARK VERSION:1.3 
+ COOR>ATOM      1  CB  TRP     1       2.916   2.410   0.428  1.00  0.00      TRYP 
+ COOR>ATOM      2  CG  TRP     1       4.913   1.366  -0.379  1.00  0.00      TRYP 
+ CNSsolve>   parameters    learn accum end    end 
+ CNSsolve>   evaluate ($nframe=$nframe+1) 
+ CNSsolve>end loop lfra2 
+ CNSsolve>while ($nframe < 50) loop lfra2 
+ CNSsolve>   evaluate ($filename="param2_"+encode($nframe)+".dat") 
+ CNSsolve>   coor @@$filename 
+ COOR>REMARK FILENAME="param2_35.dat" 
+ COOR>REMARK file toppar/protein.link 
+ COOR>REMARK this is a macro to define standard protein peptide bonds 
+ COOR>REMARK and termini to generate a protein sequence. 
+ COOR>REMARK DATE:05-Jul-2018  16:08:05       created by user: oeow39 
+ COOR>REMARK VERSION:1.3 
+ COOR>ATOM      1  CB  TRP     1       3.522   2.685   0.049  1.00  0.00      TRYP 
+ COOR>ATOM      2  CG  TRP     1       4.562   1.914  -0.646  1.00  0.00      TRYP 
+ CNSsolve>   parameters    learn accum end    end 
+ CNSsolve>   evaluate ($nframe=$nframe+1) 
+ CNSsolve>end loop lfra2 
+ CNSsolve>while ($nframe < 50) loop lfra2 
+ CNSsolve>   evaluate ($filename="param2_"+encode($nframe)+".dat") 
+ CNSsolve>   coor @@$filename 
+ COOR>REMARK FILENAME="param2_36.dat" 
+ COOR>REMARK file toppar/protein.link 
+ COOR>REMARK this is a macro to define standard protein peptide bonds 
+ COOR>REMARK and termini to generate a protein sequence. 
+ COOR>REMARK DATE:05-Jul-2018  16:08:05       created by user: oeow39 
+ COOR>REMARK VERSION:1.3 
+ COOR>ATOM      1  CB  TRP     1       3.535   2.169   0.162  1.00  0.00      TRYP 
+ COOR>ATOM      2  CG  TRP     1       4.407   1.952  -0.003  1.00  0.00      TRYP 
+ CNSsolve>   parameters    learn accum end    end 
+ CNSsolve>   evaluate ($nframe=$nframe+1) 
+ CNSsolve>end loop lfra2 
+ CNSsolve>while ($nframe < 50) loop lfra2 
+ CNSsolve>   evaluate ($filename="param2_"+encode($nframe)+".dat") 
+ CNSsolve>   coor @@$filename 
+ COOR>REMARK FILENAME="param2_37.dat" 
+ COOR>REMARK file toppar/protein.link 
+ COOR>REMARK this is a macro to define standard protein peptide bonds 
+ COOR>REMARK and termini to generate a protein sequence. 
+ COOR>REMARK DATE:05-Jul-2018  16:08:05       created by user: oeow39 
+ COOR>REMARK VERSION:1.3 
+ COOR>ATOM      1  CB  TRP     1       3.095   2.483   0.361  1.00  0.00      TRYP 
+ COOR>ATOM      2  CG  TRP     1       4.853   1.288  -0.628  1.00  0.00      TRYP 
+ CNSsolve>   parameters    learn accum end    end 
+ CNSsolve>   evaluate ($nframe=$nframe+1) 
+ CNSsolve>end loop lfra2 
+ CNSsolve>while ($nframe < 50) loop lfra2 
+ CNSsolve>   evaluate ($filename="param2_"+encode($nframe)+".dat") 
+ CNSsolve>   coor @@$filename 
+ COOR>REMARK FILENAME="param2_38.dat" 
+ COOR>REMARK file toppar/protein.link 
+ COOR>REMARK this is a macro to define standard protein peptide bonds 
+ COOR>REMARK and termini to generate a protein sequence. 
+ COOR>REMARK DATE:05-Jul-2018  16:08:05       created by user: oeow39 
+ COOR>REMARK VERSION:1.3 
+ COOR>ATOM      1  CB  TRP     1       2.842   2.474   0.171  1.00  0.00      TRYP 
+ COOR>ATOM      2  CG  TRP     1       4.461   1.378   0.243  1.00  0.00      TRYP 
+ CNSsolve>   parameters    learn accum end    end 
+ CNSsolve>   evaluate ($nframe=$nframe+1) 
+ CNSsolve>end loop lfra2 
+ CNSsolve>while ($nframe < 50) loop lfra2 
+ CNSsolve>   evaluate ($filename="param2_"+encode($nframe)+".dat") 
+ CNSsolve>   coor @@$filename 
+ COOR>REMARK FILENAME="param2_39.dat" 
+ COOR>REMARK file toppar/protein.link 
+ COOR>REMARK this is a macro to define standard protein peptide bonds 
+ COOR>REMARK and termini to generate a protein sequence. 
+ COOR>REMARK DATE:05-Jul-2018  16:08:05       created by user: oeow39 
+ COOR>REMARK VERSION:1.3 
+ COOR>ATOM      1  CB  TRP     1       2.963   2.544   0.183  1.00  0.00      TRYP 
+ COOR>ATOM      2  CG  TRP     1       4.051   1.995  -0.601  1.00  0.00      TRYP 
+ CNSsolve>   parameters    learn accum end    end 
+ CNSsolve>   evaluate ($nframe=$nframe+1) 
+ CNSsolve>end loop lfra2 
+ CNSsolve>while ($nframe < 50) loop lfra2 
+ CNSsolve>   evaluate ($filename="param2_"+encode($nframe)+".dat") 
+ CNSsolve>   coor @@$filename 
+ COOR>REMARK FILENAME="param2_40.dat" 
+ COOR>REMARK file toppar/protein.link 
+ COOR>REMARK this is a macro to define standard protein peptide bonds 
+ COOR>REMARK and termini to generate a protein sequence. 
+ COOR>REMARK DATE:05-Jul-2018  16:08:05       created by user: oeow39 
+ COOR>REMARK VERSION:1.3 
+ COOR>ATOM      1  CB  TRP     1       3.018   2.410   0.646  1.00  0.00      TRYP 
+ COOR>ATOM      2  CG  TRP     1       4.448   1.420   0.204  1.00  0.00      TRYP 
+ CNSsolve>   parameters    learn accum end    end 
+ CNSsolve>   evaluate ($nframe=$nframe+1) 
+ CNSsolve>end loop lfra2 
+ CNSsolve>while ($nframe < 50) loop lfra2 
+ CNSsolve>   evaluate ($filename="param2_"+encode($nframe)+".dat") 
+ CNSsolve>   coor @@$filename 
+ COOR>REMARK FILENAME="param2_41.dat" 
+ COOR>REMARK file toppar/protein.link 
+ COOR>REMARK this is a macro to define standard protein peptide bonds 
+ COOR>REMARK and termini to generate a protein sequence. 
+ COOR>REMARK DATE:05-Jul-2018  16:08:05       created by user: oeow39 
+ COOR>REMARK VERSION:1.3 
+ COOR>ATOM      1  CB  TRP     1       3.192   2.811   0.446  1.00  0.00      TRYP 
+ COOR>ATOM      2  CG  TRP     1       4.415   1.662   0.139  1.00  0.00      TRYP 
+ CNSsolve>   parameters    learn accum end    end 
+ CNSsolve>   evaluate ($nframe=$nframe+1) 
+ CNSsolve>end loop lfra2 
+ CNSsolve>while ($nframe < 50) loop lfra2 
+ CNSsolve>   evaluate ($filename="param2_"+encode($nframe)+".dat") 
+ CNSsolve>   coor @@$filename 
+ COOR>REMARK FILENAME="param2_42.dat" 
+ COOR>REMARK file toppar/protein.link 
+ COOR>REMARK this is a macro to define standard protein peptide bonds 
+ COOR>REMARK and termini to generate a protein sequence. 
+ COOR>REMARK DATE:05-Jul-2018  16:08:05       created by user: oeow39 
+ COOR>REMARK VERSION:1.3 
+ COOR>ATOM      1  CB  TRP     1       3.413   2.527   0.264  1.00  0.00      TRYP 
+ COOR>ATOM      2  CG  TRP     1       4.756   1.460  -0.038  1.00  0.00      TRYP 
+ CNSsolve>   parameters    learn accum end    end 
+ CNSsolve>   evaluate ($nframe=$nframe+1) 
+ CNSsolve>end loop lfra2 
+ CNSsolve>while ($nframe < 50) loop lfra2 
+ CNSsolve>   evaluate ($filename="param2_"+encode($nframe)+".dat") 
+ CNSsolve>   coor @@$filename 
+ COOR>REMARK FILENAME="param2_43.dat" 
+ COOR>REMARK file toppar/protein.link 
+ COOR>REMARK this is a macro to define standard protein peptide bonds 
+ COOR>REMARK and termini to generate a protein sequence. 
+ COOR>REMARK DATE:05-Jul-2018  16:08:05       created by user: oeow39 
+ COOR>REMARK VERSION:1.3 
+ COOR>ATOM      1  CB  TRP     1       3.354   2.282   0.367  1.00  0.00      TRYP 
+ COOR>ATOM      2  CG  TRP     1       4.679   1.588  -0.336  1.00  0.00      TRYP 
+ CNSsolve>   parameters    learn accum end    end 
+ CNSsolve>   evaluate ($nframe=$nframe+1) 
+ CNSsolve>end loop lfra2 
+ CNSsolve>while ($nframe < 50) loop lfra2 
+ CNSsolve>   evaluate ($filename="param2_"+encode($nframe)+".dat") 
+ CNSsolve>   coor @@$filename 
+ COOR>REMARK FILENAME="param2_44.dat" 
+ COOR>REMARK file toppar/protein.link 
+ COOR>REMARK this is a macro to define standard protein peptide bonds 
+ COOR>REMARK and termini to generate a protein sequence. 
+ COOR>REMARK DATE:05-Jul-2018  16:08:05       created by user: oeow39 
+ COOR>REMARK VERSION:1.3 
+ COOR>ATOM      1  CB  TRP     1       2.956   2.250   0.499  1.00  0.00      TRYP 
+ COOR>ATOM      2  CG  TRP     1       4.438   1.286   0.200  1.00  0.00      TRYP 
+ CNSsolve>   parameters    learn accum end    end 
+ CNSsolve>   evaluate ($nframe=$nframe+1) 
+ CNSsolve>end loop lfra2 
+ CNSsolve>while ($nframe < 50) loop lfra2 
+ CNSsolve>   evaluate ($filename="param2_"+encode($nframe)+".dat") 
+ CNSsolve>   coor @@$filename 
+ COOR>REMARK FILENAME="param2_45.dat" 
+ COOR>REMARK file toppar/protein.link 
+ COOR>REMARK this is a macro to define standard protein peptide bonds 
+ COOR>REMARK and termini to generate a protein sequence. 
+ COOR>REMARK DATE:05-Jul-2018  16:08:05       created by user: oeow39 
+ COOR>REMARK VERSION:1.3 
+ COOR>ATOM      1  CB  TRP     1       2.778   2.280   0.287  1.00  0.00      TRYP 
+ COOR>ATOM      2  CG  TRP     1       4.207   2.099  -0.608  1.00  0.00      TRYP 
+ CNSsolve>   parameters    learn accum end    end 
+ CNSsolve>   evaluate ($nframe=$nframe+1) 
+ CNSsolve>end loop lfra2 
+ CNSsolve>while ($nframe < 50) loop lfra2 
+ CNSsolve>   evaluate ($filename="param2_"+encode($nframe)+".dat") 
+ CNSsolve>   coor @@$filename 
+ COOR>REMARK FILENAME="param2_46.dat" 
+ COOR>REMARK file toppar/protein.link 
+ COOR>REMARK this is a macro to define standard protein peptide bonds 
+ COOR>REMARK and termini to generate a protein sequence. 
+ COOR>REMARK DATE:05-Jul-2018  16:08:05       created by user: oeow39 
+ COOR>REMARK VERSION:1.3 
+ COOR>ATOM      1  CB  TRP     1       3.649   2.811  -0.264  1.00  0.00      TRYP 
+ COOR>ATOM      2  CG  TRP     1       4.537   1.195  -0.029  1.00  0.00      TRYP 
+ CNSsolve>   parameters    learn accum end    end 
+ CNSsolve>   evaluate ($nframe=$nframe+1) 
+ CNSsolve>end loop lfra2 
+ CNSsolve>while ($nframe < 50) loop lfra2 
+ CNSsolve>   evaluate ($filename="param2_"+encode($nframe)+".dat") 
+ CNSsolve>   coor @@$filename 
+ COOR>REMARK FILENAME="param2_47.dat" 
+ COOR>REMARK file toppar/protein.link 
+ COOR>REMARK this is a macro to define standard protein peptide bonds 
+ COOR>REMARK and termini to generate a protein sequence. 
+ COOR>REMARK DATE:05-Jul-2018  16:08:05       created by user: oeow39 
+ COOR>REMARK VERSION:1.3 
+ COOR>ATOM      1  CB  TRP     1       2.844   2.656   0.580  1.00  0.00      TRYP 
+ COOR>ATOM      2  CG  TRP     1       4.341   1.569   0.259  1.00  0.00      TRYP 
+ CNSsolve>   parameters    learn accum end    end 
+ CNSsolve>   evaluate ($nframe=$nframe+1) 
+ CNSsolve>end loop lfra2 
+ CNSsolve>while ($nframe < 50) loop lfra2 
+ CNSsolve>   evaluate ($filename="param2_"+encode($nframe)+".dat") 
+ CNSsolve>   coor @@$filename 
+ COOR>REMARK FILENAME="param2_48.dat" 
+ COOR>REMARK file toppar/protein.link 
+ COOR>REMARK this is a macro to define standard protein peptide bonds 
+ COOR>REMARK and termini to generate a protein sequence. 
+ COOR>REMARK DATE:05-Jul-2018  16:08:05       created by user: oeow39 
+ COOR>REMARK VERSION:1.3 
+ COOR>ATOM      1  CB  TRP     1       3.260   2.968  -0.273  1.00  0.00      TRYP 
+ COOR>ATOM      2  CG  TRP     1       4.580   1.455   0.065  1.00  0.00      TRYP 
+ CNSsolve>   parameters    learn accum end    end 
+ CNSsolve>   evaluate ($nframe=$nframe+1) 
+ CNSsolve>end loop lfra2 
+ CNSsolve>while ($nframe < 50) loop lfra2 
+ CNSsolve>   evaluate ($filename="param2_"+encode($nframe)+".dat") 
+ CNSsolve>   coor @@$filename 
+ COOR>REMARK FILENAME="param2_49.dat" 
+ COOR>REMARK file toppar/protein.link 
+ COOR>REMARK this is a macro to define standard protein peptide bonds 
+ COOR>REMARK and termini to generate a protein sequence. 
+ COOR>REMARK DATE:05-Jul-2018  16:08:05       created by user: oeow39 
+ COOR>REMARK VERSION:1.3 
+ COOR>ATOM      1  CB  TRP     1       3.687   2.651   0.226  1.00  0.00      TRYP 
+ COOR>ATOM      2  CG  TRP     1       4.391   1.666   0.111  1.00  0.00      TRYP 
+ CNSsolve>   parameters    learn accum end    end 
+ CNSsolve>   evaluate ($nframe=$nframe+1) 
+ CNSsolve>end loop lfra2 
+ CNSsolve>while ($nframe < 50) loop lfra2 
+ CNSsolve>   evaluate ($filename="param2_"+encode($nframe)+".dat") 
+ CNSsolve>   coor @@$filename 
+ CNSsolve>   parameters    learn accum end    end 
+ CNSsolve>   evaluate ($nframe=$nframe+1) 
+ CNSsolve>end loop lfra2 
+ CNSsolve> 
+ CNSsolve>parameters   learn terminate end   end 
+ CNSsolve> 
+ CNSsolve>set message=normal end 
+ CNSsolve>parameters ? verbose end 
+
+ BOND  C    CH1E    1342.404 {sd=     0.015}      1.525
+ BOND  C    CH2E     947.200 {sd=     0.018}      1.516
+ BOND  C    CH2G    1827.161 {sd=     0.013}      1.516
+ BOND  C    HA       350.000 {sd=     0.029}      1.080
+ BOND  C    N       2312.500 {sd=     0.011}      1.341
+ BOND  C    NC2     1827.161 {sd=     0.013}      1.326
+ BOND  C    NH1     3020.408 {sd=     0.010}      1.329
+ BOND  C    NH2     1342.404 {sd=     0.015}      1.328
+ BOND  C    O       1480.000 {sd=     0.014}      1.231
+ BOND  C    OC      1639.889 {sd=     0.013}      1.249
+ BOND  C    OH1     1223.141 {sd=     0.016}      1.304
+ BOND  C5   CH2E    3020.408 {sd=     0.010}      1.497
+ BOND  C5   CR1E    4892.562 {sd=     0.008}      1.356
+ BOND  C5   CR1H    4892.562 {sd=     0.008}      1.354
+ BOND  C5   NH1     4892.562 {sd=     0.008}      1.378
+ BOND  C5   NR      2048.443 {sd=     0.012}      1.371
+ BOND  C5W  CH2E     616.025 {sd=     0.022}      1.498
+ BOND  C5W  CR1E     947.200 {sd=     0.018}      1.365
+ BOND  C5W  CW      1827.161 {sd=     0.013}      1.433
+ BOND  CF   CH2E    1119.093 {sd=     0.016}      1.502
+ BOND  CF   CR1E    1342.404 {sd=     0.015}      1.384
+ BOND  CH1E CH1E     812.071 {sd=     0.019}      1.540
+ BOND  CH1E CH2E    1480.000 {sd=     0.014}      1.530
+ BOND  CH1E CH3E     543.618 {sd=     0.023}      1.521
+ BOND  CH1E N       2631.111 {sd=     0.011}      1.466
+ BOND  CH1E NH1     1639.889 {sd=     0.013}      1.458
+ BOND  CH1E NH3     1342.404 {sd=     0.015}      1.491
+ BOND  CH1E OH1     2312.500 {sd=     0.011}      1.433
+ BOND  CH2E CH2E     657.778 {sd=     0.021}      1.520
+ BOND  CH2E CH2P     236.800 {sd=     0.035}      1.492
+ BOND  CH2E CH3E     389.218 {sd=     0.028}      1.513
+ BOND  CH2E CY      1223.141 {sd=     0.016}      1.512
+ BOND  CH2E NH1     1827.161 {sd=     0.013}      1.460
+ BOND  CH2E NH3      657.778 {sd=     0.021}      1.489
+ BOND  CH2E OH1     1480.000 {sd=     0.014}      1.417
+ BOND  CH2E S       1480.000 {sd=     0.014}      1.822
+ BOND  CH2E SE       500.000 {sd=     0.024}      1.930
+ BOND  CH2E SH1E     543.618 {sd=     0.023}      1.808
+ BOND  CH2E SM       512.111 {sd=     0.024}      1.803
+ BOND  CH2G NH1     2312.500 {sd=     0.011}      1.451
+ BOND  CH2G NH3      657.778 {sd=     0.021}      1.489
+ BOND  CH2P CH2P     512.111 {sd=     0.024}      1.503
+ BOND  CH2P N       3020.408 {sd=     0.010}      1.473
+ BOND  CH2P NH3     3020.408 {sd=     0.010}      1.473
+ BOND  CH3E NH1     1827.161 {sd=     0.013}      1.460
+ BOND  CH3E NH3      657.778 {sd=     0.021}      1.489
+ BOND  CH3E SE       500.000 {sd=     0.024}      1.930
+ BOND  CH3E SM       170.066 {sd=     0.042}      1.791
+ BOND  CR1E CR1E     657.778 {sd=     0.021}      1.382
+ BOND  CR1E CR1W     947.200 {sd=     0.018}      1.400
+ BOND  CR1E CW      2312.500 {sd=     0.011}      1.398
+ BOND  CR1E CY      1342.404 {sd=     0.015}      1.389
+ BOND  CR1E CY2     1027.778 {sd=     0.017}      1.378
+ BOND  CR1E NH1     1342.404 {sd=     0.015}      1.374
+ BOND  CR1E NR       657.778 {sd=     0.021}      1.382
+ BOND  CR1H NH1     4892.562 {sd=     0.008}      1.374
+ BOND  CR1W CR1W    1639.889 {sd=     0.013}      1.368
+ BOND  CR1W CW      1342.404 {sd=     0.015}      1.394
+ BOND  CRH  NH1     1480.000 {sd=     0.014}      1.345
+ BOND  CRH  NR      3502.958 {sd=     0.009}      1.319
+ BOND  CRHH NH1     5920.000 {sd=     0.007}      1.321
+ BOND  CT   HA       300.000 {sd=     0.031}      1.080
+ BOND  CW   CW      2048.443 {sd=     0.012}      1.409
+ BOND  CW   NH1     4892.562 {sd=     0.008}      1.370
+ BOND  CY2  OH1     1342.404 {sd=     0.015}      1.376
+ BOND  H    NH1      405.000 {sd=     0.027}      0.980
+ BOND  H    NH2      405.000 {sd=     0.027}      0.980
+ BOND  H    OH1      450.000 {sd=     0.026}      0.960
+ BOND  HC   NC2      405.000 {sd=     0.027}      1.000
+ BOND  HC   NH1      405.000 {sd=     0.027}      0.980
+ BOND  HC   NH3      405.000 {sd=     0.027}      1.040
+ BOND  S    S       2410.110 {sd=     0.011}      2.030
+
+ ANGLe  C    CH1E CH1E     401.53 {sd=     1.556}    109.1000
+ ANGLe  C    CH1E CH2E     538.35 {sd=     1.344}    110.1000
+ ANGLe  C    CH1E CH3E     863.74 {sd=     1.061}    110.5000
+ ANGLe  C    CH1E N        310.95 {sd=     1.768}    111.8000
+ ANGLe  C    CH1E NH1      247.89 {sd=     1.980}    111.2000
+ ANGLe  C    CH1E NH3      247.89 {sd=     1.980}    111.2000
+ ANGLe  C    CH2E CH1E    1943.42 {sd=     0.707}    112.6000
+ ANGLe  C    CH2E CH2E     672.47 {sd=     1.202}    112.6000
+ ANGLe  C    CH2G NH1      231.09 {sd=     2.051}    112.5000
+ ANGLe  C    CH2G NH3      231.09 {sd=     2.051}    112.5000
+ ANGLe  C    N    CH1E      77.74 {sd=     3.536}    122.6000
+ ANGLe  C    N    CH2P     115.61 {sd=     2.900}    125.0000
+ ANGLe  C    NC2  HC        35.00 {sd=     5.270}    120.0000
+ ANGLe  C    NH1  CH1E     599.82 {sd=     1.273}    121.7000
+ ANGLe  C    NH1  CH2E     863.74 {sd=     1.061}    124.2000
+ ANGLe  C    NH1  CH2G     672.47 {sd=     1.202}    120.6000
+ ANGLe  C    NH1  CH3E     672.47 {sd=     1.202}    120.6000
+ ANGLe  C    NH1  H         30.00 {sd=     5.692}    120.0000
+ ANGLe  C    NH2  H         30.00 {sd=     5.692}    120.0000
+ ANGLe  C    OH1  H         50.00 {sd=     4.409}    109.5000
+ ANGLe  C5   CH2E CH1E    1943.42 {sd=     0.707}    113.8000
+ ANGLe  C5   CR1E NH1     1943.42 {sd=     0.707}    106.5000
+ ANGLe  C5   CR1E NR       367.38 {sd=     1.627}    109.5000
+ ANGLe  C5   CR1H NH1     1943.42 {sd=     0.707}    107.2000
+ ANGLe  C5   NH1  CRH      672.47 {sd=     1.202}    109.0000
+ ANGLe  C5   NH1  CRHH     672.47 {sd=     1.202}    109.3000
+ ANGLe  C5   NH1  H         30.00 {sd=     5.692}    120.0000
+ ANGLe  C5   NR   CRH     1943.42 {sd=     0.707}    105.6000
+ ANGLe  C5W  CH2E CH1E     538.35 {sd=     1.344}    113.6000
+ ANGLe  C5W  CR1E NH1     1149.96 {sd=     0.919}    110.2000
+ ANGLe  C5W  CW   CR1E    1943.42 {sd=     0.707}    133.9000
+ ANGLe  C5W  CW   CW      1349.60 {sd=     0.849}    107.2000
+ ANGLe  C5W  NH1  H         30.00 {sd=     5.692}    120.0000
+ ANGLe  CF   CH2E CH1E    1943.42 {sd=     0.707}    113.8000
+ ANGLe  CF   CR1E CR1E     672.47 {sd=     1.202}    120.7000
+ ANGLe  CH1E C    N        863.74 {sd=     1.061}    116.9000
+ ANGLe  CH1E C    NH1      485.86 {sd=     1.414}    116.2000
+ ANGLe  CH1E C    O        672.47 {sd=     1.202}    120.8000
+ ANGLe  CH1E C    OC       310.95 {sd=     1.768}    117.0000
+ ANGLe  CH1E CH1E CH2E     672.47 {sd=     1.202}    110.4000
+ ANGLe  CH1E CH1E CH3E     672.47 {sd=     1.202}    110.5000
+ ANGLe  CH1E CH1E NH1      672.47 {sd=     1.202}    111.5000
+ ANGLe  CH1E CH1E NH3      672.47 {sd=     1.202}    111.5000
+ ANGLe  CH1E CH1E OH1      863.74 {sd=     1.061}    109.6000
+ ANGLe  CH1E CH2E CH1E     158.65 {sd=     2.475}    116.3000
+ ANGLe  CH1E CH2E CH2E     485.86 {sd=     1.414}    114.1000
+ ANGLe  CH1E CH2E CH2P     538.35 {sd=     1.344}    104.5000
+ ANGLe  CH1E CH2E CH3E     440.69 {sd=     1.485}    113.8000
+ ANGLe  CH1E CH2E CY       599.82 {sd=     1.273}    113.9000
+ ANGLe  CH1E CH2E OH1      485.86 {sd=     1.414}    111.1000
+ ANGLe  CH1E CH2E S        367.38 {sd=     1.627}    114.4000
+ ANGLe  CH1E CH2E SH1E     367.38 {sd=     1.627}    114.4000
+ ANGLe  CH1E N    CH2P     991.54 {sd=     0.990}    112.0000
+ ANGLe  CH1E NH1  H         35.00 {sd=     5.270}    120.0000
+ ANGLe  CH1E NH2  H         35.00 {sd=     5.270}    120.0000
+ ANGLe  CH1E NH3  CH2P     991.54 {sd=     0.990}    112.0000
+ ANGLe  CH1E NH3  HC        35.00 {sd=     5.270}    109.5000
+ ANGLe  CH1E OH1  H         35.00 {sd=     5.270}    109.5000
+ ANGLe  CH2E C    N        440.69 {sd=     1.485}    118.2000
+ ANGLe  CH2E C    NH1      440.69 {sd=     1.485}    116.5000
+ ANGLe  CH2E C    NH2      863.74 {sd=     1.061}    116.4000
+ ANGLe  CH2E C    O        485.86 {sd=     1.414}    120.8000
+ ANGLe  CH2E C    OC       367.38 {sd=     1.627}    118.4000
+ ANGLe  CH2E C5   CR1E    1149.96 {sd=     0.919}    129.1000
+ ANGLe  CH2E C5   CR1H    1149.96 {sd=     0.919}    131.2000
+ ANGLe  CH2E C5   NH1      863.74 {sd=     1.061}    122.7000
+ ANGLe  CH2E C5   NR       863.74 {sd=     1.061}    121.6000
+ ANGLe  CH2E C5W  CR1E     863.74 {sd=     1.061}    126.9000
+ ANGLe  CH2E C5W  CW       991.54 {sd=     0.990}    126.8000
+ ANGLe  CH2E CF   CR1E     672.47 {sd=     1.202}    120.7000
+ ANGLe  CH2E CH1E CH3E     215.94 {sd=     2.122}    110.7000
+ ANGLe  CH2E CH1E N       1606.14 {sd=     0.778}    103.0000
+ ANGLe  CH2E CH1E NH1      672.47 {sd=     1.202}    110.5000
+ ANGLe  CH2E CH1E NH3      672.47 {sd=     1.202}    110.5000
+ ANGLe  CH2E CH2E CH2E     367.38 {sd=     1.627}    111.3000
+ ANGLe  CH2E CH2E NH1      401.53 {sd=     1.556}    112.0000
+ ANGLe  CH2E CH2E NH3      189.79 {sd=     2.263}    111.9000
+ ANGLe  CH2E CH2E SE       215.94 {sd=     2.122}    112.7000
+ ANGLe  CH2E CH2E SM       215.94 {sd=     2.122}    112.7000
+ ANGLe  CH2E CH2P CH2P     189.79 {sd=     2.263}    106.1000
+ ANGLe  CH2E CY   CR1E     863.74 {sd=     1.061}    120.8000
+ ANGLe  CH2E NH1  H         35.00 {sd=     5.270}    120.0000
+ ANGLe  CH2E NH2  H         35.00 {sd=     5.270}    120.0000
+ ANGLe  CH2E NH3  CH3E      35.00 {sd=     5.270}    109.5000
+ ANGLe  CH2E NH3  HC        35.00 {sd=     5.270}    109.5000
+ ANGLe  CH2E OH1  H         35.00 {sd=     5.270}    109.5000
+ ANGLe  CH2E S    S        599.82 {sd=     1.273}    103.8000
+ ANGLe  CH2E SE   CH3E     400.00 {sd=     1.559}     98.9000
+ ANGLe  CH2E SM   CH3E     401.53 {sd=     1.556}    100.9000
+ ANGLe  CH2G C    N        440.69 {sd=     1.485}    118.2000
+ ANGLe  CH2G C    NH1      440.69 {sd=     1.485}    116.4000
+ ANGLe  CH2G C    O        440.69 {sd=     1.485}    120.8000
+ ANGLe  CH2G C    OC       367.38 {sd=     1.627}    118.4000
+ ANGLe  CH2G NH1  H         35.00 {sd=     5.270}    120.0000
+ ANGLe  CH2G NH3  HC        35.00 {sd=     5.270}    109.5000
+ ANGLe  CH2P CH2P N        863.74 {sd=     1.061}    103.2000
+ ANGLe  CH2P CH2P NH3      863.74 {sd=     1.061}    103.2000
+ ANGLe  CH2P NH3  HC       500.00 {sd=     1.394}    125.0000
+ ANGLe  CH3E CH1E CH3E     401.53 {sd=     1.556}    110.8000
+ ANGLe  CH3E CH1E NH1      863.74 {sd=     1.061}    110.4000
+ ANGLe  CH3E CH1E NH3      672.47 {sd=     1.202}    110.5000
+ ANGLe  CH3E CH1E OH1      485.86 {sd=     1.414}    109.3000
+ ANGLe  CH3E NH1  H         35.00 {sd=     5.270}    120.0000
+ ANGLe  CH3E NH3  CH3E      40.00 {sd=     4.930}    109.5000
+ ANGLe  CR1E C5   NH1     1943.42 {sd=     0.707}    105.2000
+ ANGLe  CR1E C5   NR      1943.42 {sd=     0.707}    109.2000
+ ANGLe  CR1E C5W  CW       759.15 {sd=     1.132}    106.3000
+ ANGLe  CR1E CF   CR1E     863.74 {sd=     1.061}    118.6000
+ ANGLe  CR1E CR1E CR1E     599.82 {sd=     1.273}    120.0000
+ ANGLe  CR1E CR1E CR1W    1149.96 {sd=     0.919}    121.1000
+ ANGLe  CR1E CR1E CW      1149.96 {sd=     0.919}    118.6000
+ ANGLe  CR1E CR1E CY       863.74 {sd=     1.061}    121.2000
+ ANGLe  CR1E CR1E CY2      599.82 {sd=     1.273}    119.6000
+ ANGLe  CR1E CR1W CR1W    1149.96 {sd=     0.919}    121.5000
+ ANGLe  CR1E CW   CW      1943.42 {sd=     0.707}    118.8000
+ ANGLe  CR1E CY   CR1E     863.74 {sd=     1.061}    118.1000
+ ANGLe  CR1E CY2  CR1E     485.86 {sd=     1.414}    120.3000
+ ANGLe  CR1E CY2  OH1      215.94 {sd=     2.122}    119.9000
+ ANGLe  CR1E NH1  CRH     1149.96 {sd=     0.919}    106.9000
+ ANGLe  CR1E NH1  CW       599.82 {sd=     1.273}    108.9000
+ ANGLe  CR1E NH1  H         35.00 {sd=     5.270}    120.0000
+ ANGLe  CR1E NR   CRH      215.94 {sd=     2.122}    107.0000
+ ANGLe  CR1H C5   NH1     1943.42 {sd=     0.707}    106.1000
+ ANGLe  CR1H NH1  CRHH    1943.42 {sd=     0.707}    109.0000
+ ANGLe  CR1H NH1  H         35.00 {sd=     5.270}    120.0000
+ ANGLe  CR1W CR1W CW      1149.96 {sd=     0.919}    117.5000
+ ANGLe  CR1W CW   CW      1943.42 {sd=     0.707}    122.4000
+ ANGLe  CR1W CW   NH1      863.74 {sd=     1.061}    130.1000
+ ANGLe  CRH  NH1  H         35.00 {sd=     5.270}    120.0000
+ ANGLe  CRHH NH1  H         35.00 {sd=     5.270}    120.0000
+ ANGLe  CW   CW   NH1     1149.96 {sd=     0.919}    107.4000
+ ANGLe  CW   NH1  H         30.00 {sd=     5.692}    120.0000
+ ANGLe  CY2  OH1  H         50.00 {sd=     4.409}    109.5000
+ ANGLe  H    NH2  H         40.00 {sd=     4.930}    125.0000
+ ANGLe  HC   NC2  HC        40.00 {sd=     4.930}    120.0000
+ ANGLe  HC   NH3  HC        40.00 {sd=     4.930}    109.5000
+ ANGLe  N    C    O        991.54 {sd=     0.990}    122.0000
+ ANGLe  NC2  C    NC2      599.82 {sd=     1.273}    119.7000
+ ANGLe  NC2  C    NH1      538.35 {sd=     1.344}    120.0000
+ ANGLe  NH1  C    O        759.15 {sd=     1.132}    123.0000
+ ANGLe  NH1  CRH  NR      1149.96 {sd=     0.919}    111.7000
+ ANGLe  NH1  CRHH NH1     1943.42 {sd=     0.707}    108.4000
+ ANGLe  NH2  C    O       1943.42 {sd=     0.707}    122.6000
+ ANGLe  OC   C    OC       337.40 {sd=     1.697}    122.9000
+
+ DIHEdral  C5W  CW   CW   CR1W      300.00 {sd=     1.800}    2    180.0000
+ DIHEdral  CH1E C    N    CH1E     1250.00 {sd=     0.882}    2    180.0000
+ DIHEdral  CH2E C    N    CH1E     1250.00 {sd=     0.882}    2    180.0000
+ DIHEdral  CH2G C    N    CH1E     1250.00 {sd=     0.882}    2    180.0000
+ DIHEdral  CR1E CW   CW   CR1E      300.00 {sd=     1.800}    2    180.0000
+ DIHEdral  CR1E CW   CW   CR1W      300.00 {sd=     1.800}    2    180.0000
+ DIHEdral  CR1E CW   CW   NH1       300.00 {sd=     1.800}    2    180.0000
+ DIHEdral  NC2  C    NH1  CH2E      300.00 {sd=     1.800}    2    180.0000
+ DIHEdral  X    C    CH1E X           0.00 {sd=999999.000}    3      0.0000
+ DIHEdral  X    C    CH2E X           0.00 {sd=999999.000}    3      0.0000
+ DIHEdral  X    C    CH2G X           0.00 {sd=999999.000}    3      0.0000
+ DIHEdral  X    C    CR1E X          30.00 {sd=     5.692}    2    180.0000
+ DIHEdral  X    C    N    X          24.60 {sd=     6.286}    2    180.0000
+ DIHEdral  X    C    NC2  X          24.60 {sd=     6.286}    2    180.0000
+ DIHEdral  X    C    NH1  X        1250.00 {sd=     0.882}    1      0.0000
+ DIHEdral  X    C    NH2  X          24.60 {sd=     6.286}    2    180.0000
+ DIHEdral  X    C5   CH2E X           0.00 {sd=999999.000}    3      0.0000
+ DIHEdral  X    C5W  CH2E X           0.00 {sd=999999.000}    3      0.0000
+ DIHEdral  X    CF   CH2E X           0.00 {sd=999999.000}    3      0.0000
+ DIHEdral  X    CH1E CH1E X           4.80 {sd=    14.230}    3      0.0000
+ DIHEdral  X    CH1E CH2E X           4.80 {sd=    14.230}    3      0.0000
+ DIHEdral  X    CH1E N    X           0.90 {sd=    32.864}    3      0.0000
+ DIHEdral  X    CH1E NH1  X           0.90 {sd=    32.864}    3      0.0000
+ DIHEdral  X    CH1E NH2  X           5.40 {sd=    13.416}    3      0.0000
+ DIHEdral  X    CH1E NH3  X           1.80 {sd=    23.238}    3      0.0000
+ DIHEdral  X    CH1E OH1  X           1.50 {sd=    25.456}    3      0.0000
+ DIHEdral  X    CH2E CH2E X           4.80 {sd=    14.230}    3      0.0000
+ DIHEdral  X    CH2E CH2P X           4.80 {sd=    14.230}    3      0.0000
+ DIHEdral  X    CH2E CY   X           0.00 {sd=999999.000}    3      0.0000
+ DIHEdral  X    CH2E N    X           0.90 {sd=    32.864}    3      0.0000
+ DIHEdral  X    CH2E NH1  X           0.90 {sd=    32.864}    3      0.0000
+ DIHEdral  X    CH2E NH2  X           1.80 {sd=    23.238}    3      0.0000
+ DIHEdral  X    CH2E NH3  X           1.80 {sd=    23.238}    3      0.0000
+ DIHEdral  X    CH2E OH1  X           1.50 {sd=    25.456}    3      0.0000
+ DIHEdral  X    CH2E S    X           3.60 {sd=    16.432}    2      0.0000
+ DIHEdral  X    CH2E SE   X           3.60 {sd=    16.432}    2      0.0000
+ DIHEdral  X    CH2E SM   X           3.60 {sd=    16.432}    2      0.0000
+ DIHEdral  X    CH2G NH1  X           0.90 {sd=    32.864}    3      0.0000
+ DIHEdral  X    CH2G NH3  X           1.80 {sd=    23.238}    3      0.0000
+ DIHEdral  X    CH2P CH2P X           4.80 {sd=    14.230}    3      0.0000
+ DIHEdral  X    CH2P N    X           0.90 {sd=    32.864}    3      0.0000
+ DIHEdral  X    CH2P NH3  X           0.90 {sd=    32.864}    3      0.0000
+ DIHEdral  X    CY2  OH1  X           5.40 {sd=    13.416}    2    180.0000
+ DIHEdral  X    S    S    X          12.00 {sd=     9.000}    2      0.0000
+
+ IMPRoper  C    C    CR1E CH2E      750.00 {sd=     1.138}    0      0.0000
+ IMPRoper  C    CH2P CH1E N         135.00 {sd=     2.683}    0      0.0000
+ IMPRoper  C    CR1E C    CH2E      750.00 {sd=     1.138}    0      0.0000
+ IMPRoper  C    CR1E CR1E CH2E      750.00 {sd=     1.138}    0      0.0000
+ IMPRoper  C    CR1E CR1E OH1       750.00 {sd=     1.138}    0      0.0000
+ IMPRoper  C    CR1E NH1  CH2E      750.00 {sd=     1.138}    0      0.0000
+ IMPRoper  C    H    H    NH2       135.00 {sd=     2.683}    0      0.0000
+ IMPRoper  C    OC   OC   CH1E      300.00 {sd=     1.800}    0      0.0000
+ IMPRoper  C    OC   OC   CH2E      300.00 {sd=     1.800}    0      0.0000
+ IMPRoper  C    X    X    C          75.00 {sd=     3.600}    0      0.0000
+ IMPRoper  C    X    X    CH2E      270.00 {sd=     1.897}    0      0.0000
+ IMPRoper  C    X    X    CH3E      270.00 {sd=     1.897}    0      0.0000
+ IMPRoper  C    X    X    CR1E      750.00 {sd=     1.138}    0      0.0000
+ IMPRoper  C    X    X    H         225.00 {sd=     2.078}    0      0.0000
+ IMPRoper  C    X    X    HA        225.00 {sd=     2.078}    0      0.0000
+ IMPRoper  C    X    X    NH1       300.00 {sd=     1.800}    0      0.0000
+ IMPRoper  C    X    X    O         300.00 {sd=     1.800}    0      0.0000
+ IMPRoper  C    X    X    OC        300.00 {sd=     1.800}    0      0.0000
+ IMPRoper  C    X    X    OH1       450.00 {sd=     1.470}    0      0.0000
+ IMPRoper  C5   NH1  CR1E CH2E      750.00 {sd=     1.138}    0      0.0000
+ IMPRoper  C5   NH1  CR1H CH2E      750.00 {sd=     1.138}    0      0.0000
+ IMPRoper  C5   NH1  CRHH CH2E      750.00 {sd=     1.138}    0      0.0000
+ IMPRoper  C5   X    X    CH2E      270.00 {sd=     1.897}    0      0.0000
+ IMPRoper  C5   X    X    CRH       750.00 {sd=     1.138}    0      0.0000
+ IMPRoper  C5   X    X    CRHH      750.00 {sd=     1.138}    0      0.0000
+ IMPRoper  C5   X    X    NH1       300.00 {sd=     1.800}    0      0.0000
+ IMPRoper  C5   X    X    NR         75.00 {sd=     3.600}    0      0.0000
+ IMPRoper  C5W  CR1E CW   CH2E      750.00 {sd=     1.138}    0      0.0000
+ IMPRoper  C5W  X    X    CW         75.00 {sd=     3.600}    0      0.0000
+ IMPRoper  C5W  X    X    NH1       300.00 {sd=     1.800}    0      0.0000
+ IMPRoper  CF   CR1E CR1E CH2E      750.00 {sd=     1.138}    0      0.0000
+ IMPRoper  CF   X    X    CR1E      750.00 {sd=     1.138}    0      0.0000
+ IMPRoper  CH1E X    X    CH1E      300.00 {sd=     1.800}    0     35.2644
+ IMPRoper  CH1E X    X    CH2E      300.00 {sd=     1.800}    0     35.2644
+ IMPRoper  CH1E X    X    CH3E      300.00 {sd=     1.800}    0     35.2644
+ IMPRoper  CH1E X    X    NH1       135.00 {sd=     2.683}    0      0.0000
+ IMPRoper  CH2E CR1E CR1E CY        750.00 {sd=     1.138}    0      0.0000
+ IMPRoper  CH2E X    X    N         135.00 {sd=     2.683}    0      0.0000
+ IMPRoper  CH2E X    X    NH1       135.00 {sd=     2.683}    0      0.0000
+ IMPRoper  CH3E X    X    NH1       135.00 {sd=     2.683}    0      0.0000
+ IMPRoper  CH3E X    X    NR         75.00 {sd=     3.600}    0      0.0000
+ IMPRoper  CR1E X    X    CR1E      750.00 {sd=     1.138}    0      0.0000
+ IMPRoper  CR1E X    X    CR1W      750.00 {sd=     1.138}    0      0.0000
+ IMPRoper  CR1E X    X    CRH       750.00 {sd=     1.138}    0      0.0000
+ IMPRoper  CR1E X    X    CW        750.00 {sd=     1.138}    0      0.0000
+ IMPRoper  CR1E X    X    NH1       750.00 {sd=     1.138}    0      0.0000
+ IMPRoper  CR1E X    X    NR        750.00 {sd=     1.138}    0      0.0000
+ IMPRoper  CR1H X    X    CRHH      750.00 {sd=     1.138}    0      0.0000
+ IMPRoper  CR1H X    X    NH1       750.00 {sd=     1.138}    0      0.0000
+ IMPRoper  CR1W X    X    CW        750.00 {sd=     1.138}    0      0.0000
+ IMPRoper  CT   X    X    N         135.00 {sd=     2.683}    0      0.0000
+ IMPRoper  CT   X    X    NC2       135.00 {sd=     2.683}    0      0.0000
+ IMPRoper  CT   X    X    NH1       135.00 {sd=     2.683}    0      0.0000
+ IMPRoper  CT   X    X    NR         75.00 {sd=     3.600}    0      0.0000
+ IMPRoper  CW   X    X    NH1       300.00 {sd=     1.800}    0      0.0000
+ IMPRoper  CY   X    X    CY2        75.00 {sd=     3.600}    0      0.0000
+ IMPRoper  CY2  CR1E CR1E OH1       750.00 {sd=     1.138}    0      0.0000
+ IMPRoper  H    X    X    NH1       135.00 {sd=     2.683}    0      0.0000
+ IMPRoper  H    X    X    NH2       135.00 {sd=     2.683}    0      0.0000
+ IMPRoper  H    X    X    O         135.00 {sd=     2.683}    0      0.0000
+ IMPRoper  HC   NC2  C    NH1       135.00 {sd=     2.683}    0      0.0000
+ IMPRoper  HC   X    X    NC2       135.00 {sd=     2.683}    0      0.0000
+ IMPRoper  NH1  X    X    NH1        75.00 {sd=     3.600}    0      0.0000
+ IMPRoper  NH1  X    X    NR         75.00 {sd=     3.600}    0      0.0000
+
+ !                  eps     sigma       eps(1:4) sigma(1:4)
+ NONBonded  H       0.0498   1.4254      0.0498   1.4254
+ NONBonded  HA      0.0450   2.6157      0.0450   2.6157
+ NONBonded  HC      0.0498   1.0691      0.0498   1.0691
+ NONBonded  C       0.1200   3.7418      0.1000   3.3854
+ NONBonded  C5      0.1200   3.7418      0.1000   3.3854
+ NONBonded  C5W     0.1200   3.7418      0.1000   3.3854
+ NONBonded  CF      0.1200   3.7418      0.1000   3.3854
+ NONBonded  CW      0.1200   3.7418      0.1000   3.3854
+ NONBonded  CY      0.1200   3.7418      0.1000   3.3854
+ NONBonded  CY2     0.1200   3.7418      0.1000   3.3854
+ NONBonded  CH1E    0.0486   4.2140      0.1000   3.3854
+ NONBonded  CH2E    0.1142   3.9823      0.1000   3.3854
+ NONBonded  CH2G    0.1142   3.9823      0.1000   3.3854
+ NONBonded  CH2P    0.1142   3.9823      0.1000   3.3854
+ NONBonded  CH3E    0.1811   3.8576      0.1000   3.3854
+ NONBonded  CR1E    0.1200   3.7418      0.1000   3.3854
+ NONBonded  CR1H    0.1200   3.7418      0.1000   3.3854
+ NONBonded  CR1W    0.1200   3.7418      0.1000   3.3854
+ NONBonded  CRHH    0.1200   3.7418      0.1000   3.3854
+ NONBonded  CRH     0.1200   3.7418      0.1000   3.3854
+ NONBonded  N       0.2384   2.8509      0.2384   2.8509
+ NONBonded  NC2     0.2384   2.8509      0.2384   2.8509
+ NONBonded  NH1     0.2384   2.8509      0.2384   2.8509
+ NONBonded  NH2     0.2384   2.8509      0.2384   2.8509
+ NONBonded  NH3     0.2384   2.8509      0.2384   2.8509
+ NONBonded  NP      0.2384   2.8509      0.2384   2.8509
+ NONBonded  NR      0.2384   2.8509      0.2384   2.8509
+ NONBonded  O       0.1591   2.8509      0.1591   2.8509
+ NONBonded  OC      0.6469   2.8509      0.6469   2.8509
+ NONBonded  OH1     0.1591   2.8509      0.1591   2.8509
+ NONBonded  S       0.0430   3.3676      0.0430   3.3676
+ NONBonded  SM      0.0430   3.3676      0.0430   3.3676
+ NONBonded  SH1E    0.0430   3.3676      0.0430   3.3676
+ NONBonded  SE      0.0430   3.5100      0.0430   3.5100
+
+ Listing of all atom-based (F) and type-based (T) parameters.
+
+ BOND (ATOM TRYP 1    N   ) (ATOM TRYP 1    CA  )      1.257F      1.614F
+ BOND (ATOM TRYP 1    CA  ) (ATOM TRYP 1    C   )      1.461F      1.571F
+ BOND (ATOM TRYP 1    C   ) (ATOM TRYP 1    O   )      1.799F      1.423F
+ BOND (ATOM TRYP 1    CA  ) (ATOM TRYP 1    CB  )      1.706F      1.660F
+ BOND (ATOM TRYP 1    CB  ) (ATOM TRYP 1    CG  )      2.673F      1.689F
+ BOND (ATOM TRYP 1    CG  ) (ATOM TRYP 1    CD1 )      2.033F      1.432F
+ BOND (ATOM TRYP 1    CG  ) (ATOM TRYP 1    CD2 )      1.642F      1.482F
+ BOND (ATOM TRYP 1    CD1 ) (ATOM TRYP 1    NE1 )      1.381F      1.424F
+ BOND (ATOM TRYP 1    CD2 ) (ATOM TRYP 1    CE2 )      1.746F      1.472F
+ BOND (ATOM TRYP 1    NE1 ) (ATOM TRYP 1    HE1 )      2.213F      1.225F
+ BOND (ATOM TRYP 1    NE1 ) (ATOM TRYP 1    CE2 )      1.999F      1.475F
+ BOND (ATOM TRYP 1    CD2 ) (ATOM TRYP 1    CE3 )      1.192F      1.465F
+ BOND (ATOM TRYP 1    CE2 ) (ATOM TRYP 1    CZ2 )      2.288F      1.572F
+ BOND (ATOM TRYP 1    CE3 ) (ATOM TRYP 1    CZ3 )      2.309F      1.530F
+ BOND (ATOM TRYP 1    CZ2 ) (ATOM TRYP 1    CH2 )      1.970F      1.457F
+ BOND (ATOM TRYP 1    CZ3 ) (ATOM TRYP 1    CH2 )      1.881F      1.469F
+ BOND (ATOM TRYP 1    HT1 ) (ATOM TRYP 1    N   )      2.754F      1.308F
+ BOND (ATOM TRYP 1    HT2 ) (ATOM TRYP 1    N   )      2.317F      1.187F
+ BOND (ATOM TRYP 1    HT3 ) (ATOM TRYP 1    N   )      2.246F      1.240F
+ BOND (ATOM TRYP 1    C   ) (ATOM TRYP 1    OXT )      1.600F      1.433F
+
+ ANGL (ATOM TRYP 1    N   ) (ATOM TRYP 1    CA  ) 
+                            (ATOM TRYP 1    C   )      1.966F    103.403F  UB      0.000F       0.000F
+ ANGL (ATOM TRYP 1    N   ) (ATOM TRYP 1    CA  ) 
+                            (ATOM TRYP 1    CB  )      1.595F    106.496F  UB      0.000F       0.000F
+ ANGL (ATOM TRYP 1    CA  ) (ATOM TRYP 1    C   ) 
+                            (ATOM TRYP 1    O   )      1.766F    113.775F  UB      0.000F       0.000F
+ ANGL (ATOM TRYP 1    C   ) (ATOM TRYP 1    CA  ) 
+                            (ATOM TRYP 1    CB  )      2.225F    106.593F  UB      0.000F       0.000F
+ ANGL (ATOM TRYP 1    CA  ) (ATOM TRYP 1    CB  ) 
+                            (ATOM TRYP 1    CG  )      3.005F    107.098F  UB      0.000F       0.000F
+ ANGL (ATOM TRYP 1    CB  ) (ATOM TRYP 1    CG  ) 
+                            (ATOM TRYP 1    CD1 )      1.416F    117.252F  UB      0.000F       0.000F
+ ANGL (ATOM TRYP 1    CB  ) (ATOM TRYP 1    CG  ) 
+                            (ATOM TRYP 1    CD2 )      1.810F    119.495F  UB      0.000F       0.000F
+ ANGL (ATOM TRYP 1    CD1 ) (ATOM TRYP 1    CG  ) 
+                            (ATOM TRYP 1    CD2 )      1.828F    109.203F  UB      0.000F       0.000F
+ ANGL (ATOM TRYP 1    CG  ) (ATOM TRYP 1    CD1 ) 
+                            (ATOM TRYP 1    NE1 )      1.409F    101.641F  UB      0.000F       0.000F
+ ANGL (ATOM TRYP 1    CG  ) (ATOM TRYP 1    CD2 ) 
+                            (ATOM TRYP 1    CE2 )      1.798F     94.908F  UB      0.000F       0.000F
+ ANGL (ATOM TRYP 1    CG  ) (ATOM TRYP 1    CD2 ) 
+                            (ATOM TRYP 1    CE3 )      1.693F    128.951F  UB      0.000F       0.000F
+ ANGL (ATOM TRYP 1    CD1 ) (ATOM TRYP 1    NE1 ) 
+                            (ATOM TRYP 1    HE1 )      1.282F    110.102F  UB      0.000F       0.000F
+ ANGL (ATOM TRYP 1    CD1 ) (ATOM TRYP 1    NE1 ) 
+                            (ATOM TRYP 1    CE2 )      1.397F    102.152F  UB      0.000F       0.000F
+ ANGL (ATOM TRYP 1    CD2 ) (ATOM TRYP 1    CE2 ) 
+                            (ATOM TRYP 1    NE1 )      1.552F    107.305F  UB      0.000F       0.000F
+ ANGL (ATOM TRYP 1    CE2 ) (ATOM TRYP 1    CD2 ) 
+                            (ATOM TRYP 1    CE3 )      1.555F    113.669F  UB      0.000F       0.000F
+ ANGL (ATOM TRYP 1    CD2 ) (ATOM TRYP 1    CE2 ) 
+                            (ATOM TRYP 1    CZ2 )      2.233F    114.757F  UB      0.000F       0.000F
+ ANGL (ATOM TRYP 1    HE1 ) (ATOM TRYP 1    NE1 ) 
+                            (ATOM TRYP 1    CE2 )      1.387F    109.431F  UB      0.000F       0.000F
+ ANGL (ATOM TRYP 1    NE1 ) (ATOM TRYP 1    CE2 ) 
+                            (ATOM TRYP 1    CZ2 )      2.049F    117.271F  UB      0.000F       0.000F
+ ANGL (ATOM TRYP 1    CD2 ) (ATOM TRYP 1    CE3 ) 
+                            (ATOM TRYP 1    CZ3 )      1.724F    110.521F  UB      0.000F       0.000F
+ ANGL (ATOM TRYP 1    CE2 ) (ATOM TRYP 1    CZ2 ) 
+                            (ATOM TRYP 1    CH2 )      2.980F    103.841F  UB      0.000F       0.000F
+ ANGL (ATOM TRYP 1    CE3 ) (ATOM TRYP 1    CZ3 ) 
+                            (ATOM TRYP 1    CH2 )      1.532F    112.225F  UB      0.000F       0.000F
+ ANGL (ATOM TRYP 1    CZ2 ) (ATOM TRYP 1    CH2 ) 
+                            (ATOM TRYP 1    CZ3 )      1.773F    119.978F  UB      0.000F       0.000F
+ ANGL (ATOM TRYP 1    HT1 ) (ATOM TRYP 1    N   ) 
+                            (ATOM TRYP 1    HT2 )      1.250F    101.699F  UB      0.000F       0.000F
+ ANGL (ATOM TRYP 1    HT2 ) (ATOM TRYP 1    N   ) 
+                            (ATOM TRYP 1    HT3 )      1.110F    102.893F  UB      0.000F       0.000F
+ ANGL (ATOM TRYP 1    HT2 ) (ATOM TRYP 1    N   ) 
+                            (ATOM TRYP 1    CA  )      1.186F    104.708F  UB      0.000F       0.000F
+ ANGL (ATOM TRYP 1    HT1 ) (ATOM TRYP 1    N   ) 
+                            (ATOM TRYP 1    HT3 )      1.225F     99.235F  UB      0.000F       0.000F
+ ANGL (ATOM TRYP 1    HT1 ) (ATOM TRYP 1    N   ) 
+                            (ATOM TRYP 1    CA  )      1.201F     97.558F  UB      0.000F       0.000F
+ ANGL (ATOM TRYP 1    HT3 ) (ATOM TRYP 1    N   ) 
+                            (ATOM TRYP 1    CA  )      1.615F    106.273F  UB      0.000F       0.000F
+ ANGL (ATOM TRYP 1    CA  ) (ATOM TRYP 1    C   ) 
+                            (ATOM TRYP 1    OXT )      1.375F    112.080F  UB      0.000F       0.000F
+ ANGL (ATOM TRYP 1    O   ) (ATOM TRYP 1    C   ) 
+                            (ATOM TRYP 1    OXT )      3.226F    106.855F  UB      0.000F       0.000F
+
+ DIHE (ATOM TRYP 1    N   ) (ATOM TRYP 1    CA  ) 
+      (ATOM TRYP 1    CB  ) (ATOM TRYP 1    CG  )       MULT   1
+                                                        1.07F   0F     -60.18F
+ DIHE (ATOM TRYP 1    CA  ) (ATOM TRYP 1    CB  ) 
+      (ATOM TRYP 1    CG  ) (ATOM TRYP 1    CD1 )       MULT   1
+                                                        0.51F   0F     -96.73F
+ DIHE (ATOM TRYP 1    CD1 ) (ATOM TRYP 1    CE2 ) 
+      (ATOM TRYP 1    CD2 ) (ATOM TRYP 1    CZ3 )       MULT   1
+                                                        3.19F   0F    -183.98F
+ DIHE (ATOM TRYP 1    CD1 ) (ATOM TRYP 1    CD2 ) 
+      (ATOM TRYP 1    CE2 ) (ATOM TRYP 1    CH2 )       MULT   1
+                                                        3.75F   0F     183.79F
+ DIHE (ATOM TRYP 1    CZ2 ) (ATOM TRYP 1    CE2 ) 
+      (ATOM TRYP 1    CD2 ) (ATOM TRYP 1    CG  )       MULT   1
+                                                        0.94F   0F    -174.14F
+ DIHE (ATOM TRYP 1    CE3 ) (ATOM TRYP 1    CD2 ) 
+      (ATOM TRYP 1    CE2 ) (ATOM TRYP 1    NE1 )       MULT   1
+                                                        0.83F   0F     173.56F
+ DIHE (ATOM TRYP 1    HT2 ) (ATOM TRYP 1    N   ) 
+      (ATOM TRYP 1    CA  ) (ATOM TRYP 1    C   )       MULT   1
+                                                        0.67F   0F     123.23F
+ DIHE (ATOM TRYP 1    HT1 ) (ATOM TRYP 1    N   ) 
+      (ATOM TRYP 1    CA  ) (ATOM TRYP 1    C   )       MULT   1
+                                                        0.55F   0F      -6.82F
+ DIHE (ATOM TRYP 1    HT3 ) (ATOM TRYP 1    N   ) 
+      (ATOM TRYP 1    CA  ) (ATOM TRYP 1    C   )       MULT   1
+                                                        0.66F   0F    -118.73F
+ DIHE (ATOM TRYP 1    N   ) (ATOM TRYP 1    CA  ) 
+      (ATOM TRYP 1    C   ) (ATOM TRYP 1    OXT )       MULT   1
+                                                        0.58F   0F     129.39F
+
+ IMPR (ATOM TRYP 1    CA  ) (ATOM TRYP 1    N   ) 
+      (ATOM TRYP 1    C   ) (ATOM TRYP 1    CB  )       MULT   1
+                                                        1.80F   0F      36.22F
+ IMPR (ATOM TRYP 1    CG  ) (ATOM TRYP 1    CD1 ) 
+      (ATOM TRYP 1    CD2 ) (ATOM TRYP 1    CB  )       MULT   1
+                                                        2.10F   0F       5.45F
+ IMPR (ATOM TRYP 1    NE1 ) (ATOM TRYP 1    CD1 ) 
+      (ATOM TRYP 1    CE2 ) (ATOM TRYP 1    HE1 )       MULT   1
+                                                        1.10F   0F      22.21F
+ IMPR (ATOM TRYP 1    CD2 ) (ATOM TRYP 1    CE2 ) 
+      (ATOM TRYP 1    CZ2 ) (ATOM TRYP 1    CH2 )       MULT   1
+                                                        0.38F   0F      -8.91F
+ IMPR (ATOM TRYP 1    CE2 ) (ATOM TRYP 1    CZ2 ) 
+      (ATOM TRYP 1    CH2 ) (ATOM TRYP 1    CZ3 )       MULT   1
+                                                        0.33F   0F       4.37F
+ IMPR (ATOM TRYP 1    CZ2 ) (ATOM TRYP 1    CH2 ) 
+      (ATOM TRYP 1    CZ3 ) (ATOM TRYP 1    CE3 )       MULT   1
+                                                        0.26F   0F      -6.56F
+ IMPR (ATOM TRYP 1    CH2 ) (ATOM TRYP 1    CZ3 ) 
+      (ATOM TRYP 1    CE3 ) (ATOM TRYP 1    CD2 )       MULT   1
+                                                        0.33F   0F      13.33F
+ IMPR (ATOM TRYP 1    CZ3 ) (ATOM TRYP 1    CE3 ) 
+      (ATOM TRYP 1    CD2 ) (ATOM TRYP 1    CE2 )       MULT   1
+                                                        0.41F   0F      -7.72F
+ IMPR (ATOM TRYP 1    CE3 ) (ATOM TRYP 1    CD2 ) 
+      (ATOM TRYP 1    CE2 ) (ATOM TRYP 1    CZ2 )       MULT   1
+                                                        0.35F   0F       7.86F
+ IMPR (ATOM TRYP 1    CG  ) (ATOM TRYP 1    CD1 ) 
+      (ATOM TRYP 1    NE1 ) (ATOM TRYP 1    CE2 )       MULT   1
+                                                        0.62F   0F      -6.58F
+ IMPR (ATOM TRYP 1    CD1 ) (ATOM TRYP 1    NE1 ) 
+      (ATOM TRYP 1    CE2 ) (ATOM TRYP 1    CD2 )       MULT   1
+                                                        0.49F   0F      12.02F
+ IMPR (ATOM TRYP 1    NE1 ) (ATOM TRYP 1    CE2 ) 
+      (ATOM TRYP 1    CD2 ) (ATOM TRYP 1    CG  )       MULT   1
+                                                        0.62F   0F      -8.45F
+ IMPR (ATOM TRYP 1    CE2 ) (ATOM TRYP 1    CD2 ) 
+      (ATOM TRYP 1    CG  ) (ATOM TRYP 1    CD1 )       MULT   1
+                                                        0.78F   0F       9.42F
+ IMPR (ATOM TRYP 1    CD2 ) (ATOM TRYP 1    CG  ) 
+      (ATOM TRYP 1    CD1 ) (ATOM TRYP 1    NE1 )       MULT   1
+                                                        0.66F   0F      -1.40F
+ IMPR (ATOM TRYP 1    C   ) (ATOM TRYP 1    CA  ) 
+      (ATOM TRYP 1    OXT ) (ATOM TRYP 1    O   )       MULT   1
+                                                        0.68F   0F       9.48F
+
+ !         slot      eps     sigma       eps(1:4) sigma(1:4)
+
+ TYPE-based parameters
+ NONBonded      1    0.0498   1.4254      0.0498   1.4254
+ NONBonded      2    0.0450   2.6157      0.0450   2.6157
+ NONBonded      3    0.0498   1.0691      0.0498   1.0691
+ NONBonded      4    0.1200   3.7418      0.1000   3.3854
+ NONBonded      5    0.1200   3.7418      0.1000   3.3854
+ NONBonded      6    0.1200   3.7418      0.1000   3.3854
+ NONBonded      7    0.1200   3.7418      0.1000   3.3854
+ NONBonded      8    0.1200   3.7418      0.1000   3.3854
+ NONBonded      9    0.1200   3.7418      0.1000   3.3854
+ NONBonded     10    0.1200   3.7418      0.1000   3.3854
+ NONBonded     11    0.0486   4.2140      0.1000   3.3854
+ NONBonded     12    0.1142   3.9823      0.1000   3.3854
+ NONBonded     13    0.1142   3.9823      0.1000   3.3854
+ NONBonded     14    0.1142   3.9823      0.1000   3.3854
+ NONBonded     15    0.1811   3.8576      0.1000   3.3854
+ NONBonded     16    0.1200   3.7418      0.1000   3.3854
+ NONBonded     17    0.1200   3.7418      0.1000   3.3854
+ NONBonded     18    0.1200   3.7418      0.1000   3.3854
+ NONBonded     19    0.1200   3.7418      0.1000   3.3854
+ NONBonded     20    0.1200   3.7418      0.1000   3.3854
+ NONBonded     21    0.2384   2.8509      0.2384   2.8509
+ NONBonded     22    0.2384   2.8509      0.2384   2.8509
+ NONBonded     23    0.2384   2.8509      0.2384   2.8509
+ NONBonded     24    0.2384   2.8509      0.2384   2.8509
+ NONBonded     25    0.2384   2.8509      0.2384   2.8509
+ NONBonded     26    0.2384   2.8509      0.2384   2.8509
+ NONBonded     27    0.2384   2.8509      0.2384   2.8509
+ NONBonded     28    0.1591   2.8509      0.1591   2.8509
+ NONBonded     29    0.6469   2.8509      0.6469   2.8509
+ NONBonded     30    0.1591   2.8509      0.1591   2.8509
+ NONBonded     31    0.0430   3.3676      0.0430   3.3676
+ NONBonded     32    0.0430   3.3676      0.0430   3.3676
+ NONBonded     33    0.0430   3.3676      0.0430   3.3676
+ NONBonded     34    0.0430   3.5100      0.0430   3.5100
+
+ ATOM-based parameters
+
+
+ Atom-selections
+   TRYP 1    HE1      slot=    1
+   TRYP 1    HT1      slot=    3
+   TRYP 1    HT2      slot=    3
+   TRYP 1    HT3      slot=    3
+   TRYP 1    C        slot=    4
+   TRYP 1    CG       slot=    6
+   TRYP 1    CD2      slot=    8
+   TRYP 1    CE2      slot=    8
+   TRYP 1    CA       slot=   11
+   TRYP 1    CB       slot=   12
+   TRYP 1    CE3      slot=   16
+   TRYP 1    CD1      slot=   16
+   TRYP 1    CZ3      slot=   16
+   TRYP 1    CZ2      slot=   18
+   TRYP 1    CH2      slot=   18
+   TRYP 1    NE1      slot=   23
+   TRYP 1    N        slot=   25
+   TRYP 1    O        slot=   29
+   TRYP 1    OXT      slot=   29
+ CNSsolve> 
+ CNSsolve>energy end 
+ NBONDS: found       92 intra-atom interactions
+ --------------- cycle=     2 --------------------------------------------------
+ | Etotal =-21.176    grad(E)=9.284      E(BOND)=6.251      E(ANGL)=6.310      |
+ | E(DIHE)=1.611      E(IMPR)=4.599      E(VDW )=5.949      E(ELEC)=-45.895    |
+ -------------------------------------------------------------------------------
+ CNSsolve> 
+ CNSsolve>!------------------------------------------------------------ 
+ CNSsolve>! now reduce atomic parameters to obtain chemical parameters 
+ CNSsolve>!------------------------------------------------------------ 
+ CNSsolve> 
+ CNSsolve>parameters reduce overwrite=true sele=(all) mode=average end end 
+ SELRPN:     19 atoms have been selected out of     19
+ REDUCE: creating    4 new dihedral parameters
+ REDUCE: creating   14 new improper parameters
+ CNSsolve>parameters ? verbose end 
+
+ BOND  C    CH1E       1.461 {sd=     0.450}      1.571
+ BOND  C    CH2E     947.200 {sd=     0.018}      1.516
+ BOND  C    CH2G    1827.161 {sd=     0.013}      1.516
+ BOND  C    HA       350.000 {sd=     0.029}      1.080
+ BOND  C    N       2312.500 {sd=     0.011}      1.341
+ BOND  C    NC2     1827.161 {sd=     0.013}      1.326
+ BOND  C    NH1     3020.408 {sd=     0.010}      1.329
+ BOND  C    NH2     1342.404 {sd=     0.015}      1.328
+ BOND  C    O       1480.000 {sd=     0.014}      1.231
+ BOND  C    OC         1.700 {sd=     0.417}      1.428
+ BOND  C    OH1     1223.141 {sd=     0.016}      1.304
+ BOND  C5   CH2E    3020.408 {sd=     0.010}      1.497
+ BOND  C5   CR1E    4892.562 {sd=     0.008}      1.356
+ BOND  C5   CR1H    4892.562 {sd=     0.008}      1.354
+ BOND  C5   NH1     4892.562 {sd=     0.008}      1.378
+ BOND  C5   NR      2048.443 {sd=     0.012}      1.371
+ BOND  C5W  CH2E       2.673 {sd=     0.333}      1.689
+ BOND  C5W  CR1E       2.033 {sd=     0.382}      1.432
+ BOND  C5W  CW         1.642 {sd=     0.425}      1.482
+ BOND  CF   CH2E    1119.093 {sd=     0.016}      1.502
+ BOND  CF   CR1E    1342.404 {sd=     0.015}      1.384
+ BOND  CH1E CH1E     812.071 {sd=     0.019}      1.540
+ BOND  CH1E CH2E       1.706 {sd=     0.417}      1.660
+ BOND  CH1E CH3E     543.618 {sd=     0.023}      1.521
+ BOND  CH1E N       2631.111 {sd=     0.011}      1.466
+ BOND  CH1E NH1     1639.889 {sd=     0.013}      1.458
+ BOND  CH1E NH3        1.257 {sd=     0.485}      1.614
+ BOND  CH1E OH1     2312.500 {sd=     0.011}      1.433
+ BOND  CH2E CH2E     657.778 {sd=     0.021}      1.520
+ BOND  CH2E CH2P     236.800 {sd=     0.035}      1.492
+ BOND  CH2E CH3E     389.218 {sd=     0.028}      1.513
+ BOND  CH2E CY      1223.141 {sd=     0.016}      1.512
+ BOND  CH2E NH1     1827.161 {sd=     0.013}      1.460
+ BOND  CH2E NH3      657.778 {sd=     0.021}      1.489
+ BOND  CH2E OH1     1480.000 {sd=     0.014}      1.417
+ BOND  CH2E S       1480.000 {sd=     0.014}      1.822
+ BOND  CH2E SE       500.000 {sd=     0.024}      1.930
+ BOND  CH2E SH1E     543.618 {sd=     0.023}      1.808
+ BOND  CH2E SM       512.111 {sd=     0.024}      1.803
+ BOND  CH2G NH1     2312.500 {sd=     0.011}      1.451
+ BOND  CH2G NH3      657.778 {sd=     0.021}      1.489
+ BOND  CH2P CH2P     512.111 {sd=     0.024}      1.503
+ BOND  CH2P N       3020.408 {sd=     0.010}      1.473
+ BOND  CH2P NH3     3020.408 {sd=     0.010}      1.473
+ BOND  CH3E NH1     1827.161 {sd=     0.013}      1.460
+ BOND  CH3E NH3      657.778 {sd=     0.021}      1.489
+ BOND  CH3E SE       500.000 {sd=     0.024}      1.930
+ BOND  CH3E SM       170.066 {sd=     0.042}      1.791
+ BOND  CR1E CR1E       2.309 {sd=     0.358}      1.530
+ BOND  CR1E CR1W       1.881 {sd=     0.397}      1.469
+ BOND  CR1E CW         1.192 {sd=     0.498}      1.465
+ BOND  CR1E CY      1342.404 {sd=     0.015}      1.389
+ BOND  CR1E CY2     1027.778 {sd=     0.017}      1.378
+ BOND  CR1E NH1        1.381 {sd=     0.463}      1.424
+ BOND  CR1E NR       657.778 {sd=     0.021}      1.382
+ BOND  CR1H NH1     4892.562 {sd=     0.008}      1.374
+ BOND  CR1W CR1W       1.970 {sd=     0.388}      1.457
+ BOND  CR1W CW         2.288 {sd=     0.360}      1.572
+ BOND  CRH  NH1     1480.000 {sd=     0.014}      1.345
+ BOND  CRH  NR      3502.958 {sd=     0.009}      1.319
+ BOND  CRHH NH1     5920.000 {sd=     0.007}      1.321
+ BOND  CT   HA       300.000 {sd=     0.031}      1.080
+ BOND  CW   CW         1.746 {sd=     0.412}      1.472
+ BOND  CW   NH1        1.999 {sd=     0.385}      1.475
+ BOND  CY2  OH1     1342.404 {sd=     0.015}      1.376
+ BOND  H    NH1        2.213 {sd=     0.366}      1.225
+ BOND  H    NH2      405.000 {sd=     0.027}      0.980
+ BOND  H    OH1      450.000 {sd=     0.026}      0.960
+ BOND  HC   NC2      405.000 {sd=     0.027}      1.000
+ BOND  HC   NH1      405.000 {sd=     0.027}      0.980
+ BOND  HC   NH3        2.439 {sd=     0.348}      1.245
+ BOND  S    S       2410.110 {sd=     0.011}      2.030
+
+ ANGLe  C    CH1E CH1E     401.53 {sd=     1.556}    109.1000
+ ANGLe  C    CH1E CH2E       2.22 {sd=    20.903}    106.5933
+ ANGLe  C    CH1E CH3E     863.74 {sd=     1.061}    110.5000
+ ANGLe  C    CH1E N        310.95 {sd=     1.768}    111.8000
+ ANGLe  C    CH1E NH1      247.89 {sd=     1.980}    111.2000
+ ANGLe  C    CH1E NH3        1.97 {sd=    22.237}    103.4028
+ ANGLe  C    CH2E CH1E    1943.42 {sd=     0.707}    112.6000
+ ANGLe  C    CH2E CH2E     672.47 {sd=     1.202}    112.6000
+ ANGLe  C    CH2G NH1      231.09 {sd=     2.051}    112.5000
+ ANGLe  C    CH2G NH3      231.09 {sd=     2.051}    112.5000
+ ANGLe  C    N    CH1E      77.74 {sd=     3.536}    122.6000
+ ANGLe  C    N    CH2P     115.61 {sd=     2.900}    125.0000
+ ANGLe  C    NC2  HC        35.00 {sd=     5.270}    120.0000
+ ANGLe  C    NH1  CH1E     599.82 {sd=     1.273}    121.7000
+ ANGLe  C    NH1  CH2E     863.74 {sd=     1.061}    124.2000
+ ANGLe  C    NH1  CH2G     672.47 {sd=     1.202}    120.6000
+ ANGLe  C    NH1  CH3E     672.47 {sd=     1.202}    120.6000
+ ANGLe  C    NH1  H         30.00 {sd=     5.692}    120.0000
+ ANGLe  C    NH2  H         30.00 {sd=     5.692}    120.0000
+ ANGLe  C    OH1  H         50.00 {sd=     4.409}    109.5000
+ ANGLe  C5   CH2E CH1E    1943.42 {sd=     0.707}    113.8000
+ ANGLe  C5   CR1E NH1     1943.42 {sd=     0.707}    106.5000
+ ANGLe  C5   CR1E NR       367.38 {sd=     1.627}    109.5000
+ ANGLe  C5   CR1H NH1     1943.42 {sd=     0.707}    107.2000
+ ANGLe  C5   NH1  CRH      672.47 {sd=     1.202}    109.0000
+ ANGLe  C5   NH1  CRHH     672.47 {sd=     1.202}    109.3000
+ ANGLe  C5   NH1  H         30.00 {sd=     5.692}    120.0000
+ ANGLe  C5   NR   CRH     1943.42 {sd=     0.707}    105.6000
+ ANGLe  C5W  CH2E CH1E       3.01 {sd=    17.985}    107.0984
+ ANGLe  C5W  CR1E NH1        1.41 {sd=    26.265}    101.6409
+ ANGLe  C5W  CW   CR1E       1.69 {sd=    23.964}    128.9514
+ ANGLe  C5W  CW   CW         1.80 {sd=    23.252}     94.9077
+ ANGLe  C5W  NH1  H         30.00 {sd=     5.692}    120.0000
+ ANGLe  CF   CH2E CH1E    1943.42 {sd=     0.707}    113.8000
+ ANGLe  CF   CR1E CR1E     672.47 {sd=     1.202}    120.7000
+ ANGLe  CH1E C    N        863.74 {sd=     1.061}    116.9000
+ ANGLe  CH1E C    NH1      485.86 {sd=     1.414}    116.2000
+ ANGLe  CH1E C    O        672.47 {sd=     1.202}    120.8000
+ ANGLe  CH1E C    OC         1.57 {sd=    24.877}    112.9276
+ ANGLe  CH1E CH1E CH2E     672.47 {sd=     1.202}    110.4000
+ ANGLe  CH1E CH1E CH3E     672.47 {sd=     1.202}    110.5000
+ ANGLe  CH1E CH1E NH1      672.47 {sd=     1.202}    111.5000
+ ANGLe  CH1E CH1E NH3      672.47 {sd=     1.202}    111.5000
+ ANGLe  CH1E CH1E OH1      863.74 {sd=     1.061}    109.6000
+ ANGLe  CH1E CH2E CH1E     158.65 {sd=     2.475}    116.3000
+ ANGLe  CH1E CH2E CH2E     485.86 {sd=     1.414}    114.1000
+ ANGLe  CH1E CH2E CH2P     538.35 {sd=     1.344}    104.5000
+ ANGLe  CH1E CH2E CH3E     440.69 {sd=     1.485}    113.8000
+ ANGLe  CH1E CH2E CY       599.82 {sd=     1.273}    113.9000
+ ANGLe  CH1E CH2E OH1      485.86 {sd=     1.414}    111.1000
+ ANGLe  CH1E CH2E S        367.38 {sd=     1.627}    114.4000
+ ANGLe  CH1E CH2E SH1E     367.38 {sd=     1.627}    114.4000
+ ANGLe  CH1E N    CH2P     991.54 {sd=     0.990}    112.0000
+ ANGLe  CH1E NH1  H         35.00 {sd=     5.270}    120.0000
+ ANGLe  CH1E NH2  H         35.00 {sd=     5.270}    120.0000
+ ANGLe  CH1E NH3  CH2P     991.54 {sd=     0.990}    112.0000
+ ANGLe  CH1E NH3  HC         1.33 {sd=    26.997}    102.8466
+ ANGLe  CH1E OH1  H         35.00 {sd=     5.270}    109.5000
+ ANGLe  CH2E C    N        440.69 {sd=     1.485}    118.2000
+ ANGLe  CH2E C    NH1      440.69 {sd=     1.485}    116.5000
+ ANGLe  CH2E C    NH2      863.74 {sd=     1.061}    116.4000
+ ANGLe  CH2E C    O        485.86 {sd=     1.414}    120.8000
+ ANGLe  CH2E C    OC       367.38 {sd=     1.627}    118.4000
+ ANGLe  CH2E C5   CR1E    1149.96 {sd=     0.919}    129.1000
+ ANGLe  CH2E C5   CR1H    1149.96 {sd=     0.919}    131.2000
+ ANGLe  CH2E C5   NH1      863.74 {sd=     1.061}    122.7000
+ ANGLe  CH2E C5   NR       863.74 {sd=     1.061}    121.6000
+ ANGLe  CH2E C5W  CR1E       1.42 {sd=    26.203}    117.2516
+ ANGLe  CH2E C5W  CW         1.81 {sd=    23.171}    119.4947
+ ANGLe  CH2E CF   CR1E     672.47 {sd=     1.202}    120.7000
+ ANGLe  CH2E CH1E CH3E     215.94 {sd=     2.122}    110.7000
+ ANGLe  CH2E CH1E N       1606.14 {sd=     0.778}    103.0000
+ ANGLe  CH2E CH1E NH1      672.47 {sd=     1.202}    110.5000
+ ANGLe  CH2E CH1E NH3        1.59 {sd=    24.688}    106.4964
+ ANGLe  CH2E CH2E CH2E     367.38 {sd=     1.627}    111.3000
+ ANGLe  CH2E CH2E NH1      401.53 {sd=     1.556}    112.0000
+ ANGLe  CH2E CH2E NH3      189.79 {sd=     2.263}    111.9000
+ ANGLe  CH2E CH2E SE       215.94 {sd=     2.122}    112.7000
+ ANGLe  CH2E CH2E SM       215.94 {sd=     2.122}    112.7000
+ ANGLe  CH2E CH2P CH2P     189.79 {sd=     2.263}    106.1000
+ ANGLe  CH2E CY   CR1E     863.74 {sd=     1.061}    120.8000
+ ANGLe  CH2E NH1  H         35.00 {sd=     5.270}    120.0000
+ ANGLe  CH2E NH2  H         35.00 {sd=     5.270}    120.0000
+ ANGLe  CH2E NH3  CH3E      35.00 {sd=     5.270}    109.5000
+ ANGLe  CH2E NH3  HC        35.00 {sd=     5.270}    109.5000
+ ANGLe  CH2E OH1  H         35.00 {sd=     5.270}    109.5000
+ ANGLe  CH2E S    S        599.82 {sd=     1.273}    103.8000
+ ANGLe  CH2E SE   CH3E     400.00 {sd=     1.559}     98.9000
+ ANGLe  CH2E SM   CH3E     401.53 {sd=     1.556}    100.9000
+ ANGLe  CH2G C    N        440.69 {sd=     1.485}    118.2000
+ ANGLe  CH2G C    NH1      440.69 {sd=     1.485}    116.4000
+ ANGLe  CH2G C    O        440.69 {sd=     1.485}    120.8000
+ ANGLe  CH2G C    OC       367.38 {sd=     1.627}    118.4000
+ ANGLe  CH2G NH1  H         35.00 {sd=     5.270}    120.0000
+ ANGLe  CH2G NH3  HC        35.00 {sd=     5.270}    109.5000
+ ANGLe  CH2P CH2P N        863.74 {sd=     1.061}    103.2000
+ ANGLe  CH2P CH2P NH3      863.74 {sd=     1.061}    103.2000
+ ANGLe  CH2P NH3  HC       500.00 {sd=     1.394}    125.0000
+ ANGLe  CH3E CH1E CH3E     401.53 {sd=     1.556}    110.8000
+ ANGLe  CH3E CH1E NH1      863.74 {sd=     1.061}    110.4000
+ ANGLe  CH3E CH1E NH3      672.47 {sd=     1.202}    110.5000
+ ANGLe  CH3E CH1E OH1      485.86 {sd=     1.414}    109.3000
+ ANGLe  CH3E NH1  H         35.00 {sd=     5.270}    120.0000
+ ANGLe  CH3E NH3  CH3E      40.00 {sd=     4.930}    109.5000
+ ANGLe  CR1E C5   NH1     1943.42 {sd=     0.707}    105.2000
+ ANGLe  CR1E C5   NR      1943.42 {sd=     0.707}    109.2000
+ ANGLe  CR1E C5W  CW         1.83 {sd=    23.057}    109.2025
+ ANGLe  CR1E CF   CR1E     863.74 {sd=     1.061}    118.6000
+ ANGLe  CR1E CR1E CR1E     599.82 {sd=     1.273}    120.0000
+ ANGLe  CR1E CR1E CR1W       1.53 {sd=    25.189}    112.2250
+ ANGLe  CR1E CR1E CW         1.72 {sd=    23.743}    110.5214
+ ANGLe  CR1E CR1E CY       863.74 {sd=     1.061}    121.2000
+ ANGLe  CR1E CR1E CY2      599.82 {sd=     1.273}    119.6000
+ ANGLe  CR1E CR1W CR1W       1.77 {sd=    23.416}    119.9776
+ ANGLe  CR1E CW   CW         1.55 {sd=    25.004}    113.6687
+ ANGLe  CR1E CY   CR1E     863.74 {sd=     1.061}    118.1000
+ ANGLe  CR1E CY2  CR1E     485.86 {sd=     1.414}    120.3000
+ ANGLe  CR1E CY2  OH1      215.94 {sd=     2.122}    119.9000
+ ANGLe  CR1E NH1  CRH     1149.96 {sd=     0.919}    106.9000
+ ANGLe  CR1E NH1  CW         1.40 {sd=    26.377}    102.1521
+ ANGLe  CR1E NH1  H          1.28 {sd=    27.532}    110.1022
+ ANGLe  CR1E NR   CRH      215.94 {sd=     2.122}    107.0000
+ ANGLe  CR1H C5   NH1     1943.42 {sd=     0.707}    106.1000
+ ANGLe  CR1H NH1  CRHH    1943.42 {sd=     0.707}    109.0000
+ ANGLe  CR1H NH1  H         35.00 {sd=     5.270}    120.0000
+ ANGLe  CR1W CR1W CW         2.98 {sd=    18.061}    103.8409
+ ANGLe  CR1W CW   CW         2.23 {sd=    20.864}    114.7575
+ ANGLe  CR1W CW   NH1        2.05 {sd=    21.782}    117.2705
+ ANGLe  CRH  NH1  H         35.00 {sd=     5.270}    120.0000
+ ANGLe  CRHH NH1  H         35.00 {sd=     5.270}    120.0000
+ ANGLe  CW   CW   NH1        1.55 {sd=    25.024}    107.3048
+ ANGLe  CW   NH1  H          1.39 {sd=    26.469}    109.4307
+ ANGLe  CY2  OH1  H         50.00 {sd=     4.409}    109.5000
+ ANGLe  H    NH2  H         40.00 {sd=     4.930}    125.0000
+ ANGLe  HC   NC2  HC        40.00 {sd=     4.930}    120.0000
+ ANGLe  HC   NH3  HC         1.19 {sd=    28.520}    101.2758
+ ANGLe  N    C    O        991.54 {sd=     0.990}    122.0000
+ ANGLe  NC2  C    NC2      599.82 {sd=     1.273}    119.7000
+ ANGLe  NC2  C    NH1      538.35 {sd=     1.344}    120.0000
+ ANGLe  NH1  C    O        759.15 {sd=     1.132}    123.0000
+ ANGLe  NH1  CRH  NR      1149.96 {sd=     0.919}    111.7000
+ ANGLe  NH1  CRHH NH1     1943.42 {sd=     0.707}    108.4000
+ ANGLe  NH2  C    O       1943.42 {sd=     0.707}    122.6000
+ ANGLe  OC   C    OC         3.23 {sd=    17.357}    106.8547
+
+ DIHEdral  C    CH1E NH3  HC          0.62 {sd=    39.478}    0     -0.7767
+ DIHEdral  C5W  CW   CW   CR1W        0.94 {sd=    32.125}    0   -174.1373
+ DIHEdral  CH1E C    N    CH1E     1250.00 {sd=     0.882}    2    180.0000
+ DIHEdral  CH2E C    N    CH1E     1250.00 {sd=     0.882}    2    180.0000
+ DIHEdral  CH2G C    N    CH1E     1250.00 {sd=     0.882}    2    180.0000
+ DIHEdral  CR1E C5W  CH2E CH1E        0.51 {sd=    43.805}    0    -96.7266
+ DIHEdral  CR1E CW   CW   CR1E        3.19 {sd=    17.467}    0    176.0248
+ DIHEdral  CR1E CW   CW   CR1W        3.75 {sd=    16.098}    0   -176.2118
+ DIHEdral  CR1E CW   CW   NH1         0.83 {sd=    34.132}    0    173.5556
+ DIHEdral  NC2  C    NH1  CH2E      300.00 {sd=     1.800}    2    180.0000
+ DIHEdral  NH3  CH1E CH2E C5W         1.07 {sd=    30.088}    0    -60.1810
+ DIHEdral  OC   C    CH1E NH3         0.58 {sd=    41.100}    0    129.3919
+ DIHEdral  X    C    CH1E X           0.00 {sd=999999.000}    3      0.0000
+ DIHEdral  X    C    CH2E X           0.00 {sd=999999.000}    3      0.0000
+ DIHEdral  X    C    CH2G X           0.00 {sd=999999.000}    3      0.0000
+ DIHEdral  X    C    CR1E X          30.00 {sd=     5.692}    2    180.0000
+ DIHEdral  X    C    N    X          24.60 {sd=     6.286}    2    180.0000
+ DIHEdral  X    C    NC2  X          24.60 {sd=     6.286}    2    180.0000
+ DIHEdral  X    C    NH1  X        1250.00 {sd=     0.882}    1      0.0000
+ DIHEdral  X    C    NH2  X          24.60 {sd=     6.286}    2    180.0000
+ DIHEdral  X    C5   CH2E X           0.00 {sd=999999.000}    3      0.0000
+ DIHEdral  X    C5W  CH2E X           0.00 {sd=999999.000}    3      0.0000
+ DIHEdral  X    CF   CH2E X           0.00 {sd=999999.000}    3      0.0000
+ DIHEdral  X    CH1E CH1E X           4.80 {sd=    14.230}    3      0.0000
+ DIHEdral  X    CH1E CH2E X           4.80 {sd=    14.230}    3      0.0000
+ DIHEdral  X    CH1E N    X           0.90 {sd=    32.864}    3      0.0000
+ DIHEdral  X    CH1E NH1  X           0.90 {sd=    32.864}    3      0.0000
+ DIHEdral  X    CH1E NH2  X           5.40 {sd=    13.416}    3      0.0000
+ DIHEdral  X    CH1E NH3  X           1.80 {sd=    23.238}    3      0.0000
+ DIHEdral  X    CH1E OH1  X           1.50 {sd=    25.456}    3      0.0000
+ DIHEdral  X    CH2E CH2E X           4.80 {sd=    14.230}    3      0.0000
+ DIHEdral  X    CH2E CH2P X           4.80 {sd=    14.230}    3      0.0000
+ DIHEdral  X    CH2E CY   X           0.00 {sd=999999.000}    3      0.0000
+ DIHEdral  X    CH2E N    X           0.90 {sd=    32.864}    3      0.0000
+ DIHEdral  X    CH2E NH1  X           0.90 {sd=    32.864}    3      0.0000
+ DIHEdral  X    CH2E NH2  X           1.80 {sd=    23.238}    3      0.0000
+ DIHEdral  X    CH2E NH3  X           1.80 {sd=    23.238}    3      0.0000
+ DIHEdral  X    CH2E OH1  X           1.50 {sd=    25.456}    3      0.0000
+ DIHEdral  X    CH2E S    X           3.60 {sd=    16.432}    2      0.0000
+ DIHEdral  X    CH2E SE   X           3.60 {sd=    16.432}    2      0.0000
+ DIHEdral  X    CH2E SM   X           3.60 {sd=    16.432}    2      0.0000
+ DIHEdral  X    CH2G NH1  X           0.90 {sd=    32.864}    3      0.0000
+ DIHEdral  X    CH2G NH3  X           1.80 {sd=    23.238}    3      0.0000
+ DIHEdral  X    CH2P CH2P X           4.80 {sd=    14.230}    3      0.0000
+ DIHEdral  X    CH2P N    X           0.90 {sd=    32.864}    3      0.0000
+ DIHEdral  X    CH2P NH3  X           0.90 {sd=    32.864}    3      0.0000
+ DIHEdral  X    CY2  OH1  X           5.40 {sd=    13.416}    2    180.0000
+ DIHEdral  X    S    S    X          12.00 {sd=     9.000}    2      0.0000
+
+ IMPRoper  C    C    CR1E CH2E      750.00 {sd=     1.138}    0      0.0000
+ IMPRoper  C    CH1E OC   OC          0.68 {sd=    37.904}    0      9.4812
+ IMPRoper  C    CH2P CH1E N         135.00 {sd=     2.683}    0      0.0000
+ IMPRoper  C    CR1E C    CH2E      750.00 {sd=     1.138}    0      0.0000
+ IMPRoper  C    CR1E CR1E CH2E      750.00 {sd=     1.138}    0      0.0000
+ IMPRoper  C    CR1E CR1E OH1       750.00 {sd=     1.138}    0      0.0000
+ IMPRoper  C    CR1E NH1  CH2E      750.00 {sd=     1.138}    0      0.0000
+ IMPRoper  C    H    H    NH2       135.00 {sd=     2.683}    0      0.0000
+ IMPRoper  C    OC   OC   CH1E      300.00 {sd=     1.800}    0      0.0000
+ IMPRoper  C    OC   OC   CH2E      300.00 {sd=     1.800}    0      0.0000
+ IMPRoper  C    X    X    C          75.00 {sd=     3.600}    0      0.0000
+ IMPRoper  C    X    X    CH2E      270.00 {sd=     1.897}    0      0.0000
+ IMPRoper  C    X    X    CH3E      270.00 {sd=     1.897}    0      0.0000
+ IMPRoper  C    X    X    CR1E      750.00 {sd=     1.138}    0      0.0000
+ IMPRoper  C    X    X    H         225.00 {sd=     2.078}    0      0.0000
+ IMPRoper  C    X    X    HA        225.00 {sd=     2.078}    0      0.0000
+ IMPRoper  C    X    X    NH1       300.00 {sd=     1.800}    0      0.0000
+ IMPRoper  C    X    X    O         300.00 {sd=     1.800}    0      0.0000
+ IMPRoper  C    X    X    OC        300.00 {sd=     1.800}    0      0.0000
+ IMPRoper  C    X    X    OH1       450.00 {sd=     1.470}    0      0.0000
+ IMPRoper  C5   NH1  CR1E CH2E      750.00 {sd=     1.138}    0      0.0000
+ IMPRoper  C5   NH1  CR1H CH2E      750.00 {sd=     1.138}    0      0.0000
+ IMPRoper  C5   NH1  CRHH CH2E      750.00 {sd=     1.138}    0      0.0000
+ IMPRoper  C5   X    X    CH2E      270.00 {sd=     1.897}    0      0.0000
+ IMPRoper  C5   X    X    CRH       750.00 {sd=     1.138}    0      0.0000
+ IMPRoper  C5   X    X    CRHH      750.00 {sd=     1.138}    0      0.0000
+ IMPRoper  C5   X    X    NH1       300.00 {sd=     1.800}    0      0.0000
+ IMPRoper  C5   X    X    NR         75.00 {sd=     3.600}    0      0.0000
+ IMPRoper  C5W  CR1E CW   CH2E        2.10 {sd=    21.509}    0      5.4488
+ IMPRoper  C5W  CR1E NH1  CW          0.62 {sd=    39.598}    0     -6.5755
+ IMPRoper  C5W  CW   CW   NH1         0.62 {sd=    39.616}    0     -8.4454
+ IMPRoper  C5W  X    X    CW         75.00 {sd=     3.600}    0      0.0000
+ IMPRoper  C5W  X    X    NH1       300.00 {sd=     1.800}    0      0.0000
+ IMPRoper  CF   CR1E CR1E CH2E      750.00 {sd=     1.138}    0      0.0000
+ IMPRoper  CF   X    X    CR1E      750.00 {sd=     1.138}    0      0.0000
+ IMPRoper  CH1E NH3  C    CH2E        1.80 {sd=    23.242}    0     36.2228
+ IMPRoper  CH1E X    X    CH1E      300.00 {sd=     1.800}    0     35.2644
+ IMPRoper  CH1E X    X    CH2E      300.00 {sd=     1.800}    0     35.2644
+ IMPRoper  CH1E X    X    CH3E      300.00 {sd=     1.800}    0     35.2644
+ IMPRoper  CH1E X    X    NH1       135.00 {sd=     2.683}    0      0.0000
+ IMPRoper  CH2E CR1E CR1E CY        750.00 {sd=     1.138}    0      0.0000
+ IMPRoper  CH2E X    X    N         135.00 {sd=     2.683}    0      0.0000
+ IMPRoper  CH2E X    X    NH1       135.00 {sd=     2.683}    0      0.0000
+ IMPRoper  CH3E X    X    NH1       135.00 {sd=     2.683}    0      0.0000
+ IMPRoper  CH3E X    X    NR         75.00 {sd=     3.600}    0      0.0000
+ IMPRoper  CR1E C5W  CW   CW          0.78 {sd=    35.408}    0      9.4154
+ IMPRoper  CR1E CR1E CR1W CR1W        0.26 {sd=    60.699}    0     -6.5619
+ IMPRoper  CR1E CR1E CW   CW          0.41 {sd=    48.782}    0     -7.7184
+ IMPRoper  CR1E CR1W CR1W CW          0.33 {sd=    53.958}    0      4.3660
+ IMPRoper  CR1E CW   CW   CR1W        0.35 {sd=    52.892}    0      7.8637
+ IMPRoper  CR1E NH1  CW   CW          0.49 {sd=    44.333}    0     12.0188
+ IMPRoper  CR1E X    X    CR1E      750.00 {sd=     1.138}    0      0.0000
+ IMPRoper  CR1E X    X    CR1W      750.00 {sd=     1.138}    0      0.0000
+ IMPRoper  CR1E X    X    CRH       750.00 {sd=     1.138}    0      0.0000
+ IMPRoper  CR1E X    X    CW        750.00 {sd=     1.138}    0      0.0000
+ IMPRoper  CR1E X    X    NH1       750.00 {sd=     1.138}    0      0.0000
+ IMPRoper  CR1E X    X    NR        750.00 {sd=     1.138}    0      0.0000
+ IMPRoper  CR1H X    X    CRHH      750.00 {sd=     1.138}    0      0.0000
+ IMPRoper  CR1H X    X    NH1       750.00 {sd=     1.138}    0      0.0000
+ IMPRoper  CR1W CR1E CR1E CW          0.33 {sd=    54.010}    0     13.3312
+ IMPRoper  CR1W CR1W CW   CW          0.38 {sd=    50.577}    0     -8.9140
+ IMPRoper  CR1W X    X    CW        750.00 {sd=     1.138}    0      0.0000
+ IMPRoper  CT   X    X    N         135.00 {sd=     2.683}    0      0.0000
+ IMPRoper  CT   X    X    NC2       135.00 {sd=     2.683}    0      0.0000
+ IMPRoper  CT   X    X    NH1       135.00 {sd=     2.683}    0      0.0000
+ IMPRoper  CT   X    X    NR         75.00 {sd=     3.600}    0      0.0000
+ IMPRoper  CW   C5W  CR1E NH1         0.66 {sd=    38.357}    0     -1.3955
+ IMPRoper  CW   X    X    NH1       300.00 {sd=     1.800}    0      0.0000
+ IMPRoper  CY   X    X    CY2        75.00 {sd=     3.600}    0      0.0000
+ IMPRoper  CY2  CR1E CR1E OH1       750.00 {sd=     1.138}    0      0.0000
+ IMPRoper  H    CW   CR1E NH1         1.10 {sd=    29.767}    0     22.2113
+ IMPRoper  H    X    X    NH1       135.00 {sd=     2.683}    0      0.0000
+ IMPRoper  H    X    X    NH2       135.00 {sd=     2.683}    0      0.0000
+ IMPRoper  H    X    X    O         135.00 {sd=     2.683}    0      0.0000
+ IMPRoper  HC   NC2  C    NH1       135.00 {sd=     2.683}    0      0.0000
+ IMPRoper  HC   X    X    NC2       135.00 {sd=     2.683}    0      0.0000
+ IMPRoper  NH1  X    X    NH1        75.00 {sd=     3.600}    0      0.0000
+ IMPRoper  NH1  X    X    NR         75.00 {sd=     3.600}    0      0.0000
+
+ !                  eps     sigma       eps(1:4) sigma(1:4)
+ NONBonded  H       0.0498   1.4254      0.0498   1.4254
+ NONBonded  HA      0.0450   2.6157      0.0450   2.6157
+ NONBonded  HC      0.0498   1.0691      0.0498   1.0691
+ NONBonded  C       0.1200   3.7418      0.1000   3.3854
+ NONBonded  C5      0.1200   3.7418      0.1000   3.3854
+ NONBonded  C5W     0.1200   3.7418      0.1000   3.3854
+ NONBonded  CF      0.1200   3.7418      0.1000   3.3854
+ NONBonded  CW      0.1200   3.7418      0.1000   3.3854
+ NONBonded  CY      0.1200   3.7418      0.1000   3.3854
+ NONBonded  CY2     0.1200   3.7418      0.1000   3.3854
+ NONBonded  CH1E    0.0486   4.2140      0.1000   3.3854
+ NONBonded  CH2E    0.1142   3.9823      0.1000   3.3854
+ NONBonded  CH2G    0.1142   3.9823      0.1000   3.3854
+ NONBonded  CH2P    0.1142   3.9823      0.1000   3.3854
+ NONBonded  CH3E    0.1811   3.8576      0.1000   3.3854
+ NONBonded  CR1E    0.1200   3.7418      0.1000   3.3854
+ NONBonded  CR1H    0.1200   3.7418      0.1000   3.3854
+ NONBonded  CR1W    0.1200   3.7418      0.1000   3.3854
+ NONBonded  CRHH    0.1200   3.7418      0.1000   3.3854
+ NONBonded  CRH     0.1200   3.7418      0.1000   3.3854
+ NONBonded  N       0.2384   2.8509      0.2384   2.8509
+ NONBonded  NC2     0.2384   2.8509      0.2384   2.8509
+ NONBonded  NH1     0.2384   2.8509      0.2384   2.8509
+ NONBonded  NH2     0.2384   2.8509      0.2384   2.8509
+ NONBonded  NH3     0.2384   2.8509      0.2384   2.8509
+ NONBonded  NP      0.2384   2.8509      0.2384   2.8509
+ NONBonded  NR      0.2384   2.8509      0.2384   2.8509
+ NONBonded  O       0.1591   2.8509      0.1591   2.8509
+ NONBonded  OC      0.6469   2.8509      0.6469   2.8509
+ NONBonded  OH1     0.1591   2.8509      0.1591   2.8509
+ NONBonded  S       0.0430   3.3676      0.0430   3.3676
+ NONBonded  SM      0.0430   3.3676      0.0430   3.3676
+ NONBonded  SH1E    0.0430   3.3676      0.0430   3.3676
+ NONBonded  SE      0.0430   3.5100      0.0430   3.5100
+
+ Listing of all atom-based (F) and type-based (T) parameters.
+
+ BOND (ATOM TRYP 1    N   ) (ATOM TRYP 1    CA  )      1.257F      1.614F
+ BOND (ATOM TRYP 1    CA  ) (ATOM TRYP 1    C   )      1.461F      1.571F
+ BOND (ATOM TRYP 1    C   ) (ATOM TRYP 1    O   )      1.799F      1.423F
+ BOND (ATOM TRYP 1    CA  ) (ATOM TRYP 1    CB  )      1.706F      1.660F
+ BOND (ATOM TRYP 1    CB  ) (ATOM TRYP 1    CG  )      2.673F      1.689F
+ BOND (ATOM TRYP 1    CG  ) (ATOM TRYP 1    CD1 )      2.033F      1.432F
+ BOND (ATOM TRYP 1    CG  ) (ATOM TRYP 1    CD2 )      1.642F      1.482F
+ BOND (ATOM TRYP 1    CD1 ) (ATOM TRYP 1    NE1 )      1.381F      1.424F
+ BOND (ATOM TRYP 1    CD2 ) (ATOM TRYP 1    CE2 )      1.746F      1.472F
+ BOND (ATOM TRYP 1    NE1 ) (ATOM TRYP 1    HE1 )      2.213F      1.225F
+ BOND (ATOM TRYP 1    NE1 ) (ATOM TRYP 1    CE2 )      1.999F      1.475F
+ BOND (ATOM TRYP 1    CD2 ) (ATOM TRYP 1    CE3 )      1.192F      1.465F
+ BOND (ATOM TRYP 1    CE2 ) (ATOM TRYP 1    CZ2 )      2.288F      1.572F
+ BOND (ATOM TRYP 1    CE3 ) (ATOM TRYP 1    CZ3 )      2.309F      1.530F
+ BOND (ATOM TRYP 1    CZ2 ) (ATOM TRYP 1    CH2 )      1.970F      1.457F
+ BOND (ATOM TRYP 1    CZ3 ) (ATOM TRYP 1    CH2 )      1.881F      1.469F
+ BOND (ATOM TRYP 1    HT1 ) (ATOM TRYP 1    N   )      2.754F      1.308F
+ BOND (ATOM TRYP 1    HT2 ) (ATOM TRYP 1    N   )      2.317F      1.187F
+ BOND (ATOM TRYP 1    HT3 ) (ATOM TRYP 1    N   )      2.246F      1.240F
+ BOND (ATOM TRYP 1    C   ) (ATOM TRYP 1    OXT )      1.600F      1.433F
+
+ ANGL (ATOM TRYP 1    N   ) (ATOM TRYP 1    CA  ) 
+                            (ATOM TRYP 1    C   )      1.966F    103.403F  UB      0.000F       0.000F
+ ANGL (ATOM TRYP 1    N   ) (ATOM TRYP 1    CA  ) 
+                            (ATOM TRYP 1    CB  )      1.595F    106.496F  UB      0.000F       0.000F
+ ANGL (ATOM TRYP 1    CA  ) (ATOM TRYP 1    C   ) 
+                            (ATOM TRYP 1    O   )      1.766F    113.775F  UB      0.000F       0.000F
+ ANGL (ATOM TRYP 1    C   ) (ATOM TRYP 1    CA  ) 
+                            (ATOM TRYP 1    CB  )      2.225F    106.593F  UB      0.000F       0.000F
+ ANGL (ATOM TRYP 1    CA  ) (ATOM TRYP 1    CB  ) 
+                            (ATOM TRYP 1    CG  )      3.005F    107.098F  UB      0.000F       0.000F
+ ANGL (ATOM TRYP 1    CB  ) (ATOM TRYP 1    CG  ) 
+                            (ATOM TRYP 1    CD1 )      1.416F    117.252F  UB      0.000F       0.000F
+ ANGL (ATOM TRYP 1    CB  ) (ATOM TRYP 1    CG  ) 
+                            (ATOM TRYP 1    CD2 )      1.810F    119.495F  UB      0.000F       0.000F
+ ANGL (ATOM TRYP 1    CD1 ) (ATOM TRYP 1    CG  ) 
+                            (ATOM TRYP 1    CD2 )      1.828F    109.203F  UB      0.000F       0.000F
+ ANGL (ATOM TRYP 1    CG  ) (ATOM TRYP 1    CD1 ) 
+                            (ATOM TRYP 1    NE1 )      1.409F    101.641F  UB      0.000F       0.000F
+ ANGL (ATOM TRYP 1    CG  ) (ATOM TRYP 1    CD2 ) 
+                            (ATOM TRYP 1    CE2 )      1.798F     94.908F  UB      0.000F       0.000F
+ ANGL (ATOM TRYP 1    CG  ) (ATOM TRYP 1    CD2 ) 
+                            (ATOM TRYP 1    CE3 )      1.693F    128.951F  UB      0.000F       0.000F
+ ANGL (ATOM TRYP 1    CD1 ) (ATOM TRYP 1    NE1 ) 
+                            (ATOM TRYP 1    HE1 )      1.282F    110.102F  UB      0.000F       0.000F
+ ANGL (ATOM TRYP 1    CD1 ) (ATOM TRYP 1    NE1 ) 
+                            (ATOM TRYP 1    CE2 )      1.397F    102.152F  UB      0.000F       0.000F
+ ANGL (ATOM TRYP 1    CD2 ) (ATOM TRYP 1    CE2 ) 
+                            (ATOM TRYP 1    NE1 )      1.552F    107.305F  UB      0.000F       0.000F
+ ANGL (ATOM TRYP 1    CE2 ) (ATOM TRYP 1    CD2 ) 
+                            (ATOM TRYP 1    CE3 )      1.555F    113.669F  UB      0.000F       0.000F
+ ANGL (ATOM TRYP 1    CD2 ) (ATOM TRYP 1    CE2 ) 
+                            (ATOM TRYP 1    CZ2 )      2.233F    114.757F  UB      0.000F       0.000F
+ ANGL (ATOM TRYP 1    HE1 ) (ATOM TRYP 1    NE1 ) 
+                            (ATOM TRYP 1    CE2 )      1.387F    109.431F  UB      0.000F       0.000F
+ ANGL (ATOM TRYP 1    NE1 ) (ATOM TRYP 1    CE2 ) 
+                            (ATOM TRYP 1    CZ2 )      2.049F    117.271F  UB      0.000F       0.000F
+ ANGL (ATOM TRYP 1    CD2 ) (ATOM TRYP 1    CE3 ) 
+                            (ATOM TRYP 1    CZ3 )      1.724F    110.521F  UB      0.000F       0.000F
+ ANGL (ATOM TRYP 1    CE2 ) (ATOM TRYP 1    CZ2 ) 
+                            (ATOM TRYP 1    CH2 )      2.980F    103.841F  UB      0.000F       0.000F
+ ANGL (ATOM TRYP 1    CE3 ) (ATOM TRYP 1    CZ3 ) 
+                            (ATOM TRYP 1    CH2 )      1.532F    112.225F  UB      0.000F       0.000F
+ ANGL (ATOM TRYP 1    CZ2 ) (ATOM TRYP 1    CH2 ) 
+                            (ATOM TRYP 1    CZ3 )      1.773F    119.978F  UB      0.000F       0.000F
+ ANGL (ATOM TRYP 1    HT1 ) (ATOM TRYP 1    N   ) 
+                            (ATOM TRYP 1    HT2 )      1.250F    101.699F  UB      0.000F       0.000F
+ ANGL (ATOM TRYP 1    HT2 ) (ATOM TRYP 1    N   ) 
+                            (ATOM TRYP 1    HT3 )      1.110F    102.893F  UB      0.000F       0.000F
+ ANGL (ATOM TRYP 1    HT2 ) (ATOM TRYP 1    N   ) 
+                            (ATOM TRYP 1    CA  )      1.186F    104.708F  UB      0.000F       0.000F
+ ANGL (ATOM TRYP 1    HT1 ) (ATOM TRYP 1    N   ) 
+                            (ATOM TRYP 1    HT3 )      1.225F     99.235F  UB      0.000F       0.000F
+ ANGL (ATOM TRYP 1    HT1 ) (ATOM TRYP 1    N   ) 
+                            (ATOM TRYP 1    CA  )      1.201F     97.558F  UB      0.000F       0.000F
+ ANGL (ATOM TRYP 1    HT3 ) (ATOM TRYP 1    N   ) 
+                            (ATOM TRYP 1    CA  )      1.615F    106.273F  UB      0.000F       0.000F
+ ANGL (ATOM TRYP 1    CA  ) (ATOM TRYP 1    C   ) 
+                            (ATOM TRYP 1    OXT )      1.375F    112.080F  UB      0.000F       0.000F
+ ANGL (ATOM TRYP 1    O   ) (ATOM TRYP 1    C   ) 
+                            (ATOM TRYP 1    OXT )      3.226F    106.855F  UB      0.000F       0.000F
+
+ DIHE (ATOM TRYP 1    N   ) (ATOM TRYP 1    CA  ) 
+      (ATOM TRYP 1    CB  ) (ATOM TRYP 1    CG  )       MULT   1
+                                                        1.07F   0F     -60.18F
+ DIHE (ATOM TRYP 1    CA  ) (ATOM TRYP 1    CB  ) 
+      (ATOM TRYP 1    CG  ) (ATOM TRYP 1    CD1 )       MULT   1
+                                                        0.51F   0F     -96.73F
+ DIHE (ATOM TRYP 1    CD1 ) (ATOM TRYP 1    CE2 ) 
+      (ATOM TRYP 1    CD2 ) (ATOM TRYP 1    CZ3 )       MULT   1
+                                                        3.19F   0F    -183.98F
+ DIHE (ATOM TRYP 1    CD1 ) (ATOM TRYP 1    CD2 ) 
+      (ATOM TRYP 1    CE2 ) (ATOM TRYP 1    CH2 )       MULT   1
+                                                        3.75F   0F     183.79F
+ DIHE (ATOM TRYP 1    CZ2 ) (ATOM TRYP 1    CE2 ) 
+      (ATOM TRYP 1    CD2 ) (ATOM TRYP 1    CG  )       MULT   1
+                                                        0.94F   0F    -174.14F
+ DIHE (ATOM TRYP 1    CE3 ) (ATOM TRYP 1    CD2 ) 
+      (ATOM TRYP 1    CE2 ) (ATOM TRYP 1    NE1 )       MULT   1
+                                                        0.83F   0F     173.56F
+ DIHE (ATOM TRYP 1    HT2 ) (ATOM TRYP 1    N   ) 
+      (ATOM TRYP 1    CA  ) (ATOM TRYP 1    C   )       MULT   1
+                                                        0.67F   0F     123.23F
+ DIHE (ATOM TRYP 1    HT1 ) (ATOM TRYP 1    N   ) 
+      (ATOM TRYP 1    CA  ) (ATOM TRYP 1    C   )       MULT   1
+                                                        0.55F   0F      -6.82F
+ DIHE (ATOM TRYP 1    HT3 ) (ATOM TRYP 1    N   ) 
+      (ATOM TRYP 1    CA  ) (ATOM TRYP 1    C   )       MULT   1
+                                                        0.66F   0F    -118.73F
+ DIHE (ATOM TRYP 1    N   ) (ATOM TRYP 1    CA  ) 
+      (ATOM TRYP 1    C   ) (ATOM TRYP 1    OXT )       MULT   1
+                                                        0.58F   0F     129.39F
+
+ IMPR (ATOM TRYP 1    CA  ) (ATOM TRYP 1    N   ) 
+      (ATOM TRYP 1    C   ) (ATOM TRYP 1    CB  )       MULT   1
+                                                        1.80F   0F      36.22F
+ IMPR (ATOM TRYP 1    CG  ) (ATOM TRYP 1    CD1 ) 
+      (ATOM TRYP 1    CD2 ) (ATOM TRYP 1    CB  )       MULT   1
+                                                        2.10F   0F       5.45F
+ IMPR (ATOM TRYP 1    NE1 ) (ATOM TRYP 1    CD1 ) 
+      (ATOM TRYP 1    CE2 ) (ATOM TRYP 1    HE1 )       MULT   1
+                                                        1.10F   0F      22.21F
+ IMPR (ATOM TRYP 1    CD2 ) (ATOM TRYP 1    CE2 ) 
+      (ATOM TRYP 1    CZ2 ) (ATOM TRYP 1    CH2 )       MULT   1
+                                                        0.38F   0F      -8.91F
+ IMPR (ATOM TRYP 1    CE2 ) (ATOM TRYP 1    CZ2 ) 
+      (ATOM TRYP 1    CH2 ) (ATOM TRYP 1    CZ3 )       MULT   1
+                                                        0.33F   0F       4.37F
+ IMPR (ATOM TRYP 1    CZ2 ) (ATOM TRYP 1    CH2 ) 
+      (ATOM TRYP 1    CZ3 ) (ATOM TRYP 1    CE3 )       MULT   1
+                                                        0.26F   0F      -6.56F
+ IMPR (ATOM TRYP 1    CH2 ) (ATOM TRYP 1    CZ3 ) 
+      (ATOM TRYP 1    CE3 ) (ATOM TRYP 1    CD2 )       MULT   1
+                                                        0.33F   0F      13.33F
+ IMPR (ATOM TRYP 1    CZ3 ) (ATOM TRYP 1    CE3 ) 
+      (ATOM TRYP 1    CD2 ) (ATOM TRYP 1    CE2 )       MULT   1
+                                                        0.41F   0F      -7.72F
+ IMPR (ATOM TRYP 1    CE3 ) (ATOM TRYP 1    CD2 ) 
+      (ATOM TRYP 1    CE2 ) (ATOM TRYP 1    CZ2 )       MULT   1
+                                                        0.35F   0F       7.86F
+ IMPR (ATOM TRYP 1    CG  ) (ATOM TRYP 1    CD1 ) 
+      (ATOM TRYP 1    NE1 ) (ATOM TRYP 1    CE2 )       MULT   1
+                                                        0.62F   0F      -6.58F
+ IMPR (ATOM TRYP 1    CD1 ) (ATOM TRYP 1    NE1 ) 
+      (ATOM TRYP 1    CE2 ) (ATOM TRYP 1    CD2 )       MULT   1
+                                                        0.49F   0F      12.02F
+ IMPR (ATOM TRYP 1    NE1 ) (ATOM TRYP 1    CE2 ) 
+      (ATOM TRYP 1    CD2 ) (ATOM TRYP 1    CG  )       MULT   1
+                                                        0.62F   0F      -8.45F
+ IMPR (ATOM TRYP 1    CE2 ) (ATOM TRYP 1    CD2 ) 
+      (ATOM TRYP 1    CG  ) (ATOM TRYP 1    CD1 )       MULT   1
+                                                        0.78F   0F       9.42F
+ IMPR (ATOM TRYP 1    CD2 ) (ATOM TRYP 1    CG  ) 
+      (ATOM TRYP 1    CD1 ) (ATOM TRYP 1    NE1 )       MULT   1
+                                                        0.66F   0F      -1.40F
+ IMPR (ATOM TRYP 1    C   ) (ATOM TRYP 1    CA  ) 
+      (ATOM TRYP 1    OXT ) (ATOM TRYP 1    O   )       MULT   1
+                                                        0.68F   0F       9.48F
+
+ !         slot      eps     sigma       eps(1:4) sigma(1:4)
+
+ TYPE-based parameters
+ NONBonded      1    0.0498   1.4254      0.0498   1.4254
+ NONBonded      2    0.0450   2.6157      0.0450   2.6157
+ NONBonded      3    0.0498   1.0691      0.0498   1.0691
+ NONBonded      4    0.1200   3.7418      0.1000   3.3854
+ NONBonded      5    0.1200   3.7418      0.1000   3.3854
+ NONBonded      6    0.1200   3.7418      0.1000   3.3854
+ NONBonded      7    0.1200   3.7418      0.1000   3.3854
+ NONBonded      8    0.1200   3.7418      0.1000   3.3854
+ NONBonded      9    0.1200   3.7418      0.1000   3.3854
+ NONBonded     10    0.1200   3.7418      0.1000   3.3854
+ NONBonded     11    0.0486   4.2140      0.1000   3.3854
+ NONBonded     12    0.1142   3.9823      0.1000   3.3854
+ NONBonded     13    0.1142   3.9823      0.1000   3.3854
+ NONBonded     14    0.1142   3.9823      0.1000   3.3854
+ NONBonded     15    0.1811   3.8576      0.1000   3.3854
+ NONBonded     16    0.1200   3.7418      0.1000   3.3854
+ NONBonded     17    0.1200   3.7418      0.1000   3.3854
+ NONBonded     18    0.1200   3.7418      0.1000   3.3854
+ NONBonded     19    0.1200   3.7418      0.1000   3.3854
+ NONBonded     20    0.1200   3.7418      0.1000   3.3854
+ NONBonded     21    0.2384   2.8509      0.2384   2.8509
+ NONBonded     22    0.2384   2.8509      0.2384   2.8509
+ NONBonded     23    0.2384   2.8509      0.2384   2.8509
+ NONBonded     24    0.2384   2.8509      0.2384   2.8509
+ NONBonded     25    0.2384   2.8509      0.2384   2.8509
+ NONBonded     26    0.2384   2.8509      0.2384   2.8509
+ NONBonded     27    0.2384   2.8509      0.2384   2.8509
+ NONBonded     28    0.1591   2.8509      0.1591   2.8509
+ NONBonded     29    0.6469   2.8509      0.6469   2.8509
+ NONBonded     30    0.1591   2.8509      0.1591   2.8509
+ NONBonded     31    0.0430   3.3676      0.0430   3.3676
+ NONBonded     32    0.0430   3.3676      0.0430   3.3676
+ NONBonded     33    0.0430   3.3676      0.0430   3.3676
+ NONBonded     34    0.0430   3.5100      0.0430   3.5100
+
+ ATOM-based parameters
+
+
+ Atom-selections
+   TRYP 1    HE1      slot=    1
+   TRYP 1    HT1      slot=    3
+   TRYP 1    HT2      slot=    3
+   TRYP 1    HT3      slot=    3
+   TRYP 1    C        slot=    4
+   TRYP 1    CG       slot=    6
+   TRYP 1    CD2      slot=    8
+   TRYP 1    CE2      slot=    8
+   TRYP 1    CA       slot=   11
+   TRYP 1    CB       slot=   12
+   TRYP 1    CE3      slot=   16
+   TRYP 1    CD1      slot=   16
+   TRYP 1    CZ3      slot=   16
+   TRYP 1    CZ2      slot=   18
+   TRYP 1    CH2      slot=   18
+   TRYP 1    NE1      slot=   23
+   TRYP 1    N        slot=   25
+   TRYP 1    O        slot=   29
+   TRYP 1    OXT      slot=   29
+ CNSsolve> 
+ CNSsolve>energy end 
+ --------------- cycle=     3 --------------------------------------------------
+ | Etotal =-21.176    grad(E)=9.284      E(BOND)=6.251      E(ANGL)=6.310      |
+ | E(DIHE)=1.611      E(IMPR)=4.599      E(VDW )=5.949      E(ELEC)=-45.895    |
+ -------------------------------------------------------------------------------
+ CNSsolve> 
+ CNSsolve> 
+ CNSsolve>stop 
+          ============================================================
+           Maximum dynamic memory allocation:     8255568 bytes
+           Maximum dynamic memory overhead:           784 bytes
+           Program started at: 16:08:04 on 05-Jul-2018
+           Program stopped at: 16:08:05 on 05-Jul-2018
+           CPU time used:       0.1008 seconds
+          ============================================================

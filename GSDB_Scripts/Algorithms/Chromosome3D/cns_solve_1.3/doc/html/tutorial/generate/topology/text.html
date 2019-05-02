@@ -1,0 +1,191 @@
+<HTML>
+<HEAD>
+   <TITLE>Crystallography & NMR System</TITLE>
+</HEAD>
+<BODY BGCOLOR=#8ebf8e>
+
+<HR WIDTH="100%"></P>
+
+<H2>Making topology files</H2>
+
+<HR WIDTH="100%"></P>
+   
+<P>The topology statement consists of information about "residues"
+that combine to form a particular macromolecule. The data include
+descriptions of atoms, assignments of covalent bonds (connectivity),
+bond angles, and other information. The information provided by the
+topology statement is used by the segment statement and the patch
+statement to generate the molecular structure.</P>
+
+<P>CNS, like many other macromolecular mechanics/dynamics packages,
+can use a classification scheme that employs chemical atom types. This
+system of atom classification makes force fields transferable between
+groups that are almost equivalent and thereby allows one definition to
+work for all or almost all instances of that type of atom. The
+specific atom classifications can be arbitrarily defined by the user.
+The parameters of chemical atom types are given in the parameter
+statement. Electric charges are specified on an individual atom basis,
+since they are less transferable than stereochemical parameters. For
+historical reasons, atomic masses may also be specified on an
+individual atom basis, but there exists the mass statement outside
+the residue statement that assigns default atomic masses on a basis of
+chemical atom type.  Apart from the type-based parameter retrieval,
+CNS also provides atom-based parameter statements, which allow one to
+specify any parameter on a per-atom basis.</P>
+
+<P>The topology statement is invoked from the main level of CNS (the
+topology information is most often read from a library file.</P>
+
+<PRE>
+  topology 
+    { topology-statements }
+  end
+
+  @CNS_TOPPAR:protein.top
+</PRE>
+
+<P>The CNS topology statements are as follows:</P>
+
+<UL>
+<LI><B>AUTOgenerate ANGLe=logical DIHEdral=logical END</B> works only
+on regular residues, not on patch residues. It automatically generates
+all possible bond angles based on the connectivity list of the
+particular residue. It operates on the residues following the
+statement until the next autogenerate statement appears.</LI>
+
+<LI><B>MASS=type=real</B> adds a default mass assignment for the
+specified type of atom to the topology database. The real number is
+defined in atomic mass units. This value will be used by default for
+all atoms of that type unless an explicit MASS statement is given in
+the atom statement (see below).</LI>
+
+<LI><B>RESEt</B> erases all previous entries into the topology
+database.</LI>
+
+<LI><B>RESIdue residue-name { residue-statements } END</B> adds a
+residue to the topology database.</LI>
+
+<LI><B>PRESidue residue-name { [ ADD | DELEte | MODIfy ]
+residue-statement } END</B> adds a patch residue to the topology
+database.</LI>
+
+</UL>
+
+<P>The allowed residue statements are as follows:</P>
+
+<UL>
+<LI><B>ANGLe atom atom atom</B> adds a bond angle made by the three
+atoms to the residue database.  It should not be used if autogenerate
+angles are active.</LI>
+
+<LI><B>ATOM [patch-character] atom atom-statement END</B> adds an atom
+to the residue database. The statement defines atom as a
+four-character string specifying the name, and atom statement
+specifies atom type, charge, and mass. The patch character is a
+1-character string and may be used only for PRESidue.</LI>
+
+<LI><B>BOND atom atom</B> adds a covalent bond between the specified
+atoms to the residue database.  The atoms have to be defined
+previously by atom statements.</LI>
+
+<LI><B>DIHEdral atom atom atom atom [MULTiple integer]</B> adds a
+dihedral angle to the residue database. The dihedral angle (ijkl) is
+defined by the angle between the plane made by the atoms (ijk) and the
+plane made by the atoms (jkl). The dihedral statement should not be
+used if autogenerate dihedrals are active, unless multiple dihedral
+angles are wanted. MULTiple specifies m dihedral angle entries for the
+same instance of four atoms. This allows one to specify a cosine
+expansion for the dihedral angle potential energy. It must be
+accompanied by a corresponding DIHEdral angle parameter entry with
+appropriate multiplicity.</LI>
+
+<LI><B>GROUP</B> partitions the atoms into nonbonded groups.</LI>
+
+<LI><B>IMPRoper atom atom atom atom [MULTiple integer]</B> adds an
+improper angle to the residue database. The definition is identical to
+the DIHEdral angle, but it uses a different set of parameters. As in
+the case of the DIHEdral angle, the improper angle (ijkl) is defined
+by the angle between the plane made by the atoms (ijk) and the plane
+made by the atoms (jkl).  MULTiple specifies m improper angle entries
+for the same instance of four atoms.  This allows one to specify a
+cosine expansion for the improper angle potential energy. It must be
+accompanied by a corresponding IMPRoper angle parameter entry with
+appropriate multiplicity.</LI>
+
+</UL>
+
+<P>An atom is the defined by a character string (a maximum of 4
+characters in length). The definition of an atom in a residue or patch
+residue can include the following statements:</P>
+
+<UL>
+<LI><B>CHARge=real</B> specifies an electrostatic charge in units of
+one electron charge. This affects the electrostatic energy.</LI>
+
+<LI><B>EXCLude=( { atom } )</B> specifies explicit nonbonded
+interaction exclusions. The atoms have to have been defined previously
+by an atom statement.</LI>
+
+<LI><B>MASS=real</B> overwrites a default mass given by a mass
+statement outside the residue statement, in atomic mass units.</LI>
+
+<LI><B>TYPE=type</B> specifies the chemical atom type, a string with
+up to four characters. The atom type is used to retrieve type-based
+parameters.</LI>
+
+</UL>
+
+<U>Example: Topology of a Leucine Amino Acid</U>
+
+<PRE>
+TOPOlogy 
+   MASS   H      1.008 
+   MASS   C     12.011 
+   MASS   CH1E  13.019 
+   MASS   CH2E  14.027 
+   MASS   CH3E  15.035 
+   MASS   N     14.0067 
+   MASS   O     15.9994 
+
+   AUTOgenerate ANGLes=TRUE END 
+
+   RESIdue LEU 
+     GROUp 
+     ATOM N    TYPE=NH1   CHARge=-0.35   END 
+     ATOM H    TYPE=H     CHARge= 0.25   END 
+     ATOM CA   TYPE=CH1E  CHARge= 0.10   END 
+     ATOM CB   TYPE=CH2E  CHARge= 0.00   END 
+     ATOM CG   TYPE=CH1E  CHARge= 0.00   END 
+     ATOM CD1  TYPE=CH3E  CHARge= 0.00   END 
+     ATOM CD2  TYPE=CH3E  CHARge= 0.00   END 
+     ATOM C    TYPE=C     CHARge= 0.55   END  
+     ATOM O    TYPE=O     CHARge=-0.55   END  
+
+     BOND N    CA 
+     BOND CA   C 
+     BOND C    O 
+     BOND N    H 
+     BOND CA   CB 
+     BOND CB   CG 
+     BOND CG   CD1 
+     BOND CG   CD2 
+
+     DIHEdral N    CA   CB   CG 
+     DIHEdral CA   CB   CG   CD2  
+
+     IMPRoper CA   N    C    CB  
+     IMPRoper CG   CD2  CD1  CB  
+
+   END 
+END 
+</PRE>
+
+<HR WIDTH="100%"></P>
+
+<A HREF="../../text.html">Back to tutorials</A>&nbsp;&nbsp;
+<A HREF="../parameter/text.html">Next section</A>
+
+<HR WIDTH="100%"></P>
+
+</BODY>
+</HTML>

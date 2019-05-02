@@ -23,7 +23,7 @@ Over 50,000 structures from 12 start-of-the-art Hi-C data structure prediction a
 
 ## 1. Content of folders:
 - **src**: source code for the website
-- **GSDB_Scripts**: All the Algorithms and the parameter settings used for 3D structure generation for each algortihm can be found here: http://calla.rnet.missouri.edu/genome3d/GSDB/GSDB_Scripts
+- **GSDB_Scripts**: Contains the Algorithms and the scripts used for data extraction, data normalization, and 3D structure generation.
 
 
 ## 2. Algorithms Input ##
@@ -37,10 +37,10 @@ For each algorithm, we have described the contact matrix input format they accep
 |MOGEN| 3-column Matrix| _list.txt|
 |Pastis|3-column Matrix(bin1,bin2,IF), and mapping coordinate(chr, start_pos,end_pos, bin) | .n_contact, .cbins|
 |Chromosome3D| n x n Square Matrix| _matrix.txt|
-|HSA| 2-column bin posiiton with n x n Square Matrix|_HSA.txt|
+|HSA| 2-column bin positon with n x n Square Matrix|_HSA.txt|
 |miniMDS|Chromosome,positon,IF(chr,start_pos1,end_pos1,chr, start_pos2,end_pos2,IF)|.bed|
 |ShRec3D|n x n Square Matrix| _matrix.txt|
-|GEM|2-column bin posiiton with n x n Square Matrix|_HSA.txt|
+|GEM|2-column bin positon with n x n Square Matrix|_HSA.txt|
 |ChromSDE|3-column Matrix, and mapping coordinate|.n_contact, .cbins|
 |SIMBA3D	|n x n Square Matrix|.npy|
 |InfMod3DGen|n x n Square Matrix| _matrix.txt|

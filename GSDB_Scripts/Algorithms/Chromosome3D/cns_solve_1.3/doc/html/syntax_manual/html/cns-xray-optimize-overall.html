@@ -1,0 +1,32 @@
+<HTML>
+<BODY BGCOLOR=#8EBF8E>
+<TT>
+<A NAME="optimize5">optimize</A> overall <FONT COLOR=#0000FF><A HREF="#xray-optimize-overall-statement">&lt;xray-optimize-overall-statement&gt;</A></FONT> end<BR>
+
+<BR><BR>
+
+<A NAME="xray-optimize-overall-statement"><B>&lt;xray-optimize-overall-statement&gt; :== </B></A><BR>
+
+<UL><BR></UL>
+<UL><A NAME="name6">name</A>=<FONT COLOR=#0000FF><A HREF="xray-object.html#reciprocal-space-object">&lt;reciprocal-space-object&gt;</A></FONT><FONT COLOR=#800000><BR><I>&nbsp;&nbsp;&nbsp;Structure factor whose overall B-factor is optimized. Default=fcalc</FONT></I></UL>
+<UL><A NAME="drop4">drop</A>=<FONT COLOR=#0000FF><A HREF="data-types.html#real">&lt;real&gt;</A></FONT><FONT COLOR=#800000><BR><I>&nbsp;&nbsp;&nbsp;Expected initial drop in energy (only for POWELL method). Default=40</FONT></I></UL>
+<UL><A NAME="nstep7">nstep</A>=<FONT COLOR=#0000FF><A HREF="data-types.html#integer">&lt;integer&gt;</A></FONT><FONT COLOR=#800000><BR><I>&nbsp;&nbsp;&nbsp;Number of optimization steps. Default=20</FONT></I></UL>
+<UL><A NAME="tolerance6">tolerance</A>=<FONT COLOR=#0000FF><A HREF="data-types.html#real">&lt;real&gt;</A></FONT><FONT COLOR=#800000><BR><I>&nbsp;&nbsp;&nbsp;Minimum gradient that forces exit of optimization. Default=0.0001</FONT></I></UL>
+<UL><A NAME="maxfevaluations2">maxfevaluations</A>=<FONT COLOR=#0000FF><A HREF="data-types.html#integer">&lt;integer&gt;</A></FONT><FONT COLOR=#800000><BR><I>&nbsp;&nbsp;&nbsp;For LBFGS method only: Maximum number of energy evalulations during <BR>&nbsp;&nbsp;&nbsp;line search. Default=10</FONT></I></UL>
+<UL><A NAME="method3">method</A>=<A NAME="powell3">powell</A>|<A NAME="lbfgs3">lbfgs</A><FONT COLOR=#800000><BR><I>&nbsp;&nbsp;&nbsp;Minimization method: POWELL or LBFGS. Default=POWELL</FONT></I></UL>
+<UL><A NAME="anisotropic2">anisotropic</A>=<FONT COLOR=#0000FF><A HREF="data-types.html#logical">&lt;logical&gt;</A></FONT><FONT COLOR=#800000><BR><I>&nbsp;&nbsp;&nbsp;If true then the anisotropic components are refined. Default=false</FONT></I></UL>
+<UL><A NAME="isotropic2">isotropic</A>=<FONT COLOR=#0000FF><A HREF="data-types.html#logical">&lt;logical&gt;</A></FONT><FONT COLOR=#800000><BR><I>&nbsp;&nbsp;&nbsp;If true then the isotropic thermal factor is refined.<BR>&nbsp;&nbsp;&nbsp;If false, the trace is restricted to zero. Default=true</FONT></I></UL>
+<UL><A NAME="kscale0">kscale</A>=<FONT COLOR=#0000FF><A HREF="data-types.html#logical">&lt;logical&gt;</A></FONT><FONT COLOR=#800000><BR><I>&nbsp;&nbsp;&nbsp;Refine overall scale. Default=false</FONT></I></UL>
+<UL><A NAME="bscale0">bscale</A>=<FONT COLOR=#0000FF><A HREF="data-types.html#logical">&lt;logical&gt;</A></FONT><FONT COLOR=#800000><BR><I>&nbsp;&nbsp;&nbsp;Refine overall B-tensor. Default=true</FONT></I></UL>
+<UL>k=<FONT COLOR=#0000FF><A HREF="data-types.html#real">&lt;real&gt;</A></FONT><FONT COLOR=#800000><BR><I>&nbsp;&nbsp;&nbsp;Initial overall scale. Default=1.0</FONT></I></UL>
+<UL>b=<FONT COLOR=#0000FF><A HREF="data-types.html#real">&lt;real&gt;</A></FONT><FONT COLOR=#800000><BR><I>&nbsp;&nbsp;&nbsp;Starting isotropic B-factor shift. Default=0</FONT></I></UL>
+<UL><A NAME="b110">b11</A>=<FONT COLOR=#0000FF><A HREF="data-types.html#real">&lt;real&gt;</A></FONT> <A NAME="b220">b22</A>=<FONT COLOR=#0000FF><A HREF="data-types.html#real">&lt;real&gt;</A></FONT> <A NAME="b330">b33</A>=<FONT COLOR=#0000FF><A HREF="data-types.html#real">&lt;real&gt;</A></FONT> <A NAME="b120">b12</A>=<FONT COLOR=#0000FF><A HREF="data-types.html#real">&lt;real&gt;</A></FONT> <A NAME="b130">b13</A>=<FONT COLOR=#0000FF><A HREF="data-types.html#real">&lt;real&gt;</A></FONT> <A NAME="b230">b23</A>=<FONT COLOR=#0000FF><A HREF="data-types.html#real">&lt;real&gt;</A></FONT><FONT COLOR=#800000><BR><I>&nbsp;&nbsp;&nbsp;Starting anisotropic B-factor shifts. Default=0</FONT></I></UL>
+<UL><A NAME="restriction1">restriction</A>=<A NAME="all11">all</A>|<A NAME="offd1">offd</A>|<A NAME="none4">none</A><FONT COLOR=#800000><BR><I>&nbsp;&nbsp;&nbsp;Restrictions due to symmetry:<BR>&nbsp;&nbsp;&nbsp;- all: all parameters (this is the default).<BR>&nbsp;&nbsp;&nbsp;- offd: off-diagonal elements only.<BR>&nbsp;&nbsp;&nbsp;- none: no restrictions.</FONT></I></UL>
+<UL><BR></UL>
+<UL><FONT COLOR=#800000><I>&nbsp;&nbsp;&nbsp;The following must be defined:<BR>&nbsp;&nbsp;&nbsp;- the reciprocal space object <FONT COLOR=#0000FF>&lt;reciprocal-space-object&gt;</FONT>.<BR>&nbsp;&nbsp;&nbsp;- target and dtarget(<FONT COLOR=#0000FF>&lt;reciprocal-space-object&gt;</FONT>).<BR>&nbsp;&nbsp;&nbsp;The following symbols will be declared:<BR>&nbsp;&nbsp;&nbsp;- for isotropic B-factor refinement:<BR>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;$kscale * exp(-$bscale s^2 )/4.0 * <FONT COLOR=#0000FF>&lt;reciprocal-space-object&gt;</FONT><BR>&nbsp;&nbsp;&nbsp;- for anisotropic B-factor refinement:<BR>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;$kscale * exp(-( $b2_11*h*h*$astar*$astar<BR>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;+$b2_22*k*k*$bstar*$bstar<BR>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;+$b2_33*l*l*$cstar*$cstar<BR>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;+2.0*$b2_12*h*k*$astar*$bstar<BR>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;+2.0*$b2_13*h*l*$astar*$cstar<BR>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;+2.0*$b2_23*k*l*$bstar*$cstar)/4.0)<BR>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;* <FONT COLOR=#0000FF>&lt;reciprocal-space-object&gt;</FONT></FONT></I></UL>
+<BR>
+
+</TT>
+<TABLE><TR><TD HEIGHT="600"></TD></TR></TABLE>
+</BODY>
+</HTML>

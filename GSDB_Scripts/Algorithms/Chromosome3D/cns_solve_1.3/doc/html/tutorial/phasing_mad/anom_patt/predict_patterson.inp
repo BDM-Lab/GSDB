@@ -1,0 +1,477 @@
+{+ file: predict_patterson.inp +}
+{+ directory: xtal_patterson +}
+{+ description: Predict 3D-Patterson map and Harker sections from a set of
+                heavy atom sites +}
+{+ authors: Axel T. Brunger +}
+{+ copyright: Yale University +}
+
+{- Guidelines for using this file:
+   - all strings must be quoted by double-quotes
+   - logical variables (true/false) are not quoted
+   - do not remove any evaluate statements from the file -}
+
+{- begin block parameter definition -} define(
+
+{====================== crystallographic data ========================}
+
+{* space group *}
+{* use International Table conventions with subscripts substituted
+   by parenthesis *}
+{===>} sg="P6";
+
+{* unit cell parameters in Angstroms and degrees *}
+{+ table: rows=1 "cell" cols=6 "a" "b" "c" "alpha" "beta" "gamma" +}
+{===>} a=116.097;
+{===>} b=116.097;
+{===>} c=44.175;
+{===>} alpha=90;
+{===>} beta=90;
+{===>} gamma=120;
+
+{============================== sites ================================}
+
+{* CNS heavy atom site database files *}
+{===>} sitedatabase_infile.1="mad_eight_sites.sdb";
+{===>} sitedatabase_infile.2="";
+{===>} sitedatabase_infile.3="";
+{===>} sitedatabase_infile.4="";
+{===>} sitedatabase_infile.5="";
+
+{* NCS-restraints/constraints file *}
+{* only strict NCS is allowed *}
+{* see auxiliary/ncs.def *}
+{===>} ncs_infile="";
+
+{* form factor type *}
+{* Use the gaussian option for native or isomorphous difference Patterson maps.
+   Use the constant option for anomalous or dispersive Patterson maps.
+   For the gaussian mode, the form factors are obtained from the atomic form
+   factor library specified below. For the constant mode all sites have a
+   unit (resolution-independent) form factor. *}
+{+ choice: "constant" "gaussian" +}
+{===>} scatter_mode="constant";
+
+{* form factor library for gaussian form factors *}
+{===>} scatter_library="CNS_XRAYLIB:scatter.lib";
+
+{* reset all atomic B factors to this number if positive *}
+{* if negative then B-factors will not be reset *}
+{===>} reset_b=-1;
+
+{* reset all atomic occupancies to this number if positive *}
+{* if negative then occupancies will not be reset *}
+{===>} reset_q=-1;
+
+{========================= general options ===========================}
+
+{* resolution range for predicted Patterson map *}
+{+ table: rows=1 "resolution" cols=2 "lowest" "highest" +}
+{===>} low_res=500.;
+{===>} high_res=4.;
+
+{* sharpen Patterson map by E-normalization *}
+{+ choice: true false +}
+{===>} sharpen=true;
+
+{* origin removal *}
+{+ choice: true false +}
+{===>} origin_remove=true;
+
+{========================= Patterson map options =====================}
+
+{* the Patterson map will be scaled to sigma units *}
+
+{* map grid size *}
+{* usually 0.33, use grid=0.25 for better map appearance *}
+{===>} grid=0.25;
+
+{* memory allocation for FFT calculation *}
+{* this will be determined automatically if a negative value is given
+   otherwise the specified amount (in words) will be allocated *}
+{===>} fft_memory=-1;
+
+{* write Harker sections *}
+{+ choice: true false +}
+{===>} harker_sections=true;
+
+{* make sections the extent of the unit cell *}
+{* if false the minimal Patterson asymmetric unit will be used *}
+{+ choice: true false +}
+{===>} plot_unitcell=false;
+
+{* write 3D Patterson map *}
+{+ choice: true false +}
+{===>} 3d_patterson=true;
+
+{* format of 3D Patterson map *}
+{+ choice: "cns" "ezd" +}
+{===>} map_format="cns";
+
+{============ calculated structure factors from sites ================}
+
+{* write reciprocal space array (stored in fcalc array Fcalc)
+   calculated from predicted sites *}
+{+ choice: true false +}
+{===>} write_fcalc=true;
+
+{=========================== output options ==========================}
+
+{* root name for output files *}
+{+ list:
+         3D Patterson map file will be in: <output_root>.map
+         Harker sections will be in: <output_root>_<plane>.map
+         where <plane> can be x, y, or z
+         calculated structure factors will be in: <output_root>.hkl +}
+{===>} output_root="predict_patterson";
+
+{===========================================================================}
+{         things below this line do not normally need to be changed         }
+{===========================================================================}
+
+) {- end block parameter definition -}
+
+checkversion 1.3
+
+evaluate ($log_level=quiet)
+
+@CNS_XTALMODULE:read_multi_sdb (filegroup=&sitedatabase_infile;
+                                use_array=store3;
+                                fix_array=store4;
+                                sg_expected=&sg;
+                                sg_read=$sg_read;)
+
+if ( &BLANK%ncs_infile = false ) then
+    inline @&ncs_infile
+end if
+
+if ( &reset_b > 0 ) then
+  do (b=&reset_b) (all)
+end if
+
+if ( &reset_q > 0 ) then
+  do (q=&reset_q) (all)
+end if
+
+show sum(1) (store3)
+evaluate ($sites=$result)
+
+xray
+
+   if (&scatter_mode = "constant") then
+      scatter ( all ) 0 0 0 0 0 0 0 0 0 fp 1 fdp 0
+   else
+      @@&scatter_library
+   end if
+
+   @CNS_XTALLIB:spacegroup.lib (sg=&sg; sgparam = $sgparam )
+
+   a=&a b=&b c=&c  alpha=&alpha beta=&beta gamma=&gamma
+
+   binresolution &low_res &high_res
+   mapresolution &high_res
+
+   generate &low_res &high_res
+
+   associate fcalc ( store3 )
+
+   tselection=( &low_res >= d >= &high_res )
+
+   fft
+     grid=&grid
+     if ( &fft_memory < 0 ) then
+       automemory=true
+     else
+       memory=&fft_memory
+     end if
+   end
+
+   query name=fcalc domain=reciprocal end
+   if ( $object_exist = false ) then
+      declare name=fcalc domain=reciprocal type=complex end
+   end if
+
+   predict
+     mode=reciprocal
+     to=fcalc
+     selection=( &low_res >= d >= &high_res )
+     atomselection=( store3 )
+   end
+
+end
+
+if ( &write_fcalc = true ) then
+      evaluate ($filename=&output_root + ".hkl")
+      set display=$filename end
+      @CNS_XTALMODULE:write_hkl_header (sg=&STRIP%sg;
+                                        sgparam=$sgparam;)
+
+      xray
+         write reflection fcalc output=$filename end
+      end
+      set display=OUTPUT end
+end if
+
+xray
+   method=direct
+   lookup=false
+
+end
+
+set
+   remark=reset
+   remark=accum
+end
+
+@CNS_XTALMODULE:get_subgroups (selection=(store3);
+                               subgroups=$subgroups;)
+
+remark Computed Patterson map from $sites sites
+if (&scatter_mode="gaussian") then
+  remark scatter_mode=gaussian    scatter_library= &scatter_library
+  evaluate ($counter=1)
+  while ( $counter <= $subgroups.num ) loop sub
+    buffer harvest
+      remark scattering type= $subgroups.type.$counter
+    end
+    evaluate ($counter=$counter+1)
+  end loop sub
+else
+   remark scatter_mode=constant
+end if
+
+xray
+
+   declare name=df_sel domain=reciprocal type=real end
+
+   do (df_sel=amplitude(fcalc)) ( amplitude(fcalc) > 0 )
+
+   {- normalize -}
+   if ( &sharpen = true ) then
+       do (df_sel=norm(df_sel))     (df_sel>0)
+    end if
+
+   {- square  -}
+   do (df_sel=df_sel^2)                  (df_sel>0)
+
+   {- remove origin -}
+   if ( &origin_remove = true ) then
+      do (df_sel=df_sel-save(df_sel) )   (df_sel>0)
+   end if
+
+
+   {- the df array obeys Hermitian symmetry, i.e., df+ = df- -}
+   anomalous=false
+
+   {- switch to Patterson symmetry. -}
+   evaluate ($SG=$sgparam.patt_symm )
+   symmetry reset
+   @CNS_XTALLIB:spacegroup.lib (sg=$sg; sgparam = $sgparam )
+
+   declare name=map1 domain=real end
+   do (map1=ft(  combine(df_sel,0) ))     ( all )
+
+   {- put Patterson map on a sigma (rms) scale -}
+   show rms (real(map1)) ( all )
+   do (map1=map1/$result) ( all )
+
+end
+
+set
+   remark=reset
+   remark=accum
+end
+
+remark Computed Patterson map from $sites sites
+if (&scatter_mode="gaussian") then
+  remark scatter_mode=gaussian    scatter_library= &scatter_library
+  evaluate ($counter=1)
+  while ( $counter <= $subgroups.num ) loop sub
+    buffer harvest
+      remark scattering type= $subgroups.type.$counter
+    end
+    evaluate ($counter=$counter+1)
+  end loop sub
+else
+   remark scatter_mode=constant
+end if
+
+buffer harvest
+     display resolution: &low_res - &high_res
+     display sg= &STRIP%sg a= &a b= &b c= &c alpha= &alpha beta= &beta gamma= &gamma
+     display sharpen= &sharpen    origin_remove = &origin_remove
+end
+
+if ( &3d_patterson = true ) then
+    xray
+        evaluate ($filename=&output_root + ".map")
+        write map
+            if ( &map_format = "ezd" ) then
+               type=ezd
+            else
+               type=cns
+            end if
+            from=map1
+            auto=false
+            if ( &plot_unitcell = true ) then
+              extend=unit
+            else
+              extend=asymmetric
+            end if
+            formatted=true
+            output=$filename
+        end
+    end
+end if
+
+if (&harker_sections=true ) then
+   @CNS_XTALLIB:harker_planes.lib (sg=&sg; harker = $harker )
+
+   eval ($i = 0)
+   while ($i < $harker.yz.n) loop planes
+    eval($i = $i + 1)
+    buffer out
+       reset
+       from buffer harvest
+       dump
+       display yz-plane, x=$harker.yz.$i.x; $harker.yz.$i.note
+    end
+    if ( &plot_unitcell = true ) then
+      buffer out
+        display ymin=0  ymax=1
+        display zmin=0  zmax=1
+      end
+    else
+      buffer out
+        display ymin=$harker.yz.ymin  ymax=$harker.yz.ymax
+        display zmin=$harker.yz.zmin  zmax=$harker.yz.zmax
+      end
+    end if
+    buffer out
+       to=remarks
+       dump
+    end
+    xray
+           if ($harker.yz.n > 1) then
+             evaluate ($filename=&output_root + "_x_" + encode($i) + ".map")
+           else
+             evaluate ($filename=&output_root + "_x"               + ".map")
+           end if
+           write map
+              from=map1
+              auto=false
+              extend=fractional
+              formatted=true
+              if ( &plot_unitcell = true ) then
+                xmin=$harker.yz.$i.x   xmax=$harker.yz.$i.x
+                ymin=0   ymax=1
+                zmin=0   zmax=1
+              else
+                xmin=$harker.yz.$i.x   xmax=$harker.yz.$i.x
+                ymin=$harker.yz.ymin   ymax=$harker.yz.ymax
+                zmin=$harker.yz.zmin   zmax=$harker.yz.zmax
+              end if
+              output=$filename
+           end
+     end
+   end loop planes
+
+   eval ($i = 0)
+   while ($i < $harker.zx.n) loop planes
+    eval($i = $i + 1)
+    buffer out
+       reset
+       from buffer harvest
+       dump
+       display zx-plane, y=$harker.zx.$i.y; $harker.zx.$i.note
+    end
+    if ( &plot_unitcell = true ) then
+      buffer out
+        display xmin=0  xmax=1
+        display zmin=0  zmax=1
+      end
+    else
+      buffer out
+        display xmin=$harker.zx.xmin  xmax=$harker.zx.xmax
+        display zmin=$harker.zx.zmin  zmax=$harker.zx.zmax
+      end
+    end if
+    buffer out
+       to=remarks
+       dump
+    end
+    xray
+           if ($harker.zx.n > 1) then
+             evaluate ($filename=&output_root + "_y_" + encode($i) + ".map")
+           else
+             evaluate ($filename=&output_root + "_y"               + ".map")
+           end if
+           write map
+              from=map1
+              auto=false
+              extend=fractional
+              formatted=true
+              if ( &plot_unitcell = true ) then
+                xmin=0   xmax=1
+                ymin=$harker.zx.$i.y   ymax=$harker.zx.$i.y
+                zmin=0   zmax=1
+              else
+                xmin=$harker.zx.xmin   xmax=$harker.zx.xmax
+                ymin=$harker.zx.$i.y   ymax=$harker.zx.$i.y
+                zmin=$harker.zx.zmin   zmax=$harker.zx.zmax
+              end if
+              output=$filename
+           end
+     end
+   end loop planes
+
+   eval ($i = 0)
+   while ($i < $harker.xy.n) loop planes
+    eval($i = $i + 1)
+    buffer out
+       reset
+       from buffer harvest
+       dump
+       display xy-plane, z=$harker.xy.$i.z; $harker.xy.$i.note
+    end
+    if ( &plot_unitcell = true ) then
+      buffer out
+        display xmin=0  xmax=1
+        display ymin=0  ymax=1
+      end
+    else
+      buffer out
+        display xmin=$harker.xy.xmin  xmax=$harker.xy.xmax
+        display ymin=$harker.xy.ymin  ymax=$harker.xy.ymax
+      end
+    end if
+    buffer out
+       to=remarks
+       dump
+    end
+    xray
+           if ($harker.xy.n > 1) then
+             evaluate ($filename=&output_root + "_z_" + encode($i) + ".map")
+           else
+             evaluate ($filename=&output_root + "_z"               + ".map")
+           end if
+           write map
+              from=map1
+              auto=false
+              extend=fractional
+              formatted=true
+              if ( &plot_unitcell = true ) then
+                xmin=0   xmax=1
+                ymin=0   ymax=1
+                zmin=$harker.xy.$i.z   zmax=$harker.xy.$i.z
+              else
+                xmin=$harker.xy.xmin   xmax=$harker.xy.xmax
+                ymin=$harker.xy.ymin   ymax=$harker.xy.ymax
+                zmin=$harker.xy.$i.z   zmax=$harker.xy.$i.z
+              end if
+              output=$filename
+           end
+     end
+   end loop planes
+end if
+
+stop

@@ -1,0 +1,107 @@
+<HTML>
+<HEAD>
+   <TITLE>Crystallography & NMR System</TITLE>
+</HEAD>
+<BODY BGCOLOR=#8ebf8e>
+
+<HR WIDTH="100%">
+
+<h2>Density modification</h2>
+
+<HR WIDTH="100%">
+
+The <tt>density_modify.inp</tt> task file can be used for phase
+improvement and extension by <i>solvent flipping/flattening</i>,
+<i>density truncation</i> and <i>NCS averaging</i>.  The input
+required is observed structure factors, experimental phases
+(preferably Hendrickson-Lattman coefficients), and an estimate of the
+solvent content, i.e. the fraction of the unit cell occupied by the
+solvent.
+
+<p>
+
+In this tutorial, MIR phases (see previous tutorial) are improved by
+solvent flipping and density truncation.  In a preliminary step, the
+solvent content is estimated by using <tt>matthews_coef.inp</tt>.
+
+<PRE>
+      cns_solve &lt; <A HREF="matthews_coef.inp">matthews_coef.inp</A> &gt; matthews_coef.out
+</PRE>
+
+<p>
+
+The estimated solvent content shown in <tt>matthews_coef.list</tt> is
+between 0.32 and 0.35. <tt>density_modify.inp</tt> is modified
+accordingly by setting the solvent content parameter to 0.34.
+
+<PRE>
+      cns_solve &lt; <A HREF="density_modify.inp">density_modify.inp</A> &gt; density_modify.out</PRE>
+
+The resulting output files are:
+<PRE>
+      density_modify.list - listing file with statistics for
+                            each modification cycle
+      density_modify.hkl  - reflection file with new Hendrickson-Lattman
+                            coefficients, and estimated applitudes for missing reflections.
+      density_modify.map  - map file
+      density_modify.mask - mask file
+</PRE>
+
+Electron density maps before and after solvent flipping are computed
+with modified copies of the <tt>fourier_map.inp</tt> task file. Note
+that when making the map using the density modified phases the
+reflection array produced by the density modification is used rather
+than the native amplitudes. This reflection array contains estimated
+amplitudes (and phases) for any missing reflections, these
+reconstructed reflections can help improve the map, especially for
+missing low resolution data.
+
+<PRE>
+      cns_solve &lt; <A HREF="fourier_map_mir.inp">fourier_map_mir.inp</A> &gt; fourier_map_mir.out
+      cns_solve &lt; <A HREF="fourier_map_dm.inp">fourier_map_dm.inp</A> &gt; fourier_map_dm.out</PRE>
+<p>
+
+Note that the map produced by the latter job (file <tt>fourier_map_dm.map</tt>) is identical to the one produced by density_modify (file <tt>density_modify.map</tt>). We recomputed the map here to illustrate the use of the <tt>fourier_map.inp</tt> script to calculate density modified maps from the Fourier coefficients produced by <tt>density_modify.inp</tt>. <br>
+<p> The refined heavy-atom positions in <tt>mir_phase_final.sdb</tt> (see previous
+  tutorial) are converted to a PDB file which can be read by Coot, PyMol, or O. 
+<PRE>
+      cns_solve &lt; <A HREF="sdb_to_pdb.inp">sdb_to_pdb.inp</A> &gt; sdb_to_pdb.out
+</PRE>
+
+Here are the maps:
+
+<TABLE ALIGN=CENTER>
+<TR>
+<TD ALIGN=CENTER><IMG SRC="fourier_mir.jpeg" WIDTH="371" HEIGHT="377"></TD>
+<TD ALIGN=CENTER><IMG SRC="fourier_dm.jpeg" WIDTH="371" HEIGHT="377"></TD>
+</TR>
+<TR>
+<TD ALIGN=CENTER>Experimental MIR phased map (contoured at 1.5 sigma)</TD>
+<TD ALIGN=CENTER>After solvent flipping (contoured at 1.5 sigma)</TD>
+</TR>
+</TABLE>
+
+<P>
+At this point an interpretable electron density map is obtained. This
+allows the hand ambiguity of the heavy atom sites to be resolved. In
+the absence of anomalous diffraction data this ambiguity can only be
+resolved by visual analysis of the resulting electron density map. The
+handedness of secondary structure elements such as alpha-helices or
+the chirality of amino acids (given sufficient resolution of the data)
+will indicate if the heavy atom sites need to be inverted. If the
+sites do need to be be inverted the final MIR refinement job should be
+run after inverting the sites with the flip_sites.inp task file. The
+heavy atom coordinates for all derivatives will be inverted. The
+density modification should then be repeated.</P>
+
+<A HREF="tutorial.csh">Script to run this tutorial</A>
+
+<HR WIDTH="100%">
+
+<A HREF="../../text.html">Back to tutorials</A>&nbsp;&nbsp;
+<A HREF="../more_sites/text.html">Previous section</A>&nbsp;&nbsp;
+
+<HR WIDTH="100%"></P>
+
+</BODY>
+</HTML>

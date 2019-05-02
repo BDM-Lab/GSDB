@@ -1,0 +1,120 @@
+REMARKS  skel4.inp
+remarks  test skeletonization 
+topology @CNS_TOPPAR:protein.top end
+parameter @CNS_TOPPAR:protein.param end
+segment
+  name=tryp
+  chain
+     @CNS_TOPPAR:protein.link
+     sequence
+        TRP
+     end
+  end
+end
+coor
+ATOM      1  HT1 TRP     1       0.101   0.574  -1.385  1.00  0.00      TRYP
+ATOM      2  HT2 TRP     1       1.711   0.436  -1.904  1.00  0.00      TRYP
+ATOM      3  N   TRP     1       1.067   0.302  -1.101  1.00  0.00      TRYP
+ATOM      4  HT3 TRP     1       1.080  -0.689  -0.791  1.00  0.00      TRYP
+ATOM      5  CA  TRP     1       1.472   1.192   0.027  1.00  0.00      TRYP
+ATOM      6  CB  TRP     1       2.696   2.026  -0.348  1.00  0.00      TRYP
+ATOM      7  CG  TRP     1       3.922   1.169  -0.679  1.00  0.00      TRYP
+ATOM      8  CD2 TRP     1       4.295   0.679  -1.890  1.00  0.00      TRYP
+ATOM      9  CE2 TRP     1       5.424  -0.010  -1.601  1.00  0.00      TRYP
+ATOM     10  CE3 TRP     1       3.769   0.774  -3.155  1.00  0.00      TRYP
+ATOM     11  CD1 TRP     1       4.813   0.775   0.290  1.00  0.00      TRYP
+ATOM     12  NE1 TRP     1       5.727   0.046  -0.320  1.00  0.00      TRYP
+ATOM     13  HE1 TRP     1       6.094  -0.743   0.127  1.00  0.00      TRYP
+ATOM     14  CZ2 TRP     1       6.138  -0.677  -2.563  1.00  0.00      TRYP
+ATOM     15  CZ3 TRP     1       4.472   0.108  -4.148  1.00  0.00      TRYP
+ATOM     16  CH2 TRP     1       5.636  -0.605  -3.856  1.00  0.00      TRYP
+ATOM     17  C   TRP     1       0.280   2.113   0.309  1.00  0.00      TRYP
+ATOM     18  O   TRP     1      -0.402   2.481  -0.636  1.00  0.00      TRYP
+ATOM     19  OXT TRP     1      -0.106   2.192   1.459  1.00  0.00      TRYP
+END
+do (b=20) ( all )
+{===================================================================}
+{* test with arbitrary unit cell, P1 space group *}
+{===================================================================}
+xray
+  a=16.2 b=16.5 c=20. alpha=90.  beta=90.  gamma=90.
+
+   declare name=fobs type=complex domain=reciprocal end
+   declare name=fpart domain=reciprocal type=complex end
+   declare name=fcalc domain=reciprocal type=complex end
+   declare name=fom domain=reciprocal type=real end
+   declare name=weight domain=reciprocal type=real end
+   declare name=sigma domain=reciprocal type=real end
+   declare name=test domain=reciprocal type=integer end
+  eval ($SG="P1" )
+  @CNS_XTALLIB:spacegroup.lib  (SG=$SG )
+   SCATter ( chemical C* ) 
+      2.31000 20.8439 1.02000 10.2075 1.58860 .568700 .865000 51.6512 .215600
+   SCATter ( chemical N* )
+      12.2126 .005700 3.13220 9.89330 2.01250 28.9975 1.16630 .582600 -11.529
+   SCATter ( chemical O* )
+      3.04850 13.2771 2.28680 5.70110 1.54630 .323900 .867000 32.9089 .250800
+   SCATter ( chemical S* )
+      6.90530 1.46790 5.20340 22.2151 1.43790 .253600 1.58630 56.1720 .866900
+   SCATter ( chemical P* )
+      6.43450 1.90670 4.17910 27.1570 1.78000 0.52600 1.49080 68.1645 1.11490
+   SCATter ( chemical FE* )
+      11.1764 4.61470 7.38630 0.30050 3.39480 11.6729 0.07240 38.5566 0.97070
+  method=fft 
+  evaluate ($lr=10.)
+  evaluate ($hr=2.) 
+  binresolution $lr $hr 
+  mapresolution $hr
+  tselection=( $hr <= d <= $lr  ) 
+  nreflections=10000
+  generate  10. 2. 
+  fft 
+    grid=0.25 
+  end
+  declare name=e_map domain=real end
+  associate fcalc ( resid 1:20 ) 
+  predict mode=real
+     to=e_map 
+     atomselection=( not hydro ) 
+  end
+  declare name=before_map domain=real end
+  do ( before_map=e_map ) ( all )
+  set seed 666 end
+  do ( FCALC =FT(e_map) + gauss(25.0) ) ( all )
+  do ( e_map =FT(FCALC) ) ( all )
+  show sum (mult e_map before_map) ( all)
+  evaluate ($numerator=$result) 
+  show sum (mult  e_map e_map) ( all )
+  evaluate ($denominator=$result)
+  show sum (mult  before_map before_map) ( all )
+  evaluate ($denominator=sqrt( $denominator * $result )) 
+  evaluate ($corr=$numerator/ $denominator) 
+  display  $corr   (before noise added - after noise added)
+  show ave (e_map) (all)
+  evaluate ($e_map_ave = $RESULT)
+  show ave (e_map^2) (all)
+  evaluate ($sigma = sqrt ( $RESULT - $e_map_ave^2))
+  do (e_map=e_map/$sigma) ( all ) 
+  skel
+    REMARKS minout=1.0
+    from=e_maP
+    maxden=4.0
+    minden=1.8
+    epden=3.0
+    MING=21
+    MXNF=2
+    Peakden=2.0
+    MXSD = 10000
+    selection=( all )
+    B=5.
+  end
+  show sum (mult e_map before_map) ( all)
+  evaluate ($numerator=$result) 
+  show sum (mult  e_map e_map) ( all )
+  evaluate ($denominator=$result)
+  show sum (mult  before_map before_map) ( all )
+  evaluate ($denominator=sqrt( $denominator * $result )) 
+  evaluate ($corr=$numerator/ $denominator) 
+  display  $corr   (before noise added - after noise added, after skeleton.)
+end
+stop

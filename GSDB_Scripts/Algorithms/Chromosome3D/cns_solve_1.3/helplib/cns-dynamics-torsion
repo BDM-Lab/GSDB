@@ -1,0 +1,61 @@
+dynamics torsion <dynamics-torsion-statement> end
+
+<dynamics-torsion-statement> :==
+
+  ?
+  --{Print current parameters.}
+  nstep=<integer>
+  --{Number of integration steps. Default=0}
+  timestep=<real>
+  --{Timestep in picoseconds. Default=0.001}
+  temperature=<real>
+  --{Target temperature. Default=298.0}
+  tcoupling=<logical>
+  --{Use temperature bath coupling. Mutually exclusive of vscaling.
+     Default=false}
+  vscaling=<logical>
+  --{Use velocity rescaling. Mutually exclusive of tcoupling.
+     Default=false}
+  nprint=<integer>
+  --{Frequency of energy info reporting. Default=1}
+  cmremove=<logical>
+  --{Remove centre-of-mass motion before starting dynamics. Default=true}
+  cmperiodic=<integer>
+  --{Remove centre-of-mass motion at frequency cmperiodic. Default=0}
+  trajectory=<filename>
+  --{File to write coordinate trajectory to. Default=null}
+  nsavc=<integer>
+  --{Frequency of trajectory writing in steps. Default=0}
+  csel=<atom-selection>
+  --{Coordinate selection for trajectory. Default=(all)}
+  ascii=<logical>
+  --{Write formatted trajectory file. Default=false}
+  format=<format>
+  --{Fortran format for writing trajectory. Default=12z6}
+  offset=<real>
+  --{Offset for trajectory file writing. Default=800.0d0}
+  scale=<real>
+  --{Scale factor for trajectory writing. Default=10000.0d0}
+  reassign=<logical>
+  --{Reassign coordinates (from x,y,z) and velocities (from vx,vy,vz) if true.
+     For invocations of torsion angle dynamics after a previous invocation with
+     generation of the torsion topology. If set to false (default), the 
+     coordinates and velocities are passed internally between invocations
+     of torsion angle dynanics. If set to true, the xyz coordinates
+     and xv,yv,zv velocities are used to restart the torsion angle dynamics.}
+  topology <dynamics-torsion-topology-statement> end
+  --{Setup the torsion angle dynamics topology of the system.
+     If no topology statement is given, the behavior depends whether 
+     a previous torsion angle statement was specified.  If no previous
+     statement was specified, default values are used for the topology
+     generation.  If a previous topology statement was specified,
+     the topology is inherited from the previous invocation of torsion 
+     angle dynamics.  Important note: if the topology is inherited, 
+     the velocities and coordinates are also taken from the last step 
+     of the previous invocation of torsion angle dynamics. Thus, in this
+     case the main coordinates and velocities must not be modified in between
+     invocations to torsion angle dynamics. If this is not desired,
+     a TOPOlogy RESEt statement must be specified or the REASsign=TRUE option
+     used. }
+  topology reset end
+  --{Reset the torsion topology of the system. }

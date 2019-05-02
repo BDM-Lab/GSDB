@@ -1,0 +1,877 @@
+! Module file: phasenrefineloc
+!
+! CNS module
+! **********
+!
+! Author: Axel T. Brunger
+!
+! copyright Yale University
+!
+! Function:
+! Generation of phase prob. distribution for lack-of-closure expression
+! and refinement parameters (scale factors, r, q, b, f', f'')
+!
+! Requirements:
+! 1. This module can only be called from the main level.
+! 2. For anomalous differences ANOMalous must be TRUE and, thus, the
+!    arrays of domain=reciprocal (like structure factors) contain both
+!    the (+) and the (-) elements.
+! 3. In case &cutoff > 0, selection of outliers discarded from refinement 
+!    will be updated every cycle.
+! 4. Automatically initializes the probability distribution if prior distribution
+!    is zero. 
+!
+
+module {phasenrefineloc}
+(
+   &text="";            {identifying text}
+   &nameh=derivative;   {name of derivative to be refined}
+   &table="";           {identifying text for tabulation}
+
+   &method="maxlike";  {"maxlike" of isomorphous differences | 
+                        "chisquare" of isomorphous differences | 
+                        "anomaxlike" for anomalous differences |
+                        "anochisquare" for anomalous differences, 
+                        definition of target function}
+   &integration="analytic";    {integration for probabilities: "numerical" | "analytic" }
+   &kscale="yes";       {"yes" | "no" linear scaling}
+   &bscale="no";   
+        {* "no", "isotropic",  "anisotropic" }  
+
+   &epsilon="yes";      {"yes" | "no", use epsilon weighting in summing variances}
+   &resetzero=0.001;    {reset zero variances to &resetzero, to avoid division
+                        by zero}
+   &zerovar=0.001;      {smallest significant value. For example, the smallest
+                        digit defined by the diffraction data.}
+
+   &mergeanomalous="no";{"yes" | "no" merge (+) and (-) probability. This option
+                        is only useful when an anomalous data set is refined 
+                        using a non-anomalous target function.}
+
+   &messages="normal";  {"normal" | "all" | "off"}
+
+   {Phase refinement:}
+   &ncycle=10;          {number of cycles of phase refinement}
+   &tolerance=0.001;    {lack-of-closure tolerance (relative)}   
+
+   {Parameter refinement:}
+   &xstep=20;           {number of coordinate minimization steps}
+   &qstep=20;           {number of occupancy factor minimization steps}
+   &bstep=20;           {number of B-factor minimization steps}
+   &kstep=20;           {number of scale factor minimization steps}		
+   &fpstep=20;          {number of fprime minimization steps}
+   &fdpstep=20;         {number of fdprime mimimization steps}
+
+   &namep=native;       {native data identifier used for output only}
+   &fp=fobs;            {native data (|F| and phase if present)}
+   &sp=null;            {native sigma on F}
+
+   &h=(all);            {selection of heavy atoms}
+   &hfix=(none);        {heavy atoms whose parameters are not refined.
+                         &hfix must be a subselection of &h}
+   &fph;                {name of derivative data array (|F| and dummy phase)} 
+   &sph=null;           {name of derivative's sigma on F }
+
+   &target_set=(all);   {selection for refinement and scaling target (must be subset of phase_set)}
+   &free_set=(none);    {selection for cross-validation (must be subset of phase_set)}
+   &phase_set=(all);    {selection for all phased reflections}
+
+   &cutoff=-1;          {sigma cutoff level for discarding outliers. }
+
+ {input: prior probability ( combined probability excluding this derivative) }
+   &ppa=null;           {Hendrickson and Lattman A array}
+   &ppb=null;           {Hendrickson and Lattman B array}
+   &ppc=null;           {Hendrickson and Lattman C array}
+   &ppd=null;           {Hendrickson and Lattman D array}
+
+ {input/output: parent (protein) probability (for initial scaling and LOC calculation) }
+   &pppa=null;          {Hendrickson and Lattman A array}
+   &pppb=null;          {Hendrickson and Lattman B array}
+   &pppc=null;          {Hendrickson and Lattman C array}
+   &pppd=null;          {Hendrickson and Lattman D array}
+
+ {output: corresponding parent (protein) centroid phase and fom }
+   m=&m; 
+
+ {output: derivative probability }
+   &pa=pa;              {Hendrickson and Lattman A array}
+   &pb=pb;              {Hendrickson and Lattman B array}
+   &pc=pc;              {Hendrickson and Lattman C array}
+   &pd=pd;              {Hendrickson and Lattman D array}
+
+   &fop="null";  { additional structure factor array that the scaling is applied to }
+   &fop2="null"; { additional structure factor array that the scaling is applied to }
+
+ {output: gradient map structure factor }
+   &gradient_map="";
+
+   &phistep=20;         {integration step size}
+   &bmin=1;             {minimum B-factor (Ang^2); truncation only applied 
+                        to B-factors that are being refined}
+   &bmax=300;           {maximum B-factor (Ang^2); truncation only applied 
+                        to B-factors that are being refined}
+   &qmin=-10;           {minimum occupancy factor; truncation only applied 
+                        to occupancy factors that are being refined}
+   &qmax=10;            {maximum occupancy factor; truncation only applied 
+                        to occupancy factors that are being refined}
+   &fpmin=-100;
+   &fpmax=+100;         {minimum and maximum fprime; truncation only applied
+                        to fprime factors that are being refined}
+   &fdpmin=-100;
+   &fdpmax=+100;        {minimum and maximum fdprime; truncation only applied
+                        to fprime factors that are being refined}
+   &iteration=10;       {number of iterations for initial probablity generation}
+
+   &feedback="yes";     { "no" | "yes" ; if "yes" use derivative's probability }
+                        { in scaling and refinement.  If "no" use only other derivatives }
+                        { probability.  }
+  
+   &summary=OUTPUT;     { summary filename. }
+
+   &cen360=FALSE;       { TRUE | FALSE (type logical); if TRUE a full 0...360 phase prob. distr. }
+                        { is used for centric reflections (useful if the "native"                }
+                        { structure factor has an anomalous signal).                             }
+   &qmaxshift=0.2;      {maximum q-shift}
+   &fpmaxshift=2.;      {maximum fp-shift}
+   &fdpmaxshift=2.;     {maximum fdp-shift}
+   &bmaxshift=20;       {maximum b-shift}
+)
+
+checkversion 1.3
+
+{*initialize*}
+
+evaluate ($ref_text="phasing statistics of "+&nameh)
+evaluate ($tableid=&table+" cycle= 0")
+
+xray
+
+   declare domain=reci type=real name=vloc end  {lack-of-closure variance}
+   declare domain=reci type=real name=vloi end  {lack-of-isomorphism variance}
+   declare domain=reci type=real name=pk end    {normalization array}
+   declare domain=reci type=complex name=fh end    {heavy atom structure factor array}
+   declare domain=reci type=complex name=mder end  {LOC m array}
+   declare domain=reci type=integer name=bad end    {outlier selection}
+
+   if (&messages # "off") then
+      if (&text # "") then
+         display PHASENREFINELOC: &text
+      end if
+   end if
+
+   do (vloc=0) (all)  {initialize loc variance to 0}
+   do (vloi=0) (all)  {initialize loi variance to 0}
+   do (m=0) (all)     {initialize complex fom}
+
+   if (&method = "chisquare") then  {set type sir or anomalous-sir for}
+      evaluate ($rd_ano = "no")        {addmeasurementerror and}
+   elseif (&method ="maxlike") then {getprobability}
+      evaluate ($rd_ano = "no") 
+   elseif (&method ="anochisquare") then
+      evaluate ($rd_ano = "yes") 
+   elseif (&method ="anomaxlike") then
+      evaluate ($rd_ano = "yes")
+   else 
+      display PHASENREFINELOC: method &method not defined
+      stop
+   end if
+
+end
+
+do (refx=x) (&h)     {store starting parameters}
+do (refy=y) (&h)
+do (refz=z) (&h)
+do (store1=b) (&h)
+do (store2=q) (&h)   
+do (store7=scatter_fp) ( &h)
+do (store8=scatter_fdp) ( &h)
+
+
+if (&table # "") then          {fill table with model}
+   for $1 in id (&h) loop atom   {parameters}
+      show (x) (id $1)
+      evaluate ($x=$result)
+      show (y) (id $1)
+      evaluate ($y=$result)
+      show (z) (id $1)
+      evaluate ($z=$result)
+      show (b) (id $1)
+      evaluate ($b=$result)
+      show (q) (id $1)
+      evaluate ($q=$result)
+      show (scatter_fp) ( id $1)
+      evaluate ($fp=$result)
+      show (scatter_fdp) ( id $1)
+      evaluate ($fdp=$result)     
+      show element (segid ) (id $1)
+      evaluate ($segid=$result)
+      show element (resid ) (id $1)
+      evaluate ($resid=$result)
+      show element (name ) (id $1)
+      evaluate ($name=$result)
+display TAB: $tableid atom=($segid $resid $name) (x,y,z,b,q,fp,fdp)= \
+$x[F9.2] $y[F9.2] $z[F9.2] $b[F9.2] $q[F5.2] $fp[F7.2] $fdp[F7.2] 
+   end loop atom
+end if
+
+ 
+{ Use probability excluding this derivative for feedback=no }
+{ --------------------------------------------------------- }
+if (&feedback="no") then
+  xray
+      do (&pppa=&ppa) ( all )
+      do (&pppb=&ppb) ( all )
+      do (&pppc=&ppc) ( all )
+      do (&pppd=&ppd) ( all )
+  end
+end if
+
+xray
+   { Get current parent (protein) probability to compute phases for scaling and loi calculation }
+   { ------------------------------------------------------------------------------------------ }
+   
+   do (m=0) ( all )
+   @@CNS_XTALMODULE:getfom 
+   (                   {set initial protein phases}
+      m=&m;
+      sel=(amplitude(&pppa)>0 or amplitude(&pppb)>0 or amplitude(&pppc)>0 or amplitude(&pppd)>0);
+      pa=&pppa;pb=&pppb;pc=&pppc;pd=&pppd;
+      phistep=&phistep;
+      cen360=&cen360;
+   )
+   
+   do (&fp=combine(abs(&fp),phase(&m))) (amplitude(&m)>0) 
+
+
+{ Check if all protein phases are available for selected reflections for this derivative }
+{ -------------------------------------------------------------------------------------- }
+   show sum (1) ( &phase_set and not (amplitude(&m)>0))
+
+end
+
+if ($select > 0 ) then
+
+   { If some phases are missing, we scale Fph to Fp by comparing amplitudes }
+   { ---------------------------------------------------------------------- }
+   xray
+   
+      { Apply standard scaling to Fph }
+      { ----------------------------- }
+      @CNS_XTALMODULE:scalef ( {scale |Fph| to |Fp|}
+         text="scale | &Fph | to | &Fp |";                
+         table=&table;
+         bscale=&bscale;
+         kscale=&kscale;
+         apply="all";
+         messages=&messages;
+         sel=&target_set;
+         f=&fph;fref=&fp;s=&sph;fop=&fop;fop2=&fop2)
+    end
+end if
+
+
+{* check if cross-validation is turned on *}
+xray
+   show sum (1) (&free_set) 
+   if ($select>0) then
+      evaluate ($rd_cross_val=true)
+   else
+      evaluate ($rd_cross_val=false)
+   end if
+end
+
+evaluate ($rd_tolerance=max(0.0000001,&tolerance))
+			
+xray
+   do (bad=0) ( all ) {initial outlier selection (none)}
+end
+
+evaluate ($rd_cycle=0)          {set cycle number to 0}
+
+evaluate ($cont=true) 
+while  ($cont = true) loop cycle
+   evaluate ($rd_cycle=$rd_cycle+1)
+   evaluate ($tableid=&table+" cycle= "+encode($rd_cycle))
+
+   if (&messages # "off") then
+      display PHASENREFINELOC: refinement cycle $rd_cycle of derivative &nameh
+   end if
+
+   xray
+
+      predict { note: predict computes Fcalcs for all reflections }
+         to=fcalc mode=reciprocal 
+         selection=( &phase_set ) 
+         atomselection=( &h ) 
+      end
+    
+      show ave (&sp) (&phase_set)
+      evaluate ($ip_tol=$result*&tolerance)
+      {*iterate probability*}
+      {---------------------}
+
+      evaluate ($ip=0)
+      while ($ip < &iteration) loop itpb
+         evaluate ($ip=$ip+1)
+
+         @@CNS_XTALMODULE:getlackofclosure ( {compute individual loc's}
+            method=&method;
+            messages=&messages;
+            loc=vloc;
+            sel=&phase_set;
+            fp=&fp;fh=fcalc;fph=&fph;
+            pa=&pppa;pb=&pppb;pc=&pppc;pd=&pppd;
+            phistep=&phistep;
+            cen360=&cen360;)
+
+         if (&cutoff > 0) then
+   
+            @@CNS_XTALMODULE:selectoutliers ( {flag outliers reflections}
+               cutoff=&cutoff;
+               anomalous=$rd_ano;
+               messages=&messages;
+               sel=&phase_set;
+               data=vloc;
+               outlier=bad;)
+   
+         end if
+            
+         do (vloi=vloc) (&phase_set) {copy individual loc's}
+         
+         @@CNS_XTALMODULE:substractmeasurementerror ( {compute individual loi's}
+            anomalous=$rd_ano;
+            messages=&messages;
+            sel=&phase_set;
+            var=vloi;
+            sp=&sp;sph=&sph;)
+ 
+         if ($rd_cross_val=false) then  
+            @@CNS_XTALMODULE:averagebin ( {compute variance loi from target set}
+               anomalous=$rd_ano;
+               epsilon=&epsilon;
+               sel=&phase_set;
+               subsel=(&target_set and bad=0);
+               data=vloi;)
+         else
+            @@CNS_XTALMODULE:averagebin (  {compute variance loi from free set}
+               anomalous=$rd_ano;
+               epsilon=&epsilon;
+               sel=&phase_set;
+               subsel=(&free_set and bad=0);
+               data=vloi;)
+         end if
+   
+         @@CNS_XTALMODULE:addmeasurementerror (    {compute total variance}
+            anomalous=$rd_ano;  
+            messages=&messages; 
+            epsilon=&epsilon;   
+            var=vloi;           
+            sp=&sp;sph=&sph;
+            sel=&phase_set;)
+   
+         @@CNS_XTALMODULE:resetvariances ( {reset zero variances   }
+            zerovar=&zerovar;             {avoid division by 0 in }
+            resetzero=&resetzero;         {probability calculation}
+            var=vloi;
+            sel=&phase_set;)
+      
+         do (&pppa=0) ( all )    
+         do (&pppb=0) ( all )    
+         do (&pppc=0) ( all )    
+         do (&pppd=0) ( all )  
+      
+         @@CNS_XTALMODULE:getprobability (   {compute probability}
+            method=&method;
+            integration=&integration;
+            messages=&messages;
+            fp=&fp;sp=&sp;             
+            sel=&phase_set;
+            nameh=&nameh;
+            fh=fcalc;fph=&fph;sph=&sph;
+            var=vloi;
+            pa=&pppa;pb=&pppb;pc=&pppc;pd=&pppd;
+            phistep=&phistep;
+            cen360=&cen360;)
+
+         do (&pa=&pppa) ( all )
+         do (&pb=&pppb) ( all )
+         do (&pc=&pppc) ( all )
+         do (&pd=&pppd) ( all )
+
+         @@CNS_XTALMODULE:getfom (                          
+            pa=&pa;pb=&pb;pc=&pc;pd=&pd;   
+            m=mder;
+            sel=&phase_set;
+            phistep=&phistep;
+            cen360=&cen360;)
+
+
+         if (&feedback="no") then
+            { Use probability excluding this derivative for feedback=no }
+            { --------------------------------------------------------- }
+            do (&pppa=&ppa) ( all )
+            do (&pppb=&ppb) ( all )
+            do (&pppc=&ppc) ( all )
+            do (&pppd=&ppd) ( all )
+         else
+            {combine with prior prob} 
+            @@CNS_XTALMODULE:combineprobability (        
+               messages=&messages;
+               sel=(all);
+               name=&nameh;addname="prior";
+               pa=&pppa;pb=&pppb;pc=&pppc;pd=&pppd;  
+               adda=&ppa;addb=&ppb;addc=&ppc;addd=&ppd;)
+         end if  
+   
+         if (&mergeanomalous = "yes") then
+         
+            @@CNS_XTALMODULE:mergeanomalous (        {combine (+) and (-) prob}
+            sel=&phase_set;
+            pa=&pppa;pb=&pppb;pc=&pppc;pd=&pppd;)
+         
+         end if
+
+         @@CNS_XTALMODULE:getfom (      {compute fom and centroid}
+            m=&m;              {phase}
+            sel=&phase_set;
+            pa=&pppa;pb=&pppb;pc=&pppc;pd=&pppd;
+            phistep=&phistep;
+            cen360=&cen360;)
+         
+         do (&fp=combine(abs(&fp),phase(&m))) (&phase_set) 
+
+         show ave (sqrt(vloi)) (&phase_set)    {check tolerance level}
+         if ($ip>1) then 
+            evaluate ($dummy=abs($result-$ip_oldvar))
+            display TAB: $tableid phase prob. iter. no. $ip, vloi: previous= $ip_oldvar[F8.2], \
+current= $result[F8.2], abs-diff= $dummy[F10.4]
+            if ($dummy <= $ip_tol) then
+
+               { tolerance satisfied -> termination }
+               evaluate ($ip=&iteration)
+               display TAB: $tableid phase prob. iter.: tolerance satisfied. 
+
+            end if
+         else
+            display TAB: $tableid phase prob. iter. no. $ip, vloi: current= $result[F8.2]
+         end if
+         evaluate ($ip_oldvar=$result) {store average variance}
+   
+      end loop itpb
+
+      @@CNS_XTALMODULE:getlackofclosure ( {compute individual loc's}
+         method=&method;
+         messages=&messages;
+         loc=vloc;
+         sel=&phase_set;
+         fp=&fp;&fh=fcalc;fph=&fph;
+         pa=&pppa;pb=&pppb;pc=&pppc;pd=&pppd;
+         phistep=&phistep;
+         cen360=&cen360;)
+
+      if (&cutoff > 0) then
+
+         @@CNS_XTALMODULE:selectoutliers ( {flag outliers}
+            cutoff=&cutoff;
+            anomalous=$rd_ano;
+            messages=&messages;
+            sel=&phase_set;
+            data=vloc;
+            outlier=bad;)
+
+      end if
+
+      do (vloi=vloc) (&phase_set) {copy individual loc's}
+
+      @@CNS_XTALMODULE:substractmeasurementerror ( {compute individual loi's}
+         anomalous=$rd_ano;              
+         messages=&messages;
+         sel=&phase_set;
+         var=vloi;
+         sp=&sp;sph=&sph;)
+
+      @@CNS_XTALMODULE:printstatistics (
+         epsilon=&epsilon;
+         anomalous=$rd_ano;
+         text=$ref_text;
+         table=$tableid;
+         target_set=(&target_set and bad=0);
+         free_set=(&free_set and bad=0);
+         phase_set=(&phase_set and bad=0);
+         m=mder;
+         fp=&fp;fph=&fph;fh=fcalc;
+         sp=&sp;sph=&sph;
+         varloc=vloc;varloi=vloi;)
+
+      { check termination criteria }
+      { -------------------------- }
+      if ($rd_cycle > &ncycle) then		
+         evaluate ($cont=false)  {max cycles reached}
+      end if
+
+
+      { print summary for last cycle if required }
+      if ($cont=false) then
+         if (&summary # "null") then
+
+            show sum (1) (&target_set ) 
+            evaluate ($prl_nwork=$result)
+            show sum (1) (&free_set ) 
+            evaluate ($prl_nfree=$result)
+            show sum (1) (&phase_set) 
+            evaluate ($prl_ntest=$result)
+            show sum (1) ( bad=1 and &target_set )
+            evaluate ($prl_wbad=$result)
+            show sum (1) ( bad=1 and &free_set)
+            evaluate ($prl_tbad=$result)
+            show sum (1) ( bad=1 and &phase_set)
+            evaluate ($prl_bad=$result)
+
+            show sum (1) (&target_set and acentric ) 
+            evaluate ($prl_nwork_a=$result)
+            show sum (1) (&free_set and acentric ) 
+            evaluate ($prl_nfree_a=$result)
+            show sum (1) (&phase_set and acentric) 
+            evaluate ($prl_ntest_a=$result)
+            show sum (1) ( bad=1 and &target_set and acentric )
+            evaluate ($prl_wbad_a=$result)
+            show sum (1) ( bad=1 and &free_set and acentric )
+            evaluate ($prl_tbad_a=$result)
+            show sum (1) ( bad=1 and &phase_set and acentric )
+            evaluate ($prl_bad_a=$result)
+
+            show sum (1) (&target_set and centric ) 
+            evaluate ($prl_nwork_c=$result)
+            show sum (1) (&free_set and centric ) 
+            evaluate ($prl_nfree_c=$result)
+            show sum (1) (&phase_set and centric) 
+            evaluate ($prl_ntest_c=$result)
+            show sum (1) ( bad=1 and &target_set and centric )
+            evaluate ($prl_wbad_c=$result)
+            show sum (1) ( bad=1 and &free_set and centric )
+            evaluate ($prl_tbad_c=$result)
+            show sum (1) ( bad=1 and &phase_set and centric )
+            evaluate ($prl_bad_c=$result)
+
+            set display=&summary end
+ display
+ display Summary of reflection usage for this LOC 
+ display                                                   (#centr.,   #acentr.,     #all) 
+ display LOC working set (used for scaling and refinement)=( $prl_nwork_c[I7] , $prl_nwork_a[I7] , $prl_nwork[I7] )  
+ display     outliers (among refl. in working set)=        ( $prl_wbad_c[I7] , $prl_wbad_a[I7] , $prl_wbad[I7] )    
+ show sum (1) (&free_set) 
+ if ($select > 0) then
+    display LOC test set (used for cross-validation)=         ( $prl_nfree_c[I7] , $prl_nfree_a[I7] , $prl_nfree[I7] )  
+    display     outliers (among refl. in test set)=           ( $prl_tbad_c[I7] , $prl_tbad_a[I7] , $prl_tbad[I7] )    
+ end if
+ display LOC phase set (all phased reflections)=           ( $prl_ntest_c[I7] , $prl_ntest_a[I7] , $prl_ntest[I7] )
+ display     outliers (among refl. in phase set)=          ( $prl_bad_c[I7] , $prl_bad_a[I7] , $prl_bad[I7] )    
+ display  
+            set display=OUTPUT end
+
+            @@CNS_XTALMODULE:printstatistics (  
+               epsilon=&epsilon;
+               anomalous=$rd_ano;
+               text="";
+               table="";
+               target_set=(&target_set and bad=0);
+               free_set=(&free_set and bad=0);
+               phase_set=(&phase_set and bad=0);
+               fp=&fp;fph=&fph;&fh=fcalc;m=mder;
+               varloc=vloc;varloi=vloi; output=&summary)
+         end if
+      end if
+
+
+      if ($rd_cross_val=false) then  
+         @@CNS_XTALMODULE:averagebin ( {compute variance loi from target set}
+            anomalous=$rd_ano; 
+            epsilon=&epsilon;  
+            subsel=(&target_set and bad=0);
+            sel=&phase_set;
+            data=vloi;)
+      else
+         @@CNS_XTALMODULE:averagebin ( {compute variance loi from free set}
+            anomalous=$rd_ano; 
+            epsilon=&epsilon;  
+            subsel=(&free_set and bad=0);
+            sel=&phase_set;
+            data=vloi;)
+      end if
+
+      @@CNS_XTALMODULE:addmeasurementerror ( {compute total variance}
+         anomalous=$rd_ano;
+         messages=&messages;                 
+         epsilon=&epsilon;
+         var=vloi;         
+         sp=&sp;sph=&sph;
+         sel=&phase_set;)
+
+      if ($rd_cross_val=false) then  
+         @@CNS_XTALMODULE:averagebin ( {compute variance loc from target set}
+            anomalous=$rd_ano;
+            epsilon=&epsilon;
+            subsel=(&target_set and bad=0);
+            sel=&phase_set;
+            data=vloc;)
+      else
+         @@CNS_XTALMODULE:averagebin ( {compute variance loc from free set}
+            anomalous=$rd_ano;
+            epsilon=&epsilon;
+            subsel=(&free_set and bad=0);
+            sel=&phase_set;
+            data=vloc;)
+       end if
+
+      @@CNS_XTALMODULE:resetvariances ( {reset zero loc variances}
+         zerovar=&zerovar; 
+         resetzero=&resetzero;
+         var=vloc;
+         sel=&phase_set;)
+
+      @@CNS_XTALMODULE:resetvariances ( {reset zero loi variances}
+         zerovar=&zerovar;            
+         resetzero=&resetzero;
+         var=vloi;
+         sel=&phase_set;)
+
+
+      @@CNS_XTALMODULE:normalizeprobability ( {make sure probability is}
+         messages=&messages;                 {normalized              }
+         sel=(all);    { this is necessary for target calculations  }
+         pk=pk;
+         pa=&pppa;pb=&pppb;pc=&pppc;pd=&pppd;
+         phistep=&phistep;
+         cen360=&cen360;)              
+
+   end
+
+   if ($cont=true) then
+
+      { Check if scale factor minimization is required }
+      { ---------------------------------------------- }
+      evaluate ($rd_scale="false") 
+      if (&kscale # "no") then
+         evaluate  ($rd_scale="true")
+      end if
+      if (&bscale # "no") then
+         evaluate  ($rd_scale="true")
+      end if
+      if (&kstep=0) then
+         evaluate ($rd_scale="false") 
+      end if     
+      if ($rd_scale="true") then
+   
+         { Minimization of scale factor of fph }
+         { ----------------------------------- }
+         xray
+            { We have to temporarily swap the roles of fph and fcalc in order to }
+            { refine the scale factor of fph.                                    }
+            do (fh=fcalc) ( all )
+            do (fcalc=combine(amplitude(&fph),0)) ( all )
+         end
+      
+         @@CNS_XTALMODULE:definescaletarget
+                  (
+                  method=&method; 
+                  messages=&messages; 
+      
+                  sel=(&target_set and bad=0);         {structure factor selection}
+      
+                  fh=fh;                 {specify heavy atom structure factor array}
+                  fp=&fp;                {native data  }
+                  fph=fcalc;             {derivative data }
+                  var=vloc;              {loc variance}   
+      
+                  pk=pk;                 {Hendrickson and Lattman K array}
+                  pa=&pppa;              {Hendrickson and Lattman A array}
+                  pb=&pppb;              {Hendrickson and Lattman B array}
+                  pc=&pppc;              {Hendrickson and Lattman C array}
+                  pd=&pppd;              {Hendrickson and Lattman D array}
+      
+                  phistep=&phistep;         {size of phase steps in integration}
+      
+                  cen360=&cen360;
+                  )
+   
+         xray  
+            evaluate ($text="scale | " +  &quote%fph + "  | to | " + &quote%fp + " + Fh |")          
+            @CNS_XTALMODULE:scaleftarget ( 
+                        text=$text;
+                        table=&table;
+                        kscale=&kscale; 
+                        bscale=&bscale; 
+                        kstep=&kstep;
+                        apply="all";
+                        messages=&messages;
+                        tolerance=$rd_tolerance;
+                        sel=(&target_set and bad=0);
+                        f=&fph;s=&sph;fop=&fop;fop2=&fop2;) { note: scale factor applied to all four struct. fact.}
+            { Restore fcalc }
+            do (fcalc=fh) ( all )
+         end
+      end if
+   
+      { Define the target function for refinement of heavy atom parameters. }
+      { ------------------------------------------------------------------- }
+      @@CNS_XTALMODULE:definetarget (	
+	 messages=&messages;		 
+	 method=&method;    
+	 sel=(&target_set and bad=0);
+	 phistep=&phistep;	 
+	 fp=&fp;h=&h;hfix=&hfix;fph=&fph;var=vloc;
+	 pk=pk;pa=&pppa;pb=&pppb;pc=&pppc;pd=&pppd; 
+	 cen360=&cen360;
+	 )
+ 
+      if (&xstep > 0) then
+   
+         { Positional minimization. }
+         { ------------------------ }
+   
+         @CNS_XTALMODULE:minimizecoordinates ( 
+            table=$tableid;
+            messages=&messages;
+            h=&h;
+            hfix=&hfix;
+            tolerance=$rd_tolerance;
+            step=&xstep;)
+      end if
+
+      { B, Q, f', f'' minimization }
+      { -------------------------- }
+   
+      @CNS_XTALMODULE:minimizeall ( 
+         table=$tableid;
+         messages=&messages;
+         h=&h;
+         hfix=&hfix;
+   
+         bmin=&bmin;
+         bmax=&bmax;
+         qmin=&qmin;
+         qmax=&qmax;
+         fpmin=&fpmin;
+         fpmax=&fpmax;
+         fdpmin=&fdpmin;
+         fdpmax=&fdpmax;
+   
+         bstep=&bstep;
+         qstep=&qstep;
+         fpstep=&fpstep;
+         fdpstep=&fdpstep;
+         tolerance=$rd_tolerance;
+         qmaxshift=&qmaxshift;  
+         fpmaxshift=&fpmaxshift;  
+         fdpmaxshift=&fdpmaxshift; 
+         bmaxshift=&bmaxshift;  
+      )
+
+      if (&gradient_map # "") then
+         xray   
+            predict 
+               mode=dtarget(fcalc)
+               to=&&gradient_map 
+               selection=( &target_set and bad=0 ) 
+               atomselection=( &h ) 
+            end
+         end
+      end if
+   
+      if (&table # "") then          {fill table with model}
+         for $1 in id (&h) loop atoms   {parameters}
+            show (x) (id $1)
+            evaluate ($x=$result)
+            show (y) (id $1)
+            evaluate ($y=$result)
+            show (z) (id $1)
+            evaluate ($z=$result)
+            show (b) (id $1)
+            evaluate ($b=$result)
+            show (q) (id $1)
+            evaluate ($q=$result)
+            show (scatter_fp) ( id $1)
+            evaluate ($fp=$result)
+            show (scatter_fdp) ( id $1)
+            evaluate ($fdp=$result)     
+            show element (segid ) (id $1)
+            evaluate ($segid=$result)
+            show element (resid ) (id $1)
+            evaluate ($resid=$result)
+            show element (name ) (id $1)
+            evaluate ($name=$result)
+display TAB: $tableid atom=($segid $resid $name) (x,y,z,b,q,fp,fdp)= \
+$x[F9.2] $y[F9.2] $z[F9.2] $b[F9.2] $q[F5.2] $fp[F7.2] $fdp[F7.2]
+         end loop atoms
+      end if
+
+   end if		
+
+end loop cycle
+
+
+xray 
+   { If feedback="no" we have to combine this with pppa, pppb, pppc, pppd to get }
+   { the combined probability, updated phases, foms using all derivatives.       }
+   { --------------------------------------------------------------------------- }
+   if (&feedback="no") then
+
+      @@CNS_XTALMODULE:getprobability (             {get single derivative} 
+         messages=&messages;               {lack-of-isomorphism}
+         method=&method;
+         integration=&integration;
+         fp=&fp;sp=&sp;
+         sel=&phase_set;
+         nameh=&nameh;
+         fh=fcalc;fph=&fph;sph=&sph;
+         var=vloi;
+         pa=&pa;pb=&pb;pc=&pc;pd=&pd;
+         phistep=&phistep;
+         cen360=&cen360;   )
+
+      @@CNS_XTALMODULE:combineprobability (        {combine with prior prob}
+         messages=&messages;
+         sel=(all);
+         name=&nameh;addname="prior";
+         pa=&pppa;pb=&pppb;pc=&pppc;pd=&pppd;
+         adda=&pa;addb=&pb;addc=&pc;addd=&pd;    )
+
+      { Need to merge the + - probabilities if merge=yes }
+      { ------------------------------------------------ }
+      if (&mergeanomalous = "yes") then
+      
+         @@CNS_XTALMODULE:mergeanomalous (        
+            pa=&pppa;pb=&pppb;pc=&pppc;pd=&pppd;)
+         
+      end if
+   
+
+      @@CNS_XTALMODULE:getfom (			
+         m=&m;
+         sel=&phase_set;
+         pa=&pppa;pb=&pppb;pc=&pppc;pd=&pppd;
+         phistep=&phistep;
+         cen360=&cen360;)
+
+      do (&fp=combine(abs(&fp),phase(&m))) (&phase_set)        
+   end if 
+end
+
+
+if (&messages # "off") then
+   if (&text # "") then
+      display PHASENREFINELOC: &text
+   end if
+   display PHASENREFINELOC: normal end
+end if
+
+xray
+   undeclare domain=reci name=vloc end  {lack-of-closure variance}
+   undeclare domain=reci name=vloi end  {lack-of-isomorphism variance}
+   undeclare domain=reci name=pk end    {normalization array}
+   undeclare domain=reci name=fh end    {heavy atom structure factor array}
+   undeclare domain=reci name=bad end    {outlier selection}
+   undeclare domain=reci name=mder end    {normalization array}
+end
+
+

@@ -1,0 +1,463 @@
+! module file: readensdata
+!
+! CNS MODULE
+! **********
+!
+! Authors: Gregory L. Warren and Axel T. Brunger
+!
+! copyright Yale University
+!
+! version 04/03/98
+!
+! Function:
+!    This is a master module which controls
+!    all the data input modules.
+!
+! Requirements:
+!    See the top level script file for the 
+!    defined parameter(s). The $nmr symbols (&output) are 
+!    for later use in the ensprintaccept and enscalcave
+!    modules
+! 
+!
+
+module { readensdata }
+( 
+     &nmr=nmr;                   {INPUT: all the &nmr. defined paramters}
+     &flag=flag;                 {INPUT: flags for cv }
+     &output=output;             {OUTPUT: $nmr symbols for output}
+)
+
+checkversion 1.3
+
+set message ? end
+evaluate ($message_old=$result)
+set echo ? end
+evaluate ($echo_old=$result)
+if ( $log_level = verbose ) then
+  set echo=on message=normal end
+else
+  set echo=off message=off end
+end if
+
+{- read experimental data -}
+
+{- Read experimental noe restraints -}
+
+   {- determine number of NOE files  -}
+
+   evaluate (&output.noe.class.num=0.)
+   if (&nmr.ens.loop.flag=true) then
+      evaluate ($count=1)
+      while (&exist%nmr.noe.loop.file.$count=true) loop chk
+         if (&nmr.noe.loop.file.$count # "") then
+            evaluate (&output.noe.class.num=&output.noe.class.num+1)
+         end if
+         evaluate ($count=$count+1)
+      end loop chk
+   end if
+   
+   evaluate ($count=1)
+   while (&exist%nmr.noe.file.$count=true) loop chk
+      if (&nmr.noe.file.$count # "") then
+         evaluate (&output.noe.class.num=&output.noe.class.num+1)
+      end if
+      evaluate ($count=$count+1)
+   end loop chk
+
+   evaluate ($rstr_num=20000*&output.copies^2)
+   noe
+      reset
+      nrestraints = $rstr_num
+   end		     
+
+   {- read in loop NOE restraint files -}
+
+   evaluate ($class_count = 0)
+   if (&nmr.ens.loop.flag=true) then
+      evaluate ($count = 1)
+      evaluate ($class_count = 1)
+      while (&exist%nmr.noe.loop.file.$count=true) loop nloop
+         evaluate ($clsname = "N"+encode($class_count))
+         if (&nmr.noe.loop.file.$count # "" ) then
+            @CNS_NMRMODULE:readnoe ( classname=$$clsname;
+                                     filename=&&nmr.noe.loop.file.$count;
+                                     avemode=&&nmr.noe.loop.ave.mode.$count; )
+         end if
+         evaluate ($count = $count + 1)
+         evaluate ($class_count = $class_count + 1)
+      end loop nloop
+      evaluate ($class_count = $class_count - 1)
+
+      if (&flag.cv.flag=true) then
+         if (&flag.cv.noe=true) then
+            noe
+               part=&nmr.cv.numpart
+            end
+         end if
+      end if
+   end if
+
+   {- read in non-loop NOE restraint files -}
+   evaluate ($count = 1)
+   evaluate ($class_count = $class_count + 1)
+   while (&exist%nmr.noe.file.$count=true) loop nloop
+      evaluate ($clsname = "N"+encode($class_count))
+      if (&nmr.noe.file.$count # "" ) then
+         @CNS_NMRMODULE:readnoe ( classname=$$clsname;
+                                  filename=&&nmr.noe.file.$count;
+                                  avemode=&&nmr.noe.ave.mode.$count; )
+      end if
+      evaluate ($count = $count + 1)
+      evaluate ($class_count = $class_count + 1)
+   end loop nloop
+
+   if (&nmr.ens.loop.flag=false) then
+      if (&flag.cv.flag=true) then
+         if (&flag.cv.noe=true) then
+            noe
+               part=&nmr.cv.numpart
+            end
+         end if
+      end if
+   end if
+   
+   {- read in hydrogen bond distance restraint file -}
+
+   if (&nmr.noe.hbnd.file # "" ) then
+      evaluate (&output.noe.class.num=&output.noe.class.num+1)
+      evaluate ($temp_file_name=&nmr.noe.hbnd.file+encode(&output.copies)+".tbl")
+      evaluate ($clsname = "hbnd")
+      @CNS_NMRMODULE:readnoe ( classname=$$clsname;
+                               filename=$temp_file_name;
+                               avemode=&&nmr.noe.ave.mode.hbnd; )
+   end if
+
+   noe
+      ceiling=50.
+      potential  * soft
+      sqoffset * 0.0
+      sqconstant * 1.0
+      sqexponent * 2
+      soexponent * 1
+      asymptote  * 1.0
+      rswitch * 0.5
+      ensemble
+          reset
+          on
+      end
+      if (&output.ens.dimer.flag=true) then
+         evaluate ($count = 0)
+         while ($count < &output.copies) loop DIM
+            evaluate ($count = $count + 1)
+            if (&nmr.ens.multi.flag=true) then
+               evaluate ($chainname1=&nmr.ens.multi.segid.1+encode($count))
+               evaluate ($chainname2=&nmr.ens.multi.segid.2+encode($count))
+            elseif (&nmr.ens.loop.flag=true) then
+               evaluate ($chainname1="C0")
+               evaluate ($chainname2="C"+encode($count))
+            end if
+            ensemble
+               on
+               dimer $chainname1 $chainname1
+               dimer $chainname1 $chainname2
+               dimer $chainname2 $chainname2
+            end
+         end loop DIM
+      end if
+   end 
+
+{- 3-bond j-coupling -}
+
+   {- determine number of j-coupling files  -}
+
+   evaluate ($count=1)
+   evaluate (&output.jcoup.class.num=0.)
+   evaluate ($jcoup_flag=false)
+   while (&exist%nmr.jcoup.file.$count=true) loop chk
+      if (&nmr.jcoup.file.$count # "") then
+         evaluate (&output.jcoup.class.num=&output.jcoup.class.num+1)
+         evaluate ($jcoup_flag=true)
+      end if
+      evaluate ($count=$count+1)
+   end loop chk
+
+   if ($jcoup_flag=true) then
+
+      evaluate ($rstr_num=800*&output.copies)
+      couplings
+         reset
+         nres = $rstr_num
+      end
+
+      {- read in restraint J-coupling files -}
+
+      evaluate ($count = 1)
+      while (&exist%nmr.jcoup.file.$count=true) loop nloop
+   	 evaluate ($clsname = "J"+encode($count))
+   	 if (&nmr.jcoup.file.$count # "" ) then
+            evaluate ($temp_file_name=&nmr.jcoup.file.$count+encode(&output.copies)+".tbl")
+    	    @CNS_NMRMODULE:readjcoup  ( classname=$$clsname;
+    	    		  	        classpoten=&&nmr.jcoup.pot.$count;
+    	    		  	        filename=$temp_file_name;
+    	    		  	        weight1=&nmr.jcoup.force.1.$count;
+    	    		  	        weight2=&nmr.jcoup.force.2.$count;
+    	    		  	        jcoef1=&nmr.jcoup.coef.1.$count;
+    	    		  	        jcoef2=&nmr.jcoup.coef.2.$count;
+    	    		  	        jcoef3=&nmr.jcoup.coef.3.$count;
+    	    		  	        jcoef4=&nmr.jcoup.coef.4.$count; )
+   	 end if
+   	 evaluate ($count = $count + 1)
+      end loop nloop
+      
+      if (&flag.cv.flag=true) then
+    	 if (&flag.cv.coup=true) then
+    	    couplings
+    	       part=&nmr.cv.numpart
+    	    end
+    	 end if
+      end if
+
+   end if
+
+{- 1-bond heteronuclear j-coupling -}
+
+   {- determine number of carbon chemical shift files  -}
+
+   evaluate ($count=1)
+   evaluate (&output.oneb.class.num=0.)
+   evaluate ($oneb_flag=false)
+   while (&exist%nmr.oneb.file.$count=true) loop chk
+      if (&nmr.oneb.file.$count # "") then
+         evaluate (&output.oneb.class.num=&output.oneb.class.num+1)
+         evaluate ($oneb_flag=true)
+      end if
+      evaluate ($count=$count+1)
+   end loop chk
+
+   if ($oneb_flag=true) then
+      evaluate ($rstr_num=400*&output.copies)
+      onebond
+         reset
+         nres = $rstr_num
+      end
+
+      {- read in restraint 1-bond J-coupling files -}
+
+      evaluate ($count = 1)
+      while (&exist%nmr.oneb.file.$count=true) loop nloop
+   	 evaluate ($clsname = "O"+encode($count))
+         if (&nmr.oneb.file.$count # "") then
+            evaluate ($temp_file_name=&nmr.oneb.file.$count+encode(&output.copies)+".tbl")
+            @CNS_NMRMODULE:readoneb  ( classname=$$clsname;
+             		   	       classpoten=&&nmr.oneb.pot.$count;
+             		   	       filename=$temp_file_name;
+             		   	       weight=&nmr.oneb.force.$count; )
+         end if
+   	 evaluate ($count = $count + 1)
+      end loop nloop
+
+   end if
+
+{- carbon chemical shift -}
+
+   {- determine number of 1-bond j-coupling files  -}
+
+   evaluate ($count=1)
+   evaluate (&output.carb.class.num=0.)
+   evaluate ($carb_flag=false)
+   while (&exist%nmr.carb.file.$count=true) loop chk
+      if (&nmr.carb.file.$count # "") then
+         evaluate (&output.carb.class.num=&output.carb.class.num+1)
+         evaluate ($carb_flag=true)
+      end if
+      evaluate ($count=$count+1)
+   end loop chk
+
+   if ($carb_flag=true) then
+      evaluate ($rstr_num=800*&output.copies)
+      carbon
+         reset
+         nres = $rstr_num
+         @@CNS_NMRLIB:rcoil_c13.tbl
+         @@CNS_NMRLIB:expected_edited_c13.tbl
+      end
+
+      {- read in restraint carbon chemical shift files -}
+
+      evaluate ($count = 1)
+      while (&exist%nmr.carb.file.$count=true) loop nloop
+   	 evaluate ($clsname = "C"+encode($count))
+         if (&nmr.carb.file.$count # "") then
+            evaluate ($temp_file_name=&nmr.carb.file.$count+encode(&output.copies)+".tbl")
+            @CNS_NMRMODULE:readcarb  ( classname=$$clsname;
+             		   	       classpoten=&&nmr.carb.pot.$count;
+             		   	       filename=$temp_file_name;
+             		   	       weight=&nmr.carb.force.$count; )
+         end if
+   	 evaluate ($count = $count + 1)
+      end loop nloop
+
+   end if
+
+{- proton chemical shifts -}
+
+   {- determine number of proton chemical shift files  -}
+
+   evaluate ($count=1)
+   evaluate (&output.prot.class.num=0.)
+   evaluate ($prot_flag=false)
+   while (&exist%nmr.prot.file.$count=true) loop chk
+      if (&nmr.prot.file.$count # "") then
+         evaluate (&output.prot.class.num=&output.prot.class.num+1)
+         evaluate ($prot_flag=true)
+      end if
+      evaluate ($count=$count+1)
+   end loop chk
+
+
+   if ($prot_flag=true) then
+      protons
+   	     reset
+      end
+      @CNS_NMRLIB:protons_setup.tbl
+
+      {- read in proton chemical shift files -}
+
+      evaluate ($count = 1)
+      while (&exist%nmr.prot.file.$count=true) loop nloop
+   	 evaluate ($clsname = "P"+encode($count))
+   	 if (&nmr.prot.file.$count # "") then
+            evaluate ($temp_file_name=&nmr.prot.file.$count+encode(&output.copies)+".tbl")
+   	    @CNS_NMRMODULE:readproton  (classname=$$clsname;
+   	     		   	        classpoten=&&nmr.prot.pot.$count;
+   	     		   	        filename=$temp_file_name;
+   	     		   	        weight1=&&nmr.prot.force.1.$count;
+   	     		   	        weight2=&&nmr.prot.force.2.$count;
+   	     		   	        violation=&&nmr.prot.thresh.$count; )
+   	 end if
+   	 evaluate ($count = $count + 1)
+      end loop nloop
+   end if
+
+{- diffusion anisotropy -}
+
+   {- determine number of diffusion anisotropy files -}
+   
+   evaluate ($count=1)
+   evaluate (&output.dani.class.num=0.)
+   evaluate ($dani_flag=false)
+   while (&exist%nmr.dani.file.$count=true) loop chk
+      if (&nmr.dani.file.$count # "") then
+         evaluate (&output.dani.class.num=&output.dani.class.num+1)
+         evaluate ($dani_flag=true)
+      end if
+      evaluate ($count=$count+1)
+   end loop chk
+
+   if ($dani_flag=true) then
+
+      evaluate ($rstr_num=800*&output.copies)
+      danisotropy
+         reset
+         nres = $rstr_num
+      end
+
+      {- read in restraint diffusion anisotropy files -}
+
+      evaluate ($count = 1)
+      while (&exist%nmr.dani.file.$count=true) loop nloop
+   	 evaluate ($clsname = "D"+encode($count))
+   	 if (&nmr.dani.file.$count # "" ) then
+            evaluate ($temp_file_name=&nmr.dani.file.$count+encode(&output.copies)+".tbl")
+    	    @CNS_NMRMODULE:readdani  ( classname=$$clsname;
+    	    		  	       classpoten=&&nmr.dani.pot.$count;
+    	    		  	       filename=$temp_file_name;
+    	    		  	       weight=&nmr.dani.force.init.$count;
+    	    		  	       dcoef1=&nmr.dani.coef.1.$count;
+    	    		  	       dcoef2=&nmr.dani.coef.2.$count;
+    	    		  	       dcoef3=&nmr.dani.coef.3.$count;
+    	    		  	       dcoef4=&nmr.dani.coef.4.$count; 
+    	    		  	       dcoef5=&nmr.dani.coef.5.$count; )
+   	 end if
+   	 evaluate ($count = $count + 1)
+      end loop nloop
+   end if
+      
+
+{- susceptability anisotropy -}
+
+   {- determine number of susceptability anisotropy files -}
+   
+   evaluate ($count=1)
+   evaluate (&output.sani.class.num=0.)
+   evaluate ($sani_flag=false)
+   while (&exist%nmr.sani.file.$count=true) loop chk
+      if (&nmr.sani.file.$count # "") then
+         evaluate (&output.sani.class.num=&output.sani.class.num+1)
+         evaluate ($sani_flag=true)
+      end if
+      evaluate ($count=$count+1)
+   end loop chk
+
+   if ($sani_flag=true) then
+
+      evaluate ($rstr_num=1600*&output.copies)
+      sanisotropy
+         reset
+         nres = $rstr_num
+      end
+
+      {- read in restraint susceptability anisotropy files -}
+
+      evaluate ($count = 1)
+      while (&exist%nmr.sani.file.$count=true) loop nloop
+   	 evaluate ($clsname = "S"+encode($count))
+   	 if (&nmr.sani.file.$count # "" ) then
+            evaluate ($temp_file_name=&nmr.sani.file.$count+encode(&output.copies)+".tbl")
+    	    @CNS_NMRMODULE:readsani  ( classname=$$clsname;
+    	    		  	       classpoten=&&nmr.sani.pot.$count;
+    	    		  	       filename=$temp_file_name;
+    	    		  	       weight=&nmr.sani.force.init.$count;
+    	    		  	       scoef1=&nmr.sani.coef.1.$count;
+    	    		  	       scoef2=&nmr.sani.coef.2.$count;
+    	    		  	       scoef3=&nmr.sani.coef.3.$count;)
+    	 end if
+   	 evaluate ($count = $count + 1)
+      end loop nloop
+   end if
+      
+
+{- dihedral constraints -}
+
+if (&nmr.cdih.file # "") then
+   evaluate ($rstr_num=1600*&output.copies)
+   evaluate ($temp_file_name=&nmr.cdih.file+encode(&output.copies)+".tbl")
+   restraints dihed reset
+      nassign $rstr_num
+        @@$temp_file_name
+      if (&flag.cv.flag=true) then
+         if (&flag.cv.cdih=true) then
+            part=&nmr.cv.numpart
+         end if
+      end if 
+  end
+end if 
+
+{- planarity constraints -}
+
+if (&nmr.plan.file # "") then
+   evaluate ($pscale=&nmr.plan.scale)
+   restraints plane init
+      @@&nmr.plan.file
+   end
+end if
+
+{- ncs constraints -}
+
+if (&nmr.ncs.file # "") then
+   evaluate ($temp_file_name=&nmr.ncs.file+encode(&output.copies)+".tbl")
+   @@$temp_file_name
+end if
+
+set message=$message_old echo=$echo_old end

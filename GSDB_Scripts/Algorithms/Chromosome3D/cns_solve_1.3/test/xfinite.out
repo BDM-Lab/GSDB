@@ -1,0 +1,593 @@
+          ============================================================
+          |                                                          |
+          |            Crystallography & NMR System (CNS)            |
+          |                         CNSsolve                         |
+          |                                                          |
+          ============================================================
+           Version: 1.3
+           Status: General release
+          ============================================================
+           Written by: A.T.Brunger, P.D.Adams, G.M.Clore, W.L.DeLano,
+                       P.Gros, R.W.Grosse-Kunstleve,J.-S.Jiang,J.M.Krahn,
+                       J.Kuszewski, M.Nilges, N.S.Pannu, R.J.Read,
+                       L.M.Rice, G.F.Schroeder, T.Simonson, G.L.Warren.
+           Copyright (c) 1997-2010 Yale University
+          ============================================================
+           Running on machine: lewis4-r710-login-node223 (x86_64/Linux,64-bit)
+                               with 16 threads
+           Program started by: oeow39
+           Program started at: 16:08:26 on 05-Jul-2018
+          ============================================================
+
+ FFT3C: Using FFTPACK4.1
+
+ CNSsolve>REMARKS  XFINITE.INP 
+ CNSsolve>remarks  test consistency of energy and first derivatives 
+ CNSsolve> 
+ CNSsolve>parameter @CNS_TOPPAR:protein.param end 
+ ASSFIL: file protein.param opened.
+ PARRDR>remarks file toppar/protein.param 
+ PARRDR>remarks   protein parameters with Lennard-Jones van der Waals parameters 
+ PARRDR>remarks   for crystallographic structure determination 
+ PARRDR> 
+ PARRDR>! 
+ PARRDR>! Please cite the following reference when using these parameters: 
+ PARRDR>! Engh, R.A. and  Huber, R. (1991). Accurate Bond and 
+ PARRDR>!  Angle Parameters for X-ray Protein-Structure Refinement, 
+ PARRDR>!  Acta Cryst. A47, 392-400. 
+ PARRDR>! 
+ PARRDR>! 
+ PARRDR> 
+ PARRDR>set message ? end eval ($old_message=$result) set echo ? end eval ($old_echo=$result) 
+ MESSage=NORM
+ EVALUATE: symbol $OLD_MESSAGE set to "NORM" (string)
+ ECHO=TRUE {ON}
+ EVALUATE: symbol $OLD_ECHO set to TRUE (logical)
+ PARRDR>set message=off echo=off end 
+ PARRDR> 
+ PARRDR> end 
+ CNSsolve> 
+ CNSsolve>{* read a ca trace *} 
+ CNSsolve>struc 
+ STRUcture>data_cns_mtf 
+ REMARKS FILENAME="/data/rwgk/test/tmp.mtf"
+ REMARKS DATE:18-Nov-98  14:17:52       created by user: rwgk
+ REMARKS VERSION:0.4a
+ Status of internal molecular topology database:
+ -> NATOM=          3(MAXA=     1000000)  NBOND=          0(MAXB=     1000000)
+ -> NTHETA=         0(MAXT=     2000000)  NGRP=           2(MAXGRP=   1000000)
+ -> NPHI=           0(MAXP=     2000000)  NIMPHI=         0(MAXIMP=   1000000)
+ -> NNB=            0(MAXNB=    1000000) 
+ STRUcture> 
+ STRUcture>end 
+ CNSsolve> 
+ CNSsolve>coor 
+ COOR>ATOM      1  CA  LYS     1       8.000   8.000   8.000  1.00 15.00 
+ COOR>ATOM      2  CA  LYS     2       1.400   6.200  18.000  1.00 15.00 
+ CNSsolve> 
+ CNSsolve>set timer=1 end 
+ CNSsolve> 
+ CNSsolve> 
+ CNSsolve>{===============================} 
+ CNSsolve>{*  test with P31c space group *} 
+ CNSsolve>{==============================*} 
+ CNSsolve> 
+ CNSsolve>xray 
+ XRAY>  reset 
+ XRAY: whole xray database erased and reset
+ XRAY>   declare name=fobs type=complex domain=reciprocal end 
+ XDECLARE: Object FOBS has been declared.
+ XRAY>   declare name=fpart domain=reciprocal type=complex end 
+ XDECLARE: Object FPART has been declared.
+ XRAY>   declare name=fcalc domain=reciprocal type=complex end 
+ XDECLARE: Object FCALC has been declared.
+ XRAY>   declare name=fom domain=reciprocal type=real end 
+ XDECLARE: Object FOM has been declared.
+ XRAY>   declare name=weight domain=reciprocal type=real end 
+ XDECLARE: Object WEIGHT has been declared.
+ XRAY>   declare name=sigma domain=reciprocal type=real end 
+ XDECLARE: Object SIGMA has been declared.
+ XRAY>   declare name=test domain=reciprocal type=integer end 
+ XDECLARE: Object TEST has been declared.
+ XRAY>  a=16.00 b=16.00 c=8.00 alpha=90.0 beta=90.00 gamma=120.0 
+ XRAY>  symmetry=(x,y,z) 
+ XRAY>  symmetry=(-y,x-y,z) 
+ XRAY>  symmetry=(y-x,-x,z) 
+ XRAY>!  symmetry=(y,x,1/2+z) 
+ XRAY>!  symmetry=(-x,y-x,1/2+z) 
+ XRAY>!  symmetry=(x-y,-y,1/2+z) 
+ XRAY>  SCATter ( chemical C* ) 
+ SELRPN:      3 atoms have been selected out of      3
+ SCATTER_A1=       2.31000 20.8439 1.02000 10.2075 1.58860 .568700 .865000 51.6512 .215600 
+ XRAY>  method=fft 
+ XRAY>  fft 
+ XFFT>     prime=5 avoid=2 
+ XFFT>  end 
+ XRAY>  nreflections=1000 
+ XRAY: allocating space for    1000 reflections.
+ XRAY>  generate  10. 3. 
+ XGENER: generating reflections to produce a full set
+         for the specified resolution range.
+ XGENE2:       47 new reflections have been generated.
+ XRAY>  mapresolution 3 
+ XRAY>  do (fobs=1) ( all ) 
+ XSFAL: allocating space for complex reciprocal space object.
+ Total of        47 structure factor elements were selected.
+ XRAY>  do (fpart=0) ( all ) 
+ XSFAL: allocating space for complex reciprocal space object.
+ Total of        47 structure factor elements were selected.
+ XRAY>  do (weight=1) ( all ) 
+ XSFAL: allocating space for real reciprocal space object.
+ Total of        47 structure factor elements were selected.
+ XRAY>  predict 
+ PREDict>      mode=reciprocal 
+ PREDict>      to=fcalc 
+ PREDict>      selection=( all ) 
+ Total of        47 structure factor elements were selected.
+ PREDict>      atomselection=( not hydrogen ) 
+ SELRPN:      3 atoms have been selected out of      3
+ PREDict>  end 
+ FCALC: #scatt.=      3 #anomalous=   0 #special pos.=  0 occupancies=1
+ XSFAL: allocating space for complex reciprocal space object.
+ XFFT: using grid [  16,  16,   8] and sublattice [  16(  17),  16(  17),   2]
+ XFFT: CPU-time:  electron-density-calc=    0.0005
+ XFFT: CPU-time:  FFT of electron density=    0.0004
+ XFFT: CPU-time:  transformation into A, B=    0.0003
+ XPRED: CPU-time:  predict-calc=    0.4334
+ XRAY>  do (fobs=fcalc) ( all ) 
+ Total of        47 structure factor elements were selected.
+ XRAY>  wa=200. 
+ XRAY>  do (fom=1) ( all) 
+ XSFAL: allocating space for real reciprocal space object.
+ Total of        47 structure factor elements were selected.
+ XRAY>  tolerance=0.0 
+ XRAY>  do (weight=2.0) ( 3.001 <= d <= 4.001 ) 
+ Total of        31 structure factor elements were selected.
+ XRAY>  do (weight=3.0) ( 4.001 <= d <= 5.001 ) 
+ Total of         5 structure factor elements were selected.
+ XRAY>  do (weight=4.0) ( 5.001 <= d <= 6.001 ) 
+ Total of         6 structure factor elements were selected.
+ XRAY> 
+ XRAY>  evaluate ($lr=10.001) 
+ EVALUATE: symbol $LR set to    10.0010     (real)
+ XRAY>  evaluate ($hr=3.001) 
+ EVALUATE: symbol $HR set to    3.00100     (real)
+ XRAY>  binresolution $lr $hr 
+ XRAY>  mapresolution $hr 
+ XRAY>  tselection=( $hr <= d <= $lr  ) 
+ XRAY>  target=( resi(amplitude(fobs),fcalc+fpart,weight)) 
+ XRAY>  dtarget=( dresi(amplitude(fobs),fcalc+fpart,weight)) 
+ XRAY>  monitor=( rvalue[overall](weight fobs,weight*( fcalc+fpart))) 
+ XRAY> 
+ XRAY> 
+ XRAY>  write reflection fobs fcalc weight selection=( 3.001 <= d <= 10.001 ) end 
+ Total of        47 structure factor elements were selected.
+ NREFlection=        47
+ ANOMalous=FALSe { equiv. to HERMitian=TRUE}
+ DECLare NAME=FOBS                   DOMAin=RECIprocal   TYPE=COMP END
+ DECLare NAME=FCALC                  DOMAin=RECIprocal   TYPE=COMP END
+ DECLare NAME=WEIGHT                 DOMAin=RECIprocal   TYPE=REAL END
+ INDE     1    4    0 FOBS=     8.489    38.670 FCALC=     8.489    38.670
+                   WEIGHT=     2.000
+ INDE     2    3    0 FOBS=     6.553    46.956 FCALC=     6.553    46.956
+                   WEIGHT=     2.000
+ INDE     3    2    0 FOBS=    17.458   245.501 FCALC=    17.458   245.501
+                   WEIGHT=     2.000
+ INDE     4    1    0 FOBS=     2.876    68.166 FCALC=     2.876    68.166
+                   WEIGHT=     2.000
+ INDE     4    0    1 FOBS=     2.666   217.695 FCALC=     2.666   217.695
+                   WEIGHT=     2.000
+ INDE     4    0    0 FOBS=     5.922    81.030 FCALC=     5.922    81.030
+                   WEIGHT=     2.000
+ INDE     0    4    1 FOBS=     8.068   343.224 FCALC=     8.068   343.224
+                   WEIGHT=     2.000
+ INDE    -3    4    1 FOBS=     5.443   120.014 FCALC=     5.443   120.014
+                   WEIGHT=     2.000
+ INDE     1    3    0 FOBS=     5.184   187.767 FCALC=     5.184   187.767
+                   WEIGHT=     2.000
+ INDE     1    3    1 FOBS=     9.042   196.066 FCALC=     9.042   196.066
+                   WEIGHT=     2.000
+ INDE    -2    4    1 FOBS=    14.517   235.666 FCALC=    14.517   235.666
+                   WEIGHT=     2.000
+ INDE     2    2    0 FOBS=     7.005   157.976 FCALC=     7.005   157.976
+                   WEIGHT=     2.000
+ INDE     2    2    1 FOBS=     6.053    51.129 FCALC=     6.053    51.129
+                   WEIGHT=     2.000
+ INDE    -1    4    1 FOBS=     7.630   351.214 FCALC=     7.630   351.214
+                   WEIGHT=     2.000
+ INDE     3    1    0 FOBS=     2.340    61.809 FCALC=     2.340    61.809
+                   WEIGHT=     2.000
+ INDE     3    1    1 FOBS=     4.703   273.717 FCALC=     4.703   273.717
+                   WEIGHT=     2.000
+ INDE     3    0    2 FOBS=    10.283   119.944 FCALC=    10.283   119.944
+                   WEIGHT=     2.000
+ INDE     3    0    1 FOBS=    10.053   128.118 FCALC=    10.053   128.118
+                   WEIGHT=     2.000
+ INDE     3    0    0 FOBS=    14.243   146.254 FCALC=    14.243   146.254
+                   WEIGHT=     3.000
+ INDE     0    3    1 FOBS=    16.201   225.088 FCALC=    16.201   225.088
+                   WEIGHT=     2.000
+ INDE     0    3    2 FOBS=    10.283   240.056 FCALC=    10.283   240.056
+                   WEIGHT=     2.000
+ INDE    -2    3    2 FOBS=    13.804    27.495 FCALC=    13.804    27.495
+                   WEIGHT=     2.000
+ INDE    -2    3    1 FOBS=    20.976   353.572 FCALC=    20.976   353.572
+                   WEIGHT=     3.000
+ INDE     1    2    0 FOBS=    12.816    32.640 FCALC=    12.816    32.640
+                   WEIGHT=     4.000
+ INDE     1    2    1 FOBS=     7.689   319.126 FCALC=     7.689   319.126
+                   WEIGHT=     3.000
+ INDE     1    2    2 FOBS=    13.804   332.505 FCALC=    13.804   332.505
+                   WEIGHT=     2.000
+ INDE    -1    3    2 FOBS=     6.841   151.703 FCALC=     6.841   151.703
+                   WEIGHT=     2.000
+ INDE    -1    3    1 FOBS=    16.422    78.998 FCALC=    16.422    78.998
+                   WEIGHT=     3.000
+ INDE     2    1    0 FOBS=    17.282   342.604 FCALC=    17.282   342.604
+                   WEIGHT=     4.000
+ INDE     2    1    1 FOBS=     7.700    65.212 FCALC=     7.700    65.212
+                   WEIGHT=     3.000
+ INDE     2    1    2 FOBS=     6.841   208.297 FCALC=     6.841   208.297
+                   WEIGHT=     2.000
+ INDE     2    0    2 FOBS=    10.659   246.981 FCALC=    10.659   246.981
+                   WEIGHT=     2.000
+ INDE     2    0    1 FOBS=    14.278   223.976 FCALC=    14.278   223.976
+                   WEIGHT=     4.000
+ INDE     2    0    0 FOBS=     9.503   220.231 FCALC=     9.503   220.231
+                   WEIGHT=     1.000
+ INDE     0    2    1 FOBS=     9.507   102.336 FCALC=     9.507   102.336
+                   WEIGHT=     4.000
+ INDE     0    2    2 FOBS=    10.659   113.019 FCALC=    10.659   113.019
+                   WEIGHT=     2.000
+ INDE    -1    2    2 FOBS=     7.540   293.471 FCALC=     7.540   293.471
+                   WEIGHT=     2.000
+ INDE    -1    2    1 FOBS=     6.278   230.227 FCALC=     6.278   230.227
+                   WEIGHT=     4.000
+ INDE     1    1    0 FOBS=     3.904   283.837 FCALC=     3.904   283.837
+                   WEIGHT=     1.000
+ INDE     1    1    1 FOBS=     9.166     9.218 FCALC=     9.166     9.218
+                   WEIGHT=     4.000
+ INDE     1    1    2 FOBS=     7.540    66.529 FCALC=     7.540    66.529
+                   WEIGHT=     2.000
+ INDE     1    0    2 FOBS=     4.578   228.802 FCALC=     4.578   228.802
+                   WEIGHT=     2.000
+ INDE     1    0    1 FOBS=    14.600   185.176 FCALC=    14.600   185.176
+                   WEIGHT=     1.000
+ INDE     0    1    1 FOBS=     5.511   262.731 FCALC=     5.511   262.731
+                   WEIGHT=     1.000
+ INDE     0    1    2 FOBS=     4.578   131.198 FCALC=     4.578   131.198
+                   WEIGHT=     2.000
+ INDE     0    0    2 FOBS=    11.284     0.000 FCALC=    11.284     0.000
+                   WEIGHT=     2.000
+ INDE     0    0    1 FOBS=    35.515    26.579 FCALC=    35.515    26.579
+                   WEIGHT=     1.000
+ XRAY>end 
+ CNSsolve>coor translate vector=( 1.1  0.8 1.4 ) sele=( resid 1 ) end 
+ SELRPN:      1 atoms have been selected out of      3
+ COOR: using atom subset.
+ COOR: translation vector =(     1.100000    0.800000    1.400000 )
+ COOR: selected coordinates translated
+ CNSsolve> 
+ CNSsolve>flags exclu * inclu xref end 
+ CNSsolve>energy end 
+ ENERGY: at entry  CPU=    0.491384 sec.
+ XRTSELSET: number of selected reflections      47
+ FCALC: #scatt.=      3 #anomalous=   0 #special pos.=  0 occupancies=1
+ XFFT: using grid [  15,  15,  12] and sublattice [  15(  15),  15(  15),   4]
+ XFFT: CPU-time:  electron-density-calc=    0.0006
+ XFFT: CPU-time:  FFT of electron density=    0.0007
+ XFFT: CPU-time:  transformation into A, B=    0.0003
+ XTAREXPR:                 monitor=  0.444
+ XFFT: CPU-time:  electron-density-calc=    0.0003
+ XFFT: CPU-time:  FFT of electron density=    0.0007
+ XFFT: CPU-time:  transformation into A, B=    0.0004
+ ENERGY: after ALL terms  CPU=    0.502690 sec.
+ --------------- cycle=     1 --------------------------------------------------
+ | Etotal =47.294     grad(E)=16.349     E(XREF)=47.294                        |
+ -------------------------------------------------------------------------------
+ CNSsolve> 
+ CNSsolve>xray 
+ XRAY>   method=fft lookup=false 
+ XRAY>end 
+ CNSsolve>test first sele=( id 1 ) step=0.000004 tolerance=0.0 end 
+ SELRPN:      1 atoms have been selected out of      3
+ ENERGY: at entry  CPU=    0.505006 sec.
+ FCALC: #scatt.=      3 #anomalous=   0 #special pos.=  0 occupancies=1
+ XFFT: using grid [  15,  15,  12] and sublattice [  15(  15),  15(  15),   4]
+ XFFT: CPU-time:  electron-density-calc=    0.0006
+ XFFT: CPU-time:  FFT of electron density=    0.0007
+ XFFT: CPU-time:  transformation into A, B=    0.0003
+ XTAREXPR:                 monitor=  0.444
+ XFFT: CPU-time:  electron-density-calc=    0.0005
+ XFFT: CPU-time:  FFT of electron density=    0.0007
+ XFFT: CPU-time:  transformation into A, B=    0.0003
+ ENERGY: after ALL terms  CPU=    0.512458 sec.
+ ENERGY: at entry  CPU=    0.512684 sec.
+ FCALC: #scatt.=      3 #anomalous=   0 #special pos.=  0 occupancies=1
+ XFFT: using grid [  15,  15,  12] and sublattice [  15(  15),  15(  15),   4]
+ XFFT: CPU-time:  electron-density-calc=    0.0005
+ XFFT: CPU-time:  FFT of electron density=    0.0007
+ XFFT: CPU-time:  transformation into A, B=    0.0003
+ XTAREXPR:                 monitor=  0.444
+ XFFT: CPU-time:  electron-density-calc=    0.0005
+ XFFT: CPU-time:  FFT of electron density=    0.0007
+ XFFT: CPU-time:  transformation into A, B=    0.0003
+ ENERGY: after ALL terms  CPU=    0.519869 sec.
+ ENERGY: at entry  CPU=    0.520093 sec.
+ FCALC: #scatt.=      3 #anomalous=   0 #special pos.=  0 occupancies=1
+ XFFT: using grid [  15,  15,  12] and sublattice [  15(  15),  15(  15),   4]
+ XFFT: CPU-time:  electron-density-calc=    0.0006
+ XFFT: CPU-time:  FFT of electron density=    0.0007
+ XFFT: CPU-time:  transformation into A, B=    0.0003
+ XTAREXPR:                 monitor=  0.444
+ XFFT: CPU-time:  electron-density-calc=    0.0005
+ XFFT: CPU-time:  FFT of electron density=    0.0007
+ XFFT: CPU-time:  transformation into A, B=    0.0003
+ ENERGY: after ALL terms  CPU=    0.527591 sec.
+ ENERGY: at entry  CPU=    0.527818 sec.
+ FCALC: #scatt.=      3 #anomalous=   0 #special pos.=  0 occupancies=1
+ XFFT: using grid [  15,  15,  12] and sublattice [  15(  15),  15(  15),   4]
+ XFFT: CPU-time:  electron-density-calc=    0.0005
+ XFFT: CPU-time:  FFT of electron density=    0.0007
+ XFFT: CPU-time:  transformation into A, B=    0.0003
+ XTAREXPR:                 monitor=  0.444
+ XFFT: CPU-time:  electron-density-calc=    0.0005
+ XFFT: CPU-time:  FFT of electron density=    0.0007
+ XFFT: CPU-time:  transformation into A, B=    0.0003
+ ENERGY: after ALL terms  CPU=    0.535065 sec.
+ ENERGY: at entry  CPU=    0.535294 sec.
+ FCALC: #scatt.=      3 #anomalous=   0 #special pos.=  0 occupancies=1
+ XFFT: using grid [  15,  15,  12] and sublattice [  15(  15),  15(  15),   4]
+ XFFT: CPU-time:  electron-density-calc=    0.0007
+ XFFT: CPU-time:  FFT of electron density=    0.0007
+ XFFT: CPU-time:  transformation into A, B=    0.0003
+ XTAREXPR:                 monitor=  0.444
+ XFFT: CPU-time:  electron-density-calc=    0.0005
+ XFFT: CPU-time:  FFT of electron density=    0.0007
+ XFFT: CPU-time:  transformation into A, B=    0.0003
+ ENERGY: after ALL terms  CPU=    0.542748 sec.
+ ENERGY: at entry  CPU=    0.542977 sec.
+ FCALC: #scatt.=      3 #anomalous=   0 #special pos.=  0 occupancies=1
+ XFFT: using grid [  15,  15,  12] and sublattice [  15(  15),  15(  15),   4]
+ XFFT: CPU-time:  electron-density-calc=    0.0005
+ XFFT: CPU-time:  FFT of electron density=    0.0007
+ XFFT: CPU-time:  transformation into A, B=    0.0003
+ XTAREXPR:                 monitor=  0.444
+ XFFT: CPU-time:  electron-density-calc=    0.0005
+ XFFT: CPU-time:  FFT of electron density=    0.0007
+ XFFT: CPU-time:  transformation into A, B=    0.0003
+ ENERGY: after ALL terms  CPU=    0.550129 sec.
+ ENERGY: at entry  CPU=    0.550351 sec.
+ FCALC: #scatt.=      3 #anomalous=   0 #special pos.=  0 occupancies=1
+ XFFT: using grid [  15,  15,  12] and sublattice [  15(  15),  15(  15),   4]
+ XFFT: CPU-time:  electron-density-calc=    0.0005
+ XFFT: CPU-time:  FFT of electron density=    0.0007
+ XFFT: CPU-time:  transformation into A, B=    0.0005
+ XTAREXPR:                 monitor=  0.444
+ XFFT: CPU-time:  electron-density-calc=    0.0005
+ XFFT: CPU-time:  FFT of electron density=    0.0007
+ XFFT: CPU-time:  transformation into A, B=    0.0003
+ ENERGY: after ALL terms  CPU=    0.557823 sec.
+ TESTFD: Parameters: STEP=   0.00000  MASSweighting=F
+ TESTFD: The following first derivatives differ by more than TOL=    0.000000
+
+  DIM.         ATOM                 ANALYTIC        FINITE-DIFF     DEVIATION
+    1 X (      1    LYS  CA  )      36.971558      36.971558       0.000000
+    1 Y (      1    LYS  CA  )       5.635365       5.635365       0.000000
+    1 Z (      1    LYS  CA  )      22.568019      22.568019       0.000000
+ TESTFD: A total of     0 elements were within the tolerance
+ CNSsolve> 
+ CNSsolve>xray 
+ XRAY>  method=direct lookup=false 
+ XRAY>end 
+ CNSsolve> 
+ CNSsolve>test first sele=( id 1 ) step=0.000004 tolerance=0.0 end 
+ SELRPN:      1 atoms have been selected out of      3
+ ENERGY: at entry  CPU=    0.560252 sec.
+ FCALC: #scatt.=      3 #anomalous=   0 #special pos.=  0 occupancies=1
+ XPRED: CPU-time:  direct structure factor calculation=    0.0914
+ XTAREXPR:                 monitor=  0.445
+ XPRED: CPU-time:  direct structure factor calculation=    0.0034
+ ENERGY: after ALL terms  CPU=    0.657435 sec.
+ ENERGY: at entry  CPU=    0.657654 sec.
+ FCALC: #scatt.=      3 #anomalous=   0 #special pos.=  0 occupancies=1
+ XPRED: CPU-time:  direct structure factor calculation=    0.0242
+ XTAREXPR:                 monitor=  0.445
+ XPRED: CPU-time:  direct structure factor calculation=    0.0112
+ ENERGY: after ALL terms  CPU=    0.695366 sec.
+ ENERGY: at entry  CPU=    0.695580 sec.
+ FCALC: #scatt.=      3 #anomalous=   0 #special pos.=  0 occupancies=1
+ XPRED: CPU-time:  direct structure factor calculation=    0.0004
+ XTAREXPR:                 monitor=  0.445
+ XPRED: CPU-time:  direct structure factor calculation=    0.0010
+ ENERGY: after ALL terms  CPU=    0.699087 sec.
+ ENERGY: at entry  CPU=    0.699295 sec.
+ FCALC: #scatt.=      3 #anomalous=   0 #special pos.=  0 occupancies=1
+ XPRED: CPU-time:  direct structure factor calculation=    0.0005
+ XTAREXPR:                 monitor=  0.445
+ XPRED: CPU-time:  direct structure factor calculation=    0.0008
+ ENERGY: after ALL terms  CPU=    0.702600 sec.
+ ENERGY: at entry  CPU=    0.702807 sec.
+ FCALC: #scatt.=      3 #anomalous=   0 #special pos.=  0 occupancies=1
+ XPRED: CPU-time:  direct structure factor calculation=    0.0005
+ XTAREXPR:                 monitor=  0.445
+ XPRED: CPU-time:  direct structure factor calculation=    0.0010
+ ENERGY: after ALL terms  CPU=    0.706867 sec.
+ ENERGY: at entry  CPU=    0.707074 sec.
+ FCALC: #scatt.=      3 #anomalous=   0 #special pos.=  0 occupancies=1
+ XPRED: CPU-time:  direct structure factor calculation=    0.0005
+ XTAREXPR:                 monitor=  0.445
+ XPRED: CPU-time:  direct structure factor calculation=    0.0009
+ ENERGY: after ALL terms  CPU=    0.710477 sec.
+ ENERGY: at entry  CPU=    0.710683 sec.
+ FCALC: #scatt.=      3 #anomalous=   0 #special pos.=  0 occupancies=1
+ XPRED: CPU-time:  direct structure factor calculation=    0.0005
+ XTAREXPR:                 monitor=  0.445
+ XPRED: CPU-time:  direct structure factor calculation=    0.0009
+ ENERGY: after ALL terms  CPU=    0.714069 sec.
+ TESTFD: Parameters: STEP=   0.00000  MASSweighting=F
+ TESTFD: The following first derivatives differ by more than TOL=    0.000000
+
+  DIM.         ATOM                 ANALYTIC        FINITE-DIFF     DEVIATION
+    1 X (      1    LYS  CA  )      37.022390      37.022390       0.000000
+    1 Y (      1    LYS  CA  )       5.563277       5.563277       0.000000
+    1 Z (      1    LYS  CA  )      22.551956      22.551956       0.000000
+ TESTFD: A total of     0 elements were within the tolerance
+ CNSsolve> 
+ CNSsolve>xray 
+ XRAY>  wa=0.1 
+ XRAY>  method=direct lookup=true 
+ XRAY>end 
+ CNSsolve>test first sele=( id 1 ) step=0.001 tolerance=0.0 end 
+ SELRPN:      1 atoms have been selected out of      3
+ ENERGY: at entry  CPU=    0.716606 sec.
+ FCALC: #scatt.=      3 #anomalous=   0 #special pos.=  0 occupancies=1
+ XPRED: CPU-time:  direct structure factor calculation=    0.0005
+ XTAREXPR:                 monitor=  0.445
+ XPRED: CPU-time:  direct structure factor calculation=    0.0008
+ ENERGY: after ALL terms  CPU=    0.720007 sec.
+ ENERGY: at entry  CPU=    0.720326 sec.
+ FCALC: #scatt.=      3 #anomalous=   0 #special pos.=  0 occupancies=1
+ XPRED: CPU-time:  direct structure factor calculation=    0.0005
+ XTAREXPR:                 monitor=  0.445
+ XPRED: CPU-time:  direct structure factor calculation=    0.0014
+ ENERGY: after ALL terms  CPU=    0.724240 sec.
+ ENERGY: at entry  CPU=    0.724445 sec.
+ FCALC: #scatt.=      3 #anomalous=   0 #special pos.=  0 occupancies=1
+ XPRED: CPU-time:  direct structure factor calculation=    0.0004
+ XTAREXPR:                 monitor=  0.445
+ XPRED: CPU-time:  direct structure factor calculation=    0.0009
+ ENERGY: after ALL terms  CPU=    0.727812 sec.
+ ENERGY: at entry  CPU=    0.728022 sec.
+ FCALC: #scatt.=      3 #anomalous=   0 #special pos.=  0 occupancies=1
+ XPRED: CPU-time:  direct structure factor calculation=    0.0004
+ XTAREXPR:                 monitor=  0.445
+ XPRED: CPU-time:  direct structure factor calculation=    0.0009
+ ENERGY: after ALL terms  CPU=    0.731292 sec.
+ ENERGY: at entry  CPU=    0.731496 sec.
+ FCALC: #scatt.=      3 #anomalous=   0 #special pos.=  0 occupancies=1
+ XPRED: CPU-time:  direct structure factor calculation=    0.0005
+ XTAREXPR:                 monitor=  0.445
+ XPRED: CPU-time:  direct structure factor calculation=    0.0012
+ ENERGY: after ALL terms  CPU=    0.735137 sec.
+ ENERGY: at entry  CPU=    0.735340 sec.
+ FCALC: #scatt.=      3 #anomalous=   0 #special pos.=  0 occupancies=1
+ XPRED: CPU-time:  direct structure factor calculation=    0.0006
+ XTAREXPR:                 monitor=  0.445
+ XPRED: CPU-time:  direct structure factor calculation=    0.0009
+ ENERGY: after ALL terms  CPU=    0.738918 sec.
+ ENERGY: at entry  CPU=    0.739119 sec.
+ FCALC: #scatt.=      3 #anomalous=   0 #special pos.=  0 occupancies=1
+ XPRED: CPU-time:  direct structure factor calculation=    0.0005
+ XTAREXPR:                 monitor=  0.445
+ XPRED: CPU-time:  direct structure factor calculation=    0.0012
+ ENERGY: after ALL terms  CPU=    0.742793 sec.
+ TESTFD: Parameters: STEP=   0.00100  MASSweighting=F
+ TESTFD: The following first derivatives differ by more than TOL=    0.000000
+
+  DIM.         ATOM                 ANALYTIC        FINITE-DIFF     DEVIATION
+    1 X (      1    LYS  CA  )       0.018511       0.018511       0.000000
+    1 Y (      1    LYS  CA  )       0.002782       0.002782       0.000000
+    1 Z (      1    LYS  CA  )       0.011276       0.011276       0.000000
+ TESTFD: A total of     0 elements were within the tolerance
+ CNSsolve> 
+ CNSsolve>xray 
+ XRAY>  wa=0.1 
+ XRAY>  method=fft lookup=true 
+ XRAY>end 
+ CNSsolve>test first sele=( id 1 ) step=0.001 tolerance=0.0 end 
+ SELRPN:      1 atoms have been selected out of      3
+ ENERGY: at entry  CPU=    0.745288 sec.
+ FCALC: #scatt.=      3 #anomalous=   0 #special pos.=  0 occupancies=1
+ XFFT: using grid [  15,  15,  12] and sublattice [  15(  15),  15(  15),   4]
+ XFFT: CPU-time:  electron-density-calc=    0.0004
+ XFFT: CPU-time:  FFT of electron density=    0.0007
+ XFFT: CPU-time:  transformation into A, B=    0.0003
+ XTAREXPR:                 monitor=  0.444
+ XFFT: CPU-time:  electron-density-calc=    0.0003
+ XFFT: CPU-time:  FFT of electron density=    0.0007
+ XFFT: CPU-time:  transformation into A, B=    0.0005
+ ENERGY: after ALL terms  CPU=    0.753868 sec.
+ ENERGY: at entry  CPU=    0.754098 sec.
+ FCALC: #scatt.=      3 #anomalous=   0 #special pos.=  0 occupancies=1
+ XFFT: using grid [  15,  15,  12] and sublattice [  15(  15),  15(  15),   4]
+ XFFT: CPU-time:  electron-density-calc=    0.0003
+ XFFT: CPU-time:  FFT of electron density=    0.0007
+ XFFT: CPU-time:  transformation into A, B=    0.0003
+ XTAREXPR:                 monitor=  0.444
+ XFFT: CPU-time:  electron-density-calc=    0.0003
+ XFFT: CPU-time:  FFT of electron density=    0.0007
+ XFFT: CPU-time:  transformation into A, B=    0.0003
+ ENERGY: after ALL terms  CPU=    0.762634 sec.
+ ENERGY: at entry  CPU=    0.762861 sec.
+ FCALC: #scatt.=      3 #anomalous=   0 #special pos.=  0 occupancies=1
+ XFFT: using grid [  15,  15,  12] and sublattice [  15(  15),  15(  15),   4]
+ XFFT: CPU-time:  electron-density-calc=    0.0004
+ XFFT: CPU-time:  FFT of electron density=    0.0007
+ XFFT: CPU-time:  transformation into A, B=    0.0003
+ XTAREXPR:                 monitor=  0.444
+ XFFT: CPU-time:  electron-density-calc=    0.0003
+ XFFT: CPU-time:  FFT of electron density=    0.0007
+ XFFT: CPU-time:  transformation into A, B=    0.0004
+ ENERGY: after ALL terms  CPU=    0.771611 sec.
+ ENERGY: at entry  CPU=    0.771838 sec.
+ FCALC: #scatt.=      3 #anomalous=   0 #special pos.=  0 occupancies=1
+ XFFT: using grid [  15,  15,  12] and sublattice [  15(  15),  15(  15),   4]
+ XFFT: CPU-time:  electron-density-calc=    0.0003
+ XFFT: CPU-time:  FFT of electron density=    0.0007
+ XFFT: CPU-time:  transformation into A, B=    0.0003
+ XTAREXPR:                 monitor=  0.444
+ XFFT: CPU-time:  electron-density-calc=    0.0003
+ XFFT: CPU-time:  FFT of electron density=    0.0007
+ XFFT: CPU-time:  transformation into A, B=    0.0003
+ ENERGY: after ALL terms  CPU=    0.780352 sec.
+ ENERGY: at entry  CPU=    0.780578 sec.
+ FCALC: #scatt.=      3 #anomalous=   0 #special pos.=  0 occupancies=1
+ XFFT: using grid [  15,  15,  12] and sublattice [  15(  15),  15(  15),   4]
+ XFFT: CPU-time:  electron-density-calc=    0.0004
+ XFFT: CPU-time:  FFT of electron density=    0.0007
+ XFFT: CPU-time:  transformation into A, B=    0.0004
+ XTAREXPR:                 monitor=  0.444
+ XFFT: CPU-time:  electron-density-calc=    0.0003
+ XFFT: CPU-time:  FFT of electron density=    0.0007
+ XFFT: CPU-time:  transformation into A, B=    0.0003
+ ENERGY: after ALL terms  CPU=    0.789430 sec.
+ ENERGY: at entry  CPU=    0.789662 sec.
+ FCALC: #scatt.=      3 #anomalous=   0 #special pos.=  0 occupancies=1
+ XFFT: using grid [  15,  15,  12] and sublattice [  15(  15),  15(  15),   4]
+ XFFT: CPU-time:  electron-density-calc=    0.0004
+ XFFT: CPU-time:  FFT of electron density=    0.0007
+ XFFT: CPU-time:  transformation into A, B=    0.0003
+ XTAREXPR:                 monitor=  0.444
+ XFFT: CPU-time:  electron-density-calc=    0.0003
+ XFFT: CPU-time:  FFT of electron density=    0.0007
+ XFFT: CPU-time:  transformation into A, B=    0.0003
+ ENERGY: after ALL terms  CPU=    0.798299 sec.
+ ENERGY: at entry  CPU=    0.798523 sec.
+ FCALC: #scatt.=      3 #anomalous=   0 #special pos.=  0 occupancies=1
+ XFFT: using grid [  15,  15,  12] and sublattice [  15(  15),  15(  15),   4]
+ XFFT: CPU-time:  electron-density-calc=    0.0004
+ XFFT: CPU-time:  FFT of electron density=    0.0007
+ XFFT: CPU-time:  transformation into A, B=    0.0003
+ XTAREXPR:                 monitor=  0.444
+ XFFT: CPU-time:  electron-density-calc=    0.0003
+ XFFT: CPU-time:  FFT of electron density=    0.0007
+ XFFT: CPU-time:  transformation into A, B=    0.0003
+ ENERGY: after ALL terms  CPU=    0.807227 sec.
+ TESTFD: Parameters: STEP=   0.00100  MASSweighting=F
+ TESTFD: The following first derivatives differ by more than TOL=    0.000000
+
+  DIM.         ATOM                 ANALYTIC        FINITE-DIFF     DEVIATION
+    1 X (      1    LYS  CA  )       0.018488       0.018693       0.000205
+    1 Y (      1    LYS  CA  )       0.002817       0.004310       0.001493
+    1 Z (      1    LYS  CA  )       0.011284       0.011778       0.000495
+ TESTFD: A total of     0 elements were within the tolerance
+ CNSsolve> 
+ CNSsolve>stop 
+          ============================================================
+           Maximum dynamic memory allocation:     8454152 bytes
+           Maximum dynamic memory overhead:          1168 bytes
+           Program started at: 16:08:26 on 05-Jul-2018
+           Program stopped at: 16:08:26 on 05-Jul-2018
+           CPU time used:       0.8553 seconds
+          ============================================================

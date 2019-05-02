@@ -1,0 +1,189 @@
+! Module file: acceptinit
+!
+! CNS MODULE
+! **********
+!
+! Authors: Gregory L. Warren and Axel T. Brunger
+!
+! copyright Yale University
+!
+! version 03/02/98
+!
+! Function:
+!    Initialize variables for average structure statistics
+!    
+!
+! Requirements:
+!      
+!  
+! 
+
+module {acceptinit}
+( 
+   &ave=ave;           {OUTPUT: ave symbols}
+   &ave2=ave2;         {OUTPUT: sd  symbols}
+   &ener1=ener1;       {OUTPUT: ave for ener symbols}
+   &ener2=ener2;       {OUTPUT: sd for ener symbols}
+   &flag=flag;         {INPUT: flags}
+   &nmr=nmr;           {INPUT: prot chemical shift files}
+)
+
+checkversion 1.3
+
+{- Initialize variables and coordinates for average structure -}
+
+set message ? end
+evaluate ($message_old=$result)
+set echo ? end
+evaluate ($echo_old=$result)
+if ( $log_level = verbose ) then
+  set echo=on message=normal end
+else
+  set echo=off message=off end
+end if
+   
+   if (&flag.calc.ave.struct=true) then
+      evaluate (&ener1.ovrl=0.)
+      evaluate (&ener1.bond=0.)
+      evaluate (&ener1.angl=0.)
+      evaluate (&ener1.impr=0.)
+      evaluate (&ener1.vdw =0.)
+      evaluate (&ener1.dihe=0.)
+      evaluate (&ener1.elec=0.)
+      evaluate (&ener1.harm=0.)
+      evaluate (&ener1.noe =0.)
+      evaluate (&ener1.jcop=0.)
+      evaluate (&ener1.oneb=0.)
+      evaluate (&ener1.carb=0.)
+      evaluate (&ener1.prot=0.)
+      evaluate (&ener1.dani=0.)
+      evaluate (&ener1.sani=0.)
+      evaluate (&ener1.cdih=0.)
+      evaluate (&ener1.plan=0.)
+      evaluate (&ener1.ncs =0.)
+
+      evaluate (&ener2.ovrl=0.)
+      evaluate (&ener2.bond=0.)
+      evaluate (&ener2.angl=0.)
+      evaluate (&ener2.impr=0.)
+      evaluate (&ener2.vdw =0.)
+      evaluate (&ener2.dihe=0.)
+      evaluate (&ener2.elec=0.)
+      evaluate (&ener2.harm=0.)
+      evaluate (&ener2.noe =0.)
+      evaluate (&ener2.jcop=0.)
+      evaluate (&ener2.oneb=0.)
+      evaluate (&ener2.carb=0.)
+      evaluate (&ener2.prot=0.)
+      evaluate (&ener2.dani=0.)
+      evaluate (&ener2.sani=0.)
+      evaluate (&ener2.cdih=0.)
+      evaluate (&ener2.plan=0.)
+      evaluate (&ener2.ncs =0.)
+
+      evaluate ($ave_rms_bonds=0.)
+      evaluate (&ave.rms.bond=0.)
+      evaluate (&ave.rms.angl=0.)
+      evaluate (&ave.rms.impr=0.)
+      evaluate (&ave.rms.dihe=0.)
+      evaluate (&ave.rms.noe=0.)
+      evaluate (&ave.rms.jcoup=0.)
+      evaluate (&ave.rms.oneb=0.)
+      evaluate (&ave.rms.carb.a=0.)
+      evaluate (&ave.rms.carb.b=0.)
+      evaluate (&ave.rms.prot.all=0.)
+      evaluate (&ave.rms.dani=0.)
+      evaluate (&ave.rms.sani=0.)
+      evaluate (&ave.rms.cdih=0.)
+      evaluate (&ave.viol.bond=0.)
+      evaluate (&ave.viol.angl=0.)
+      evaluate (&ave.viol.impr=0.)
+      evaluate (&ave.viol.dihe=0.)
+      evaluate (&ave.viol.vdw=0.)
+      evaluate (&ave.viol.noe=0.)
+      evaluate (&ave.viol.jcoup=0.)
+      evaluate (&ave.viol.oneb=0.)
+      evaluate (&ave.viol.carb=0.)
+      evaluate (&ave.viol.prot.all=0.)
+      evaluate (&ave.viol.dani=0.)
+      evaluate (&ave.viol.sani=0.)
+      evaluate (&ave.viol.cdih=0.)
+      evaluate (&ave.rotx.plan=0.)
+      evaluate (&ave.roty.plan=0.)
+      evaluate (&ave.rotz.plan=0.)
+
+      evaluate ($count=1)
+      while (&exist%nmr.prot.file.$count=true) loop nloop
+         evaluate ($clsname = "P"+encode($count))
+         evaluate (&ave.rms.prot.$clsname=0.)
+         evaluate (&ave.viol.prot.$clsname=0.)
+         evaluate ($count = $count + 1)
+      end loop nloop
+
+
+      evaluate (&ave2.rms.bond=0.)
+      evaluate (&ave2.rms.angl=0.)
+      evaluate (&ave2.rms.impr=0.)
+      evaluate (&ave2.rms.dihe=0.)
+      evaluate (&ave2.rms.noe=0.)
+      evaluate (&ave2.rms.jcoup=0.)
+      evaluate (&ave2.rms.oneb=0.)
+      evaluate (&ave2.rms.carb.a=0.)
+      evaluate (&ave2.rms.carb.b=0.)
+      evaluate (&ave2.rms.prot.all=0.)
+      evaluate (&ave2.rms.dani=0.)
+      evaluate (&ave2.rms.sani=0.)
+      evaluate (&ave2.rms.cdih=0.)
+      evaluate (&ave2.viol.bond=0.)
+      evaluate (&ave2.viol.angl=0.)
+      evaluate (&ave2.viol.impr=0.)
+      evaluate (&ave2.viol.dihe=0.)
+      evaluate (&ave2.viol.vdw=0.)
+      evaluate (&ave2.viol.noe=0.)
+      evaluate (&ave2.viol.jcoup=0.)
+      evaluate (&ave2.viol.oneb=0.)
+      evaluate (&ave2.viol.carb=0.)
+      evaluate (&ave2.viol.prot.all=0.)
+      evaluate (&ave2.viol.dani=0.)
+      evaluate (&ave2.viol.sani=0.)
+      evaluate (&ave2.viol.cdih=0.)
+      evaluate (&ave2.rotx.plan=0.)
+      evaluate (&ave2.roty.plan=0.)
+      evaluate (&ave2.rotz.plan=0.)
+
+      evaluate ($count=1)
+      while (&exist%nmr.prot.file.$count=true) loop nloop
+         evaluate ($clsname = "P"+encode($count))
+         evaluate (&ave2.rms.prot.$clsname=0.)
+         evaluate (&ave2.viol.prot.$clsname=0.)
+         evaluate ($count = $count + 1)
+      end loop nloop
+
+
+      evaluate (&ave.rms.atom.slct=0.)
+      evaluate (&ave.rms.atom.all=0.)
+      evaluate (&ave2.rms.atom.slct=0.)
+      evaluate (&ave2.rms.atom.all=0.)
+
+      evaluate (&ave.pair.atom.slct=0.)
+      evaluate (&ave.pair.atom.all=0.)
+      evaluate (&ave2.pair.atom.slct=0.)
+      evaluate (&ave2.pair.atom.all=0.)
+      evaluate (&ave.min.pair.slct=9999)
+      evaluate (&ave.min.pair.all=9999)
+      evaluate (&ave.max.pair.slct=0.)
+      evaluate (&ave.max.pair.all=0.)
+
+      do (store1=0) (all)
+      do (store2=0) (all)
+      do (store3=0) (all)
+      do (store4=0) (all)
+ 
+      do (store5=0) (all)
+      do (store6=0) (all)
+      do (store7=0) (all)
+      do (store8=0) (all)
+      do (store9=0) (all)
+   end if
+
+set message=$message_old echo=$echo_old end

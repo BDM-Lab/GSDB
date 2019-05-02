@@ -1,0 +1,127 @@
+remark   CODETEST
+remark   ========
+remark  
+remark   test for parameter lookup 
+remark   Axel Brunger, 14-AUG-84
+
+
+parameter
+   BOND A    B      100.0       1.0
+   BOND D    C      200.0       2.0
+
+   ANGLE A    B    C       50.0     100.0
+   ANGLE A    B    D       60.0     120.0
+
+
+   DIHEDRAL A    B    C    D        80.0       3       0.0
+
+   DIHEDRAL A    B    C    E        70.0       1       0.0 !
+   DIHEDRAL A    B    C    E        40.0       0       0.0 ! {* double *}
+
+   DIHEDRAL X    F    G    X        30.0       4       180.0 {* wildcard *}
+
+   
+   IMPROPER A    B    C    D        80.0       0       120.0
+
+   IMPROPER A    B    C    E        70.0       0       120.0 !
+   IMPROPER A    B    C    E        40.0       0       120.0 ! {* double *}
+
+   IMPROPER F    X    X    G        30.0       2      -90.0 ! {* wildcards *}
+   IMPROPER X    H    I    J        10.0       0      180.0 !
+   IMPROPER X    X    K    L        20.0       3      180.0 !
+   IMPROPER X    M    N    X        30.0       0      180.0 !
+
+   NONBONDED A  0.1  1.0  0.1 1.0
+   NONBONDED B  0.1  1.0  0.1 1.0
+   NONBONDED C  0.1  1.0  0.1 1.0
+   NONBONDED D  0.1  1.0  0.1 1.0
+   NONBONDED E  0.1  1.0  0.1 1.0
+   NONBONDED F  0.1  1.0  0.1 1.0
+   NONBONDED G  0.1  1.0  0.1 1.0
+   NONBONDED H  0.1  1.0  0.1 1.0
+   NONBONDED I  0.1  1.0  0.1 1.0
+   NONBONDED J  0.1  1.0  0.1 1.0
+   NONBONDED K  0.1  1.0  0.1 1.0
+   NONBONDED L  0.1  1.0  0.1 1.0
+   NONBONDED M  0.1  1.0  0.1 1.0
+   NONBONDED N  0.1  1.0  0.1 1.0
+
+end !parameter
+
+topology
+   residue test
+   atom a  type=a  charge=0.0   mass=1.0 end
+   atom b  type=b  charge=0.0   mass=1.0 end
+   atom c  type=c  charge=0.0   mass=1.0 end
+   atom d  type=d  charge=0.0   mass=1.0 end
+   atom e  type=e  charge=0.0   mass=1.0 end
+   atom f  type=f  charge=0.0   mass=1.0 end
+   atom g  type=g  charge=0.0   mass=1.0 end
+   atom h  type=h  charge=0.0   mass=1.0 end
+   atom i  type=i  charge=0.0   mass=1.0 end
+   atom j  type=j  charge=0.0   mass=1.0 end
+   atom k  type=k  charge=0.0   mass=1.0 end
+   atom l  type=l  charge=0.0   mass=1.0 end
+   atom m  type=m  charge=0.0   mass=1.0 end
+   atom n  type=n  charge=0.0   mass=1.0 end
+
+   bond a    b
+   bond c    d   !permutation
+
+   angle c    b    a  !permutation
+   angle a    b    d
+
+
+   dihedral d    c    b    a  !permutation
+
+   dihedral a    b    c    e  !
+   dihedral a    b    c    e  ! {* double *}
+
+   dihedral a    f    g    b    {* WILDCARD-match *}
+
+   
+   improper d    c    b    a  !permutation
+
+   improper a    b    c    e  !
+   improper a    b    c    e  ! {* DOUBLE *}
+
+   improper f    a    b    g  ! {* WILDCARD-match *}
+   improper a    h    i    j  !
+   improper a    b    k    l  !
+   improper a    m    n    b  !
+   acceptor b f
+   acceptor c g
+   donor e a 
+   donor i d 
+   end
+end !topology
+
+segment
+  name=test
+  molecule number=1 name=test end
+end
+
+coor
+ATOM      1  A   TEST    1       0.000   0.000   2.000  1.00  0.00      TEST
+ATOM      2  B   TEST    1       1.000   0.000   1.000  1.00  0.00      TEST
+ATOM      3  C   TEST    1      -1.000   1.000   0.000  1.00  0.00      TEST
+ATOM      4  D   TEST    1       2.000   1.000   0.000  1.00  0.00      TEST
+ATOM      5  E   TEST    1       0.000   1.000   0.000  1.00  0.00      TEST
+ATOM      6  F   TEST    1       1.000   1.000   0.000  1.00  0.00      TEST
+ATOM      7  G   TEST    1       0.000  -1.000   0.000  1.00  0.00      TEST
+ATOM      8  H   TEST    1       1.000  -1.000   0.000  1.00  0.00      TEST
+ATOM      9  I   TEST    1      -1.000  -1.000   0.000  1.00  0.00      TEST
+ATOM     10  J   TEST    1       2.000   2.000   0.000  1.00  0.00      TEST
+ATOM     11  K   TEST    1       3.000   3.000   0.000  1.00  0.00      TEST
+ATOM     12  L   TEST    1       4.000   2.000   0.000  1.00  0.00      TEST
+ATOM     13  M   TEST    1       5.000   1.000   0.000  1.00  0.00      TEST
+ATOM     14  N   TEST    1       6.000   1.000   0.000  1.00  0.00      TEST
+END
+
+parameter 
+   nbonds end
+end
+
+energy end
+
+stop

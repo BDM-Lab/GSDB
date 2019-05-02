@@ -1,0 +1,54 @@
+<HTML>
+<HEAD>
+   <TITLE>Crystallography & NMR System</TITLE>
+</HEAD>
+<BODY BGCOLOR=#8ebf8e>
+
+<HR WIDTH="100%">
+
+<H2>Example for a grid search to get the best weights</H2>
+
+<HR WIDTH="100%">
+<p>In this section we will discuss the optimization of weights (such as <tt>wa</tt> and <tt>rweight</tt>) for refinement. We use the example discussed in the <a href="../refinement_high_resolution/data_prep/text.html">previous section</a> but the scripts and discussion applies to all types of positional and B-factor refinement at all resolutions. </p>
+<p>There are input files <tt>optimize_wa.inp</tt> and <tt>optimize_rweight.inp</tt> in the refinement section of the input files, but they only use a limited amount of refinement. It is generally better to perform more complete refinements such as provided by the <tt>refine.inp</tt> input file. </p>
+<p>The particular refinement example consists of two macrocycles of positional (xyz) and restrained individual B-factor refinement:</p>
+<blockquote>
+  <p><a href="refine.inp"><tt>refine.inp</tt></a></p>
+</blockquote>
+<p>The weight <tt>wa</tt> determines the contribution by the X-ray target function (generally, a maximum likelihood function) relative to the energy function. The larger <tt>wa</tt>, the more emphasis is put on the X-ray diffraction data. The weight <tt>rweight</tt> determines the degree to which B-factors are restrained during B-factor refinement. The higher the weight, the more restrained are the B-factors to their covalently bonded neighbors. Other weights to consider are the <a href="../using_ncs/restrain/text.html">NCS-restraint weights</a>. We do not discuss them here since the default values are generally reasonable. </p>
+<p>By default, the <tt>wa</tt> and <tt>rweight</tt> weights are determined automatically during each macrocycle in the refinement performed by <tt>refine.inp</tt>. This is indicated by the &quot;-1&quot; values in the input file. To optimize these weights by a grid search we change them to positive values which will keep them fixed during the refinement. We can accomplish this with a by setting up <TT>a C Shell</TT> script file <tt><a href="refine.csh">refine.csh</a></tt> that modifies the CNS <TT>refine.inp</TT> task file. We also want to control the seed used for the initial velocities for simulated annealing refinement - if simulated annealing is used, it is generally advisable to perform multiple trials and use the one with the lowest Rfree. A particular example is:</p>
+<PRE>
+      ./refine.csh<A HREF="change_params.csh"></A> 1  0.5 0.1</PRE>
+<p>This script changes the seed in the <TT>refine.inp</TT> file to 1 (first parameter), the wa value to 0.5 (second parameter), and the rweight value to 0.1 (third parameter), and the output_root to &quot;refine_1_0.5_0.1&quot;, and saves the modified file to <TT>refine_1_0.5_0.1.inp</TT>. It then runs the CNS job:</p>
+<blockquote>
+  <p>cns &lt; <TT>refine_1_0.5_0.1.inp</TT> &gt; <TT>refine_1_0.5_0.1.out</TT></p>
+</blockquote>
+<p>Multiple such csh scripts can be run to sample <tt>wa</tt> and <tt>rweight.</tt> Hint: perform a refinement with automatic weight determination for <tt>wa</tt> and <tt>rweight</tt> first (i.e., set them to -1) and then sample around the values obtained by the automatic method. Sampling is most effectively done on a logarithmic scale. Generally, the coordinates with the lowest Rfree should be used for further refinement. </p>
+<h3>Setup for distributed (grid) computing</h3>
+<p>If you have <a href="http://www.apple.com/server/macosx/technology/xgrid.html">Xgrid</a> installed on your MAC OS X server, here is a script file for the <a href="http://cmgm.stanford.edu/~cparnot/xgrid-stanford/html/goodies/GridStuffer-details.html">Gridstuffer</a> program to run a large number of refinement jobs with different <tt>wa</tt> and <tt>rweight</tt> values:</p>
+<p><a href="refine_xgrid_stuffer.txt"><tt>refine_xgrid_stuffer.txt</tt></a><tt></tt></p>
+<p>which uses the script file <a href="refine.csh"><tt>refine.csh</tt></a> described above. A similar approach can be used in any distributed computing environment. </p>
+<h3>Determination of the best weight combination by sorting with respect to Rfree</h3>
+<p>The refined coordinates are then sorted with respect to Rfree. We use a Perl script to do this:<br>
+  <br>
+</p>
+<pre>      .<a href="sort.pl">/sort.pl</a> refine_*.pdb &gt; sort.list<br>
+</pre>
+<br>
+This Perl script creates a new directory &quot;sorted&quot; that contains the final coordinates and the corresponding distance files sorted by Rfree, i.e., sorted/sort_1.pdb is the best coordinate set, the one with the lowest Rfree.  The  script also produces a convenient summary:<br>
+<br>
+<a href="sort.list"><br>
+</a>
+<pre>
+<a href="sort.list">sort.list</a></pre>
+<p>Other weights that may need adjustment are the weights used by <a href="../using_ncs/restrain/text.html">NCS restraints</a>. </p>
+<p><A HREF="tutorial.csh">Script to run this tutorial</A>
+  
+</p>
+<HR WIDTH="100%">
+
+<A HREF="../text.html">Back to tutorials</A>&nbsp;&nbsp;
+<HR WIDTH="100%"></P>
+
+</BODY>
+</HTML>

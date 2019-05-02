@@ -1,0 +1,1179 @@
+{+ file: ensemble_cv.inp +}
+{+ directory: nmr_calc +}
+{+ description: complete cross-validated ensemble-averaged refinement for 
+                NOEs on monomeric, dimers, and loops of macromolecules +}
+{+ authors: Alexandre Bonvin, Axel T. Brunger and Gregory Warren +}
+{+ copyright: Yale University +}
+
+{+ reference: Bonvin AMJJ  and Brunger AT, Conformational variability 
+              of solution Nuclear Magnetic Resonance structures,
+              J. Mol. Biol., 250, 80-93 (1995) +}
+{+ reference: Bonvin AMJJ  and Brunger AT, Do NOE distances contain 
+              enough information to assess the relative populations of 
+              multi--conformer structures?, J. Biomol. NMR, 72-76 (1996) +}
+ 
+{- Guidelines for using this file:
+   - all strings must be quoted by double-quotes
+   - logical variables (true/false) are not quoted
+   - do not remove any evaluate statements from the file 
+   - the NOE file must not contain segids these will be added automatically,
+     except in the case of a dimer ( segid A* ) (segid B* )
+   - for loop multi-conformer refinment ALL data must be sorted. 
+     Loop refinement of dimers is not implemented
+   - there are awk scripts noeloopsearch.awk, sorts noe data, and 
+     nonnoelpsearch.awk, sorts non-NOE data, and adds the correct segids 
+     for loop and non-loop restraints     
+   - non-noe restraints not in the loop region(s)
+     must have a segid "C0" 
+   - non-loop assign ( segid C0 and resid 5 ) (segid C1 and resid 20 )
+   - in loop assign (segid C1 and resid 20 ) (segid C1 and resid 21 )
+             assign (segid C2 and resid 20 ) (segid C2 and resid 21 ) etc. -}
+
+{- begin block parameter definition -} define(
+
+{======================= molecular structure =========================}
+
+{* parameter file(s) *}
+{===>} par.1="CNS_TOPPAR:protein-allhdg5-4.param";
+{===>} par.2="";
+{===>} par.3="";
+{===>} par.4="";
+{===>} par.5="";
+
+{* structure file(s) *}
+{===>} struct.1="ambtv.mtf";
+{===>} struct.2="";
+{===>} struct.3="";
+{===>} struct.4="";
+{===>} struct.5="";
+
+{* input coordinate file(s) *}
+{===>} pdb.in.file.1="ambtv.pdb";
+{===>} pdb.in.file.2="";
+{===>} pdb.in.file.3="";
+
+{========================== atom selection ===========================}
+
+{* input atom selection for average structure generation *}
+{* for protein      (name n or name ca or name c)
+   for nucleic acid (name O5' or name C5' or name C4' or name C3' 
+                     or name O3' or name P) *}
+{===>} pdb.atom.select=(name n or name ca or name c);
+
+{====================== refinement parameters ========================}
+
+{* type of molecular dynamics for hot phase *}
+{+ choice: "torsion" "cartesian" +}
+{===>} md.type.hot="torsion";
+
+{* type of molecular dynamics for cool phase *}
+{+ choice: "torsion" "cartesian" +}
+{===>} md.type.cool="torsion";
+
+{* seed for random number generator *}
+{* change to get different initial velocities *}
+{===>} md.seed=82364;
+
+{* select whether the number of structures will be either trial or 	
+   accepted structures and whether to print only the trial, accepted, 	
+   both sets of structures. The printing format is as follows:  		
+   trial = pdb.out.name + _#.pdb , accepted = pdb.out.name + a_#.pdb	*} 
+
+{* are the number of structures to be trials or accepted? *}
+{+ choice: "trial" "accept" +}
+{===>} flg.trial.struc="trial";
+{* number of trial or accepted structures *}
+{===>} pdb.end.count=10;
+
+{* print accepted structures *}
+{+ choice: true false +}
+{===>} flg.print.accept=false;
+{* print trial structures *}
+{+ choice: true false +}
+{===>} flg.print.trial=true;
+
+{* calculate an average structure for either the trial or 	
+   accepted structure.  If calculate accepted average is false then 
+   an average for the trial structures will be calculated. *}
+
+{* calculate an average structure? *}
+{+ choice: true false +}
+{===>} flg.calc.ave.struct=true;
+{* calculate an average structure for the accepted structures? *}
+{+ choice: true false +}
+{===>} flg.calc.ave.accpt=false;
+{* minimize average coordinates? *}
+{+ choice: true false +}
+{===>} flg.min.ave.coor=false;
+
+{=================== torsion dynamics parameters ====================}
+
+{* torsion angle topology modification file *}
+{===>} torsion_infile="CNS_TOPPAR:torsionmdmods";
+
+{========== parameters for high temperature annealing stage ==========}
+
+{* temperature (torsion: 20000, cartesian: 1000) *}
+{===>} md.hot.temp=20000;
+{* number of steps (torsion: 1000, cartesian: 2500) *}
+{===>} md.hot.step=1000;
+{* scale factor for NOE energy term *}
+{===>} md.hot.noe=150;
+{* scale factor for dihedral angle energy term *}
+{===>} md.hot.cdih=100;
+{* molecular dynamics timestep (torsion: 0.006, cartesian: 0.002) *}
+{===>} md.hot.ss=0.006;
+
+{======== parameters for the first slow-cool annealing stage =========}
+
+{* temperature (torsion: 20000, cartesian: 1000) *}
+{===>} md.cool.temp=20000;
+{* number of steps *}
+{===>} md.cool.step=1000;
+{* scale factor for NOE energy term *}
+{===>} md.cool.noe=150;
+{* scale factor for dihedral angle energy term *}
+{===>} md.cool.cdih=200;
+{* molecular dynamics timestep (cartesian: 0.002, torsion: 0.006) *}
+{===>} md.cool.ss=0.006;
+{* slow-cool annealing temperature step (cartesian: 25, torsion: 250) *}
+{===>} md.cool.tmpstp=250;
+
+{========= parameters for a second slow-cool annealing stage ==========}
+{* cartesian slow-cooling annealing stage to be used only with torsion
+   slow-cool annealing stage *}
+{* this stage is only necessary when the macromolecule is a protein 
+   greater than 160 residues or in some cases for nucleic acids *}
+   
+{* use cartesian cooling stage? *}
+{+ choice: true false +}
+{===>} md.cart.flag=false;
+{* temperature *}
+{===>} md.cart.temp=1000;
+{* number of steps *}
+{===>} md.cart.step=2500;
+{* scale factor for NOE energy term *}
+{===>} md.cart.noe=150;
+{* scale factor for dihedral angle energy term *}
+{===>} md.cart.cdih=200;
+{* molecular dynamics timestep *}
+{===>} md.cart.ss=0.002;
+{* slow-cool annealing temperature step *}
+{===>} md.cart.tmpstp=25;
+
+{=============== parameters for final minimization stage ==============}
+
+{* scale factor for NOE energy term *}
+{===>} md.pow.noe=75;
+{* scale factor for dihedral angle energy term *}
+{===>} md.pow.cdih=400;
+{* number of minimization steps *}
+{===>} md.pow.step=200;
+{* number of cycles of minimization *}
+{===>} md.pow.cycl=10;
+      
+{======================== ensemble-averaging ==========================}
+{- Important - if you do not have a particular data set then
+   set the file name to null ("") -}
+
+{* number of conformers to be refined against *}
+{===>} nmr.ens.copy.num=( 1 2 3 );
+{* is the macromolecule a multimer? *}
+{* the current implimentation only works for dimers *}
+{+ choice: true false +}
+{===>} nmr.ens.multi.flag=false;
+{* is the multimer symmetric? *}
+{+ choice: true false +}
+{===>} nmr.ens.multi.symm=true;
+{* input the first segid prefix *}
+{===>} nmr.ens.multi.segid.1="A";
+{* input the second segid prefix *}
+{===>} nmr.ens.multi.segid.2="B";
+{* multi-conformer refinement for loops? *}
+{+ choice: true false +}
+{===>} nmr.ens.loop.flag=false;
+
+{* Loop 1 *}
+
+{* starting residue number *}
+{===>} nmr.ens.loop.low.1=21;
+{* final residue number *}
+{===>} nmr.ens.loop.high.1=27;
+
+{==================== complete cross validation =======================}
+
+{* would you like to perform complete cross validation? *}
+{+ choice: true false +}
+{===>} flg.cv.flag=true;
+{* the number of data partitions *}
+{===>} nmr.cv.numpart=10;
+{* for NOEs excluding h-bonds? *}
+{+ choice: true false +}
+{===>} flg.cv.noe=true;
+{* for 3-bond J-coupling? *}
+{+ choice: true false +}
+{===>} flg.cv.coup=false;
+{* for dihedral restraints? *}
+{+ choice: true false +}
+{===>} flg.cv.cdih=false;
+
+{============================= noe data ===============================}
+
+{- Important - if you do not have a particular data set then
+   set the file name to null (""). For loop refinement, this is
+   the non-loop NOE data. -}
+
+{* loop NOE distance restraints files. *}
+
+{* Loop 1 *}
+
+{* NOE restraint loop 1 file *}
+{===>} nmr.noe.loop.file.1="";
+{* NOE averaging mode for restraint loop 1 *}
+{+ choice: "sum" "R-6" "R-3" +}
+{===>} nmr.noe.loop.ave.mode.1="R-6";
+
+{* non-loop NOE distance restraints files. *}
+
+{* restraint set 1 file *}
+{===>} nmr.noe.file.1="ambtv_unsort_noe.tbl";
+{* restraint set 2 file *}
+{===>} nmr.noe.file.2="";
+{* restraint set 3 file *}
+{===>} nmr.noe.file.3="";
+{* restraint set 4 file *}
+{===>} nmr.noe.file.4="";
+{* restraint set 5 file *}
+{===>} nmr.noe.file.5="";
+
+{* NOE averaging modes *}
+
+{* restraint set 1 *}
+{+ choice: "sum" "R-6" "R-3" +}
+{===>} nmr.noe.ave.mode.1="R-6";
+{* restraint set 2 *}
+{+ choice: "sum" "R-6" "R-3" +}
+{===>} nmr.noe.ave.mode.2="R-6";
+{* restraint set 3 *}
+{+ choice: "sum" "R-6" "R-3" +}
+{===>} nmr.noe.ave.mode.3="R-6";
+{* restraint set 4 *}
+{+ choice: "sum" "R-6" "R-3" +}
+{===>} nmr.noe.ave.mode.4="";
+{* restraint set 5 *}
+{+ choice: "sum" "R-6" "R-3" +}
+{===>} nmr.noe.ave.mode.5="";
+
+{======================== hydrogen bond data ==========================}
+
+{* base name for hydrogen-bond distance restraints file(s). *}
+{* files must be in the form base_name1.tbl, base_name2.tbl *}
+{===>} nmr.noe.hbnd.file="";
+
+
+{* enter hydrogen-bond distance averaging mode *}
+{+ choice: "sum" "cent" "R-6" "R-3" "symm" +}
+{===>} nmr.noe.ave.mode.hbnd="cent";
+
+{======================= 3-bond J-coupling data =======================}
+{* the default setup is for the phi dihedral *}
+
+{* Class 1 *}
+
+{* base name for 3-bond J-coupling Class 1 restraints file(s) *}
+{* files must be in the form base_name1.tbl, base_name2.tbl *}
+{===>} nmr.jcoup.file.1="ambtv_jcoup";
+{* 3-bond J-coupling potential *}
+{+ choice: "harmonic" "square" "multiple" +}
+{===>} nmr.jcoup.pot.1="harmonic";
+{* 3-bond J-coupling non-glycine force value *}
+{===>} nmr.jcoup.force.1.1=1;
+{* 3-bond j-coupling multiple class force second value *}
+{===>} nmr.jcoup.force.2.1=0;
+{* 3-bond j-coupling Karplus coefficients *}
+{* the default values are for non-glycine phi *}
+{===>} nmr.jcoup.coef.1.1=6.98;
+{===>} nmr.jcoup.coef.2.1=-1.38;
+{===>} nmr.jcoup.coef.3.1=1.72;
+{===>} nmr.jcoup.coef.4.1=-60.0;
+
+{* Class 2 *}
+
+{* base name for 3-bond j-coupling Class 2 restraints file(s) *}
+{===>} nmr.jcoup.file.2="ambtv_jcoupgly";
+{* 3-bond J-coupling potential *}
+{* The potential for glycine classes must be multiple *}
+{+ choice: "harmonic" "square" "multiple" +}
+{===>} nmr.jcoup.pot.2="multiple";
+{* 3-bond J-coupling first force value *}
+{===>} nmr.jcoup.force.1.2=1;
+{* 3-bond j-coupling glycine or multiple force second value *}
+{===>} nmr.jcoup.force.2.2=0.2;
+{* 3-bond j-coupling Karplus coefficients *}
+{* the default values are for glycine phi *}
+{===>} nmr.jcoup.coef.1.2=6.98;
+{===>} nmr.jcoup.coef.2.2=-1.38;
+{===>} nmr.jcoup.coef.3.2=1.72;
+{===>} nmr.jcoup.coef.4.2=0.0;
+
+{================ 1-bond heteronuclear J-coupling data ================}
+
+{* Class 1 *}
+
+{* base name for 1-bond heteronuclear j-coupling Class 1 file *}
+{* files must be in the form base_name1.tbl, base_name2.tbl *}
+{===>} nmr.oneb.file.1="";
+{* 1-bond heteronuclear j-coupling potential *}
+{+ choice: "harmonic" "square" +}
+{===>} nmr.oneb.pot.1="harmonic";
+{* 1-bond heteronuclear j-coupling force value *}
+{===>} nmr.oneb.force.1=1.0;
+
+{=============== alpha/beta carbon chemical shift data ================}
+
+{* Class 1 *}
+
+{* base name for carbon, alpha and beta, chemical shift Class 1 file *}
+{* files must be in the form base_name1.tbl, base_name2.tbl *}
+{===>} nmr.carb.file.1="";
+{* carbon, alpha and beta, chemical shift restraint potential *}
+{+ choice: "harmonic" "square" +}
+{===>} nmr.carb.pot.1="harmonic";
+{* carbon, alpha and beta, chemical shift restraint force value *}
+{===>} nmr.carb.force.1=0.5;
+
+{===================== proton chemical shift data =====================}
+
+{* Class 1 *}
+
+{* class 1 base name for proton chemical shift restraints file *}
+{* files must be in the form base_name1.tbl, base_name2.tbl *}
+{===>} nmr.prot.file.1="";
+{* class 1 proton chemical shift potential *}
+{+ choice: "harmonic" "square" "multiple" +}
+{===>} nmr.prot.pot.1="harmonic";
+{* class 1 proton chemical shift force value *}
+{===>} nmr.prot.force.1.1=7.5;
+{* 2nd class 1 proton chemical shift force value for multi *}
+{===>} nmr.prot.force.2.1=0;
+{* class 1 proton chemical shift violation cutoff threshold *}
+{===>} nmr.prot.thresh.1=0.3;
+
+{* Class 2 *}
+
+{* class 2 base name for proton chemical shift restraints file *}
+{===>} nmr.prot.file.2="";
+{* class 2 proton chemical shift potential *}
+{+ choice: "harmonic" "square" "multiple" +}
+{===>} nmr.prot.pot.2="harmonic";
+{* class 2 proton chemical shift force value *}
+{===>} nmr.prot.force.1.2=7.5;
+{* 2nd class 2 proton chemical shift force value for multi *}
+{===>} nmr.prot.force.2.2=0;
+{* class 2 proton chemical shift violation cutoff threshold *}
+{===>} nmr.prot.thresh.2=0.3;
+
+{* Class 3 *}
+
+{* class 3 base name for proton chemical shift restraints file *}
+{===>} nmr.prot.file.3="";
+{* class 3 proton chemical shift potential *}
+{+ choice: "harmonic" "square" "multiple" +}
+{===>} nmr.prot.pot.3="harmonic";
+{* class 3 proton chemical shift force value *}
+{===>} nmr.prot.force.1.3=7.5;
+{* 2nd class 3 proton chemical shift force value for multi *}
+{===>} nmr.prot.force.2.3=0;
+{* class 3 proton chemical shift violation cutoff threshold *}
+{===>} nmr.prot.thresh.3=0.3;
+
+{* Class 4 *}
+
+{* class 4 base name for proton chemical shift restraints file *}
+{===>} nmr.prot.file.4="";
+{* class 4 proton chemical shift potential *}
+{+ choice: "harmonic" "square" "multiple" +}
+{===>} nmr.prot.pot.4="multiple";
+{* class 4 proton chemical shift force value *}
+{===>} nmr.prot.force.1.4=7.5;
+{* 2nd class 4 proton chemical shift force value for multi *}
+{===>} nmr.prot.force.2.4=0;
+{* class 4 proton chemical shift violation cutoff threshold *}
+{===>} nmr.prot.thresh.4=0.3;
+
+{================ diffusion anisotropy restraint data =================}
+
+{* fixed or harmonically restrained external axis *}
+{+ choice: "fixed" "harm" +}
+{===>} nmr.dani.axis="";
+
+{* Class 1 *}
+
+{* class 1 base name for diffusion anisotropy restraints file *}
+{* files must be in the form base_name1.tbl, base_name2.tbl *}
+{===>} nmr.dani.file.1="";
+{* diffusion anisotropy potential *}
+{+ choice: "harmonic" "square" +}
+{===>} nmr.dani.pot.1="harmonic";
+{* diffusion anisotropy initial force value *}
+{===>} nmr.dani.force.init.1=0.01;
+{* diffusion anisotropy final force value *}
+{===>} nmr.dani.force.finl.1=1.0;
+{* diffusion anisotropy coefficients *}
+{* coef: <Tc> <anis> <rhombicity> <wh> <wn> *}
+
+{* Tc = 1/2(Dx+Dy+Dz) in <ns> *} 
+{===>} nmr.dani.coef.1.1=13.1;
+{* anis = Dz/0.5*(Dx+Dy) *} 
+{===>} nmr.dani.coef.2.1=2.1;
+{* rhombicity = 1.5*(Dy-Dx)/(Dz-0.5*(Dy+Dx)) *} 
+{===>} nmr.dani.coef.3.1=0.0;
+{* wH in <MHz> *} 
+{===>} nmr.dani.coef.4.1=600.13;
+{* wN in <MHz> *}
+{===>} nmr.dani.coef.5.1=60.82;
+
+{============= susceptability anisotropy restraint data ===============}
+
+{* fixed or harmonically restrained external axis *}
+{+ choice: "fixed" "harm" +}
+{===>} nmr.sani.axis="";
+
+{* Class 1 *}
+
+{* class 1 base name for susceptability anisotropy restraints file *}
+{* files must be in the form base_name1.tbl, base_name2.tbl *}
+{===>} nmr.sani.file.1="";
+{* susceptability anisotropy potential *}
+{+ choice: "harmonic" "square" +}
+{===>} nmr.sani.pot.1="harmonic";
+{* susceptability anisotropy initial force value *}
+{===>} nmr.sani.force.init.1=0.01;
+{* susceptability anisotropy final force value *}
+{===>} nmr.sani.force.finl.1=50.0;
+{* susceptability anisotropy coefficients *}
+{* coef: <DFS> <axial > <rhombicity>;
+   a0+a1*(3*cos(theta)^2-1)+a2*(3/2)*sin(theta)^2*cos(2*phi) *}
+
+{* DFS = a0 *}
+{===>} nmr.sani.coef.1.1=-0.0601;
+{* axial = a0-a1-3/2*a2 *}
+{===>} nmr.sani.coef.2.1=-8.02;
+{* rhombicity = a2/a1 *}
+{===>} nmr.sani.coef.3.1=0.4;
+
+{======================== other restraint data ========================}
+
+{* base name for dihedral angle restraints file *}
+{* files must be in the form base_name1.tbl, base_name2.tbl *}
+
+{* Note: the restraint file MUST NOT contain RESTRAINTS 
+         DIHEDRAL or END *}
+{===>} nmr.cdih.file="ambtv_dihed";
+
+{* DNA-RNA base planarity restraints file *}
+{* Note: include weights as $pscale in the restraint file *}
+{===>} nmr.plan.file="";
+{* input planarity scale factor - this will be written into $pscale *}
+{===>} nmr.plan.scale=150;
+
+{* base name for NCS-restraints file *}
+{* example is in inputs/xtal_data/eg1_ncs_restrain.dat *}
+{===>} nmr.ncs.file="";
+
+{======================== input/output files ==========================}
+
+{* base name for input coordinate files *}
+{===>} pdb.in.name="";
+
+{* base name for output coordinate files *}
+{===>} pdb.out.name="ambtv_full_cv";
+
+{===========================================================================}
+{         things below this line do not normally need to be changed         }
+{         except for the torsion angle topology setup if you have           }
+{         molecules other than protein or nucleic acid                      }
+{===========================================================================}
+flg.dgsa.flag=false;
+
+ ) {- end block parameter definition -}
+
+checkversion 1.3
+
+evaluate ($log_level=quiet)
+
+parameter
+   reset
+   if (&par.1 # "") then
+      @@&par.1
+   end if
+   if (&par.2 # "") then
+      @@&par.2
+   end if
+   if (&par.3 # "") then
+      @@&par.3
+   end if
+   if (&par.4 # "") then
+      @@&par.4
+   end if
+   if (&par.5 # "") then
+      @@&par.5
+   end if
+end
+
+parameter
+   nbonds
+      repel=0.80
+      rexp=2 irexp=2 rcon=1.
+      nbxmod=3
+      wmin=0.01
+      cutnb=6.0 ctonnb=2.99 ctofnb=3.
+      tolerance=1.5
+   end
+end
+
+structure 
+   if  (&struct.1 # "") then
+      @@&struct.1
+   end if
+   if  (&struct.2 # "") then
+      @@&struct.2
+   end if
+   if  (&struct.3 # "") then
+      @@&struct.3
+   end if
+   if  (&struct.4 # "") then
+      @@&struct.4
+   end if
+   if  (&struct.5 # "") then
+      @@&struct.5
+   end if
+end
+
+if ( &BLANK%pdb.in.file.1 = false ) then
+   coor @@&pdb.in.file.1
+end if
+if ( &BLANK%pdb.in.file.2 = false ) then
+   coor @@&pdb.in.file.2
+end if
+if ( &BLANK%pdb.in.file.3 = false ) then
+   coor @@&pdb.in.file.3
+end if
+
+if ( $log_level = verbose ) then
+  set message=normal echo=on end
+else
+  set message=off echo=off end
+end if
+
+buffer ensout
+   reset
+   display model   viol     sd      rmsd    sd
+   display ----------------------------------------
+end
+
+for $nmr.copies in &nmr.ens.copy.num loop MULTI
+
+   structure reset end                 
+   coor init end
+
+   structure 
+      if  (&struct.1 # "") then
+         @@&struct.1
+      end if
+      if  (&struct.2 # "") then
+         @@&struct.2
+      end if
+      if  (&struct.3 # "") then
+         @@&struct.3
+      end if
+      if  (&struct.4 # "") then
+         @@&struct.4
+      end if
+      if  (&struct.5 # "") then
+         @@&struct.5
+      end if
+   end
+
+   if (&pdb.in.file.1 # "") then
+      coor @@&pdb.in.file.1
+   elseif (&pdb.in.file.2 # "") then
+      coor @@&pdb.in.file.2
+   elseif (&pdb.in.file.3 # "") then
+      coor @@&pdb.in.file.3
+   end if
+
+   evaluate ($nmr.ens.dimer.flag=false)
+   if (&nmr.ens.multi.flag=true) then
+      evaluate ($nmr.ens.dimer.flag=true)
+      evaluate ($nmr.ens.multi.tmp.1 = &nmr.ens.multi.segid.1 + "1")
+      evaluate ($nmr.ens.multi.tmp.2 = &nmr.ens.multi.segid.2 + "1")
+      do (segid = $nmr.ens.multi.tmp.1) (segid &nmr.ens.multi.segid.1)
+      do (segid = $nmr.ens.multi.tmp.2) (segid &nmr.ens.multi.segid.2)
+   elseif (&nmr.ens.loop.flag=true) then
+      evaluate ($nmr.ens.dimer.flag=true)
+      do (segid = "C0") ( all )
+      evaluate ($count = 1)
+      while (&exist%nmr.ens.loop.low.$count=true) loop NLOOP
+         do (segid = "C1") ( resid &nmr.ens.loop.low.$count:&nmr.ens.loop.high.$count )
+         evaluate ($count = $count + 1)
+      end loop NLOOP 
+   else
+      do (segid = "C1") ( all )
+   end if     
+
+   evaluate ($count = 1)
+   while ($count < $nmr.copies) loop GENERATE
+      if (&nmr.ens.multi.flag=true) then
+         evaluate ($count = $count + 1)
+         evaluate ($chainname1 = &nmr.ens.multi.segid.1 + encode($count))
+         evaluate ($chainname2 = &nmr.ens.multi.segid.2 + encode($count))
+
+         duplicate
+             segid = $chainname1
+             select = ( segid=$nmr.ens.multi.tmp.1)
+         end
+         duplicate
+             segid = $chainname2
+             select = ( segid=$nmr.ens.multi.tmp.2)
+         end
+      else
+         evaluate ($count = $count + 1) 
+         evaluate ($chainname = "C" + encode($count))
+
+         duplicate
+            segid = $chainname          
+            select = ( segid="C1")
+         end
+      end if
+   end loop GENERATE
+
+
+   evaluate ($nmr.file.name   = &pdb.out.name+encode($nmr.copies)+".pdb")
+   evaluate ($nmr.struct.name = &pdb.out.name+encode($nmr.copies)+".mtf")
+
+   write structure   output=$nmr.struct.name end	
+   write coordinates output=$nmr.file.name format=PDBO end	
+
+   structure reset end
+   coor init end
+
+   structure @@$nmr.struct.name end
+   coor @@$nmr.file.name
+
+   {- symmetry restraints for dimer -}   
+
+   if (&nmr.ens.multi.flag=true) then
+     if (&nmr.ens.multi.symm=true) then
+        ncs restraints
+           initialize
+           evaluate ($count = 0)
+           while ($count < $nmr.copies) loop NCSRE
+              evaluate ($count = $count + 1)
+              evaluate ($chainname1=&nmr.ens.multi.segid.1+encode($count))
+              evaluate ($chainname2=&nmr.ens.multi.segid.2+encode($count))
+              group
+                 equi (segid $chainname1)
+                 equi (segid $chainname2)
+                 weight = 300
+              end
+              ?
+           end loop NCSRE
+        end
+     end if
+   end if
+
+   {- Read experimental data -}
+
+   @CNS_NMRMODULE:readensdata ( nmr=&nmr;
+                                flag=&flg;
+                                output=$nmr; )
+
+   {- Read and store the number of NMR restraints -}
+
+   @CNS_NMRMODULE:restraintnumber ( num=$num; )
+   
+   {- keep molecules from "seeing" each other (really) -}
+   igroup 
+      if (&nmr.ens.loop.flag=true) then
+         interaction ( segid "C0" ) ( segid "C0" )
+      end if
+      evaluate ($count = 0)
+      while ($count < $nmr.copies) loop INTERAC
+         if (&nmr.ens.multi.flag=true) then
+            evaluate ($count = $count + 1)
+            evaluate ($chainname1 = &nmr.ens.multi.segid.1 + encode($count))
+            evaluate ($chainname2 = &nmr.ens.multi.segid.2 + encode($count))
+            interaction ( segid $chainname1 ) ( segid $chainname1 )
+            interaction ( segid $chainname1 ) ( segid $chainname2 )
+            interaction ( segid $chainname2 ) ( segid $chainname2 )
+         elseif (&nmr.ens.loop.flag=true) then
+            evaluate ($count = $count + 1) 
+            evaluate ($chainname = "C"+encode($count))
+            interaction ( segid $chainname ) ( segid $chainname or segid "C0")
+         else
+            evaluate ($count = $count + 1) 
+            evaluate ($chainname = "C"+encode($count))
+            interaction ( segid $chainname ) ( segid $chainname )
+         end if
+      end loop INTERAC
+   end
+
+   {- Set mass values -}
+
+   do (fbeta=10) (all)
+   do (mass=100) (all)
+
+   evaluate ($nmr.trial.count = 0)    {- Initialize current structure number   -}
+   evaluate ($nmr.accept.count = 0)   {- Initialize number accepted            -}
+   evaluate ($nmr.counter 	= 0)
+   evaluate ($nmr.prev.counter = -1)
+
+   @CNS_NMRMODULE:initave  ( ave=$ave;
+                             ave2=$ave2;
+                             cv=$cv;
+                             ener1=$ener1;
+                             ener2=$ener2;
+                             flag=&flg;
+                             nmr.prot=&nmr.prot; )
+        
+   {- define a distance restraints for each disulfide bond, i.e.,
+   treat it as if it were an NOE. -}
+   for $ss_rm_id_1 in id ( name SG ) loop STRM
+      for $ss_rm_id_2 in id ( name SG and
+                          bondedto ( id $ss_rm_id_1 )  ) loop STR2
+         if ($ss_rm_id_1 > $ss_rm_id_2) then
+            pick bond ( id $ss_rm_id_1 ) ( id $ss_rm_id_2 ) equil
+            evaluate ($ss_bond=$result)
+            noe
+               assign ( id $ss_rm_id_1 ) ( id $ss_rm_id_2 ) $ss_bond 0.1 0.1
+            end
+         end if
+      end loop STR2
+   end loop STRM
+
+   {- Count the number of residues and determine molecule type -}
+   identify (store9) (tag)
+   evaluate ($nmr.rsn.num = $SELECT)
+   identify (store9) ( tag and ( resn THY or resn CYT or resn GUA or
+                                 resn ADE or resn URI ))
+   evaluate ($nmr.nucl.num = $SELECT)    
+
+   evaluate ($flag_tad=false)
+   if ( &md.type.hot = "torsion" ) then
+      if ($nmr.nucl.num > 0) then
+         flag exclude * include bond angl impr dihed vdw end
+         minimize lbfgs nstep=2000 drop=10.  nprint=100 end
+      else
+         flag exclude * include bond angl impr vdw end
+         minimize lbfgs nstep=2000 drop=10.  nprint=100 end
+      end if
+      evaluate ($flag_tad=true)
+   elseif ( &md.type.cool="torsion") then
+      evaluate ($flag_tad=true)
+   end if
+
+   if (&nmr.dani.axis = "harm") then
+      do (harmonic=20.0) (resid 500 and name OO)
+      do (harmonic=0.0) (resid 500 and name Z )
+      do (harmonic=0.0) (resid 500 and name X )
+      do (harmonic=0.0) (resid 500 and name Y )
+      do (harmonic=0.0) (not (resid 500))
+      restraints harmonic exponent=2 end
+   elseif (&nmr.sani.axis = "harm") then
+      do (harmonic=20.0) (resid 500 and name OO)
+      do (harmonic=0.0) (resid 500 and name Z )
+      do (harmonic=0.0) (resid 500 and name X )
+      do (harmonic=0.0) (resid 500 and name Y )
+      do (harmonic=0.0) (not (resid 500))
+      restraints harmonic exponent=2 end
+   end if
+
+   if (&flg.cv.flag=false) then
+     if (&flg.cv.noe=true) then
+       echo "Complete cross-validation for NOE, J-coupling and Dihedrals"
+       echo "must be disabled if complete cross-validation is not used"
+       abort
+     elseif (&flg.cv.coup=true) then
+       echo "Complete cross-validation for NOE, J-coupling and Dihedrals"
+       echo "must be disabled if complete cross-validation is not used"
+       abort
+     elseif (&flg.cv.cdih=true) then
+       echo "Complete cross-validation for NOE, J-coupling and Dihedrals"
+       echo "must be disabled if complete cross-validation is not used"
+       abort
+     end if
+   end if
+
+   if (&flg.cv.flag=true) then
+      evaluate ($cv.part.num=1)
+      evaluate ($cvtemp = int(&pdb.end.count/&nmr.cv.numpart))
+      if ($cvtemp < 1) then
+         evaluate ($cvtemp = 1)
+      end if
+      evaluate ($pdb_end_count=&nmr.cv.numpart*$cvtemp)
+   else
+      evaluate ($pdb_end_count=&pdb.end.count)
+   end if 
+   
+   set seed=&md.seed end           
+                                       
+   while ($nmr.counter < $pdb_end_count ) loop STRUCGEN
+
+      {- Set parameter values -}
+      parameter
+         nbonds
+            repel=0.80
+            rexp=2 irexp=2 rcon=1.
+            nbxmod=3
+            wmin=0.01
+            cutnb=6.0 ctonnb=2.99 ctofnb=3.
+            tolerance=1.5
+         end
+      end
+
+      evaluate ($nmr.trial.count = $nmr.trial.count + 1)
+   
+      set remarks=reset end 
+      coor @@$nmr.file.name
+
+      if (&nmr.dani.axis = "fixed" ) then
+         fix
+            select=(resname ANI)
+         end
+      elseif (&nmr.sani.axis = "fixed" ) then
+         fix
+            select=(resname ANI)
+         end
+      end if
+
+      do ( vx = maxwell(0.5) ) ( all )
+      do ( vy = maxwell(0.5) ) ( all )
+      do ( vz = maxwell(0.5) ) ( all )
+
+      flags exclude *
+            include bond angle impr vdw dihed
+                    noe cdih coup oneb carb ncs dani
+                    sani harm end
+
+      if ($nmr.prev.counter # $nmr.counter) then
+        if (&flg.cv.flag=true) then
+          if ($cv.part.num > &nmr.cv.numpart) then
+
+   	    evaluate ($cv.part.num=1)
+            @CNS_NMRMODULE:ensrepart ( cv=$cv;
+                                       flag=&flg;
+                                       nmr=&nmr; 
+                                       output=$nmr; )
+                                       
+          else
+            if (&flg.cv.noe=true) then
+               noe cv = $cv.part.num end
+            end if
+            if (&flg.cv.coup=true) then
+               coup cv = $cv.part.num end
+            end if
+            if (&flg.cv.cdih=true) then
+               restraints dihed cv = $cv.part.num end
+            end if
+            evaluate ($cv.part.num=$cv.part.num+1)
+          end if
+        end if
+      end if
+   
+      {- scaling of nmr restraint data during hot dynamics -}
+   
+      @CNS_NMRMODULE:scalehot ( md=&md;
+                                nmr=&nmr;
+                                input.noe.scale=&md.hot.noe;
+                                input.cdih.scale=&md.hot.cdih; )
+
+      if ($flag_tad=true) then
+ 
+         {- initialize torsion dynamics topology for this iteration -}
+         dyna torsion
+            topology
+               maxlength=-1
+               maxtree=-1
+               {- All dihedrals w/ (force constant > 23) will be locked -}
+               {- This keeps planar groups planar -}
+               kdihmax = 23.
+               if ( &BLANK%torsion_infile = false ) then
+                 @&torsion_infile
+               else         
+                 @CNS_TOPPAR:torsionmdmods
+               end if
+            end
+         end
+      end if
+ 
+      if ( &md.type.hot = "torsion" ) then
+
+         dyna torsion
+            cmperiodic=500
+            vscaling = false
+            tcoupling = true
+            timestep = &md.hot.ss
+            nstep = &md.hot.step
+            nprint = 50
+            temperature = &md.hot.temp
+         end
+      else
+         evalutate ($md.hot.nstep1=int(&md.hot.step* 2. / 3. ))
+         evalutate ($md.hot.nstep2=int(&md.hot.step* 1. / 3. ))
+         noe asymptote * 0.1  end
+
+         dynamics cartesian
+            cmperiodic=500
+            vscaling = true
+            tcoupling=false
+            timestep=&md.hot.ss
+            nstep=$md.hot.nstep1
+            nprint=50
+            temperature=&md.hot.temp
+         end
+
+         noe asymptote * 1.0  end
+
+         dynamics cartesian
+            cmperiodic=500
+            vscaling = true
+            tcoupling=false
+            timestep=&md.hot.ss
+            nstep=$md.hot.nstep2
+            nprint=50
+            temperature=&md.hot.temp
+         end
+
+      end if
+ 
+      {- The first slow-cooling with torsion angle dynamics -}
+
+      flags include plan end
+
+      {- Increase the disulfide bond force constants to their full strength -}
+      parameter
+         bonds ( name SG ) ( name SG ) 1000. TOKEN
+      end
+
+      evaluate ($final_t = 0)
+
+      evaluate ($ncycle = int((&md.cool.temp-$final_t)/&md.cool.tmpstp))
+      evaluate ($nstep = int(&md.cool.step/$ncycle))
+
+      if (&md.type.cool = "cartesian") then
+
+         do (vx=maxwell(&md.cool.temp)) ( all )
+         do (vy=maxwell(&md.cool.temp)) ( all )
+         do (vz=maxwell(&md.cool.temp)) ( all )
+
+      end if
+ 
+      {- set up nmr restraint scaling -}
+ 
+      evaluate ($kdani.inter.flag=false)
+      evaluate ($ksani.inter.flag=false)
+      evaluate ($kdani.cart.flag=false)
+      evaluate ($ksani.cart.flag=false)
+      if (&md.cart.flag=true) then
+         evaluate ($kdani.inter.flag=true)
+         evaluate ($ksani.inter.flag=true)
+         @CNS_NMRMODULE:scalecoolsetup ( kdani=$kdani;
+                                         ksani=$ksani;
+                                         nmr=&nmr;
+                                         input.noe.scale=&md.cool.noe;
+                                         input.cdih.scale=&md.cool.cdih;
+                                         input.ncycle=$ncycle; )
+         evaluate ($kdani.cart.flag=true)
+         evaluate ($ksani.cart.flag=true)
+      else
+         @CNS_NMRMODULE:scalecoolsetup ( kdani=$kdani;
+                                         ksani=$ksani;
+                                         nmr=&nmr;
+                                         input.noe.scale=&md.cool.noe;
+                                         input.cdih.scale=&md.cool.cdih;
+                                         input.ncycle=$ncycle; )
+      end if
+
+      evaluate ($bath  = &md.cool.temp)
+
+      evaluate ($i_cool = 0)
+      while ($i_cool <= $ncycle) loop cool
+         evaluate ($i_cool = $i_cool + 1)
+
+         if ( &md.type.cool = "torsion" ) then
+            dynamics  torsion
+               cmremove=true
+               vscaling = true
+               tcoup = false
+               timestep = &md.cool.ss
+               nstep = $nstep
+               nprint = $nstep
+               temperature = $bath
+            end
+         else
+            dynamics  cartesian
+               cmremove=true
+               vscaling = true
+               tcoup = false
+               timestep = &md.cool.ss
+               nstep = $nstep
+               nprint = $nstep
+               temperature = $bath
+            end
+         end if
+
+         evaluate ($bath  = $bath  - &md.cool.tmpstp)
+ 
+         @CNS_NMRMODULE:scalecool ( kdani=$kdani;
+                                    ksani=$ksani;
+                                    nmr=&nmr; )
+
+      end loop cool
+
+      {- A second slow-cooling with cartesian dyanmics -}
+ 
+      evaluate ($flag_cart=false)
+      if (&md.cart.flag=true) then
+         if (&md.type.cool = "torsion") then
+
+            evaluate ($flag_cart=true)
+ 
+            dynamics torsion
+               topology
+                  reset
+               end
+            end
+
+            evaluate ($cart_nucl_flag=false)
+            if ($nmr.nucl.num > 0) then
+               evaluate ($cart_nucl_flag=true)
+               parameter
+                  nbonds
+                     repel=0
+                     nbxmod=5
+                     wmin=0.01
+                     tolerance=0.5
+                     cutnb=11.5 ctonnb=9.5 ctofnb=10.5
+                     rdie vswitch switch
+                  end
+               end
+               flags include elec end
+            end if
+
+            evaluate ($ncycle=int((&md.cart.temp-$final_t)/&md.cart.tmpstp))
+            evaluate ($nstep=int(&md.cart.step/$ncycle))
+ 
+            @CNS_NMRMODULE:scalecoolsetup ( kdani=$kdani;
+                                            ksani=$ksani;
+                                            nmr=&nmr;
+                                            input.noe.scale=&md.cart.noe;
+                                            input.cdih.scale=&md.cart.cdih;
+                                            input.ncycle=$ncycle; )
+
+            do (vx=maxwell(&md.cart.temp)) ( all )
+            do (vy=maxwell(&md.cart.temp)) ( all )
+            do (vz=maxwell(&md.cart.temp)) ( all )
+ 
+            evaluate ($bath=&md.cart.temp)
+ 
+            evaluate ($i_cool = 0)
+            while ($i_cool <= $ncycle) loop cart
+               evaluate ($i_cool = $i_cool + 1)
+
+               dynamics  cartesian
+                  vscaling = true
+                  tcoup = false
+                  timestep = &md.cart.ss
+                  nstep = $nstep
+                  nprint = $nstep
+                  temperature = $bath
+               end
+ 
+               evaluate ($bath=$bath-&md.cart.tmpstp)
+
+               @CNS_NMRMODULE:scalecool ( kdani=$kdani;
+                                          ksani=$ksani;
+                                          nmr=&nmr; )
+ 
+            end loop cart
+ 
+         end if
+      end if
+ 
+      {- reset torsion angle topology -}
+      if ( $flag_tad=true ) then
+         if ($flag_cart=false) then
+            dynamics torsion
+               topology
+                  reset
+               end
+            end
+         end if
+      end if
+
+
+      {- Final minimization -}
+
+      { turn on proton chemical shifts }
+
+      flags include prot end
+ 
+      noe
+         scale * &md.pow.noe
+      end
+ 
+      restraints dihedral
+         scale = &md.pow.cdih
+      end
+ 
+      evaluate ($count=0 )
+      while (&md.pow.cycl > $count) loop pmini
+
+         evaluate ($count=$count + 1)
+         minimize lbfgs nstep=&md.pow.step drop=10.0 nprint=25 end
+ 
+      end loop pmini
+      evaluate ($nmr.min.num = $count * &md.pow.step)
+
+      @CNS_NMRMODULE:ensprintaccept ( ave=$ave;
+                                      ave2=$ave2;
+                                      cv=$cv;
+                                      ener1=$ener1;
+                                      ener2=$ener2;
+                                      flag=&flg;
+                                      md=&md;
+                                      nmr=&nmr;
+                                      num=$num;
+                                      output=$nmr;
+                                      pdb=&pdb;  )
+
+   end loop STRUCGEN                   
+
+   @CNS_NMRMODULE:enscalcave ( ave=$ave;                 
+                               ave2=$ave2;
+                               cv=$cv;
+                               ener1=$ener1;
+                               ener2=$ener2;
+                               flag=&flg;
+                               md=&md;
+                               nmr=&nmr;
+                               num=$num;
+                               output=$nmr;
+                               pdb=&pdb;  )
+
+end loop MULTI
+
+evaluate ($resultfile=&pdb.out.name+"_cv.results")
+set display=$resultfile end
+
+buffer ensout
+   to display
+   flush
+end
+
+close $resultfile end
+
+stop
+
+

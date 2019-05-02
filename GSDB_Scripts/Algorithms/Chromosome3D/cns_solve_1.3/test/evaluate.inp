@@ -1,0 +1,116 @@
+remarks EVALUATE
+remarks test case for new EVALUATE commands
+remarks by Mark McCallum Yale, 23-MAY-88
+
+remarks attempt simple assignments (assume min of 9 variables)
+
+evaluate ( $1 = -4 )
+evaluate ( $2 = -3 )
+evaluate ( $3 = -2 )
+evaluate ( $4 = -1 )
+evaluate ( $5 = 0 )
+evaluate ( $6 = 1 )
+evaluate ( $7 = 2 )
+evaluate ( $8 = 3 )
+evaluate ( $9 = 4 )
+
+remarks perform slightly more complex expressions
+
+evaluate ( $1 = 10 / 5 + 3 - 2 * 4 )
+evaluate ( $2 = 25 ** .5 )
+evaluate ( $3 = 3 * ( 2 + 1 ) / ( 5 - 3) )
+evaluate ( $4 = ( 3 + 2 ) * ( 7 * ( 3 - 1 ) ) )
+evaluate ( $5 = ~3 )
+evaluate ( $6 = 4 - -4 + 3 / 4 * 3 - ~1 + 2^2 )
+evaluate ( $7 = 2^2^3**4 )
+
+remarks include variables on right hand side of expression
+
+evaluate ( $1 = 10 / $1 + 3 - $2 * $3 )
+evaluate ( $2 = $1 * $2 / $3 )
+evaluate ( $3 = $2 * ( $1 + $2 ) / ( $3 - 3) )
+evaluate ( $4 = ( $3 + $1 ) * ( $3 * ( $3 - 1 ) ) )
+evaluate ( $5 = ~$3 )
+evaluate ( $6 = $4 - -$3 + 3 / 4 * $6 - ~1 + $1^2 )
+evaluate ( $7 = ( $1* -.1 )^2^3**($3 /100) )
+
+remarks include functions (19 of them)
+
+evaluate ( $1 = max( $1, .33, 33.3, .7, 3 ) )
+evaluate ( $1 = min( $1, .33, 33.3, .7, 3 ) )
+evaluate ( $1 = sqrt( $1 ) )
+evaluate ( $1 = log10( $1 ) )
+evaluate ( $1 = abs($1) )
+evaluate ( $1 = log( $1 ) )
+evaluate ( $1 = heavy( $1 ) )
+evaluate ( $1 = cos( $1 ) )
+evaluate ( $1 = sin( $1 ) )
+evaluate ( $1 = asin( 0.4 ) )
+evaluate ( $1 = acos( 0.5 ) )
+evaluate ( $1 = int( $1 ) )
+evaluate ( $1 = tan( $1 ) )
+evaluate ( $1 = exp( $1 ) )
+evaluate ( $1 = mod( ($1+5), 2 ) )
+evaluate ( $1 = encode( $1 ) )
+evaluate ( $1 = decode( $1 ) )
+evaluate ( $1 = gaussian( $1 ) )
+evaluate ( $1 = sign( $1 ) )
+evaluate ( $1 =random() )
+
+evaluate ( $2 = "abCDefG" )
+evaluate ( $3 = capitalize ($2 ) ) 
+evaluate ( $3 = capitalize("abCDefG" ) ) 
+
+
+evaluate ( $1 = "rr"+")" )
+evaluate ( $1 = "rr"+"+" +"(" )
+evaluate ( $1 = "rr"+"-" )
+evaluate ( $1 = "rr"+"*" )
+
+evaluate ( $1 = random()-4.0 )
+evaluate ( $1 = exp(-3.) )
+
+evaluate ( $1 = imod( 3.1,1.9 ) )
+evaluate ( $1= nint(3.1) )
+evaluate ( $1= nint(2.9) ) 
+evaluate ( $1= nint(-3.1) )
+evaluate ( $1= nint(-2.9) ) 
+evaluate ( $1 = imod( -3.1,-1.9 ) )
+
+
+
+evaluate ($1=TRUE)
+evaluate ($2=true)
+evaluate ($3="true")
+evaluate ($4="TRUE")
+evaluate ($5=false)
+evaluate ($6=FALSE)
+
+xray
+  anomalous=$1
+  anomalous ?
+  evaluate ($10=$result)
+  declare name=fobs type=complex domain=reciprocal end
+  
+   refl 
+    index  1 2 3 fobs 50 -50
+  end
+
+  do (fobs=fobs*2) ( $1 and amplitude(fobs)>0) 
+  do (fobs=fobs*8) ( $10 and amplitude(fobs)>0)
+  do (fobs=fobs*4) ( $5 and amplitude(fobs)>0)
+end
+display  $1  $2  $3  $4 $5 $6 $10   
+if ($10=TRUE) then
+end if
+
+if ($1=false) then
+end if
+
+if ($10=true) then
+end if
+
+if ($1="TRUE" ) then
+end if
+
+stop 

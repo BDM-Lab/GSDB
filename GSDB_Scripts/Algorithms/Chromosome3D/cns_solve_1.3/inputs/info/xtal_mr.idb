@@ -1,0 +1,362 @@
+###############################################################################
+# Parameter names matched in common.idb:
+#     a
+#     b
+#     c
+#     alpha
+#     beta
+#     gamma
+#     anom_library
+#     coordinate_infile
+#     fft_memory
+#     high_res
+#     low_res
+#     obs_f
+#     obs_fom
+#     obs_pa
+#     obs_pb
+#     obs_pc
+#     obs_pd
+#     obs_phase
+#     obs_rms
+#     obs_sigf
+#     parameter_infile_\d+
+#     reflection_infile_\d+
+#     reflection_infile
+#     sg
+#     sigma_cut
+#     structure_infile
+#     output_root
+#     atom_select
+#     write_map
+#     target_bins
+#     pdb_o_format
+#     bins
+###############################################################################
+#
+vars: rot_method
+info: Method to be used for the rotation search, there are two basic
+choices. Real-space superposition of Patterson maps, solutions are
+scored by the product function between the 2 maps. Direct rotation of
+the molecule followed by structure factor calculation, solutions are
+scored by the correlation coefficient between the observed and
+calculated structure factors. The real-space Patterson method is
+fastest but can miss possible solutions because not all Patterson
+vectors are included. The direct rotation method is more accurate but
+takes a significant amount of CPU time because an FFT must be
+calculated for each rotation orientation. A more time efficient method
+uses the direct rotation search to perform an initial coarse grid
+search followed by finer searches around the top peaks from the
+initial search. This method relies on the observation that the
+solution space for the rotation search is fairly smooth.
+#
+vars: patterson_low
+info: The minimum Patterson vector length in &Aring; to include in the
+real-space Patterson method. This can be used to remove the short
+vectors around the origin of the Patterson map. A minimum of 5&Aring;
+is recommended.
+#
+vars: patterson_high
+info: The maximum Patterson vector length in &Aring; to include in the
+real-space Patterson method. This can be used to remove vectors which
+arise as a result of crystallographic symmetry. In general it is best
+to limit vectors to be the radius of the search model (assuming an
+approximately spherical shape). Highly asymmetric search models (for
+example, a long rod) may require a shorter maximum vector length to
+avoid the inclusion of too many intermolecular vectors.
+#
+vars: npeaks
+info: The maximum number of Patterson peaks to be used in the
+real-space rotation search. The Patterson peaks in the experimental
+Patterson map are sorted by peak height. The specified number of top
+peaks are taken and used in the calculation of the product function
+between the maps.
+#
+vars: auto_asu
+info: Flag determining whether the extent of the rotation search will
+be determined automatically based on the crystallographic
+symmetry. For each Laue class there is a tabulated asymmetric unit for
+the rotation search (see CNS_XTALLIB:cross-rf-asu.lib). Searching for
+possible rotation solutions in the given asymmetric unit will produce
+complete coverage of rotation space.
+#
+vars: tmmin tmmax t2min t2max tpmin tpmax
+info: User defined limits for the rotation search expressed in
+pseudo-orthogonal Lattman angles. These can be used to search around a
+subset of the full rotation space, for example limiting the search to
+a rotation about an axis. 
+#
+vars: angle_grid
+info: Angular increment for the rotation search. The coarseness of the
+grid will have an impact on finding the correct solution but also on
+the CPU time taken. For the direct rotation search CPU time can be
+reduced by using a larger increment. The increment is usually
+calculated automatically by the program using:
+<PRE>
+  increment = 2 ArcSin[ high resol / (2(a+b+c)/3) ]
+</PRE>
+#
+vars: nlist
+info: The number of top rotation solution peaks to be subject to
+cluster analysis. The list of possible rotation solutions is reduced
+in size by cluster analysis. Peaks that are close together in rotation
+space are considered to be one peak. Rotation solution peaks are
+considered to be in the same cluster if they can be transformed into
+one another by a rotation less than a defined tolerance. This
+tolerance is typically defined to be 10 degrees. This cluster analysis
+removes grid points which are close to other grid points with higher
+rotation function values (product function or correlation function).
+#
+vars: fastd_gridfac
+info: A scale factor which determines the coarseness of the initial
+rotation search in the fastdirect method. The angular increment (grid
+size) is multiplied by this scale factor to calculate the angular
+increment for the coarse grid search. Increasing the increment by a
+factor of 4 or 5 produces a coarse enough grid to significantly reduce
+CPU time while still searching enough rotations to find possible
+solutions.
+#
+vars: fastd_npeaks
+info: The number of highest peaks from the coarse grid search which
+will be further analysed in the fastdirect method. Rotation searches
+using the fine angular increment are performed around the selected
+number of top peaks. The peaks from these searches are combined and
+then subject to cluster analysis. Searching the top 20 coarse rotation
+search peaks is a good compromise between CPU time and finding the
+correct solution. In difficult cases the correct solution may be found
+by increasing the number peaks to be searched.
+#
+vars: cluster_threshold
+info: Threshold in degrees for peak cluster analysis. Peaks belong to
+the same cluster if they are related by a rotation which is less than
+the threshold. A value of 10 degrees in suggested.
+#
+vars: rf_list_outfile
+info: Output file containing the list of rotation solution peaks. The
+listing file has the following format:
+<PRE>
+! index, theta1, theta2, theta3, RF-function (EPSIlon= 0.25)
+     1    64.427  78.712  76.969    0.0799
+     5    64.452  56.212  47.265    0.0631
+     7    71.036  63.737  31.274    0.0554
+</PRE>
+The peaks are listed in Euler angles using the following convention
+(where all rotations are anticlockwise looking along the direction of
+the rotation axis):
+<UL>
+<LI>theta1: rotation around the z axis</LI>
+<LI>theta2: rotation around the new x axis</LI>
+<LI>theta3: rotation around the new z axis</LI>
+</UL>
+The rotation function value is the product function (real-space
+Patterson method) or the correlation coefficient between squared
+normalized structure factors (direct search).
+#
+vars: psimin psimax phimin phimax kappamin kappamax
+
+info: The range of rotation angles to be searched defined in spherical
+polar angluar space (where all rotations are anticlockwise looking
+along the direction of the rotation axis:
+<UL>
+<LI>psi is the inclination versus the y-axis</LI>
+<LI>phi is the angle between the x-axis and the projection of the axis into the x,z plane</LI>
+<LI>kappa is the rotation around the axis</LI>
+</UL>
+The maximum ranges for these angles are:
+<UL>
+<LI>psi: &gt; 0 and &lt; 180</LI>
+<LI>phi: &gt; 0 and &lt; 180</LI>
+<LI>kappa: &gt; 0 and &lt; 360</LI>
+</UL>
+When looking for rotation axes (for example, a three-fold rotation
+axis), psi and phi should range across all values (both from 0 to 180)
+while the rotation angle kappa should be limited from 110 to 120 (in
+order to locate rotations close to 120 degrees).
+#
+vars: matrix_outfile
+info: Output 3d-matrix file in Mathematica format. This contains the
+complete rotation function as a 3-dimensional matrix. The output
+matrix is written in order phi, kappa, psi.
+#
+vars: atom_placed
+info: Atom selection which defines those atoms in the input model
+whose translational component is already known. These atoms will
+remain fixed during the translation search, but they will contribute
+to the structure factor calculations. The position of these atoms
+maybe be optimized during the final rigid body refinement if they are
+selected as groups for refinement. When searching for multiple copies
+of a molecule in the asymmetric unit it is best generate input
+coordinates which have a unique chain or segment identifier for each
+molecules (for example, A, B C etc.). If molecules A and B have
+already been located they can be easily selected as such with:
+<PRE>
+  (segid A or segid B)
+</PRE>
+#
+vars: pc_target
+info: Crystallographic target function to be used for Patterson
+correlation refinement (Brunger A.T., Acta Cryst. A46, 46-57, 1990) of
+molecular orientations.
+#
+vars: pc_mini_steps
+info: Number of steps of conjugate gradient energy minimization
+Patterson correlation refinement (Brunger A.T., Acta Cryst. A46,
+46-57, 1990). In general 20 to 30 steps are sufficient. However, if
+the model is some distance from the correct orientation or there are
+many rigid groups more steps may be required for convergence. The
+translation search is generally quite sensitive to the molecular
+orientation so convergence of the PC refinement is desired.
+#
+vars: pcgroup_\d+
+info: Atom selection defining a group of atoms that will be refined as
+a rigid body during Patterson correlation refinement (Brunger A.T.,
+Acta Cryst. A46, 46-57, 1990). Atom selections for rigd groups must be
+disjoint. Rigid groups are usually molecules or domains.
+#
+vars: do_trans
+info: Flag determing whether translation searches will be
+performed. If this is set to false then only Patterson correlation
+refinement is performed. This option can be used to optimize the
+orientation of a list of rotation peaks without trying to determine
+the translation parameters. The default is to perform the translation
+search for each peak. The fast translation search is usually faster
+than the PC refinement.
+#
+vars: trans_method
+info: Select which translation search method is to be used. The
+general method usually uses the fast translation search. A phased
+translation search (R.J. Read and A.J.J. Schierbeek, Appl. Cryst. 21,
+490-495, 1988) can be carried out if experimental phase information is
+available. These phases can be given in the form of
+Hendrickson-Lattman coefficients or centroid phases and
+figures-of-merit. The phased translation search algorithm cannot be
+used with a fixed substructure (the whole input molecule is
+translated).
+#
+vars: general_target
+info: Defines the target for the general translation search
+method. Although a variety of targets are possible, in order to use
+the fast translation search algorithm the fastf2f2 target should be
+used. Other targets use a conventional translation search which is
+between 200 and 500 times slower than the fast translation search.
+#
+vars: optimize_sum
+info: Determines the memory usage of the summation stage of the
+translation search. Both the fast and the direct translation search
+can utilize less memory. However, there is a cost associated with the
+use of less memory. For the fast translation search if there are many
+symmetry operators (more than 24) then using less memory will result
+in a small increase in the CPU time for the search. In the fast
+translation search using less memory with fewer than 24 symmetry
+operators saves both memory and decreases CPU time. For the direct
+translation search using less memory significantly increases the CPU
+time so should be avoided unless really necessary. By default the
+automatic option should be used for this parameter, this will select
+the appropriate memory usage depending in the translation search method
+and spacegroup symmetry. The default can be overridden in the case of
+limited memory availabilty. For example with a high symmetry
+spacegroup (such as F-centered cubic) by default the fast translation
+search will use more memory in order to reduce CPU time. If this
+memory in not physically available then the job may terminate. In such
+an instance it is appropriate to change this option to "memory" to
+force the fast translation search to use less memory (but take more
+CPU time).
+#
+vars: rf_list_infile
+info: Input file containing the list of rotation solution peaks. The
+listing file has the following format:
+<PRE>
+! index, theta1, theta2, theta3, RF-function (EPSIlon= 0.25)
+     1    64.427  78.712  76.969    0.0799
+     5    64.452  56.212  47.265    0.0631
+     7    71.036  63.737  31.274    0.0554
+</PRE>
+The peaks are listed in Euler angles using the following convention
+(where all rotations are anticlockwise looking along the direction of
+the rotation axis):
+<UL>
+<LI>theta1: rotation around the z axis</LI>
+<LI>theta2: rotation around the new x axis</LI>
+<LI>theta3: rotation around the new z axis</LI>
+</UL>
+The rotation function value is ignored.
+#
+vars: max_rf_peaks
+info: The maximum number of peaks from the input rotation list file to
+be analysed. This must be less than or equal to the number of peaks in
+the file. The fast translation search is very fast, therefore it is
+practical to test many of the rotation peaks (even 100 or 200 peaks
+can be analysed).
+#
+vars: grid_int
+info: Extent in degrees of a fine rotation search around each input
+rotation peak. This can be used to brute-force search possible
+orientations close to the starting orientation. This is not normally
+necessary as the optimization in carried out by Patterson correlation
+refinement.
+#
+vars: delta
+info: Angular increment for fine rotation search around each input
+rotation peak. 
+#
+vars: tf_grid
+info: Resolution of the translation search grid as a fraction of the
+highest resolution limit in reciprocal space (e.g. of the diffraction
+data). For example, given <tt>tf_grid=0.33</tt>, if the high
+resolution limit of the diffraction data is 4&Aring;, the grid spacing
+of the map is 1.32&Aring; in each dimension. The grid should be 0.33
+or smaller.
+#
+vars: ntrials
+info: The number of translation search peaks to be tested for each
+rotation peaks. The translation search generates a list of translation
+search peaks. Usually the highest peak is taken and subjected to
+Patterson correlation refinement. With this parameter it is possible
+to take more than just the first translation peak. The specified
+number of translation peak solutions for this rotation peak are
+subject to Patterson correlation refinement and then ranked by the
+final correlation coefficient. This option may be useful in difficult
+cases but in general the highest peak from the translation search is
+the correct one (if the rotation is close to correct).
+#
+vars: packing_anal
+info: Perform packing analysis on the translation solutions. A mask is
+calculated around the final model and the percentage of the unit cell
+volume covered by this mask is calculated. Translation solutions which
+are non-overlapping will have higher packing values.
+#
+vars: rigid_target
+info: Crystallographic target function to be used for final rigid body
+refinement of molecular orientations.
+#
+vars: final_mini_steps
+info: Number of steps of conjugate gradient energy minimization rigid
+body refinement. In general 20 to 30 steps are sufficient.
+#
+vars: rigidgroup_\d+
+info: Atom selection defining a group of atoms that will be refined as
+a rigid body . Atom selections for rigid groups must be disjoint.
+Rigid groups are usually molecules or domains.
+#
+vars: write_coord
+info: Write the coordinates of each translation solution as unique PDB
+files. This can be useful for visual analysis of the solutions.
+#
+vars: trans_list
+info: Write the translation solution peaks for each rotation peak to
+unique files. A maximum of 100 peaks are listed for each translation
+search.
+#
+vars: sol_auto
+info: automatic bulk solvent parameter search
+#
+vars: sol_output
+info: optional file with a listing of the results of the automatic bulk solvent grid
+search
+#
+vars: sol_rad
+info: solvent mask parameter
+#
+vars: sol_shrink
+info: solvent mask parameter
+#

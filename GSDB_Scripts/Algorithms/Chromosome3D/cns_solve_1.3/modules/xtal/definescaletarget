@@ -1,0 +1,137 @@
+! Module file: definescaletarget
+!
+! CNS module
+! ************
+!
+! Author: Axel T. Brunger
+!
+! copyright Yale University
+!
+! Function:
+! Define scaling target function
+!
+! Requirements:
+! 1. This module can only be called from the main level
+! 2. Data has to be scaled a priori
+! 3. Probability given in Hendrickson & Lattman coefficients has to
+!    normalized a priori and appropriately, i.e. using the same phistep.
+! 4. &fph must be FCALC.  The amplitude of FCALC must be equal to the (real) 
+!    derivative amplitude array (fph).  The phase of FCALC must be zero. 
+! 5. &fp must be complex array. 
+! 6. For anomalous targets, &fp and the corresponding ppd (pa,pb,pc,pd)
+!    must be anomalous and &var must be equal for both Friedel mates
+!
+
+module {definescaletarget}
+(
+   &method="maxlike"; {"maxlike" of isomorphous differences | 
+                       "chisquare" of isomorphous differences | 
+                       "anomaxlike" for anomalous differences |
+                       "anochisquare" for anomalous differences, 
+                        definition of target function}
+
+   &messages="normal"; {set verbosity "normal" | "all" | "off"}
+
+   &sel=(all);         {structure factor selection}
+
+   &fh;                {specify heavy atom structure factor array}
+   &fp;                {native data  }
+   &fph;               {derivative data }
+   &var;               {loc variance}   
+
+   &pk=pk;              {Hendrickson and Lattman K array}
+   &pa=pa;              {Hendrickson and Lattman A array}
+   &pb=pb;              {Hendrickson and Lattman B array}
+   &pc=pc;              {Hendrickson and Lattman C array}
+   &pd=pd;              {Hendrickson and Lattman D array}
+
+   &phistep=20;         {size of phase steps in integration}
+
+   &cen360=FALSE; { TRUE | FALSE (type logical); if TRUE a full 0...360 phase prob. distr. }
+                  { is used for centric reflections (useful if the "native"                }
+                  { structure factor has an anomalous signal).                             }
+)
+
+checkversion 1.3
+
+xray 
+
+   monitor=( ) 
+
+   if (&messages = "all") then
+      display DEFINESCALETARGET: number of selected reflections $select
+   end if
+
+   if (&method = "chisquare") then  {chi^2 target}
+      
+      display DEFINESCALETARGET: chi-square of isomorphous differences
+
+      tselection=(&sel)
+
+      target=(				
+                 (
+                  amplitude(&fh+&fp)-amplitude(&fph)
+                 )^2
+                 /(2*&var)
+                )
+
+      dtarget=(
+                  -2*(amplitude(&fh+&fp)-amplitude(&fph))
+                  /(2*&var)
+                 )
+      
+
+   elseif (&method = "anochisquare") then
+
+      display DEFINESCALETARGET: chi-square of anomalous differences
+
+      tselection=( friedel_pair(&sel) and acentric )
+
+      target=(0.5*              {correct by 0.5, because we}
+                               {count both (+) and (-) refl}
+                 (amplitude(&fh+&fp)-amplitude(friedel(&fh)+friedel(&fp))
+                  -amplitude(&fph)+amplitude(friedel(&fph))
+                 )^2
+                 /(2*&var)
+                )
+
+      dtarget=(
+                 -2*
+                  (amplitude(&fh+&fp)-amplitude(friedel(&fh)+friedel(&fp))
+                   -amplitude(&fph)+amplitude(friedel(&fph))
+                  )
+                  /(2*&var)
+                 )
+      
+
+   elseif (&method = "maxlike") then  {maximum likelihood probability}
+
+         display DEFINESCALETARGET: maximum likelihood of isomorphous differences
+
+         tselection=( &sel )
+
+        target=( GET_ML[PHIStep=&phistep,CEN360=&cen360](abs(&fp),&fh,abs(&fph),0.5/&var,&pk,&pa,&pb,&pc,&pd))	
+        dtarget=( -GET_DSML[PHIStep=&phistep,CEN360=&cen360](abs(&fp),&fh,abs(&fph),0.5/&var,
+                   &pk,&pa,&pb,&pc,&pd)  )
+	
+
+   elseif (&method = "anomaxlike") then
+
+      display DEFINESCALETARGET: maximum likelihood of anomalous differences
+
+      tselection=( friedel_pair(&sel) and acentric )
+ 
+      target=( GET_AML[PHIStep=&phistep](abs(&fp),&fh,abs(&fph),0.25/&var,&pk,&pa,&pb,&pc,&pd))	
+      dtarget=( -GET_DSAML[PHIStep=&phistep](abs(&fp),&fh,abs(&fph),0.5/&var,
+                 &pk,&pa,&pb,&pc,&pd) )	
+
+
+  
+   else
+   
+      display DEFINESCALETARGET-ERR: method &method not defined
+   
+   end if
+   
+end
+   

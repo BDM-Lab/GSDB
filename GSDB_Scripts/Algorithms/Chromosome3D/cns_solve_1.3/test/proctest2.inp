@@ -1,0 +1,184 @@
+{* complex procedures testing *}
+
+! matrix handling toolkit -- load as a library of procedure definitions
+
+set display=procedures.dat end
+
+literal procedure matrix_multiply ( &m1; &m2; &mr; )
+literal
+literal if ( &m1.cols ne &m2.rows ) then
+literal    literal MATRIX_MULTIPLY-ERR: DIMENSION MISMATCH &m1.cols != &m2.rows
+literal else
+literal eval ( $a = 1 )
+literal while ( $a le &m1.rows ) loop a
+literal    eval ( $b = 1 )
+literal    while ( $b le &m2.cols ) loop b
+literal       eval ( $z = 1 )
+literal       eval ( $sum = 0 )
+literal       while ( $z le &m1.cols ) loop z
+literal          eval ( $sum = $sum + &m1.ji.$a.$z * &m2.ji.$z.$b )
+literal          eval ( $z = $z + 1 )
+literal       end loop z
+literal       eval ( &mr.ji.$a.$b = $sum )
+literal       eval ( $b = $b + 1 )
+literal    end loop b
+literal    eval ( $a = $a + 1 )
+literal end loop a
+literal eval ( &mr.rows = &m1.rows )
+literal eval ( &mr.cols = &m2.cols )
+literal end if
+literal
+literal endprocedure
+literal
+literal !----------------------------------------------------------
+literal 
+literal procedure matrix_map ( &m1; &m2; &mr; &fn ) 
+literal if ( &m1.cols ne &m2.cols ) then
+literal    literal MATRIX_MAP-ERR: DIMENSION MISMATCH &m1.cols != &m2.cols
+literal elseif ( &m1.rows ne &m2.rows ) then
+literal    literal MATRIX_MAP-ERR: DIMENSION MISMATCH &m1.rows != &m2.rows
+literal else
+literal eval ( $a = 1 )
+literal while ( $a le &m1.rows ) loop a
+literal    eval ( $b = 1 )
+literal    while ( $b le &m1.cols ) loop b
+literal       eval ( &mr.ji.$a.$b =  &m1.ji.$a.$b &fn &m2.ji.$a.$b )
+literal       eval ( $b = $b + 1 )
+literal    end loop b
+literal    eval ( $a = $a + 1 )
+literal end loop a
+literal eval ( &mr.rows = &m1.rows )
+literal eval ( &mr.cols = &m1.cols )
+literal end if
+literal endprocedure
+literal
+literal !----------------------------------------------------------
+literal 
+literal procedure matrix_transpose ( &m1; &mr; ) 
+literal eval ( $a = 1 )
+literal while ( $a le &m1.rows ) loop a
+literal    eval ( $b = 1 )
+literal    while ( $b le &m1.cols ) loop b
+literal       eval ( &mr.ji.$b.$a =  &m1.ji.$a.$b )
+literal       eval ( $b = $b + 1 )
+literal    end loop b
+literal    eval ( $a = $a + 1 )
+literal end loop a
+literal eval ( &mr.rows = &m1.cols )
+literal eval ( &mr.cols = &m1.rows )
+literal endprocedure
+literal
+literal !----------------------------------------------------------
+literal
+literal procedure matrix_add ( &m1; &m2; &mr )
+literal call matrix_map ( m1=&m1; m2=&m2; mr=&mr; fn = + )
+literal endprocedure
+literal
+literal !----------------------------------------------------------
+literal
+literal procedure matrix_subtract ( &m1; &m2; &mr )
+literal call matrix_map ( m1=&m1; m2=&m2; mr=&mr; fn = - )
+literal endprocedure
+literal
+literal !----------------------------------------------------------
+literal
+literal procedure matrix_scale ( &m1; &scale; &mr )
+literal eval ( $a = 1 )
+literal while ( $a le &m1.rows ) loop a
+literal    eval ( $b = 1 )
+literal    while ( $b le &m1.cols ) loop b
+literal       eval ( &mr.ji.$a.$b =  &m1.ji.$a.$b * &scale )
+literal       eval ( $b = $b + 1 )
+literal    end loop b
+literal    eval ( $a = $a + 1 )
+literal end loop a
+literal eval ( &mr.rows = &m1.rows )
+literal eval ( &mr.cols = &m1.cols )
+literal endprocedure
+literal
+literal !----------------------------------------------------------
+literal
+literal procedure matrix_display_row ( &m1; &row; &format = [F8.3] ) 
+literal define ( &command = display )
+literal eval ( $b = 1 )
+literal buffer matrix_display
+literal   reset
+literal   display row [ &row ] = 
+literal end 
+literal while ( $b le &m1.cols ) loop b
+literal    buffer matrix_display
+literal      concat  &m1.ji.&row.$b&format
+literal    end
+literal    eval ( $b = $b + 1 )
+literal end loop b
+literal buffer matrix_display flush end
+literal endprocedure
+literal
+literal !----------------------------------------------------------
+literal
+literal procedure matrix_display ( &m1;  &format = [F8.3] ) 
+literal eval ( $a = 1 )
+literal while ( $a le &m1.rows ) loop a
+literal    call matrix_display_row ( m1 = &m1; row = $a; format = &format )
+literal    eval ( $a = $a + 1 )
+literal end loop a
+
+literal endprocedure
+
+
+eval ( $message = normal ) 
+eval ( $echo = on ) 
+
+
+set display=OUTPUT end
+close procedures.dat end
+
+inline @procedures.dat
+
+eval ( $mat1.rows = 2 )
+eval ( $mat1.cols = 8 )
+
+ eval ( $a = 1 )
+ while ( $a le $mat1.rows ) loop a
+    eval ( $b = 1 )
+    while ( $b le $mat1.cols ) loop b
+         eval ( $mat1.ji.$a.$b = $a * $b )
+       eval ( $b = $b + 1 )
+    end loop b
+    eval ( $a = $a + 1 )
+ end loop a
+
+
+call matrix_transpose ( m1 = $mat1; mr = $mat2 )
+call matrix_scale ( m1 = $mat2; scale = 0.5; mr = $mat3 )
+call matrix_multiply ( m1 = $mat1; m2 = $mat3; mr = $mat4 )
+call matrix_multiply ( m1 = $mat3; m2 = $mat1; mr = $mat5 )
+call matrix_add ( m1 = $mat2; m2 = $mat3; mr = $mat6 )
+call matrix_subtract ( m1 = $mat3; m2 = $mat3; mr = $mat7 )
+
+
+set echo = off message = off end
+call matrix_display ( m1 = $mat1; format = [F6.1])
+display
+call matrix_display ( m1 = $mat2; )
+display
+call matrix_display ( m1 = $mat3; )
+display
+call matrix_display ( m1 = $mat4; )
+display
+call matrix_display ( m1 = $mat5; format = [F6.1] )
+display
+call matrix_display ( m1 = $mat6; )
+display
+call matrix_display ( m1 = $mat7; )
+
+set echo = on message = on end
+
+stop
+
+
+
+
+
+
+

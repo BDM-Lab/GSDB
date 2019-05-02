@@ -1,0 +1,301 @@
+remarks   file xprobab.inp  -- test phase probability functions
+
+
+xray
+
+   reflection
+ DECLare NAME=pa      DOMAin=RECIprocal   TYPE=REAL END
+ DECLare NAME=pb      DOMAin=RECIprocal   TYPE=REAL END
+ DECLare NAME=pc      DOMAin=RECIprocal   TYPE=REAL END
+ DECLare NAME=pd      DOMAin=RECIprocal   TYPE=REAL END
+ DECLare NAME=fph     DOMAin=RECIprocal   TYPE=REAL END
+ DECLare NAME=fp      DOMAin=RECIprocal   TYPE=REAL END
+ DECLare NAME=fh      DOMAin=RECIprocal   TYPE=COMPLEX END
+ DECLare NAME=var     DOMAin=RECIprocal   TYPE=REAL END
+ INDE     8    0    0 pa=     6.223 pb=     0.000 pc=     0.000 pd=     0.000 fph 3. fp 4. fh 3.5 90.  var 11.
+ INDE     4    1    0 pa=     0.335 pb=     0.000 pc=     0.000 pd=     0.000 fph 2. fp 3. fh 3.6 70.  var 12.
+ INDE     4   10    2 pa=    -0.692 pb=     0.895 pc=     0.313 pd=     1.201 fph 1. fp 5. fh 3.4 96.  var 14.
+ INDE     6   10    2 pa=   -21.043 pb=    54.092 pc=    10.328 pd=     9.469 fph 5. fp 6. fh 3.8 98.  var 11.
+ INDE     7   10    2 pa=   -54.248 pb=    13.423 pc=   -14.002 pd=     7.381 fph 6. fp 5. fh 3.4 93.  var 12.
+ INDE     0   11    2 pa=     0.000 pb=    75.508 pc=     0.000 pd=     0.000 fph 2. fp 4. fh 3.2 50.  var 10.
+ INDE     1   11    2 pa=   -22.931 pb=     3.886 pc=    -5.733 pd=     2.001 fph 1. fp 2. fh 3.0 99.  var 21.
+ INDE     2   11    2 pa=     4.293 pb=   -34.508 pc=    12.512 pd=     3.162 fph 6. fp 4. fh 3.5 90.  var 11.
+   end
+
+  symmetry=( X,Y,Z )
+  symmetry=( 1/2-X,-Y,1/2+Z )
+  symmetry=( -X,1/2+Y,1/2-Z )
+  symmetry=( 1/2+X,1/2-Y,-Z )
+
+
+
+declare domain=reci type=real name=work end 	{work array}
+declare domain=reci type=real name=pk end 	{pk array}
+declare domain=reci type=real name=pk2 end 	{pk array}
+declare domain=reci type=complex name=m end 	{m array}
+declare domain=reci type=complex name=m2 end 	{m array}
+
+
+do (work=0) (all)				{avoid numerical overflow}
+do (work=
+    max
+    (
+     (pa*cos(centric_phase)+pb*sin(centric_phase)),
+     (-pa*cos(centric_phase)-pb*sin(centric_phase))
+    )
+   ) (centric)
+do (work=
+    maximize[_phi,0,360,0.1]
+    (
+     pa*cos(_phi)+pb*sin(_phi)+pc*cos(2*_phi)+pd*sin(2*_phi)
+    )
+   ) (acentric)
+
+do (pk=					{normalize}
+    exp
+    (
+     pa*cos(centric_phase)+pb*sin(centric_phase)
+     -work
+    )
+    +exp
+    (
+     -pa*cos(centric_phase)-pb*sin(centric_phase)
+     -work
+    )
+   )   (centric)
+do (pk=
+    integrate[_phi,0,360,0.1]
+    (exp
+     (
+      pa*cos(_phi)+pb*sin(_phi)+pc*cos(2*_phi)+pd*sin(2*_phi)-work
+     )         
+    )
+   )   (acentric)
+
+do (pk=-log(pk)-work) (all)			{correct by work}
+
+show (pk) ( all )
+
+do (pk2=get_norm[phistep=0.1,CEN360=TRUE](pa,pb,pc,pd) ) ( all )
+
+show (pk2) ( all )
+
+do (pk2=get_norm[phistep=0.1,CEN360=FALSE](pa,pb,pc,pd) ) ( all )
+
+show (pk2) ( all )
+
+
+do (m=
+    (combine(1,centric_phase)*
+     (
+      exp
+      (
+       pk+pa*cos(centric_phase)+pb*sin(centric_phase)
+      )
+      -exp
+      (
+       pk-pa*cos(centric_phase)-pb*sin(centric_phase)
+      )
+     )
+    )
+   )   (centric)
+
+do (m=
+    (integrate[_phi,0,360,0.1]
+     (combine(1,_phi)*
+      exp
+      (
+       pk+pa*cos(_phi)+pb*sin(_phi)+pc*cos(2*_phi)+pd*sin(2*_phi) 
+      )
+     )
+    )
+   )   (acentric)
+
+
+show (m) ( all )
+
+do (m2=get_fom[phistep=0.1,CEN360=TRUE](pa,pb,pc,pd) ) ( all )
+
+show (m2) ( all )
+
+do (m2=get_fom[phistep=0.1,cen360=FALSE](pa,pb,pc,pd) ) ( all )
+
+show (m2) ( all )
+
+end
+
+
+xray
+
+do (m2=GET_ML[phistep=5.,cen360=TRUE](FP,FH,FPH,1/(2*var),PK,PA,PB,PC,PD)) ( all )
+show (m2) ( all )
+  
+do (m2=GET_ML[phistep=5.,cen360=FALSE](FP,FH,FPH,1/(2*var),PK,PA,PB,PC,PD)) ( all )
+show (m2) ( all )
+
+do (m=1/(2*var)*
+                     integrate[_phi,0,360,5.]
+                     (
+                      (abs(fh+combine(abs(fp),_phi))-abs(fph))^2
+                      *exp
+                      (pk+pa*cos(_phi)+pb*sin(_phi)
+                       +pc*cos(2*_phi)+pd*sin(2*_phi)
+                      )))  ( acentric)
+do (m=1/(2*var)*
+                     (
+                      (abs(fh+combine(abs(fp),centric_phase))-abs(fph))^2
+                      *exp 
+                      (pk+pa*cos(centric_phase)+pb*sin(centric_phase))
+                      +(abs(fh-combine(abs(fp),centric_phase))-abs(fph))^2
+                      *exp
+                      (pk-pa*cos(centric_phase)-pb*sin(centric_phase)
+                      ))) ( centric )
+
+show ( m) ( all )
+
+do (m2=GET_DML[phistep=5.,CEN360=TRUE](FP,FH,FPH,1/(2*var),PK,PA,PB,PC,PD)) ( all )
+show (m2) ( all )
+
+do (m2=GET_DML[phistep=5.,CEN360=FALSE](FP,FH,FPH,1/(2*var),PK,PA,PB,PC,PD)) ( all )
+show (m2) ( all )
+
+do (m=1/(2*var)*
+                     integrate[_phi,0,360,5.]
+                     (
+                      2*(abs(fh+combine(abs(fp),_phi))-abs(fph))
+                       *(fh+combine(abs(fp),_phi))
+                       /abs(fh+combine(abs(fp),_phi))
+                      *exp
+                      (pk+pa*cos(_phi)+pb*sin(_phi)
+                       +pc*cos(2*_phi)+pd*sin(2*_phi)
+                      )))  ( acentric)
+do (m=1/(2*var)*
+                     (
+                       2*(abs(fh+combine(abs(fp),centric_phase))-abs(fph))
+                       *(fh+combine(abs(fp),centric_phase))
+                       /abs(fh+combine(abs(fp),centric_phase))
+                      *exp 
+                      (pk+pa*cos(centric_phase)+pb*sin(centric_phase))
+                      +
+                       2*(abs(fh-combine(abs(fp),centric_phase))-abs(fph))
+                       *(fh-combine(abs(fp),centric_phase))
+                       /abs(fh-combine(abs(fp),centric_phase))
+                      *exp
+                      (pk-pa*cos(centric_phase)-pb*sin(centric_phase)
+                      ))) ( centric )
+
+show ( m) ( all )
+
+do (m2=GET_DSML[phistep=5.,CEN360=TRUE](FP,FH,FPH,1/(2*var),PK,PA,PB,PC,PD)) ( all )
+show (m2) ( all )
+
+do (m2=GET_DSML[phistep=5.,CEN360=FALSE](FP,FH,FPH,1/(2*var),PK,PA,PB,PC,PD)) ( all )
+show (m2) ( all )
+
+evaluate ($cen360=false)
+do (m2=GET_DSML[phistep=5.,CEN360=$cen360](FP,FH,FPH,1/(2*var),PK,PA,PB,PC,PD)) ( all )
+show (m2) ( all )
+
+declare domain=reci type=comp name=fdummy end   {work array for phase shifts}
+declare domain=reci type=comp name=fdummy2 end  {work array for inversion}
+declare domain=reci type=real name=dummy1 end {work HL coefficient A}
+declare domain=reci type=real name=dummy2 end {work HL coefficient B}
+declare domain=reci type=real name=dummy3 end  {work HL coefficient C}
+declare domain=reci type=real name=dummy4 end {work HL coefficient D}
+
+                {*set up for phase shifts calculation*}
+
+do (fdummy=combine(1.,0.)) (all)		
+
+                {*set up for inversion calculation*}
+
+do (fdummy2=combine(1.,33.)) (all)		
+
+                {*expand data structure*}
+
+expand
+anomalous=true
+  symmetry=( X,Y,Z )
+  symmetry=( 1/2-X,-Y,1/2+Z )
+  symmetry=( -X,1/2+Y,1/2-Z )
+  symmetry=( 1/2+X,1/2-Y,-Z )
+
+                {*copy probability coefficients*}
+
+do (dummy1=pa) (all)
+do (dummy2=pb) (all)
+do (dummy3=pc) (all)
+do (dummy4=pd) (all)
+
+		{*shift phase probabilities*}
+
+do (pa=dummy1*cos(phase(fdummy))-dummy2*sin(phase(fdummy))) (all)
+do (pb=dummy1*sin(phase(fdummy))+dummy2*cos(phase(fdummy))) (all)
+do (pc=dummy3*cos(2*phase(fdummy))-dummy4*sin(2*phase(fdummy))) (all)
+do (pd=dummy3*sin(2*phase(fdummy))+dummy4*cos(2*phase(fdummy))) (all)
+
+                {*apply inversion*}
+
+do (pb=-pb)  (phase(fdummy2*fdummy)#33.)
+do (pd=-pd)  (phase(fdummy2*fdummy)#33.)
+
+do (fp=fp+1. ) ( l > 0 ) 
+do (fph=fph+2. ) ( l > 0 ) 
+do (fh=fh+5. ) ( l > 0 ) 
+do (pa=pa+2. ) ( l > 0 ) 
+do (pb=pb+3. ) ( l > 0 ) 
+do (pc=pc+4. ) ( l > 0 ) 
+do (pd=pd+6. ) ( l > 0 ) 
+do (pk=pk+2. ) ( l > 0 ) 
+do (var=var+1. ) ( l > 0 ) 
+
+
+do (m2=GET_AML[phistep=5.](FP,FH,FPH,1/(2*var),PK,PA,PB,PC,PD)) ( all )
+show (m2) ( all )
+
+do (m=1/(2*var)*
+                     integrate[_phi,0,360,5.]
+                     (
+                   (
+                    abs(fh+combine(abs(fp),_phi))
+                    -abs(friedel(fh)+combine(abs(friedel(fp)),-_phi))
+                    -abs(fph)+abs(friedel(fph))
+                   )^2
+                      *exp
+                      (pk+pa*cos(_phi)+pb*sin(_phi)
+                       +pc*cos(2*_phi)+pd*sin(2*_phi)
+                      ))) ( acentric)
+do (m=0) ( centric )
+
+show ( m) ( all )
+
+
+do (m2=GET_DAML[phistep=5.](FP,FH,FPH,1/(2*var),PK,PA,PB,PC,PD)) ( all )
+show (m2) ( all )
+
+do (m=1/(var)*
+                     integrate[_phi,0,360,5.]
+                     (
+                   (
+                    abs(fh+combine(abs(fp),_phi))
+                    -abs(friedel(fh)+combine(abs(friedel(fp)),-_phi))
+                    -abs(fph)+abs(friedel(fph))
+                   )
+                       *(fh+combine(abs(fp),_phi))
+                       /abs(fh+combine(abs(fp),_phi))
+                      *exp
+                      (pk+pa*cos(_phi)+pb*sin(_phi)
+                       +pc*cos(2*_phi)+pd*sin(2*_phi)
+                      ))) ( acentric)
+do (m=0) ( centric )
+
+show ( m) ( all )
+
+do (m2=GET_DSAML[phistep=5.](FP,FH,FPH,1/(2*var),PK,PA,PB,PC,PD)) ( all )
+show (m2) ( all )
+
+end
+
+stop
+
+

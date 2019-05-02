@@ -1,0 +1,110 @@
+{+ file: delete_sites.inp +}
+{+ directory: xtal_phase +}
+{+ description: Delete sites from a CNS heavy atom site database file +}
+{+ comment: 
+            Sites are numbered by order in the input site database file. +}
+{+ authors: Axel T. Brunger, and Paul D. Adams +}
+{+ copyright: Yale University +}
+
+{- Guidelines for using this file:
+   - all strings must be quoted by double-quotes
+   - logical variables (true/false) are not quoted
+   - do not remove any evaluate statements from the file -}
+
+{- begin block parameter definition -} define(
+
+{======================= heavy atom database =========================}
+
+{* heavy atom database file *}
+{===>} sitedatabase_infile="mbp_sites.sdb";
+
+{========================= sites to delete ===========================}
+
+{* list the sites to be deleted *}
+{* To delete all sites in the range from A to B (inclusive), use A,B *}
+{===>} delete.1="1,2";
+{===>} delete.2="4";
+{===>} delete.3="";
+{===>} delete.4="";
+{===>} delete.5="";
+{===>} delete.6="";
+{===>} delete.7="";
+{===>} delete.8="";
+{===>} delete.9="";
+{===>} delete.10="";
+
+{=========================== output files ============================}
+
+{* output site database file *}
+{===>} sitedatabase_outfile="delete_sites.sdb";
+
+{===========================================================================}
+{        things below this line do not normally need to be changed          }
+{===========================================================================}
+
+ ) {- end block parameter definition -}
+
+ checkversion 1.3
+
+ evaluate ($log_level=quiet)
+
+ if ( $log_level = verbose ) then
+   set echo=on message=normal end
+ else
+   set echo=off message=off end
+ end if
+
+ evaluate ($counter=1)
+ evaluate ($dcounter=0)
+ evaluate ($done=false)
+
+ while ( $done = false ) loop main
+
+   if ( &EXIST%delete.$counter = true ) then
+     if ( &BLANK%delete.$counter = false ) then
+       evaluate ($start=min(9999,&STRIP%delete.$counter))
+       evaluate ($stop=max(-9999,&STRIP%delete.$counter))
+       if ( $start = $stop ) then
+         evaluate ($dcounter=$dcounter+1)
+         evaluate ($del_array.$dcounter=$start)
+       elseif ( $start < $stop ) then
+         while ( $start <= $stop ) loop inner
+           evaluate ($dcounter=$dcounter+1)
+           evaluate ($del_array.$dcounter=$start)
+           evaluate ($start=$start+1)
+         end loop inner
+       end if
+     end if
+     evaluate ($counter=$counter+1)
+   else
+     evaluate ($done=true)
+     evaluate ($del_array.num=$dcounter)
+   end if
+
+ end loop main
+
+ evaluate ($dcount=1)
+ while ( $dcount <= $del_array.num ) loop del
+   display >>>> will delete site: $del_array.$dcount[i3]
+   evaluate ($dcount=$dcount+1)
+ end loop del
+
+ @CNS_XTALMODULE:read_delete_sdb (file=&sitedatabase_infile;
+                                  siteinfo=$siteinfo;
+                                  delete=$del_array;
+                                  sg_expected="";
+                                  sg_read=$sg_read;)
+
+ buffer comment
+   reset
+ end
+
+ @CNS_XTALMODULE:write_cns_header (output=&sitedatabase_outfile;
+                                   description="CNS heavy atom site database";
+                                   buffer=comment;)
+
+ @CNS_XTALMODULE:write_sdb (sitedb=$siteinfo;
+                            sg=$sg_read;
+                            output=&sitedatabase_outfile;)
+
+ stop

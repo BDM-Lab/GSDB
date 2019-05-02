@@ -1,0 +1,659 @@
+{+ file: patterson_map.inp +}
+{+ directory: xtal_patterson +}
+{+ description: Computes native and difference Patterson maps and Harker
+                sections. +}
+{+ comment:
+            Differences can be anomalous, dispersive, or isomorphous.
+            Weighted average of up to 4 different Pattersons can be computed.
+            Weights are given by 1/ < df ^2 > for difference maps
+            and 1 / < f^2 > for native Patterson maps. When adding
+            isomorphous/dispersive and anomalous maps this weighting
+            scheme is approximately equal to a weighting by f' : 2f'' +}
+{+ authors: Axel T. Brunger +}
+{+ copyright: Yale University +}
+
+{+ reference: W.A. Hendrickson, J.L. Smith, R.P. Phizackerley,
+              and E.A. Merritt, Crystallographic structure analysis
+              of lamprey myoglobin from anomalous dispersion
+              of synchrotron radation, Proteins 4, 77-88 (1988) +}
+
+{+ reference: J.A. Drenth, Principles of X-ray Crystallography,
+              Springer-Verlag, New York, (1994) pp. 155, 158, 161 +}
+
+{- Guidelines for using this file:
+   - all strings must be quoted by double-quotes
+   - logical variables (true/false) are not quoted
+   - do not remove any evaluate statements from the file -}
+
+{- begin block parameter definition -} define(
+
+{====================== crystallographic data ========================}
+
+{* space group *}
+{* use International Table conventions with subscripts substituted
+   by parenthesis *}
+{===>} sg="P2(1)2(1)2(1)";
+
+{* unit cell parameters in Angstroms and degrees *}
+{+ table: rows=1 "cell" cols=6 "a" "b" "c" "alpha" "beta" "gamma" +}
+{===>} a=65.508;
+{===>} b=72.216;
+{===>} c=45.035;
+{===>} alpha=90;
+{===>} beta=90;
+{===>} gamma=90;
+
+{* reflection file(s) *}
+{* specify non-anomalous reflection file(s) (if any)
+   before anomalous reflection file(s) *}
+{===>} reflection_infile_1="mbp_scale.hkl";
+{===>} reflection_infile_2="";
+{===>} reflection_infile_3="";
+{===>} reflection_infile_4="";
+
+{========================= general options ===========================}
+
+{* resolution range for Patterson map *}
+{+ table: rows=1 "resolution" cols=2 "lowest" "highest" +}
+{===>} low_res=15;
+{===>} high_res=4;
+
+{* sharpen (averaged) Patterson map by E-normalization *}
+{+ choice: true false +}
+{===>} sharpen=true;
+
+{* remove origin of (averaged) Patterson map *}
+{+ choice: true false +}
+{===>} origin_remove=true;
+
+{* number of Patterson maps to be averaged *}
+{===>} number_of_maps=1;
+
+{* use diffraction ratios to weigh Patterson maps *}
+{* if false, weights are set to 1 *}
+{+ choice: true false +}
+{===>} weight=true;
+
+{* number of bins for weight calculation, sharpening, origin-removal *}
+{===>} bins_w=10;
+
+{=========================== Patterson map #1 ============================}
+
+{* type of Patterson map *}
+{+ list:     "native" : map=FT( |f_a|^2 )
+        "isomorphous" : map=FT( (|f_a|-|f_b|)^2  )
+         "dispersive" : map=FT( (|f_a|-|f_b|)^2  )
+          "anomalous" : map=FT( (|f_a+|-|f_a-|)^2  ) +}
+{+ choice: "native" "isomorphous" "dispersive" "anomalous" +}
+{===>} map.1.mode="anomalous";
+
+{* amplitude array f_a (for all Patterson map types) *}
+{===>} map.1.f_a="f_w2";
+
+{* corresponding sigma array *}
+{* leave blank if no sigmas are available *}
+{===>} map.1.s_a="s_w2";
+
+{* amplitude array f_b *}
+{* for "dispersive" or "isomorphous" Patterson maps only *}
+{===>} map.1.f_b="";
+
+{* corresponding sigma array *}
+{* for "dispersive" or "isomorphous" Patterson maps only *}
+{* leave blank if no sigmas are available *}
+{===>} map.1.s_b="";
+
+{* |F|/sigma{F} amplitude cutoff *}
+{* reflections with |F|/Sigma{F} < cutoff will be rejected if
+   true for one or both F *}
+{===>} map.1.cut_f=1.;
+
+{* rms outlier cutoff *}
+{* native maps: reflections with  |F| > cutoff*rms(|F|) will be rejected
+   difference maps: reflections with |delta F| > cutoff*rms(|delta F|) will
+               be rejected *}
+{===>} map.1.max_df=4;
+
+{* overall k-scaling for all difference Patterson maps *}
+{* f_b will be scaled to f_a *}
+{+ choice: "yes" "no" +}
+{===>} map.1.kscale="yes";
+
+{* overall B-scaling for all difference Patterson maps *}
+{* f_b will be scaled to f_a *}
+{+ choice: "no" "isotropic" "anisotropic" +}
+{===>} map.1.bscale="anisotropic";
+
+{* scaling iterations for all difference Patterson maps *}
+{* number of iterations using rejection criteria *}
+{===>} map.1.nscale_iter=4;
+
+{* delta F cutoff criteria for all difference Patterson maps *}
+{* reflections with |delta F|/Sigma{delta F} < cutoff will be rejected *}
+{===>} map.1.cut_df=0.5;
+
+{=========================== Patterson map #2 ============================}
+
+{* type of Patterson map *}
+{+ list:     "native" : map=FT( |f_a|^2 )
+        "isomorphous" : map=FT( (|f_a|-|f_b|)^2  )
+         "dispersive" : map=FT( (|f_a|-|f_b|)^2  )
+          "anomalous" : map=FT( (|f_a+|-|f_a-|)^2  ) +}
+{+ choice: "native" "isomorphous" "dispersive" "anomalous" +}
+{===>} map.2.mode="anomalous";
+
+{* amplitude array f_a (for all Patterson map types) *}
+{===>} map.2.f_a="";
+
+{* corresponding sigma array *}
+{* leave blank if no sigmas are available *}
+{===>} map.2.s_a="";
+
+{* amplitude array f_b *}
+{* for "dispersive" or "isomorphous" Patterson maps only *}
+{===>} map.2.f_b="";
+
+{* corresponding sigma array *}
+{* for "dispersive" or "isomorphous" Patterson maps only *}
+{* leave blank if no sigmas are available *}
+{===>} map.2.s_b="";
+
+{* |F|/sigma{F} amplitude cutoff *}
+{* reflections with |F|/Sigma{F} < cutoff will be rejected if
+   true for one or both F *}
+{===>} map.2.cut_f=1.;
+
+{* rms outlier cutoff *}
+{* native maps: reflections with  |F| > cutoff*rms(|F|) will be rejected
+   difference maps: reflections with |delta F| > cutoff*rms(|delta F|) will
+               be rejected *}
+{===>} map.2.max_df=4;
+
+{* overall k-scaling for all difference Patterson maps *}
+{* f_b will be scaled to f_a *}
+{+ choice: "yes" "no" +}
+{===>} map.2.kscale="yes";
+
+{* overall B-scaling for all difference Patterson maps *}
+{* f_b will be scaled to f_a *}
+{+ choice: "no" "isotropic" "anisotropic" +}
+{===>} map.2.bscale="anisotropic";
+
+{* scaling iterations for all difference Patterson maps *}
+{* number of iterations using rejection criteria *}
+{===>} map.2.nscale_iter=4;
+
+{* delta F cutoff criteria for all difference Patterson maps *}
+{* reflections with |delta F|/Sigma{delta F} < cutoff will be rejected *}
+{===>} map.2.cut_df=0.5;
+
+{=========================== Patterson map #3 ============================}
+
+{* type of Patterson map *}
+{+ list:     "native" : map=FT( |f_a|^2 )
+        "isomorphous" : map=FT( (|f_a|-|f_b|)^2  )
+         "dispersive" : map=FT( (|f_a|-|f_b|)^2  )
+          "anomalous" : map=FT( (|f_a+|-|f_a-|)^2  ) +}
+{+ choice: "native" "isomorphous" "dispersive" "anomalous" +}
+{===>} map.3.mode="anomalous";
+
+{* amplitude array f_a (for all Patterson map types) *}
+{===>} map.3.f_a="";
+
+{* corresponding sigma array *}
+{* leave blank if no sigmas are available *}
+{===>} map.3.s_a="";
+
+{* amplitude array f_b *}
+{* for "dispersive" or "isomorphous" Patterson maps only *}
+{===>} map.3.f_b="";
+
+{* corresponding sigma array *}
+{* for "dispersive" or "isomorphous" Patterson maps only *}
+{* leave blank if no sigmas are available *}
+{===>} map.3.s_b="";
+
+{* |F|/sigma{F} amplitude cutoff *}
+{* reflections with |F|/Sigma{F} < cutoff will be rejected if
+   true for one or both F *}
+{===>} map.3.cut_f=1.;
+
+{* rms outlier cutoff *}
+{* native maps: reflections with  |F| > cutoff*rms(|F|) will be rejected
+   difference maps: reflections with |delta F| > cutoff*rms(|delta F|) will
+               be rejected *}
+{===>} map.3.max_df=4;
+
+{* overall k-scaling for all difference Patterson maps  *}
+{* f_b will be scaled to f_a *}
+{+ choice: "yes" "no" +}
+{===>} map.3.kscale="yes";
+
+{* overall B-scaling for all difference Patterson maps *}
+{* f_b will be scaled to f_a *}
+{+ choice: "no" "isotropic" "anisotropic" +}
+{===>} map.3.bscale="anisotropic";
+
+{* scaling iterations for all difference Patterson maps *}
+{* number of iterations using rejection criteria *}
+{===>} map.3.nscale_iter=4;
+
+{* delta F cutoff criteria for all difference Patterson maps  *}
+{* reflections with |delta F|/Sigma{delta F} < cutoff will be rejected *}
+{===>} map.3.cut_df=0.5;
+
+{=========================== Patterson map #4 ============================}
+
+{* type of Patterson map *}
+{+ list:     "native" : map=FT( |f_a|^2 )
+        "isomorphous" : map=FT( (|f_a|-|f_b|)^2  )
+         "dispersive" : map=FT( (|f_a|-|f_b|)^2  )
+          "anomalous" : map=FT( (|f_a+|-|f_a-|)^2  ) +}
+{+ choice: "native" "isomorphous" "dispersive" "anomalous" +}
+{===>} map.4.mode="anomalous";
+
+{* amplitude array f_a (for all Patterson map types) *}
+{===>} map.4.f_a="";
+
+{* corresponding sigma array *}
+{* leave blank if no sigmas are available *}
+{===>} map.4.s_a="";
+
+{* amplitude array f_b *}
+{* for "dispersive" or "isomorphous" Patterson maps only *}
+{===>} map.4.f_b="";
+
+{* corresponding sigma array *}
+{* for "dispersive" or "isomorphous" Patterson maps only *}
+{* leave blank if no sigmas are available *}
+{===>} map.4.s_b="";
+
+{* |F|/sigma{F} amplitude cutoff *}
+{* reflections with |F|/Sigma{F} < cutoff will be rejected if
+   true for one or both F *}
+{===>} map.4.cut_f=1.;
+
+{* rms outlier cutoff *}
+{* native maps: reflections with  |F| > cutoff*rms(|F|) will be rejected
+   difference maps: reflections with |delta F| > cutoff*rms(|delta F|) will
+               be rejected *}
+{===>} map.4.max_df=4;
+
+{* overall k-scaling for all difference Patterson maps *}
+{* f_b will be scaled to f_a *}
+{+ choice: "yes" "no" +}
+{===>} map.4.kscale="yes";
+
+{* overall B-scaling for all difference Patterson maps *}
+{* f_b will be scaled to f_a *}
+{+ choice: "no" "isotropic" "anisotropic" +}
+{===>} map.4.bscale="anisotropic";
+
+{* scaling iterations for all difference Patterson maps *}
+{* number of iterations using rejection criteria *}
+{===>} map.4.nscale_iter=4;
+
+{* delta F cutoff criteria for all difference Patterson maps *}
+{* reflections with |delta F|/Sigma{delta F} < cutoff will be rejected *}
+{===>} map.4.cut_df=0.5;
+
+{========================= Patterson map options ================}
+
+{* the Patterson map will be scaled to sigma units *}
+
+{* map grid size *}
+{* usually 0.33, use grid=0.25 for better map appearance *}
+{===>} grid=0.33;
+
+{* memory allocation for FFT calculation *}
+{* this will be determined automatically if a negative value is given
+   otherwise the specified amount (in words) will be allocated *}
+{===>} fft_memory=-1;
+
+{* write Harker sections *}
+{+ choice: true false +}
+{===>} harker_sections=true;
+
+{* make sections the extent of the unit cell *}
+{* if false the minimal Patterson asymmetric unit will be used *}
+{+ choice: true false +}
+{===>} plot_unitcell=false;
+
+{* write 3D Patterson map *}
+{+ choice: true false +}
+{===>} 3d_patterson=false;
+
+{* format of 3D Patterson map *}
+{+ choice: "cns" "ezd" +}
+{===>} map_format="cns";
+
+{* write out a list of Patterson peaks *}
+{* only peaks greater than the specified sigma value will be listed *}
+{* a negative value disables the peak search *}
+{===>} peak_list_sigma=3;
+
+{* generate PDB file with Patterson peaks *}
+{+ choice: true false +}
+{===>} peak_pdb=true;
+
+{* include information in plots of Harker sections *}
+{+ choice: "none" "short" "all" +}
+{===>} show_info="short";
+
+{=========================== output files ===========================}
+
+{* root name for output files *}
+{+ list:
+         3D Patterson map file will be in: <output_root>.map
+         Harker sections will be in: <output_root>_<plane>.map
+         where <plane> can be x, y, or z
+         List of Patterson peaks will be in: <output_root>.list
+         PDB file with list of Patterson peaks will be in: <output_root>.pdb +}
+{===>} output_root="patterson_map";
+
+{===========================================================================}
+{         things below this line do not normally need to be changed         }
+{===========================================================================}
+
+ ) {- end block parameter definition -}
+
+ checkversion 1.3
+
+ evaluate ($log_level=quiet)
+
+xray
+
+   @CNS_XTALLIB:spacegroup.lib (sg=&sg; sgparam = $sgparam )
+
+   a=&a b=&b c=&c  alpha=&alpha beta=&beta gamma=&gamma
+
+   evaluate ($counter=1)
+   evaluate ($done=false)
+   while ( $done = false ) loop read
+    if ( &exist_reflection_infile_$counter = true ) then
+      if ( &BLANK%reflection_infile_$counter = false ) then
+       reflection
+         @@&reflection_infile_$counter
+       end
+      end if
+    else
+     evaluate ($done=true)
+    end if
+    evaluate ($counter=$counter+1)
+   end loop read
+
+   binresolution &low_res &high_res
+   mapresolution &high_res
+
+   fft
+     grid=&grid
+     if ( &fft_memory < 0 ) then
+       automemory=true
+     else
+       memory=&fft_memory
+     end if
+   end
+
+end
+
+xray
+  buffer harvest
+      display resolution: &low_res - &high_res
+      display sg= &strip%sg a= &a b= &b c= &c alpha= &alpha beta= &beta gamma= &gamma
+  end
+
+  declare name=df_accum     domain=reciprocal  type=real end
+
+  @CNS_XTALMODULE:pattersonmap
+    (
+     map=&map;
+     number_of_maps=&number_of_maps;
+     sharpen=&sharpen;
+     origin_remove=&origin_remove;
+     weight=&weight;
+     bins_w=&bins_w;
+     low_res=&low_res;
+     high_res=&high_res;
+     df_accum=df_accum;
+     buffer_name=pmapstat;
+     )
+
+   if (&show_info = "all") then
+     buffer harvest
+       from buffer pmapstat
+       dump
+     end
+   end if
+
+   {- average Friedel mates if any -}
+   do (df_accum=(df_accum+friedel(df_accum))/2 ) ( friedel_pair(abs(df_accum)>0))
+
+   {- the df_accum array now obeys Friedel's law -}
+   anomalous=false
+
+   {- switch to Patterson symmetry. -}
+   evaluate ($sg=$sgparam.patt_symm)
+   symmetry reset
+   @CNS_XTALLIB:spacegroup.lib (sg=$sg; sgparam = $sgparam )
+
+   declare name=map1 domain=real end
+   do (map1=ft(  combine(df_accum,0) ))     ( all )
+
+   if (&show_info # "none") then
+     buffer harvest
+       display Patterson map is scaled to sigma units
+     end
+   end if
+
+   {- put Patterson map on a sigma (rms) scale -}
+   show rms (real(map1)) ( all )
+   do (map1=map1/$result) ( all )
+
+end
+
+if (&show_info # "none") then
+  buffer harvest
+    to=remarks
+    dump
+  end
+end if
+
+if (&peak_list_sigma >= 0) then
+  eval($filename=&output_root + ".list")
+  xray
+    peakpick
+      from=map1
+      fractional=true
+      selection=(map1 > &peak_list_sigma)
+      output=$filename
+      atom=&peak_pdb
+      mpeak=1000
+    end
+  end
+  if (&peak_pdb = true) then
+    eval($filename=&output_root + ".pdb")
+    write coordinates output=$filename end
+  end if
+end if
+
+if ( &3d_patterson = true ) then
+    xray
+        evaluate ($filename=&output_root + ".map")
+        write map
+            if ( &map_format = "ezd" ) then
+               type=ezd
+            else
+               type=cns
+            end if
+            from=map1
+            auto=false
+            if ( &plot_unitcell = true ) then
+              extend=unit
+            else
+              extend=asymmetric
+            end if
+            formatted=true
+            output=$filename
+        end
+     end
+end if
+
+if (&harker_sections=true ) then
+   @CNS_XTALLIB:harker_planes.lib (sg=&sg; harker = $harker )
+
+   eval ($i = 0)
+   while ($i < $harker.yz.n) loop planes
+    eval($i = $i + 1)
+    buffer out
+       reset
+       from buffer harvest
+       dump
+       display yz-plane, x=$harker.yz.$i.x; $harker.yz.$i.note
+    end
+    if ( &plot_unitcell = true ) then
+      buffer out
+        display ymin=0  ymax=1
+        display zmin=0  zmax=1
+      end
+    else
+      buffer out
+        display ymin=$harker.yz.ymin  ymax=$harker.yz.ymax
+        display zmin=$harker.yz.zmin  zmax=$harker.yz.zmax
+      end
+    end if
+    if (&show_info # "none") then
+      buffer out
+         to=remarks
+         dump
+      end
+    end if
+    xray
+           if ($harker.yz.n > 1) then
+             evaluate ($filename=&output_root + "_x_" + encode($i) + ".map")
+           else
+             evaluate ($filename=&output_root + "_x"               + ".map")
+           end if
+           write map
+              from=map1
+              auto=false
+              extend=fractional
+              formatted=true
+              if ( &plot_unitcell = true ) then
+                xmin=$harker.yz.$i.x   xmax=$harker.yz.$i.x
+                ymin=0   ymax=1
+                zmin=0   zmax=1
+              else
+                xmin=$harker.yz.$i.x   xmax=$harker.yz.$i.x
+                ymin=$harker.yz.ymin   ymax=$harker.yz.ymax
+                zmin=$harker.yz.zmin   zmax=$harker.yz.zmax
+              end if
+              output=$filename
+           end
+     end
+   end loop planes
+
+   eval ($i = 0)
+   while ($i < $harker.zx.n) loop planes
+    eval($i = $i + 1)
+    buffer out
+       reset
+       from buffer harvest
+       dump
+       display zx-plane, y=$harker.zx.$i.y; $harker.zx.$i.note
+    end
+    if ( &plot_unitcell = true ) then
+      buffer out
+        display xmin=0  xmax=1
+        display zmin=0  zmax=1
+      end
+    else
+      buffer out
+        display xmin=$harker.zx.xmin  xmax=$harker.zx.xmax
+        display zmin=$harker.zx.zmin  zmax=$harker.zx.zmax
+      end
+    end if
+    if (&show_info # "none") then
+      buffer out
+         to=remarks
+         dump
+      end
+    end if
+    xray
+           if ($harker.zx.n > 1) then
+             evaluate ($filename=&output_root + "_y_" + encode($i) + ".map")
+           else
+             evaluate ($filename=&output_root + "_y"               + ".map")
+           end if
+           write map
+              from=map1
+              auto=false
+              extend=fractional
+              formatted=true
+              if ( &plot_unitcell = true ) then
+                xmin=0   xmax=1
+                ymin=$harker.zx.$i.y   ymax=$harker.zx.$i.y
+                zmin=0   zmax=1
+              else
+                xmin=$harker.zx.xmin   xmax=$harker.zx.xmax
+                ymin=$harker.zx.$i.y   ymax=$harker.zx.$i.y
+                zmin=$harker.zx.zmin   zmax=$harker.zx.zmax
+              end if
+              output=$filename
+           end
+     end
+   end loop planes
+
+   eval ($i = 0)
+   while ($i < $harker.xy.n) loop planes
+    eval($i = $i + 1)
+    buffer out
+       reset
+       from buffer harvest
+       dump
+       display xy-plane, z=$harker.xy.$i.z; $harker.xy.$i.note
+    end
+    if ( &plot_unitcell = true ) then
+      buffer out
+        display xmin=0  xmax=1
+        display ymin=0  ymax=1
+      end
+    else
+      buffer out
+        display xmin=$harker.xy.xmin  xmax=$harker.xy.xmax
+        display ymin=$harker.xy.ymin  ymax=$harker.xy.ymax
+      end
+    end if
+    if (&show_info # "none") then
+      buffer out
+         to=remarks
+         dump
+      end
+    end if
+    xray
+           if ($harker.xy.n > 1) then
+             evaluate ($filename=&output_root + "_z_" + encode($i) + ".map")
+           else
+             evaluate ($filename=&output_root + "_z"               + ".map")
+           end if
+           write map
+              from=map1
+              auto=false
+              extend=fractional
+              formatted=true
+              if ( &plot_unitcell = true ) then
+                xmin=0   xmax=1
+                ymin=0   ymax=1
+                zmin=$harker.xy.$i.z   zmax=$harker.xy.$i.z
+              else
+                xmin=$harker.xy.xmin   xmax=$harker.xy.xmax
+                ymin=$harker.xy.ymin   ymax=$harker.xy.ymax
+                zmin=$harker.xy.$i.z   zmax=$harker.xy.$i.z
+              end if
+              output=$filename
+           end
+     end
+   end loop planes
+end if
+
+
+stop

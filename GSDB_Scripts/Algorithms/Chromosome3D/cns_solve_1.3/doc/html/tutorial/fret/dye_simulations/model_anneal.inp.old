@@ -1,0 +1,770 @@
+{+ file: model_anneal.inp +}
+{+ directory: general +}
+{+ description: simulated annealing/molecular dynamics +}
+{+ authors: Axel T. Brunger, Luke M. Rice and Paul D. Adams +}
+{+ copyright: Yale University +}
+
+{+ reference: L.M. Rice and A.T. Brunger, Torsion Angle Dynamics: 
+              Reduced Variable Conformational Sampling Enhances 
+              Crystallographic Structure Refinement, Proteins: Structure, 
+              Function, and Genetics, 19, 277-290 (1994) +}
+
+{- Guidelines for using this file:
+   - all strings must be quoted by double-quotes
+   - logical variables (true/false) are not quoted
+   - do not remove any evaluate statements from the file 
+   - the selections store1 through store3 are available for general use -}
+
+{- begin block parameter definition -} define(
+
+{============================ coordinates ============================}
+
+{* coordinate file *}
+{===>} coordinate_infile="140_350.pdb";
+
+{==================== molecular information ==========================}
+
+{* topology files *}
+{===>} topology_infile_1="CNS_TOPPAR:protein.top";
+{===>} topology_infile_2="CNS_TOPPAR:dna-rna.top";
+{===>} topology_infile_3="CNS_TOPPAR:water.top";
+{===>} topology_infile_4="CNS_TOPPAR:ion.top";
+{===>} topology_infile_5="CNS_TOPPAR:carbohydrate.top";
+{===>} topology_infile_6="CNS_TOPPAR:dyes.top";
+{===>} topology_infile_7="";
+{===>} topology_infile_8="";
+
+{* linkage files for linear, continuous polymers (protein, DNA, RNA) *}
+{===>} link_infile_1="CNS_TOPPAR:protein.link";
+{===>} link_infile_2="CNS_TOPPAR:dna-rna-pho.link";
+{===>} link_infile_3="";
+
+{* parameter files *}
+{===>} parameter_infile_1="CNS_TOPPAR:protein_rep.param";
+{===>} parameter_infile_2="CNS_TOPPAR:dna-rna_rep.param";
+{===>} parameter_infile_3="CNS_TOPPAR:water_rep.param";
+{===>} parameter_infile_4="CNS_TOPPAR:ion.param";
+{===>} parameter_infile_5="CNS_TOPPAR:carbohydrate.param";
+{===>} parameter_infile_6="CNS_TOPPAR:dyes.param";
+{===>} parameter_infile_7="";
+{===>} parameter_infile_8="";
+
+{* molecular topology file: optional (leave blank for auto generation) *}
+{* 
+   Auto generation of the molecular topology from the coordinates should only 
+   be used if:
+   (1) Each distinct protein, DNA, or RNA chain must have a separate segid 
+       (or chainid if the chainid is non-blank). 
+   (2) Each contiguous protein, RNA, or RNA chain must not be disrupted by 
+       other types of residues or ligands.  Rather, these other residues 
+       should be listed after protein, RNA/DNA chains. 
+   (3) Disulphides are automatically detected based on distances between the sulfur atoms
+      (must be less than 3 A apart).
+   (4) Broken protein/RNA/DNA chains without terminii must be more than 2.5 A apart to be recognized as such.
+   (5) N-linked glycan links are automatically recognized if the bonded atoms are less than 2.5 A apart.
+   (6) Automatic generation cannot be used with alternate conformations. 
+   For ligands, the user must make suitable topology and parameter files.
+   For non-standard covalent linkages, the custom patch file should be used.
+   Alternatively, the generate.inp or generate_easy.inp task files
+   can be used to generated the mtf prior to running this task file.
+    *}
+{===>} structure_infile="";
+
+{* for auto generation: extra linkages and modifications by custom patches *}
+{===>} patch_infile="dye_patches.def";
+
+{===================== crystallographic symmetry =====================}
+
+{* use crystallographic symmetry *}
+{+ choice: true false +}
+{===>} use_cryst=false;
+
+{* space group *}
+{* use International Table conventions with subscripts substituted
+   by parenthesis *}
+{===>} sg="P2(1)2(1)2(1)";
+
+{* unit cell parameters in Angstroms and degrees *}
+{+ table: rows=1 "cell" cols=6 "a" "b" "c" "alpha" "beta" "gamma" +}
+{===>} a=61.76;
+{===>} b=40.73;
+{===>} c=26.74;
+{===>} alpha=90;
+{===>} beta=90;
+{===>} gamma=90;
+
+{=================== non-crystallographic symmetry ===================}
+
+{* NCS-restraints/constraints file *}
+{* see auxiliary/ncs.def *}
+{===>} ncs_infile="";
+
+{========================== atom selection ===========================}
+
+{* select atoms to be included *}
+{* it is essential to include hydrogen atoms if a free MD simulation is
+   being performed *}
+{* this should include all conformations if multiple conformations are used *}
+{===>} atom_select=(known);
+
+{* select fixed atoms *}
+{* note: isolated atoms and diatomic molecules are automatically 
+   fixed during torsion angle dynamics. So, you don't have to 
+   explicitly fix them here. *}
+{===>} atom_fixed=(segid A and not ((resid 140 and name SG) or (resid 350 and name SG)) );
+
+{* select atoms to be harmonically restrained *}
+{===>} atom_harm=(none);
+
+{* harmonic restraint constant - for harmonically restrained atoms *}
+{===>} k_harmonic=10;
+
+{* atom selections for non-default rigid groups during torsion angle dynamics *}
+{* note: the selections must be non-overlapping *}
+{===>} atom_rigid_1=(none);
+{===>} atom_rigid_2=(none);
+{===>} atom_rigid_3=(none);
+{===>} atom_rigid_4=(none);
+{===>} atom_rigid_5=(none);
+{===>} atom_rigid_6=(none);
+{===>} atom_rigid_7=(none);
+{===>} atom_rigid_8=(none);
+{===>} atom_rigid_9=(none);
+{===>} atom_rigid_10=(none);
+! to add more groups add more numbered entries:
+!   {===>} atom_rigid_11=(none);
+!   {===>} atom_rigid_12=(none);
+!   {===>} atom_rigid_13=(none);
+! etc
+
+{* select atoms in alternate conformation 1 *}
+{===>} conf_1=(none);
+
+{* select atoms in alternate conformation 2 *}
+{===>} conf_2=(none);
+
+{* select atoms in alternate conformation 3 *}
+{===>} conf_3=(none);
+
+{* select atoms in alternate conformation 4 *}
+{===>} conf_4=(none);
+
+{* additional restraints file *}
+{* eg. auxiliary/dna-rna_restraints.def *}
+{===>} restraints_infile="";
+
+{====================== annealing parameters ========================}
+
+{* type of molecular dynamics *}
+{+ choice: "torsion" "cartesian" +}
+{===>} md_type="torsion";
+
+{* annealing schedule *}
+{+ choice: "slowcool" "constant" +}
+{===>} md_scheme="slowcool";
+
+{* starting temperature *}
+{* used for both constant-temperature and slowcooling schemes *}
+{===>} temperature=300000;
+
+{* temperature control method *}
+{* either coupling to a temperature bath or velocity scaling *}
+{+ choice: coupling scaling +}
+{===>} tcontrol="coupling";
+
+{* number of molecular dynamics steps *}
+{* only used for constant-temperature annealing schedule *}
+{===>} constant_steps=500;
+
+{* drop in temperature (K) per cycle of dynamics *}
+{* only used for slowcooling annealing schedule *}
+{===>} cool_rate=500;
+
+{* molecular dynamics time step (ps) *}
+{===>} time_step=0.00075;
+
+{* number of minimization steps to regularize geometry before torsion md *}
+{===>} geometry_min=100;
+
+{* nonbonded cutoff (Angstroms) *}
+{===>} nonb_cutoff=13;
+
+{* dielectric constant *}
+{===>} dielectric=1;
+
+{* number of trials to carry out with different initial velocities *}
+{===>} num_trials=10;
+
+{* frequency of writing trajectory (in steps) *}
+{* this only applies to the constant temperature option *}
+{* a trajectory will not be written if this value is 0 or less *}
+{===>} traj_freq=0;
+
+{* seed for random number generator *}
+{* change to get different initial velocities *}
+{===>} seed=66664;
+
+{* torsion-angle MD parameters (normally do not need to be changed)*}
+
+{* torsion angle topology modification file *}
+{===>} torsion_infile="CNS_TOPPAR:torsionmdmods";
+{* maximum unbranched chain length (use <= 0 for automatic) *}
+{===>} torsion_maxlength=0;
+{* maximum number of distinct bodies (use <= 0 for automatic) *}
+{===>} torsion_maxtree=0;
+{* maximum number of chains (use <= 0 for automatic) *}
+{===>} torsion_maxchain=0;
+
+{=========================== output files ============================}
+
+{* root name for output files *}
+{+ list:
+        coordinate files will be written: <output_root>_<n>.pdb 
+        if the trajectory option is enabled (annealing schedule = constant and frequency > 0)
+             a CNS trajectory file will be written to: <output_root>_<n>_traj.crd, 
+             the corresponding individual coordinates will be in <output_root>_<n>_traj_<m>.pdb 
+             and a combined coordinate file (for display with VMD) with all 
+             these coordinates appended will be in <output_root>_<n>_traj.pdb
+             where <n> is the trial number and <m> is the trajectory frame number. +}
+{===>} output_root="140_350";
+
+{===========================================================================}
+{         things below this line do not normally need to be changed         }
+{         except for the torsion angle topology setup if you have           }
+{         molecules other than protein or nucleic acid                      }
+{===========================================================================}
+
+ ) {- end block parameter definition -}
+
+ checkversion 1.3
+
+ evaluate ($log_level=quiet)
+
+ if ( $log_level = verbose ) then
+   set message=normal echo=on end
+ else
+   set message=off echo=off end
+ end if
+
+ if ( &BLANK%structure_infile = true ) then
+ 
+    {- read topology files -}
+    topology
+     evaluate ($counter=1)
+     evaluate ($done=false)
+     while ( $done = false ) loop read
+      if ( &exist_topology_infile_$counter = true ) then
+         if ( &BLANK%topology_infile_$counter = false ) then
+            @@&topology_infile_$counter
+         end if
+      else
+        evaluate ($done=true)
+      end if
+      evaluate ($counter=$counter+1)
+     end loop read
+    end
+    
+    @CNS_XTALMODULE:mtfautogenerate (
+                                  coordinate_infile=&coordinate_infile;
+                                  convert=true;
+                                  separate=true;
+                                  atom_delete=(not known);
+                                  hydrogen_flag=true;
+                                  break_cutoff=2.5;
+                                  disulphide_dist=3.0;
+                                  carbo_dist=2.5;
+                                  patch_infile=&patch_infile;
+                                  O5_becomes="O";
+                                 )
+
+ else
+
+   structure @&structure_infile end
+   coordinates @&coordinate_infile
+
+ end if
+
+ {- read parameter files -}
+ parameter
+  evaluate ($counter=1)
+  evaluate ($done=false)
+  while ( $done = false ) loop read
+   if ( &exist_parameter_infile_$counter = true ) then
+      if ( &BLANK%parameter_infile_$counter = false ) then
+         @@&parameter_infile_$counter
+      end if
+   else
+     evaluate ($done=true)
+   end if
+   evaluate ($counter=$counter+1)
+  end loop read
+ end
+
+ if ( $log_level = verbose ) then
+   set message=normal echo=on end
+ else
+   set message=off echo=off end
+ end if
+
+ if ( &use_cryst = true ) then
+   xray
+     @@CNS_XTALLIB:spacegroup.lib (sg=&sg;
+                                   sgparam=$sgparam;)
+     a=&a b=&b c=&c  alpha=&alpha beta=&beta gamma=&gamma
+   end
+ end if
+
+ if ( &use_cryst = true ) then
+   flags exclude * include bond angle impr dihe vdw elec pvdw pele ? end
+ else
+   flags exclude * include bond angle impr dihe vdw elec ? end
+ end if
+
+ param nbonds tolerence=? end end
+ evaluate ($toler=$result)
+
+ evaluate ($ctofnb=&nonb_cutoff-(2*$toler))
+ evaluate ($ctonnb=$ctofnb-1.0)
+
+ param 
+   nbonds 
+     cutnb=&nonb_cutoff
+     ctonnb=$ctonnb
+     ctofnb=$ctofnb
+     eps=&dielectric
+     ?
+   end
+ end
+
+ if ( &BLANK%ncs_infile = false ) then
+    inline @&ncs_infile
+ end if
+
+ if ( &BLANK%restraints_infile = false ) then
+     @&restraints_infile
+ end if
+
+ do (store6=0) (all)
+
+ evaluate ($nalt=1)
+ evaluate ($alt=1)
+ evaluate ($done=false)
+ while ( $done = false ) loop nalt
+   if ( &exist_conf_$alt = true ) then
+     show sum(1) ( &conf_$alt )
+     if ( $result > 0 ) then
+       evaluate ($nalt=$nalt+1)
+     end if
+   else
+     evaluate ($done=true)
+     evaluate ($nalt=$nalt-1)
+   end if
+   evaluate ($alt=$alt+1)
+ end loop nalt
+
+ evaluate ($alt=1)
+ while ( $alt <= $nalt ) loop alt
+   do (store6=$alt) ( &conf_$alt )
+   evaluate ($alt=$alt+1)
+ end loop alt
+
+ igroup
+   interaction ( &atom_select and not(attr store6 > 0))
+               ( &atom_select and not(attr store6 > 0))
+   evaluate ($alt=1)
+   while ( $alt <= $nalt ) loop alcs
+     interaction ( &atom_select and ( attr store6 = $alt or attr store6 = 0 ))
+                 ( &atom_select and ( attr store6 = $alt ))
+     evaluate ($alt=$alt+1)
+   end loop alcs
+ end
+
+ {- check isolated atoms and atoms at special positions and add to
+    list of fixed atoms if needed - store6 will be used -}
+ 
+ do (store6=0) (all)
+
+ connectivity
+    selection=( &atom_select and not &atom_fixed ) 
+    nsetto=store6
+ end
+ 
+ display
+ display  list of isolated (non-covalently bonded) atoms:
+ show element ( name ) ( attribute store6 = 1 )
+ if ($select=0) then
+       display  --none--
+ end if
+
+ display
+ display  list of isolated (non-covalently bonded) di-atomic molecules:
+ show element ( name ) ( attribute store6 = 2 )
+ if ($select=0) then
+       display  --none--
+ end if
+ 
+ if ( &md_type = "torsion" ) then
+ 
+ {- for torsion angle dynamics we have to fix 
+    isolated atoms and explicitly fixed atoms -}
+    
+    ident (store6) ((attribute store6 = 1) or
+                    (attribute store6 = 2) or
+                    ( not ( &atom_select ))  or
+                            &atom_fixed ) 
+                     
+    display  $select isolated atoms, atoms in di-atomic molecules, 
+    display  explicitly fixed atoms, and atoms not selected will be fixed. 
+
+ else
+
+    ident (store6) ((not ( &atom_select )) or
+                           &atom_fixed )
+
+ end if
+    
+ fix selection=( store6 ) end
+
+ fastnb grid end
+
+ show sum(1) (&atom_harm)
+ if ( $result > 0 ) then
+   evaluate ($harmonic=true)
+ else
+   evaluate ($harmonic=false)
+ end if
+
+ if ( &md_type = "torsion" ) then
+   evaluate ($start_temp=&temperature)
+   evaluate ($md_steps=6)
+   evaluate ($fbeta=200)
+ end if
+
+ if ( &md_type = "cartesian" ) then
+   evaluate ($start_temp=&temperature)
+   evaluate ($md_steps=50)
+   evaluate ($fbeta=100)
+ end if
+
+ set seed=&seed end
+
+ if ( &md_type = "torsion" ) then
+       if ( &geometry_min > 0 ) then
+         do (refx=x) (all)
+         do (refy=y) (all)
+         do (refz=z) (all)
+         do (harm=10) (all)
+         flags include harm exclude noe end
+         minimize lbfgs
+           nstep=&geometry_min
+           nprint=10
+         end
+         flags exclude harm include noe end
+         do (harm=0) (all)
+       end if
+ end if
+
+ do (store7=x) (all)
+ do (store8=y) (all)
+ do (store9=z) (all)
+
+ evaluate ($trial=1)
+
+ while ( $trial <= &num_trials ) loop main
+
+   do (x=store7) (all)
+   do (y=store8) (all)
+   do (z=store9) (all)
+
+   if ( $harmonic = true ) then
+     do (refx=x) (all)
+     do (refy=y) (all)
+     do (refz=z) (all)
+     do (harm=0) (all)
+     do (harm=&k_harmonic) (&atom_harm)
+     flags include harm end
+   end if
+  
+   parameter
+     nbonds
+        repel ?  evaluate ($repel_old=$result)
+        rcon ?   evaluate ($rcon_old=$result)
+        if ( $repel_old > 0 ) then
+          if ( $repel_old = 1 ) then
+             repel=1.  rcon=100.
+          else
+             repel=.75 rcon=50.
+          end if
+        end if
+     end
+   end
+
+   do (fbeta=$fbeta) ( ( &atom_select ) and not store6 )
+
+   do (vx=maxwell($start_temp)) ( ( &atom_select ) and not store6 )
+   do (vy=maxwell($start_temp)) ( ( &atom_select ) and not store6 )
+   do (vz=maxwell($start_temp)) ( ( &atom_select ) and not store6 )
+
+   if ( &md_type = "torsion" ) then
+     dynamics torsion
+       topology
+       
+         maxlength=&torsion_maxlength
+         maxchain=&torsion_maxchain
+         maxtree=&torsion_maxtree
+         kdihmax = 95.
+         
+         evaluate ($atr_count=1)
+         evaluate ($atr_done=false)
+         while ( $atr_done = false ) loop atrl
+          if ( &exist_atom_rigid_$atr_count = true ) then
+           fix group ( &atom_rigid_$atr_count ) 
+           evaluate ($atr_count=$atr_count+1)
+          else
+           evaluate ($atr_done=true)
+          end if
+         end loop atrl
+         
+         if ( &BLANK%torsion_infile = false ) then
+            @&torsion_infile
+         else         
+            @CNS_TOPPAR:torsionmdmods
+         end if
+         {- end modification -}
+         
+       end
+       nstep=0
+       cmremove=true
+     end
+   end if  
+
+   if ( &md_scheme = "slowcool" ) then
+  
+     evaluate ( $curr_temp = &temperature )
+     while ( $curr_temp > 0.0 ) loop cool
+       if ( &md_type = "torsion" ) then
+         dynamics torsion
+           timestep=&time_step
+           nstep=$md_steps
+           nprint=5
+           cmremove=false
+           if ( &tcontrol = "scaling" ) then
+             vscaling=true  
+           elseif ( &tcontrol = "coupling" ) then
+             tcoupling=true
+           end if
+           temperature=$curr_temp
+         end
+       end if
+       if ( &md_type = "cartesian" ) then
+         dynamics cartesian
+           if ($curr_temp=&temperature) then
+              cmremove=true
+           else
+              cmremove=false
+           end if
+           timestep=&time_step
+           nstep=$md_steps
+           nprint=10
+           if ( &tcontrol = "scaling" ) then
+             vscaling=true  
+           elseif ( &tcontrol = "coupling" ) then
+             tcoupling=true
+           end if
+           temperature=$curr_temp
+         end
+       end if
+       evaluate ( $curr_temp = $curr_temp - &cool_rate )
+     end loop cool
+
+   elseif ( &md_scheme = "constant" ) then
+ 
+     evaluate ($traj_outfile=&output_root + "_" + encode($trial) + "_traj.crd")
+
+     if ( &md_type = "torsion" ) then
+       dynamics torsion
+         timestep=&time_step
+         nstep=&constant_steps
+         nprint=10
+         cmremove=true
+         cmperiodic=100
+         if ( &tcontrol = "scaling" ) then
+           vscaling=true  
+         elseif ( &tcontrol = "coupling" ) then
+           tcoupling=true
+         end if
+         temperature=&temperature
+         if ( &traj_freq > 0 ) then
+           ascii=false
+           trajectory=$traj_outfile
+           nsavc=&traj_freq
+         end if
+       end
+     end if
+     if ( &md_type = "cartesian" ) then
+       dynamics cartesian
+         timestep=&time_step
+         nstep=&constant_steps
+         nprint=10
+         cmremove=true
+         cmperiodic=100
+         if ( &tcontrol = "scaling" ) then
+           vscaling=true  
+         elseif ( &tcontrol = "coupling" ) then
+           tcoupling=true
+         end if
+         temperature=&temperature
+         if ( &traj_freq > 0 ) then
+           ascii=false
+           trajectory=$traj_outfile
+           nsavc=&traj_freq
+         end if
+       end
+     end if
+
+    {- read the trajectory file and write individual coordinate files
+       and the combined coordinate file for VMD -}
+    if ( &traj_freq > 0 ) then
+       close $traj_outfile end
+       evaluate ($traj_combined=&output_root + "_" + encode($trial) + "_traj.pdb")
+       evaluate ($nstruc=1)
+       evaluate ($max_struc=&constant_steps/&traj_freq)
+       while ($nstruc <= $max_struc) loop traj
+          
+          if ($nstruc=1) then
+              read traj ascii=false input=$traj_outfile begin= &traj_freq skip= &traj_freq stop= &constant_steps end
+          else 
+              read traj next end
+          end if
+
+          remark  trial=$trial  number of MD steps= &constant_steps  timestep= &time_step  trajectory-frequency= &traj_freq  trajectory-frame= $nstruc
+
+          evaluate ($traj_coorfile=&output_root + "_" + encode($trial) + "_traj_" + encode($nstruc)+".pdb")
+          write coordinates output=$traj_coorfile format=PDBO end
+          write coordinates output=$traj_combined format=PDBO end
+          open $traj_combined access=append end
+
+          evaluate ($nstruc=$nstruc+1)
+       end loop traj
+       close $traj_combined end
+    end if
+ 
+   end if
+  
+   parameter
+     nbonds
+       repel=$repel_old rcon=$rcon_old
+     end
+   end
+  
+   if ( &md_type = "torsion" ) then
+     dynamics torsion
+       nstep = 0
+       cmremove=false
+       topology
+         reset
+       end
+     end
+   end if
+
+   if ( &md_scheme = "slowcool" ) then
+     evaluate ($md_temp=(&temperature-0)/&cool_rate)
+   else
+     evaluate ($md_temp=1)
+   end if
+
+   print threshold=20.0 bond
+   evaluate ($rmsd_bond=$result)
+
+   print threshold=50.0 angle
+   evaluate ($rmsd_angle=$result)
+
+   evaluate ($coordinate_outfile=&output_root + "_" + encode($trial) + ".pdb")
+   set display=$coordinate_outfile end
+
+   display REMARK coordinates from molecular dynamics
+   display REMARK rmsd bonds= $rmsd_bond[f8.6]  rmsd angles= $rmsd_angle[f8.5]
+   display REMARK starting temperature= &temperature  temperature control= &STRIP%tcontrol 
+   display REMARK nonbonded cutoff= &nonb_cutoff Angstroms  dieletric= &dielectric
+
+   if ( &md_scheme = "slowcool" ) then
+      display REMARK total md steps= $md_temp * $md_steps  time step= &time_step ps
+   else
+      display REMARK total md steps= &constant_steps  time step= &time_step ps
+   end if
+
+   if ( &use_cryst = true ) then
+     display REMARK sg= &STRIP%sg a= &a b= &b c= &c alpha= &alpha beta= &beta gamma= &gamma
+   end if
+
+   evaluate ($counter=1)
+   evaluate ($done=false)
+   while ( $done = false ) loop read
+    if ( &exist_parameter_infile_$counter = true ) then
+      if ( &BLANK%parameter_infile_$counter = false ) then
+        display REMARK parameter file $counter  : &STRIP%parameter_infile_$counter
+      end if
+    else
+     evaluate ($done=true)
+    end if
+    evaluate ($counter=$counter+1)
+   end loop read
+ 
+ if ( &BLANK%structure_infile = true ) then
+   display REMARK molecular structure file: automatic
+
+   evaluate ($counter=1)
+   evaluate ($done=false)
+   while ( $done = false ) loop read
+    if ( &exist_topology_infile_$counter = true ) then
+      if ( &BLANK%topology_infile_$counter = false ) then
+        display REMARK topology file $counter  : &STRIP%topology_infile_$counter
+      end if
+    else
+     evaluate ($done=true)
+    end if
+    evaluate ($counter=$counter+1)
+   end loop read
+
+   evaluate ($counter=1)
+   evaluate ($done=false)
+   while ( $done = false ) loop read
+    if ( &exist_link_infile_$counter = true ) then
+      if ( &BLANK%link_infile_$counter = false ) then
+        display REMARK linkage file $counter  : &STRIP%link_infile_$counter
+      end if
+    else
+     evaluate ($done=true)
+    end if
+    evaluate ($counter=$counter+1)
+   end loop read
+
+   if ( &BLANK%patch_infile = false ) then
+      display REMARK custom patch file = &STRIP%patch_infile
+   end if
+
+ else
+   display REMARK molecular structure file: &STRIP%structure_infile
+ end if
+
+   display REMARK input coordinates: &STRIP%coordinate_infile
+   if ( &BLANK%restraints_infile = false ) then
+      display REMARK additional restraints file: &STRIP%restraints_infile
+   end if
+   if ( &BLANK%ncs_infile = false ) then
+     display REMARK ncs= &STRIP%ncs_type  ncs file= &STRIP%ncs_infile
+   else
+     display REMARK ncs= none
+   end if
+
+   remark
+
+   write coordinates output=$coordinate_outfile format=PDBO end
+
+   set display=OUTPUT end
+
+   evaluate ($trial=$trial+1)
+
+ end loop main
+ 
+ stop

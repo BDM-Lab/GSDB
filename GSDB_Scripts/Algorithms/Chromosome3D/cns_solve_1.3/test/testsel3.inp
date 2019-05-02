@@ -1,0 +1,83 @@
+remarks testsel3.inp
+! This scipts tests residue selections with hybrid-36 and large integer
+! numbers, processing of iCode characters, wildcard selections with
+! backslash escapes, and names with special characters.
+! Some of the exmaples here are not intended as normal input.
+topology
+  resi "Fe3"
+    atom "Fe+3" mass=10 end
+  end
+  resi "Cl1"
+    atom "Cl-1" mass=10 end
+  end
+  resi "Na1"
+    atom "Na+1" mass=10 end
+  end
+! 
+  resi "{X}"
+    atom "{+1}" mass=10 end
+  end
+! NOTE: the lexer (NEXTWD) will accept the double-quote below, and pass
+! F\" to the parsing routines. However, only the wildcard routine
+! processes the backslash. the current implementation only supports backslash
+! for wildcards and line continuations. Behavior elsewhere is "undefined".
+  resi FPP
+    atom F\" mass=10 end
+  end
+end
+! NOTE: Quoting allows lower case and other special characters,
+! but the topology WRITE routines currently do not quote them.
+write topology end
+segment
+  chain
+    separate=true
+    coor
+! Note that CNS iCode handling only looks at the 5-char string,
+! and will accept mis-aligned resSeq+iCode. However, all
+! proper syntax works, except that len(resSeq+iCode)>4 is rejected.
+ATOM      1 Fe+3 Fe3  XXXA       0.000   0.000   0.000  1.00  0.00
+ATOM      1 Fe+3 Fe3   XXXB      0.000   0.000   0.000  1.00  0.00
+ATOM      1 Fe+3 Fe3  XXXC       0.000   0.000   0.000  1.00  0.00
+ATOM      1 Cl-1 Cl1     1       0.000   0.000   0.000  1.00  0.00
+ATOM      1 Na+1 Na1     2       0.000   0.000   0.000  1.00  0.00
+ATOM      1 Fe+3 Fe3  XXXD       0.000   0.000   0.000  1.00  0.00
+ATOM      1 Fe+3 Fe3  XXXE       0.000   0.000   0.000  1.00  0.00
+ATOM      1 Fe+3 Fe3  999E       0.000   0.000   0.000  1.00  0.00
+ATOM      1 Fe+3 Fe3   999F      0.000   0.000   0.000  1.00  0.00
+ATOM      1 Fe+3 Fe3   ABC1      0.000   0.000   0.000  1.00  0.00
+ATOM      1 {+1} {X}   ABC1      0.000   0.000   0.000  1.00  0.00
+    end
+  end
+end
+! Ranges accept normal base 10 or 4-char Hybrid-36:
+show (resid) (resid 1127055:XXXD)
+show (resid) (resid XXXB:1127057)
+show (resid) (resid 999F:XXXA)
+
+! invalid values will fail (uncommented for testing purposes)
+!!show (resid) (resid 1127055:XXD)
+!!show (resid) (resid XXB:1127057)
+
+! As before, decode() fails with an error when an iCode is present:
+show (decode(resid)) (resid 999*)
+! Otherwise, decode() accepts a Hybrid-36 resid:
+show (decode(resid)) (not resid 999*)
+! Convert back to 4-char Hybrid-36 with FORMAT function when it is valid:
+show (format("I4",decode(resid))) (not resid 999*)
+! Full integer values can be used, but currently only with the range syntax:
+show elem (decode(resid)) (resid 1127055)
+show elem (decode(resid)) (resid 1127055:1127055)
+! Display formatting reverts to Hybrid-36 for I4 or I5 formatting
+! when the value would otherwise overflow:
+display $result[I10] $result[I4] $result[I5]
+
+! Wildcard selections with backslash escapes. This allows wildcard
+! characters in the pattern, as well as lower case and other special
+! characters that would normally delimit a token.
+show (name) (name *\+#)
+show (name) (name *\-#)
+show (name) (name *\a*)
+show (name) (name *\l*)
+show (name) (name \{*)
+write coor end
+stop

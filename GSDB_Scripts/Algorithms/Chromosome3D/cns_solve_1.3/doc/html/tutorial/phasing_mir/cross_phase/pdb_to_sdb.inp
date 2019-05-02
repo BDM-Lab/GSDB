@@ -1,0 +1,118 @@
+{+ file: pdb_to_sdb.inp +}
+{+ directory: xtal_phase +}
+{+ description: Convert a PDB coordinate file 
+                into a CNS heavy atom site database file +}
+{+ comment: 
+         - This file should be used to convert a coordinate file
+           containing heavy atom sites from a program other than CNS
+           into a CNS site database file.
+         - Or to convert a set of peaks picked from a CNS map.
+         - To convert a preexisting CNS coordinate and molecular
+           topology file use cns_to_sdb.inp
+         - Heavy atoms in the PDB file should have:
+           - unique residue numbers (one atom per residue)
+           - atom name and residue name (column 13-21) must be
+             either "SITE SITE" or "PEAK PEAK"
+         - remember to change the derivative name and atom type(s) in the
+           resulting SDB file +}
+{+ authors: Axel T. Brunger, and Paul D. Adams +}
+{+ copyright: Yale University +}
+
+{- Guidelines for using this file:
+   - all strings must be quoted by double-quotes
+   - logical variables (true/false) are not quoted
+   - do not remove any evaluate statements from the file -}
+
+{- begin block parameter definition -} define(
+
+{============================ space group ============================}
+
+{* space group *}
+{* use International Table conventions with subscripts substituted
+   by parenthesis *}
+{===>} sg="P2(1)2(1)2(1)";
+
+{========================== coordinate file ==========================}
+
+{* heavy atom coordinate file *}
+{===>} coordinate_infile_1="phga.pdb";
+
+{============================ output file ============================}
+
+{* output CNS heavy atom site database file *}
+{===>} sitedatabase_outfile="phga_sites.sdb";
+
+{===========================================================================}
+{        things below this line do not normally need to be changed          }
+{===========================================================================}
+
+ ) {- end block parameter definition -}
+
+ checkversion 1.3
+
+ evaluate ($log_level=quiet)
+
+ topology
+   mass site 10.0
+   resid site
+     group
+       atom site type=site charge=0.0 end
+   end
+ end
+
+ topology
+   mass peak 10.0
+   resid peak
+     group
+       atom peak type=peak charge=0.0 end
+   end
+ end
+
+ evaluate ($struct=1)
+ evaluate ($done=false)
+
+ while ( $done = false ) loop struct
+
+   if ( &BLANK%coordinate_infile_$struct = false ) then
+
+     segment 
+       chain
+         separate-by-segid=true
+         coordinates @@&coordinate_infile_$struct
+       end
+     end
+
+     coordinates @@&coordinate_infile_$struct
+
+   else
+     evaluate ($done=true)
+   end if
+
+   evaluate ($struct=$struct+1)
+
+ end loop struct
+
+ do (chemical="") (all)
+
+ identity (store3) (all)
+ identity (store4) (none)
+
+ @CNS_XTALMODULE:coord_to_sdb (sitedb=$allsites;
+                               use_array=store3;
+                               fix_array=store4;
+                               selection=(all);)
+
+ buffer comment
+   reset
+   display            This site database converted from PDB coordinate file
+ end
+
+ @CNS_XTALMODULE:write_cns_header (output=&sitedatabase_outfile;
+                                   description="CNS heavy atom site database";
+                                   buffer=comment;)
+
+ @CNS_XTALMODULE:write_sdb (sitedb=$allsites;
+                            sg=&sg;
+                            output=&sitedatabase_outfile;)
+
+ stop

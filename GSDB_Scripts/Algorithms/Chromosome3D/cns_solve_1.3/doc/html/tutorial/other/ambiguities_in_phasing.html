@@ -1,0 +1,190 @@
+<HTML>
+<HEAD>
+<TITLE>Crystallography & NMR System</TITLE>
+</HEAD>
+<BODY BGCOLOR=#8ebf8e>
+
+<HR>
+<h2>Notes on ambiguities encountered in phasing</h2>
+<HR>
+
+<a name="indexing"><h3>Indexing ambiguities</h3></a>
+
+<h4>Indexing ambiguity type 1</h4>
+
+In space groups where the symmetry of the Bravais lattice is higher
+than the point group symmetry, there are several choices of indexing a
+diffraction pattern. When confronted with several indexing
+possibilities, autoindexing programs like <em>Denzo</em>,
+<em>MOSFLM</em> and <em>d*trek</em> can only make a random choice.
+However, if data from two or more crystals are to be merged or combined
+in some other way (for example to compute isomorphous differences), it
+is important that the indexing choices are compatible.
+
+<p>
+
+The <em>CCP4</em> documentation
+(<a href="http://www.dl.ac.uk/CCP/CCP4/dist/html/reindexing.html"
+ ><tt>reindexing.doc</tt></a>)
+and the
+<a href="http://www.hkl-xray.com/manual_j.pdf"><em>Scalepack</em></a>
+manual (Scenario&nbsp;5: Reindexing) give practical advise for
+resolving the indexing ambiguity. The general idea is that the indexing
+choice of some reference data set is kept fixed, and all possible
+indexing choices are tested for the other data sets. For each indexing
+choice, a data set is reindexed, scaled and merged with the reference
+data set.  The correct indexing choice is characterized by the lowest
+R<sub>merge</sub> or Chi<sup>2</sup>.
+
+<h4>Indexing ambiguity type 2</h4>
+
+Another problem arises if anomalous scattering leads to the breakdown
+of Friedel's law. If the data are correctly indexed on a right handed
+basis system, the assignment of &quot;F+&quot; and &quot;F-&quot; is
+such that the experimental electron density map will show amino acids
+and helices with the correct hand. However, if by accident a left
+handed system was chosen (for example if the sign of <tt>Y SCALE</tt>
+in <em>Denzo</em> was chosen incorrectly), the experimental electron
+density map will have the wrong hand.
+
+<p>
+
+If anomalous data are used and the experimental MAD or SAD map shows
+amino acids and helices with the wrong hand, the Friedel mates have to
+be flipped in order to arrive at a right handed indexing basis. This
+means, &quot;F+&quot; becomes &quot;F-&quot; and vice versa. At
+the same time, the hand of the heavy atom configuration has to be
+changed (see below).
+<p>
+Use the <tt>flip_friedels.inp</tt> task file to flip the Friedel
+mates.
+<br>
+Use the <tt>flip_sites.inp</tt> task file to flip the heavy atom
+configuration.
+
+<HR>
+
+<a name="enantiomorph"><h3>Enantiomorph ambiguity</h3></a>
+
+A given 3-dimensionally periodic configuration of atoms and its inverse
+image give rise to identical diffraction patterns. For crystals with a
+centrosymmetric space group this is trivially true. For
+non-centrosymmetric space groups this gives rise to a hand ambiguity or
+<em>enantiomorph ambiguity</em> (<em>Protein Crystallography</em>,
+Blundell &amp; Johnson, 1976, page 374).
+
+<p>
+
+For non-centrosymmetric space groups, there always exists a centre of
+inversion which maps the given atom configuration onto its inverse
+image. For most non-centrosymmetric space groups, this centre of
+inversion is at the origin of the coordinate system (i.e. at 0,0,0)
+and the inverse image is obtained simply by flipping the signs of the
+atomic coordinates. However, there can be two kinds of difficulties:
+
+<ol>
+<li><strong>The centre of inversion is not at the origin of the
+            coordinate system.</strong>
+    <br>
+    This is the case for space groups Fdd2, I4<sub>1</sub>,
+    I4<sub>1</sub>22, I4<sub>1</sub>md, I4<sub>1</sub>cd, I-42d, and
+    F4<sub>1</sub>32.
+    <br>
+    In these space groups, the inverse image is obtained by a
+    combination of flipping the signs of the coordinates and a
+    translation (International Tables for Crystallography, Volume A,
+    1983, Table 15.3.2, column 6).
+
+    <p>
+
+    <li><strong>The centre of inversion changes the space group.</strong>
+    <br>
+    This is the case for the 22 <em>enantiomorphic</em> space groups.
+    <br>
+    The 22 enantiomorphic space groups can be grouped into 11 pairs:
+    <p>
+    <TABLE BORDER="1">
+      <tr>
+      <td>P4<sub>1</sub>
+      <td>P4<sub>1</sub>22
+      <td>P4<sub>1</sub>2<sub>1</sub>2
+      <td>P3<sub>1</sub>
+      <td>P3<sub>1</sub>12
+      <td>P3<sub>1</sub>21
+      <td>P6<sub>1</sub>
+      <td>P6<sub>2</sub>
+      <td>P6<sub>1</sub>22
+      <td>P6<sub>2</sub>22
+      <td>P4<sub>1</sub>32
+      <tr>
+      <td>P4<sub>3</sub>
+      <td>P4<sub>3</sub>22
+      <td>P4<sub>3</sub>2<sub>1</sub>2
+      <td>P3<sub>2</sub>
+      <td>P3<sub>2</sub>12
+      <td>P3<sub>2</sub>21
+      <td>P6<sub>3</sub>
+      <td>P6<sub>4</sub>
+      <td>P6<sub>3</sub>22
+      <td>P6<sub>4</sub>22
+      <td>P4<sub>3</sub>32
+    </table>
+    <p>
+    The atomic coordinates of the inverse image are obtained by
+    flipping the signs of the original coordinates. If the space group
+    of the original atom configuration is listed in the top row of the
+    table, the space group of the inverse image is given in the same
+    column in the bottom row, and vice versa.
+</ol>
+
+The <tt>flip_sites.inp</tt> task file can be used to flip an atom
+configuration. The two kinds of difficulties outlined above are
+correctly taken care of.
+
+<p>
+
+In isomorphous replacement (SIR/MIR) experiments, the enantiomorph
+ambiguity can be resolved by inspection of the experimental electron
+density map.  If the amino acids and helices have the wrong hand, the
+heavy atom configuration has to be flipped.
+
+<p>
+
+In anomalous diffraction (SAD/MAD) experiments, the enantiomorph
+ambiguity can be resolved by SAD/MAD phasing with both choices,
+followed by inspection of the resulting electron density maps. Only
+the correct enantiomorph will produce an interpretable map.
+
+<p>
+
+For a clarification of the terms <em>enantiomorph</em> and
+<em>enantiomorphic space group</em> refer to the International Tables
+for Crystallography, Volume A, 1983, section 10.5,
+<em>Enantiomorphism</em>, <em>enantiomerism</em>, <em>chirality</em>,
+<em>dissymmetry</em>.
+
+<HR>
+
+<a name="phase"><h3>Phase ambiguity</h3></a>
+
+In Single Isomorphous Replacement (SIR) or Single Anomalous Diffraction
+(SAD) experiments, the resulting phase probability distributions are
+bimodal, i.e. there are two maxima in the probablity distribution for
+each reflection. This is explained in detail in many textbooks, for
+example <em>Protein Crystallography</em>, Blundell &amp; Johnson, 1976,
+or <em>Principles of Protein X-ray Crystallography</em>, Drenth, 1994.
+
+<p>
+
+In many cases, density modification can be used to resolve the phase
+ambiguity. In <em>CNS</em>, use the task file
+<tt>density_modify.inp</tt>.
+
+<HR WIDTH="100%"></P>
+
+<A HREF="../text.html">Back to tutorials</A>&nbsp;&nbsp;
+
+<HR WIDTH="100%"></P>
+
+</BODY>
+</HTML>

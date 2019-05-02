@@ -1,0 +1,158 @@
+remark   param5.inp
+remark   ========
+remark  
+remark   test Urey-Bradley angle terms and multiple dihedrals and 
+remark   impropers 
+
+
+topology
+   residue test
+   atom a  type=a  charge=0.0   mass=1.0 end
+   atom b  type=b  charge=0.0   mass=1.0 end
+   atom c  type=c  charge=0.0   mass=1.0 end
+   atom d  type=d  charge=0.0   mass=1.0 end
+   atom e  type=e  charge=0.0   mass=1.0 end
+   atom f  type=f  charge=0.0   mass=1.0 end
+   atom g  type=g  charge=0.0   mass=1.0 end
+   atom h  type=h  charge=0.0   mass=1.0 end
+   atom i  type=i  charge=0.0   mass=1.0 end
+   atom j  type=j  charge=0.0   mass=1.0 end
+   atom k  type=k  charge=0.0   mass=1.0 end
+   atom l  type=l  charge=0.0   mass=1.0 end
+   atom m  type=m  charge=0.0   mass=1.0 end
+   atom n  type=n  charge=0.0   mass=1.0 end
+
+   bond a    b
+   bond b    c
+   bond a    c
+
+   angle c    b    a  !permutation
+
+   dihedral  k l m n
+   dihedral  a    b    c    e   multiple=4  
+   dihedral  j k l m  
+
+   improper  k l m n
+   improper  b   c    a    n    multiple=3    
+   improper  j k l m  
+
+   end
+end !topology
+
+segment
+  name=test
+  molecule number=1 name=test end
+end
+
+parameter
+   BOND A    B      100.0       1.0
+   BOND B    C      100.        1.0
+   BOND A    C      50.         2.0
+
+   ANGLE A  B C       50.0     100.0  UB  50. 2.0
+
+   DIHEdral  A B C E  MULTiple=4 80. 3 0.
+                                 40. 1 180.
+                                 20. 2 90.
+                                 10. 4 100.
+   dihedral  k l m n  0 2 180. 
+   dihedral  j k l m  0 1 90.
+
+   IMPRoper  n a c b  MULTiple=3 70. 2 0.
+                                 10. 0 180.
+                                  5. 0 90.
+   improper  k l m n  0 2 180. 
+   improper  j k l m  0 1 90.
+   ?
+
+   verbose
+
+end !parameter
+
+coor
+ATOM      1  A   TEST    1       0.000   0.000   2.000  1.00  0.00      TEST
+ATOM      2  B   TEST    1       1.000   0.000   1.000  1.00  0.00      TEST
+ATOM      3  C   TEST    1      -1.000   1.000   0.000  1.00  0.00      TEST
+ATOM      4  D   TEST    1       2.000   1.000   0.000  1.00  0.00      TEST
+ATOM      5  E   TEST    1       0.000   1.000   0.000  1.00  0.00      TEST
+ATOM      6  F   TEST    1       1.000   1.000   0.000  1.00  0.00      TEST
+ATOM      7  G   TEST    1       0.000  -1.000   0.000  1.00  0.00      TEST
+ATOM      8  H   TEST    1       1.000  -1.000   0.000  1.00  0.00      TEST
+ATOM      9  I   TEST    1      -1.000  -1.000   0.000  1.00  0.00      TEST
+ATOM     10  J   TEST    1       2.000   2.000   0.000  1.00  0.00      TEST
+ATOM     11  K   TEST    1       3.000   3.000   0.000  1.00  0.00      TEST
+ATOM     12  L   TEST    1       4.000   2.000   0.000  1.00  0.00      TEST
+ATOM     13  M   TEST    1       5.000   1.000   0.000  1.00  0.00      TEST
+ATOM     14  N   TEST    1       6.000   1.000   0.000  1.00  0.00      TEST
+END
+
+flags exclude * include bonds angle dihedrals impropers end
+
+energy end
+
+pick bond ( name a ) ( name c ) energy 
+pick angle ( name a ) ( name b ) ( name c ) geometry
+pick angle ( name a ) ( name b ) ( name c ) energy
+print angles
+
+parameter 
+   angle ( name a ) ( name b ) ( name c )  TOKEN TOKEN  UB 0. 0.
+   bond ( name a ) ( name b ) 0. TOKEN
+   bond ( name b ) ( name c ) 0. TOKEN
+end
+
+{* test total-angle = angle + ub-bond *}
+energy end
+
+parameter
+   angle ( name a ) ( name b ) ( name c )  TOKEN TOKEN  UB 10. 1.
+   bond ( name a ) ( name c ) 10. 1.
+end
+energy end
+
+pick bond ( name a ) ( name c ) energy 
+pick angle ( name a ) ( name b ) ( name c ) geometry
+pick angle ( name a ) ( name b ) ( name c ) energy
+print angles
+
+
+pick dihedral ( name A ) ( name B ) ( name C ) ( name E ) geometry
+pick dihedral ( name A ) ( name B ) ( name C ) ( name E ) energy
+pick dihedral ( name j ) ( name k ) ( name l ) ( name m ) energy
+print dihedrals
+
+pick improper ( name N ) ( name A ) ( name C ) ( name B ) geometry
+pick improper ( name N ) ( name A ) ( name C ) ( name B ) energy
+print impropers
+
+parameter
+
+   dihedral ( name A ) ( name B ) ( name C ) ( name E ) multiple=4
+                 10. 0  180.
+                  5. 1   90.
+                  2. 2   70.
+                  1. 3   30.
+
+   improper ( name N ) ( name A ) ( name C ) ( name B ) multiple=3
+                TOKEN TOKEN 1.
+                TOKEN TOKEN 2.
+                TOKEN TOKEN 3.
+end
+print dihedrals
+print impropers
+
+parameter
+  reduce mode=average end
+  ?
+end
+
+parameter
+  learn init selection=( all ) mode=nostatistics end
+  learn accu end
+  learn terminate end
+  reduce mode=average end
+  ?
+end
+
+  
+stop

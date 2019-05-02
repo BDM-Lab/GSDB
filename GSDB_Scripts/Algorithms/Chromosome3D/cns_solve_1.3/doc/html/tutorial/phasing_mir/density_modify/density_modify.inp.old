@@ -1,0 +1,1665 @@
+{+ file: density_modify.inp +}
+{+ directory: xtal_phase +}
+{+ description: Density modification to improve phases +}
+{+ author: Axel T. Brunger, and Paul D. Adams +}
+{+ copyright: Yale University +}
+
+{+ reference: J.P. Abrahams and A.G.W. Leslie, Methods used in the
+              structure determination of bovine mitochondrial F1 ATPase.
+              Acta Cryst. D52, 30-42 (1996). +}
+
+{- Guidelines for using this file:
+   - all strings must be quoted by double-quotes
+   - logical variables (true/false) must not be quoted
+   - do not remove any evaluate statements from the file -}
+
+
+{====================== IMPORTANT NOTE ===============================}
+
+{* This input file requires that the data be put on an absolute
+   scale using, for example, Wilson scaling. *}
+
+{- begin block parameter definition -} define(
+
+{====================== crystallographic data ========================}
+
+{* space group *}
+{* use International Table conventions with subcripts substituted
+   by parenthesis *}
+{===>} sg="C2";
+
+{* unit cell parameters in Angstroms and degrees *}
+{+ table: rows=1 "cell" cols=6 "a" "b" "c" "alpha" "beta" "gamma" +}
+{===>} a=97.37;
+{===>} b=46.64;
+{===>} c=65.47;
+{===>} alpha=90;
+{===>} beta=115.4;
+{===>} gamma=90;
+
+{* reflection files *}
+{* data sets must be appropriately scaled *}
+{* specify non-anomalous reflection file(s) (if any) before anomalous 
+   reflection file(s) *}
+{===>} reflection_infile_1="scale.hkl";
+{===>} reflection_infile_2="mir_phase_final.hkl";
+{===>} reflection_infile_3="";
+{===>} reflection_infile_4="";
+
+{* reciprocal space array containing observed amplitudes: required *}
+{===>} obs_f="f_nat";
+
+{* reciprocal space array containing sigma values for amplitudes: optional *}
+{* if blank, no sigma-based reflection rejection will be applied *}
+{===>} obs_sigf="s_nat";
+
+{* experimental phase probability distribution: optional *}
+{* must be blank if centroid phases are supplied instead *}
+{* reciprocal space arrays with Hendrickson-Lattman coefficients A,B,C,D *}
+{+ table: rows=1 "HL coefficients" cols=4 "A" "B" "C" "D" +}
+{===>} obs_pa="pa";
+{===>} obs_pb="pb";
+{===>} obs_pc="pc";
+{===>} obs_pd="pd";
+
+{* complex reciprocal space array containing centroid phases: optional *}
+{* must be blank if Hendrickson-Lattman coefficients are used instead *}
+{===>} obs_phase="";
+
+{* real reciprocal space array containing figures-of-merit: optional *}
+{* used in combination with centroid phases *}
+{===>} obs_fom="";
+
+{* resolution limits for map calculation and modification *}
+{+ table: rows=1 "resolution" cols=2 "lowest" "highest" +}
+{===>} low_res=500.;
+{===>} high_res=2.8;
+
+{* Observed data cutoff criteria: applied to amplitudes *}
+{* reflections with magnitude(Obs)/sigma < &sigma_cut are rejected. *}
+{===>} sigma_cut=0.0;
+
+{* rms outlier cutoff: applied to amplitudes *}
+{* reflections with magnitude(Obs) > &obs_rms*rms(Obs) will be rejected *}
+{===>} obs_rms=10000;
+
+{================== non-crystallographic symmetry ====================}
+
+{* use NCS averaging *}
+{+ choice: true false +}
+{===>} averaging=false;
+
+{* averaging mask file *}
+{* the mask must be in O compressed format *}
+{* the mask should cover the primary molecule - the other NCS masks will 
+   be generated from this and the NCS operators *}
+{===>} ncs_mask_infile="";
+
+{* NCS-restraints/constraints file *}
+{* only strict NCS is allowed *}
+{* see auxiliary/ncs.def *}
+{===>} ncs_infile="";
+
+{======================= density truncation ==========================}
+
+{* density truncation *}
+{* truncate electron density points that are too low and/or too high
+   in the macromolecular region *}
+{+ choice: true false +}
+{===>} truncation=true;
+
+{* expected ratio of macromolecular and solvent density levels *}
+{===>} prot_to_solv=1.31;
+
+{* fraction below which density points will be truncated *}
+{* if negative the low fraction for truncation will be determined
+   automatically *}
+{* values in the range .3 to .4 are reasonable *}
+{===>} trunc_min=0.35;
+
+{* fraction above which density points will be truncated *}
+{===>} trunc_max=1;
+
+{====================== solvent modification =========================}
+
+{* modify solvent *}
+{+ choice: true false +}
+{===>} solvent_mod=true;
+
+{* solvent density modification method *}
+{* either flatten the solvent or apply solvent flipping in a manner
+   similar to Solomon (this is more powerful than flattening) *}
+{+ choice: "flat" "flip" +}
+{===>} solvent_method="flip";
+
+{* scale flipping factor by the ratio of the variance of the 
+   macromolecular density after and before density truncation *}
+{* used in Solomon to account for the effect of density truncation
+   on the flipping procedure *}
+{+ choice: true false +}
+{===>} scale_flip=true;
+
+{========================== solvent adjust ===========================}
+
+{* adjust solvent level to match expected ratio of macromolecular and
+   solvent densities *}
+{+ choice: true false +}
+{===>} solvent_adjust=true;
+
+{=========================== solvent mask ============================}
+
+{* type of solvent mask *}
+{+ list:
+        rms: automatically generate a mask (updated every cycle)
+        averaging: generate the mask from the NCS mask and operators
+        o-mask: read a mask from a file +}
+{+ choice: "rms" "averaging" "o-mask" +}
+{===>} mask_sol_type="rms";
+
+{* external solvent flattening mask file *}
+{* the mask must be in O compressed format *}
+{* in the case of NCS symmetry this mask must cover the whole molecule 
+   ie. all NCS mates *}
+{===>} solvent_mask_infile="";
+
+{* expand input solvent mask to solvent content of crystal *}
+{* can be used if an averaging or external o-mask is used,
+   the remaining solvent region will be determined using
+   the total solvent content *}
+{+ choice: true false +}
+{===>} mask_complete=true;
+
+{* solvent content of crystal *}
+{* required for automatic mask generation *}
+{* matthews_coef.inp can be used to estimate this *}
+{===>} solcon=.34;
+
+{* sphere radius (Angstroms) for calculating standard deviation of density *}
+{* the final radius should be the high resolution limit to which the
+   experimental phases are reliable *}
+{* the sphere radius will be slowly decreased from the starting to the
+   finishing radius over the course of the density modification *}
+
+{* starting radius for rms mask (Angstroms) *}
+{===>} start_ave_radius=3.5;
+{* finishing radius for rms mask (Angstroms) *}
+{===>} finish_ave_radius=2.8;
+
+{======================= modification scheme =========================}
+
+{* number of steps of initial density modification using the starting
+   radius for the rms mask *}
+{===>} initial_steps=10;
+
+{* number of steps during which the rms mask radius is shrunk
+   from the starting radius to the finishing radius *}
+{* this is also the stage at which phase extension will be performed
+   if selected - see the next section *}
+{===>} shrink_steps=20;
+
+{* number of steps of final density modification using the finishing
+   radius for the rms mask *}
+{===>} final_steps=10;
+
+{========================= phase extension ===========================}
+
+{* perform phase extension *}
+{+ choice: true false +}
+{===>} phase_extend=false;
+
+{* starting high resolution limit for phase extension *}
+{* phases will be extended starting from this resolution to the
+   final high resolution while the solvent mask is shrunk *}
+{===>} initial_highres=2.8;
+
+{===================== modification parameters =======================}
+
+{* number of bins for calculation of fom *}
+{* if negative this will be determined automatically *}
+{===>} bins=-1;
+
+{* relative weights for combining phase probabilities *}
+{+ table: rows=1 cols=2 "experimental phases" "modified phases" +}
+{===>} u=1;
+{===>} v=1;
+
+{* grid spacing as a fraction of the highest resolution limit *}
+{===>} grid=.25;
+
+{* memory allocation for FFT calculation *}
+{* this will be determined automatically if a negative value is given
+   otherwise the specified numer of words will be allocated *}
+{===>} fft_memory=-1;
+
+{* reduce memory requirement for averaging *}
+{* this will result in increased CPU time *}
+{+ choice: true false +}
+{===>} memory=false;
+
+{* map format *}
+{+ choice: "cns" "ezd" +}
+{===>} map_format="cns";
+
+{* extent of map *}
+{+ choice: "asymmetric" "unit_cell" "box" "fract" +}
+{===>} map_mode="asymmetric";
+
+{* limits in orthogonal angstroms for box mode or
+   fractional coordinates for fract mode *}
+{+ table: rows=3 "x" "y" "z" cols=2 "minimum" "maximum" +}
+{===>} xmin=0.;
+{===>} xmax=0.;
+{===>} ymin=0.;
+{===>} ymax=0.;
+{===>} zmin=0.;
+{===>} zmax=0.;
+
+{========================= output arrays =============================}
+
+{* complex reciprocal space array with observed amplitudes and any 
+   missing data replaced by DFc, combined with density modified 
+   centroid phases *}
+{* this array can be used to make maps, but should NOT be used in
+   refinement or further modification procedures because it contains
+   recontructed data which were not experimentally observed *}
+{===>} out_f="full_mod";
+
+{* real reciprocal space array with figures-of-merit after density
+   modification *}
+{===>} out_fom="fom_mod";
+
+{* phase probability distribution after density modification *}
+{* reciprocal space arrays with new Hendrickson-Lattman coefficients A,B,C,D *}
+{+ table: rows=1 "HL coefficients" cols=4 "A" "B" "C" "D" +}
+{===>} out_pa="pa_mod";
+{===>} out_pb="pb_mod";
+{===>} out_pc="pc_mod";
+{===>} out_pd="pd_mod";
+
+{=========================== output files ============================}
+
+{* root file name for output files *}
+{+ list: files created:
+         <output_root>.list - listing file 
+         <output_root>.hkl  - output reflection file
+         <output_root>.map  - output map file 
+         <output_root>.mask - output mask file +}
+{===>} output_root="density_modify";
+
+{* merge input data arrays with output arrays, otherwise only output
+   arrays will be written *}
+{+ choice: true false +}
+{===>} merge_inout=false;
+
+{* write a map file *}
+{+ choice: true false +}
+{===>} write_map=true;
+
+{* write automatic solvent mask to file *}
+{* only applies if automatic rms mask is used *}
+{+ choice: true false +}
+{===>} write_mask=true;
+
+{===========================================================================}
+{         things below this line do not normally need to be changed         }
+{===========================================================================}
+
+ ) {- end block parameter definition -}
+
+ checkversion 1.3
+
+ evaluate ($log_level=quiet)
+
+ xray
+
+   @CNS_XTALLIB:spacegroup.lib (sg=&sg;sgparam=$sgparam;)
+
+   a=&a b=&b c=&c  alpha=&alpha beta=&beta gamma=&gamma
+  
+   binresolution &low_res &high_res
+   mapresolution &high_res
+
+   generate &low_res &high_res
+   
+   evaluate ($counter=1)
+   evaluate ($done=false)
+   while ( $done = false ) loop read
+    if ( &exist_reflection_infile_$counter = true ) then
+      if ( &BLANK%reflection_infile_$counter = false ) then
+       reflection
+         @@&reflection_infile_$counter
+       end
+      end if
+    else
+     evaluate ($done=true)
+    end if
+    evaluate ($counter=$counter+1)
+   end loop read
+
+   {- check that all data arrays are well-defined -}
+   set echo=off end
+
+   if ( &BLANK%obs_f = true ) then
+      display 
+      display  *********************************************************
+      display  Error: required observed amplitude array is not specified
+      display  *********************************************************
+      display
+      abort
+   else
+      query name=&STRIP%obs_f domain=reciprocal end
+      if ( $object_exist = false ) then
+          display 
+          display  **************************************************************
+          display  Error: required observed amplitude array &obs_f does not exist
+          display  **************************************************************
+          display
+          abort
+       end if
+    {- note: this array can be of any type -}
+    end if
+
+    if ( &BLANK%obs_sigf = false ) then
+       query name=&STRIP%obs_sigf domain=reciprocal end
+       if ( $object_exist = false ) then
+          display 
+          display  ****************************************************
+          display  Error: observed sigma array &obs_sigf does not exist
+          display  ****************************************************
+          display
+          abort
+       end if
+       if ( $object_type # "REAL" ) then
+          display 
+          display  *************************************************************
+          display  Error: observed sigma array &obs_sigf has the wrong data type
+          display  *************************************************************
+          display
+          abort
+       end if
+   end if
+
+   if ( &BLANK%obs_pa = false ) then
+     @@CNS_XTALMODULE:check_abcd (pa=&obs_pa;
+                                  pb=&obs_pb;
+                                  pc=&obs_pc;
+                                  pd=&obs_pd;)
+     evaluate ($use_hlcoeff=true)
+   else
+     evaluate ($use_hlcoeff=false)
+     if ( &BLANK%obs_fom = true ) then
+       display
+       display  ******************************************
+       display  Error: figure of merit array not specified
+       display  ******************************************
+       display
+       abort
+     else
+       evalaute ($obs_fom=&obs_fom)
+       query name=&STRIP%obs_fom domain=reciprocal end
+       if ( $object_exist = false ) then
+         display
+         display  ****************************************
+         display  Error: fom array &obs_fom does not exist
+         display  ****************************************
+         display
+         abort
+       end if
+       if ( $object_type # "REAL" ) then
+         display
+         display  *************************************************
+         display  Error: fom array &obs_fom has the wrong data type
+         display  *************************************************
+         display
+         abort
+       end if
+     end if
+
+     if ( &BLANK%obs_phase = true ) then
+       display
+       display  *************************************************
+       display  Error: complex array with phases is not specified
+       display  *************************************************
+       display
+       abort
+     else
+       evaluate ($obs_phase=&obs_phase)
+       query name=&STRIP%obs_phase domain=reciprocal end
+       if ( $object_exist=false ) then
+         display
+         display **********************************************************
+         display Error, complex array with phases &obs_phase does not exist
+         display **********************************************************
+         display
+         abort
+       end if
+       if ( $object_type # "COMPLEX" ) then
+         display
+         display *******************************************************************
+         display Error, complex array with phases &obs_phase has the wrong data type
+         display *******************************************************************
+         display
+         abort
+       end if
+     end if
+   end if
+
+   set echo=on end
+
+   evaluate ($reject_obs=&obs_f)
+   if ( &BLANK%obs_sigf = true ) then
+     declare name=sig_tmp domain=reciprocal type=real end
+     do (sig_tmp=0) (all)
+     evaluate ($reject_sig=sig_tmp)
+   else
+     evaluate ($reject_sig=&obs_sigf)
+   end if
+
+   declare name=ref_active domain=reciprocal type=integer end
+   declare name=tst_active domain=reciprocal type=integer end
+
+   do (ref_active=0) ( all )
+   if ( &BLANK%obs_sigf = true ) then
+      do (ref_active=1) ( ( amplitude($STRIP%reject_obs) > 0 ) and   
+                      ( &low_res >= d >= &high_res ) )
+   else
+      do (ref_active=1) ( ( $STRIP%reject_sig # 0 ) and
+                      ( &low_res >= d >= &high_res ) )
+   end if
+
+   statistics overall
+     completeness
+     selection=( ref_active=1 )
+   end
+   evaluate ($total_compl=$expression1)
+
+   show sum(1) ( ref_active=1 )
+   evaluate ($total_read=$select)
+   evaluate ($total_theor=int(1./$total_compl * $total_read))
+
+   show rms (amplitude($STRIP%reject_obs)) ( ref_active=1 )
+   evaluate ($obs_high=$result*&obs_rms)
+   show min (amplitude($STRIP%reject_obs)) ( ref_active=1 )
+   evaluate ($obs_low=$result)
+
+   do (ref_active=0) ( all )
+   do (ref_active=1)
+       ( ( amplitude($STRIP%reject_obs) > &sigma_cut*$STRIP%reject_sig ) and
+         ( $obs_low <= amplitude($STRIP%reject_obs) <= $obs_high ) and
+         ( &low_res >= d >= &high_res ) )
+
+   do (tst_active=0) (all)
+   do (tst_active=1) (none)
+
+   show sum(1) ( ref_active=1 and tst_active=0 )
+   evaluate ($total_work=$select)
+   show sum(1) ( ref_active=1 and tst_active=1 )
+   evaluate ($total_test=$select)
+   evaluate ($total_used=$total_work+$total_test)
+
+   evaluate ($unobserved=$total_theor-$total_read)
+   evaluate ($rejected=$total_read-$total_used)
+   evaluate ($per_unobs=100*($unobserved/$total_theor))
+   evaluate ($per_reject=100*($rejected/$total_theor))
+   evaluate ($per_used=100*($total_used/$total_theor))
+   evaluate ($per_work=100*($total_work/$total_theor))
+   evaluate ($per_test=100*($total_test/$total_theor))
+
+   tselection=( ref_active=1 )
+
+   cvselection=( none )
+
+   method=FFT          
+   
+   fft
+     grid=&grid
+     if ( &fft_memory < 0 ) then
+       automemory=true
+     else
+       memory=&fft_memory
+     end if
+   end
+
+ end                  
+
+ if ( &averaging = true ) then
+   if ( &BLANK%ncs_infile = true ) then
+     display >>> Error: NCS file not defined
+     abort
+   end if
+   if ( &BLANK%ncs_mask_infile = true ) then
+     display >>> Error: NCS averaging mask not defined
+     abort
+   end if
+ end if
+
+ if ( &averaging = true ) then
+   inline @&ncs_infile
+
+   ncs strict ? end
+
+   evaluate ($1=1)
+   evaluate ($2=2)
+   evaluate ($3=3)
+   evaluate ($4=4)
+
+   evaluate ($num_op=1)
+   evaluate ($done=false)
+   while ( $done = false ) loop ncsop
+     if ( $exist_ncsop_$num_op_$1_$1 # true ) then
+       evaluate ($done=true)
+       evaluate ($num_op=$num_op-1)
+     else
+       evaluate ($num_op=$num_op+1)
+     end if
+   end loop ncsop
+ end if
+
+ evaluate ($summary_file=&output_root + ".list")
+ evaluate ($ref_out_file=&output_root + ".hkl")
+ evaluate ($map_out_file=&output_root + ".map")
+ evaluate ($mask_out_file=&output_root + ".mask")
+
+ if ( $log_level = verbose ) then
+   set message=normal echo=on end
+ else
+   set message=off echo=off end
+ end if
+
+ evaluate ($shrink_stop=&initial_steps+&shrink_steps)
+ evaluate ($modify_stop=&initial_steps+&shrink_steps+&final_steps)
+ evaluate ($penultimate=$modify_stop-1)
+
+ evaluate ($ave_radius=&start_ave_radius)
+ evaluate ($radius_delta=(&start_ave_radius-&finish_ave_radius)/&shrink_steps)
+
+ if ( &phase_extend = true ) then
+   evaluate ($high_res=&initial_highres)
+ else
+   evaluate ($high_res=&high_res)
+ end if
+ evaluate ($extend_step=($high_res-&high_res)/&shrink_steps)
+
+ xray
+
+   show sum(1) ( &low_res >= d >= $high_res )
+   evaluate ($nref_all=$result)
+   if ( &bins < 0 ) then
+     anomalous=?
+     if ( $result = true ) then
+       evaluate ($bins=max(6,min(50,int($nref_all/2000))))
+     else
+       evaluate ($bins=max(6,min(50,int($nref_all/1000))))
+     end if
+   else
+     evaluate ($bins=&bins)
+   end if
+
+   bins=$bins
+
+   declare name=m      domain=reci type=complex end  {(fom_obs, phi_obs)}
+   declare name=fcomb  domain=reci type=complex end  {combined FOM*Fo,phi}
+   declare name=fsf    domain=reci type=complex end  {F from modified map}
+   declare name=hla    domain=reci type=real end  {HL value a}
+   declare name=hlb    domain=reci type=real end  {HL value b}
+   declare name=hlc    domain=reci type=real end  {HL value c}
+   declare name=hld    domain=reci type=real end  {HL value d}
+   declare name=pamod  domain=reci type=real end  {modified HL value a}
+   declare name=pbmod  domain=reci type=real end  {modified HL value b}
+   declare name=pcmod  domain=reci type=real end  {modified HL value c}
+   declare name=pdmod  domain=reci type=real end  {modified HL value d}
+   declare name=fommod domain=reci type=real end  {modified FOM value}
+   declare name=map    domain=real           end  {density map}
+   declare name=dm_fom domain=reciprocal type=real end
+   declare name=dm_phi domain=reciprocal type=real end
+   declare name=last_phi domain=reciprocal type=real end
+   declare name=tmp_full domain=reciprocal type=real end
+
+   declare name=init_pa  domain=reci type=real end  {HL value a}
+   declare name=init_pb  domain=reci type=real end  {HL value b}
+   declare name=init_pc  domain=reci type=real end  {HL value c}
+   declare name=init_pd  domain=reci type=real end  {HL value d}
+   declare name=x_conv   domain=reci type=real end  
+
+   if ( $use_hlcoeff = true ) then
+     do (init_pa=&STRIP%obs_pa) (ref_active=1)
+     do (init_pb=&STRIP%obs_pb) (ref_active=1)
+     do (init_pc=&STRIP%obs_pc) (ref_active=1)
+     do (init_pd=&STRIP%obs_pd) (ref_active=1)
+   else
+     @CNS_XTALMODULE:fom_to_x (fom=&STRIP%obs_fom;
+                               x=x_conv;
+                               selection=(ref_active=1);)
+     do (init_pa=2*x_conv*cos(phase(&STRIP%obs_phase))) (ref_active=1)
+     do (init_pb=2*x_conv*sin(phase(&STRIP%obs_phase))) (ref_active=1)
+     do (init_pc=0) (all)
+     do (init_pd=0) (all)
+   end if
+
+   @CNS_XTALMODULE:getfom ( pa=init_pa;
+                            pb=init_pb;
+                            pc=init_pc;
+                            pd=init_pd;
+                            m=m;
+                            phistep=5.0; )
+
+   do (dm_fom=0) (all)
+   do (dm_phi=phase(m)) (all)
+   do (last_phi=phase(m)) (all)
+   do (dm_fom=amplitude(m)) 
+      ( (abs(init_pa) > 0 or abs(init_pb) > 0 or 
+         abs(init_pc) > 0 or abs(init_pd) > 0) )
+
+   do (fcomb=0) (all)
+   do (fcomb=combine( dm_fom amplitude(&STRIP%obs_f), phase (m) )) 
+                    (ref_active=1 and dm_fom > 0)
+
+   do (map=ft(fcomb)) (&low_res >= d >= $high_res and 
+                       ref_active=1 and dm_fom > 0)
+
+   show sum(1) (ref_active=1 and dm_fom > 0 and d >= $high_res)
+   evaluate ($init_phased=$result)
+
+   if ( &averaging = true ) then
+     declare name=maskncs domain=real end
+     read mask
+       to=maskncs
+       type=omask
+       input=&ncs_mask_infile
+     end
+  
+     if ( &memory = true ) then
+       evaluate ($ncsop=1)
+       declare name=ncstmp domain=real end
+       declare name=ncsm1  domain=real end
+       do ( ncsm1 = maskncs ) ( all )
+       do ( maskncs = 1 ) ( all )
+       while ( $ncsop <= $num_op ) loop repl
+         do ( ncstmp = ncsm1 ) (all)
+         average
+           manipulate
+             mask=ncstmp
+             matrix= 
+               ( $ncsop_$ncsop_$1_$1 $ncsop_$ncsop_$1_$2 $ncsop_$ncsop_$1_$3 )
+               ( $ncsop_$ncsop_$2_$1 $ncsop_$ncsop_$2_$2 $ncsop_$ncsop_$2_$3 )
+               ( $ncsop_$ncsop_$3_$1 $ncsop_$ncsop_$3_$2 $ncsop_$ncsop_$3_$3 )
+             translation=
+               ( $ncsop_$ncsop_$1_$4 $ncsop_$ncsop_$2_$4 $ncsop_$ncsop_$3_$4 )
+           end
+         end
+         evaluate ($ncsop=$ncsop+1)
+         do ( maskncs = 0 ) ( real(ncstmp) <= 0 )
+       end loop repl
+       undeclare name=ncstmp domain=real end
+     else
+       evaluate ($ncsop=1)
+       while ( $ncsop <= $num_op ) loop repl
+         evaluate ($maskname=ncsm + encode($ncsop))
+         declare name=$maskname domain=real end
+         do ( $STRIP%maskname = maskncs ) (all)
+         average
+           manipulate
+             mask=$maskname
+             matrix= 
+               ( $ncsop_$ncsop_$1_$1 $ncsop_$ncsop_$1_$2 $ncsop_$ncsop_$1_$3 )
+               ( $ncsop_$ncsop_$2_$1 $ncsop_$ncsop_$2_$2 $ncsop_$ncsop_$2_$3 )
+               ( $ncsop_$ncsop_$3_$1 $ncsop_$ncsop_$3_$2 $ncsop_$ncsop_$3_$3 )
+             translation=
+               ( $ncsop_$ncsop_$1_$4 $ncsop_$ncsop_$2_$4 $ncsop_$ncsop_$3_$4 )
+           end
+         end
+         evaluate ($ncsop=$ncsop+1)
+       end loop repl
+       do (maskncs=1) (all)
+       evaluate ($ncsop=1)
+       while ( $ncsop <= $num_op ) loop addm
+         evaluate ($maskname=ncsm + encode($ncsop))
+         do ( maskncs = 0 ) ( real($STRIP%maskname) <= 0 )
+         evaluate ($ncsop=$ncsop+1)
+       end loop addm
+     end if
+   end if
+
+   declare name=masksol      domain=real end
+   declare name=masksol_part domain=real end
+   if ( &mask_sol_type = "o-mask" ) then
+
+     declare name=filemask      domain=real end
+     read mask
+       to=filemask
+       input=&solvent_mask_infile
+       type=omask
+     end
+     do (masksol=filemask) (all)
+
+   elseif ( &mask_sol_type = "averaging" ) then
+
+     do (masksol=0) (all)
+     do (masksol=1) (real(maskncs) > 0)
+
+   elseif ( &mask_sol_type = "rms" ) then
+
+     show ave(real(map)) (all)
+     evaluate ($ave_sol_den=$result)
+     
+     declare name=w_recip domain=reci type=real end  
+     declare name=w_temp  domain=reci type=comp end 
+
+     evaluate ($rtod=180.0/$pi)
+     do (w_recip=2.0*$pi*s*$ave_radius ) (&low_res >= d >= $high_res)
+     do (w_recip=( 3( sin(w_recip*$rtod) - w_recip cos(w_recip*$rtod)) / w_recip^3))
+                      (&low_res >= d >= $high_res)
+
+
+     anomalous=?
+     if ( $result = true ) then
+       do (w_temp=ft(combine((real(map)-$ave_sol_den)^2,0))) (all)
+     else
+       do (w_temp=ft((map-$ave_sol_den)^2)) (all)
+     end if
+
+     do (masksol=ft(w_recip*w_temp)) (&low_res >= d >= $high_res)
+
+     undeclare name=w_recip domain=reci end  
+     undeclare name=w_temp  domain=reci end 
+
+     histogram
+       mbins=10000
+       solcon=&solcon
+       from=masksol
+     end
+     evaluate ($cutoff=$result)
+  
+     declare name=automap domain=real end
+     do (automap=masksol) (all)
+     do (masksol=1) (real(automap) <= $cutoff)
+     do (masksol=0) (real(automap) > $cutoff)
+     undeclare name=automap   domain=real       end
+
+   end if
+
+   if ( &mask_sol_type # "rms" ) then
+     if ( &mask_complete = true ) then
+
+       show sum(1) (real(masksol)=1)
+       evaluate ($sol_num=$result)
+       show sum(1) (real(masksol)<=0)
+       evaluate ($pro_num=$result)
+
+       evalaute ($from_mask_frac=($pro_num/($sol_num+$pro_num)))
+
+       show ave(real(map)) (all)
+       evaluate ($ave_sol_den=$result)
+     
+       declare name=w_recip domain=reci type=real end  
+       declare name=w_temp  domain=reci type=comp end 
+
+       evaluate ($rtod=180.0/$pi)
+       do (w_recip=2.0*$pi*s*$ave_radius ) (&low_res >= d >= $high_res)
+       do (w_recip=( 3( sin(w_recip*$rtod) - w_recip cos(w_recip*$rtod)) / w_recip^3))
+                        (&low_res >= d >= $high_res)
+
+
+       anomalous=?
+       if ( $result = true ) then
+         do (w_temp=ft(combine((real(map)-$ave_sol_den)^2,0))) (all)
+       else
+         do (w_temp=ft((map-$ave_sol_den)^2)) (all)
+       end if
+
+       do (masksol_part=ft(w_recip*w_temp)) (&low_res >= d >= $high_res)
+
+       undeclare name=w_recip domain=reci end  
+       undeclare name=w_temp  domain=reci end 
+
+       if ( $from_mask_frac < &solcon ) then
+         evaluate ($solcon_tmp=&solcon/(1-$from_mask_frac))
+         histogram
+           mbins=10000
+           solcon=$solcon_tmp
+           from=masksol_part
+           selection=(real(masksol) > 0)
+         end
+         evaluate ($cutoff=$result)
+         do (masksol=0) (real(masksol_part) >= $cutoff)
+       end if
+
+     end if
+   end if
+
+   show sum(1) (real(masksol)=1)
+   evaluate ($sol_num=$result)
+   show sum(1) (real(masksol)<=0)
+   evaluate ($pro_num=$result)
+
+   evalaute ($mask_percent=($sol_num/($sol_num+$pro_num))*100)
+
+   show rms(real(map)) (real(masksol)=1)
+   evaluate ($rms_sol_den=$result)
+   show rms(real(map)) (real(masksol)<=0)
+   evaluate ($rms_pro_den=$result)
+   evaluate ($rms_ratio=$rms_sol_den/$rms_pro_den)
+
+   show ave(real(map)) (real(masksol)=1)
+   evaluate ($ave_sol_den=$result)
+   show ave(real(map)) (real(masksol)<=0)
+   evaluate ($ave_pro_den=$result)
+
+   evaluate ($f000_over_v=(((1/&prot_to_solv)*$ave_pro_den)-$ave_sol_den) *
+                           (&prot_to_solv/(&prot_to_solv-1)))
+
+
+ end
+
+ xray
+   statistics overall
+      (dm_fom)
+      selection=(ref_active=1 and dm_fom > 0 and d >= $high_res)
+   end
+ end
+
+ evaluate ($start_fom=$expression1)
+
+ set display=$summary_file end
+ display ======================= Summary of density modification =======================
+ display
+ display input data ---->
+ display >>> resolution: &low_res - &high_res
+ display >>> sg= &STRIP%sg a= &a b= &b c= &c alpha= &alpha beta= &beta gamma= &gamma
+
+ evaluate ($counter=1)
+ evaluate ($done=false)
+ while ( $done = false ) loop read
+    if ( &exist_reflection_infile_$counter = true ) then
+      if ( &BLANK%reflection_infile_$counter = false ) then
+         display >>> reflection file $counter : &STRIP%reflection_infile_$counter       
+      end if
+   else
+     evaluate ($done=true)
+   end if
+   evaluate ($counter=$counter+1)
+ end loop read
+ 
+ if ( &averaging = true ) then
+   display >>> NCS-strict file= &STRIP%ncs_infile
+   display >>> number of NCS operators= $num_op
+ end if
+ display
+ display data usage ---->
+ if ( &BLANK%&obs_sigf = false ) then
+   display >>> reflections with |Fobs|/sigma_F < &sigma_cut rejected
+   display >>> reflections with |Fobs| > &obs_rms * rms(Fobs) rejected
+ end if
+ display >>> theoretical total number of refl. in resol. range:    $total_theor[I6] ( 100.0 % )
+ display >>> number of unobserved reflections (no entry or |F|=0): $unobserved[I6] ( $per_unobs[f5.1] % )
+ display >>> number of reflections rejected:                       $rejected[I6] ( $per_reject[f5.1] % )
+ display >>> total number of reflections used:                     $total_used[I6] ( $per_used[f5.1] % )
+ display >>> number of reflections in working set:                 $total_work[I6] ( $per_work[f5.1] % )
+ display
+ display input parameters ---->
+ if ( &averaging = true ) then
+   display >>> averaging mask read from file: &STRIP%ncs_mask_infile
+ end if
+ display >>> solvent mask type= &STRIP%mask_sol_type
+ if ( &mask_sol_type = "o-mask" ) then
+   display >>> solvent mask read from file: &STRIP%solvent_mask_infile
+ elseif ( &mask_sol_type = "averaging" ) then
+   display >>> solvent mask created from averaging mask
+ end if
+ if ( &mask_complete = true ) then
+   if ( &mask_sol_type # "rms" ) then
+     display >>> solvent mask completed using input solvent content
+    end if
+ end if
+ evaluate ($sol_per=&solcon*100)
+ display >>> solvent content= $sol_per[f6.3] %
+ display
+ display >>> averaging= &averaging
+ display
+ display >>> truncation= &truncation
+ display >>> ratio of macromolecular and solvent densities= &prot_to_solv
+ display >>> truncate density below &trunc_min fraction
+ display >>> truncate density above &trunc_max fraction
+ display
+ display >>> solvent modification= &solvent_mod
+ display >>> solvent modification method= &STRIP%solvent_method  
+ if ( &solvent_method = "flip" ) then
+   display >>> scale solvent flipping factor= &scale_flip
+ end if
+ display
+ display >>> relative weights for phase combination: u=&u  v=&v
+ display >>> stepsize for integration of phase probabilities= 5 degrees
+ display >>> grid= &grid
+ display
+ display ================================= cycle   0 ===================================
+ display
+ display  current high resolution limit= $high_res[f6.4]
+ display   number of reflections phased= $init_phased
+ display                    mask radius= $ave_radius[f8.4]
+ display        solvent mask volume (%)= $mask_percent[f6.2]
+ display        average solvent density= $ave_sol_den[f6.4]
+ display average macromolecular density= $ave_pro_den[f6.4]
+ display            RMS solvent density= $rms_sol_den[f6.4]
+ display     RMS macromolecular density= $rms_pro_den[f6.4]
+ display                      RMS ratio= $rms_ratio[f6.4]
+ display                         F000/V= $f000_over_v[f6.4]
+ display                   starting FOM= $start_fom[f6.4]
+ display
+
+ set display=OUTPUT end
+
+ evaluate ($cycle=1)
+ evaluate ($last_cycle=false)
+ evaluate ($done=false)
+
+ while ( $done # true ) loop emod
+
+   xray
+     show sum(1) ( &low_res >= d >= $high_res )
+     evaluate ($nref_all=$result)
+     if ( &bins < 0 ) then
+       anomalous=?
+       if ( $result = true ) then
+         evaluate ($bins=max(6,min(50,int($nref_all/2000))))
+       else
+         evaluate ($bins=max(6,min(50,int($nref_all/1000))))
+       end if
+     else
+       evaluate ($bins=&bins)
+     end if
+
+     bins=$bins
+   end
+
+   {- start of mask calculation -}
+
+   if ( &mask_sol_type = "rms" ) then
+     xray
+
+       declare name=w_recip domain=reci type=real end  
+       declare name=w_temp  domain=reci type=comp end 
+
+       evaluate ($rtod=180.0/$pi)
+       do (w_recip=2.0*$pi*s*$ave_radius ) (&low_res >= d >= $high_res)
+       do (w_recip=( 3( sin(w_recip*$rtod) - w_recip cos(w_recip*$rtod)) / w_recip^3))
+                            (&low_res >= d >= $high_res)
+
+       anomalous=?
+       if ( $result = true ) then
+         do (w_temp=ft(combine((real(map)-$ave_sol_den)^2,0))) (all)
+       else
+         do (w_temp=ft((map-$ave_sol_den)^2)) (all)
+       end if
+
+       do (masksol=ft(w_recip*w_temp)) (&low_res >= d >= $high_res)
+
+       undeclare name=w_recip domain=reci end  
+       undeclare name=w_temp  domain=reci end 
+
+       histogram
+         mbins=10000
+         solcon=&solcon
+         from=masksol
+       end
+       evaluate ($cutoff=$result)
+
+       declare name=automap domain=real end
+       do (automap=masksol) (all)
+       do (masksol=1) (real(automap) <= $cutoff)
+       do (masksol=0) (real(automap) > $cutoff)
+       undeclare name=automap   domain=real       end
+
+     end
+
+   elseif ( &mask_sol_type = "averaging" ) then
+
+     xray
+       do (masksol=0) (all)
+       do (masksol=1) (real(maskncs) > 0)
+     end
+
+   elseif ( &mask_sol_type = "o-mask" ) then
+
+     xray
+       do (masksol=filemask) (all)
+     end
+
+   end if
+
+   if ( &mask_sol_type # "rms" ) then
+     if ( &mask_complete = true ) then
+
+       xray
+
+         show sum(1) (real(masksol)=1)
+         evaluate ($sol_num=$result)
+         show sum(1) (real(masksol)<=0)
+         evaluate ($pro_num=$result)
+
+         evalaute ($from_mask_frac=($pro_num/($sol_num+$pro_num)))
+
+         show ave(real(map)) (all)
+         evaluate ($ave_sol_den=$result)
+     
+         declare name=w_recip domain=reci type=real end  
+         declare name=w_temp  domain=reci type=comp end 
+
+         evaluate ($rtod=180.0/$pi)
+         do (w_recip=2.0*$pi*s*$ave_radius ) (&low_res >= d >= $high_res)
+         do (w_recip=( 3( sin(w_recip*$rtod) - w_recip cos(w_recip*$rtod)) / w_recip^3))
+                          (&low_res >= d >= $high_res)
+
+
+         anomalous=?
+         if ( $result = true ) then
+           do (w_temp=ft(combine((real(map)-$ave_sol_den)^2,0))) (all)
+         else
+           do (w_temp=ft((map-$ave_sol_den)^2)) (all)
+         end if
+
+         do (masksol_part=ft(w_recip*w_temp)) (&low_res >= d >= $high_res)
+
+         undeclare name=w_recip domain=reci end  
+         undeclare name=w_temp  domain=reci end 
+
+         if ( $from_mask_frac < &solcon ) then
+           evaluate ($solcon_tmp=&solcon/(1-$from_mask_frac))
+           histogram
+             mbins=10000
+             solcon=$solcon_tmp
+             from=masksol_part
+             selection=(real(masksol) > 0)
+           end
+           evaluate ($cutoff=$result)
+           do (masksol=0) (real(masksol_part) >= $cutoff)
+         end if
+       end
+
+     end if
+   end if
+
+   xray
+     show sum(1) (real(masksol)=1)
+     evaluate ($sol_num=$result)
+     show sum(1) (real(masksol)<=0)
+     evaluate ($pro_num=$result)
+
+     evalaute ($mask_percent=($sol_num/($sol_num+$pro_num))*100)
+
+     show rms(real(map)) (real(masksol)=1)
+     evaluate ($rms_sol_den=$result)
+     show rms(real(map)) (real(masksol)<=0)
+     evaluate ($rms_pro_den=$result)
+     evaluate ($rms_ratio=$rms_sol_den/$rms_pro_den)
+
+     show ave(real(map)) (real(masksol)=1)
+     evaluate ($ave_sol_den=$result)
+     show ave(real(map)) (real(masksol)<=0)
+     evaluate ($ave_pro_den=$result)
+
+     evaluate ($f000_over_v=(((1/&prot_to_solv)*$ave_pro_den)-$ave_sol_den) *
+                             (&prot_to_solv/(&prot_to_solv-1)))
+
+   end
+
+   {- end of mask calculation -}
+
+   {- start of the density modification -}
+
+   xray
+
+     if ( &averaging = true ) then
+       average
+         from=map
+         evaluate ($ncsop=1)
+         while ($ncsop <= $num_op) loop aver
+           evaluate ($maskname=ncsm + encode($ncsop))
+           group
+             if ( &memory = true ) then
+               if ( $ncsop = 1 ) then
+                 mask=$maskname
+               end if
+             else
+               mask=$maskname
+             end if
+             matrix= 
+               ( $ncsop_$ncsop_$1_$1 $ncsop_$ncsop_$1_$2 $ncsop_$ncsop_$1_$3 )
+               ( $ncsop_$ncsop_$2_$1 $ncsop_$ncsop_$2_$2 $ncsop_$ncsop_$2_$3 )
+               ( $ncsop_$ncsop_$3_$1 $ncsop_$ncsop_$3_$2 $ncsop_$ncsop_$3_$3 )
+             translation=
+               ( $ncsop_$ncsop_$1_$4 $ncsop_$ncsop_$2_$4 $ncsop_$ncsop_$3_$4 )
+           end
+           evaluate ($ncsop=$ncsop+1)
+         end loop aver
+         ?
+       end
+     end if
+
+     if ( &truncation = true ) then
+
+       histogram
+         mbins=10000
+         solcon=&trunc_max
+         from=map
+         sele=(real(masksol)<=0)
+       end
+       evaluate ($max_level=$result)
+
+       if ( &trunc_min < 0 ) then
+         evaluate ($min_level=$ave_pro_den-$f000_over_v)
+       else
+         histogram
+           mbins=10000
+           solcon=&trunc_min
+           from=map
+           sele=(real(masksol)<=0)
+         end
+         evaluate ($min_level=$result)
+       end if
+
+       do (map=$max_level) (real(masksol)<=0 and
+                            real(map) >= $max_level)
+       evaluate ($trunc_max_per=($select/$pro_num)*100)
+
+       do (map=$min_level) (real(masksol)<=0 and
+                            real(map) <= $min_level)
+       evaluate ($trunc_min_per=($select/$pro_num)*100)
+
+     end if
+
+     show min(real(map)) (real(masksol)<=0)
+     evaluate ($min_level=$result)
+
+     show rms(real(map)) (real(masksol)<=0)
+     evaluate ($rms_pro_new=$result)
+
+     if ( &solvent_mod = true ) then
+       if ( &solvent_method="flat" ) then
+         do (map=$ave_sol_den) (real(masksol)=1)
+       elseif ( &solvent_method="flip" ) then
+         if ( $last_cycle = true ) then
+           evaluate ($k_flip=0)
+         else
+           evaluate ($k_flip=-((1-&solcon)/(&solcon)))
+           if ( &scale_flip = true ) then
+             evaluate ($k_flip=$k_flip*($rms_pro_new/$rms_pro_den)^2)
+           end if
+         end if
+         do (map=$ave_sol_den + $k_flip*(map-$ave_sol_den)) (real(masksol)=1)
+       end if
+     end if
+
+     show ave(real(map)) (real(masksol)<=0)
+     evaluate ($ave_pro_new=$result)
+
+     evaluate ($ave_sol_new=$ave_sol_den)
+
+     if ( &solvent_adjust = true ) then
+
+       evaluate ($solvent_add=(($ave_pro_new-$min_level)/&prot_to_solv) +
+                                $min_level - $ave_sol_den)
+
+       do (map=real(map)+$solvent_add) ( real(masksol)=1 )
+
+       evaluate ($ave_sol_new=(1-&solcon)*
+                              ($ave_sol_den+$solvent_add-$ave_pro_new))
+
+     end if
+
+     {- end of the density modification -}
+
+     {- start of the new structure factor calculation -}
+
+     do (fsf=ft(map)) (all)
+
+     {- end of the new structure factor calculation -}
+
+     {- scale new structure factors to original data -}
+
+     multiscale
+       bfmin=-200.0 bfmax=200.
+       set1=&STRIP%obs_f k1=-1 b1=0
+       set2=fsf
+       selection=( &low_res >= d >= $high_res and ref_active=1 )
+       eps=0.00001
+       ncycle=10
+     end
+
+     display  structure factors of density modified map scaled to original data: $k2*exp(-($b2*s^2)/4)
+     
+     do (fsf=$k2*exp(-($b2*s^2)/4)*fsf) ( all )
+
+     {- start of sigmaa weighting calculation -}
+
+     do (pamod=0) (all)
+     do (pbmod=0) (all)
+     do (pcmod=0) (all)
+     do (pdmod=0) (all)
+
+     declare domain=reci type=real name=sigmaa_oa end
+     declare domain=reci type=real name=sigmaa_ob end
+     declare domain=reci type=real name=sigmaa_oc end
+     declare name=xc domain=reciprocal type=real end
+     declare name=dd domain=reciprocal type=real end
+
+     do (tmp_full=0) (all)
+
+     do (tmp_full=amplitude(&STRIP%obs_f)) ( ref_active=1 )
+     do (tmp_full=amplitude(fsf)) ( ref_active=0)
+
+     do (sigmaa_OA=norm(amplitude(&STRIP%obs_f))) ( &low_res >= d >= $high_res and
+                                                    ref_active=1 )
+     do (sigmaa_OB=norm(amplitude(fsf))) ( &low_res >= d >= $high_res )
+
+     do (sigmaa_OC=siga(sigmaa_OA,sigmaa_OB)) ( &low_res >= d >= $high_res and
+                                                ref_active=1 )
+
+     do (dd= sigmaa_OC * sqrt( save(amplitude(&STRIP%obs_f)^2)  /
+                               save(amplitude(fsf)^2) ) ) 
+        ( &low_res >= d >= $high_res and ref_active=1 )
+
+     do (sigmaa_OC=distribute(sigmaa_OC)) ( &low_res >= d >= $high_res )
+     do (dd=distribute(dd)) ( &low_res >= d >= $high_res )
+
+     statistics
+       (dd) (sigmaa_OC) (sigmaa_OA) (sigmaa_OB)
+       sele=( &low_res >= d >= $high_res )
+       output=OUTPUT
+     end
+
+     do (xc=2 sigmaa_OC sigmaa_OA sigmaa_OB/(1-sigmaa_OC^2))
+        ( &low_res >= d >= $high_res and ref_active=1)
+   
+     do (xc=2 sigmaa_OC sigmaa_OB sigmaa_OB/(1-sigmaa_OC^2))
+        ( &low_res >= d >= $high_res and ref_active=0)
+
+     do (pamod=xc*cos(phase(fsf))) (&low_res >= d >= $high_res)
+     do (pbmod=xc*sin(phase(fsf))) (&low_res >= d >= $high_res)
+     do (pcmod=0) (&low_res >= d >= $high_res)
+     do (pdmod=0) (&low_res >= d >= $high_res)
+
+     undeclare domain=reci name=xc end
+     undeclare domain=reci name=sigmaa_oa end
+     undeclare domain=reci name=sigmaa_ob end
+     undeclare domain=reci name=sigmaa_oc end
+
+     {- end of sigmaa weighting calculation -}
+
+     {- start of phase combination -}
+
+     do (hla=init_pa) (all)
+     do (hlb=init_pb) (all)
+     do (hlc=init_pc) (all)
+     do (hld=init_pd) (all)
+
+     @CNS_XTALMODULE:combineprobability ( messages="off";
+                                          addname="experimental phases";
+                                          pa=hla;
+                                          pb=hlb;
+                                          pc=hlc;
+                                          pd=hld;
+                                          w=&u;
+                                          addname="modified phases";
+                                          adda=pamod;
+                                          addb=pbmod;
+                                          addc=pcmod;
+                                          addd=pdmod;
+                                          addw=&v;)
+
+     {- end  of phase combination -}
+
+     {- start of new map calculation (2mFo-DFc) -}
+
+     do (m=0) (all)
+
+     @CNS_XTALMODULE:getfom ( pa=hla;
+                              pb=hlb;
+                              pc=hlc;
+                              pd=hld;
+                              m=m;
+                              phistep=5.0; )
+
+     do (fcomb= ((2 amplitude(m) combine(amplitude(&STRIP%obs_f),phase(m))) -
+                 (  dd           combine(amplitude(fsf),phase(m)))))
+                (ref_active=1 and acentric)
+     do (fcomb= ((  amplitude(m) combine(amplitude(&STRIP%obs_f),phase(m)))))
+                (ref_active=1 and centric)
+     do (fcomb=(    dd           combine(amplitude(fsf),phase(m))))
+               (ref_active=0)
+
+     do (map=ft(fcomb)) ( &low_res >= d >= $high_res )
+
+     undeclare domain=reci name=dd end
+
+     {- end of new map calculation -}
+
+     {- start of statistics -}
+
+     statistics overall
+
+       (sum(abs(amplitude(&STRIP%obs_f)-amplitude(fsf)))/
+        sum(amplitude(&STRIP%obs_f)))
+
+       (sum(amplitude(m) abs(amplitude(&STRIP%obs_f)-amplitude(fsf)))/ 
+        sum(amplitude(m) amplitude(&STRIP%obs_f))) 
+
+       selection=(ref_active=1 and d >= $high_res)
+       output=OUTPUT
+
+     end
+
+     evaluate ($r=$expression1)
+     evaluate ($fom_r=$expression2)
+
+     statistics overall
+
+       (amplitude(m))
+
+       selection=(&low_res >= d >= $high_res)
+
+     end
+
+     evaluate ($ave_fom=$expression1)
+
+     statistics overall
+
+       (abs(mod(last_phi-phase(m)+540,360)-180))
+
+       selection=(&low_res >= d >= $high_res)
+
+     end
+
+     evaluate ($dphi_last=$expression1)
+
+     statistics overall
+
+       (abs(mod(dm_phi-phase(m)+540,360)-180))
+
+       selection=(dm_fom > 0 and d >= $high_res)
+
+     end
+
+     evaluate ($dphi_init=$expression1)
+
+     show sum(1) (&low_res >= d >= $high_res and amplitude(m) > 0 )
+     evaluate ($ref_phased=$result)
+  
+     set display=$summary_file end
+
+     display ================================= cycle $cycle[i3] ===================================
+     display
+     display            current high resolution limit= $high_res[f8.4]
+     display             number of reflections phased= $ref_phased
+     display                  solvent mask volume (%)= $mask_percent[f6.2]
+     if ( &mask_sol_type = "rms" ) then
+       display                              mask radius= $ave_radius[f8.4]
+     end if
+     display
+     display         starting average solvent density= $ave_sol_den[f6.4]
+     display  starting average macromolecular density= $ave_pro_den[f6.4]
+     display             starting RMS solvent density= $rms_sol_den[f6.4]
+     display      starting RMS macromolecular density= $rms_pro_den[f6.4]
+     display                       starting RMS ratio= $rms_ratio[f6.4]
+     display                                   F000/V= $f000_over_v[f6.4]
+     display
+     display              delta phi(initial)(degrees)= $dphi_init[f6.2]
+     display                 delta phi(last)(degrees)= $dphi_last[f6.2]
+     display                                  R-value= $r[f6.4]
+     display                     FOM weighted R-value= $fom_r[f6.4]
+     display                                 mean FOM= $ave_fom[f6.4]
+
+     if ( &averaging = true ) then
+       display                   mean correlation (NCS)= $av_corr[f6.4]
+     end if
+
+     if ( &truncation = true ) then
+       display                  density truncated below= $min_level[f8.5] ($trunc_min_per[f6.3] %)
+       display                  density truncated above= $max_level[f8.5] ($trunc_max_per[f6.3] %)
+     end if
+
+     if ( &solvent_method = "flip" ) then
+       display               solvent modified by factor= $k_flip[f8.5]
+     end if
+
+     if ( &solvent_adjust = true ) then
+       display          solvent modified by addition of= $solvent_add[f8.5]
+       display                      new solvent density= $ave_sol_new[f6.4]
+     end if
+
+     display
+     display                                        FOM      dphi
+     display                                        ---      ----
+
+     binresolution &low_res $high_res
+
+     statistics
+
+       (amplitude(m)) (abs(mod(last_phi-phase(m)+540,360)-180))
+
+       selection=(&low_res >= d >= $high_res)
+       output=$summary_file
+     end
+
+     binresolution &low_res &high_res
+
+     display
+
+     set display=OUTPUT end
+
+     {- end of statistics -}
+
+     do (last_phi=phase(m)) (&low_res >= d >= $high_res)
+
+   end
+
+   evaluate ($ave_sol_den=$ave_sol_new)
+
+   if ( $cycle > &initial_steps ) then
+     evaluate ($ave_radius=$ave_radius-$radius_delta)
+     if ( &phase_extend = true ) then
+       evaluate ($high_res=$high_res-$extend_step)
+     end if
+   end if
+   if ( $cycle > $shrink_stop ) then
+     evaluate ($ave_radius=&finish_ave_radius)
+     if ( &phase_extend = true ) then
+       evaluate ($high_res=&high_res)
+     end if
+   end if
+   if ( $cycle = $penultimate ) then
+     evaluate ($last_cycle=true)
+   end if
+   if ( $cycle = $modify_stop ) then
+     evaluate ($done=true)
+   end if
+
+   evaluate ($cycle=$cycle+1)
+
+ end loop emod
+
+ set messages=normal end
+ set echo=on end
+
+ xray
+   set echo=off end
+   if ( &BLANK%out_pa = true ) then
+     display 
+     display  *******************************************************
+     display  Error: output Hendrickson-Lattman array A not specified
+     display  *******************************************************
+     display
+     abort
+   elseif ( &BLANK%out_pb = true ) then
+     display 
+     display  *******************************************************
+     display  Error: output Hendrickson-Lattman array B not specified
+     display  *******************************************************
+     display
+     abort
+   elseif ( &BLANK%out_pc = true ) then
+     display 
+     display  *******************************************************
+     display  Error: output Hendrickson-Lattman array C not specified
+     display  *******************************************************
+     display
+     abort
+   elseif ( &BLANK%out_pd = true ) then
+     display 
+     display  *******************************************************
+     display  Error: output Hendrickson-Lattman array D not specified
+     display  *******************************************************
+     display
+     abort
+   elseif ( &BLANK%out_fom = true ) then
+     display 
+     display  *************************************************
+     display  Error: output figure of merit array not specified
+     display  *************************************************
+     display
+     abort
+   elseif ( &BLANK%out_f = true ) then
+     display 
+     display  **********************************************************
+     display  Error: output complex structure factor array not specified
+     display  **********************************************************
+     display
+     abort
+   end if
+   set echo=on end
+   declare name=&STRIP%out_f domain=reciprocal type=complex end
+   declare name=&STRIP%out_fom domain=reciprocal type=real end
+   declare name=&STRIP%out_pa domain=reciprocal type=real end
+   declare name=&STRIP%out_pb domain=reciprocal type=real end
+   declare name=&STRIP%out_pc domain=reciprocal type=real end
+   declare name=&STRIP%out_pd domain=reciprocal type=real end
+   group 
+       type=hl 
+       object=&STRIP%out_pa 
+       object=&STRIP%out_pb 
+       object=&STRIP%out_pc
+       object=&STRIP%out_pd 
+   end
+
+   do (&STRIP%out_f=combine(amplitude(&STRIP%obs_f),phase(m))) (all)
+   do (&STRIP%out_f=combine(amplitude(tmp_full),phase(m))) 
+                                      (amplitude(&STRIP%obs_f) <= 0)
+   do (&STRIP%out_fom=amplitude(m)) (all)
+   do (&STRIP%out_pa=hla) (all)
+   do (&STRIP%out_pb=hlb) (all)
+   do (&STRIP%out_pc=hlc) (all)
+   do (&STRIP%out_pd=hld) (all)
+   undeclare name=ref_active domain=reciprocal end
+   undeclare name=tst_active domain=reciprocal end
+   undeclare name=last_phi   domain=reciprocal end
+   undeclare domain=reci     name=tmp_full end
+   undeclare name=dm_fom     domain=reciprocal end
+   undeclare name=dm_phi     domain=reciprocal end
+   undeclare name=m          domain=reciprocal end
+   undeclare name=fcomb      domain=reciprocal end
+   undeclare name=fsf        domain=reciprocal end
+   undeclare name=hla        domain=reciprocal end
+   undeclare name=hlb        domain=reciprocal end
+   undeclare name=hlc        domain=reciprocal end
+   undeclare name=hld        domain=reciprocal end
+   undeclare name=pamod      domain=reciprocal end
+   undeclare name=pbmod      domain=reciprocal end
+   undeclare name=pcmod      domain=reciprocal end
+   undeclare name=pdmod      domain=reciprocal end
+   undeclare name=fommod     domain=reciprocal end
+ end
+
+ set display=$ref_out_file end
+   
+ @CNS_XTALMODULE:write_hkl_header (sg=&STRIP%sg;
+                                   sgparam=$sgparam;)
+
+ xray
+   if ( &merge_inout = true ) then
+      write reflection
+        output=$ref_out_file
+        sele=(all)
+      end
+   else
+      write reflection
+        &STRIP%out_f 
+        &STRIP%out_fom 
+        &STRIP%out_pa 
+        &STRIP%out_pb 
+        &STRIP%out_pc 
+        &STRIP%out_pd
+        output=$ref_out_file
+        sele=(all)
+      end
+   end if
+   set display=OUTPUT end
+ end
+
+ if ( &map_mode = "asymmetric" ) then
+   evaluate ($map_mode_string=ASYM)
+ elseif ( &map_mode = "box" ) then
+   evaluate ($map_mode_string=BOX)
+ elseif ( &map_mode = "fract" ) then
+   evaluate ($map_mode_string=FRAC)
+ elseif ( &map_mode = "unit_cell" ) then
+   evaluate ($map_mode_string=UNIT)
+ end if
+
+ remark a= &a b= &b c= &c alpha= &alpha beta= &beta gamma= &gamma sg= &STRIP%sg
+
+ if ( &write_map = true ) then
+   xray
+     show rms (real(map)) ( all )
+     do (map=map/$result) ( all )
+    
+     write map
+       if ( &map_format = "ezd" ) then
+         type=ezd
+       else
+         type=cns
+       end if
+       from=map
+       output=$map_out_file
+       extend=$map_mode_string
+       if ( &map_mode = "box" ) then
+         xmin=&xmin xmax=&xmax
+         ymin=&ymin ymax=&ymax
+         zmin=&zmin zmax=&zmax
+       end if
+       if ( &map_mode = "fract" ) then
+         xmin=&xmin xmax=&xmax
+         ymin=&ymin ymax=&ymax
+         zmin=&zmin zmax=&zmax
+       end if
+     end
+   end
+ end if
+
+ evaluate ($write_mask=false)
+ if ( &mask_sol_type = "rms" ) then
+   evaluate ($write_mask=true)
+ end if
+
+ if ( &write_mask = true ) then
+   if ( $write_mask = true ) then
+     xray
+       write mask
+         from=masksol
+         output=$mask_out_file
+         type=omask
+         extend=$map_mode_string
+         if ( &map_mode = "box" ) then
+           xmin=&xmin xmax=&xmax
+           ymin=&ymin ymax=&ymax
+           zmin=&zmin zmax=&zmax
+         end if
+         if ( &map_mode = "fract" ) then
+           xmin=&xmin xmax=&xmax
+           ymin=&ymin ymax=&ymax
+           zmin=&zmin zmax=&zmax
+         end if
+       end
+     end
+   end if
+ end if
+
+ stop

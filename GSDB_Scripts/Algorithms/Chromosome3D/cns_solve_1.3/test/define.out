@@ -1,0 +1,749 @@
+          ============================================================
+          |                                                          |
+          |            Crystallography & NMR System (CNS)            |
+          |                         CNSsolve                         |
+          |                                                          |
+          ============================================================
+           Version: 1.3
+           Status: General release
+          ============================================================
+           Written by: A.T.Brunger, P.D.Adams, G.M.Clore, W.L.DeLano,
+                       P.Gros, R.W.Grosse-Kunstleve,J.-S.Jiang,J.M.Krahn,
+                       J.Kuszewski, M.Nilges, N.S.Pannu, R.J.Read,
+                       L.M.Rice, G.F.Schroeder, T.Simonson, G.L.Warren.
+           Copyright (c) 1997-2010 Yale University
+          ============================================================
+           Running on machine: lewis4-r710-login-node223 (x86_64/Linux,64-bit)
+                               with 16 threads
+           Program started by: oeow39
+           Program started at: 16:07:58 on 05-Jul-2018
+          ============================================================
+
+ FFT3C: Using FFTPACK4.1
+
+ CNSsolve>!set abort = off end 
+ CNSsolve> 
+ CNSsolve>!====================================================================== 
+ CNSsolve>! define names contained in symbols 
+ CNSsolve> 
+ CNSsolve>eval ( $one = 1 ) 
+ EVALUATE: symbol $ONE set to    1.00000     (real)
+ CNSsolve> 
+ CNSsolve>eval ( $sym_bol = 45 ) 
+ EVALUATE: symbol $SYM_BOL set to    45.0000     (real)
+ CNSsolve> 
+ CNSsolve>define ( syname = test ) 
+ CNSsolve>define ( synam2.$one = hello ) 
+ CNSsolve> 
+ CNSsolve>define ( synam2.option.$sym_bol.end = hello ; ? ) 
+ Current Define Parameters
+ NOTE: The scope number (#) of &<name> is shown as &_#_<name> 
+ &_1_SYNAM2.OPTION.45.END= hello 
+ &_1_SYNAM2.1= hello 
+ &_1_SYNAME= test 
+ CNSsolve> 
+ CNSsolve>define ( synam2.option_$sym_bol.end = hello ; ? ) 
+ Current Define Parameters
+ NOTE: The scope number (#) of &<name> is shown as &_#_<name> 
+ &_1_SYNAM2.OPTION_45.END= hello 
+ &_1_SYNAM2.OPTION.45.END= hello 
+ &_1_SYNAM2.1= hello 
+ &_1_SYNAME= test 
+ CNSsolve> 
+ CNSsolve>!====================================================================== 
+ CNSsolve>! conditional expansion of parameters 
+ CNSsolve> 
+ CNSsolve>define ( test = expanded ) 
+ CNSsolve> 
+ CNSsolve>if ( FALSE = TRUE) then 
+ NEXTCD: condition evaluated as false
+ CNSsolve> 
+ CNSsolve>&test 
+ CNSsolve>&error 
+ CNSsolve> 
+ CNSsolve>display &test &error 
+ CNSsolve> 
+ CNSsolve>else 
+ CNSsolve> 
+ CNSsolve>display &test 
+expanded
+ CNSsolve> 
+ CNSsolve>end if 
+ CNSsolve> 
+ CNSsolve> 
+ CNSsolve>!====================================================================== 
+ CNSsolve>! scope 
+ CNSsolve>set display=define1.dat end 
+ ASSFIL: file define1.dat opened.
+ CNSsolve> 
+ CNSsolve>display display file 1 before definition: &test1 
+ CNSsolve>display define ( ? ) 
+ CNSsolve>display define ( &test1 = "file 1 test scope" ) 
+ CNSsolve>display display file 1 after definition: &test1 
+ CNSsolve>display define ( ? ) 
+ CNSsolve>display @define2.dat 
+ CNSsolve>display display file 1 after file 2: &test1 
+ CNSsolve>display define ( ? ) 
+ CNSsolve>close define1.dat end 
+ VCLOSE: Display file reset to OUTPUT.
+ CNSsolve> 
+ CNSsolve>set display=define2.dat end 
+ ASSFIL: file define2.dat opened.
+ CNSsolve> 
+ CNSsolve>display display file 2 before definition: &test1 
+ CNSsolve>display define ( ? ) 
+ CNSsolve>display define ( &test1 = "file 2 test scope" ) 
+ CNSsolve>display display file 2 after definition: &test1 
+ CNSsolve>display define ( ? ) 
+ CNSsolve>close define2.dat end 
+ VCLOSE: Display file reset to OUTPUT.
+ CNSsolve> 
+ CNSsolve>set display=OUTPUT end 
+ CNSsolve> 
+ CNSsolve>define ( &test1 = "root file test scope" ) 
+ CNSsolve> 
+ CNSsolve>display root file before invocation:  &test1 
+root file before invocation:  "root file test scope"
+ CNSsolve> 
+ CNSsolve>define ( ? ) 
+ Current Define Parameters
+ NOTE: The scope number (#) of &<name> is shown as &_#_<name> 
+ &_1_TEST1= "root file test scope" 
+ &_1_TEST= expanded 
+ &_1_SYNAM2.OPTION_45.END= hello 
+ &_1_SYNAM2.OPTION.45.END= hello 
+ &_1_SYNAM2.1= hello 
+ &_1_SYNAME= test 
+ CNSsolve> 
+ CNSsolve>@define1.dat 
+ ASSFIL: file define1.dat opened.
+ CNSsolve>display file 1 before definition: &test1 
+file 1 before definition: "root file test scope"
+ CNSsolve>define ( ? ) 
+ Current Define Parameters
+ NOTE: The scope number (#) of &<name> is shown as &_#_<name> 
+ &_1_TEST1= "root file test scope" 
+ &_1_TEST= expanded 
+ &_1_SYNAM2.OPTION_45.END= hello 
+ &_1_SYNAM2.OPTION.45.END= hello 
+ &_1_SYNAM2.1= hello 
+ &_1_SYNAME= test 
+ CNSsolve>define ( &test1 = "file 1 test scope" ) 
+ CNSsolve>display file 1 after definition: &test1 
+file 1 after definition: "file 1 test scope"
+ CNSsolve>define ( ? ) 
+ Current Define Parameters
+ NOTE: The scope number (#) of &<name> is shown as &_#_<name> 
+ &_2_TEST1= "file 1 test scope" 
+ &_1_TEST1= "root file test scope" 
+ &_1_TEST= expanded 
+ &_1_SYNAM2.OPTION_45.END= hello 
+ &_1_SYNAM2.OPTION.45.END= hello 
+ &_1_SYNAM2.1= hello 
+ &_1_SYNAME= test 
+ CNSsolve>@define2.dat 
+ ASSFIL: file define2.dat opened.
+ CNSsolve>display file 2 before definition: &test1 
+file 2 before definition: "file 1 test scope"
+ CNSsolve>define ( ? ) 
+ Current Define Parameters
+ NOTE: The scope number (#) of &<name> is shown as &_#_<name> 
+ &_2_TEST1= "file 1 test scope" 
+ &_1_TEST1= "root file test scope" 
+ &_1_TEST= expanded 
+ &_1_SYNAM2.OPTION_45.END= hello 
+ &_1_SYNAM2.OPTION.45.END= hello 
+ &_1_SYNAM2.1= hello 
+ &_1_SYNAME= test 
+ CNSsolve>define ( &test1 = "file 2 test scope" ) 
+ CNSsolve>display file 2 after definition: &test1 
+file 2 after definition: "file 2 test scope"
+ CNSsolve>define ( ? ) 
+ Current Define Parameters
+ NOTE: The scope number (#) of &<name> is shown as &_#_<name> 
+ &_3_TEST1= "file 2 test scope" 
+ &_2_TEST1= "file 1 test scope" 
+ &_1_TEST1= "root file test scope" 
+ &_1_TEST= expanded 
+ &_1_SYNAM2.OPTION_45.END= hello 
+ &_1_SYNAM2.OPTION.45.END= hello 
+ &_1_SYNAM2.1= hello 
+ &_1_SYNAME= test 
+ CNSsolve>display file 1 after file 2: &test1 
+file 1 after file 2: "file 1 test scope"
+ CNSsolve>define ( ? ) 
+ Current Define Parameters
+ NOTE: The scope number (#) of &<name> is shown as &_#_<name> 
+ &_2_TEST1= "file 1 test scope" 
+ &_1_TEST1= "root file test scope" 
+ &_1_TEST= expanded 
+ &_1_SYNAM2.OPTION_45.END= hello 
+ &_1_SYNAM2.OPTION.45.END= hello 
+ &_1_SYNAM2.1= hello 
+ &_1_SYNAME= test 
+ CNSsolve> 
+ CNSsolve>display root file after invocation:  &test1 
+root file after invocation:  "root file test scope"
+ CNSsolve>define ( ? ) 
+ Current Define Parameters
+ NOTE: The scope number (#) of &<name> is shown as &_#_<name> 
+ &_1_TEST1= "root file test scope" 
+ &_1_TEST= expanded 
+ &_1_SYNAM2.OPTION_45.END= hello 
+ &_1_SYNAM2.OPTION.45.END= hello 
+ &_1_SYNAM2.1= hello 
+ &_1_SYNAME= test 
+ CNSsolve> 
+ CNSsolve>!====================================================================== 
+ CNSsolve>! define statement 
+ CNSsolve> 
+ CNSsolve>define ( 
+ DEFINE>  test="ttt"; 
+ DEFINE>  ewww=iii; 
+ DEFINE>  junk="uuu"; 
+ DEFINE>  rrrr=$tnt; )   xray ? end 
+ ---------------------------diffraction-data-----------------------------------
+ | a=  1.00, b=  1.00, c=  1.00, alpha= 90.00, beta= 90.00, gamma= 90.00
+ | ANOMalous=FALSe
+ | Number or unique reflections read=     0
+ | resolution range covered by these reflections:       0.00 to       0.00
+ | Hmax=    0 Kmax=    0 Lmax=    0 Hmin=    0 Kmin=    0 Lmin=    0
+ ------------------------------------------------------------------------------
+ CNSsolve> 
+ CNSsolve>if (&junk="uuu") then 
+ NEXTCD: condition evaluated as true
+ CNSsolve>display simple replacement works 
+simple replacement works
+ CNSsolve>end if 
+ CNSsolve> 
+ CNSsolve>evaluate ($tnt=40) 
+ EVALUATE: symbol $TNT set to    40.0000     (real)
+ CNSsolve> 
+ CNSsolve>if (&rrrr=40) then 
+ NEXTCD: condition evaluated as true
+ CNSsolve>display symbol replacement works 
+symbol replacement works
+ CNSsolve>end if 
+ CNSsolve> 
+ CNSsolve>display  &ewww   &test  (<=== should be:  iii   "ttt") 
+ iii   "ttt"  (<=== should be:  iii   "ttt")
+ CNSsolve> 
+ CNSsolve>!====================================================================== 
+ CNSsolve>! defines without definition 
+ CNSsolve> 
+ CNSsolve>define ( nada; zilch; ? ) 
+ Current Define Parameters
+ NOTE: The scope number (#) of &<name> is shown as &_#_<name> 
+ &_1_ZILCH= <value required>
+ &_1_NADA= <value required>
+ &_1_RRRR= $_1_TNT 
+ &_1_JUNK= "uuu" 
+ &_1_EWWW= iii 
+ &_1_TEST= "ttt" 
+ &_1_TEST1= "root file test scope" 
+ &_1_SYNAM2.OPTION_45.END= hello 
+ &_1_SYNAM2.OPTION.45.END= hello 
+ &_1_SYNAM2.1= hello 
+ &_1_SYNAME= test 
+ CNSsolve> 
+ CNSsolve>!====================================================================== 
+ CNSsolve>! crossing a line 
+ CNSsolve> 
+ CNSsolve>define ( 
+ DEFINE>  test=(none and 
+ TEST=             not(known));) 
+ CNSsolve> 
+ CNSsolve>show sum(1) (&test) 
+ SELRPN:      0 atoms have been selected out of      0
+ SHOW: zero atoms selected
+ CNSsolve> 
+ CNSsolve>!====================================================================== 
+ CNSsolve>! loops and indexed define substitutions 
+ CNSsolve> 
+ CNSsolve> 
+ CNSsolve>define ( 
+ DEFINE>   abcd_1="new_1"; 
+ DEFINE>   abcd_2="new_2"; 
+ DEFINE>   abcd_3="new_3"; 
+ DEFINE>     ) 
+ CNSsolve> 
+ CNSsolve>eval ($1=1) 
+ EVALUATE: symbol $1 set to    1.00000     (real)
+ CNSsolve>while ($1 <= 4 ) loop main 
+ NEXTCD: condition evaluated as true
+ CNSsolve>   display  &abcd_$1 
+ "new_1"
+ CNSsolve>   eval ($1=$1+1) 
+ EVALUATE: symbol $1 set to    2.00000     (real)
+ CNSsolve>end loop main 
+ CNSsolve>while ($1 <= 4 ) loop main 
+ NEXTCD: condition evaluated as true
+ CNSsolve>   display  &abcd_$1 
+ "new_2"
+ CNSsolve>   eval ($1=$1+1) 
+ EVALUATE: symbol $1 set to    3.00000     (real)
+ CNSsolve>end loop main 
+ CNSsolve>while ($1 <= 4 ) loop main 
+ NEXTCD: condition evaluated as true
+ CNSsolve>   display  &abcd_$1 
+ "new_3"
+ CNSsolve>   eval ($1=$1+1) 
+ EVALUATE: symbol $1 set to    4.00000     (real)
+ CNSsolve>end loop main 
+ CNSsolve>while ($1 <= 4 ) loop main 
+ NEXTCD: condition evaluated as true
+ CNSsolve>   display  &abcd_$1 
+ &abcd_4
+ CNSsolve>   eval ($1=$1+1) 
+ EVALUATE: symbol $1 set to    5.00000     (real)
+ CNSsolve>end loop main 
+ CNSsolve>while ($1 <= 4 ) loop main 
+ NEXTCD: condition evaluated as false
+ CNSsolve>   display  &abcd_$1 
+ CNSsolve>   eval ($1=$1+1) 
+ CNSsolve>end loop main 
+ CNSsolve> 
+ CNSsolve>!====================================================================== 
+ CNSsolve>!exist statement 
+ CNSsolve> 
+ CNSsolve>define ( 
+ DEFINE>  rrrr=uuu; 
+ DEFINE>  uuuu_1=xxxx; 
+ DEFINE>     ) 
+ CNSsolve> 
+ CNSsolve>display  &exist_rrrr  (<=== should be TRUE) 
+ TRUE  (<=== should be TRUE)
+ CNSsolve>display  &exist_srwe  (<=== should be FALSE) 
+ FALSE  (<=== should be FALSE)
+ CNSsolve> 
+ CNSsolve>eval ($rrr=&exist_rrrr) 
+ EVALUATE: symbol $RRR set to TRUE (logical)
+ CNSsolve>eval ($ttt=&exist_uuuu_1) 
+ EVALUATE: symbol $TTT set to TRUE (logical)
+ CNSsolve> 
+ CNSsolve>display  &exist_uuuu_1  (<=== should be TRUE) 
+ TRUE  (<=== should be TRUE)
+ CNSsolve> 
+ CNSsolve>eval ($ttt=&exist_uuuu_1) 
+ EVALUATE: symbol $TTT set to TRUE (logical)
+ CNSsolve> 
+ CNSsolve>eval ($ttt=&exist_uuuu_2) 
+ EVALUATE: symbol $TTT set to FALSE (logical)
+ CNSsolve> 
+ CNSsolve>!====================================================================== 
+ CNSsolve>!double hash marks (removal of quotes) 
+ CNSsolve> 
+ CNSsolve>define ( 
+ DEFINE>  abcd="test"; 
+ DEFINE>     ) 
+ CNSsolve> 
+ CNSsolve>display  &abcd        (<= should be "test" ) 
+ "test"        (<= should be "test" )
+ CNSsolve>display  &&abcd   (<= should be test ) 
+ test   (<= should be test )
+ CNSsolve> 
+ CNSsolve>evaluate ($test=&abcd) 
+ EVALUATE: symbol $TEST set to "test" (string)
+ CNSsolve>evaluate ($test=&&abcd) 
+ Assuming literal string "TEST"
+ EVALUATE: symbol $TEST set to "TEST" (string)
+ CNSsolve> 
+ CNSsolve>define ( 
+ DEFINE>  defg = &abcd 
+ DEFG=    ) 
+ CNSsolve> 
+ CNSsolve>display  &defg        (<= should be "test" ) 
+ "test"        (<= should be "test" )
+ CNSsolve>display  &&defg   (<= should be test ) 
+ test   (<= should be test )
+ CNSsolve> 
+ CNSsolve>evaluate ($test=&defg) 
+ EVALUATE: symbol $TEST set to "test" (string)
+ CNSsolve>evaluate ($test=&&defg) 
+ Assuming literal string "TEST"
+ EVALUATE: symbol $TEST set to "TEST" (string)
+ CNSsolve> 
+ CNSsolve>eval ( $name = "hello" ) 
+ EVALUATE: symbol $NAME set to "hello" (string)
+ CNSsolve> 
+ CNSsolve>define ( 
+ DEFINE>  hijk = $name 
+ HIJK=  ) 
+ CNSsolve> 
+ CNSsolve>display  &hijk        (<= should be hello ) 
+ hello        (<= should be hello )
+ CNSsolve>display  &&hijk   (<= should be hello ) 
+ hello   (<= should be hello )
+ CNSsolve> 
+ CNSsolve>evaluate ($test=&hijk) 
+ EVALUATE: symbol $TEST set to "hello" (string)
+ CNSsolve>evaluate ($test=&&hijk) 
+ Assuming literal string "HELLO"
+ EVALUATE: symbol $TEST set to "HELLO" (string)
+ CNSsolve> 
+ CNSsolve>!====================================================================== 
+ CNSsolve>! 
+ CNSsolve> 
+ CNSsolve>define ( 
+ DEFINE>   abcd="new"; 
+ DEFINE>   ? 
+ Current Define Parameters
+ NOTE: The scope number (#) of &<name> is shown as &_#_<name> 
+ &_1_ABCD= "new" 
+ &_1_HIJK= $_1_NAME 
+ &_1_DEFG= &_1_ABCD 
+ &_1_UUUU_1= xxxx 
+ &_1_RRRR= uuu 
+ &_1_ABCD_3= "new_3" 
+ &_1_ABCD_2= "new_2" 
+ &_1_ABCD_1= "new_1" 
+ &_1_TEST= ( none and 
+ not ( known ) ) 
+ &_1_ZILCH= <value required>
+ &_1_NADA= <value required>
+ &_1_JUNK= "uuu" 
+ &_1_EWWW= iii 
+ &_1_TEST1= "root file test scope" 
+ &_1_SYNAM2.OPTION_45.END= hello 
+ &_1_SYNAM2.OPTION.45.END= hello 
+ &_1_SYNAM2.1= hello 
+ &_1_SYNAME= test 
+ DEFINE>     ) 
+ CNSsolve> 
+ CNSsolve>display  &abcd   (<= should be "new" ) 
+ "new"   (<= should be "new" )
+ CNSsolve> 
+ CNSsolve>display  &ttt &rrrr  (<= should be FALSE uuu ) 
+ &ttt uuu  (<= should be FALSE uuu )
+ CNSsolve> 
+ CNSsolve> 
+ CNSsolve>!====================================================================== 
+ CNSsolve>! pass over unknowns without error 
+ CNSsolve> 
+ CNSsolve>eval ( $1 = &not.an.error ) 
+ Assuming literal string "&NOT.AN.ERROR"
+ EVALUATE: symbol $1 set to "&NOT.AN.ERROR" (string)
+ CNSsolve> 
+ CNSsolve>!====================================================================== 
+ CNSsolve>! compound names 
+ CNSsolve> 
+ CNSsolve>define ( are.you.a.dog ; 
+ DEFINE> are.you.a.cat = maybe ; 
+ DEFINE> are.you.the.parrot = definitely not; 
+ DEFINE> are.you.alive = check for pulse; ? ) 
+ Current Define Parameters
+ NOTE: The scope number (#) of &<name> is shown as &_#_<name> 
+ &_1_ARE.YOU.ALIVE= check for pulse 
+ &_1_ARE.YOU.THE.PARROT= definitely not 
+ &_1_ARE.YOU.A.CAT= maybe 
+ &_1_ARE.YOU.A.DOG= <value required>
+ &_1_ABCD= "new" 
+ &_1_HIJK= $_1_NAME 
+ &_1_DEFG= &_1_ABCD 
+ &_1_UUUU_1= xxxx 
+ &_1_RRRR= uuu 
+ &_1_ABCD_3= "new_3" 
+ &_1_ABCD_2= "new_2" 
+ &_1_ABCD_1= "new_1" 
+ &_1_TEST= ( none and 
+ not ( known ) ) 
+ &_1_ZILCH= <value required>
+ &_1_NADA= <value required>
+ &_1_JUNK= "uuu" 
+ &_1_EWWW= iii 
+ &_1_TEST1= "root file test scope" 
+ &_1_SYNAM2.OPTION_45.END= hello 
+ &_1_SYNAM2.OPTION.45.END= hello 
+ &_1_SYNAM2.1= hello 
+ &_1_SYNAME= test 
+ CNSsolve> 
+ CNSsolve>define ( ? ) 
+ Current Define Parameters
+ NOTE: The scope number (#) of &<name> is shown as &_#_<name> 
+ &_1_ARE.YOU.ALIVE= check for pulse 
+ &_1_ARE.YOU.THE.PARROT= definitely not 
+ &_1_ARE.YOU.A.CAT= maybe 
+ &_1_ARE.YOU.A.DOG= <value required>
+ &_1_ABCD= "new" 
+ &_1_HIJK= $_1_NAME 
+ &_1_DEFG= &_1_ABCD 
+ &_1_UUUU_1= xxxx 
+ &_1_RRRR= uuu 
+ &_1_ABCD_3= "new_3" 
+ &_1_ABCD_2= "new_2" 
+ &_1_ABCD_1= "new_1" 
+ &_1_TEST= ( none and 
+ not ( known ) ) 
+ &_1_ZILCH= <value required>
+ &_1_NADA= <value required>
+ &_1_JUNK= "uuu" 
+ &_1_EWWW= iii 
+ &_1_TEST1= "root file test scope" 
+ &_1_SYNAM2.OPTION_45.END= hello 
+ &_1_SYNAM2.OPTION.45.END= hello 
+ &_1_SYNAM2.1= hello 
+ &_1_SYNAME= test 
+ CNSsolve> 
+ CNSsolve>! check for replacebility 
+ CNSsolve> 
+ CNSsolve>define ( are.you.a.cat = still maybe; ?) 
+ Current Define Parameters
+ NOTE: The scope number (#) of &<name> is shown as &_#_<name> 
+ &_1_ARE.YOU.ALIVE= check for pulse 
+ &_1_ARE.YOU.THE.PARROT= definitely not 
+ &_1_ARE.YOU.A.CAT= still maybe 
+ &_1_ARE.YOU.A.DOG= <value required>
+ &_1_ABCD= "new" 
+ &_1_HIJK= $_1_NAME 
+ &_1_DEFG= &_1_ABCD 
+ &_1_UUUU_1= xxxx 
+ &_1_RRRR= uuu 
+ &_1_ABCD_3= "new_3" 
+ &_1_ABCD_2= "new_2" 
+ &_1_ABCD_1= "new_1" 
+ &_1_TEST= ( none and 
+ not ( known ) ) 
+ &_1_ZILCH= <value required>
+ &_1_NADA= <value required>
+ &_1_JUNK= "uuu" 
+ &_1_EWWW= iii 
+ &_1_TEST1= "root file test scope" 
+ &_1_SYNAM2.OPTION_45.END= hello 
+ &_1_SYNAM2.OPTION.45.END= hello 
+ &_1_SYNAM2.1= hello 
+ &_1_SYNAME= test 
+ CNSsolve> 
+ CNSsolve>set abort = off end 
+ CNSsolve> 
+ CNSsolve>define ( are.you = should bomb ) 
+ %DEFFINDREC error encountered: parameter already defined as compound.
+   (CNS is in mode: SET ABORT=OFF END)
+ CNSsolve> 
+ CNSsolve>define ( are = should also bomb ) 
+ %DEFFINDREC error encountered: parameter already defined as compound.
+   (CNS is in mode: SET ABORT=OFF END)
+ CNSsolve> 
+ CNSsolve>define ( one ) 
+ CNSsolve> 
+ CNSsolve>define ( one.cannot.do.this ) 
+ %DEFINSREC error encountered: parameter already defined as atomic.
+   (CNS is in mode: SET ABORT=OFF END)
+ CNSsolve> 
+ CNSsolve>!====================================================================== 
+ CNSsolve>! long lines (assuming that COMMAX = 264 in precns.dim ) 
+ CNSsolve> 
+ CNSsolve>! check simple wrapping 
+ CNSsolve> 
+ CNSsolve>define ( short = eval ( $short = "no wrap" ) ;) 
+ CNSsolve>define ( long = eval ( $long = "should be long enough to cause a wrapped line" ) ;) 
+ CNSsolve> 
+ CNSsolve>{23456789 123456789 123456789 123456789 123456789 123456789 123456789 123456789 123456789 123456789 123456789 123456789 123456789 123456789 123456789 123456789 123456789 123456789 123456789 123456789 123456789 123456789 123456789 } &short 
+ EVALUATE: symbol $_1_SHORT set to "no wrap" (string)
+ CNSsolve> 
+ CNSsolve>{23456789 123456789 123456789 123456789 123456789 123456789 123456789 123456789 123456789 123456789 123456789 123456789 123456789 123456789 123456789 123456789 123456789 123456789 123456789 123456789 123456789 123456789 123456789 } &long 
+ EVALUATE: symbol $_1_LONG set to "should be long enough to cause a wrapped line" (string)
+ CNSsolve> 
+ CNSsolve>! check wrapping of substituted parameter names 
+ CNSsolve> 
+ CNSsolve>define ( verylongparametername = "hi" ) 
+ CNSsolve>define ( v = "lo" ) 
+ CNSsolve> 
+ CNSsolve>define ( vlong = &verylongparametername ) 
+ CNSsolve>define ( vshort = &v ) 
+ CNSsolve> 
+ CNSsolve>{23456789 123456789 123456789 123456789 123456789 123456789 123456789 123456789 123456789 123456789 123456789 123456789 123456789 123456789 123456789 123456789 123456789 123456789 123456789 123456789 123456789 123456789 123456789 } eval ( $1 = &vshort ) 
+ EVALUATE: symbol $1 set to "lo" (string)
+ CNSsolve> 
+ CNSsolve>{23456789 123456789 123456789 123456789 123456789 123456789 123456789 123456789 123456789 123456789 123456789 123456789 123456789 123456789 123456789 123456789 123456789 123456789 123456789 123456789 123456789 123456789 123456789 } eval ( $1 = &vlong ) 
+ EVALUATE: symbol $1 set to "hi" (string)
+ CNSsolve> 
+ CNSsolve>! check compound parameter substitution on lines one character short of being wrapped 
+ CNSsolve> 
+ CNSsolve>define ( compoundpara.a = "ma" ) 
+ CNSsolve>define ( plong = &compoundpara ) 
+ CNSsolve> 
+ CNSsolve>{23456789 123456789 123456789 123456789 123456789 123456789 123456789 123456789 123456789 123456789 123456789 123456789 123456789 123456789 123456789 123456789 123456789 123456789 123456789 123456789 123456789 123456789 123456789 } eval ( $1 = &plong.a ) 
+ EVALUATE: symbol $1 set to "ma" (string)
+ CNSsolve> 
+ CNSsolve>! with double specification 
+ CNSsolve> 
+ CNSsolve>{23456789 123456789 123456789 123456789 123456789 123456789 123456789 123456789 123456789 123456789 123456789 123456789 123456789 123456789 123456789 123456789 123456789 123456789 123456789 123456789 123456789 123456789 123456789 } eval ( $1 = &&plong.a ) 
+ Assuming literal string "MA"
+ EVALUATE: symbol $1 set to "MA" (string)
+ CNSsolve> 
+ CNSsolve>! check compound parameter substitution on wrapped lines 
+ CNSsolve> 
+ CNSsolve>define ( longcompoundpara.a = "ti" ) 
+ CNSsolve>define ( clong = &longcompoundpara ) 
+ CNSsolve> 
+ CNSsolve>{23456789 123456789 123456789 123456789 123456789 123456789 123456789 123456789 123456789 123456789 123456789 123456789 123456789 123456789 123456789 123456789 123456789 123456789 123456789 123456789 123456789 123456789 123456789 } eval ( $1 = &clong.a ) 
+ EVALUATE: symbol $1 set to "ti" (string)
+ CNSsolve> 
+ CNSsolve>! with double specification 
+ CNSsolve> 
+ CNSsolve>{23456789 123456789 123456789 123456789 123456789 123456789 123456789 123456789 123456789 123456789 123456789 123456789 123456789 123456789 123456789 123456789 123456789 123456789 123456789 123456789 123456789 123456789 123456789 } eval ( $1 = &&clong.a ) 
+ Assuming literal string "TI"
+ EVALUATE: symbol $1 set to "TI" (string)
+ CNSsolve> 
+ CNSsolve>! check wrapping of the &EXIST_ construct 
+ CNSsolve> 
+ CNSsolve>{23456789 123456789 123456789 123456789 123456789 123456789 123456789 123456789 123456789 123456789 123456789 123456789 123456789 123456789 123456789 123456789 123456789 123456789 123456789 123456789 123456789 123456789 123456789 } eval ( $1 = &exist_clong.a ) 
+ EVALUATE: symbol $1 set to TRUE (logical)
+ CNSsolve> 
+ CNSsolve> 
+ CNSsolve>!====================================================================== 
+ CNSsolve>! &? construct 
+ CNSsolve> 
+ CNSsolve>&? 
+ Current Define Parameters
+ NOTE: The scope number (#) of &<name> is shown as &_#_<name> 
+ &_1_CLONG= &_1_LONGCOMPOUNDPARA 
+ &_1_LONGCOMPOUNDPARA.A= "ti" 
+ &_1_PLONG= &_1_COMPOUNDPARA 
+ &_1_COMPOUNDPARA.A= "ma" 
+ &_1_VSHORT= &_1_V 
+ &_1_VLONG= &_1_VERYLONGPARAMETERNAME 
+ &_1_V= "lo" 
+ &_1_VERYLONGPARAMETERNAME= "hi" 
+ &_1_LONG= eval ( $_1_LONG = "should be long enough to cause a wrapped line" ) 
+ &_1_SHORT= eval ( $_1_SHORT = "no wrap" ) 
+ &_1_ONE.CANNOT.DO.THIS= <value required>
+ &_1_ARE= should also bomb 
+ &_1_ABCD= "new" 
+ &_1_HIJK= $_1_NAME 
+ &_1_DEFG= &_1_ABCD 
+ &_1_UUUU_1= xxxx 
+ &_1_RRRR= uuu 
+ &_1_ABCD_3= "new_3" 
+ &_1_ABCD_2= "new_2" 
+ &_1_ABCD_1= "new_1" 
+ &_1_TEST= ( none and 
+ not ( known ) ) 
+ &_1_ZILCH= <value required>
+ &_1_NADA= <value required>
+ &_1_JUNK= "uuu" 
+ &_1_EWWW= iii 
+ &_1_TEST1= "root file test scope" 
+ &_1_SYNAM2.OPTION_45.END= hello 
+ &_1_SYNAM2.OPTION.45.END= hello 
+ &_1_SYNAM2.1= hello 
+ &_1_SYNAME= test 
+ CNSsolve> 
+ CNSsolve>define ( testpar = hi ) 
+ CNSsolve> 
+ CNSsolve>&?testpar 
+ &_1_TESTPAR= hi 
+ CNSsolve> 
+ CNSsolve>define ( testcmpd.1 = wow1 ) 
+ CNSsolve>define ( testcmpd.2 = wow2 ) 
+ CNSsolve>define ( testcmpd.3.6 = wow36 ) 
+ CNSsolve>define ( testcmpd.3.4 = wow74 ) 
+ CNSsolve> 
+ CNSsolve>&?testcmpd 
+ &_1_TESTCMPD.3.4= wow74 
+ &_1_TESTCMPD.3.6= wow36 
+ &_1_TESTCMPD.2= wow2 
+ &_1_TESTCMPD.1= wow1 
+ CNSsolve> 
+ CNSsolve>&?testcmpd.3 
+ &_1_TESTCMPD.3.4= wow74 
+ &_1_TESTCMPD.3.6= wow36 
+ CNSsolve> 
+ CNSsolve>!====================================================================== 
+ CNSsolve>! test immediate expansion of parameters and symbols 
+ CNSsolve> 
+ CNSsolve>eval ( $immed = 1 ) 
+ EVALUATE: symbol $IMMED set to    1.00000     (real)
+ CNSsolve> 
+ CNSsolve>define ( par1 = $expand%immed ) 
+ CNSsolve> 
+ CNSsolve>eval ( $immed = 2 ) 
+ EVALUATE: symbol $IMMED set to    2.00000     (real)
+ CNSsolve> 
+ CNSsolve>define ( par2 = $immed ) 
+ CNSsolve> 
+ CNSsolve>eval ( $immed = 3 ) 
+ EVALUATE: symbol $IMMED set to    3.00000     (real)
+ CNSsolve> 
+ CNSsolve>display &par1 &par2 
+1 3
+ CNSsolve> 
+ CNSsolve>define ( par1 = hi ) 
+ CNSsolve> 
+ CNSsolve>define ( par1 = &expand%par1 &expand%par1 ) 
+ CNSsolve> 
+ CNSsolve>display &par1 
+hi hi
+ CNSsolve> 
+ CNSsolve>!====================================================================== 
+ CNSsolve>! test transfer of directives from parameters to symbols 
+ CNSsolve> 
+ CNSsolve>define ( ckblank = $isblank ) 
+ CNSsolve>define ( ckckblank = &ckblank ) 
+ CNSsolve> 
+ CNSsolve>display should two errors and then: $ISBLANK $STRIP%_1_ISBLANK  FALSE FALSE 
+ %WDSUB-ERR: symbol not found:
+ display should two errors and then: $ISBLANK 
+                                     ^^^^^^^^
+ %WDSUB-ERR: symbol not found:
+ display should two errors and then: $ISBLANK $STRIP%_1_ISBLANK 
+                                              ^^^^^^^^^^^^^^^^^
+should two errors and then: $ISBLANK $STRIP%_1_ISBLANK  FALSE FALSE
+ CNSsolve>display &ckckblank &strip%ckckblank &blank%ckckblank &exist%ckckblank 
+ %WDSUB-ERR: symbol not found:
+ display $_1_ISBLANK 
+         ^^^^^^^^^^^
+ %WDSUB-ERR: symbol not found:
+ display $_1_ISBLANK $STRIP%_1_ISBLANK 
+                     ^^^^^^^^^^^^^^^^^
+$_1_ISBLANK $STRIP%_1_ISBLANK FALSE FALSE
+ CNSsolve> 
+ CNSsolve>eval ( $isblank = "hi" ) 
+ EVALUATE: symbol $ISBLANK set to "hi" (string)
+ CNSsolve>display &ckckblank &strip%ckckblank &blank%ckckblank &exist%ckckblank \ 
+  (should be: hi hi FALSE TRUE) 
+hi hi FALSE TRUE (should be: hi hi FALSE TRUE)
+ CNSsolve> 
+ CNSsolve>eval ( $isblank = "" ) 
+ EVALUATE: symbol $ISBLANK set to "" (string)
+ CNSsolve>display &ckckblank &strip%ckckblank &blank%ckckblank &exist%ckckblank \ 
+  (should be:   TRUE TRUE) 
+  TRUE TRUE (should be:   TRUE TRUE)
+ CNSsolve> 
+ CNSsolve>!====================================================================== 
+ CNSsolve>! test quoting directive 
+ CNSsolve> 
+ CNSsolve>define ( test = hi ) 
+ CNSsolve> 
+ CNSsolve>display &quote%test 
+"hi"
+ CNSsolve> 
+ CNSsolve>define ( test = "hi" ) 
+ CNSsolve> 
+ CNSsolve>display &quote%test 
+"hi"
+ CNSsolve> 
+ CNSsolve> 
+ CNSsolve>!======================================================================== 
+ CNSsolve>! test parameters too long in define statement: 
+ CNSsolve> 
+ CNSsolve>define(param=" 
+ PARAM=1234567890123456789012345678901234567890123456789012345678901234567890123456789012345678901234567890 
+ PARAM=1234567890123456789012345678901234567890123456789012345678901234567890123456789012345678901234567890 
+ PARAM=1234567890123456789012345678901234567890123456789012345678901234567890123456789012345678901234567890 
+ PARAM=1234567890123456789012345678901234567890123456789012345678901234567890123456789012345678901234567890 
+ PARAM=123456789012345678901234567890123456789012345678901234567890123456789012345 
+ PARAM=abcde"; 
+ %DEFMACSET-ERR: parameter too long:
+ abcde";
+ ^^^^^^
+ DEFINE>) 
+ CNSsolve> 
+ CNSsolve>stop 
+          ============================================================
+           Maximum dynamic memory allocation:     8201488 bytes
+           Maximum dynamic memory overhead:           304 bytes
+           Program started at: 16:07:58 on 05-Jul-2018
+           Program stopped at: 16:07:58 on 05-Jul-2018
+           CPU time used:       0.0103 seconds
+          ============================================================

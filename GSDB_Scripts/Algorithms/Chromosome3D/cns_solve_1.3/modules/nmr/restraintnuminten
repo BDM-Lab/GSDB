@@ -1,0 +1,75 @@
+! Module file: restraintnumber
+!
+! CNS MODULE
+! **********
+!
+! Authors: Gregory L. Warren and Axel T. Brunger
+!
+! copyright Yale University
+!
+! version 02/28/98
+!
+! Function:
+!          Determine the number of restraints used for each
+!          type of nmr data
+!
+! Requirements:
+!         
+!
+
+module { restraintnumber }
+(
+   &num=num;                 {OUTPUT: number of nmr restraints}
+)
+
+checkversion 1.3
+
+set message ? end
+evaluate ($message_old=$result)
+set echo ? end
+evaluate ($echo_old=$result)
+if ( $log_level = verbose ) then
+  set echo=on message=normal end
+else
+  set echo=off message=off end
+end if
+
+{- NOE restraint number -}
+   evaluate ($number=0.)
+   noe print threshold = 500.0 end
+   evaluate (&num.noe = $number)
+
+{- J-coupling restraint number -}
+   couplings print threshold 10.0 all end
+   evaluate (&num.coup = $number)
+
+{- 1-bond heteronuclear J-coupling restraint number -}
+   onebond print threshold 100.0 end
+   evaluate (&num.oneb = $number)
+   
+{- Carbon chemical shift restraint number -}
+   carbon print threshold = 90.0 end  
+   evaluate (&num.carb = $number)
+
+{- Proton chemical shift restraint number -}
+   prot print threshold 20.0 all normsd end
+   evaluate (&num.prot.all = $number)
+
+{- Dani restraint number -}
+   dani print threshold=90.0 all end  
+   evaluate (&num.dani = $number)
+  
+{- Sani restraint number -}
+   sani print threshold=90.0 all end  
+   evaluate (&num.sani = $number)
+  
+{- CDIH restraint number -}
+   print threshold = 180.0 cdih 
+   evaluate (&num.cdih = $number)
+
+{- Planarity restraint number -}
+   flags exclude * include plan end
+   ener end
+   evaluate (&num.plan = $number)
+
+set message=$message_old echo=$echo_old end

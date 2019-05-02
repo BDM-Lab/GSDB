@@ -1,0 +1,136 @@
+! Module file: getweight
+!
+! CNS module
+! **********
+!
+! Authors: Axel T. Brunger and Paul Adams
+!
+! copyright Yale University
+!
+! Function:
+!    Calculate the weight for the crystallographic energy term 
+!
+! Requirements:
+!    To be called from the main level
+!    Uses comparision coordinate set and also vx, vy, vz
+!    This module uses store5
+
+module {getweight}
+(
+  &selected=(all);
+  &fixed=(none);
+  &wa=$wa_temp;
+)
+
+set message ? end
+evaluate ($message_old=$result)
+set echo ? end
+evaluate ($echo_old=$result)
+if ( $log_level = verbose ) then
+  set echo=on message=normal end
+else
+  set echo=off message=off end
+end if
+
+checkversion 1.3
+
+set seed=? end
+evaluate ($oldseed=$result)
+set seed=82364 end
+
+coord copy end
+
+flags
+  exclude xref
+end
+ 
+minimize lbfgs
+  nstep=50
+  nprint=50
+!!!  drop=40.0
+end
+
+do (vx=maxwell(300)) (&selected and not (&fixed))
+do (vy=maxwell(300)) (&selected and not (&fixed))
+do (vz=maxwell(300)) (&selected and not (&fixed))
+
+do (store5=mass) ( all )
+do (mass=max(10,min(30,mass))) ( all )
+
+dynamics cartesian
+  nstep=200
+  timestep=0.0005
+  temperature=300
+  vscaling=true
+  nprint=200
+end
+
+do (mass=store5) ( all )
+
+energy end
+
+show sum(1) (&selected and not (&fixed))
+
+evaluate ($gw_atoms=$result)
+
+show sum(dx^2 + dy^2 + dz^2) (&selected and not (&fixed))
+
+evaluate ($gw_mean=$result/(3*$gw_atoms))
+evaluate ($gw_rmsf=sqrt($gw_mean))
+
+do (vx=dx) (&selected and not (&fixed))
+do (vy=dy) (&selected and not (&fixed))
+do (vz=dz) (&selected and not (&fixed))
+
+flags include xref end
+
+xray
+  wa=1
+end
+energy end
+
+do (dx=dx-vx) (&selected and not (&fixed))
+do (dy=dy-vy) (&selected and not (&fixed))
+do (dz=dz-vz) (&selected and not (&fixed))
+
+do (rmsd = dx^2 + dy^2 + dz^2) (&selected and not (&fixed))
+
+show rms(rmsd) (&selected and not (&fixed))
+
+evaluate ($cutoff = 3 * $result)
+
+show rms(rmsd) (&selected and not (&fixed) and
+               (attribute rmsd < $cutoff))
+
+evaluate ($cutoff = 50 * $result)
+
+show sum(1) (&selected and not (&fixed) and
+            ((attribute rmsd > $cutoff) or (attribute rmsd = $cutoff)))
+
+if ( $result > 0 ) then
+  display  getweight: $result[i5] atoms excluded from weight calculation
+  display             because of very large X-ray derivative terms
+end if
+
+show sum(rmsd) (&selected and not (&fixed) and
+               (attribute rmsd < $cutoff))
+
+evaluate ($gw_mean=$result/(3*$gw_atoms))
+evaluate ($gw_xrmsf=sqrt($gw_mean))
+
+evaluate ($wa_temp=($gw_rmsf/(2*$gw_xrmsf)))
+
+coord swap end
+coord copy end
+
+xray
+  wa=$wa_temp
+end
+
+display  getweight: optimal weight= $wa_temp
+
+evaluate (&wa=$wa_temp)
+
+set seed=$oldseed end
+
+set message=$message_old echo=$echo_old end

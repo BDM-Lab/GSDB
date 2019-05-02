@@ -1,0 +1,116 @@
+remarks   file xdo4.inp
+
+
+xray
+
+   declare name=fobs type=complex domain=reciprocal end
+   declare name=fpart domain=reciprocal type=complex end
+   declare name=fcalc domain=reciprocal type=complex end
+   declare name=fom domain=reciprocal type=real end
+   declare name=weight domain=reciprocal type=real end
+   declare name=sigma domain=reciprocal type=real end
+   declare name=test domain=reciprocal type=integer end
+
+   evaluate ($lr=10.)
+   evaluate ($hr=3) 
+   binresolution $lr $hr 
+   mapresolution $hr
+   tselection=( $hr <= d <= $lr ) 
+
+   reflection
+     index 1 2 3 fobs 1.
+     index 2 3 4 fobs 10.
+   end
+
+   do (fcalc=integrate[_x,0,100,10](fobs)) ( all )
+
+   show (fcalc) ( all )
+
+   do (fcalc=integrate[_x,1,7,0.01](fobs _x^2)) ( all )
+
+   show (fcalc) ( all )
+
+   do (fcalc=integrate[_x,1,7,0.05](
+                 integrate[_y,2,8,0.05] (fobs _y^2 _x^2))) ( all )
+
+   show (fcalc) ( all )
+
+   do (fcalc=debug 100+ 2*integrate[_x,1,7,0.05](
+                     integrate[_y,2,8,0.05] (fobs _y^2 _x^2)) + 300.) 
+                   ( all )
+
+   show (fcalc) ( all )
+
+
+   do (fcalc=add[_x,1,7,0.01](fobs _x^2)) ( all )
+
+   show (fcalc) ( all )
+
+   do (fcalc=add[_x,1,7,0.1](
+                 add[_y,2,8,0.1] (fobs _y^2 _x^2))) ( all )
+
+   show (fcalc) ( all )
+
+   declare name=map1  domain=real end
+   declare name=map2  domain=real end
+   declare name=map3  domain=real end
+   declare name=map4  domain=real end
+   
+   do (map1=add[_x,1,7,0.01]( _x^2)) ( all )
+
+   show ave (map1) (all )
+ 
+   do (map1=integrate[_x,1,7,0.01]( _x^2)) ( all )
+  
+   show ave (map1) ( all )
+
+
+   do (fcalc=multiply[_x,1,7,1]( _x )) ( all )
+
+   show (fcalc) ( all )
+
+   do (fcalc=exp(multiply[_x,1,7,1](
+                 multiply[_y,2,8,1] (_x _y /15.)))) ( all )
+
+   show (fcalc) ( all )
+
+   do (fcalc=add[_x,1,7,0.01](fobs _x^2)) ( all )
+
+   show (fcalc) ( all )
+
+   do (fcalc=add[_x,1,7,0.01](fobs _x^2)
+           + add[_x,1,7,0.01](fobs _x^2) 
+           + add[_y,1,7,0.01](fobs _y^2) ) ( all )
+
+   show (fcalc) ( all )
+
+   do (fobs=1) ( all )
+   do (fcalc=maximize[_x,0,360,0.1](- abs(fobs) sin(_x) * _x )  ) ( all )
+
+   show (fcalc) ( all )
+
+   do (fcalc=maximize[_x,0,360,0.1](+ abs(fobs) sin(_x) * _x )  ) ( all )
+
+   show (fcalc) ( all )
+
+
+   do (fcalc=imaximize[_x,0,360,0.1](- abs(fobs) sin(_x) * _x )  ) ( all )
+
+   show (fcalc) ( all )
+
+   do (fcalc=imaximize[_x,0,360,0.1](+ abs(fobs) sin(_x) * _x )  ) ( all )
+
+   show (fcalc) ( all )
+
+
+   do (fcalc=4.0 + imaximize[_x,0,360,0.1](+ abs(fobs) sin(_x) * _x )  +
+             3.0 +
+                   imaximize[_x,0,360,0.1](+ abs(fobs) sin(_x) * _x )) ( all )
+
+   show (fcalc) ( all )
+
+end
+
+stop
+
+

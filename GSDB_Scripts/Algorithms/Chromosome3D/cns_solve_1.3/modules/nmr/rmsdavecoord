@@ -1,0 +1,114 @@
+! Module file: rmsdavecoord
+!
+! CNS MODULE
+! **********
+!
+! Authors: Gregory L. Warren and Axel T. Brunger
+!
+! copyright Yale University
+!
+! version 04/22/98
+!
+! Function:
+!          Calculates the average coordinates and rmsd values for structure
+!          ensembles
+!
+! Requirements:
+!          This file will only fit for up to 4 multi-conformation loops
+!          Additional loops can be added using nested if statements
+!
+!
+
+module {rmsdavecoord}
+(
+   &ave=ave;                 {OUPUT: average rmsd values}
+   &ave2=ave2;               {OUPUT: standard deviation rmsd values}
+   &count=count;             {INPUT: number of accepted or trial structures}
+   &nmr=nmr;                 {INPUT: nmr ensemble values}
+   &output=output;           {INPUT: file name prefix symbols}
+   &pdb=pdb;                 {INPUT: atom selections}
+)
+
+checkversion 1.3
+
+set message ? end
+evaluate ($message_old=$result)
+set echo ? end
+evaluate ($echo_old=$result)
+if ( $log_level = verbose ) then
+  set echo=on message=normal end
+else
+  set echo=off message=off end
+end if
+
+   evaluate ($count1 = 0)
+   while ($count1 < &count ) loop aver
+      evaluate ($count1=$count1+1)
+      evaluate ($filename=&output.prefix+encode($count1)+".pdb")
+      set remarks=reset end
+      coor @@$filename
+
+     {- coordinate fitting for multi-loop refinements -}
+      evaluate ($loop_flag=false)
+      if (&nmr.ens.loop.flag=false) then
+         coor fit selection=( &pdb.atom.select ) end
+      elseif (&exist%nmr.ens.loop.low.4=true) then
+         coor fit selection=( &pdb.atom.select and not 
+                              (resid &nmr.ens.loop.low.4:&nmr.ens.loop.high.4 
+                            or resid &nmr.ens.loop.low.3:&nmr.ens.loop.high.3
+                            or resid &nmr.ens.loop.low.2:&nmr.ens.loop.high.2
+                            or resid &nmr.ens.loop.low.1:&nmr.ens.loop.high.1) ) end
+         evaluate ($loop_flag=true)
+      elseif ($loop_flag=false) then
+         if (&exist%nmr.ens.loop.low.3=true) then
+            coor fit selection=( &pdb.atom.select and not
+                                 (resid &nmr.ens.loop.low.3:&nmr.ens.loop.high.3
+                               or resid &nmr.ens.loop.low.2:&nmr.ens.loop.high.2
+                               or resid &nmr.ens.loop.low.1:&nmr.ens.loop.high.1) ) end
+            evaluate ($loop_flag=true)
+         end if
+      elseif ($loop_flag=false) then
+         if (&exist%nmr.ens.loop.low.2=true) then
+            coor fit selection=( &pdb.atom.select and not
+                                 (resid &nmr.ens.loop.low.2:&nmr.ens.loop.high.2
+                               or resid &nmr.ens.loop.low.1:&nmr.ens.loop.high.1) ) end
+            evaluate ($loop_flag=true)
+         end if
+      elseif ($loop_flag=false) then
+         coor fit selection=( &pdb.atom.select and not 
+                              (resid &nmr.ens.loop.low.1:&nmr.ens.loop.high.1) ) end
+      end if
+
+      coor rms selection=( &pdb.atom.select ) end
+      evaluate (&ave.rms.atom.slct =&ave.rms.atom.slct  + $rms)
+      evaluate (&ave2.rms.atom.slct=&ave2.rms.atom.slct + $rms^2)
+      coor rms selection=( not chemical h* ) end
+      evaluate (&ave.rms.atom.all  =&ave.rms.atom.all  + $rms)
+      evaluate (&ave2.rms.atom.all =&ave2.rms.atom.all + $rms^2)
+      do (store1=store1+x) (all)
+      do (store2=store2+y) (all)
+      do (store3=store3+z) (all)
+      do (store4=store4+x^2+y^2+z^2) (all)
+   end loop aver
+
+   if (&count > 1) then
+      evaluate (&ave2.rms.atom.slct=sqrt
+                  ((&ave2.rms.atom.slct-(&ave.rms.atom.slct^2/&count))
+                              /(&count-1)))
+      evaluate (&ave2.rms.atom.all=sqrt
+                  ((&ave2.rms.atom.all-(&ave.rms.atom.all^2/&count))
+                              /(&count-1)))
+   else
+      evaluate (&ave2.rms.atom.slct=0.)
+      evaluate (&ave2.rms.atom.all=0.)
+   end if
+
+   evaluate (&ave.rms.atom.slct=&ave.rms.atom.slct / &count)
+   evaluate (&ave.rms.atom.all =&ave.rms.atom.all  / &count)
+
+   do (x = store1 / &count) (all)
+   do (y = store2 / &count) (all)
+   do (z = store3 / &count) (all)
+   do (bcomp =sqrt(max(0,store4/&count-(x^2+y^2+z^2)))) (all)
+
+set message=$message_old echo=$echo_old end

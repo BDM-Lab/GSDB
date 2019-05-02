@@ -1,0 +1,77 @@
+<HTML>
+<HEAD>
+   <TITLE>Crystallography & NMR System</TITLE>
+</HEAD>
+<BODY BGCOLOR=#8ebf8e>
+
+<HR WIDTH="100%">
+
+<H2>FRET efficiency distributions from rigid body/torsion angle molecular dynamics simulations</H2>
+
+<HR WIDTH="100%">
+<p><br>
+  In this section we calculate a FRET efficiency distribution for two dyes (Cy3 and Cy5) that are attached to residues 140 and 350 of the C2AB fragment of synaptotagmin 3.See the following references for further details:</p>
+<p>M. Vrljic, P. Strop, J.A. Ernst, R.B. Sutton, S.Chu, A.T. Brunger, Molecular mechanism of the synaptotagmin-SNARE interaction in Ca2+ -triggered vesicle fusion, <em>Nat. Struct. Mol. Biol.</em> <strong>17</strong>, 325-331(2010). </p>
+<p>U.B. Choi, P. Strop, M. Vrljic, S. Chu, A.T. Brunger, K.R. Weninger, Single-molecule FRET-derived model of the synaptotagmin 1-SNARE fusion complex. <em>Nat. Struct. Mol. Biol.</em> <strong>17</strong>, 318-324 (2010).</p>
+<p></p>
+<h3>Model with associated pseudoatoms representing the centers of the Cy3 and Cy5 dyes</h3>
+<p>We first compute the average position of the CAO atoms of the Cy3 and Cy5 dyes following the procedure that is described in the <a href="../docking_calculations/text.html">previous section</a>. We then combine the average dye positions for the CAO atoms for the two dyes attached to residues 410 and 554 and appended them to the coordinates of  synaptotatgmin 3 C2AB. Note that we edited file and changed the residue name for these average dye positions to PSO, and changed the resids and segids for the dye positions in order to make them match those of the covalently connected protein residues:</p>
+<p><a href="410_554.pdb">410_554.pdb</a><a href="fret_start_model.pdb"></a><a href="merge_pseudo_syt2_ps.pdb"></a><br>
+  <br>
+</p>
+<h3>Calculation of dye distance distribution with rigid-body/torsion angle molecular dynamics</h3>
+<p>We make use of the topology and parameter files for pseudo atoms located in the CNS<tt> /libraries/toppar</tt> directory:</p>
+<p><a href="../../../../../libraries/toppar/pseudo.top"><tt>pseudo.top</tt></a></p>
+<p><a href="../../../../../libraries/toppar/pseudo.param"><tt>pseudo.param</tt></a></p>
+<p> Note that the pseudo-atoms have been assigned a small van der Waals radius. Increase this radius if a larger excluded volume around the dyes is desired. We make a covalent links between the pseudo-atoms and the CA atoms of their corresponding residues to which they are attached. We do this by creating a custom patch file that is read by the subsequent molecular dynamics simulation inputs:</p>
+<p><a href="pseudo_atom_patches.def"><tt>pseudo_atom_patches.def</tt></a></p>
+<p>For a tutorial on the CNS PATCh statement, please read this <a href="../../generate/molecular_topol/text.html">section</a> on &quot;Generating and manipulating the molecular topology. </p>
+<p>The following example performs torsion angle molecular dynamics with the two C2 domains defined as rigid bodies (residues 295-421 and 431-560, respectively), connected a linker (residues 422-430) with variable torsion angles. Note that the pseudo-atoms are part of the rigid body selections (the C2 domains that they are attached to).The torsion angle molecular dynamics simulation is performed at 300K. In this example we perform 40,000 steps at a time step size of 5 fsec, resulting in a total of 200 psec simulation time. This is a relatively short period. It is recommended to increase the number of steps at least ten fold in order to obtain better sampling (here we keep the number of steps relatively small to reduce computer time for this tutorial). Prior to the molecular dynamics simulation, the geometry of the structure is regularized (100 steps) in order to obtain a starting structure with good stereochemistry and local geometry. The &quot;coupling&quot; method is used for the temperature control which ensures thermalization of all degrees of freedom of the system by coupling the system to a heat bath. Coordinates are written every 1000 steps. </p>
+<PRE>
+
+      cns_solve &lt; <A HREF="model_anneal.inp">model_anneal.inp</A> &gt; model_anneal.out
+</PRE>
+<p><br>
+The simulated annealing calculation produces an ensemble of coordinates (<tt>410_554_1_traj_1.pdb</tt>, <tt>410_554_1_traj_2.pdb</tt>, ...), as well as a combined coordinate file that contains all these coordinates in one file (410_554_1_traj.pdb). This combined file can be read by the molecular simulation and visualization program <a href="http://www.ks.uiuc.edu/Research/vmd">VMD</a> to display the molecular dynamics trajectory (use File -&gt; New Molecule -&gt; &lt;enter name of combined file&gt; -&gt; Load). Next we calculate the distances between the dye centers (aka pseudo-atoms) for this ensemble:</p>
+<p>&nbsp;</p>
+<pre>      cns_solve &lt; <A HREF="distance_calculation.inp">distance_calculation.inp</A> &gt; distance_calculation.out  
+
+</pre>
+<br>
+This job produces a text file which also provides the average distance between the dye centers averaged over the coordinate ensemble:
+<pre>      <a href="distance_calculation.list">distance_calculation.list</a></pre>
+<p><a href="distance_calculation.list"><br>
+  </a><br>
+We then convert the resulting distances into FRET efficiency values and plot them as a histogram.. The relationship between distance (d) and FRET efficiency (E) is E=1/( 1 + (d/R0)^6 ) where R0 is the Forster radius. In this example we use R0=55.5 A (see the above references for the derivation of this particular R0 value). We use the ProFIT program (<a href="http://www.quansoft.com">www.quansoft.com</a>) to make the histogram:</p>
+<p><img src="distance_calculation_graph_200_psec.jpg" width="506" height="390"></p>
+<p>&nbsp;</p>
+<p>The distribution looks poorly sampled. A 4.5 nsec simulation produces a smoother distribution:</p>
+<p>&nbsp;</p>
+<p><img src="distance_calculation_graph_4.5_nsec.jpg" width="508" height="400"></p>
+<p>&nbsp;</p>
+<p>For a 20 nsec simulation, the distribution looks even smoother:</p>
+<p>&nbsp;</p>
+<h3><img src="distance_calculation_graph_20_nsec.jpg" width="514" height="421"></h3>
+<h3><br>
+  Molecular dynamics simulation with a fixed  FRET-derived distance</h3>
+<p>Here we perform a rigid-body/torsion angle molecular dynamics simulation with a fixed, FRET-derived, distance between the Cy3 Cy5 FRET pair (it is fixed at 44.1 A). For a description of the distance restraint file see the section on <a href="../../formats/noe/text.html">distance restraints</a>. </p>
+<p><a href="distance.def"><tt>distance.def</tt></a><tt></tt></p>
+<p>Otherwise, the simulation is identical to the one discussed above (the <tt>model_anneal_fixed.inp</tt> file is taken from the <tt>model_anneal.inp</tt> input file, i.e., the only differences are the particular input parameter settings): :</p>
+<PRE>
+      cns_solve &lt; <a href="model_anneal_fixed.inp">model_anneal_fixed.inp</a><A HREF="model_anneal.inp"></A> &gt; model_anneal_fixed.out
+</PRE>
+<p><br>
+The molecular dynamics simulation produces an ensemble of coordinates (<tt>410_554_fixed_1_traj_1.pdb</tt>, <tt>410_554_fixed_1_traj_2.pdb</tt>, ...) as well as the combined file (410_551_fixed_1_traj.pdb).  </p>
+<p>&nbsp;</p>
+<p><A HREF="tutorial.csh">Script to run this tutorial</A>
+  
+</p>
+<HR WIDTH="100%">
+
+<A HREF="../../text.html">Back to tutorials</A>&nbsp;&nbsp;
+<a href="../docking_calculations/text.html">Previous section</a><A HREF="../fret_structures/text.html"></A>&nbsp;&nbsp;
+
+<HR WIDTH="100%"></P>
+
+</BODY>
+</HTML>

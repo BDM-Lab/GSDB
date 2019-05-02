@@ -1,0 +1,634 @@
+      SUBROUTINE XMDOEVA(RPNMX,RPNN,RPNX,RPN,RPNL,RPNDB,RPNMLT,RPNLEV,
+     &                   VLEVEL,VMAX,NVARS,VSTACK,LSTACK,
+     &                   NA,NB,NC,
+     &                   MAASY,MBASY,MCASY,NAASY,NBASY,NCASY,
+     &                   QHERM,
+     &                   XRHONUM,XRHONAM,HPRRHO,HPIRHO,
+     &                   HPMAPR,HPMAPI,HPRHOMA,
+     &                   INDEXA,INDEXB,INDEXC,XRNSYM)
+C
+C evaluates an expression stored in Reverse Polish Notation
+C for maps.
+C
+C Author: Axel T. Brunger
+C
+C
+      IMPLICIT NONE
+C input/output
+      INCLUDE 'cns.inc'
+      INCLUDE 'heap.inc'
+      INCLUDE 'comand.inc'
+      INTEGER RPNMX, RPNN, RPNX
+      CHARACTER*(*) RPN(4,*)
+      INTEGER RPNL(4,*)
+      DOUBLE COMPLEX RPNDB(4,*)
+      INTEGER RPNMLT(*), RPNLEV(*)
+      INTEGER VLEVEL, VMAX, NVARS
+      DOUBLE COMPLEX VSTACK(NVARS,VMAX)
+      LOGICAL LSTACK(NVARS,VMAX)
+      INTEGER NA, NB, NC, MAASY, MBASY, MCASY, NAASY, NBASY, NCASY
+      LOGICAL QHERM
+      INTEGER XRHONUM
+      CHARACTER*(*) XRHONAM(*)
+      INTEGER HPRRHO(*), HPIRHO(*)
+      INTEGER HPMAPR, HPMAPI, HPRHOMA
+      INTEGER INDEXA(*), INDEXB(*), INDEXC(*), XRNSYM
+C local
+      INTEGER RPNI, I
+      LOGICAL COND
+C
+C int/add/multiply variable stack
+      INTEGER MCOUNT, NCOUNT
+C
+      PARAMETER (MCOUNT=10)
+      DOUBLE PRECISION COUNT(MCOUNT)
+      INTEGER RCOUNT(MCOUNT)
+      CHARACTER*(WDMAX) SCOUNT(MCOUNT)
+C begin
+C
+C initialize integration variable stack
+      CALL XCOUNT(MCOUNT,NCOUNT,WDMAX,COUNT,SCOUNT,RCOUNT,
+     &            RPNMX,RPNN,RPNX,RPN,RPNL,RPNDB,RPNMLT,RPNLEV)
+C
+C initialize variable stack
+      VLEVEL=0
+C
+      RPNI=1
+      DO WHILE (RPNI.LE.RPNN)
+C contants
+      IF (RPN(1,RPNI)(1:RPNL(1,RPNI)).EQ.'CONS') THEN
+      CALL XDOCONS(VLEVEL,VMAX,VSTACK,NVARS,
+     &             DBLE(RPNDB(1,RPNI)),DIMAG(RPNDB(1,RPNI)))
+C int/add/multiply
+      ELSEIF (RPN(1,RPNI)(1:RPNL(1,RPNI)).EQ.'INTEGRATE'.OR.
+     &        RPN(1,RPNI)(1:RPNL(1,RPNI)).EQ.'ADD'.OR.
+     &        RPN(1,RPNI)(1:RPNL(1,RPNI)).EQ.'MULTIPLY') THEN
+      CALL XINTSP(MCOUNT,NCOUNT,WDMAX,COUNT,SCOUNT,RCOUNT,
+     &                  RPNMX,RPNN,RPNX,RPN,RPNL,RPNDB,RPNMLT,RPNLEV,
+     &                  RPNI,VLEVEL,VMAX,VSTACK,NVARS)
+C int/add/multiply variable
+      ELSEIF (RPN(1,RPNI)(1:RPNL(1,RPNI)).EQ.'_VAR_') THEN
+      CALL XCFIND(MCOUNT,NCOUNT,WDMAX,COUNT,SCOUNT,RCOUNT,
+     &                  RPNMX,RPNN,RPNX,RPN,RPNL,RPNDB,RPNMLT,RPNLEV,
+     &                  RPNI,VLEVEL,VMAX,VSTACK,NVARS)
+C change sign
+      ELSEIF (RPN(1,RPNI)(1:RPNL(1,RPNI)).EQ.'CHS') THEN
+      CALL XDOSIGN(VLEVEL,VMAX,VSTACK,NVARS)
+C plus
+      ELSEIF (RPN(1,RPNI)(1:RPNL(1,RPNI)).EQ.'+') THEN
+      CALL XDOPLUS(VLEVEL,VMAX,VSTACK,NVARS)
+C minus
+      ELSEIF (RPN(1,RPNI)(1:RPNL(1,RPNI)).EQ.'-') THEN
+      CALL XDOMINUS(VLEVEL,VMAX,VSTACK,NVARS)
+C multiply
+      ELSEIF (RPN(1,RPNI)(1:RPNL(1,RPNI)).EQ.'*') THEN
+      CALL XDOMULT(VLEVEL,VMAX,VSTACK,NVARS)
+C divide
+      ELSEIF (RPN(1,RPNI)(1:RPNL(1,RPNI)).EQ.'/') THEN
+      CALL XDODIVI(VLEVEL,VMAX,VSTACK,NVARS)
+C exponentiation
+      ELSEIF (RPN(1,RPNI)(1:RPNL(1,RPNI)).EQ.'^') THEN
+      CALL XDOEXPO(VLEVEL,VMAX,VSTACK,NVARS)
+C functions
+      ELSEIF (RPN(1,RPNI)(1:RPNL(1,RPNI)).EQ.'EXP') THEN
+      CALL XDOEXP(VLEVEL,VMAX,VSTACK,NVARS)
+      ELSEIF (RPN(1,RPNI)(1:RPNL(1,RPNI)).EQ.'LOG') THEN
+      CALL XDOLOG(VLEVEL,VMAX,VSTACK,NVARS)
+      ELSEIF (RPN(1,RPNI)(1:RPNL(1,RPNI)).EQ.'LOG10') THEN
+      CALL XDOLOG10(VLEVEL,VMAX,VSTACK,NVARS)
+      ELSEIF (RPN(1,RPNI)(1:RPNL(1,RPNI)).EQ.'SIN') THEN
+      CALL XDOSIN(VLEVEL,VMAX,VSTACK,NVARS)
+      ELSEIF (RPN(1,RPNI)(1:RPNL(1,RPNI)).EQ.'COS') THEN
+      CALL XDOCOS(VLEVEL,VMAX,VSTACK,NVARS)
+      ELSEIF (RPN(1,RPNI)(1:RPNL(1,RPNI)).EQ.'TAN') THEN
+      CALL XDOTAN(VLEVEL,VMAX,VSTACK,NVARS)
+      ELSEIF (RPN(1,RPNI)(1:RPNL(1,RPNI)).EQ.'ASIN') THEN
+      CALL XDOASIN(VLEVEL,VMAX,VSTACK,NVARS)
+      ELSEIF (RPN(1,RPNI)(1:RPNL(1,RPNI)).EQ.'ACOS') THEN
+      CALL XDOACOS(VLEVEL,VMAX,VSTACK,NVARS)
+      ELSEIF (RPN(1,RPNI)(1:RPNL(1,RPNI)).EQ.'ATAN') THEN
+      CALL XDOATAN(VLEVEL,VMAX,VSTACK,NVARS)
+      ELSEIF (RPN(1,RPNI)(1:RPNL(1,RPNI)).EQ.'SQRT') THEN
+      CALL XDOSQRT(VLEVEL,VMAX,VSTACK,NVARS)
+      ELSEIF (RPN(1,RPNI)(1:RPNL(1,RPNI)).EQ.'SIGN') THEN
+      CALL XDOSIGNF(VLEVEL,VMAX,VSTACK,NVARS)
+      ELSEIF (RPN(1,RPNI)(1:RPNL(1,RPNI)).EQ.'STEP') THEN
+      CALL XDOSTEP(VLEVEL,VMAX,VSTACK,NVARS)
+      ELSEIF (RPN(1,RPNI)(1:RPNL(1,RPNI)).EQ.'INTEGER') THEN
+      CALL XDOINT(VLEVEL,VMAX,VSTACK,NVARS)
+      ELSEIF (RPN(1,RPNI)(1:RPNL(1,RPNI)).EQ.'REAL') THEN
+      CALL XDOREAL(VLEVEL,VMAX,VSTACK,NVARS)
+      ELSEIF (RPN(1,RPNI)(1:RPNL(1,RPNI)).EQ.'IMAG') THEN
+      CALL XDOIMAG(VLEVEL,VMAX,VSTACK,NVARS)
+      ELSEIF (RPN(1,RPNI)(1:RPNL(1,RPNI)).EQ.'ABS') THEN
+      CALL XDOABS(VLEVEL,VMAX,VSTACK,NVARS)
+      ELSEIF (RPN(1,RPNI)(1:RPNL(1,RPNI)).EQ.'AMPLITUDE') THEN
+      CALL XDOABS(VLEVEL,VMAX,VSTACK,NVARS)
+      ELSEIF (RPN(1,RPNI)(1:RPNL(1,RPNI)).EQ.'PHASE') THEN
+      CALL XDOPHAS(VLEVEL,VMAX,VSTACK,NVARS)
+      ELSEIF (RPN(1,RPNI)(1:RPNL(1,RPNI)).EQ.'CONJUGATE') THEN
+      CALL XDOCONJ(VLEVEL,VMAX,VSTACK,NVARS)
+      ELSEIF (RPN(1,RPNI)(1:RPNL(1,RPNI)).EQ.'RANDOM') THEN
+      CALL XDORAND(VLEVEL,VMAX,VSTACK,NVARS)
+      ELSEIF (RPN(1,RPNI)(1:RPNL(1,RPNI)).EQ.'GAUSSIAN') THEN
+      CALL XDOGAUS(VLEVEL,VMAX,VSTACK,NVARS)
+C two-argument functions
+      ELSEIF (RPN(1,RPNI)(1:RPNL(1,RPNI)).EQ.'MOD') THEN
+      CALL XDOMOD(VLEVEL,VMAX,VSTACK,NVARS)
+      ELSEIF (RPN(1,RPNI)(1:RPNL(1,RPNI)).EQ.'COMPLEX') THEN
+      CALL XDOCOMP(VLEVEL,VMAX,VSTACK,NVARS)
+      ELSEIF (RPN(1,RPNI)(1:RPNL(1,RPNI)).EQ.'COMBINE') THEN
+      CALL XDOCOMB(VLEVEL,VMAX,VSTACK,NVARS)
+C multiple-argument functions
+      ELSEIF (RPN(1,RPNI)(1:RPNL(1,RPNI)).EQ.'MAX') THEN
+      CALL XDOMAX(VLEVEL,VMAX,VSTACK,NVARS,RPNMLT(RPNI))
+      ELSEIF (RPN(1,RPNI)(1:RPNL(1,RPNI)).EQ.'MIN') THEN
+      CALL XDOMIN(VLEVEL,VMAX,VSTACK,NVARS,RPNMLT(RPNI))
+C logical contants
+      ELSEIF (RPN(1,RPNI)(1:RPNL(1,RPNI)).EQ.'TRUE') THEN
+      CALL XDOLCON(VLEVEL,VMAX,LSTACK,NVARS,.TRUE.)
+      ELSEIF (RPN(1,RPNI)(1:RPNL(1,RPNI)).EQ.'FALSE') THEN
+      CALL XDOLCON(VLEVEL,VMAX,LSTACK,NVARS,.FALSE.)
+C logical functions
+      ELSEIF (RPN(1,RPNI)(1:RPNL(1,RPNI)).EQ.'NOT') THEN
+      CALL XDONOT(VLEVEL,VMAX,LSTACK,NVARS)
+C logical operations
+      ELSEIF (RPN(1,RPNI)(1:RPNL(1,RPNI)).EQ.'AND') THEN
+      CALL XDOAND(VLEVEL,VMAX,LSTACK,NVARS)
+      ELSEIF (RPN(1,RPNI)(1:RPNL(1,RPNI)).EQ.'OR') THEN
+      CALL XDOOR(VLEVEL,VMAX,LSTACK,NVARS)
+C relational operators
+      ELSEIF (RPN(1,RPNI)(1:RPNL(1,RPNI)).EQ.'=') THEN
+      CALL XDOEQ(VLEVEL,VMAX,VSTACK,LSTACK,NVARS)
+      ELSEIF (RPN(1,RPNI)(1:RPNL(1,RPNI)).EQ.'#') THEN
+      CALL XDONE(VLEVEL,VMAX,VSTACK,LSTACK,NVARS)
+      ELSEIF (RPN(1,RPNI)(1:RPNL(1,RPNI)).EQ.'>') THEN
+      CALL XDOGT(VLEVEL,VMAX,VSTACK,LSTACK,NVARS)
+      ELSEIF (RPN(1,RPNI)(1:RPNL(1,RPNI)).EQ.'<') THEN
+      CALL XDOLT(VLEVEL,VMAX,VSTACK,LSTACK,NVARS)
+      ELSEIF (RPN(1,RPNI)(1:RPNL(1,RPNI)).EQ.'>=') THEN
+      CALL XDOGE(VLEVEL,VMAX,VSTACK,LSTACK,NVARS)
+      ELSEIF (RPN(1,RPNI)(1:RPNL(1,RPNI)).EQ.'<=') THEN
+      CALL XDOLE(VLEVEL,VMAX,VSTACK,LSTACK,NVARS)
+C
+C special store
+      ELSEIF (RPN(1,RPNI)(1:RPNL(1,RPNI)).EQ.'STORE') THEN
+      CALL XMDODC(VLEVEL,VMAX,VSTACK,NVARS,
+     &    MAASY,MBASY,MCASY,NAASY,NBASY,NCASY,
+     &    QHERM,HEAP(HPMAPR),HEAP(HPMAPI),INDEXA,INDEXB,INDEXC)
+C
+C other map-specific functions
+      ELSEIF (RPN(1,RPNI)(1:RPNL(1,RPNI)).EQ.'X') THEN
+      CALL XMDOX(VLEVEL,VMAX,VSTACK,NVARS,NA,INDEXA)
+      ELSEIF (RPN(1,RPNI)(1:RPNL(1,RPNI)).EQ.'Y') THEN
+      CALL XMDOX(VLEVEL,VMAX,VSTACK,NVARS,NB,INDEXB)
+      ELSEIF (RPN(1,RPNI)(1:RPNL(1,RPNI)).EQ.'Z') THEN
+      CALL XMDOX(VLEVEL,VMAX,VSTACK,NVARS,NC,INDEXC)
+      ELSEIF (RPN(1,RPNI)(1:RPNL(1,RPNI)).EQ.'A') THEN
+      CALL XMDOA(VLEVEL,VMAX,VSTACK,NVARS,INDEXA)
+      ELSEIF (RPN(1,RPNI)(1:RPNL(1,RPNI)).EQ.'B') THEN
+      CALL XMDOA(VLEVEL,VMAX,VSTACK,NVARS,INDEXB)
+      ELSEIF (RPN(1,RPNI)(1:RPNL(1,RPNI)).EQ.'C') THEN
+      CALL XMDOA(VLEVEL,VMAX,VSTACK,NVARS,INDEXC)
+      ELSEIF (RPN(1,RPNI)(1:RPNL(1,RPNI)).EQ.'MULT') THEN
+      CALL XMDOML(VLEVEL,VMAX,VSTACK,NVARS,
+     &    MAASY,MBASY,MCASY,NAASY,NBASY,NCASY,
+     &    QHERM,HEAP(HPRHOMA),XRNSYM,INDEXA,INDEXB,INDEXC)
+      ELSEIF (RPN(1,RPNI)(1:RPNL(1,RPNI)).EQ.'GAVE') THEN
+      CALL XMDOGAVE(VLEVEL,VMAX,VSTACK,NVARS)
+C=====================================================================
+C #if defined(CNS_SOLVE_COMPILE)
+C=====================================================================
+C standard deviation operation
+      ELSEIF (RPN(1,RPNI)(1:RPNL(1,RPNI)).EQ.'SDEV') THEN
+      CALL XMDOSDEV(VLEVEL,VMAX,VSTACK,NVARS,INDEXA,INDEXB,INDEXC,
+     &              MAASY,MBASY,MCASY,NAASY,NBASY,NCASY,NA,NB,NC,
+     &              HEAP(HPRHOMA),RPNDB(1,RPNI))
+C=====================================================================
+C #endif
+C=====================================================================
+C recall
+      ELSEIF (RPN(1,RPNI)(1:RPNL(1,RPNI)).EQ.'RECALL') THEN
+      VLEVEL=VLEVEL+1
+C
+      ELSE
+C
+C check real space objects
+      COND=.FALSE.
+      DO I=1,XRHONUM
+      IF (RPN(1,RPNI)(1:RPNL(1,RPNI)).EQ.XRHONAM(I)) THEN
+      COND=.TRUE.
+      IF (HPRRHO(I).EQ.0) THEN
+      WRITE(6,'(3A)') ' %XMDOEVA-ERR: real space object ',
+     & RPN(1,RPNI)(1:RPNL(1,RPNI)),' undefined.'
+      CALL WRNDIE(-5,'XMDOEVA','object undefined.')
+      ELSE
+      CALL XMDODC(VLEVEL,VMAX,VSTACK,NVARS,
+     &    MAASY,MBASY,MCASY,NAASY,NBASY,NCASY,
+     &    QHERM,HEAP(HPRRHO(I)),HEAP(HPIRHO(I)),INDEXA,INDEXB,INDEXC)
+      END IF
+      END IF
+      END DO
+C
+      IF (.NOT.COND) THEN
+      WRITE(6,'(2A)') ' %XDO-ERR: Cannot interpret item ',
+     &                 RPN(1,RPNI)(1:RPNL(1,RPNI))
+      CALL WRNDIE(-5,'XMDOEVA','Cannot interpret item')
+      END IF
+      END IF
+C
+      RPNI=RPNI+1
+C
+      END DO
+C
+      RETURN
+      END
+C======================================================================
+      SUBROUTINE XMDOASS(LHS,LLHS,VLEVEL,VMAX,NVARS,VSTACK,LSTACK,
+     &                   MAASY,MBASY,MCASY,NAASY,NBASY,NCASY,
+     &                   QHERM,NRHO,IRHO,
+     &                   XRHONUM,XRHONAM,HPRRHO,HPIRHO,
+     &                   HPMAPR,HPMAPI,
+     &                   INDEXA,INDEXB,INDEXC)
+C
+C assigns stack value to operand
+C
+C Author: Axel T. Brunger
+C
+C
+      IMPLICIT NONE
+      INCLUDE 'cns.inc'
+      INCLUDE 'heap.inc'
+C input/output
+      CHARACTER*(*) LHS
+      INTEGER LLHS
+      INTEGER VLEVEL, VMAX, NVARS
+      DOUBLE COMPLEX VSTACK(NVARS,VMAX)
+      LOGICAL LSTACK(NVARS,VMAX)
+      INTEGER MAASY, MBASY, MCASY, NAASY, NBASY, NCASY
+      LOGICAL QHERM
+      INTEGER NRHO, IRHO
+      INTEGER XRHONUM
+      CHARACTER*(*) XRHONAM(*)
+      INTEGER HPRRHO(*), HPIRHO(*)
+      INTEGER HPMAPR, HPMAPI
+      INTEGER INDEXA(NVARS), INDEXB(NVARS), INDEXC(NVARS)
+C local
+      INTEGER I
+      LOGICAL COND
+C begin
+C
+C check real space objects
+      COND=.FALSE.
+      DO I=1,XRHONUM
+      IF (LHS(1:LLHS).EQ.XRHONAM(I)) THEN
+      COND=.TRUE.
+C
+C allocate space for object if required
+      IF (HPRRHO(I).EQ.0) THEN
+      CALL XMAPAL(HPRRHO(I),HPIRHO(I),QHERM,NRHO,IRHO)
+      END IF
+C
+C copy stack into object
+      CALL XMDOADC(VLEVEL,VMAX,VSTACK,NVARS,
+     &        MAASY,MBASY,MCASY,NAASY,NBASY,NCASY,QHERM,
+     &        HEAP(HPRRHO(I)),HEAP(HPIRHO(I)),INDEXA,INDEXB,INDEXC)
+      END IF
+      END DO
+C
+C special store
+      IF (.NOT.COND.AND.LHS(1:LLHS).EQ.'STORE') THEN
+      CALL XMDOADC(VLEVEL,VMAX,VSTACK,NVARS,
+     &        MAASY,MBASY,MCASY,NAASY,NBASY,NCASY,QHERM,
+     &        HEAP(HPMAPR),HEAP(HPMAPI),INDEXA,INDEXB,INDEXC)
+C
+      ELSEIF (.NOT.COND) THEN
+      WRITE(6,'(2A)') ' %XMDOASS-ERR: Cannot interpret item ',
+     &                 LHS(1:LLHS)
+      CALL WRNDIE(-5,'XMDOASS','Cannot interpret item')
+      END IF
+C
+      RETURN
+      END
+C======================================================================
+      SUBROUTINE XMDOMAK(A,B,C,INDEXA,INDEXB,INDEXC,START,STOP,NSELE,
+     &                   MAASY,MBASY,MCASY,NAASY,NBASY,NCASY,RHOMASK)
+C
+C Author: Axel T. Brunger
+C
+      IMPLICIT NONE
+C input/output
+      INTEGER A, B, C, INDEXA(*), INDEXB(*), INDEXC(*)
+      INTEGER START, STOP, NSELE
+      INTEGER MAASY, MBASY, MCASY,NAASY, NBASY, NCASY
+      INTEGER RHOMASK(MAASY:NAASY,MBASY:NBASY,MCASY:NCASY)
+C local
+C begin
+      NSELE=0
+      DO WHILE (NSELE.LT.STOP-START+1)
+C
+      A=A+1
+      IF (A.GT.NAASY) THEN
+      A=MAASY
+      B=B+1
+      IF (B.GT.NBASY) THEN
+      B=MBASY
+      C=C+1
+      END IF
+      END IF
+C
+      IF (RHOMASK(A,B,C).NE.0) THEN
+      NSELE=NSELE+1
+      INDEXA(NSELE)=A
+      INDEXB(NSELE)=B
+      INDEXC(NSELE)=C
+      END IF
+C
+      END DO
+      RETURN
+      END
+C======================================================================
+      SUBROUTINE XMDODC(VLEVEL,VMAX,VSTACK,N,
+     &      MAASY,MBASY,MCASY,NAASY,NBASY,NCASY,QHERM,
+     &      RRHO,IRHO,INDEXA,INDEXB,INDEXC)
+C
+C fill stack with map array.
+C
+C Author: Axel T. Brunger
+C
+C
+      IMPLICIT NONE
+C I/O
+      INTEGER VLEVEL, VMAX, N
+      DOUBLE COMPLEX VSTACK(N,*)
+      INTEGER MAASY, MBASY, MCASY, NAASY, NBASY, NCASY
+      LOGICAL QHERM
+      REAL RRHO(MAASY:NAASY,MBASY:NBASY,MCASY:NCASY)
+      REAL IRHO(MAASY:NAASY,MBASY:NBASY,MCASY:NCASY)
+      INTEGER INDEXA(*), INDEXB(*), INDEXC(*)
+C local
+      INTEGER I
+C parameter
+      DOUBLE PRECISION ZERO
+      PARAMETER (ZERO=0.0D0)
+C begin
+      VLEVEL=VLEVEL+1
+      IF (QHERM) THEN
+      DO I=1,N
+      VSTACK(I,VLEVEL)=RRHO(INDEXA(I),INDEXB(I),INDEXC(I))
+      END DO
+      ELSE
+      DO I=1,N
+      VSTACK(I,VLEVEL)=CMPLX(RRHO(INDEXA(I),INDEXB(I),INDEXC(I)),
+     &                       IRHO(INDEXA(I),INDEXB(I),INDEXC(I)))
+      END DO
+      END IF
+      RETURN
+      END
+C======================================================================
+      SUBROUTINE XMDOX(VLEVEL,VMAX,VSTACK,N,NA,INDEXA)
+C
+C fill stack with fractional "x".
+C
+C Author: Axel T. Brunger
+C
+C
+      IMPLICIT NONE
+C I/O
+      INTEGER VLEVEL, VMAX, N
+      DOUBLE COMPLEX VSTACK(N,*)
+      INTEGER NA, INDEXA(*)
+C local
+      INTEGER I
+      DOUBLE PRECISION TEMP
+      DOUBLE PRECISION ZERO, ONE
+      PARAMETER (ZERO=0.0D0, ONE=1.0D0)
+C begin
+      VLEVEL=VLEVEL+1
+      DO I=1,N
+      TEMP=NA
+      VSTACK(I,VLEVEL)=DCMPLX(INDEXA(I)/TEMP,ZERO)
+      END DO
+      RETURN
+      END
+C======================================================================
+      SUBROUTINE XMDOA(VLEVEL,VMAX,VSTACK,N,INDEXA)
+C
+C fill stack with index A.
+C
+C Author: Axel T. Brunger
+C
+C
+      IMPLICIT NONE
+C I/O
+      INTEGER VLEVEL, VMAX, N
+      DOUBLE COMPLEX VSTACK(N,*)
+      INTEGER INDEXA(*)
+C local
+      INTEGER I
+      DOUBLE PRECISION TEMP
+      DOUBLE PRECISION ZERO, ONE
+      PARAMETER (ZERO=0.0D0, ONE=1.0D0)
+C begin
+      VLEVEL=VLEVEL+1
+      DO I=1,N
+      TEMP=INDEXA(I)
+      VSTACK(I,VLEVEL)=DCMPLX(TEMP,ZERO)
+      END DO
+      RETURN
+      END
+C======================================================================
+      SUBROUTINE XMDOADC(VLEVEL,VMAX,VSTACK,N,
+     &                  MAASY,MBASY,MCASY,NAASY,NBASY,NCASY,QHERM,
+     &                  RRHO,IRHO,INDEXA,INDEXB,INDEXC)
+C
+C assign double complex array to map.
+C
+C Author: Axel T. Brunger
+C
+C
+      IMPLICIT NONE
+C I/O
+      INTEGER VLEVEL, VMAX, N
+      DOUBLE COMPLEX VSTACK(N,*)
+      INTEGER NAASY, NBASY, NCASY, MAASY, MBASY, MCASY
+      LOGICAL QHERM
+      REAL RRHO(MAASY:NAASY,MBASY:NBASY,MCASY:NCASY)
+      REAL IRHO(MAASY:NAASY,MBASY:NBASY,MCASY:NCASY)
+      INTEGER INDEXA(*), INDEXB(*), INDEXC(*)
+C local
+      INTEGER I
+C begin
+      DO I=1,N
+      RRHO(INDEXA(I),INDEXB(I),INDEXC(I))=DBLE(VSTACK(I,VLEVEL))
+      END DO
+      IF (.NOT.QHERM) THEN
+      DO I=1,N
+      IRHO(INDEXA(I),INDEXB(I),INDEXC(I))=DIMAG(VSTACK(I,VLEVEL))
+      END DO
+      END IF
+      RETURN
+      END
+C======================================================================
+      SUBROUTINE XMDOML(VLEVEL,VMAX,VSTACK,N,
+     &    MAASY,MBASY,MCASY,NAASY,NBASY,NCASY,
+     &    QHERM,MASK,XRNSYM,INDEXA,INDEXB,INDEXC)
+C
+C assign multiplicity to stack.
+C
+C Author: Axel T. Brunger
+C
+C
+      IMPLICIT NONE
+C I/O
+      INTEGER VLEVEL, VMAX, N
+      DOUBLE COMPLEX VSTACK(N,*)
+      INTEGER NAASY, NBASY, NCASY, MAASY, MBASY, MCASY
+      LOGICAL QHERM
+      INTEGER MASK(MAASY:NAASY,MBASY:NBASY,MCASY:NCASY), XRNSYM
+      INTEGER INDEXA(*), INDEXB(*), INDEXC(*)
+C local
+      INTEGER I
+      DOUBLE PRECISION TEMP
+C parameter
+      DOUBLE PRECISION ZERO
+      PARAMETER (ZERO=0.0D0)
+C begin
+      VLEVEL=VLEVEL+1
+      DO I=1,N
+      TEMP=MASK(INDEXA(I),INDEXB(I),INDEXC(I))
+      VSTACK(I,VLEVEL)=XRNSYM/DCMPLX(TEMP,ZERO)
+      END DO
+      RETURN
+      END
+C======================================================================
+      SUBROUTINE XMDOGAVE(VLEVEL,VMAX,VSTACK,N)
+C
+C Map GAVErage function.
+C
+C Usage: GAVE(<map>, <integer-map>).
+C
+C Routine computes averages of a map over
+C regions that are specified by a integer map.
+C
+C Averages are performed over each distinct entry
+C in the integer map.  The averages are then stored
+C in all map elements that correspond to this particular
+C entry.  The number of selected entries in the integer
+C map is returned in the symbol $ENTRY.
+C
+C Authors: Jiansheng Jiang and Axel T. Brunger
+C
+      IMPLICIT NONE
+C I/O
+      INCLUDE 'cns.inc'
+      INCLUDE 'heap.inc'
+      INCLUDE 'funct.inc'
+      INCLUDE 'timer.inc'
+      INTEGER VLEVEL, VMAX, N
+      DOUBLE COMPLEX VSTACK(N,*)
+C local
+      INTEGER ENTRY, MAXID, I, MINID
+      DOUBLE PRECISION DBPREC
+      DOUBLE COMPLEX DBCOMP
+C pointer
+      INTEGER NPTS, AVER
+C begin
+      ENTRY=0
+C
+C find out the maximum of the property map (first argument)
+      IF (N.GT.0) THEN
+      MAXID=INT(DBLE(VSTACK(1,VLEVEL)))
+      MINID=INT(DBLE(VSTACK(1,VLEVEL)))
+      DO I=2,N
+      MAXID=MAX(MAXID,INT(DBLE(VSTACK(I,VLEVEL))))
+      MINID=MIN(MINID,INT(DBLE(VSTACK(I,VLEVEL))))
+      END DO
+      IF (WRNLEV.GT.10) THEN
+      WRITE(6,'(A,I8)') ' XMDOGAVE: maximum of the integer map:',MAXID
+      END IF
+      IF (MAXID.EQ.0) THEN
+      CALL WRNDIE(-5,'XMDOGAVE','Maximum of the integer map is zero.')
+      END IF
+      IF (MINID.LT.0) THEN
+      CALL WRNDIE(-5,'XMDOGAVE',
+     & 'There are negative entryies in the integer map.')
+      END IF
+      IF (MAXID.GT.1000000) THEN
+      CALL WRNDIE(+5,'XMDOGAVE',
+     &     'Maximum of the integer map exceeds 1000000.')
+      END IF
+C
+      NPTS=ALLHP(INTEG4(MAXID))
+      AVER=ALLHP(ICPLX8(MAXID))
+      CALL XMDOGAVE2(VLEVEL,VMAX,VSTACK,N,MAXID,HEAP(NPTS),
+     &              HEAP(AVER),ENTRY)
+      CALL FREHP(AVER,ICPLX8(MAXID))
+      CALL FREHP(NPTS,INTEG4(MAXID))
+      END IF
+C
+      DBPREC=ENTRY
+      CALL DECLAR('ENTRY','DP',' ',DBCOMP,DBPREC)
+      IF (WRNLEV.GT.10) THEN
+      WRITE(6,'(A,I8)') ' XMDOGAVE: number of entries in integer map:',
+     &   ENTRY
+      END IF
+C
+      RETURN
+      END
+C======================================================================
+      SUBROUTINE XMDOGAVE2(VLEVEL,VMAX,VSTACK,N,MAXID,NPTS,AVER,ENTRY)
+C
+C Map GAVErage function, see the above
+C
+C Author: Jiansheng Jiang and Axel T. Brunger
+C
+      IMPLICIT NONE
+C I/O
+      INCLUDE 'consta.inc'
+      INTEGER VLEVEL, VMAX, N
+      DOUBLE COMPLEX VSTACK(N,*)
+      INTEGER MAXID
+      INTEGER NPTS(*)
+      DOUBLE COMPLEX AVER(*)
+      INTEGER ENTRY
+C local
+      INTEGER I, ID
+C parameter
+      DOUBLE PRECISION ZERO
+      PARAMETER (ZERO=0.0D0)
+C begin
+C
+      VLEVEL=VLEVEL-1
+C
+      DO ID=1,MAXID
+      NPTS(ID)=0
+      AVER(ID)=DCMPLX(ZERO,ZERO)
+      END DO
+C
+      DO I=1,N
+      ID=INT(DBLE(VSTACK(I,VLEVEL+1)))
+      IF (ID.GT.0.AND.ID.LE.MAXID) THEN
+      NPTS(ID)=NPTS(ID)+1
+      AVER(ID)=AVER(ID)+VSTACK(I,VLEVEL)
+      END IF
+      END DO
+C
+      DO I=1,N
+      ID=INT(DBLE(VSTACK(I,VLEVEL+1)))
+      IF (ID.GT.0.AND.ID.LE.MAXID) THEN
+      IF (NPTS(ID).GT.0) THEN
+      VSTACK(I,VLEVEL)=AVER(ID)/NPTS(ID)
+      END IF
+      END IF
+      END DO
+C
+      ENTRY=0
+      DO ID=1,MAXID
+      IF (NPTS(ID).GT.0) ENTRY=ENTRY+1
+      END DO
+C
+C
+      RETURN
+      END
+C======================================================================

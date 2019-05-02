@@ -1,0 +1,109 @@
+{+ file: alternate.inp +}
+{+ directory: general +}
+{+ description: Generate alternate conformations or multiple conformers +}
+{+ authors: Axel T. Brunger, and Paul D. Adams +}
+{+ copyright: Yale University +}
+
+{- Guidelines for using this file:
+   - all strings must be quoted by double-quotes
+   - logical variables (true/false) are not quoted
+   - do not remove any evaluate statements from the file -}
+
+{- begin block parameter definition -} define(
+
+{======================= molecular structure =========================}
+
+{* structure file *}
+{===>} structure_infile="amy.mtf";
+
+{* coordinate file *}
+{===>} coordinate_infile="amy.pdb";
+
+{========================== atom selection ===========================}
+
+{* select atoms to have multiple conformations *}
+{===>} atom_select=(resid 10 or resid 20);
+
+{* number of multiple conformations to make for selected atoms - upto 9 *}
+{* Different conformers will be given the segids AC1, AC2 .... ACn. 
+   Note that the original segid of the selected atoms will be overwritten
+   by these segids, unless single character chain ids are used.  You must
+   specify the new segids in the alternate conformation section in all 
+   subsequent files.  *}
+{===>} num_conf=2;
+
+{* preprend chain identifier (which must be a single character) *}
+{+ choice: true false +}
+{===>} chain_prepend=true;
+
+{* scale occupancy *}
+{+ choice: true false +}
+{===>} scale_occupancy=true;
+
+{=========================== output files ============================}
+
+{* output structure file *}
+{===>} structure_outfile="alternate.mtf";
+
+{* output coordinate file *}
+{===>} coordinate_outfile="alternate.pdb";
+
+{===========================================================================}
+{        things below this line do not normally need to be changed          }
+{===========================================================================}
+
+ ) {- end block parameter definition -}
+
+ checkversion 1.3
+
+ evaluate ($log_level=quiet)
+
+ structure @&structure_infile end
+
+ coordinates @&coordinate_infile
+
+ if ( &chain_prepend = true ) then
+   do (segid=segid + "AC1") (&atom_select)
+   if ( &scale_occupancy = true ) then
+     do (q=q/&num_conf) (segid %AC1)
+   end if
+ else
+   do (segid="AC1") (&atom_select)
+   if ( &scale_occupancy = true ) then
+     do (q=q/&num_conf) (segid AC1)
+   end if
+ end if
+
+ evaluate ($conf=2)
+ while ( $conf <= &num_conf ) loop conf
+   if ( &chain_prepend = true ) then
+     evaluate ($segid_old="")
+     evaluate ($counter=0)
+     for $id in id ( segid %AC1 ) loop segids
+       show (segid - "AC1") (id $id)
+       evaluate ($segid_new=$result)
+       if ( $segid_new # $segid_old ) then
+         evaluate ($counter=$counter+1)
+         evaluate ($segid_$counter=$segid_new)
+         evaluate ($segid_old=$segid_new)
+       end if
+     end loop segids
+     evaluate ($segcounter=$counter)
+     evaluate ($counter=1)
+     while ( $counter <= $segcounter) loop change
+       evaluate ($segid_base=$segid_$counter + "AC1")
+       evaluate ($segid=$segid_$counter + "AC" + encode($conf))
+       duplicate sele=(segid $segid_base) segid=$segid end
+       evaluate ($counter=$counter+1)
+     end loop change    
+   else
+     evaluate ($segid="AC" + encode($conf))
+     duplicate sele=(segid AC1) segid=$segid end
+   end if
+   evaluate ($conf=$conf+1)
+ end loop conf
+
+ write structure output=&structure_outfile end
+ write coord output=&coordinate_outfile format=PDBO end
+
+ stop

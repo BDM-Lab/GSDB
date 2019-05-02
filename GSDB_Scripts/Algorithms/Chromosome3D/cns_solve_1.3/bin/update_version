@@ -1,0 +1,256 @@
+#!/bin/csh -f
+#
+# update the version of the current CNSsolve distribution
+# will need to be modified if new directories are added
+#
+# Paul Adams Oct-97
+#
+# copyright Yale University
+#
+onintr clean
+#
+if ( $#argv != 1 ) then
+  echo "usage: update_version new-version-number"
+  exit 1
+else if ( $argv[1] == '-help' || $argv[1] == '-h' ) then
+  echo "usage: update_version new-version-number"
+  exit 0
+else
+  set new_version=$argv[1]
+endif
+#
+# update input files
+#
+cd $CNS_SOLVE/inputs
+foreach dir (auxiliary general nmr_calc xtal_mr xtal_patterson xtal_mmcif \
+             xtal_pdbsubmission xtal_phase xtal_refine xtal_twin xtal_util \
+             xtal_data nmr_data)
+  cd $CNS_SOLVE/inputs/$dir
+  echo "updating files in $CNS_SOLVE/inputs/$dir"
+  /bin/ls *.inp *.def >& /dev/null
+  if ( $status == 0 ) then
+    foreach file (*.inp *.def)
+      echo "changing version for file $file"
+      sed -e "s/checkversion *[0-9]*\.[0-9]*/checkversion $new_version/" \
+              $file > $file.tmp
+      if ( ( ! -z $file.tmp ) && ( `diff $file $file.tmp | wc -l` != 0 ) ) then
+        mv $file.tmp $file
+      else
+        /bin/rm -f $file.tmp
+      endif
+    end
+  endif
+end 
+#
+# update modules
+#
+cd $CNS_MODULE
+foreach dir (xtal nmr)
+  cd $CNS_MODULE/$dir
+  echo "updating files in $CNS_MODULE/$dir"
+  foreach file (*)
+    echo "changing version for file $file"
+    sed -e "s/checkversion *[0-9]*\.[0-9]*/checkversion $new_version/" \
+            $file > $file.tmp
+    if ( ( ! -z $file.tmp ) && ( `diff $file $file.tmp | wc -l` != 0 ) ) then
+      mv $file.tmp $file
+    else
+      /bin/rm -f $file.tmp
+    endif
+  end
+end 
+#
+# update libraries
+#
+cd $CNS_LIB
+foreach dir (xtal nmr xray toppar confdb)
+  if ( -d $CNS_LIB/$dir ) then
+    cd $CNS_LIB/$dir
+    echo "updating files in $CNS_LIB/$dir"
+    foreach file (*)
+      echo "changing version for file $file"
+      sed -e "s/checkversion *[0-9]*\.[0-9]*/checkversion $new_version/" \
+              $file > $file.tmp
+      if ( ( ! -z $file.tmp ) && ( `diff $file $file.tmp | wc -l` != 0 ) ) then
+        mv $file.tmp $file
+      else
+        /bin/rm -f $file.tmp
+      endif
+    end
+  endif
+end 
+#
+# update test files
+#
+if ( -d $CNS_SOLVE/test ) then
+  cd $CNS_SOLVE/test
+  echo "updating files in $CNS_SOLVE/test"
+  foreach file (*.inp)
+    echo "changing version for file $file"
+    sed -e "s/checkversion *[0-9]*\.[0-9]*/checkversion $new_version/" \
+            $file > $file.tmp
+    if ( ( ! -z $file.tmp ) && ( `diff $file $file.tmp | wc -l` != 0 ) ) then
+      mv $file.tmp $file
+    else
+      /bin/rm -f $file.tmp
+    endif
+  end
+endif
+#
+# update version.inc in source
+#
+cd $CNS_SOLVE/source
+echo "updating files in $CNS_SOLVE/source"
+foreach file (version.inc)
+  echo "changing version for file $file"
+  sed -e "s/CNSVERSION='[0-9]*\.[0-9]*'/CNSVERSION=\'$new_version\'/" \
+          $file > $file.tmp
+  if ( ( ! -z $file.tmp ) && ( `diff $file $file.tmp | wc -l` != 0 ) ) then
+    mv $file.tmp $file
+  else
+    /bin/rm -f $file.tmp
+  endif
+end
+#
+# update main html text file
+#
+cd $CNS_SOLVE/doc/html/main
+echo "updating files in $CNS_SOLVE/doc/html/main"
+foreach file (text.html)
+  echo "changing version for file $file"
+  sed -e "s/Version<\/I>: *[0-9]*\.[0-9]*/Version<\/I>: $new_version/" \
+          $file > $file.tmp
+  if ( ( ! -z $file.tmp ) && ( `diff $file $file.tmp | wc -l` != 0 ) ) then
+    mv $file.tmp $file
+  else
+    /bin/rm -f $file.tmp
+  endif
+end
+#
+# update input_files directory frame_dist.html file
+#
+cd $CNS_SOLVE/doc/html/input_files
+echo "updating files in $CNS_SOLVE/doc/html/input_files"
+foreach file (frame_dist.html)
+  echo "changing version for file $file"
+  sed -e "s#/cns_solve_[0-9]*\.[0-9]*/#/cns_solve_$new_version/#" \
+          $file > $file.tmp
+  if ( ( ! -z $file.tmp ) && ( `diff $file $file.tmp | wc -l` != 0 ) ) then
+    mv $file.tmp $file
+  else
+    /bin/rm -f $file.tmp
+  endif
+end
+#
+# update libraries directory frame_dist.html file
+#
+cd $CNS_SOLVE/doc/html/libraries
+echo "updating files in $CNS_SOLVE/doc/html/libraries"
+foreach file (frame_dist.html)
+  echo "changing version for file $file"
+  sed -e "s#/cns_solve_[0-9]*\.[0-9]*/#/cns_solve_$new_version/#" \
+          $file > $file.tmp
+  if ( ( ! -z $file.tmp ) && ( `diff $file $file.tmp | wc -l` != 0 ) ) then
+    mv $file.tmp $file
+  else
+    /bin/rm -f $file.tmp
+  endif
+end
+#
+# update modules directory frame_dist.html file
+#
+cd $CNS_SOLVE/doc/html/modules
+echo "updating files in $CNS_SOLVE/doc/html/modules"
+foreach file (frame_dist.html)
+  echo "changing version for file $file"
+  sed -e "s#/cns_solve_[0-9]*\.[0-9]*/#/cns_solve_$new_version/#" \
+          $file > $file.tmp
+  if ( ( ! -z $file.tmp ) && ( `diff $file $file.tmp | wc -l` != 0 ) ) then
+    mv $file.tmp $file
+  else
+    /bin/rm -f $file.tmp
+  endif
+end
+#
+# update utilities directory text_dist.html file
+#
+cd $CNS_SOLVE/doc/html/utilities
+echo "updating files in $CNS_SOLVE/doc/html/utilities"
+foreach file (text_dist.html)
+  echo "changing version for file $file"
+  sed -e "s#/cns_solve_[0-9]*\.[0-9]*/#/cns_solve_$new_version/#" \
+          $file > $file.tmp
+  if ( ( ! -z $file.tmp ) && ( `diff $file $file.tmp | wc -l` != 0 ) ) then
+    mv $file.tmp $file
+  else
+    /bin/rm -f $file.tmp
+  endif
+end
+#
+# update html/cns.lib file
+#
+cd $CNS_SOLVE/doc/html/cgi
+echo "updating files in $CNS_SOLVE/doc/html/cgi"
+foreach file (*.lib)
+  echo "changing version for file $file"
+  sed -e "s#cns_solve_[0-9]*\.[0-9]*#cns_solve_$new_version#g" \
+          $file > $file.tmp
+  if ( ( ! -z $file.tmp ) && ( `diff $file $file.tmp | wc -l` != 0 ) ) then
+    mv $file.tmp $file
+  else
+    /bin/rm -f $file.tmp
+  endif
+end
+#
+# update bin/cns_edit file
+#
+cd $CNS_SOLVE/bin
+echo "updating files in $CNS_SOLVE/bin"
+foreach file ('cns_edit')
+  echo "changing version for file $file"
+  sed -e "s#/cns_solve_[0-9]*\.[0-9]*/#/cns_solve_$new_version/#g" \
+          $file > $file.tmp
+  if ( ( ! -z $file.tmp ) && ( `diff $file $file.tmp | wc -l` != 0 ) ) then
+    mv $file.tmp $file
+    chmod 755 $file
+  else
+    /bin/rm -f $file.tmp
+  endif
+end
+#
+# update Readme and Changes file
+#
+cd $CNS_SOLVE
+echo "updating files in $CNS_SOLVE"
+foreach file (Readme Changes)
+  echo "changing version for file $file"
+  sed -e "s/Version: *[0-9]*\.[0-9]*/Version: $new_version/" \
+          $file > $file.tmp
+  if ( ( ! -z $file.tmp ) && ( `diff $file $file.tmp | wc -l` != 0 ) ) then
+    mv $file.tmp $file
+  else
+    /bin/rm -f $file.tmp
+  endif
+end
+#
+# update tutorial files
+#
+cd $CNS_SOLVE/doc/html/tutorial
+echo "updating files in $CNS_SOLVE/doc/html/tutorial"
+foreach file (`/bin/ls -1 */*/*.inp */*/*.def`)
+  echo "changing version for file $file"
+  sed -e "s/checkversion *[0-9]*\.[0-9]*/checkversion $new_version/" \
+          $file > $file.tmp
+  if ( ( ! -z $file.tmp ) && ( `diff $file $file.tmp | wc -l` != 0 ) ) then
+    mv $file.tmp $file
+  else
+    /bin/rm -f $file.tmp
+  endif
+end 
+#
+exit 0
+#
+clean:
+/bin/rm -f $file.tmp
+exit 1
+#

@@ -1,0 +1,40 @@
+mask {<xray-mask-statement>} end
+
+<xray-mask-statement> :==
+
+  averaging_mode=<logical>
+  --{If true: symmetry operations and lattice translations will be encoded
+     within the mask region using negative entries. This is required if the 
+     mask is to be used for density averaging.}
+  to=<real-space-object>
+  --{Destination for mask.}
+  mode=sigma|vdw|probe|fbox
+  --{Method used to determine which points lie within the mask:
+     - fbox: box mask: mask<=0 within box extent and 1 outside
+     - sigma: molecular mask: use sigma values + probe radius
+     - vdw: molecular mask: use vdw radii + probe radius
+     - probe: molecular mask: use only probe radius
+     Default=vdw}
+  xmin=<real> xmax=<real> ymin=<real> ymax=<real> zmin=<real> zmax=<real>
+  --{Extent of box in fractional space for mode=fbox. Default=unit cell}
+  proberadius=<real>
+  --{Probe radius to be added to atomic mask radii. Default=1.4A}
+  shrink=<real>
+  --{Shrink radius. Default=0}
+  selection=<atom-selection>
+  --{Atom selection for mask calculation.}
+  partition=<integer>
+  --{Number of shells to partition points into outside molecular mask.
+     Default=1}
+  thickness=<real>
+  --{Thickness of shells outside molecular mask. Default=1.4A}
+
+  --{The following symbols are declared:
+     - $inside: percentage of unitcell volume inside mask
+     - $outside: percentage of unitcell volume outside mask
+     - $averadius: atomic mask radius averaged over selected atoms
+     The resulting map is:
+     - 0 within partition 1=(atom+probe-shrink) around atoms
+     - 1 within partition 1 and 2
+     - n within partition n and n+1
+     - the number of shells outside all partitions.}

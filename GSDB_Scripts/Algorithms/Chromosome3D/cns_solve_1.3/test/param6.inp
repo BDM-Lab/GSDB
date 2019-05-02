@@ -1,0 +1,105 @@
+remarks param6.inp
+remarks more tests for learning and reducing parameters
+remarks  Axel T. Brunger
+remarks ==================================
+
+topology reset @CNS_TOPPAR:protein-allhdg5-4.top end   {* this is the DG-version of this file *}
+
+segment
+   name="TRYP"
+   chain
+      @CNS_TOPPAR:protein-allhdg5-4.link
+      sequence trp  end
+  end
+end
+
+parameter 
+        @CNS_TOPPAR:protein-allhdg5-4.param 
+        nbonds repel = 0.8 end
+end
+
+coor
+ATOM      1  CA  TRP     1       1.331   1.246   0.096  1.00  0.00      TRYP
+ATOM      2  HA  TRP     1       1.571   0.780   1.039  1.00  0.00      TRYP
+ATOM      3  CB  TRP     1       2.535   2.085  -0.418  1.00  0.00      TRYP
+ATOM      4  HB1 TRP     1       2.239   2.586  -1.319  1.00  0.00      TRYP
+ATOM      5  HB2 TRP     1       2.751   2.850   0.315  1.00  0.00      TRYP
+ATOM      6  CG  TRP     1       3.804   1.229  -0.669  1.00  0.00      TRYP
+ATOM      7  CD1 TRP     1       4.717   0.866   0.299  1.00  0.00      TRYP
+ATOM      8  HD1 TRP     1       4.659   1.099   1.355  1.00  0.00      TRYP
+ATOM      9  CD2 TRP     1       4.351   0.653  -1.938  1.00  0.00      TRYP
+ATOM     10  NE1 TRP     1       5.724   0.123  -0.275  1.00  0.00      TRYP
+ATOM     11  HE1 TRP     1       6.486  -0.256   0.211  1.00  0.00      TRYP
+ATOM     12  CE2 TRP     1       5.557  -0.035  -1.629  1.00  0.00      TRYP
+ATOM     13  CE3 TRP     1       3.937   0.642  -3.303  1.00  0.00      TRYP
+ATOM     14  HE3 TRP     1       3.030   1.139  -3.603  1.00  0.00      TRYP
+ATOM     15  CZ2 TRP     1       6.307  -0.689  -2.607  1.00  0.00      TRYP
+ATOM     16  HZ2 TRP     1       7.219  -1.201  -2.337  1.00  0.00      TRYP
+ATOM     17  CZ3 TRP     1       4.699  -0.019  -4.279  1.00  0.00      TRYP
+ATOM     18  HZ3 TRP     1       4.371  -0.014  -5.308  1.00  0.00      TRYP
+ATOM     19  CH2 TRP     1       5.879  -0.680  -3.932  1.00  0.00      TRYP
+ATOM     20  HH2 TRP     1       6.459  -1.186  -4.691  1.00  0.00      TRYP
+ATOM     21  C   TRP     1       0.137   2.181   0.303  1.00  0.00      TRYP
+ATOM     22  O   TRP     1      -0.629   2.346  -0.631  1.00  0.00      TRYP
+ATOM     23  OXT TRP     1       0.010   2.715   1.393  1.00  0.00      TRYP
+ATOM     24  N   TRP     1       0.945   0.198  -0.894  1.00  0.00      TRYP
+ATOM     25  HT1 TRP     1       1.555  -0.635  -0.775  1.00  0.00      TRYP
+ATOM     26  HT2 TRP     1      -0.048  -0.074  -0.740  1.00  0.00      TRYP
+ATOM     27  HT3 TRP     1       1.057   0.571  -1.858  1.00  0.00      TRYP
+END
+
+parameter
+   bond ( all ) ( all ) 400. TOKEN
+   angle ( all ) ( all ) ( all ) 400. TOKEN
+   improper ( all ) ( all ) (all) ( all ) 
+           400. TOKEN TOKEN
+   nonbonded ( all ) 0.1 2. 0.1 2. 
+end
+
+parameter
+   ?
+   learn initialize selection=( all ) mode=nostat end
+   learn accumulate end
+   learn terminate end
+   reduce mode=average end
+   ?
+end
+
+energy end
+
+
+
+do ( segid="A" ) ( all ) 
+
+duplicate selection=( all ) segid="B" end
+
+coor translate vector=( 100. 0. 0. ) selection=( segid "B" ) end
+
+ident ( store1 ) ( all )
+do ( chemical=encode ( store1 ) ) ( segid "B" ) 
+
+parameter
+   learn initialize selection=( segid "B" ) end
+   learn accumulate end
+   learn terminate end
+   bond ( segid "B" ) ( segid "B" ) 400. TOKEN
+   angle ( segid "B" ) ( segid "B" ) (segid "B") 400. TOKEN
+   improper ( segid "B" ) ( segid "B" ) (segid "B") ( segid "B" ) 
+           400. TOKEN TOKEN
+   nonbonded ( segid "B" )  0.1 2. 0.1 2.  
+
+   verbose
+end
+
+do (x=x+0.3 ) ( name c* ) 
+
+energy end
+
+igroup interactio=( segid "A" ) ( segid "A" ) end
+energy end
+
+igroup interactio=( segid "B" ) ( segid "B" ) end
+energy end
+
+
+stop

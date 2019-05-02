@@ -1,0 +1,173 @@
+! Module file: definehtarget
+!
+! CNS module
+! **********
+!
+! Authors: Piet Gros and Axel T. Brunger
+!
+! copyright Yale University
+!
+! Function:
+! Define target function and fix non-variable atomic coordinates
+!
+! Requirements:
+! 1. This module can only be called from the main level
+! 2. Data has to be scaled a priori
+! 3. For anomalous differences ANOMalous must be TRUE and, thus, the
+!    arrays of domain=reciprocal (like structure factors) contain both
+!    the (+) and the (-) elements.
+! 4. Probability given in Hendrickson & Lattman coefficients has to
+!    normalized a priori and appropriately, i.e. using the same phistep.
+! 5. &fp must be complex array. 
+! 6. For anomalous targets, &fp and the corresponding ppd (pa,pb,pc,pd)
+!    must be anomalous and &var must be equal for both Friedel mates
+!
+
+module {definehtarget}
+(
+   &method="maxlike"; {"maxlike" of isomorphous differences | 
+                       "chisquare" of isomorphous differences | 
+                       "anomaxlike" for anomalous differences |
+                       "anomchisquare" for anomalous differences, 
+                        definition of target function}
+
+   &messages="normal"; {set verbosity "normal" | "all" | "off"}
+
+   &sel=(all);         {structure factor selection}
+
+   &fp=fobs;           {native data}
+
+   &hp=(none);         {heavy atom selection of native}
+   &h=(all);           {heavy atom selection of derivative}
+   &hfix=(not(all));   {heavy atoms whose parameters are not refined}
+   &fph;               {derivative data  }
+   &var;               {loc variance}   
+   
+   &phase_set;         {selection for all phased reflections}
+   &fcalc_nat;         {structure factor of native heavy atoms}
+
+   &pk=pk;              {Hendrickson and Lattman K array}
+   &pa=pa;              {Hendrickson and Lattman A array}
+   &pb=pb;              {Hendrickson and Lattman B array}
+   &pc=pc;              {Hendrickson and Lattman C array}
+   &pd=pd;              {Hendrickson and Lattman D array}
+
+   &phistep=20;         {size of phase steps in integration}
+
+   &cen360=FALSE; { TRUE | FALSE (type logical); if TRUE a full 0...360 phase prob. distr. }
+                  { is used for centric reflections (useful if the "native"                }
+                  { structure factor has an anomalous signal).                             }
+)
+
+checkversion 1.3
+
+{* select atoms for fcalc *}
+xray         
+   associate fcalc (&h)                            
+   do (&fcalc_nat=0) ( &phase_set )
+end
+
+show sum ( &hp ) ( &hp and &h )
+if ($select>0) then
+   {- native and derivative heavy atom selection identical -}
+   {- this must be the SAS expression for the native -}
+   evaluate ($fact=2) 
+else
+   evaluate ($fact=1)
+   show sum ( &hp ) ( &hp )
+   if ($select>0) then
+      xray
+         predict { compute fcalcs for native heavy atoms }
+            to=&fcalc_nat mode=reciprocal 
+            selection=( &phase_set ) 
+            atomselection=( &hp ) 
+         end
+      end
+   end if
+end if
+
+xray 
+
+   monitor=( )
+
+   if (&method = "chisquare") then  {chi^2 target}
+      
+      display DEFINETARGET: chi-square of isomorphous differences
+
+      tselection=( &sel ) 
+
+      target=(				
+                 (
+                  abs($fact*fcalc-&fcalc_nat+&fp)-abs(&fph)
+                 )^2
+                 /(2*&var)
+                )
+
+      dtarget=(  $fact*
+                  2*(abs($fact*fcalc-&fcalc_nat+&fp)-abs(&fph))
+                  *($fact*fcalc-&fcalc_nat+&fp)
+                  /abs($fact*fcalc-&fcalc_nat+&fp)
+                  /(2*&var)
+                 )
+      
+
+   elseif (&method = "anochisquare") then
+
+      display DEFINETARGET: chi-square of anomalous differences
+
+      tselection=( friedel_pair(&sel) and acentric )
+
+      target=(0.5*              {correct by 0.5, because we}
+                                {count both (+) and (-) refl}
+                 (abs(fcalc-&fcalc_nat+&fp)-
+                  abs(friedel(fcalc-&fcalc_nat)+friedel(&fp))
+                  -abs(&fph)+abs(friedel(&fph))
+                 )^2
+                 /(2*&var)
+                )
+
+      dtarget=(
+                  2*
+                  (abs(fcalc-&fcalc_nat+&fp)
+                  -abs(friedel(fcalc-&fcalc_nat)+friedel(&fp))
+                   -abs(&fph)+abs(friedel(&fph))
+                  )
+                  *(fcalc-&fcalc_nat+&fp)
+                  /abs(fcalc-&fcalc_nat+&fp)
+                  /(2*&var)
+                 )
+      
+
+   elseif (&method = "maxlike") then  {maximum likelihood probability}
+
+        display DEFINETARGET: maximum likelihood of isomorphous differences
+
+        tselection=( &sel ) 
+
+        target=( GET_ML[PHIStep=&phistep,CEN360=&cen360]
+                (abs(&fp),$fact*fcalc-&fcalc_nat,abs(&fph),0.5/&var,&pk,&pa,&pb,&pc,&pd))	
+        dtarget=( $fact*GET_DML[PHIStep=&phistep,CEN360=&cen360]
+                 (abs(&fp),$fact*fcalc-&fcalc_nat,abs(&fph),0.5/&var,&pk,&pa,&pb,&pc,&pd))
+	
+
+   elseif (&method = "anomaxlike") then
+
+      display DEFINETARGET: maximum likelihood of anomalous differences
+      
+      tselection=( friedel_pair(&sel) and acentric ) 
+      
+      target=( GET_AML[PHIStep=&phistep](abs(&fp),
+               fcalc-&fcalc_nat,abs(&fph),0.25/&var,&pk,&pa,&pb,&pc,&pd))	
+      dtarget=( GET_DAML[PHIStep=&phistep](abs(&fp),
+               fcalc-&fcalc_nat,abs(&fph),0.5/&var,&pk,&pa,&pb,&pc,&pd))	
+
+
+  
+   else
+   
+      display DEFINETARGET-ERR: method &method not defined
+   
+   end if
+   
+end
+   

@@ -1,0 +1,975 @@
+###############################################################################
+# Parameter names matched in common.idb:
+###############################################################################
+#
+vars: pdb.in.file.\d+
+info: Input CNS coordinate file. This file contains atomic coordinates in
+PDB type format.
+#
+vars: pdb.atom.select
+info: Atom selection defining the "backbone" atoms for average structure generation. 
+For protein molecules the selection should be:
+<PRE>
+(name n or name ca or name c)
+</PRE>
+For nucleic acid the selection should be:
+<PRE>
+(name O5' or name C5' or name C4' or name C3' or name O3' or name P)
+</PRE>
+#
+vars: pdb.end.count
+info: This specifies the number of structures. This is either the
+number of input structures if an ensemble of structures are being
+tested for acceptance or the number of structures to be generated in
+structure calculation. 
+#
+vars: flg.print.accept
+info: Flag specifying whether accepted structures will be written.
+#
+vars: flg.calc.ave.struct
+info: Flag determining whether an average structure is calculated for
+either the trial or accepted structures.
+#
+vars: flg.calc.ave.accpt
+info: Flag determining whether average information is calculated for
+only the accepted structures. If this is not selected then averages
+for all the trial structures will be calculated.
+#
+vars: flg.calc.coor.accpt
+info: Flag determining whether an average structure is calculated for
+only the accepted structures. If this is not selected then averages
+for all the accepted structures will be written to a text file.
+#
+vars: flg.min.ave.coor
+info: Flag specifying whether the average coordinates should be minimized.
+#
+vars: flg.calc.ave.pair
+info: Flag specifying whether the pairwise RMSD should be calculated.
+#
+vars: flg.plot.rms
+info: Flag specifying whether the RMS difference per residue should be
+written to a plot file.
+#
+vars: nmr.ener.flag
+info: Use the total energy of a structure as an acceptance criteria.
+#
+vars: nmr.ener.val
+info: Cutoff for total energy (kcal/mol). Structures with total energy
+less than this value are accepted.
+#
+vars: nmr.bond.flag
+info: Use the bond length deviations as an acceptance criteria.
+#
+vars: nmr.bond.rms
+info: RMSD cutoff for bond deviations. Structures must have an overall
+RMS deviation for bond lengths less than this cutoff to be accepted.
+#
+vars: nmr.bond.cut
+info: Cutoff value in &Aring; for identification of bond violations.
+#
+vars: nmr.bond.viol
+info: Maximum number of allowed bond violations for an accepted
+structure. Structures with more bond violations than this cutoff are
+not accepted.
+#
+vars: nmr.angl.flag
+info: Use the angle deviations as an acceptance criteria.
+#
+vars: nmr.angl.rms
+info: RMSD cutoff for angle deviations. Structures must have an overall
+RMS deviation for angles less than this cutoff to be accepted.
+#
+vars: nmr.angl.cut
+info: Cutoff value in degrees for identification of angle violations.
+#
+vars: nmr.angl.viol
+info: Maximum number of allowed angle violations for an accepted
+structure. Structures with more angle violations than this cutoff are
+not accepted.
+#
+vars: nmr.impr.flag
+info: Use the improper angle deviations as an acceptance criteria.
+#
+vars: nmr.impr.rms
+info: RMSD cutoff for improper angle deviations. Structures must have
+an overall RMS deviation for improper angles less than this cutoff to
+be accepted.
+#
+vars: nmr.impr.cut
+info: Cutoff value in degrees for identification of improper angle
+violations.
+#
+vars: nmr.impr.viol
+info: Maximum number of allowed improper angle violations for an
+accepted structure. Structures with more improper angle violations
+than this cutoff are not accepted.
+#
+vars: nmr.dihe.flag
+info: Use the dihedral angle deviations as an acceptance criteria.
+#
+vars: nmr.dihe.rms
+info: RMSD cutoff for dihedral angle deviations. Structures must have
+an overall RMS deviation for dihedral angles less than this cutoff to
+be accepted.
+#
+vars: nmr.dihe.cut
+info: Cutoff value in degrees for identification of dihedral angle
+violations.
+#
+vars: nmr.dihe.viol
+info: Maximum number of allowed dihedral angle violations for an
+accepted structure. Structures with more dihedral angle violations
+than this cutoff are not accepted.
+#
+vars: nmr.vdw.flag
+info: Use the overall Van der Waals packing energy as an acceptance
+criteria.
+#
+vars: nmr.vdw.repel
+info: Flag specifying whether the packing energy is to be calculate
+using a purely repulsive potention or the standard Lennard-Jones
+potential.
+#
+vars: nmr.vdw.ener
+info: Overall packing energy cutoff value in kcal/mol. Structures with
+a packing energy greater than this cutoff will not be accepted.
+#
+vars: nmr.vdw.cut
+info: 
+#
+vars: nmr.vdw.viol
+info: Maximum number of allowed packing violations. Structures with
+less than this number of violations are accepted.
+#
+vars: nmr.noe.flag
+info: Flag specifying whether the NOE distance restraints are to be
+used as an acceptance criteria.
+#
+vars: nmr.noe.rms
+info: RMSD cutoff for NOE distance restraint deviations. Structures
+must have an overall RMS deviation for NOE distance restraints less
+than this cutoff to be accepted.
+#
+vars: nmr.noe.cut
+info: Cutoff value in &Aring; for identification of NOE distance
+restraint violations.
+#
+vars: nmr.noe.viol
+info: Maximum number of allowed NOE distance restraint
+violations. Structures with less than this number of violations are
+accepted.
+#
+vars: nmr.jcoup.flag
+info: Flag specifying whether the 3-bond homonuclear j-coupling
+restraints are to be used as an acceptance criteria.
+#
+vars: nmr.jcoup.rms
+info: RMSD cutoff for 3-bond homonuclear j-coupling restraint
+deviations. Structures must have an overall RMS deviation for 3-bond
+homonuclear j-coupling restraints less than this cutoff to be
+accepted.
+#
+vars: nmr.jcoup.cut
+info: Cutoff value for identification of 3-bond homonuclear j-coupling
+restraint violations.
+#
+vars: nmr.jcoup.viol
+info: Maximum number of allowed 3-bond homonuclear j-coupling
+restraint violations. Structures with less than this number of
+violations are accepted.
+#
+vars: nmr.oneb.flag
+info: Flag specifying whether the 1-bond heteronuclear j-coupling
+restraints are to be used as an acceptance criteria.
+#
+vars: nmr.oneb.rms
+info: RMSD cutoff for 1-bond heteronuclear j-coupling restraint
+deviations. Structures must have an overall RMS deviation for 1-bond
+heteronuclear j-coupling restraints less than this cutoff to be
+accepted.
+#
+vars: nmr.oneb.cut
+info: Cutoff value for identification of 1-bond heteronuclear
+j-coupling restraint violations.
+#
+vars: nmr.oneb.viol
+info: Maximum number of allowed 1-bond heteronuclear j-coupling
+restraint violations. Structures with less than this number of
+violations are accepted.
+#
+vars: nmr.carb.flag
+info: Flag specifying whether the alpha and beta carbon chemical
+shifts are to be used as an acceptance criteria.
+#
+vars: nmr.carb.rms.a nmr.carb.rms.b
+info: RMSD cutoff for alpha and beta carbon chemical shift restraint
+deviations. Structures must have an overall RMS deviation for alpha or
+beta carbon chemical shifts less than this cutoff to be accepted.
+#
+vars: nmr.carb.cut
+info: Cutoff value for identification of alpha carbon chemical shifts
+restraint violations.
+#
+vars: nmr.carb.viol
+info: Maximum number of allowed alpha and beta carbon chemical shift
+restraint violations. Structures with less than this number of
+violations are accepted.
+#
+vars: nmr.prot.flag
+info: Flag specifying whether the proton chemical shifts are to be
+used as an acceptance criteria.
+#
+vars: nmr.prot.rms
+info: RMSD cutoff for proton chemical shift restraint
+deviations. Structures must have an overall RMS deviation for proton
+chemical shifts less than this cutoff to be accepted.
+#
+vars: nmr.prot.cut
+info: Cutoff value for identification of proton chemical shift
+restraint violations.
+#
+vars: nmr.prot.viol
+info: Maximum number of allowed proton chemical shift restraint
+violations. Structures with less than this number of violations are
+accepted.
+#
+vars: nmr.dani.flag
+info: Flag specifying whether the diffusion anisotropy restraints are
+to be used as an acceptance criteria.
+#
+vars: nmr.dani.rms
+info: RMSD cutoff for diffusion anisotropy restraint
+deviations. Structures must have an overall RMS deviation for
+diffusion anisotropy restraints less than this cutoff to be accepted.
+#
+vars: nmr.dani.cut
+info: Cutoff value for identification of diffusion anisotropy
+restraint violations.
+#
+vars: nmr.dani.viol
+info: Maximum number of allowed diffusion anisotropy restraint
+violations. Structures with less than this number of violations are
+accepted.
+#
+vars: nmr.sani.flag
+info: Flag specifying whether the susceptibility anisotropy restraints
+are to be used as an acceptance criteria.
+#
+vars: nmr.sani.rms
+info: RMSD cutoff for susceptibility anisotropy restraint
+deviations. Structures must have an overall RMS deviation for
+susceptibility anisotropy restraints less than this cutoff to be
+accepted.
+#
+vars: nmr.sani.cut
+info: Cutoff value for identification of susceptibility anisotropy
+restraint violations.
+#
+vars: nmr.sani.viol
+info: Maximum number of allowed susceptibility anisotropy restraint
+violations. Structures with less than this number of violations are
+accepted.
+#
+vars: nmr.cdih.flag
+info: Flag specifying whether the dihedral angle restraints are to be
+used as an acceptance criteria.
+#
+vars: nmr.cdih.rms
+info: RMSD cutoff for dihedral angle restraint deviations. Structures
+must have an overall RMS deviation for dihedral angle restraints less
+than this cutoff to be accepted.
+#
+vars: nmr.cdih.cut
+info: Cutoff value for identification of dihedral angle restraint
+violations.
+#
+vars: nmr.cdih.viol
+info: Maximum number of allowed dihedral angle restraint
+violations. Structures with less than this number of violations are
+accepted.
+#
+vars: nmr.plan.flag
+info: Flag specifying whether the planarity restraints are to be used
+as an acceptance criteria.
+#
+vars: nmr.plan.ener
+info: Overall planarity restraint energy cutoff value in
+kcal/mol. Structures with a planarity restraint energy greater than
+this cutoff will not be accepted.
+#
+vars: nmr.plan.x
+info: x rot cutoff
+#
+vars: nmr.plan.y
+info: y rot cutoff
+#
+vars: nmr.plan.z
+info: z rot cutoff
+#
+vars: nmr.ncs.flag
+info: Flag specifying whether the NCS restraints are to be used
+as an acceptance criteria.
+#
+vars: nmr.ncs.ener
+info: Overall NCS restraint energy cutoff value in
+kcal/mol. Structures with a NCS restraint energy greater than this
+cutoff will not be accepted.
+#
+vars: nmr.noe.file.\d+
+info: File containing NOE distance restraints. 
+#
+vars: nmr.noe.ave.mode.\d+
+info: Specifies the NOE averaging mode to be applied to the NOE
+distance restraints. The possible modes are:<BR>
+<UL>
+<LI><B>r-6</B> the distance between the selected sets of atoms is
+averaged according to:
+<PRE>
+R = [<Rij^-6>]^-1/6
+</PRE> 
+where Rij runs through all possible combinations of distances between
+atoms i in set 1 and atoms j in set 2.</LI>
+
+<LI><B>r-3</B> the distance between the selected sets of atoms is
+averaged according to:
+<PRE>
+R = [<Rij^-3>]^-1/3
+</PRE> 
+where Rij runs through all possible combinations of distances between
+atoms i in set 1 and atoms j in set 2.</LI>
+
+<LI><B>sum</B> the distance between the selected sets of atoms is
+computed by adding up single contributions:
+<PRE>
+R = sum(i,j)[Rij^-6/nmono]^-1/6
+</PRE> 
+nmono is specified by the monomer statement. This scaling is required
+to scale the distances corresponding to ambiguous peaks in symmetric
+multimers.</LI>
+
+<LI><B>cent</B> the distance between the selected sets of atoms is
+set to the difference between the geometric centres of the atoms:
+<PRE>
+R = (Rcentre1 - Rcentre2)
+</PRE> 
+</LI>
+</UL>
+#
+vars: nmr.noe.force
+info: Scale factor for the NOE term
+#
+vars: nmr.noe.hbnd.file
+info: File containing hydrogen-bond distance restraints (as distance
+restraints).
+#
+vars: nmr.noe.ave.mode.hbnd
+info: Specifies the NOE averaging mode to be applied to the hydrogen
+bond distance restraints. The possible modes are:<BR>
+<UL>
+<LI><B>r-6</B> the distance between the selected sets of atoms is
+averaged according to:
+<PRE>
+R = [<Rij^-6>]^-1/6
+</PRE> 
+where Rij runs through all possible combinations of distances between
+atoms i in set 1 and atoms j in set 2.</LI>
+
+<LI><B>r-3</B> the distance between the selected sets of atoms is
+averaged according to:
+<PRE>
+R = [<Rij^-3>]^-1/3
+</PRE> 
+where Rij runs through all possible combinations of distances between
+atoms i in set 1 and atoms j in set 2.</LI>
+
+<LI><B>sum</B> the distance between the selected sets of atoms is
+computed by adding up single contributions:
+<PRE>
+R = sum(i,j)[Rij^-6/nmono]^-1/6
+</PRE> 
+nmono is specified by the monomer statement. This scaling is required
+to scale the distances corresponding to ambiguous peaks in symmetric
+multimers.</LI>
+
+<LI><B>cent</B> the distance between the selected sets of atoms is
+set to the difference between the geometric centres of the atoms:
+<PRE>
+R = (Rcentre1 - Rcentre2)
+</PRE> 
+</LI>
+</UL>
+#
+vars: nmr.jcoup.file.\d+
+info: File containing 3-bond J-coupling restraint information.
+#
+vars: nmr.jcoup.pot.\d+
+info: The form of the potential to be used for the 3-bond J-coupling
+term. Possible potentials are:<BR>
+<UL>
+<LI><B>harmonic</B> </LI>
+<LI><B>square</B> </LI>
+<LI><B>multiple</B> </LI>
+</UL>
+#
+vars: nmr.jcoup.force.\d+.\d+
+info: Scale factor for the 3-bond j-coupling energy term.
+#
+vars: nmr.jcoup.coef.\d+.\d+
+info: 3-bond j-coupling Karplus coefficients.
+#
+vars: nmr.oneb.file.\d+
+info: File containing 1-bond heteronuclear j-coupling information.
+#
+vars: nmr.oneb.pot.\d+
+info: The form of the potential to be used for the 1-bond
+heteronuclear j-coupling term. Possible potentials are:<BR>
+<UL>
+<LI><B>harmonic</B> </LI>
+<LI><B>square</B> </LI>
+</UL>
+#
+vars: nmr.oneb.force.\d+
+info: Scale factor for 1-bond heteronuclear j-coupling energy term.
+#
+vars: nmr.carb.file.\d+
+info: File containing alpha and beta carbon chemical shift restraints.
+#
+vars: nmr.carb.pot.\d+
+info: The form of the potential to be used for the alpha and beta
+carbon chemical shift term. Possible potentials are:<BR>
+<UL>
+<LI><B>harmonic</B> </LI>
+<LI><B>square</B> </LI>
+</UL>
+#
+vars: nmr.carb.force.\d+
+info: Scale factor for alpha and beta carbon chemical shift term.
+#
+vars: nmr.prot.file.\d+
+info: File containing proton chemical shift restraint information.
+#
+vars: nmr.prot.pot.\d+
+info: The form of the potential to be used for the proton chemical
+shift term. Possible potentials are:<BR>
+<UL>
+<LI><B>harmonic</B> </LI>
+<LI><B>square</B> </LI>
+<LI><B>multiple</B> </LI>
+</UL>
+#
+vars: nmr.prot.force.\d+.\d+
+info: Scale factor for proton chemical shift term.
+#
+vars: nmr.prot.thresh.\d+
+info: 
+#
+vars: nmr.dani.axis
+info: Flag specifying whether the external diffusion anisotropy axis
+should be fixed or harmonically restrained.
+#
+vars: nmr.dani.file.\d+
+info: File containing diffusion anisotropy restraint information.
+#
+vars: nmr.dani.pot.\d+
+info: The form of the potential to be used for the diffusion anisotropy
+term. Possible potentials are:<BR>
+<UL>
+<LI><B>harmonic</B> </LI>
+<LI><B>square</B> </LI>
+</UL>
+#
+vars: nmr.dani.force.init.\d+
+info: Initial scale factor for diffusion anisotropy term.
+#
+vars: nmr.dani.force.finl.\d+
+info: Final scale factor for diffusion anisotropy term.
+#
+vars: nmr.dani.coef.\d+.\d+
+info: The diffusion anisotropy coefficients <B>Tc</B> <B>anis</B>
+<B>rhombicity</B> <B>wh</B> <B>wn</B>, where:
+<PRE>
+Tc = 1/2(Dx+Dy+Dz) in nanoseconds
+anis = Dz/0.5*(Dx+Dy)
+rhombicity = 1.5*(Dy-Dx)/(Dz-0.5*(Dy+Dx))
+wH is in MHz
+wN is in MHz
+</PRE>
+#
+vars: nmr.sani.axis
+info: Flag specifying whether the external susceptability anisotropy axis
+should be fixed or harmonically restrained.
+#
+vars: nmr.sani.file.\d+
+info: File containing susceptability anisotropy restraint information.
+#
+vars: nmr.sani.pot.\d+
+info: The form of the potential to be used for the susceptability anisotropy
+term. Possible potentials are:<BR>
+<UL>
+<LI><B>harmonic</B> </LI>
+<LI><B>square</B> </LI>
+</UL>
+#
+vars: nmr.sani.force.init.\d+
+info: Initial scale factor for susceptability anisotropy term.
+#
+vars: nmr.sani.force.finl.\d+
+info: Final scale factor for susceptability anisotropy term.
+#
+vars: nmr.sani.coef.\d+.\d+
+info: The susceptability anisotropy coefficients <B>DFS</B>
+<B>axial</B> <B>rhombicity</B> where:
+<PRE>
+DFS = a0
+axial = a0-a1-3/2*a2
+rhombicity = a2/a1
+a0+a1*(3*cos(theta)^2-1)+a2*(3/2)*sin(theta)^2*cos(2*phi)
+</PRE>
+#
+vars: nmr.cdih.file
+info: File containing dihedral angle restraints information. This file
+must not contain the <B>restraints dihedral</B> or <B>end</B>
+statements (these are embedded in the CNS task files).
+#
+vars: nmr.cdih.force
+info: Scale factor for dihedral angle restraints term.
+#
+vars: nmr.plan.file
+info: File containing DNA-RNA base planarity restraints
+information. The weighting for these restraints can be specified with
+the <B>$pscale</B> variable in this file.
+#
+vars: nmr.plan.scale
+info: Scale factor for planarity restraint term. This will be written
+into the variable $pscale.
+#
+vars: nmr.ncs.file
+info: File containing NCS restraints definitions.
+#
+vars: pdb.in.name
+info: Root name for input coordinate file(s). 
+#
+vars: pdb.out.name
+info: Root name for output coordinate file(s).
+#
+vars: md.type.hot
+info: Flag specifying the type of molecular dynamics to be used for
+the high temperature phase. This can be either restrained dynamics
+(cartesian dynamics) or constrained dynamics (torsion dynamics).  If
+diffusion or susceptibility anistropy restraints are being used it is
+strongly recommended that torsion dynamics be used in this stage.
+#
+vars: md.type.cool
+info: Flag specifying the type of molecular dynamics to be used for
+the low temperature phase. This can be either restrained dynamics
+(cartesian dynamics) or constrained dynamics (torsion dynamics).  If
+diffusion or susceptibility anistropy restraints are being used it is
+strongly recommended that torsion dynamics be used in this stage.
+#
+vars: md.type.initial
+info: Flag specifying whether the refinement should use different
+initial velocities or coordinates.
+#
+vars: md.seed
+info: Start seed for random number generator. This can be changed to
+obtain different initial velocities.
+#
+vars: flg.trial.struc
+info: Flag specifying whether the structures generated will be either
+trial (any structure generated) or only accepted structures.
+#
+vars: flg.print.trial
+info: Flag specifying whether trial structures will be printed.
+#
+vars: md.torsion.maxlength
+info: The maximum unbranched chain length in the torsion angle
+topology. This may need to be increased for long stretches of
+polyalanine or nucleic acids.
+#
+vars: md.torsion.maxtree
+info: The maximum number of distinct bodies (trees) in the torsion
+angle topology. This may need to be increased if there are many
+molecules.
+#
+vars: md.torsion.maxbond
+info: The maximum number of bonds to an atom in the torsion angle
+topology.
+#
+vars: md.hot.temp
+info: The starting temperature in Kelvin for the high temperature
+stage. A value of 50000 is recommended for proteins and 20000 for
+nucleic acids.
+#
+vars: md.hot.step
+info: The number of dynamics integration steps to perform.  A value of
+1000 is recommended for proteins and 4000 for nucleic acids.
+#
+vars: md.hot.vdw
+info: Scale factor to be applied to the van der Waals or repulsive
+energy term during the high temperature stage.
+#
+vars: md.hot.noe
+info: Scale factor to be applied to the NOE energy term during the
+high temperature stage.
+#
+vars: md.hot.cdih
+info: Scale factor to be applied to the dihedral angle energy term
+during the high temperature stage. A value of 100 is recommended for
+proteins and 5 for nucleic acids.
+#
+vars: md.hot.ss
+info: The molecular dynamics timestep in picoseconds (ps) for the high
+temperature stage.
+#
+vars: md.cool.temp
+info: The starting temperature in Kelvin for the slow-cooling
+simulated annealing stage. This will be lower when using Cartesian
+dynamics (1000K) and higher when using torsion angle dynamics
+(proteins=50000K, dna/rna=20000K).
+#
+vars: md.cool.step
+info: The number of molecular dynamics integration steps to be
+performed.
+#
+vars: md.cool.vdw
+info: Scale factor to be applied to the final van der Waals or
+repulsive energy term.  For cartesian dynamics a value of 4.0 is
+recommended, for torsion dynamics a value of 1.0.
+#
+vars: md.cool.noe
+info: Scale factor to be applied to the NOE energy term during the
+slow-cooling stage.
+#
+vars: md.cool.cdih
+info: Scale factor to be applied to the dihedral angle energy term
+during the slow-cooling stage.
+#
+vars: md.cool.ss
+info: The molecular dynamics integration timestep in picoseconds
+(ps). This will smaller for cartesian dynamics (0.005) and larger for
+torsion dynamics (0.015)
+#
+vars: md.cool.tmpstp
+info: The temperature drop in Kelvin for each cycle of dynamics during
+the slow-cooling stage. For cartesian dynamics a value of 25K is
+recommended, for torsion dynamics a value of 250K.
+#
+vars: md.cart.flag
+info: Flag specifying whether a second cartesian dynamics slow-cooling
+simulated annealing stage is to be performed. This is only needed when
+torsion angle dynamics has been used for the preceeding slow-cooling
+stage. Even then it is only required if the macromolecule is a protein
+greater than 160 residues or for some nucleic acids.
+#
+vars: md.cart.temp
+info: The starting temperature in Kelvin for the second cartesian
+dynamics slow-cooling simulated annealing stage
+#
+vars: md.cart.step
+info: The number of dynamics integration steps to be performed.
+#
+vars: md.cart.vdw.init
+info: Scale factor to be initially applied to the van der Waals or
+repulsive energy term.
+#
+vars: md.cart.vdw.finl
+info: Scale factor to be finally applied to the van der Waals or
+repulsive energy term
+#
+vars: md.cart.noe
+info: Scale factor to be applied to the NOE energy term.
+#
+vars: md.cart.cdih
+info: Scale factor to be applied to the dihedral angle energy term.
+#
+vars: md.cart.ss
+info: The molecular dynamics integration timestep in picoseconds (ps).
+#
+vars: md.cart.tmpstp
+info: The drop in temperature in Kelvin per cycle of dynamics.
+#
+vars: md.pow.noe
+info: Scale factor to be applied to the NOE energy term in the final
+minimization stage.
+#
+vars: md.pow.cdih
+info: Scale factor to be applied to the dihedral angle energy term in
+the final minimization stage.
+#
+vars: md.pow.step
+info: The number of final minimization steps (a value of 200 is
+reasonable).
+#
+vars: md.pow.cycl
+info: The number of cycles of minimization to be performed. A value of
+10 is reasonable.
+#
+vars: flg.cv.flag
+info: Flag specifying whether complete cross validation should be
+performed. In general this is not used.
+#
+vars: nmr.cv.numpart
+info: The number of data partitions for the complete cross
+validation. 10 partitions are appropriate.
+#
+vars: flg.cv.noe
+info: Perform complete cross-validation for NOE distance restraints
+excluding hydrogen bond distance restraints.
+#
+vars: flg.cv.coup
+info: Perform complete cross-validation for 3-bond J-coupling
+restraints.
+#
+vars: flg.cv.cdih
+info: Perform complete cross-validation for dihedral restraints.
+#
+vars: flg.dg.flag
+info: Flag specifying whether distance geometry should be used.
+#
+vars: flg.dgsa.flag
+info: Flag specifying whether distance geometry/simualted annealing
+regularization will be performed on the coordinates.
+#
+vars: pdb.dg.count
+info: The number of coordinate files to be read in and regularized if
+the initial coordinates are not generated by distance geometry.
+#
+vars: md.dg.algo
+
+info: The shortest path algorithm used for the distance geometry
+calculations. Possible algorithms are:<BR>
+<UL>
+<LI><B>auto</B> the best algorithm is selected automatically.</LI>
+<LI><B>full</B> the Dijkstra algorithm is used.</LI>
+<LI><B>sparse</B> a modified version of the Dijkstra algorithm is used
+which operates on the sparse tree of known distances.</LI>
+</UL>
+#
+vars: md.dg.type
+info: Flag specifying whether distance geometry calculations will be
+performed on the complete structure or substructures. For proteins
+both options are possible. For nucleic acid calculations should be
+performed on the complete structure.
+#
+vars: md.dg.select
+info: Atom selection defining the atoms in the substructure.
+#
+vars: md.dg.group.slct
+info: Atom selection defining atoms in the rigid group for the
+complete distance geometry calculation.
+#
+vars: md.dg.group.err
+info: Interatomic error value in &Aring; for rigid group
+#
+vars: md.dg.metr.flag
+info: Flag specifying whether metrization should be used for complete
+distance geometry calculation.
+#
+vars: md.dg.ord
+info: If metrization is performed should it be ordered or random.
+#
+vars: md.dg.metr.atom
+info: Atom selection defining atoms for metrization.
+#
+vars: md.dg.metr.num
+info: The number of atoms from the metrization selection that will be
+used during retightening
+#
+vars: md.dg.ref
+info: Source of the reference parameters for building the distance
+geometry reference data base. The parameters can be taken from the
+input (ideal) parameters or the input coordinates.
+#
+vars: md.dg.scale
+info: Scale factor to be applied to distance geometry restraint term.
+#
+vars: md.dg.expo
+info: The exponent for the distance geometry restraint term.
+#
+vars: md.dg.bacc
+info: Error value in &Aring; for bond lengths in distance geometry
+calculations.
+#
+vars: md.dg.tacc
+info: Error value in degrees for angles in distance geometry
+calculations.
+#
+vars: md.dg.iacc
+info: Error value in degrees for improper angles in distance geometry
+calculations.
+#
+vars: md.dg.pacc
+info: Error value in degrees for dihedral angles in distance geometry
+calculations.
+#
+vars: md.dg.step
+info: The number of steps of conjugate gradient energy minimization.
+#
+vars: md.cool.vdw.init
+info: Scale factor initially applied to the van der Waals or repulsive
+energy term during simulated annealing.
+#
+vars: md.cool.vdw.finl
+info: Scale factor finally applied to the van der Waals or repulsive
+energy term during simulated annealing.
+#
+vars: md.cool.init.rad
+info: Initial van der Waals radius in &Aring; for the repulsive energy
+term.
+#
+vars: md.cool.fina.rad
+info: Final van der Waals radius in &Aring; for the repulsive energy
+term.
+#
+vars: nmr.ens.copy.num
+info: The number of conformers to be refined against the experimental
+data.
+#
+vars: nmr.ens.multi.flag
+info: Flag specifying whether the macromolecule a multimer. The
+current implementation only allows dimers to be used (higher order
+oligomers are not allowed).
+#
+vars: nmr.ens.multi.symm
+info: Flag specifying whether a multimer is symmetric.
+#
+vars: nmr.ens.multi.segid.\d+
+info: The segment identifier for the components of the multimer.
+#
+vars: nmr.ens.loop.flag
+info: Flag specifying whether multi-conformer refinement is for a loop.
+#
+vars: nmr.ens.loop.low.\d+
+info: The start residue number for the loop to be refined.
+#
+vars: nmr.ens.loop.high.\d+
+info: The final residue number for the loop to be refined.
+#
+vars: nmr.noe.loop.file.\d+
+info: File containing the NOE distance restraints for the loop.
+#
+vars: nmr.noe.loop.ave.mode.\d+
+
+info: The distance averaging mode for loop restraints. Possible modes
+are:<BR>
+<UL>
+<LI><B>r-6</B> the distance between the selected sets of atoms is
+averaged according to:
+<PRE>
+R = [<Rij^-6>]^-1/6
+</PRE> 
+where Rij runs through all possible combinations of distances between
+atoms i in set 1 and atoms j in set 2.</LI>
+
+<LI><B>r-3</B> the distance between the selected sets of atoms is
+averaged according to:
+<PRE>
+R = [<Rij^-3>]^-1/3
+</PRE> 
+where Rij runs through all possible combinations of distances between
+atoms i in set 1 and atoms j in set 2.</LI>
+
+<LI><B>sum</B> the distance between the selected sets of atoms is
+computed by adding up single contributions:
+<PRE>
+R = sum(i,j)[Rij^-6/nmono]^-1/6
+</PRE> 
+nmono is specified by the monomer statement. This scaling is required
+to scale the distances corresponding to ambiguous peaks in symmetric
+multimers.</LI>
+</UL>
+#
+vars: max_trial
+info: The maximum number of trials which will be used to generate an
+acceptable structure.
+#
+vars: pdb.map.select
+info: Atom selection defining the atom which will be used to generate
+the probability map and reflection file for probability map
+refinement.
+#
+vars: md.xray.type.cool
+info: The type of molecular dynamics to be used in the xray
+slow-cooling stage. This can be either restrained dynamics (cartesian
+dynamics) or constrained dynamics (torsion dynamics).
+#
+vars: md.xray.cool.temp
+info: The starting temperature in Kelvin for the slow-cooling
+stage. For torsion angle dynamics 5000K is recommended, for cartesian
+dynamics 3000K.
+#
+vars: md.xray.cool.step
+info: The number of dynamics integration steps to be performed.
+#
+vars: md.xray.cool.ss
+info: The molecular dynamics integration timestep in picoseconds
+(ps). For torsion dynamics 0.002 is recommended, for cartesian
+dynamics 0.0005.
+#
+vars: md.xray.cool.tmpstp
+info: The drop in temperature in Kelvin for each cycle of dynamics in
+the slow-cooling annealing stage. For torsion dynamics a drop of 50K
+is recommended, for cartesian dynamics 25K.
+#
+vars: md.nmr.type.cool
+info: The type of molecular dynamics for the nmr/xray cooling
+stage. This can be either restrained dynamics (cartesian dynamics) or
+constrained dynamics (torsion dynamics).
+#
+vars: md.nmr.cool.temp
+info: The starting temperature in Kelvin for the NMR refinement
+cooling stage. A value of 3000K is recommended for torsion dynamics
+3000, 1000K for cartesian dynamics.
+#
+vars: md.nmr.cool.step
+info: The number of dynamics integration steps to be performed.
+#
+vars: md.nmr.cool.noe
+info: Scale factor to be applied to the NOE energy term during
+the slow-cooling stage.
+#
+vars: md.nmr.cool.cdih
+info: Scale factor to be applied to the dihedral angle energy term
+during the slow-cooling stage.
+#
+vars: md.nmr.cool.ss
+info: The molecular dynamics integration timestep in picoseconds
+(ps). For torsion dynamics a value of 0.002 is recommended, for
+cartesian dynamics 0.0005.
+#
+vars: md.nmr.cool.tmpstp
+info: The drop in temperature in Kelvin for each dynamics cycle during
+the slow-cool simulated annealing. For torsion angle dyanmics a value
+of 50K is recommended, for cartesian dynamics 25K.
+#
+vars: nmr.ens.coor.num
+info: The number of coordinate copies to be used in probility
+refinement.
+#
+vars: nmr.ens.map.cushion
+info: The cushion that will be applied to the size of the
+macromolecule to generate the unit cell (in P1).
+#
+vars: nmr.ens.map.low.limit
+info: The low resolution limit in &Aring; to be used in the
+probability map refinement.
+#
+vars: nmr.ens.map.high.limit
+info: The high resolution limit in &Aring; to be used in the
+probability map refinement.
+#
+vars: nmr.ens.map.flag.map
+info: Flag specifying whether the probability map should be written to
+a file.
+#
+vars: nmr.ens.map.flag.fob
+info: Flag specifying whether the reflections should be written to
+a file.
+#
+vars: nmr.ens.map.flag.fr
+info: Flag specifying whether a test set should be generated for
+calculation of the free R-value.
+#
+vars: pdb.ens.name
+info: Root name for the ensemble coordinate files.
+#

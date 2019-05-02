@@ -1,0 +1,98 @@
+<matrix> :==
+
+  matrix <vector> <vector> <vector>
+  --{3x3 rotation matrix.}
+  euler <vector>
+  --{Eulerian angles theta1, theta2, theta3.
+     theta1 around z, theta2 around new x, theta3 around new z.}
+  lattman <vector>
+  --{Lattman's pseudo-orthogonal angles theta+, theta2, theta-
+     theta+=t1+t3, theta-=t1-t3.}
+  spherical <vector>
+  --{Spherical polar angle psi, phi, kappa.
+     - psi is the inclination versus the y axis. 
+     - phi is the azimuthal angle: the angle between the x-axis and the
+       projection of the axis into the x,z plane.
+     - kappa is the rotation about this axis.}
+  axis <vector> <real>
+  --{Axis vector and angle kappa.}
+  quaternion <real> <real> <real> <real>
+  --{Quaternions q0, q1, q2, q3.}
+
+  --{Note: all rotations are counter-clockwise.}
+
+<vector> :==
+
+  ( <real> [,] <real> [,] <real> ) |
+  --{Specification of a vector in the x,y,z form.}
+  ( tail=<atom-selection> [,] head=<atom-selection> )
+  --{The tail or the head of the vector are taken as the center
+     of mass of the specified selections. Tail and head default to (0,0,0).}
+
+<symbol> :== ${<alphanumeric>|.|_}
+
+<parameter> :== &{<alphanumeric>|.|_}
+
+<literal-constant> :== <complex> | <real> | <integer> | <logical> | <word>
+
+<format> :== {<alphanumeric>|.}
+
+<filename> :== <word>
+
+<buffername> :== <word>
+
+<procedurename> :== <word>
+
+<classname> :== <word>
+
+<groupname> :== <word>
+
+<segid> :== [<alphanumeric>][<alphanumeric>][<alphanumeric>][<alphanumeric>]
+
+<resname> :== <alphanumeric>[<alphanumeric>][<alphanumeric>][<alphanumeric>]
+
+<resid> :== <alphanumeric>[<alphanumeric>][<alphanumeric>][<alphanumeric>]
+
+<type> :== <alphanumeric>[<alphanumeric>][<alphanumeric>][<alphanumeric>]
+
+<atom> :== <alphanumeric>[<alphanumeric>][<alphanumeric>][<alphanumeric>]
+
+<reference> :== <number>|+|-
+
+<wildcard> :== {<alphanumeric>|*|%|#|+}
+
+<complex> :== ( <real> [,] <real> )
+
+<real> :==
+
+  [+|-]{<number>}.[{<number>}] | 
+  [+|-]{<number>}.[{<number>}]E[+|-]{<number>}
+
+<integer> :== [+|-]{<number>}
+
+<logical> :== true | false
+
+<string> :==
+
+   {<alphanumeric>|<character>|<whitespace>} |
+  "{<alphanumeric>|<character>|<quotable>|<whitespace>}"
+
+<word> :==
+
+   {<alphanumeric>|<character>} |
+  "{<alphanumeric>|<character>|<quotable>}"
+
+<alphanumeric> :== <letter>|<number>
+
+<number> :== 0 | 1 | 2 | 3 | 4 | 5 | 6 | 7 | 8 | 9
+
+<letter> :== A - Z | a - z
+
+<character> :== _ | # | % | : | ; | ` | ? | .
+
+<quotable> :==
+
+  - | + | ~ | ! | @ | ^ | & | * | ( | ) | = | { | } | [ | ] | \ | 
+  | | ' | / | > | < | ,
+
+<whitespace> :== space | tab

@@ -1,0 +1,103 @@
+#!/bin/csh -f
+#
+# script to convert a simple MTZ file to CNS format
+# assumes that mtz2various is in the users path
+#
+# written by: Paul Adams
+#
+# copyright Yale University
+#
+if ( $#argv < 2 ) then
+    echo 'usage: mtz_to_cns infile outfile [-nofreeR F=label SIGF=label]'
+    exit 1
+endif
+#
+set Flabel=F
+set sigFlabel=SIGF
+set freeR=1
+#
+set  input="$1"
+set output="$2"
+#
+foreach arg ( $argv[3*] )
+    switch ( $arg )
+    case F=*:
+	set ftmp=`echo $arg | awk 'BEGIN{FS="="}{print $2}'`
+	if ( "$ftmp" == "" ) then
+	    echo "error: empty definition for F label"
+	    exit 1
+        else
+	    set Flabel="$ftmp"
+        endif
+	breaksw
+    case SIGF=*:
+	set sigftmp=`echo $arg | awk 'BEGIN{FS="="}{print $2}'`
+	if ( "$sigftmp" == "" ) then
+	    echo "error: empty definition for SIGF label"
+	    exit 1
+        else
+	    set sigFlabel="$sigftmp"
+        endif
+        breaksw
+    case -nofree*:
+        set freeR=0
+        breaksw
+    case -help:
+	echo 'usage: mtz_to_cns infile outfile [-nofreeR F=label SIGF=label]'
+	exit 0
+    default:
+	echo "mtz_to_cns: unknown option $arg"
+        exit 1
+    endsw
+end
+#
+if ( ! -e $input ) then
+    echo "mtz_to_cns: file $input does not exist"
+    exit 1
+endif
+#
+if ( $freeR ) then
+    mtz2various HKLIN $input HKLOUT $output << EOF
+    labin FP=$Flabel SIGFP=$sigFlabel FREE=FreeR_flag
+    output XPLOR
+    end
+EOF
+else
+    mtz2various HKLIN $input HKLOUT $output << EOF
+    labin FP=$Flabel SIGFP=$sigFlabel
+    output XPLOR
+    end
+EOF
+endif
+#
+if ( $status != 0 || `wc -l $output | awk '{print $1}'` == 0 ) then
+    echo 'mtz_to_cns: problems running mtz2various'
+    /bin/rm -f $output
+    exit 1
+endif
+#
+set tmpfile=$output.tmp.$$
+#
+set done=`grep NREF $output`
+if ( "$done" == "" ) then
+  set nref=`wc -l $output | awk '{print $1}'`
+  echo "{- cns file converted from $input -}" > $tmpfile
+  echo 'NREFlections= '$nref >> $tmpfile
+  echo 'ANOMalous=FALSe' >> $tmpfile
+  echo 'DECLare NAME=FOBS  DOMAin=RECIprocal TYPE=REAL    END' >> $tmpfile
+  echo 'DECLare NAME=SIGMA DOMAin=RECIprocal TYPE=REAL    END' >> $tmpfile
+  if ( $freeR ) then
+    echo 'DECLare NAME=TEST  DOMAin=RECIprocal TYPE=INTEger END' >> $tmpfile
+  endif
+endif
+#
+cat $output >> $tmpfile
+#
+if ( `wc -l $tmpfile | awk '{print $1}'` != 0 ) then
+    mv $tmpfile $output
+    echo 'mtz_to_cns: conversion to CNS format complete'
+else
+    /bin/rm -f $tmpfile
+    echo 'mtz_to_cns: problems converting to CNS format'
+endif
+#

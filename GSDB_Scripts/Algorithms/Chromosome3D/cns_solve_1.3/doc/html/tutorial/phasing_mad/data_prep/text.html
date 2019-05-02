@@ -1,0 +1,86 @@
+<HTML>
+<HEAD>
+   <TITLE>Crystallography & NMR System</TITLE>
+</HEAD>
+<BODY BGCOLOR=#8ebf8e>
+
+<HR WIDTH="100%">
+
+<h2>Converting scalepack reflection files</h2>
+
+<HR WIDTH="100%">
+
+The scalepack file for each wavelength
+(processed with <TT>scale anomalous</TT>)
+must be converted to CNS reflection file format using the command
+<TT>to_cns</TT>.
+
+<PRE>
+      to_cns <A HREF="../../data/nsf/w1.sca">w1.sca</A> w1.hkl
+      to_cns <A HREF="../../data/nsf/w2.sca">w2.sca</A> w2.hkl
+      to_cns <A HREF="../../data/nsf/w3.sca">w3.sca</A> w3.hkl
+      to_cns <A HREF="../../data/nsf/w4.sca">w4.sca</A> w4.hkl</PRE>
+
+<P>The information for each wavelength is then merged into a single
+reflection file, at the same time giving each wavelength a unique name
+(eg. f_w1, f_w2, f_w3, f_w4). The merge and renaming are performed with
+the CNS task file <TT>merge.inp.</TT></P>
+
+<PRE>
+      cns_solve &lt; <A HREF="merge.inp">merge.inp</A> &gt; merge.out
+</PRE>
+
+<P>The output of the <TT>merge.inp</TT> task file is a CNS formatted
+reflection file. This will contain a header which describes the data
+items in the file, followed by the data items themselves. The file is
+plain ASCII and can be viewed with any text viewer/editor. Example
+header from a CNS reflection file contained multiple data sets for
+MAD phasing:
+
+<PRE>
+ NREFlection=     25778
+ ANOMalous=TRUE { equiv. to HERMitian=FALSe}
+ DECLare NAME=F_W1                   DOMAin=RECIprocal   TYPE=REAL END
+ DECLare NAME=S_W1                   DOMAin=RECIprocal   TYPE=REAL END
+ DECLare NAME=F_W2                   DOMAin=RECIprocal   TYPE=REAL END
+ DECLare NAME=S_W2                   DOMAin=RECIprocal   TYPE=REAL END
+ DECLare NAME=F_W3                   DOMAin=RECIprocal   TYPE=REAL END
+ DECLare NAME=S_W3                   DOMAin=RECIprocal   TYPE=REAL END
+ DECLare NAME=F_W4                   DOMAin=RECIprocal   TYPE=REAL END
+ DECLare NAME=S_W4                   DOMAin=RECIprocal   TYPE=REAL END
+ INDE     5    0  -18 F_W1=    50.523 S_W1=    19.283 F_W2=    26.342
+                   S_W2=    16.583 F_W3=    33.696 S_W3=    18.656
+                   F_W4=     0.000 S_W4=     0.000
+ INDE     6    0  -18 F_W1=    53.028 S_W1=    18.030 F_W2=     1.929
+                   S_W2=     1.929 F_W3=    22.004 S_W3=    15.993
+                   F_W4=     0.000 S_W4=     0.000
+ INDE     7    0  -18 F_W1=    34.201 S_W1=    34.201 F_W2=     0.000
+                   S_W2=     0.000 F_W3=     6.684 S_W3=     6.684
+                   F_W4=     0.000 S_W4=     0.000
+</PRE>
+
+<P>After merging of the wavelength information the datasets must be
+scaled together (assuming that this has not been done in some other
+way prior to entering CNS). The scaling is performed with the CNS task
+file <TT>scale.inp</TT>.</P>
+
+<PRE>
+      cns_solve &lt; <A HREF="scale.inp">scale.inp</A> &gt; scale.out
+</PRE>
+
+<P>In this case the data extends to high enough resolution to perform
+Wilson scaling on the reference wavelength, to which the other
+wavelengths will then be scaled. The Wilson scaling will place the
+data on an approximate absolute scale.</P>
+
+<A HREF="tutorial.csh">Script to run this tutorial</A>
+
+<HR WIDTH="100%">
+
+<A HREF="../../text.html">Back to tutorials</A>&nbsp;&nbsp;
+<A HREF="../analyse/text.html">Next section</A>
+
+<HR WIDTH="100%"></P>
+
+</BODY>
+</HTML>

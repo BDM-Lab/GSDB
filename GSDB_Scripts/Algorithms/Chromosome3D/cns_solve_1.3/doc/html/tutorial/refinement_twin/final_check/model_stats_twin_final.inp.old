@@ -1,0 +1,1820 @@
+{+ file: model_stats_twin.inp +}
+{+ directory: xtal_twin +}
+{+ description: Crystallographic model statistics for data with 
+                hemihedral twinning +}
+{+ authors: Axel T. Brunger, and Paul D. Adams +}
+{+ copyright: Yale University +}
+
+{+ reference: T.O. Yeates, Detecting and Overcoming Crystal Twinning,
+              Methods in Enzymology 276, 344-358 (1997) +}
+
+{- Guidelines for using this file:
+   - all strings must be quoted by double-quotes
+   - logical variables (true/false) are not quoted
+   - do not remove any evaluate statements from the file 
+   - the selections store3 through store9 are available for general use -}
+
+{- begin block parameter definition -} define(
+
+{============================ coordinates ============================}
+
+{* coordinate file *}
+{===>} coordinate_infile="water_pick_twin.pdb";
+
+{==================== molecular information ==========================}
+
+{* topology files *}
+{===>} topology_infile_1="CNS_TOPPAR:protein.top";
+{===>} topology_infile_2="CNS_TOPPAR:dna-rna.top";
+{===>} topology_infile_3="CNS_TOPPAR:water.top";
+{===>} topology_infile_4="CNS_TOPPAR:ion.top";
+{===>} topology_infile_5="CNS_TOPPAR:carbohydrate.top";
+{===>} topology_infile_6="";
+{===>} topology_infile_7="";
+{===>} topology_infile_8="";
+
+{* linkage files for linear, continuous polymers (protein, DNA, RNA) *}
+{===>} link_infile_1="CNS_TOPPAR:protein.link";
+{===>} link_infile_2="CNS_TOPPAR:dna-rna-pho.link";
+{===>} link_infile_3="";
+
+{* parameter files *}
+{===>} parameter_infile_1="CNS_TOPPAR:protein_rep.param";
+{===>} parameter_infile_2="CNS_TOPPAR:dna-rna_rep.param";
+{===>} parameter_infile_3="CNS_TOPPAR:water_rep.param";
+{===>} parameter_infile_4="CNS_TOPPAR:ion.param";
+{===>} parameter_infile_5="CNS_TOPPAR:carbohydrate.param";
+{===>} parameter_infile_6="";
+{===>} parameter_infile_7="";
+{===>} parameter_infile_8="";
+
+{* molecular topology file: optional (leave blank for auto generation) *}
+{* 
+   Auto generation of the molecular topology from the coordinates should only 
+   be used if:
+   (1) Each distinct protein, DNA, or RNA chain must have a separate segid 
+       (or chainid if the chainid is non-blank). 
+   (2) Each contiguous protein, RNA, or RNA chain must not be disrupted by 
+       other types of residues or ligands.  Rather, these other residues 
+       should be listed after protein, RNA/DNA chains. 
+   (3) Disulphides are automatically detected based on distances between the sulfur atoms
+      (must be less than 3 A apart).
+   (4) Broken protein/RNA/DNA chains without terminii must be more than 2.5 A apart to be recognized as such.
+   (5) N-linked glycan links are automatically recognized if the bonded atoms are less than 2.5 A apart.
+   (6) Automatic generation cannot be used with alternate conformations. 
+   For ligands, the user must make suitable topology and parameter files.
+   For non-standard covalent linkages, the custom patch file should be used.
+   Alternatively, the generate.inp or generate_easy.inp task files
+   can be used to generated the mtf prior to running this task file.
+    *}
+{===>} structure_infile="";
+
+{* for auto generation: extra linkages and modifications by custom patches *}
+{===>} patch_infile="";
+
+{====================== crystallographic data ========================}
+
+{* space group *}
+{* use International Table conventions with subscripts substituted
+   by parenthesis *}
+{===>} sg="R3";
+
+{* unit cell parameters in Angstroms and degrees *}
+{+ table: rows=1 "cell" cols=6 "a" "b" "c" "alpha" "beta" "gamma" +}
+{===>} a=104.400;
+{===>} b=104.400;
+{===>} c=124.250;
+{===>} alpha=90;
+{===>} beta=90;
+{===>} gamma=120;
+
+{* anomalous f' f'' library file *}
+{* If a file is not specified, no anomalous contribution will be included *}
+{+ choice: "CNS_XRAYLIB:anom_cu.lib" "CNS_XRAYLIB:anom_mo.lib" "" user_file +}
+{===>} anom_library="";
+
+{* reflection files *}
+{* specify non-anomalous reflection files before anomalous reflection files. *}
+{* files must contain unique array names otherwise errors will occur *}
+{===>} reflection_infile_1="porin.cv";
+{===>} reflection_infile_2="";
+{===>} reflection_infile_3="";
+{===>} reflection_infile_4="";
+
+{* reciprocal space array containing observed amplitudes: required *}
+{===>} obs_f="fobs";
+
+{* reciprocal space array containing sigma values for amplitudes: required *}
+{===>} obs_sigf="sigma";
+
+{* reciprocal space array containing test set for cross-validation: optional *}
+{* required for the calculation of cross-validated sigmaA values *}
+{* required for the maximum likelihood targets *}
+{===>} test_set="test";
+
+{* number for selection of test reflections: required for cross-validation *}
+{* ie. reflections with the test set array equal to this number will be
+       used for cross-validation, all other reflections form the working set *}
+{===>} test_flag=1;
+
+{* reciprocal space array containing weighting scheme for observed 
+   amplitudes: optional *}
+{* only used for the "residual" and "vector" targets - this will
+   default to a constant value of 1 if array is not present *}
+{===>} obs_w="";
+
+{* reciprocal space array containing observed intensities: optional *}
+{* required for the "mli" target *}
+{===>} obs_i="";
+
+{* reciprocal space array containing sigma values for intensities: optional *}
+{* required for the "mli" target *}
+{===>} obs_sigi="";
+
+{* experimental phase probability distribution: optional *}
+{* required for the "mlhl" target *}
+{* reciprocal space arrays with Hendrickson-Lattman coefficients A,B,C,D *}
+{+ table: rows=1 "HL coefficients" cols=4 "A" "B" "C" "D" +}
+{===>} obs_pa="";
+{===>} obs_pb="";
+{===>} obs_pc="";
+{===>} obs_pd="";
+
+{* complex reciprocal space array containing experimental phases: optional *}
+{* required for the "mixed" and "vector" targets *}
+{===>} obs_phase="";
+
+{* reciprocal space array containing experimental figures of merit: optional *}
+{* required for the "mixed" target *}
+{===>} obs_fom="";
+
+{* resolution limits *}
+{* the full resolution range of observed data should be used in refinement.
+   A bulk solvent correction should be applied to allow the use of low
+   resolution terms. If no bulk solvent correction is applied, data must
+   be truncated at a lower resolution limit of between 8 and 6 Angstrom. *}
+{+ table: rows=1 "resolution" cols=2 "lowest" "highest" +}
+{===>} low_res=500.0;
+{===>} high_res=2.25;
+
+{* apply rejection criteria to amplitudes or intensities *}
+{+ choice: "amplitude" "intensity" +}
+{===>} obs_type="amplitude";
+
+{* Observed data cutoff criteria: applied to amplitudes or intensities *}
+{* reflections with magnitude(Obs)/sigma < cutoff are rejected. *}
+{===>} sigma_cut=0.0;
+
+{* rms outlier cutoff: applied to amplitudes or intensities *}
+{* reflections with magnitude(Obs) > cutoff*rms(Obs) will be rejected *}
+{===>} obs_rms=10000;
+
+{=================== non-crystallographic symmetry ===================}
+
+{* NCS-restraints/constraints file *}
+{* see auxiliary/ncs.def *}
+{===>} ncs_infile="";
+
+{============ initial B-factor and bulk solvent corrections ==========}
+
+{* overall B-factor correction *}
+{+ choice: "no" "isotropic" "anisotropic" +}
+{===>} bscale="anisotropic";
+
+{* bulk solvent correction *}
+{* a mask is required around the molecule(s). The region
+   outside this mask is the solvent region *}
+{+ choice: true false +}
+{===>} bulk_sol=true;
+
+{* bulk solvent mask file *}
+{* mask will be read from O type mask file if a name is given
+   otherwise calculated from coordinates of selected atoms *}
+{===>} bulk_mask_infile="";
+
+{* automatic bulk solvent parameter optimization for e-density level sol_k (e/A^3) and B-factor sol_b (A^2) *}
+{+ choice: true false +}
+{===>} sol_auto=true;
+
+{* fixed solvent parameters (used if the automatic option is turned off) *}
+{+ table: rows=1 "bulk solvent" cols=2 "e-density level sol_k (e/A^3)" "B-factor sol_b (A^2) " +}
+{===>} sol_k=-1;
+{===>} sol_b=-1;
+
+{* optional file with a listing of the results of the automatic bulk solvent optimization *}
+{===>} sol_output="";
+
+{* solvent mask parameters *}
+{+ table: rows=1 "bulk solvent" cols=2 "probe radius (A) (usually set to 1)" "shrink radius (A) (usually set to 1)" +}
+{===>} sol_rad=1.0;
+{===>} sol_shrink=1.0;
+
+{======================= twinning parameters =========================}
+
+{* twinning operation *}
+{===>} twin_oper="h,-h-k,-l";
+
+{* twinning fraction *}
+{===>} twin_frac=0.304;
+
+{========================== atom selection ===========================}
+
+{* select atoms to be included in statistics *}
+{* this should include all conformations if multiple conformations are used *}
+{===>} atom_select=(known and not hydrogen);
+
+{* select fixed atoms *}
+{* note: atoms at special positions are automatically fixed. So, 
+   you don't have to explicitly fix them here. *}
+{===>} atom_fixed=(none);
+
+{* select atoms to be harmonically restrained during refinement *}
+{===>} atom_harm=(none);
+
+{* harmonic restraint constant - for harmonically restrained atoms *}
+{===>} k_harmonic=10;
+
+{* select atoms in alternate conformation 1 *}
+{===>} conf_1=(none);
+
+{* select atoms in alternate conformation 2 *}
+{===>} conf_2=(none);
+
+{* select atoms in alternate conformation 3 *}
+{===>} conf_3=(none);
+
+{* select atoms in alternate conformation 4 *}
+{===>} conf_4=(none);
+
+{* define main chain atoms - for B-factor analysis *}
+{* note: atoms outside this selection will be considered to be
+   side chain atoms *}
+{===>} atom_main=(name ca or name n or name c or name o or name ot+);
+
+{* additional restraints file *}
+{* eg. auxiliary/dna-rna_restraints.def *}
+{===>} restraints_infile="";
+
+{======================= statistics parameters =======================}
+
+{* number of bins for printing binwise statistics *}
+{===>} print_bins=10;
+
+{* threshhold for reported bond violations *}
+{===>} bond_thresh=0.05;
+
+{* threshhold for reported angle violations *}
+{===>} angle_thresh=8.0;
+
+{* threshhold for reported dihedral violations *}
+{===>} dihe_thresh=60.0;
+
+{* threshhold for reported improper violations *}
+{===>} impr_thresh=3.0;
+
+{* threshhold for reported close contacts *}
+{===>} close=2.5;
+
+{* lower resolution limit for coordinate error estimation *}
+{===>} low_err_res=5.0;
+
+{* refinement target *}
+{+ list: twin_lsq: least squares residual for hemihedral twinning +}
+{+ choice: "twin_lsq" +}
+{===>} reftarget="twin_lsq";
+
+{* number of bins for refinement target *}
+{* this will be determined automatically if a negative value is given
+   otherwise the specified number of bins will be used *}
+{===>} target_bins=-1;
+
+{* Wa weight for X-ray term *}
+{* this is determined automatically if a negative value is given *}
+{===>} wa=-1;
+
+{* memory allocation for FFT calculation *}
+{* this will be determined automatically if a negative value is given
+   otherwise the specified number of words will be allocated *}
+{===>} fft_memory=-1;
+
+{=========================== output files ============================}
+
+{* output statistics file *}
+{===>} list_outfile="model_stats_twin_final.list";
+
+{* root for luzzati coordinate error plot files *}
+{* files: "root".plot and "root"_cv.plot
+   no plot file will be written if left blank *}
+{===>} luzzati_error_plot="luzzati_error";
+
+{* root for sigmaa coordinate error plot files *}
+{* files: "root".plot and "root"_cv.plot
+   no plot file will be written if left blank *}
+{===>} sigmaa_error_plot="sigmaa_error";
+
+{===========================================================================}
+{        things below this line do not normally need to be changed          }
+{===========================================================================}
+
+ ) {- end block parameter definition -}
+
+ checkversion 1.3
+
+ evaluate ($log_level=quiet)
+
+ if ( $log_level = verbose ) then
+   set message=normal echo=on end
+ else
+   set message=off echo=off end
+ end if
+
+ if ( &BLANK%structure_infile = true ) then
+ 
+    {- read topology files -}
+    topology
+     evaluate ($counter=1)
+     evaluate ($done=false)
+     while ( $done = false ) loop read
+      if ( &exist_topology_infile_$counter = true ) then
+         if ( &BLANK%topology_infile_$counter = false ) then
+            @@&topology_infile_$counter
+         end if
+      else
+        evaluate ($done=true)
+      end if
+      evaluate ($counter=$counter+1)
+     end loop read
+    end
+    
+    @CNS_XTALMODULE:mtfautogenerate (
+                                  coordinate_infile=&coordinate_infile;
+                                  convert=true;
+                                  separate=true;
+                                  atom_delete=(not known);
+                                  hydrogen_flag=true;
+                                  break_cutoff=2.5;
+                                  disulphide_dist=3.0;
+                                  carbo_dist=2.5;
+                                  patch_infile=&patch_infile;
+                                  O5_becomes="O";
+                                 )
+
+ else
+
+   structure @&structure_infile end
+   coordinates @&coordinate_infile
+
+ end if
+
+ {- read parameter files -}
+ parameter
+  evaluate ($counter=1)
+  evaluate ($done=false)
+  while ( $done = false ) loop read
+   if ( &exist_parameter_infile_$counter = true ) then
+      if ( &BLANK%parameter_infile_$counter = false ) then
+         @@&parameter_infile_$counter
+      end if
+   else
+     evaluate ($done=true)
+   end if
+   evaluate ($counter=$counter+1)
+  end loop read
+ end
+
+ xray
+
+   @CNS_XTALLIB:spacegroup.lib (sg=&sg;)
+
+   a=&a b=&b c=&c  alpha=&alpha beta=&beta gamma=&gamma
+
+   @CNS_XRAYLIB:scatter.lib
+
+   evaluate ($counter=1)
+   evaluate ($done=false)
+   while ( $done = false ) loop read
+    if ( &exist_reflection_infile_$counter = true ) then
+      if ( &BLANK%reflection_infile_$counter = false ) then
+       reflection
+         @@&reflection_infile_$counter
+       end
+      end if
+   else
+     evaluate ($done=true)
+   end if
+   evaluate ($counter=$counter+1)
+  end loop read
+
+ end
+
+ if ( &BLANK%anom_library = false ) then
+   @@&anom_library
+ else
+   xray anomalous=? end
+   if ( $result = true ) then
+     display Warning: no anomalous library has been specified
+     display          no anomalous contribution will used in refinement
+   end if
+ end if
+
+ if ( &twin_frac > 0.5 ) then
+   display Error: twinning fraction must be less than or equal 0.5
+   abort
+ end if
+
+ {- copy define parameters of optional arrays into symbols so 
+    we can redefine them -}
+    
+ evaluate ($obs_i=&obs_i)
+ evaluate ($obs_sigi=&obs_sigi)
+ evaluate ($obs_w=&obs_w)
+ xray
+   @@CNS_XTALMODULE:checkrefinput (
+                                  reftarget=&reftarget;
+                                  obs_f=&obs_f;
+                                  obs_sigf=&obs_sigf;
+                                  test_set=&test_set;
+                                  obs_pa=&obs_pa;
+                                  obs_pb=&obs_pb;
+                                  obs_pc=&obs_pc;
+                                  obs_pd=&obs_pd;
+                                  obs_phase=&obs_phase;
+                                  obs_fom=&obs_fom;
+                                  obs_w=$obs_w;
+                                  obs_i=$obs_i;
+                                  obs_sigi=$obs_sigi;
+                                  )
+
+   query name=fcalc domain=reciprocal end
+   if ( $object_exist = false ) then
+      declare name=fcalc domain=reciprocal type=complex end
+   end if
+   declare name=fbulk domain=reciprocal type=complex end
+
+   do (fbulk=0) ( all ) 
+
+   binresolution &low_res &high_res
+   mapresolution &high_res
+
+   if ( &obs_type = "intensity" ) then
+     if ( &BLANK%obs_i = true ) then
+       display  Error: observed intensity array is undefined
+       display         aborting script
+       abort
+     end if
+     evaluate ($reject_obs=&obs_i)
+     evaluate ($reject_sig=&obs_sigi)
+   else
+     evaluate ($reject_obs=&obs_f)
+     evaluate ($reject_sig=&obs_sigf)
+   end if
+
+   query name=&STRIP%obs_f domain=reciprocal end
+   declare name=fobs_orig domain=reciprocal type=$object_type end
+   declare name=sigma_orig domain=reciprocal type=real end
+
+   do (fobs_orig=&STRIP%obs_f) (all)
+   do (sigma_orig=&STRIP%obs_sigf) (all)
+
+   declare name=ref_active domain=reciprocal type=integer end
+   declare name=tst_active domain=reciprocal type=integer end
+
+   do (ref_active=0) ( all )
+   do (ref_active=1) ( ( $STRIP%reject_sig # 0 ) and
+                      ( &low_res >= d >= &high_res ) )
+
+   statistics overall
+     completeness
+     selection=( ref_active=1 )
+   end
+   evaluate ($total_compl=$expression1)
+
+   show sum(1) ( ref_active=1 )
+   evaluate ($total_read=$select)
+   evaluate ($total_theor=int(1./$total_compl * $total_read))
+
+   show rms (amplitude($STRIP%reject_obs)) ( ref_active=1 )
+   evaluate ($obs_high=$result*&obs_rms)
+   show min (amplitude($STRIP%reject_obs)) ( ref_active=1 )
+   evaluate ($obs_low=$result)
+
+   do (ref_active=0) ( all )
+   do (ref_active=1)
+                  ( ( amplitude($STRIP%reject_obs) > &sigma_cut*$STRIP%reject_sig ) and
+                    ( $STRIP%reject_sig # 0 ) and
+                    ( $obs_low <= amplitude($STRIP%reject_obs) <= $obs_high ) and
+                    ( $obs_low <= amplitude(remap[&STRIP%twin_oper]($STRIP%reject_obs)) <= $obs_high ) and
+                    ( &low_res >= d >= &high_res ) )
+
+   do (tst_active=0) (all)
+   if ( &BLANK%test_set = false ) then
+     do (tst_active=1) (ref_active=1 and &STRIP%test_set=&test_flag)
+   end if
+
+   show sum(1) ( ref_active=1 and tst_active=0 )
+   evaluate ($total_work=$select)
+   show sum(1) ( ref_active=1 and tst_active=1 )
+   evaluate ($total_test=$select)
+   evaluate ($total_used=$total_work+$total_test)
+
+   evaluate ($unobserved=$total_theor-$total_read)
+   evaluate ($rejected=$total_read-$total_used)
+   evaluate ($per_unobs=100*($unobserved/$total_theor))
+   evaluate ($per_reject=100*($rejected/$total_theor))
+   evaluate ($per_used=100*($total_used/$total_theor))
+   evaluate ($per_work=100*($total_work/$total_theor))
+   evaluate ($per_test=100*($total_test/$total_theor))
+
+   associate fcalc ( &atom_select )
+
+   tselection=( ref_active=1 )
+
+   cvselection=( tst_active=1 )
+
+   method=FFT          
+   
+  {- MODIFIED 8/01/06 -}
+ end
+ 
+
+ show min ( b ) ( &atom_select )
+ evaluate ($b_min=$result)
+ @@CNS_XTALMODULE:fft_parameter_check ( 
+                             d_min=&high_res; 
+                             b_min=$b_min;
+                             grid=auto;
+                             fft_memory=&fft_memory;
+                             fft_grid=$fft_grid;   
+                             fft_b_add=$fft_b_add; 
+                             fft_elim=$fft_elim; 
+                                      )
+                            
+ xray
+ {- END MODIFICATION -}
+
+   tolerance=0.0 lookup=false
+
+   if ( &wa >= 0 ) then
+      wa=&wa
+   end if
+
+ end                  
+
+ if ( &BLANK%ncs_infile = false ) then
+    inline @&ncs_infile
+ end if
+
+ if ( &BLANK%restraints_infile = false ) then
+     @&restraints_infile
+ end if
+
+ do (store1=0) (all)
+
+ evaluate ($nalt=1)
+ evaluate ($alt=1)
+ evaluate ($done=false)
+ while ( $done = false ) loop nalt
+   if ( &exist_conf_$alt = true ) then
+     show sum(1) ( &conf_$alt )
+     if ( $result > 0 ) then
+       evaluate ($nalt=$nalt+1)
+     end if
+   else
+     evaluate ($done=true)
+     evaluate ($nalt=$nalt-1)
+   end if
+   evaluate ($alt=$alt+1)
+ end loop nalt
+
+ evaluate ($alt=1)
+ while ( $alt <= $nalt ) loop alt
+   do (store1=$alt) ( &conf_$alt )
+   evaluate ($alt=$alt+1)
+ end loop alt
+
+ igroup
+   interaction ( &atom_select and not(attr store1 > 0))
+               ( &atom_select and not(attr store1 > 0))
+   evaluate ($alt=1)
+   while ( $alt <= $nalt ) loop alcs
+     interaction ( &atom_select and ( attr store1 = $alt or attr store1 = 0 ))
+                 ( &atom_select and ( attr store1 = $alt ))
+     evaluate ($alt=$alt+1)
+   end loop alcs
+ end
+ 
+ {- check isolated atoms and atoms at special positions and add to
+    list of fixed atoms if needed - store1 will be used -}
+ 
+ @CNS_XTALMODULE:setupfixed (
+                           mode="minimization";
+                           atom_select=&atom_select;
+                           atom_fixed=&atom_fixed;
+                           atom_total_fixed=store1;
+                           atom_multiplicity=rmsd;
+                           )
+ 
+ fix selection=( store1 ) end
+
+
+ fastnb grid end
+
+ flags                                       
+    exclude elec include pvdw xref                   
+    ?                                        
+ end                                         
+
+ show sum(1) (&atom_harm)
+ if ( $result > 0 ) then
+   evaluate ($harmonic=true)
+ else
+   evaluate ($harmonic=false)
+ end if
+
+ xray
+    predict
+      mode=reciprocal
+      to=fcalc
+      selection=( ref_active=1 )
+      atomselection=( &atom_select )
+    end
+    @@CNS_XTALMODULE:calculate_r_twin (fobs=&STRIP%obs_f;
+                                       fcalc=fcalc;
+                                       fpart=fbulk;
+                                       twin_oper=&STRIP%twin_oper;
+                                       twin_frac=&twin_frac;
+                                       sel=(ref_active=1);
+                                       sel_test=(tst_active=1);
+                                       print=true;
+                                       output=OUTPUT;
+                                       r=$start_r;
+                                       test_r=$start_test_r;)
+ end
+
+ {- BEGIN MODIFICATION 8/01/06 -}
+ @CNS_XTALMODULE:scale_and_solvent_grid_search (
+                             bscale=&bscale;
+                             sel=( ref_active=1 );
+                             sel_test=( tst_active=1 );
+                             atom_select=( &atom_select );
+                             bulk_sol=&bulk_sol;
+                             bulk_mask=&bulk_mask_infile;
+                             bulk_atoms=( &atom_select );
+                             
+                             sol_auto=&sol_auto;
+                             sol_k=&sol_k;
+                             sol_b=&sol_b;
+                             sol_rad=&sol_rad;
+                             sol_shrink=&sol_shrink;
+  
+                             fcalc=fcalc;
+                             obs_f=&STRIP%obs_f;
+                             obs_sigf=&STRIP%obs_sigf;
+                             obs_i=$STRIP%obs_i;
+                             obs_sigi=$STRIP%obs_sigi;                             
+                             fpart=fbulk;
+
+                             Baniso_11=$Baniso_11;
+                             Baniso_22=$Baniso_22;
+                             Baniso_33=$Baniso_33;
+                             Baniso_12=$Baniso_12;
+                             Baniso_13=$Baniso_13;
+                             Baniso_23=$Baniso_23;
+                             Biso=$Biso_model;
+                             
+                             sol_k_best=$sol_k_ref;
+                             sol_b_best=$sol_b_ref;
+			     solrad_best=$solrad_best;
+			     shrink_best=$shrink_best;
+                             
+                             b=b;
+
+                             low_b_flag=$low_b_flag;
+                            
+                             sol_output=&sol_output;
+                             
+                             )
+ 
+ {- check the gridding again since the minimum B-factor may have changed -}
+ show min ( b ) ( &atom_select )
+ evaluate ($b_min=$result)
+ @@CNS_XTALMODULE:fft_parameter_check ( 
+                             d_min=&high_res; 
+                             b_min=$b_min;
+                             grid=auto;
+                             fft_memory=&fft_memory;
+                             fft_grid=$fft_grid;   
+                             fft_b_add=$fft_b_add; 
+                             fft_elim=$fft_elim; 
+                                      )
+{- END MODIFICATION -}
+
+ if ( $harmonic = true ) then
+   do (refx=x) (all)
+   do (refy=y) (all)
+   do (refz=z) (all)
+   do (harm=0) (all)
+   do (harm=&k_harmonic) (&atom_harm)
+   flags include harm end
+ end if
+
+ xray
+     @@CNS_XTALMODULE:refinementtarget_twin (target=&reftarget;
+                                             sig_sigacv=0.07;
+                                             mbins=&target_bins;
+                                             fobs=&STRIP%obs_f;
+                                             sigma=&STRIP%obs_sigf;
+                                             weight=$STRIP%obs_w;
+                                             iobs=$STRIP%obs_i;
+                                             sigi=$STRIP%obs_sigi;
+                                             test=tst_active;
+                                             fcalc=fcalc;
+                                             fpart=fbulk;
+                                             twin_oper=&STRIP%twin_oper;
+                                             twin_frac=&twin_frac;
+                                             pa=&STRIP%obs_pa;
+                                             pb=&STRIP%obs_pb;
+                                             pc=&STRIP%obs_pc;
+                                             pd=&STRIP%obs_pd;
+                                             phase=&STRIP%obs_phase;
+                                             fom=&STRIP%obs_fom;
+                                             sel=(ref_active=1);
+                                             sel_test=(tst_active=1);
+                                             statistics=true;)
+ end
+
+ if ( &wa < 0 ) then
+   @@CNS_XTALMODULE:getweight (selected=&atom_select;
+                               fixed=(store1);)
+ end if
+
+ xray
+   @@CNS_XTALMODULE:definemonitor_twin (monitor=&reftarget;
+                                        fobs=&STRIP%obs_f;
+                                        fcalc=fcalc;
+                                        fpart=fbulk;
+                                        phase=&STRIP%obs_phase;
+                                        twin_oper=&STRIP%twin_oper;
+                                        twin_frac=&twin_frac;
+                                        monitortype=$monitor_is;)
+ end
+
+ energy end
+ evaluate ($curr_moni=$monitor) 
+ evaluate ($test_curr_moni=$test_monitor)
+
+ xray
+    predict
+      mode=reciprocal
+      to=fcalc
+      selection=( ref_active=1 )
+      atomselection=( &atom_select )
+    end
+    @@CNS_XTALMODULE:calculate_r_twin (fobs=&STRIP%obs_f;
+                                       fcalc=fcalc;
+                                       fpart=fbulk;
+                                       twin_oper=&STRIP%twin_oper;
+                                       twin_frac=&twin_frac;
+                                       sel=(ref_active=1);
+                                       sel_test=(tst_active=1);
+                                       print=true;
+                                       output=OUTPUT;
+                                       r=$full_r;
+                                       test_r=$full_test_r;)
+ end
+
+ evaluate ($1=1)
+ evaluate ($2=2)
+ evaluate ($3=3)
+ evaluate ($4=4)
+ evaluate ($rmsd=RMSD)
+
+ {- modification, allowing both NCS restraints and constraints, ATB, 12/20/08 -}
+ 
+ if ( &BLANK%ncs_infile = false ) then
+
+  eval ($ncs_strict=false)
+  eval ($ncs_restrain=false)
+  if ( &ncs_type = "strict" ) then
+   eval ($ncs_strict=true) 
+  elseif ( &ncs_type = "restrain" ) then
+   eval ($ncs_restrain=true)
+  elseif ( &ncs_type = "both" ) then
+   eval ($ncs_strict=true) 
+   eval ($ncs_restrain=true) 
+  else
+   display >>> Error: unknown NCS type, aborting
+   abort
+  end if
+
+  if ($ncs_restrain = true) then
+   ncs restrain ? end
+   evaluate ($ngroup=1)
+   evaluate ($done=false)
+   while ( $done = false ) loop group
+     if ( $exist_rot_$ngroup_$1_$1_$1 # true ) then
+       evaluate ($done=true)
+       evaluate ($ngroup=$ngroup-1)
+     else
+       evaluate ($ngroup=$ngroup+1)
+     end if
+   end loop group
+  end if
+
+  if ($ncs_strict = true) then
+   ncs strict ? end
+   evaluate ($num_op=1)
+   evaluate ($done=false)
+   while ( $done = false ) loop ncsop
+     if ( $exist_ncsop_$num_op_$1_$1 # true ) then
+       evaluate ($done=true)
+       evaluate ($num_op=$num_op-1)
+     else
+       evaluate ($num_op=$num_op+1)
+     end if
+   end loop ncsop
+   evaluate ($num_op_strict=$num_op)
+  end if
+ 
+  if ($ncs_restrain = true) then
+   ncs restraint ? end
+   evaluate ($group=1)
+   while ($group <= $ngroup) loop group
+     evaluate ($num_op=1)
+     evaluate ($done=false)
+     while ( $done = false ) loop ncsop
+       if ( $exist_rot_$group_$num_op_$1_$1 # true ) then
+         evaluate ($done=true)
+         evaluate ($num_op=$num_op-1)
+       else
+         evaluate ($num_op=$num_op+1)
+       end if
+     end loop ncsop
+     evaluate ($num_op_$group=$num_op)
+     evaluate ($group=$group+1)
+   end loop group
+  end if
+ 
+ end if
+ {- end modification -}
+
+ xray
+   query name=ftwin_total domain=reciprocal end
+   if ( $object_exist = false ) then
+      declare name=ftwin_total domain=reciprocal type=complex end
+   end if
+   do (ftwin_total=sqrt(
+                  (1-&twin_frac)*abs(                        fcalc+fbulk )^2 + 
+                     &twin_frac *abs(remap[&STRIP%twin_oper](fcalc+fbulk))^2))
+                  (ref_active=1)
+ end
+
+ xray
+   if ( $total_test > 0 ) then
+     show sum (1) (amplitude(&STRIP%obs_f) > 0 and
+                   &high_res <= d <= &low_res and tst_active=1)
+     evaluate ($error_bins=int(max(10,$result/25)))
+     evaluate ($error_bins=min($error_bins,50))
+   else
+     show sum (1) (amplitude(&STRIP%obs_f) > 0 and
+                   &high_res <= d <= &low_res)
+     evaluate ($error_bins=int(max(10,$result/250)))
+     evaluate ($error_bins=min($error_bins,50))
+   end if
+ end
+
+ xray
+   if ( &BLANK%luzzati_error_plot = false ) then
+     evaluate ($plotfile=&luzzati_error_plot + ".plot")
+     evaluate ($mess_size=LONG)
+   else
+     evaluate ($plotfile=OUTPUT)
+     evaluate ($mess_size=SHORT)
+   end if
+   @CNS_XTALMODULE:luzzaticoorderr ( bins=$error_bins;
+                                     fobs=&STRIP%obs_f;
+                                     fcalc=ftwin_total;
+                                     fpart=0;
+                                     low=&low_err_res;
+                                     high=&high_res;
+                                     sel=(ref_active=1);
+                                     disp=$plotfile;
+                                     mess=$mess_size;
+                                     esderr_luz=$esderr_luz; )
+
+   if ( $total_test > 0 ) then
+     if ( &BLANK%luzzati_error_plot = false ) then
+       evaluate ($plotfile=&luzzati_error_plot + "_cv.plot")
+       evaluate ($mess_size=LONG)
+     else
+       evaluate ($plotfile=OUTPUT)
+       evaluate ($mess_size=SHORT)
+     end if
+     @CNS_XTALMODULE:luzzaticoorderr ( bins=$error_bins;
+                                       fobs=&STRIP%obs_f;
+                                       fcalc=ftwin_total;
+                                       fpart=0;
+                                       low=&low_err_res;
+                                       high=&high_res;
+                                       sel=(ref_active=1 and tst_active=1);
+                                       disp=$plotfile;
+                                       mess=$mess_size;
+                                       esderr_luz=$esderr_luz_cv; )
+   end if
+ end
+
+ xray
+   if ( &BLANK%sigmaa_error_plot = false ) then
+     evaluate ($plotfile=&sigmaa_error_plot + ".plot")
+     evaluate ($mess_size=LONG)
+   else
+     evaluate ($plotfile=OUTPUT)
+     evaluate ($mess_size=SHORT)
+   end if
+   @CNS_XTALMODULE:sigmaacoorderr ( bins=$error_bins;
+                                    fobs=&STRIP%obs_f;
+                                    fcalc=ftwin_total;
+                                    fpart=0;
+                                    sel=(ref_active=1 and d <= &low_err_res);
+                                    disp=$plotfile;
+                                    mess=$mess_size;
+                                    esderr_sigmaa=$esderr_sigmaa; )
+
+   if ( $total_test > 0 ) then
+     if ( &BLANK%sigmaa_error_plot = false ) then
+       evaluate ($plotfile=&sigmaa_error_plot + "_cv.plot")
+       evaluate ($mess_size=LONG)
+     else
+       evaluate ($plotfile=OUTPUT)
+       evaluate ($mess_size=SHORT)
+     end if
+     @CNS_XTALMODULE:sigmaacoorderr ( bins=$error_bins;
+                                      fobs=&STRIP%obs_f;
+                                      fcalc=ftwin_total;
+                                      fpart=0;
+                                      sel=(ref_active=1 and tst_active=1 and
+                                           d <= &low_err_res);
+                                      disp=$plotfile;
+                                      mess=$mess_size;
+                                      esderr_sigmaa=$esderr_sigmaa_cv; )
+   end if
+ end
+
+ print threshold=&bond_thresh bond 
+ evaluate ($rmsd_bond=$result)
+ evaluate ($viol_bond=$violations)
+
+ print threshold=&angle_thresh angle 
+ evaluate ($rmsd_angle=$result)
+ evaluate ($viol_angle=$violations)
+
+ print threshold=&dihe_thresh dihedral 
+ evaluate ($rmsd_dihe=$result)
+ evaluate ($viol_dihe=$violations)
+
+ print threshold=&impr_thresh improper
+ evaluate ($rmsd_impr=$result)
+ evaluate ($viol_impr=$violations)
+
+ xray
+   optimize bfactors
+
+     bmin=0
+     bmax=900
+
+     nstep=0
+     drop=10.0
+
+     bsigma=( &atom_select and &atom_main )=1.5
+     bsigma=( &atom_select and not(&atom_main) )=2.0
+
+     asigma=( &atom_select and &atom_main )=2.0
+     asigma=( &atom_select and not(&atom_main) )=2.5
+
+     rweight=-1
+   end
+ end
+
+ show ave(b) (&atom_select)
+ evaluate ($b_average=$result)
+ show min(b) (&atom_select)
+ evaluate ($b_min=$result)
+ show max(b) (&atom_select)
+ evaluate ($b_max=$result)
+
+ set display=&list_outfile end
+
+ display ==============================================================================
+ display
+ display >>> input coordinates: &STRIP%coordinate_infile
+
+ evaluate ($counter=1)
+ evaluate ($done=false)
+ while ( $done = false ) loop read
+  if ( &exist_parameter_infile_$counter = true ) then
+    if ( &BLANK%parameter_infile_$counter = false ) then
+      display >>> parameter file $counter  : &STRIP%parameter_infile_$counter
+    end if
+  else
+   evaluate ($done=true)
+  end if
+  evaluate ($counter=$counter+1)
+ end loop read
+ 
+ if ( &BLANK%structure_infile = true ) then
+   display >>> molecular structure file: automatic
+
+   evaluate ($counter=1)
+   evaluate ($done=false)
+   while ( $done = false ) loop read
+    if ( &exist_topology_infile_$counter = true ) then
+      if ( &BLANK%topology_infile_$counter = false ) then
+        display >>> topology file $counter  : &STRIP%topology_infile_$counter
+      end if
+    else
+     evaluate ($done=true)
+    end if
+    evaluate ($counter=$counter+1)
+   end loop read
+
+   evaluate ($counter=1)
+   evaluate ($done=false)
+   while ( $done = false ) loop read
+    if ( &exist_link_infile_$counter = true ) then
+      if ( &BLANK%link_infile_$counter = false ) then
+        display >>> linkage file $counter  : &STRIP%link_infile_$counter
+      end if
+    else
+     evaluate ($done=true)
+    end if
+    evaluate ($counter=$counter+1)
+   end loop read
+
+   if ( &BLANK%patch_infile = false ) then
+      display >>> custom patch file = &STRIP%patch_infile
+   end if
+
+ else
+   display >>> molecular structure file: &STRIP%structure_infile
+ end if
+
+ if ( &BLANK%anom_library = false ) then
+   display >>> anomalous f' f'' library: &STRIP%anom_library
+ end if
+
+ evaluate ($counter=1)
+ evaluate ($done=false)
+ while ( $done = false ) loop read
+    if ( &exist_reflection_infile_$counter = true ) then
+      if ( &BLANK%reflection_infile_$counter = false ) then
+         display >>> reflection file $counter : &STRIP%reflection_infile_$counter       
+      end if
+   else
+     evaluate ($done=true)
+   end if
+   evaluate ($counter=$counter+1)
+ end loop read
+ 
+ display >>> spacegroup: &STRIP%sg
+ display >>> cell dimensions: a= &a b= &b c= &c alpha= &alpha beta= &beta gamma= &gamma
+ display >>> twinning operator= &STRIP%twin_oper  twinning fraction= &twin_frac
+ xray wa=? end
+ evaluate ($wa_print=$result)
+ display >>> current wa= $wa_print for target= &STRIP%reftarget
+ if ( &BLANK%restraints_infile = false ) then
+   display >>> additional restraints file: &STRIP%restraints_infile
+ end if
+ if ( &BLANK%ncs_infile = false ) then
+   display >>> ncs= &STRIP%ncs_type  ncs file= &STRIP%ncs_infile
+ else
+   display >>> ncs= none
+ end if
+ 
+ if ( &bscale # "no" ) then
+   if ( $low_b_flag = true ) then
+     display >>> warning: B-correction gave atomic B-values less than zero
+     display >>>          they have been reset to zero
+   end if
+ end if
+
+ ! 
+ ! Begin modification (8/01/06)
+ if ( &bscale = "anisotropic" ) then
+   display >>> Anisotropic B-factor tensor Ucart of atomic model without isotropic component :
+   display >>>   B11=$Baniso_11[f8.3] B22=$Baniso_22[f8.3] B33=$Baniso_33[f8.3]
+   display >>>   B12=$Baniso_12[f8.3] B13=$Baniso_13[f8.3] B23=$Baniso_23[f8.3]
+   display >>> Isotropic component added to coordinate array B: $Biso_model[f8.3]
+ elseif ( &bscale = "isotropic" ) then
+   display >>> B-factor applied to coordinate array B: $Biso_model[f8.3]
+ else
+   display >>> initial B-factor correction: none
+ end if
+
+ if ( &bulk_sol = true ) then 
+   display >>> bulk solvent: probe radius=$solrad_best, shrink value=$solrad_best
+   display >>> bulk solvent: density level= $sol_k_ref e/A^3, B-factor= $sol_b_ref A^2
+ else
+   display >>> bulk solvent: false
+ end if
+ {- END MODIFICATION -}
+ 
+ display
+ display =================================== summary ==================================
+ display
+
+ display resolution range: &low_res - &high_res A 
+ display   Twinned R-values:
+ if ( $total_test > 0 ) then
+   display   initial                                        r= $start_r[f6.4] free_r= $start_test_r[f6.4]
+   display   after B-factor and/or bulk solvent correction  r= $full_r[f6.4] free_r= $full_test_r[f6.4]
+ else
+   display   initial                                        r= $start_r[f6.4]
+   display   after B-factor and/or bulk solvent correction  r= $full_r[f6.4]
+ end if
+ display
+ display   Monitor for target &reftarget is $monitor_is :
+ if ( $total_test > 0 ) then
+   display     working set= $curr_moni[f6.4]  test set= $test_curr_moni[f6.4]
+ else
+   display     working set= $curr_moni[f6.4]
+ end if
+ display
+ display                 luzzati coordinate error (&low_err_res - &high_res A ): $esderr_luz[f6.2] A
+ if ( $total_test > 0 ) then
+   display cross-validated luzzati coordinate error (&low_err_res - &high_res A ): $esderr_luz_cv[f6.2] A
+ end if
+ if ( $esderr_sigmaa < 0 ) then
+   display NB: Negative coordinate error estimates are sometimes obtained
+   display     from sigmaa values - especially at the end of refinement.
+   display     Manual interpretation of the sigmaa plot is suggested
+ end if
+ display                  sigmaa coordinate error (&low_err_res - &high_res A ): $esderr_sigmaa[f6.2] A
+ if ( $total_test > 0 ) then
+   if ( $esderr_sigmaa_cv < 0 ) then
+     display NB: Negative coordinate error estimates are sometimes obtained
+     display     from sigmaa values - especially at the end of refinement.
+     display     Manual interpretation of the sigmaa plot is suggested
+   end if
+   display  cross-validated sigmaa coordinate error (&low_err_res - &high_res A ): $esderr_sigmaa_cv[f6.2] A
+ end if
+ display
+ display rmsd bonds= $rmsd_bond[f8.6] with $viol_bond bond violations > &bond_thresh
+ display rmsd angles= $rmsd_angle[f8.5] with $viol_angle angle violations >  &angle_thresh
+ display rmsd dihedrals= $rmsd_dihe[f8.5] with $viol_dihe angle violations >  &dihe_thresh
+ display rmsd improper= $rmsd_impr[f8.5] with $viol_impr angle violations >  &impr_thresh
+
+ display
+ display ================================== B-factors =================================
+ display
+
+ display average B-factor= $b_average
+ display minimum B-factor= $b_min
+ display maximum B-factor= $b_max
+ display B rmsd for bonded mainchain atoms= $brms_bond_1[f6.3]
+ if ( $exist_brms_bond_2 = true ) then
+   display B rmsd for bonded sidechain atoms= $brms_bond_2[f6.3]
+ end if
+ display B rmsd for angle mainchain atoms= $brms_angl_1[f6.3]
+ if ( $exist_brms_angl_2 = true ) then
+   display B rmsd for angle sidechain atoms= $brms_angl_2[f6.3]
+ end if
+
+ display
+ display ================================ diffraction data ============================
+ display
+
+ if ( &obs_type = "intensity" ) then
+   display reflections with Iobs/sigma_I < &sigma_cut rejected
+   display reflections with Iobs > &obs_rms * rms(Iobs) rejected
+   display reflections with Iobs[&STRIP%twin_oper] = 0 rejected
+ else
+   display reflections with |Fobs|/sigma_F < &sigma_cut rejected
+   display reflections with |Fobs| > &obs_rms * rms(Fobs) rejected
+   display reflections with |Fobs|[&STRIP%twin_oper] = 0 rejected
+ end if
+ xray anomalous=? end
+ if ( $result = true ) then
+   display anomalous diffraction data was input
+ end if
+ 
+ {- MODIFIED 8/01/06 -}
+ display REMARK fft gridding factor = $fft_grid, B factor offset = $fft_b_add A^2, Elimit = $fft_elim
+ {- END MODIFICATION -}
+
+ display theoretical total number of refl. in resol. range:    $total_theor[I6] ( 100.0 % )
+ display number of unobserved reflections (no entry):          $unobserved[I6] ( $per_unobs[f5.1] % )
+ display number of reflections rejected:                       $rejected[I6] ( $per_reject[f5.1] % )
+ display total number of reflections used:                     $total_used[I6] ( $per_used[f5.1] % )
+ display number of reflections in working set:                 $total_work[I6] ( $per_work[f5.1] % )
+ display number of reflections in test set:                    $total_test[I6] ( $per_test[f5.1] % )
+
+ display
+ display =======> completeness
+ if ( $total_test > 0 ) then
+   display
+   display  Test set (&STRIP%test_set = &test_flag):
+   display
+
+   xray
+     mbins=&print_bins
+     statistics
+       completeness
+       selection=(ref_active=1 and tst_active=1)
+       output=&list_outfile
+     end
+   end
+ end if
+
+ display
+ display  Working set:
+ display
+
+ xray
+   mbins=&print_bins
+   statistics
+     completeness
+     selection=(ref_active=1 and tst_active=0)
+     output=&list_outfile
+   end
+ end
+
+ display 
+ display ============================= twinned R-values ===============================
+ display
+
+ set print=&list_outfile end
+
+ display
+ display =======> R-values with |Fobs|/sigma cutoff= &sigma_cut
+ if ( $total_test > 0 ) then
+   display 
+   display  Test set (&STRIP%test_set = &test_flag):
+   display 
+ 
+   xray
+     mbins=&print_bins
+     statistics
+           (rvalue(&STRIP%obs_f,ftwin_total))
+           selection=(ref_active=1 and tst_active=1)
+           output=&list_outfile
+     end
+   end
+ end if
+
+ display
+ display  Working set:
+ display
+
+ xray
+   mbins=&print_bins
+   statistics
+         (rvalue(&STRIP%obs_f,ftwin_total))
+         selection=(ref_active=1 and tst_active=0)
+         output=&list_outfile
+   end
+ end
+
+ set print=OUTPUT end
+
+ display 
+ display =========================== twinned sigmaa-values ============================
+ display
+
+ xray
+   declare name=x_eobs     domain=reciprocal type=real end
+   declare name=x_ecalc    domain=reciprocal type=real end
+   declare name=x_sigmaa   domain=reciprocal type=real end
+
+   show sum (1) (tst_active=1)
+   if ( $result > 0 ) then
+     evaluate ($test_exist=true)
+   else
+     evaluate ($test_exist=false)
+   end if
+
+   if ( $test_exist=true ) then
+     display sigmaa calculated using cross-validated data (test set)
+   else
+     display sigmaa calculated using all data
+   end if
+
+   mbins=?
+   evaluate ($old_bins=$result)
+   if ( &target_bins < 0 ) then
+     if ( $test_exist = true ) then
+       show sum (1) (tst_active=1)
+     else
+       show sum (1) (ref_active=1)
+     end if
+     evaluate ($x_mbins=int($result/50))
+     if ( $test_exist = true ) then
+       if ( $x_mbins <= 0 ) then
+         display Error: there are less than 50 test set reflections
+         display        please check the test set and the resolution limits
+         abort
+       end if
+       if ( $x_mbins < 10 ) then
+         display
+         display Warning: there are less than 50 reflections per bin
+         display          you may want to increase the size of the test set
+         display
+       end if
+     end if
+     evaluate ($x_mbins=max(10,$x_mbins))
+     evaluate ($x_mbins=min($x_mbins,50))
+     mbins=$x_mbins
+   else
+     evaluate ($x_mbin=&target_bins)
+     mbins=&target_bins
+   end if
+
+   display number of bins for sigmaa calculation= $x_mbins
+
+   if ( $test_exist=true ) then
+     do (x_eobs=norm(amplitude(&STRIP%obs_f)))              ( tst_active=1 )
+     do (x_ecalc=norm(amplitude(ftwin_total)))              ( tst_active=1 )
+     do (x_sigmaa=sigacv[sigma=0.07](x_eobs,x_ecalc))       ( tst_active=1 )
+     do (x_sigmaa=distribute(x_sigmaa))                     ( ref_active=1 )
+   else
+     do (x_eobs=norm(amplitude(&STRIP%obs_f)))              ( ref_active=1 )
+     do (x_ecalc=norm(amplitude(ftwin_total)))              ( ref_active=1 )
+     do (x_sigmaa=siga(x_eobs,x_ecalc))                     ( ref_active=1 )
+   end if
+
+   display
+
+   statistics
+     (x_sigmaa)
+     selection=( ref_active=1 )
+     output=&list_outfile
+   end
+
+   mbins=$old_bins
+
+   undeclare name=x_eobs     domain=reciprocal end
+   undeclare name=x_ecalc    domain=reciprocal end
+   undeclare name=x_sigmaa   domain=reciprocal end
+
+ end
+
+ {- detwin the data -}
+
+ xray
+   if ( &twin_frac < 0.5 ) then
+     do (&STRIP%obs_f=fobs_orig) (all)
+     do (&STRIP%obs_sigf=sigma_orig) (all)
+   end if
+   query name=fo_detwin domain=reciprocal end
+   if ( $object_exist = false ) then
+     declare name=fo_detwin domain=reciprocal type=real end
+   else
+     do (fo_detwin=0) (all)
+   end if
+   declare name=ref_det_active domain=reciprocal type=integer end
+   declare name=tst_det_active domain=reciprocal type=integer end
+ end
+
+ xray 
+
+   @@CNS_XTALMODULE:data_detwin (fobs=&STRIP%obs_f;
+                                 fcalc=fcalc;
+                                 fpart=fbulk;
+                                 twin_oper=&STRIP%twin_oper;
+                                 twin_frac=&twin_frac;
+                                 sel=(ref_active=1);
+                                 sel_test=(tst_active=1);
+                                 fobs_detwin=fo_detwin;
+                                 ref_detwin=ref_det_active;
+                                 tst_detwin=tst_det_active;
+                                 ref_reject=$ref_detwin_reject;
+                                 tst_reject=$tst_detwin_reject;
+                                 total_reject=$detwin_reject;)
+ end
+
+ set display=OUTPUT end
+
+ {- BEGIN MODIFICATION 8/01/06 -}
+ @CNS_XTALMODULE:scale_and_solvent_grid_search (
+                             bscale=&bscale;
+                             sel=( ref_det_active=1 );
+                             sel_test=( tst_det_active=1 );
+                             atom_select=( &atom_select );
+                             bulk_sol=&bulk_sol;
+                             bulk_mask=&bulk_mask_infile;
+                             bulk_atoms=( &atom_select );
+                             
+                             sol_auto=&sol_auto;
+                             sol_k=&sol_k;
+                             sol_b=&sol_b;
+                             sol_rad=&sol_rad;
+                             sol_shrink=&sol_shrink;
+  
+                             fcalc=fcalc;
+                             obs_f=fo_detwin;
+                             obs_sigf=&STRIP%obs_sigf;
+                             obs_i=$STRIP%obs_i;
+                             obs_sigi=$STRIP%obs_sigi;                             
+                             fpart=fbulk;
+
+                             Baniso_11=$Baniso_11;
+                             Baniso_22=$Baniso_22;
+                             Baniso_33=$Baniso_33;
+                             Baniso_12=$Baniso_12;
+                             Baniso_13=$Baniso_13;
+                             Baniso_23=$Baniso_23;
+                             Biso=$Biso_model;
+                             
+                             sol_k_best=$sol_k_ref;
+                             sol_b_best=$sol_b_ref;
+			     solrad_best=$solrad_best;
+			     shrink_best=$shrink_best;
+                             
+                             b=b;
+
+                             low_b_flag=$low_b_flag;
+                            
+                             sol_output=&sol_output;
+                             
+                             )
+ {- END MODIFICATION -}
+
+ set display=&list_outfile end
+
+ xray
+   @@CNS_XTALMODULE:calculate_r (fobs=fo_detwin;
+                                 fcalc=fcalc;
+                                 fpart=fbulk;
+                                 sel=(ref_det_active=1);
+                                 sel_test=(tst_det_active=1);
+                                 print=true;
+                                 output=OUTPUT;
+                                 r=$detwin_r;
+                                 test_r=$detwin_test_r;)
+
+ end
+
+ display 
+ display ================================ detwinning ==================================
+ display
+
+ if ( &twin_frac < 0.5 ) then
+   display data detwinned with: F_detwin   = (Fo^2 - alpha*[Fo^2 + Fo'^2])/(1 - 2*alpha)
+   display                      Fo'[h,k,l] = Fo[&STRIP%twin_oper]
+   display                      alpha      = &twin_frac
+ else
+   display data detwinned with: F_detwin   = SQRT[(Fo^2 + Fc^2 + Fc'^2)/2]
+   display                      Fc'[h,k,l] = Fc[&STRIP%twin_oper]
+   display                      alpha      = &twin_frac
+ end if
+
+ display
+ display reflections rejected (I_detwin <= 0): $detwin_reject
+ display                          working set: $ref_detwin_reject
+ if ( $tst_detwin_reject > 0 ) then
+   display                             test set: $tst_detwin_reject
+ end if
+
+ display 
+ display ============================ detwinned R-values ==============================
+ display
+
+ display resolution range: &low_res - &high_res A 
+ display   R-values:
+ if ( $total_test > 0 ) then
+   display   after detwinning  r= $detwin_r[f6.4] free_r= $detwin_test_r[f6.4]
+ else
+   display   after detwinning  r= $detwin_r[f6.4]
+ end if
+
+ set print=&list_outfile end
+
+ display
+ display =======> detwinned R-values with |Fobs|/sigma cutoff= &sigma_cut
+ if ( $total_test > 0 ) then
+   display 
+   display  Test set (&STRIP%test_set = &test_flag):
+   display 
+ 
+   xray
+     mbins=&print_bins
+     statistics
+           (rvalue(fo_detwin,fcalc+fbulk))
+           selection=(ref_det_active=1 and tst_det_active=1)
+           output=&list_outfile
+     end
+   end
+ end if
+
+ display
+ display  Working set:
+ display
+
+ xray
+   mbins=&print_bins
+   statistics
+         (rvalue(fo_detwin,fcalc+fbulk))
+         selection=(ref_det_active=1 and tst_det_active=0)
+         output=&list_outfile
+   end
+ end
+
+ set print=OUTPUT end
+
+ display 
+ display ========================== detwinned sigmaa-values ===========================
+ display
+
+ xray
+   declare name=x_eobs     domain=reciprocal type=real end
+   declare name=x_ecalc    domain=reciprocal type=real end
+   declare name=x_sigmaa   domain=reciprocal type=real end
+
+   show sum (1) (tst_det_active=1)
+   if ( $result > 0 ) then
+     evaluate ($test_exist=true)
+   else
+     evaluate ($test_exist=false)
+   end if
+
+   if ( $test_exist=true ) then
+     display sigmaa calculated using cross-validated data (test set)
+   else
+     display sigmaa calculated using all data
+   end if
+
+   mbins=?
+   evaluate ($old_bins=$result)
+   if ( &target_bins < 0 ) then
+     if ( $test_exist = true ) then
+       show sum (1) (tst_det_active=1)
+     else
+       show sum (1) (ref_det_active=1)
+     end if
+     evaluate ($x_mbins=int($result/50))
+     if ( $test_exist = true ) then
+       if ( $x_mbins <= 0 ) then
+         display Error: there are less than 50 test set reflections
+         display        please check the test set and the resolution limits
+         abort
+       end if
+       if ( $x_mbins < 10 ) then
+         display
+         display Warning: there are less than 50 reflections per bin
+         display          you may want to increase the size of the test set
+         display
+       end if
+     end if
+     evaluate ($x_mbins=max(10,$x_mbins))
+     evaluate ($x_mbins=min($x_mbins,50))
+     mbins=$x_mbins
+   else
+     evaluate ($x_mbin=&target_bins)
+     mbins=&target_bins
+   end if
+
+   display number of bins for sigmaa calculation= $x_mbins
+
+   if ( $test_exist=true ) then
+     do (x_eobs=norm(amplitude(fo_detwin)))                 ( tst_det_active=1 )
+     do (x_ecalc=norm(amplitude(fcalc+fbulk)))              ( tst_det_active=1 )
+     do (x_sigmaa=sigacv[sigma=0.07](x_eobs,x_ecalc))       ( tst_det_active=1 )
+     do (x_sigmaa=distribute(x_sigmaa))                     ( ref_det_active=1 )
+   else
+     do (x_eobs=norm(amplitude(fo_detwin)))                 ( ref_det_active=1 )
+     do (x_ecalc=norm(amplitude(fcalc+fbulk)))              ( ref_det_active=1 )
+     do (x_sigmaa=siga(x_eobs,x_ecalc))                     ( ref_det_active=1 )
+   end if
+
+   display
+
+   statistics
+     (x_sigmaa)
+     selection=( ref_det_active=1 )
+     output=&list_outfile
+   end
+
+   mbins=$old_bins
+
+   undeclare name=x_eobs     domain=reciprocal end
+   undeclare name=x_ecalc    domain=reciprocal end
+   undeclare name=x_sigmaa   domain=reciprocal end
+
+ end
+
+ {- modification, allowing both NCS constraints and restraints, ATB, 12/20/08 -}
+ if ( &BLANK%ncs_infile = false ) then
+     
+   if ($ncs_strict = true) then
+   
+      display 
+      display ============= non-crystallographic symmetry constraints (NCS strict) ============
+      display 
+      evaluate ($ncsop=1)
+      while ($ncsop <= $num_op_strict) loop ncsop
+   
+         display     NCS operator $ncsop ( 1 -> $ncsop ):
+         display       matrix= $ncsop_$ncsop_$1_$1[f8.5] $ncsop_$ncsop_$1_$2[f8.5] $ncsop_$ncsop_$1_$3[f8.5]
+         display               $ncsop_$ncsop_$2_$1[f8.5] $ncsop_$ncsop_$2_$2[f8.5] $ncsop_$ncsop_$2_$3[f8.5]
+         display               $ncsop_$ncsop_$3_$1[f8.5] $ncsop_$ncsop_$3_$2[f8.5] $ncsop_$ncsop_$3_$3[f8.5]
+         display       translation= $ncsop_$ncsop_$1_$4[f10.5] $ncsop_$ncsop_$2_$4[f10.5] $ncsop_$ncsop_$3_$4[f10.5]
+         display       rms difference= $ncsop_$ncsop_$rmsd[f8.5]
+      end loop ncsop
+   end if
+       
+   if ($ncs_restrain = true) then
+      display 
+      display ============ non-crystallographic symmetry restraints (NCS restraints) ===========
+      display 
+      display >>> number of NCS groups= $ngroup
+      evaluate ($group=1)
+      while ($group <= $ngroup) loop group
+        display >>> NCS group $group: number of NCS operators= $num_op_$group
+        evaluate ($ncsop=1)
+        while ($ncsop <= $num_op_$group) loop ncsop
+       
+         display     NCS operator $ncsop ( $ncsop -> 1 ):
+         display       matrix= $rot_$group_$ncsop_$1_$1[f8.5] $rot_$group_$ncsop_$1_$2[f8.5] $rot_$group_$ncsop_$1_$3[f8.5]
+         display               $rot_$group_$ncsop_$2_$1[f8.5] $rot_$group_$ncsop_$2_$2[f8.5] $rot_$group_$ncsop_$2_$3[f8.5]
+         display               $rot_$group_$ncsop_$3_$1[f8.5] $rot_$group_$ncsop_$3_$2[f8.5] $rot_$group_$ncsop_$3_$3[f8.5]
+         display       translation= $rot_$group_$ncsop_$1_$4[f10.5] $rot_$group_$ncsop_$2_$4[f10.5] $rot_$group_$ncsop_$3_$4[f10.5]
+         display       rms difference= $rot_$group_$ncsop_$rmsd[f8.5]
+         evaluate ($ncsop=$ncsop+1)
+       end loop ncsop
+       evaluate ($group=$group+1)
+     end loop group
+   end if
+   
+ end if
+ 
+ {- end modification -}
+
+
+ display 
+ display ============================ non-trans peptides ==============================
+ display 
+
+ evaluate ($first=true)
+
+ for $id in id ( &atom_select and name ca ) loop cis
+
+   show (segid) (id $id)
+   evaluate ($segid=$result)
+   show (resid) (id $id)
+   evaluate ($resid=$result)
+   show (resname) (id $id)
+   evaluate ($resname=$result)
+
+   identity (store2) ( &atom_select and 
+                     ( name c and bondedto ( name n and 
+                       resid $resid and segid $segid ) ) )
+   if ( $select = 1 ) then
+     show element (store2) ( attribute store2 > 0 )
+     evaluate ($id_prev=$result)
+     show (segid) (id $id_prev)
+     evaluate ($segid_prev=$result)
+     show (resid) (id $id_prev)
+     evaluate ($resid_prev=$result)
+     show (resname) (id $id_prev)
+     evaluate ($resname_prev=$result)
+ 
+     evaluate ($result=180)  ! always define $result in case one or more of the selections below are zero
+     pick dihedral
+       (&atom_select and name ca and segid $segid_prev and resid $resid_prev)
+       (&atom_select and name  c and segid $segid_prev and resid $resid_prev)
+       (&atom_select and name  n and segid $segid and resid $resid)
+       (&atom_select and name ca and segid $segid and resid $resid)
+       geometry
+
+     evaluate ($dihedral=mod($result+360,360))
+
+     if ( $dihedral > 180 ) then
+       evaluate ($dihedral=$dihedral-360)
+     end if
+
+     evaluate ($absdihedral=abs($dihedral))
+
+     if ( $absdihedral < 15 ) then
+       if ( $first = true ) then
+         evaluate ($first=false)
+       end if
+       display cis-peptide: segid=$segid resid=$resid resname=$resname  
+       display              current dihedral value= $dihedral[f8.3]
+       display 
+     elseif ( $absdihedral < 165 ) then
+       if ( $first = true ) then
+         evaluate ($first=false)
+       end if
+       display distorted peptide: segid= $segid resid= $resid resname=$resname
+       display                    current dihedral value= $dihedral[f8.3]
+       display >>>> this may require correction before starting refinement
+       display 
+     end if
+   end if
+
+ end loop cis
+
+ if ( $first = true ) then
+  display there are no distorted or cis- peptide planes
+ end if
+
+ display 
+ display =============================== occupancies ==================================
+ display 
+
+ show sum(1) (&atom_select and (attr q = 0))
+ if ( $result > 0 ) then
+   display $result atoms have zero occupancy =>
+   display
+   for $id in id ( &atom_select and (attr q = 0) ) loop occ
+     show (segid) (id $id)
+     evaluate ($segid=$result)
+     show (resid) (id $id)
+     evaluate ($resid=$result)
+     show (resname) (id $id)
+     evaluate ($resname=$result)
+     show (name) (id $id)
+     evaluate ($name=$result)
+     if ( $BLANK%segid = true ) then
+       display  residue= $resname $resid  atom name= $name
+     else
+       display  segid= $segid  residue= $resname $resid  atom name= $name
+     end if
+   end loop occ
+ else
+   display no atoms have zero occupancy
+ end if
+
+ display 
+ display ================================= geometry ===================================
+ display 
+ set print=&list_outfile end
+
+ display =======> bond violations
+ display
+ print threshold=&bond_thresh bond 
+
+ display
+ display =======> angle violations
+ display
+
+ print threshold=&angle_thresh angle 
+
+ display
+ display =======> improper angle violations
+ display
+
+ print threshold=&impr_thresh improper
+
+ display
+ display =======> dihedral angle violations
+ display
+
+ print threshold=&dihe_thresh dihedral
+
+ set print=OUTPUT end
+
+ display 
+ display ============================== close contacts ================================
+ display 
+
+ distance
+   from=(&atom_select) to=(&atom_select)
+   cutoff=&close
+   output=&list_outfile
+ end
+
+ display 
+ display ============================= crystal contacts ===============================
+ display 
+
+ flags exclude vdw end
+
+ distance
+   from=(&atom_select) to=(&atom_select)
+   cutoff=3.5
+   output=&list_outfile
+ end
+
+
+ display 
+ display =============================== occupied volume ==============================
+ display 
+
+ xray
+    declare name=mask domain=real end
+    mask
+      mode=vdw
+      solrad=1.0
+      shrink=1.0
+      nshell=1
+      to=mask
+      selection=( &atom_select )
+    end
+ end
+ evaluate ($percen_pack=$inside * 100 ) 
+
+ display  unitcell volume occupied by selected atoms = $percen_pack[F8.2] %
+ display 
+ display ==============================================================================
+
+ stop

@@ -1,0 +1,435 @@
+{+ file: combine.inp +}
+{+ directory: xtal_util +}
+{+ description: Calculation of centroid phases from phase probability 
+                distribution with optional phase combination from several
+                sources +}
+{+ authors: Axel T. Brunger and Paul D. Adams +}
+{+ copyright: Yale University +}
+
+{- Guidelines for using this file:
+   - all strings must be quoted by double-quotes
+   - logical variables (true/false) are not quoted
+   - do not remove any evaluate statements from the file -}
+
+{- begin block parameter definition -} define(
+
+{====================== crystallographic data ========================}
+
+{* space group *}
+{* use International Table conventions with subscripts substituted
+   by parenthesis *}
+{===>} sg="P2(1)2(1)2(1)";
+
+{* unit cell parameters in Angstroms and degrees *}
+{+ table: rows=1 "cell" cols=6 "a" "b" "c" "alpha" "beta" "gamma" +}
+{===>} a=61.76;
+{===>} b=40.73;
+{===>} c=26.74;
+{===>} alpha=90;
+{===>} beta=90;
+{===>} gamma=90;
+
+{* reflection file(s) *}
+{* if anomalous and non-anomalous data are to be combined
+   read non-anomalous data first *}
+{===>} reflection_infile_1="amy_mir.hkl";
+{===>} reflection_infile_2="amy_siras.hkl";
+{===>} reflection_infile_3="";
+{===>} reflection_infile_4="";
+{===>} reflection_infile_5="";
+
+{======================== phase combination ==========================}
+
+{* resolution range for phase combination *}  
+{+ table: rows=1 "resolution" cols=2 "lowest" "highest" +}
+{===>} low_res=500.;
+{===>} high_res=1.8;
+
+{* Arrays to manipulate *}
+{* if 2 sets of coefficients are given then phase combination will
+   be performed. 
+   Centroid phases and figures-of-merit will be calculated from the
+   phase combined array or the first set if only 1 set is given *}
+
+{* First set of Hendrickson-Lattman coefficient arrays *}
+{+ table: rows=1 "HL coefficients" cols=4 "A" "B" "C" "D" +}
+{===>} pa_1="pa";
+{===>} pb_1="pb";
+{===>} pc_1="pc";
+{===>} pd_1="pd";
+
+{* Second set of Hendrickson-Lattman coefficient arrays *}
+{* if left blank then no phase combination will be performed *}
+{+ table: rows=1 "HL coefficients" cols=4 "A" "B" "C" "D" +}
+{===>} pa_2="pa_sir";
+{===>} pb_2="pb_sir";
+{===>} pc_2="pc_sir";
+{===>} pd_2="pd_sir";
+
+{* Third set of Hendrickson-Lattman coefficient arrays *}
+{* leave blank if not used *}
+{+ table: rows=1 "HL coefficients" cols=4 "A" "B" "C" "D" +}
+{===>} pa_3="";
+{===>} pb_3="";
+{===>} pc_3="";
+{===>} pd_3="";
+
+{* Fourth set of Hendrickson-Lattman coefficient arrays *}
+{* leave blank if not used *}
+{+ table: rows=1 "HL coefficients" cols=4 "A" "B" "C" "D" +}
+{===>} pa_4="";
+{===>} pb_4="";
+{===>} pc_4="";
+{===>} pd_4="";
+
+{* Fifth set of Hendrickson-Lattman coefficient arrays *}
+{* leave blank if not used *}
+{+ table: rows=1 "HL coefficients" cols=4 "A" "B" "C" "D" +}
+{===>} pa_5="";
+{===>} pb_5="";
+{===>} pc_5="";
+{===>} pd_5="";
+
+{* Sixth set of Hendrickson-Lattman coefficient arrays *}
+{* leave blank if not used *}
+{+ table: rows=1 "HL coefficients" cols=4 "A" "B" "C" "D" +}
+{===>} pa_6="";
+{===>} pb_6="";
+{===>} pc_6="";
+{===>} pd_6="";
+
+{* Seventh set of Hendrickson-Lattman coefficient arrays *}
+{* leave blank if not used *}
+{+ table: rows=1 "HL coefficients" cols=4 "A" "B" "C" "D" +}
+{===>} pa_7="";
+{===>} pb_7="";
+{===>} pc_7="";
+{===>} pd_7="";
+
+{* Eight set of Hendrickson-Lattman coefficient arrays *}
+{* leave blank if not used *}
+{+ table: rows=1 "HL coefficients" cols=4 "A" "B" "C" "D" +}
+{===>} pa_8="";
+{===>} pb_8="";
+{===>} pc_8="";
+{===>} pd_8="";
+
+{* Nineth set of Hendrickson-Lattman coefficient arrays *}
+{* leave blank if not used *}
+{+ table: rows=1 "HL coefficients" cols=4 "A" "B" "C" "D" +}
+{===>} pa_9="";
+{===>} pb_9="";
+{===>} pc_9="";
+{===>} pd_9="";
+
+{=========================== output arrays ===========================}
+
+{* destination for combined Hendrickson-Lattman coefficients *}
+{* these will only be used if phase combination is performed *}
+{+ table: rows=1 "HL coefficients" cols=4 "A" "B" "C" "D" +}
+{===>} pa_out="pa_comb";
+{===>} pb_out="pb_comb";
+{===>} pc_out="pc_comb";
+{===>} pd_out="pd_comb";
+
+{* source array for amplitudes to be merged with centroid phases *}
+{* if blank all amplitudes will be set to 1 in the output array
+   containing the new combined centroid phases *}
+{===>} f_array="fobs";
+
+{* new destination array for centroid phases - must be of type complex *}
+{===>} cen_array="fobs_comb";
+
+{* new destination array for figures-of-merit - must be of type real *}
+{===>} fom_array="fom_comb";
+
+{============================ output files ===========================}
+
+{* root name for output files *}
+{+ list: files written are: 
+                   <output_root>.hkl  ! combined reflection file
+                   <output_root>.list ! combined FOM listing +}
+{===>} output_root="combine";
+
+{* merge input data arrays with output arrays, otherwise only output
+   arrays will be written *}
+{+ choice: true false +}
+{===>} merge_inout=false;
+
+{===========================================================================}
+{         things below this line do not normally need to be changed         }
+{===========================================================================}
+
+ ) {- end block parameter definition -}
+
+ checkversion 1.3
+
+ evaluate ($log_level=quiet)
+
+ xray   
+                                  
+   binresolution &low_res &high_res
+
+   @CNS_XTALLIB:spacegroup.lib (sg=&sg;sgparam=$sgparam;)
+
+   a=&a b=&b c=&c  alpha=&alpha beta=&beta gamma=&gamma      
+
+   evaluate ($counter=1)
+   evaluate ($done=false)
+   while ( $done = false ) loop read
+    if ( &exist_reflection_infile_$counter = true ) then
+      if ( &BLANK%reflection_infile_$counter = false ) then
+       reflection
+         @@&reflection_infile_$counter
+       end
+      end if
+   else
+     evaluate ($done=true)
+   end if
+   evaluate ($counter=$counter+1)
+  end loop read
+  
+   evaluate ($combine=false) 
+   evaluate ($sets=9)
+   evaluate ($ii=1)
+   while ( $ii <= $sets ) loop main
+       if (&blank%pa_$ii=false) then
+        if (&blank%pb_$ii=false) then
+         if (&blank%pc_$ii=false) then
+          if (&blank%pd_$ii=false) then
+           evaluate ($combine=true) 
+          end if
+         end if
+        end if
+       end if
+       evaluate ($ii=$ii+1)
+   end loop main
+
+   if ( $combine = true ) then
+     evaluate ($patmp_1="tmp_" + &pa_1)
+     evaluate ($pbtmp_1="tmp_" + &pb_1)
+     evaluate ($pctmp_1="tmp_" + &pc_1)
+     evaluate ($pdtmp_1="tmp_" + &pd_1)
+     
+     declare name=$STRIP%patmp_1 domain=reciprocal type=real end	 
+     declare name=$STRIP%pbtmp_1 domain=reciprocal type=real end	 
+     declare name=$STRIP%pctmp_1 domain=reciprocal type=real end	 
+     declare name=$STRIP%pdtmp_1 domain=reciprocal type=real end
+     
+     do ($STRIP%patmp_1=&strip%pa_1) ( all )
+     do ($STRIP%pbtmp_1=&strip%pb_1) ( all ) 	
+     do ($STRIP%pctmp_1=&strip%pc_1) ( all )
+     do ($STRIP%pdtmp_1=&strip%pd_1) ( all )
+      
+     evaluate ($ii=1)
+     while ( $ii <= $sets ) loop main
+
+       if (&blank%pa_$ii=false) then
+        if (&blank%pb_$ii=false) then
+         if (&blank%pc_$ii=false) then
+          if (&blank%pd_$ii=false) then
+           @@CNS_XTALMODULE:check_abcd (pa=&pa_$ii;
+                                        pb=&pb_$ii;
+                                        pc=&pc_$ii;
+                                        pd=&pd_$ii;)
+          end if
+         end if
+        end if
+       end if
+       evaluate ($ii=$ii+1)
+     end loop main
+     
+     evaluate ($ii=2)
+     while ($ii <= $sets ) loop mai2
+
+       if (&blank%pa_$ii=false) then
+        if (&blank%pb_$ii=false) then
+         if (&blank%pc_$ii=false) then
+          if (&blank%pd_$ii=false) then
+            @CNS_XTALMODULE:combineprobability ( 
+                                         sel=( &low_res >= d >= &high_res );
+                                         messages="off";
+                                         addname=" ";
+                                         pa=$STRIP%patmp_1;
+                                         pb=$STRIP%pbtmp_1;
+                                         pc=$STRIP%pctmp_1;
+                                         pd=$STRIP%pdtmp_1;
+                                         w=1;
+                                         addname=" ";
+                                         adda=&strip%pa_$ii;
+                                         addb=&strip%pb_$ii;
+                                         addc=&strip%pc_$ii;
+                                         addd=&strip%pd_$ii;
+                                         addw=1;)
+          end if
+         end if
+        end if
+       end if
+       evaluate ($ii=$ii+1)
+ 
+     end loop mai2
+
+     set echo=off end
+     if ( &BLANK%pa_out = true ) then
+        display 
+        display  *********************************************************
+        display  Error: combined Hendrickson-Lattman array A not specified
+        display  *********************************************************
+        display
+        abort
+      elseif ( &BLANK%pb_out = true ) then
+        display 
+        display  *********************************************************
+        display  Error: combined Hendrickson-Lattman array B not specified
+        display  *********************************************************
+        display
+        abort
+      elseif ( &BLANK%pc_out = true ) then
+        display 
+        display  *********************************************************
+        display  Error: combined Hendrickson-Lattman array C not specified
+        display  *********************************************************
+        display
+        abort
+      elseif ( &BLANK%pd_out = true ) then
+        display 
+        display  *********************************************************
+        display  Error: combined Hendrickson-Lattman array D not specified
+        display  *********************************************************
+        display
+        abort
+     end if
+     set echo=on end
+               
+     {- the output arrays must not already exist -}
+     declare name=&STRIP%pa_out domain=reciprocal type=real end       
+     declare name=&STRIP%pb_out domain=reciprocal type=real end       
+     declare name=&STRIP%pc_out domain=reciprocal type=real end       
+     declare name=&STRIP%pd_out domain=reciprocal type=real end       
+     group type=hl 
+       object=&STRIP%pa_out object=&STRIP%pb_out object=&STRIP%pc_out object=&STRIP%pd_out 
+     end
+
+     do (&STRIP%pa_out=$STRIP%patmp_1) (all)
+     do (&STRIP%pb_out=$STRIP%pbtmp_1) (all)
+     do (&STRIP%pc_out=$STRIP%pctmp_1) (all)
+     do (&STRIP%pd_out=$STRIP%pdtmp_1) (all)
+     
+     undeclare name=$STRIP%patmp_1 domain=reciprocal end       
+     undeclare name=$STRIP%pbtmp_1 domain=reciprocal end       
+     undeclare name=$STRIP%pctmp_1 domain=reciprocal end       
+     undeclare name=$STRIP%pdtmp_1 domain=reciprocal end       
+   end if
+
+   declare name=m domain=reciprocal type=complex end
+
+   if ( $combine = true ) then
+     @CNS_XTALMODULE:getfom (pa=&STRIP%pa_out;
+                             pb=&STRIP%pb_out;
+                             pc=&STRIP%pc_out;
+                             pd=&STRIP%pd_out;
+                             m=m;
+                             phistep=5; )
+   else
+     @CNS_XTALMODULE:getfom (pa=&STRIP%pa_1;
+                             pb=&STRIP%pb_1;
+                             pc=&STRIP%pc_1;
+                             pd=&STRIP%pd_1;
+                             m=m;
+                             phistep=5; )
+   end if
+
+   evaluate ($filename=&output_root+".list")
+   set display=$filename end
+   display
+   display
+   display
+   display  ======================================================================
+   display  ==== figure of merit of combined phase probability distribution ====== 
+   display  ======================================================================
+   set display=OUTPUT end
+
+   @CNS_XTALMODULE:printfom 
+      (
+      text="Figure of merit for combined phase set";
+      table="";
+      epsilon="yes"; 
+      m=m;
+      sel=( &low_res >= d >= &high_res );
+      output=$filename;
+      )
+
+   set echo=off end
+
+   if ( &BLANK%cen_array = true ) then
+      display 
+      display  *****************************************
+      display  Error: centroid phase array not specified
+      display  *****************************************
+      display
+      abort
+   end if
+   declare name=&STRIP%cen_array domain=reciprocal type=complex end
+
+   if ( &BLANK%f_array = true ) then
+     do (&STRIP%cen_array=combine(1,phase(m))) (all)
+   else
+     query name=&STRIP%f_array domain=reciprocal end
+     if ( $object_exist=false ) then
+       display 
+       display  ***************************************************
+       display  Error: cannot merge centroid phases and amplitudes
+       display         the specified amplitude array does not exist
+       display  ***************************************************
+       display
+       abort
+     end if
+     do (&STRIP%cen_array=combine(amplitude(&STRIP%f_array),phase(m))) (all)
+   end if
+
+   if ( &BLANK%fom_array = true ) then
+      display 
+      display  *************************************************
+      display  Error: output figure of merit array not specified
+      display  *************************************************
+      display
+      abort
+   end if
+   declare name=&STRIP%fom_array domain=reciprocal type=real end
+   set echo=on end
+   
+   do (&STRIP%fom_array=amplitude(m)) (all)
+
+   undeclare name=m domain=reciprocal end
+
+   declare ? end
+   
+   evaluate ($filename=&output_root+".hkl")
+
+ end
+ 
+ set display=$filename end
+ 
+ @CNS_XTALMODULE:write_hkl_header (sg=&STRIP%sg;
+                                   sgparam=$sgparam;)
+
+ xray
+
+   if ( &merge_inout = true ) then
+      write reflection
+        output=$filename
+        sele=(all)
+      end
+   else
+      write reflection
+        &STRIP%cen_array &STRIP%fom_array &STRIP%pa_out &STRIP%pb_out &STRIP%pc_out &STRIP%pd_out
+        output=$filename
+        sele=(all)
+      end
+   end if
+   
+   set display=OUTPUT end
+
+ end
+
+ stop

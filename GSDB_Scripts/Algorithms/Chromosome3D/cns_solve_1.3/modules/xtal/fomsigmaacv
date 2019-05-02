@@ -1,0 +1,165 @@
+! Module file: fom_sigmaacv
+!
+! CNS module
+! **********
+!
+! Authors: Axel Brunger and Paul Adams
+!
+! copyright Yale University
+!
+! Function:
+!    Calculates FOM from cross-validated sigmaa estimates
+!
+! Requirements:
+!    Needs to be called within xray
+
+module {fomsigmaacv}
+
+(
+  &sig_sigacv=0.07;      {real}
+  &mbins=10;             {real}
+  &statistics=false;     {logical}
+  &fobs=fobs;            {string}
+  &fcalc=fcalc;          {string}
+  &fpart=fpart;          {string}
+  &test=test;            {string}
+  &sel=(all);            {selection}
+  &sel_test=none;        {selection}
+  &fom=fom;              {string}
+  &x=x;                  {string}
+  &pa=pa;                {string}
+  &pb=pb;                {string}
+  &pc=pc;                {string}
+  &pd=pd;                {string}
+  &dd=dd;                {string}
+)
+
+set message ? end
+evaluate ($message_old=$result)
+set echo ? end
+evaluate ($echo_old=$result)
+if ( $log_level = verbose ) then
+  set echo=on message=normal end
+else
+  set echo=off message=off end
+end if
+
+checkversion 1.3
+
+declare name=x_test     domain=reciprocal type=real end
+declare name=x_eobs     domain=reciprocal type=real end
+declare name=x_ecalc    domain=reciprocal type=real end
+declare name=x_sigmaa   domain=reciprocal type=real end
+
+do (x_test=0) ( all )
+do (x_test=1) ( &sel_test )
+
+show sum (1) (&sel_test)
+if ( $result > 0 ) then
+  evaluate ($test_exist=true)
+  evaluate ($x_ntest=$result)
+else
+  evaluate ($test_exist=false)
+  display Warning: no reflections flagged for cross-validation
+  display          sigmaA estimates will not use cross-validation
+end if
+
+{- Calculate number of bins used for E and x_sigmaa calculation.
+   Make sure there are at least 50 reflections in each bin.
+   Issue warning if there end up being less than 50 per bin   -}
+evaluate ($x_mbins=&mbins)
+if ( &mbins < 0 ) then
+  if ( $test_exist = true ) then
+    show sum (1) (&sel_test)
+  else
+    show sum (1) (&sel)
+  end if
+  evaluate ($x_mbins=int($result/50))
+  if ( $test_exist = true ) then
+    if ( $x_mbins <= 0 ) then
+      display Error: there are less than 50 test set reflections
+      display        please check the test set and the resolution limits
+      abort
+    end if
+    if ( $x_mbins < 8 ) then
+      display Warning: there are less than 50 reflections per bin
+      display          you may want to increase the size of the test set
+    end if
+  end if
+  evaluate ($x_mbins=max(8,$x_mbins))
+  evaluate ($x_mbins=min($x_mbins,50))
+end if
+mbins=$x_mbins
+
+{- Check to see that there are not too many bins with no
+   test set reflections - limit is 1/5th of total bins -}
+if ($test_exist=true) then
+  declare name=x_temp domain=reciprocal type=real end
+  do (x_temp=sum(x_test)) ( &sel )
+  show sum (1) ( &sel )
+  evaluate ($ref_per_bin=$select/&mbins)
+  show sum (1) ( &sel and x_temp=0 )
+  evaluate ($empty_bins=int($select/$ref_per_bin))
+  undeclare name=x_temp domain=reciprocal end
+  evaluate ($empty_ratio=$empty_bins/&mbins)
+  if ( $empty_ratio >= 0.2 ) then
+    display  Target-error: too many bins with no test set reflections
+    display                test set must be randomly distributed
+    abort
+  end if
+end if
+
+if ($test_exist=true) then
+  if ( $x_ntest < 400 ) then
+    do (x_eobs=norm(amplitude(&fobs)))                          ( &sel )
+    do (x_ecalc=norm(amplitude(&fcalc+&fpart)))                 ( &sel )
+  else
+    do (x_eobs=norm(amplitude(&fobs)))                          ( &sel_test )
+    do (x_ecalc=norm(amplitude(&fcalc+&fpart)))                 ( &sel_test )
+  end if
+  do (x_sigmaa=sigacv[sigma=&sig_sigacv](x_eobs,x_ecalc)) ( &sel_test )
+  {- compute d -}
+  do (&dd=0) ( all ) 
+  do (&dd= x_sigmaa * sqrt( save(amplitude(&fobs)^2)  /
+                         save(amplitude(&fcalc+&fpart)^2) ) ) ( &sel_test )
+  {- Cross-validation active: need to expand to all selected
+     reflections and compute the normalized structure factor
+     for all data. -}
+  do (x_sigmaa=distribute(x_sigmaa))                     ( &sel )
+  do (&dd=distribute(&dd))                               ( &sel )
+  do (x_eobs=norm(amplitude(&fobs)))                     ( &sel )
+  do (x_ecalc=norm(amplitude(&fcalc+&fpart)))            ( &sel )
+else
+  do (x_eobs=norm(amplitude(&fobs)))                      ( &sel )
+  do (x_ecalc=norm(amplitude(&fcalc+&fpart)))             ( &sel )
+  do (x_sigmaa=siga(x_eobs,x_ecalc)) ( &sel )
+  {- compute d -}
+  do (&dd= x_sigmaa * sqrt( save(amplitude(&fobs)^2)  /
+                         save(amplitude(&fcalc+&fpart)^2) ) ) ( &sel )
+end if
+
+do (&x=2 x_sigmaa x_eobs x_ecalc / (1 - x_sigmaa^2)) ( &sel )
+
+do (&pa=&x*cos(phase(&fcalc+&fpart))) ( &sel )
+
+do (&pb=&x*sin(phase(&fcalc+&fpart))) ( &sel )
+
+do (&pc=0) ( &sel )
+do (&pd=0) ( &sel )
+
+do (&fom=i1overi0(&x)) ( acentric and &sel )
+do (&fom=tanh(&x/2))   ( centric  and &sel )
+
+if ( &statistics = true ) then
+  statistics
+    (&fom) (x_sigmaa) (&dd) (save(x_eobs^2)) (save(x_ecalc^2))
+    selection=( &sel )
+  end
+end if
+
+undeclare name=x_eobs     domain=reciprocal end
+undeclare name=x_ecalc    domain=reciprocal end
+undeclare name=x_sigmaa   domain=reciprocal end
+undeclare name=x_test     domain=reciprocal end
+
+set message=$message_old echo=$echo_old end

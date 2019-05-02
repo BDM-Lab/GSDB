@@ -1,0 +1,640 @@
+{+ file: patterson_refine.inp +}
+{+ directory: xtal_patterson +}
+{+ description: PC-refinement of heavy atom sites against Patterson map(s) +}
+{+ comment:
+            Native and difference Pattersons.
+            Differences can be anomalous, dispersive, or isomorphous.
+            Weighted average of up to 4 different Pattersons can be computed.
+            Weights are given by 1/ < df ^2 > for difference maps
+            and 1 / < f^2 > for native Patterson maps. When adding
+            isomorphous/dispersive and anomalous maps this weighting
+            scheme is approximately equal to a weighting by f' : 2f'' +}
+{+ authors: Axel T. Brunger +}
+{+ copyright: Yale University +}
+
+{+ reference: W.A. Hendrickson, J.L. Smith, R.P. Phizackerley,
+              and E.A. Merritt, Crystallographic structure analysis
+              of lamprey myoglobin from anomalous dispersion
+              of synchrotron radation, Proteins 4, 77-88 (1988) +}
+
+{+ reference: A.T. Brunger, Extension of molecular replacement: A
+              new search strategy based on Patterson correlation refinement,
+              Acta Cryst. A46, 46-57 (1990). +}
+
+{+ reference: J.A. Drenth, Principles of X-ray crystallography,
+              Springer-Verlag, New York, (1994) +}
+
+{- Guidelines for using this file:
+   - all strings must be quoted by double-quotes
+   - logical variables (true/false) are not quoted
+   - do not remove any evaluate statements from the file -}
+
+{- begin block parameter definition -} define(
+
+{====================== crystallographic data ========================}
+
+{* space group *}
+{* use International Table conventions with subscripts substituted
+   by parenthesis *}
+{===>} sg="P2(1)2(1)2(1)";
+
+{* unit cell parameters in Angstroms and degrees *}
+{+ table: rows=1 "cell" cols=6 "a" "b" "c" "alpha" "beta" "gamma" +}
+{===>} a=65.508;
+{===>} b=72.216;
+{===>} c=45.035;
+{===>} alpha=90;
+{===>} beta=90;
+{===>} gamma=90;
+
+{* reflection file(s) *}
+{* specify non-anomalous reflection file(s) (if any)
+   before anomalous reflection file(s) *}
+{===>} reflection_infile_1="mbp_scale.hkl";
+{===>} reflection_infile_2="";
+{===>} reflection_infile_3="";
+{===>} reflection_infile_4="";
+
+{========================= refinement options ======================}
+
+{* resolution range for refinement *}
+{+ table: rows=1 "resolution" cols=2 "lowest" "highest" +}
+{===>} low_res=15;
+{===>} high_res=4;
+
+{* Target for PC-refinement *}
+{+ choice: "f2f2" "e2e2" +}
+{===>} pc_target="f2f2";
+
+{* number of macrocycles (one macrocycle = positional refinement
+   followed by B-factor and occupancy refinement. *}
+{===>} macro_cycle=2;
+
+{* number of positional refinement steps *}
+{===>} nstep=40;
+
+{* positional shift damping *}
+{+ choice: true false +}
+{===>} shift_dampen=true;
+
+{* occupancy refinement *}
+{+ choice: true false +}
+{===>} occupancy=false;
+
+{* B-factor refinement *}
+{+ choice: true false +}
+{===>} bfactor=true;
+
+{* number of b-factor/occupancy refinement steps *}
+{===>} bnstep=40;
+
+{============================== sites ================================}
+
+{* heavy atom sites *}
+{* CNS heavy atom site database files *}
+{===>} sitedatabase_infile.1="mbp_sites.sdb";
+{===>} sitedatabase_infile.2="";
+{===>} sitedatabase_infile.3="";
+{===>} sitedatabase_infile.4="";
+{===>} sitedatabase_infile.5="";
+
+{* NCS-restraints/constraints file *}
+{* only strict NCS is allowed *}
+{* see auxiliary/ncs.def *}
+{===>} ncs_infile="";
+
+{* form factor type *}
+{* Use the gaussian option for native or isomorphous difference Patterson maps.
+   Use the constant option for anomalous or dispersive Patterson maps.
+   For the gaussian mode, the form factors are obtained from the atomic form
+   factor library specified below. For the constant mode all sites have a
+   unit (resolution-independent) form factor. *}
+{* For the automatic option, the constant mode is used if there are only
+   anomalous or dispersive Patterson maps. If there are one or more native
+   or isomorphous Patterson maps, the gaussian mode is used. *}
+{+ choice: "automatic" "constant" "gaussian" +}
+{===>} scatter_mode="automatic";
+
+{* form factor library for gaussian form factors *}
+{===>} scatter_library="CNS_XRAYLIB:scatter.lib";
+
+{================== general options for Patterson maps ===============}
+
+{* number of Patterson maps to be averaged *}
+{===>} number_of_maps=1;
+
+{* sharpen (averaged) Patterson map by E-normalization *}
+{+ choice: true false +}
+{===>} sharpen=false;
+
+{* remove origin of (averaged) Patterson map *}
+{+ choice: true false +}
+{===>} origin_remove=false;
+
+{* use diffraction ratios to weigh Patterson maps *}
+{* if false, weights are set to 1 *}
+{+ choice: true false +}
+{===>} weight=true;
+
+{* number of bins for weight calculation, sharpening, origin-removal *}
+{===>} bins_w=10;
+
+{=========================== Patterson map #1 ============================}
+
+{* type of Patterson map *}
+{+ list:     "native" : map=FT( |f_a|^2 )
+        "isomorphous" : map=FT( (|f_a|-|f_b|)^2  )
+         "dispersive" : map=FT( (|f_a|-|f_b|)^2  )
+          "anomalous" : map=FT( (|f_a+|-|f_a-|)^2  ) +}
+{+ choice: "native" "isomorphous" "dispersive" "anomalous" +}
+{===>} map.1.mode="anomalous";
+
+{* amplitude array f_a (for all Patterson map types) *}
+{===>} map.1.f_a="f_w2";
+
+{* corresponding sigma array *}
+{* leave blank if no sigmas are available *}
+{===>} map.1.s_a="s_w2";
+
+{* amplitude array f_b *}
+{* for "dispersive" or "isomorphous" Patterson maps only *}
+{===>} map.1.f_b="";
+
+{* corresponding sigma array *}
+{* for "dispersive" or "isomorphous" Patterson maps only *}
+{* leave blank if no sigmas are available *}
+{===>} map.1.s_b="";
+
+{* |F|/sigma{F} amplitude cutoff *}
+{* reflections with |F|/Sigma{F} < cutoff will be rejected if
+   true for one or both F *}
+{===>} map.1.cut_f=1.;
+
+{* rms outlier cutoff *}
+{* native maps: reflections with  |F| > cutoff*rms(|F|) will be rejected
+   difference maps: reflections with |delta F| > cutoff*rms(|delta F|) will
+               be rejected *}
+{===>} map.1.max_df=4;
+
+{* overall k-scaling for all difference Patterson maps *}
+{* f_b will be scaled to f_a *}
+{+ choice: "yes" "no" +}
+{===>} map.1.kscale="yes";
+
+{* overall B-scaling for all difference Patterson maps *}
+{* f_b will be scaled to f_a *}
+{+ choice: "no" "isotropic" "anisotropic" +}
+{===>} map.1.bscale="anisotropic";
+
+{* scaling iterations for all difference Patterson maps *}
+{* number of iterations using rejection criteria *}
+{===>} map.1.nscale_iter=4;
+
+{* delta F cutoff criteria for all difference Patterson maps *}
+{* reflections with |delta F|/Sigma{delta F} < cutoff will be rejected *}
+{===>} map.1.cut_df=0.5;
+
+{=========================== Patterson map #2 ============================}
+
+{* type of Patterson map *}
+{+ list:     "native" : map=FT( |f_a|^2 )
+        "isomorphous" : map=FT( (|f_a|-|f_b|)^2  )
+         "dispersive" : map=FT( (|f_a|-|f_b|)^2  )
+          "anomalous" : map=FT( (|f_a+|-|f_a-|)^2  ) +}
+{+ choice: "native" "isomorphous" "dispersive" "anomalous" +}
+{===>} map.2.mode="anomalous";
+
+{* amplitude array f_a (for all Patterson map types) *}
+{===>} map.2.f_a="";
+
+{* corresponding sigma array *}
+{* leave blank if no sigmas are available *}
+{===>} map.2.s_a="";
+
+{* amplitude array f_b *}
+{* for "dispersive" or "isomorphous" Patterson maps only *}
+{===>} map.2.f_b="";
+
+{* corresponding sigma array *}
+{* for "dispersive" or "isomorphous" Patterson maps only *}
+{* leave blank if no sigmas are available *}
+{===>} map.2.s_b="";
+
+{* |F|/sigma{F} amplitude cutoff *}
+{* reflections with |F|/Sigma{F} < cutoff will be rejected if
+   true for one or both F *}
+{===>} map.2.cut_f=1.;
+
+{* rms outlier cutoff *}
+{* native maps: reflections with  |F| > cutoff*rms(|F|) will be rejected
+   difference maps: reflections with |delta F| > cutoff*rms(|delta F|) will
+               be rejected *}
+{===>} map.2.max_df=4;
+
+{* overall k-scaling for all difference Patterson maps *}
+{* f_b will be scaled to f_a *}
+{+ choice: "yes" "no" +}
+{===>} map.2.kscale="yes";
+
+{* overall B-scaling for all difference Patterson maps *}
+{* f_b will be scaled to f_a *}
+{+ choice: "no" "isotropic" "anisotropic" +}
+{===>} map.2.bscale="anisotropic";
+
+{* scaling iterations for all difference Patterson maps *}
+{* number of iterations using rejection criteria *}
+{===>} map.2.nscale_iter=4;
+
+{* delta F cutoff criteria for all difference Patterson maps *}
+{* reflections with |delta F|/Sigma{delta F} < cutoff will be rejected *}
+{===>} map.2.cut_df=0.5;
+
+{=========================== Patterson map #3 ============================}
+
+{* type of Patterson map *}
+{+ list:     "native" : map=FT( |f_a|^2 )
+        "isomorphous" : map=FT( (|f_a|-|f_b|)^2  )
+         "dispersive" : map=FT( (|f_a|-|f_b|)^2  )
+          "anomalous" : map=FT( (|f_a+|-|f_a-|)^2  ) +}
+{+ choice: "native" "isomorphous" "dispersive" "anomalous" +}
+{===>} map.3.mode="anomalous";
+
+{* amplitude array f_a (for all Patterson map types) *}
+{===>} map.3.f_a="";
+
+{* corresponding sigma array *}
+{* leave blank if no sigmas are available *}
+{===>} map.3.s_a="";
+
+{* amplitude array f_b *}
+{* for "dispersive" or "isomorphous" Patterson maps only *}
+{===>} map.3.f_b="";
+
+{* corresponding sigma array *}
+{* for "dispersive" or "isomorphous" Patterson maps only *}
+{* leave blank if no sigmas are available *}
+{===>} map.3.s_b="";
+
+{* |F|/sigma{F} amplitude cutoff *}
+{* reflections with |F|/Sigma{F} < cutoff will be rejected if
+   true for one or both F *}
+{===>} map.3.cut_f=1.;
+
+{* rms outlier cutoff *}
+{* native maps: reflections with  |F| > cutoff*rms(|F|) will be rejected
+   difference maps: reflections with |delta F| > cutoff*rms(|delta F|) will
+               be rejected *}
+{===>} map.3.max_df=4;
+
+{* overall k-scaling for all difference Patterson maps  *}
+{* f_b will be scaled to f_a *}
+{+ choice: "yes" "no" +}
+{===>} map.3.kscale="yes";
+
+{* overall B-scaling for all difference Patterson maps *}
+{* f_b will be scaled to f_a *}
+{+ choice: "no" "isotropic" "anisotropic" +}
+{===>} map.3.bscale="anisotropic";
+
+{* scaling iterations for all difference Patterson maps *}
+{* number of iterations using rejection criteria *}
+{===>} map.3.nscale_iter=4;
+
+{* delta F cutoff criteria for all difference Patterson maps  *}
+{* reflections with |delta F|/Sigma{delta F} < cutoff will be rejected *}
+{===>} map.3.cut_df=0.5;
+
+{=========================== Patterson map #4 ============================}
+
+{* type of Patterson map *}
+{+ list:     "native" : map=FT( |f_a|^2 )
+        "isomorphous" : map=FT( (|f_a|-|f_b|)^2  )
+         "dispersive" : map=FT( (|f_a|-|f_b|)^2  )
+          "anomalous" : map=FT( (|f_a+|-|f_a-|)^2  ) +}
+{+ choice: "native" "isomorphous" "dispersive" "anomalous" +}
+{===>} map.4.mode="anomalous";
+
+{* amplitude array f_a (for all Patterson map types) *}
+{===>} map.4.f_a="";
+
+{* corresponding sigma array *}
+{* leave blank if no sigmas are available *}
+{===>} map.4.s_a="";
+
+{* amplitude array f_b *}
+{* for "dispersive" or "isomorphous" Patterson maps only *}
+{===>} map.4.f_b="";
+
+{* corresponding sigma array *}
+{* for "dispersive" or "isomorphous" Patterson maps only *}
+{* leave blank if no sigmas are available *}
+{===>} map.4.s_b="";
+
+{* |F|/sigma{F} amplitude cutoff *}
+{* reflections with |F|/Sigma{F} < cutoff will be rejected if
+   true for one or both F *}
+{===>} map.4.cut_f=1.;
+
+{* rms outlier cutoff *}
+{* native maps: reflections with  |F| > cutoff*rms(|F|) will be rejected
+   difference maps: reflections with |delta F| > cutoff*rms(|delta F|) will
+               be rejected *}
+{===>} map.4.max_df=4;
+
+{* overall k-scaling for all difference Patterson maps *}
+{* f_b will be scaled to f_a *}
+{+ choice: "yes" "no" +}
+{===>} map.4.kscale="yes";
+
+{* overall B-scaling for all difference Patterson maps *}
+{* f_b will be scaled to f_a *}
+{+ choice: "no" "isotropic" "anisotropic" +}
+{===>} map.4.bscale="anisotropic";
+
+{* scaling iterations for all difference Patterson maps *}
+{* number of iterations using rejection criteria *}
+{===>} map.4.nscale_iter=4;
+
+{* delta F cutoff criteria for all difference Patterson maps *}
+{* reflections with |delta F|/Sigma{delta F} < cutoff will be rejected *}
+{===>} map.4.cut_df=0.5;
+
+{=========================== output options ==========================}
+
+{* output heavy atom database file *}
+{===>} sitedatabase_outfile="patterson_refine.sdb";
+
+{===========================================================================}
+{         things below this line do not normally need to be changed         }
+{===========================================================================}
+
+) {- end block parameter definition -}
+
+checkversion 1.3
+
+evaluate ($log_level=quiet)
+
+@CNS_XTALMODULE:read_multi_sdb (filegroup=&sitedatabase_infile;
+                                use_array=store3;
+                                fix_array=store4;
+                                sg_expected=&sg;
+                                sg_read=$sg_read;)
+
+eval ($scat_mode = &scatter_mode)
+if ($scat_mode = "automatic") then
+  eval($scat_mode = "constant")
+  eval ($imap = 1)
+  while ($imap <= &number_of_maps) loop imap
+    if (&EXIST%map.$imap.mode = false) then
+      display
+      display  ************************************
+      display  map=$imap : error, map mode not defined.
+      display  ************************************
+      display
+      abort
+    end if
+    if (&map.$imap.mode = "native")      then
+      eval($scat_mode = "gaussian") end if
+    if (&map.$imap.mode = "isomorphous") then
+      eval($scat_mode = "gaussian") end if
+    eval ($imap = $imap + 1)
+  end loop imap
+end if
+
+xray
+   if ($scat_mode="constant") then
+      scatter ( all ) 0 0 0 0 0 0 0 0 0 fp 1 fdp 0
+   else
+      @@&scatter_library
+   end if
+end
+
+show sum(1) (store3)
+evaluate ($sites=$result)
+
+fix selection=(store4) end
+
+igroup
+  interaction (store3) (store3)
+end
+
+if ( &BLANK%ncs_infile = false ) then
+    inline @&ncs_infile
+end if
+
+xray
+
+   @CNS_XTALLIB:spacegroup.lib (sg=&sg; )
+
+   a=&a b=&b c=&c  alpha=&alpha beta=&beta gamma=&gamma
+
+   evaluate ($counter=1)
+   evaluate ($done=false)
+   while ( $done = false ) loop read
+    if ( &exist_reflection_infile_$counter = true ) then
+      if ( &BLANK%reflection_infile_$counter = false ) then
+       reflection
+         @@&reflection_infile_$counter
+       end
+      end if
+    else
+     evaluate ($done=true)
+    end if
+    evaluate ($counter=$counter+1)
+   end loop read
+
+   binresolution &low_res &high_res
+   mapresolution &high_res
+end
+
+@CNS_XTALMODULE:get_subgroups (selection=(store3);
+                               subgroups=$subgroups;)
+
+xray
+   buffer harvest
+      display $sites sites are refined
+   end
+   if ($scat_mode="gaussian") then
+      buffer harvest
+        display scatter_mode=gaussian    scatter_library= &scatter_library
+      end
+      evaluate ($counter=1)
+      while ( $counter <= $subgroups.num ) loop sub
+        buffer harvest
+          display                  scattering type= $subgroups.type.$counter
+        end
+        evaluate ($counter=$counter+1)
+      end loop sub
+   else
+      buffer harvest
+         display scatter_mode=constant
+      end
+   end if
+
+   buffer harvest
+      display resolution: &low_res - &high_res
+      display sg= &STRIP%sg a= &a b= &b c= &c alpha= &alpha beta= &beta gamma= &gamma
+      display positional refinement: nstep= &nstep  shift_dampen= &shift_dampen
+      display b/q refinement: bnstep= &bnstep  occupancy= &occupancy  bfactor= &bfactor
+   end
+
+  declare name=df_accum     domain=reciprocal  type=real end
+
+  @CNS_XTALMODULE:pattersonmap
+    (
+     map=&map;
+     number_of_maps=&number_of_maps;
+     sharpen=&sharpen;
+     origin_remove=&origin_remove;
+     weight=&weight;
+     bins_w=&bins_w;
+     low_res=&low_res;
+     high_res=&high_res;
+     df_accum=df_accum;
+     buffer_name=harvest;
+     )
+
+   {- average Friedel mates if any -}
+   do (df_accum=(df_accum+friedel(df_accum))/2 ) ( friedel_pair(abs(df_accum)>0))
+
+   {- the df_accum array now obeys Friedel's law -}
+   anomalous=false
+
+   declare name=patt_fob domain=reciprocal type=complex end
+   query name=fcalc domain=reciprocal end
+   if ( $object_exist = false ) then
+      declare name=fcalc domain=reciprocal type=complex end
+   end if
+
+   do (patt_fob=0 ) ( all )
+   do (patt_fob=combine(sqrt(df_accum),0))           ( abs(df_accum)>0 )
+
+
+   {- Specify target -}
+
+   if (&pc_target="f2f2") then
+      bins=1
+      target=(F2F2(amplitude(patt_fob),fcalc))
+      dtarget=(df2f2(amplitude(patt_fob),fcalc))
+      monitor=(corr[overall](amplitude(patt_fob)^2,amplitude(fcalc)^2))
+   else
+      bins=10
+      target=(E2E2(amplitude(patt_fob),fcalc))
+      dtarget=(dE2E2(amplitude(patt_fob),fcalc))
+      monitor=(corr[overall](norm(amplitude(patt_fob))^2,norm(amplitude(fcalc)^2)))
+   end if
+
+   binresolution &low_res &high_res
+   mapresolution &high_res
+
+   tselection=( &low_res >= d >= &high_res and
+                amplitude(patt_fob) > 0 )
+
+   method=direct
+   lookup=false
+   tolerance=0.
+
+   associate fcalc ( store3 )
+
+   wa=100000
+
+end
+
+flags exclude * include xref end
+
+evaluate ($cycle=0)
+
+while ($cycle < &macro_cycle) loop main
+   evaluate ($cycle=$cycle+1)
+
+   if (&shift_dampen=true) then
+      flags include harm end
+      do (refx=x+0.001) (store3)    {- Use shift damping -}
+      do (refy=y+0.001) (store3)    {- move the ref. coors. a bit off   -}
+      do (refz=z+0.001) (store3)    {- in order to avoid zero gradients -}
+      do (harm=100) (store3)
+   end if
+
+   show sum ( x ) ( not ( tag and store3 and not(store4) ) and
+                        ( store3 and not(store4) ) )
+   if ($select>0) then
+      display   groups present -- groups will be refined as rigid bodies.
+      minimize rigid
+         for $aa in id ( tag and store3 and (not store4) ) loop mr
+            group=( byresidue ( id $aa ) )
+         end loop mr
+         nstep=&nstep
+         drop=10.
+         tolerance=0.
+      end
+   else
+      display individual site refinement
+      minimize lbfgs
+         nstep=&nstep
+         tolgradient=0.
+      end
+   end if
+
+   xray
+      optimize group
+        method=lbfgs
+        nstep=&bnstep
+        drop=10.
+        tolerance=0.
+        bmin=2
+        bmax=200
+        qmin=0.1
+        qmax=20
+        for $1 in id ( tag and store3 and ( not store4) ) loop qm
+            if (&bfactor=true) then
+               b=( byresidue ( id $1 ) )
+            end if
+            if (&occupancy=true) then
+               q=( byresidue ( id $1 ) )
+            end if
+        end loop qm
+      end
+   end
+
+end loop main
+
+xray
+   predict
+      mode=reciprocal
+      to=fcalc
+      selection=( &low_res >= d >= &high_res and
+                   amplitude(patt_fob) > 0 )
+      atomselection=( store3 )
+   end
+   print target
+end
+
+buffer harvest
+   display correlation coefficient after ref. &STRIP%pc_target = $monitor[F10.4]
+end
+
+buffer harvest
+   to=remarks
+   dump
+end
+
+@CNS_XTALMODULE:coord_to_sdb (sitedb=$allsites;
+                              use_array=store3;
+                              fix_array=store4;
+                              selection=(all);)
+buffer comment
+  reset
+  display Results of Patterson refinement
+  from buffer=harvest
+end
+
+@CNS_XTALMODULE:write_cns_header
+     (output=&sitedatabase_outfile;
+      description="CNS heavy atom site database";
+      buffer=comment;)
+
+@CNS_XTALMODULE:write_sdb (sitedb=$allsites;
+                           sg=&sg;
+                           output=&sitedatabase_outfile;)
+
+stop

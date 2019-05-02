@@ -1,0 +1,102 @@
+#!/bin/csh -f
+#
+# Make differences between two sets of .out files
+# If a directory is given as the first argument .out files will
+# be taken from there. Otherwise, the main test directory will
+# be used.
+#
+# Written by: Paul Adams 27-8-98
+#
+# copyright Yale University
+#
+# ===========================================================================
+#
+onintr CLEAN
+#
+# determine which files we need to process
+#
+set filelist=()
+if ( $#argv > 0 ) then
+  foreach arg ( $argv[*] )
+    switch ( $arg )
+    case -help:
+      echo 'usage: run_diffs [-help] [dir] file(s)'
+      goto exit
+    default:
+      if ( "$arg" =~ "-"* ) then
+        echo unknown option: $arg
+      else
+        set filelist=($filelist $arg)
+      endif
+    endsw
+  end
+else
+  echo 'usage: run_diffs [-help] [dir] file(s)'
+  goto exit
+endif
+#
+# try to make the filelist unique and remove extensions
+#
+if ( $#filelist != 0 ) then
+  if ( -d $filelist[1] ) then
+    set compdir=`echo $filelist[1] | sed 's/\/ *$//'`
+    if (-d "$compdir"/test) then
+      set compdir="$compdir"/test
+    endif
+    shift filelist
+  else
+    set compdir=../../test
+  endif
+  set tmplist=()
+  foreach file ($filelist)
+    set tmpfile=`echo $file | awk 'BEGIN{FS="."}{print $1}'`
+    if ( $tmpfile != $tmplist[$#tmplist] ) then
+      set tmplist=($tmplist $file:r)
+    endif
+  end
+  set filelist=($tmplist)
+else
+  echo 'usage: run_diffs [-help] [dir] file(s)'
+  goto exit
+endif
+#
+if ( $compdir != "../../test" ) then
+  set difftag=`echo $compdir | tr " \011/" "__\012" | egrep -v '^\.$|^\.\.$|^test$' | tail -1`
+  if ($#difftag == 0) set difftag = test
+  set difftag='-'"$difftag"
+else
+  set difftag='-test'
+endif
+#
+if ( ! -d $compdir ) then
+  echo "comparison directory does not exist"
+  exit 1
+endif
+#
+set filter = 'REMARK|ASSFIL:|VCLOSE|user:|CPU|time|Program|MISCOM: rewinding'
+#
+echo ''
+echo 'extension for difference files is ".diff'"$difftag"'"'
+echo ''
+#
+foreach file ($filelist)
+  if ( -e $file.out && -e $compdir/$file.out ) then
+    echo "finding difference between $file.out and $compdir/$file.out"
+    refloat $file.out          | egrep -v "$filter" >! tmp1
+    refloat $compdir/$file.out | egrep -v "$filter" >! tmp2
+    diff -b tmp1 tmp2 > {$file.diff}{$difftag}
+    /bin/rm -f tmp1 tmp2
+  endif
+end
+#
+exit:
+exit 0
+#
+CLEAN:
+if ( -e tmp1 ) then
+  /bin/rm -f "tmp1"
+endif
+if ( -e tmp2 ) then
+  /bin/rm -f "tmp2"
+endif
+#

@@ -1,0 +1,286 @@
+! Module file: sdb_to_coord
+!
+! CNS module
+! **********
+!
+! Authors: Axel Brunger and Paul Adams
+!
+! copyright Yale University
+!
+! Function:
+!    Extract information from a CNS heavy atom database file
+!    and add to internal topology and coordinate databases
+!
+! Requirements:
+!    To be called after the site information has been read
+
+module {sdb_to_coord}
+
+(
+&site;
+&use_array;
+&fix_array;
+)
+
+set message ? end
+evaluate ($message_old=$result)
+set echo ? end
+evaluate ($echo_old=$result)
+if ( $log_level = verbose ) then
+  set echo=on message=normal end
+else
+  set echo=off message=off end
+end if
+
+set display=? end
+evaluate ($curr_display=$result)
+
+checkversion 1.3
+
+topology 
+  mass site 10.0
+  resid site
+    group
+      atom site type=site charge=0.0 end
+  end
+end
+
+evaluate ($count_old=0)
+for $id in id ( all ) loop old
+
+  evaluate ($count_old=$count_old+1)
+
+  show (x) ( id $id )
+  evaluate ($site_old.x_$count_old=$result)
+  show (y) ( id $id )
+  evaluate ($site_old.y_$count_old=$result)
+  show (z) ( id $id )
+  evaluate ($site_old.z_$count_old=$result)
+  show (b) ( id $id )
+  evaluate ($site_old.b_$count_old=$result)
+  show (q) ( id $id )
+  evaluate ($site_old.q_$count_old=$result)
+  show (chemical) ( id $id )
+  evaluate ($site_old.type_$count_old=$result)
+
+  show (segid) ( id $id )
+  evaluate ($site_old.segid_$count_old=$result)
+
+  show (resid) ( id $id )
+  evaluate ($site_old.g_$count_old=$result)
+  show sum(1) ( segid $site_old.segid_$count_old and
+                resid $site_old.g_$count_old )
+  if ( $result <= 1 ) then
+    evaluate ($site_old.g_$count_old="")
+  end if
+
+  show sum(1) ( &use_array and ( id $id ) )
+  if ( $result = 1 ) then
+    show sum(1) ( &fix_array and ( id $id ) )
+    if ( $result = 1 ) then
+      evaluate ($site_old.action_$count_old="fix")
+    else
+      evaluate ($site_old.action_$count_old="refine")
+    end if
+  else
+    evaluate ($site_old.action_$count_old="ignore")
+  end if
+
+  evaluate ($site_old.done_$count_old=false)
+
+end loop old
+
+evaluate ($done=false)
+evaluate ($count_new_active=0)
+evaluate ($count_new=1)
+
+while ( $done = false ) loop new
+
+  if ( &EXIST%site.action_$count_new = true ) then
+    if ( &BLANK%site.segid_$count_new = true ) then
+      evaluate ($site_new.done_$count_new=true)
+    else
+      evaluate ($site_new.done_$count_new=false)
+      evaluate ($count_new_active=$count_new_active+1)
+    end if
+    evaluate ($count_new=$count_new+1)
+  else
+    evaluate ($done=true)
+    evaluate ($count_new=$count_new-1)
+  end if
+
+end loop new
+
+evaluate ($count_total=$count_old+$count_new_active)
+
+if ( $count_total > 0 ) then
+
+  structure reset end
+
+  segment
+    name="    "
+    molecule
+      number=$count_total
+      name=site
+    end
+  end
+
+  do (charge=0) (all)
+  do (rmsd=0) (all)
+
+  evaluate ($current=1)
+  evaluate ($done=false)
+
+  while ( $done = false ) loop rebuild
+
+    evaluate ($counter=1)
+    evaluate ($got_segid=false)
+
+    while ( $counter <= $count_old ) loop old
+      if ( $site_old.done_$counter = false ) then
+        if ( $got_segid = false ) then
+          evaluate ($curr_segid=$site_old.segid_$counter)
+          evaluate ($got_segid=true)      
+          evaluate ($seg_count=1)
+        end if
+	
+	{- MODIFICATION - EXACT EQUAL MATCHING, ATB 9/11/09 -}
+        if ( $site_old.segid_$counter == $curr_segid ) then
+          do (segid=$curr_segid) (resid $current)
+          do (x=$site_old.x_$counter) (resid $current)
+          do (y=$site_old.y_$counter) (resid $current)
+          do (z=$site_old.z_$counter) (resid $current)
+          do (b=$site_old.b_$counter) (resid $current)
+          do (q=$site_old.q_$counter) (resid $current)
+          do (resname=$site_old.g_$counter) (resid $current)
+          do (name=encode($seg_count)) (resid $current)
+          do (chemical=$site_old.type_$counter) (resid $current)
+          if ( $site_old.action_$counter # "ignore" ) then
+            do (charge=$current) (resid $current)
+          end if
+          if ( $site_old.action_$counter = "fix" ) then
+            do (rmsd=$current) (resid $current)
+          end if
+          evaluate ($site_old.done_$counter=true)
+          evaluate ($current=$current+1)
+          evaluate ($seg_count=$seg_count+1)
+        end if
+        evaluate ($counter=$counter+1)
+      else
+        evaluate ($counter=$counter+1)
+      end if
+    end loop old
+
+    evaluate ($counter=1)
+
+    while ( $counter <= $count_new ) loop new
+      if ( $site_new.done_$counter = false ) then
+        if ( $got_segid = false ) then
+          evaluate ($curr_segid=&site.segid_$counter)
+          evaluate ($got_segid=true) 
+          evaluate ($seg_count=1)
+        end if
+	{- MODIFICATION - EXACT EQUAL MATCHING, ATB 9/11/09 -}
+        if ( &site.segid_$counter == $curr_segid ) then
+          do (segid=$curr_segid) (resid $current)
+          do (x=&site.x_$counter) (resid $current)
+          do (y=&site.y_$counter) (resid $current)
+          do (z=&site.z_$counter) (resid $current)
+          do (b=&site.b_$counter) (resid $current)
+          do (q=&site.q_$counter) (resid $current)
+          do (resname=&site.g_$counter) (resid $current)
+          do (name=encode($seg_count)) (resid $current)
+          do (chemical=&site.type_$counter) (resid $current)
+          if ( &site.action_$counter # "ignore" ) then
+            do (charge=$current) (resid $current)
+          end if
+          if ( &site.action_$counter = "fix" ) then
+            do (rmsd=$current) (resid $current)
+          end if
+          evaluate ($site_new.done_$counter=true)
+          evaluate ($current=$current+1)
+          evaluate ($seg_count=$seg_count+1)
+        end if
+        evaluate ($counter=$counter+1)
+      else
+        evaluate ($counter=$counter+1)
+      end if
+    end loop new
+
+    if ( $got_segid = false ) then
+      evaluate ($done=true)
+    end if
+
+  end loop rebuild
+
+  identity ( &use_array ) ( all )
+
+  evaluate ($done=false)
+
+  while ( $done = false ) loop fix
+
+    evaluate ($got_segid=false)
+    evaluate ($max_group=0)
+
+    for $id in id ( &use_array ) loop group
+
+      if ( $got_segid = false ) then
+        show (segid) (id $id)
+        evaluate ($curr_segid=$result)
+        evaluate ($got_segid=true)
+      end if
+
+      show (segid) (id $id)
+      {- MODIFICATION - EXACT EQUAL MATCHING, ATB 09/11/09 -}
+      if ( $result == $curr_segid ) then
+        show ( resname ) ( id $id )
+        if ( $result # "" ) then
+          do ( resid = resname ) ( id $id )
+          show sum(1) (id $id and resid=#)
+          if ( $result = 1 ) then
+            show (decode(resid)) ( id $id )
+            if ( $result > $max_group ) then
+              evaluate ($max_group=$result)
+            end if
+          end if
+        end if
+      end if
+
+    end loop group
+
+    evaluate ($max_group=$max_group+1)
+
+    for $id in id ( &use_array ) loop resid
+
+      show (segid) (id $id)
+      {- MODIFICATION - EXACT EQUAL MATCHING, ATB 09/11/09 -}
+      if ( $result == $curr_segid ) then
+        show ( resname ) ( id $id )
+        if ( $result = "" ) then
+          do ( resid = encode($max_group) ) ( id $id )
+          evaluate ($max_group=$max_group+1)
+        end if
+      end if
+
+    end loop resid
+
+    do ( &use_array = 0 ) (segid=$curr_segid)
+
+    if ( $got_segid=false ) then
+      evaluate ($done=true)
+    end if
+
+  end loop fix
+
+  do (resname=segid) (all)
+
+  do ( &use_array = charge ) (all)
+  do ( &fix_array = rmsd ) (all)
+
+end if
+
+topology
+  reset
+end
+
+set message=$message_old echo=$echo_old end

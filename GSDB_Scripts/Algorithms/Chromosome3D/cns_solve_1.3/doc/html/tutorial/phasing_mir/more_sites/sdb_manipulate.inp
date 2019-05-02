@@ -1,0 +1,127 @@
+{+ file: sdb_manipulate.inp +}
+{+ directory: xtal_phase +}
+{+ description: Optional merging of CNS heavy atom site database files
+                and/or the addition of new entries +}
+{+ comment:
+         - If multiple CNS heavy atom site database files are given they
+           will be merged.
+         - The requested number of new entries will be generated.
+         - If no CNS heavy atom site database files are input the
+           output will consist of the requested number of new entries.
+         - New entries have a blank derivative name.
+         - When a site database files is read by CNS entries with a
+           blank derivative name are deleted and will not be written
+           in any output site database files. +}
+{+ authors: Axel T. Brunger, and Paul D. Adams +}
+{+ copyright: Yale University +}
+
+{- Guidelines for using this file:
+   - all strings must be quoted by double-quotes
+   - logical variables (true/false) are not quoted
+   - do not remove any evaluate statements from the file -}
+
+{- begin block parameter definition -} define(
+
+{============================ space group ============================}
+
+{* space group *}
+{* use International Table conventions with subscripts substituted
+   by parenthesis *}
+{===>} sg="P2(1)2(1)2(1)";
+
+{======================= heavy atom databases ========================}
+
+{* heavy atom database file 1 *}
+{===>} sitedatabase_infile.1="phga_sites.sdb";
+
+{* heavy atom database file 2 *}
+{===>} sitedatabase_infile.2="";
+
+{* heavy atom database file 3 *}
+{===>} sitedatabase_infile.3="";
+
+{* heavy atom database file 4 *}
+{===>} sitedatabase_infile.4="";
+
+{* heavy atom database file 5 *}
+{===>} sitedatabase_infile.5="";
+
+{=================== number of additional entries ====================}
+
+{* number of database entries to add *}
+{===>} sitedatabase_entries=2;
+
+{=========================== output files ============================}
+
+{* output heavy atom database file *}
+{===>} sitedatabase_outfile="phga_five_sites.sdb";
+
+{===========================================================================}
+{        things below this line do not normally need to be changed          }
+{===========================================================================}
+
+ ) {- end block parameter definition -}
+
+ checkversion 1.3
+
+ evaluate ($log_level=quiet)
+
+ @CNS_XTALMODULE:read_multi_sdb (filegroup=&sitedatabase_infile;
+                                 use_array=store3;
+                                 fix_array=store4;
+                                 sg_expected=&sg;
+                                 sg_read=$sg_read;)
+
+ if ( &sitedatabase_entries > 0 ) then
+
+   do (refx=store3) (all)
+   do (refy=store4) (all)
+   do (refz=1) (all)
+
+   topology
+     mass site 10.0
+     resid site
+       group
+         atom site type=site charge=0.0 end
+     end
+   end
+
+   segment
+     name="    "
+     molecule
+       number=&sitedatabase_entries
+       name=site
+     end
+   end
+
+   do (x=0) (not (attr refz = 1))
+   do (y=0) (not (attr refz = 1))
+   do (z=0) (not (attr refz = 1))
+   do (b=0) (not (attr refz = 1))
+   do (q=0) (not (attr refz = 1))
+
+   do (store3=refx) (all)
+   identity (store3) ( store3 or not (attr refz = 1) )
+   do (store4=refy) (all)
+   do (store4=0) ( not (attr refz = 1) )
+
+ end if
+
+ @CNS_XTALMODULE:coord_to_sdb (sitedb=$allsites;
+                               use_array=store3;
+                               fix_array=store4;
+                               selection=(all);)
+
+ buffer comment
+   reset
+ end
+
+ @CNS_XTALMODULE:write_cns_header (output=&sitedatabase_outfile;
+                                   description="CNS heavy atom site database";
+                                   buffer=comment;)
+
+ @CNS_XTALMODULE:write_sdb (sitedb=$allsites;
+                            sg=$sg_read;
+                            output=&sitedatabase_outfile;)
+
+ stop

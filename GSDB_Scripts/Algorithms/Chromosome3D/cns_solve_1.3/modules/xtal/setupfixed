@@ -1,0 +1,156 @@
+! Module file: setupfixed
+!
+! CNS module
+! **********
+!
+! Authors: Axel Brunger
+!
+! copyright Yale University
+!
+! Function:
+!
+!    Sets up fixed atom selection and
+!    performs various checks for 
+!    1. isolated atoms
+!    2. isolated di-atomic molecules
+!    3. atoms at special positions
+!
+!    Adds isolated atoms, diatomic molecules, and/or special-position atoms to the
+!    fixed atom selection.
+!
+! Requirements:
+!    Needs to be called from cns main level
+
+module {setupfixed}
+
+(
+  &mode;              {string}                 {"minimization", "cartesian", "torsion"}
+  &atom_select;       {selection }             {input: all selected atoms for refinement}
+  &atom_fixed;        {selection }             {input: explicitly fixed atoms}
+  &atom_total_fixed;  {atomic property array } {output: all fixed atoms}
+  &atom_multiplicity; {atomic property array } {output: multiplicity of atoms}
+  &mset=$mset;        {symbol}                 {output: number of disconnected sets}
+  
+)
+
+!
+!MODIFICATION: set message level to on for show statements, ATB 10/18/10
+!
+ 
+ set message ? end
+ evaluate ($message_old_fix=$result)
+ set echo ? end
+ evaluate ($echo_old_fix=$result)
+ if ( $log_level = verbose ) then
+   set echo=on message=normal end
+ else
+   set echo=off message=off end
+ end if
+ 
+ checkversion 1.3
+
+ connectivity
+    selection=( &atom_select and not &atom_fixed ) 
+    nsetto=&atom_total_fixed {- stores the size of each disconnected set -}
+ end
+ 
+ evaluate (&mset=$mset) {- symbol $mset is returned by connectivity -}
+
+ display
+ display  list of isolated (non-covalently bonded) atoms:
+ set message=on end
+ show element ( name ) ( attribute &atom_total_fixed = 1 )
+ set message=off end
+ if ($select=0) then
+       display  --none--
+ end if
+
+ display
+ display  list of isolated (non-covalently bonded) di-atomic molecules:
+ set message=on end
+ show element ( name ) ( attribute &atom_total_fixed = 2 )
+ set message=off end
+ if ($select=0) then
+       display  --none--
+ end if
+ 
+ 
+ {- check for special positions -}
+ xray
+    special
+       selection=( &atom_select ) 
+       to=&atom_multiplicity
+    end
+ end
+ 
+ display
+ display  list of atoms at special positions:
+ set message=on end
+ show element ( name ) ( attribute &atom_multiplicity > 1 ) 
+ set message=off end
+ if ($select=0) then
+    display  --none--
+ end if
+ 
+ display
+ display 
+ {- check to make sure that none of the atoms at 
+    special positions have covalent bonds -}
+ set message=on end
+ show elem ( name ) ( ( attribute &atom_multiplicity > 1 ) and
+                      ( attribute &atom_total_fixed > 1 ) )
+ set message=off end
+ if ($select > 0) then
+    display  The above atoms are at special positions. They have covalent bonds
+    display  This is presently not allowed for refinement in CNS 
+    abort
+ end if
+ 
+ display
+ 
+ if ( &mode = "torsion" ) then
+ 
+ {- for torsion angle dynamics fix isolated atoms, atoms at special positions
+    and explicitly fixed atoms -}
+    
+    ident (&atom_total_fixed) ( ( attribute &atom_total_fixed = 1 ) or
+                                ( attribute &atom_total_fixed = 2 ) or
+                                ( attribute &atom_multiplicity > 1 ) or
+                                ( not ( &atom_select ) ) or
+                                ( &atom_fixed ) )
+                     
+    display  $select isolated atoms, atoms in di-atomic molecules, 
+    display  atoms at special positions, explicitly fixed atoms, 
+    display  and atoms not selected for refinement will be fixed. 
+    
+ elseif ( &mode = "cartesian" ) then
+ 
+ {- for cartesian dynamics just fix the special positions
+    and the explicity fixed atoms -}
+    
+    ident (&atom_total_fixed) ( ( attribute &atom_multiplicity > 1 ) or
+                                ( not( &atom_select ) ) or
+                                ( &atom_fixed ) )
+                     
+    display  $select atoms at special positions, 
+    display  explicitly fixed atoms, and atoms not selected for 
+    display  refinement will be fixed. 
+
+ elseif ( &mode = "minimization" ) then
+ 
+ {- for minimization just fix the special positions and
+    the explicitly fixed atoms -}
+    
+    ident (&atom_total_fixed) ( ( attribute &atom_multiplicity > 1 ) or
+                                ( not( &atom_select ) ) or
+                                ( &atom_fixed ) )
+
+    display  $select atoms at special positions, 
+    display  explicitly fixed atoms, and atoms not selected for 
+    display  refinement will be fixed. 
+
+ end if
+ 
+ display
+
+set message=$message_old_fix echo=$echo_old_fix end

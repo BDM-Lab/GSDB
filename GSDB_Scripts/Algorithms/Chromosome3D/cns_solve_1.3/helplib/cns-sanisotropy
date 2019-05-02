@@ -1,0 +1,30 @@
+sanisotropy {<sanisotropy-statement>} end
+
+<sanisotropy-statement> :==
+
+  assign <atom-selection> <atom-selection> <atom-selection>
+         <atom-selection> <atom-selection> <atom-selection> <real> <real>
+  --{Atom-i  atom-j  atom-k  atom-l  atom-m  atom-n  Anis-obs  Anis-err.
+     Atom-i=center, atom-j=z, atom-k=x, atom-l=y}
+  class=<classname>
+  --{Start a new class which applies to all assignment and force entries
+     until another class entry is issued.}
+  coefficient <real> <real> <real>
+  --{Coefficients: <dfs> <axial> <rhombicity>
+     where,     
+       dfs = a0
+       rhombicity = a2/a1
+       obs_min = a0-a1-3/2*a2
+     and,
+       E = a0 + a1*(3*cos(theta)^2-1)+a2*(3/2)*sin(theta)^2*cos(2*phi)}
+  forceconstant=<real>
+  --{Force const for all assignments in the current class. Default=50}
+  nrestraints=<integer>
+  --{Number of slots for anisotropy restraints to allocate in memory.
+     Default=200}
+  potential=square|harmonic
+  --{}
+  print threshold <real>
+  --{Prints anisotropy violations greater than the specified value.}
+  reset
+  --{Erases the anisotropy assignment table, but keeps nrestraints the same.}

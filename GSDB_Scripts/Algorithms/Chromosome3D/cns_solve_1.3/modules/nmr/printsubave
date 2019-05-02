@@ -1,0 +1,204 @@
+! Module file: printave
+!
+! CNS MODULE
+! **********
+!
+! Authors: Gregory L. Warren and Axel T. Brunger
+!
+! copyright Yale University
+!
+! version 02/18/98
+!
+! Function:
+!          Sum energy values for average value determination
+!
+! Requirements:
+!       The macro initave contains the symbol definitions    
+!       required for average structure calculation and for
+!       cross-validation.    
+!
+
+module {printave}
+(
+   &ave=ave;               {INPUT/OUTPUT: average energy values}
+   &ave2=ave2;             {INPUT/OUTPUT: squared average energy values}
+   &cv=cv;                 {INPUT/OUTPUT: cross validation values}
+   &flag=flag;             {INPUT: true false flags}
+   &nmr=nmr;               {INPUT: nmr restraints parameters}
+   &output=output;         {INPUT/OUTPUT: nmr values}
+   &prt=prt;               {INPUT: restraint violation and rms values}
+)
+
+checkversion 1.3
+
+set message ? end
+evaluate ($message_old=$result)
+set echo ? end
+evaluate ($echo_old=$result)
+if ( $log_level = verbose ) then
+  set echo=on message=normal end
+else
+  set echo=off message=off end
+end if
+
+         evaluate (&ave.pow.num=&ave.pow.num + &output.min.num)
+         evaluate (&ave.rms.bond=&ave.rms.bond + &prt.bond.rms)
+         evaluate (&ave.rms.angl=&ave.rms.angl + &prt.angl.rms)
+         evaluate (&ave.rms.impr=&ave.rms.impr + &prt.impr.rms)
+         evaluate (&ave.rms.dihe=&ave.rms.dihe + &prt.dihe.rms)
+         evaluate (&ave.rms.noe=&ave.rms.noe + &prt.noe.rms)
+         evaluate (&ave.rms.jcoup=&ave.rms.jcoup + &prt.coup.rms) 
+         evaluate (&ave.rms.oneb=&ave.rms.oneb + &prt.oneb.rms) 
+         evaluate (&ave.rms.carb.a=&ave.rms.carb.a + &prt.carb.a.rms)
+         evaluate (&ave.rms.carb.b=&ave.rms.carb.b + &prt.carb.b.rms)
+         evaluate (&ave.rms.prot.all=&ave.rms.prot.all + &prt.prot.all.rms)
+         evaluate (&ave.rms.dani=&ave.rms.dani + &prt.dani.rms)
+         evaluate (&ave.rms.sani=&ave.rms.sani + &prt.sani.rms)
+         evaluate (&ave.rms.cdih=&ave.rms.cdih + &prt.cdih.rms) 
+         evaluate (&ave.viol.bond=&ave.viol.bond + &prt.bond.5.viol)
+         evaluate (&ave.viol.angl=&ave.viol.angl + &prt.angl.5.viol)
+         evaluate (&ave.viol.impr=&ave.viol.impr + &prt.impr.5.viol)
+         evaluate (&ave.viol.dihe=&ave.viol.dihe + &prt.dihe.5.viol)
+         evaluate (&ave.viol.vdw=&ave.viol.vdw + &prt.vdw.viol)
+         evaluate (&ave.viol.noe.2=&ave.viol.noe.2 + &prt.noe.2.viol)
+         evaluate (&ave.viol.noe.5=&ave.viol.noe.5 + &prt.noe.5.viol)
+         evaluate (&ave.viol.jcoup.1=&ave.viol.jcoup.1 + &prt.coup.viol.1) 
+         evaluate (&ave.viol.jcoup.2=&ave.viol.jcoup.2 + &prt.coup.viol.2) 
+         evaluate (&ave.viol.oneb=&ave.viol.oneb + &prt.oneb.viol) 
+         evaluate (&ave.viol.carb=&ave.viol.carb + &prt.carb.viol)
+         evaluate (&ave.viol.prot.all=&ave.viol.prot.all + &prt.prot.all.viol)
+         evaluate (&ave.viol.dani.1=&ave.viol.dani.1 + &prt.dani.1.viol)
+         evaluate (&ave.viol.dani.2=&ave.viol.dani.2 + &prt.dani.2.viol)
+         evaluate (&ave.viol.sani.01=&ave.viol.sani.01 + &prt.sani.01.viol)
+         evaluate (&ave.viol.sani.10=&ave.viol.sani.10 + &prt.sani.10.viol)
+         evaluate (&ave.viol.cdih.2=&ave.viol.cdih.2 + &prt.cdih.2.viol) 
+         evaluate (&ave.viol.cdih.5=&ave.viol.cdih.5 + &prt.cdih.5.viol) 
+
+         evaluate ($count = 1)
+         while (&exist%nmr.prot.file.$count=true) loop nloop
+            evaluate ($clsname = "P"+encode($count))
+            if (&nmr.prot.file.$count # "") then
+               evaluate (&ave.rms.prot.$clsname=&ave.rms.prot.$clsname+
+                                                &prt.prot.$clsname.rms)
+               evaluate (&ave.viol.prot.$clsname=&ave.viol.prot.$clsname+
+                                                 &prt.prot.$clsname.viol)
+            end if
+            evaluate ($count = $count + 1)
+         end loop nloop
+
+         if (&flag.cv.noe=true) then
+            evaluate (&ave.test.rms.noe=&ave.test.rms.noe 
+                                        + &cv.noe.test.rms)
+            evaluate (&ave.test.viol.noe=&ave.test.viol.noe
+                                        + &cv.noe.test.viol)
+            evaluate (&cv.err.test.rms.noe=&cv.err.test.rms.noe 
+                                        + &cv.noe.test.rms)
+            evaluate (&cv.err.test.viol.noe=&cv.err.test.viol.noe
+                                        + &cv.noe.test.viol)
+         end if
+         if (&flag.cv.coup=true) then
+            evaluate (&ave.test.rms.coup=&ave.test.rms.coup 
+                                        + &cv.coup.test.rms)
+            evaluate (&ave.test.viol.coup=&ave.test.viol.coup
+                                        + &cv.coup.test.viol)
+            evaluate (&cv.err.test.rms.coup=&cv.err.test.rms.coup 
+                                        + &cv.coup.test.rms)
+            evaluate (&cv.err.test.viol.coup=&cv.err.test.viol.coup
+                                        + &cv.coup.test.viol)
+         end if
+         if (&flag.cv.cdih=true) then
+            evaluate (&ave.test.rms.cdih=&ave.test.rms.cdih 
+                                        + &cv.cdih.test.rms)
+            evaluate (&ave.test.viol.cdih=&ave.test.viol.cdih
+                                        + &cv.cdih.test.viol)
+            evaluate (&cv.err.test.rms.cdih=&cv.err.test.rms.cdih 
+                                        + &cv.cdih.test.rms)
+            evaluate (&cv.err.test.viol.cdih=&cv.err.test.viol.cdih
+                                        + &cv.cdih.test.viol)
+         end if
+					    
+
+         evaluate (&ave2.pow.num=&ave2.pow.num + &output.min.num^2)
+         evaluate (&ave2.rms.bond=&ave2.rms.bond + &prt.bond.rms^2)
+         evaluate (&ave2.rms.angl=&ave2.rms.angl + &prt.angl.rms^2)
+         evaluate (&ave2.rms.impr=&ave2.rms.impr + &prt.impr.rms^2)
+         evaluate (&ave2.rms.dihe=&ave2.rms.dihe + &prt.dihe.rms^2)
+         evaluate (&ave2.rms.noe=&ave2.rms.noe + &prt.noe.rms^2)
+         evaluate (&ave2.rms.jcoup=&ave2.rms.jcoup + &prt.coup.rms^2) 
+         evaluate (&ave2.rms.oneb=&ave2.rms.oneb + &prt.oneb.rms^2) 
+         evaluate (&ave2.rms.carb.a=&ave2.rms.carb.a + &prt.carb.a.rms^2)
+         evaluate (&ave2.rms.carb.b=&ave2.rms.carb.b + &prt.carb.b.rms^2)
+         evaluate (&ave2.rms.prot.all=&ave2.rms.prot.all + &prt.prot.all.rms^2)
+         evaluate (&ave2.rms.dani=&ave2.rms.dani + &prt.dani.rms^2)
+         evaluate (&ave2.rms.sani=&ave2.rms.sani + &prt.sani.rms^2)
+         evaluate (&ave2.rms.cdih=&ave2.rms.cdih + &prt.cdih.rms^2) 
+         evaluate (&ave2.viol.bond=&ave2.viol.bond + &prt.bond.5.viol^2)
+         evaluate (&ave2.viol.angl=&ave2.viol.angl + &prt.angl.5.viol^2)
+         evaluate (&ave2.viol.impr=&ave2.viol.impr + &prt.impr.5.viol^2)
+         evaluate (&ave2.viol.dihe=&ave2.viol.dihe + &prt.dihe.5.viol^2)
+         evaluate (&ave2.viol.vdw=&ave2.viol.vdw + &prt.vdw.viol^2)
+         evaluate (&ave2.viol.noe.2=&ave2.viol.noe.2 + &prt.noe.2.viol^2)
+         evaluate (&ave2.viol.noe.5=&ave2.viol.noe.5 + &prt.noe.5.viol^2)
+         evaluate (&ave2.viol.jcoup.1=&ave2.viol.jcoup.1 + &prt.coup.viol.1^2) 
+         evaluate (&ave2.viol.jcoup.2=&ave2.viol.jcoup.2 + &prt.coup.viol.2^2) 
+         evaluate (&ave2.viol.oneb=&ave2.viol.oneb + &prt.oneb.viol^2) 
+         evaluate (&ave2.viol.carb=&ave2.viol.carb + &prt.carb.viol^2)
+         evaluate (&ave2.viol.prot.all=&ave2.viol.prot.all + &prt.prot.all.viol^2)
+         evaluate (&ave2.viol.dani.1=&ave2.viol.dani.1 + &prt.dani.1.viol^2)
+         evaluate (&ave2.viol.dani.2=&ave2.viol.dani.2 + &prt.dani.2.viol^2)
+         evaluate (&ave2.viol.sani.01=&ave2.viol.sani.01 + &prt.sani.01.viol^2)
+         evaluate (&ave2.viol.sani.10=&ave2.viol.sani.10 + &prt.sani.10.viol^2)
+         evaluate (&ave2.viol.cdih.2=&ave2.viol.cdih.2 + &prt.cdih.2.viol^2) 
+         evaluate (&ave2.viol.cdih.5=&ave2.viol.cdih.5 + &prt.cdih.5.viol^2) 
+
+         evaluate ($count = 1)
+         while (&exist%nmr.prot.file.$count=true) loop nloop
+            evaluate ($clsname = "P"+encode($count))
+            if (&nmr.prot.file.$count # "") then
+               evaluate (&ave2.rms.prot.$clsname=&ave2.rms.prot.$clsname+
+                                                 &prt.prot.$clsname.rms^2)
+               evaluate (&ave2.viol.prot.$clsname=&ave2.viol.prot.$clsname+
+                                                  &prt.prot.$clsname.viol^2)
+            end if
+            evaluate ($count = $count + 1)
+         end loop nloop
+
+      if (&flag.cv.flag=true) then
+         if (&cv.part.num > &nmr.cv.numpart) then
+            evaluate (&cv.num = &cv.num + 1)
+            evaluate (&cv.err.test.rms.noe = &cv.err.test.rms.noe/&nmr.cv.numpart)
+            evaluate (&cv.err.test.viol.noe = &cv.err.test.viol.noe/&nmr.cv.numpart)
+            evaluate (&ave.mlt.tst.rms.noe=&ave.mlt.tst.rms.noe+&cv.err.test.rms.noe)
+            evaluate (&ave.mlt.tst.vl.noe=&ave.mlt.tst.vl.noe+&cv.err.test.viol.noe)
+            evaluate (&ave2.test.rms.noe=&ave2.test.rms.noe
+                                         + &cv.err.test.rms.noe^2)
+            evaluate (&ave2.test.viol.noe=&ave2.test.viol.noe
+                                         + &cv.err.test.viol.noe^2)
+            evaluate (&cv.err.test.rms.noe = 0)
+            evaluate (&cv.err.test.viol.noe = 0)
+
+            evaluate (&cv.err.test.rms.coup = &cv.err.test.rms.coup/&nmr.cv.numpart)
+            evaluate (&cv.err.test.viol.coup =&cv.err.test.viol.coup/&nmr.cv.numpart)
+            evaluate (&ave.mlt.tst.rms.coup=&ave.mlt.tst.rms.coup+&cv.err.test.rms.coup)
+            evaluate (&ave.test.viol.coup=&ave.test.viol.coup+&cv.err.test.viol.coup)
+            evaluate (&ave2.test.rms.coup=&ave2.test.rms.coup
+                                         + &cv.err.test.rms.coup^2)
+            evaluate (&ave2.test.viol.coup=&ave2.test.viol.coup
+                                         + &cv.err.test.viol.coup^2)
+            evaluate (&cv.err.test.rms.coup = 0)
+            evaluate (&cv.err.test.viol.coup = 0)
+
+            evaluate (&cv.err.test.rms.cdih = &cv.err.test.rms.cdih/&nmr.cv.numpart)
+            evaluate (&cv.err.test.viol.cdih =&cv.err.test.viol.cdih/&nmr.cv.numpart)
+            evaluate (&ave.mlt.tst.rms.cdih=&ave.mlt.tst.rms.cdih+&cv.err.test.rms.cdih)
+            evaluate (&ave.mlt.tst.vl.cdih=&ave.mlt.tst.vl.cdih+&cv.err.test.viol.cdih)
+            evaluate (&ave2.test.rms.cdih=&ave2.test.rms.cdih
+                                         + &cv.err.test.rms.cdih^2)
+            evaluate (&ave2.test.viol.cdih=&ave2.test.viol.cdih
+                                         + &cv.err.test.viol.cdih^2)
+            evaluate (&cv.err.test.rms.cdih = 0)
+            evaluate (&cv.err.test.viol.cdih = 0)
+         end if
+      end if
+	 
+set message=$message_old echo=$echo_old end

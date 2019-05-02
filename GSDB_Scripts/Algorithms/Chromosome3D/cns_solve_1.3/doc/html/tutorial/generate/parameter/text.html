@@ -1,0 +1,593 @@
+<HTML>
+<HEAD>
+   <TITLE>Crystallography & NMR System</TITLE>
+</HEAD>
+<BODY BGCOLOR=#8ebf8e>
+
+<HR WIDTH="100%"></P>
+
+<H2>Making parameter files</H2>
+
+<HR WIDTH="100%"></P>
+
+<P>The parameter statement specifies various constants for the
+conformational and nonbonded energy terms and for a number of other
+CNS applications, such as distance geometry.</P>
+
+<P>CNS stores and manipulates the parameter information in two forms:
+"type-based" and "atom-based". A type-based parameter is characterized
+by the chemical types of the atoms involved; an atom-based parameter
+is characterized by the individual atoms involved. The chemical types
+of the atoms are specified in the topology statement and can be
+manipulated with the do statement. The chemical types usually map
+chemically equivalent atoms to the same type; e.g., all carbonyl
+oxygen atoms are mapped to the type "O". This implies that there are
+usually many more atoms in the molecular structure than there are atom
+types. The use of atom types can thus reduce the number of parameters
+that need to be specified for a molecular structure. However, this
+convenience could pose a problem when the chemical environment of a
+particular atom induces distortions of the expected "ideal" geometry
+for the corresponding atom type. It would not necessarily be a good
+idea to introduce a new atom type, as the number of atom types is
+limited. To get around this problem, CNS supports atom-based parameter
+information. This implies that, at least in principle, one could have
+a different parameter for each interaction between particular
+atoms. Atom-based parameters are possible for bonds, bond angles,
+dihedral angles, improper angles, and van der Waals interactions.</P>
+
+<P>CNS allows one to mix atom-based and type-based
+parameters. Atom-based parameters always take precedence over
+type-based parameters. The atom-based parameter information can be
+obtained through appropriate explicit parameter statements, such
+as:</P>
+
+<PRE>
+  bond ( name c* ) ( name n* ) 500. TOKEN 
+</PRE>
+
+<P>or through the Cartesian coordinates in the main coordinate set in
+combination with the learn statement. This atom-based information is
+augmented with the type-based information each time an CNS application
+requests it; e.g., the call to an energy routine triggers an operation
+that retrieves all parameters not set by atom-based information from
+the type-based parameter database. In this way either atom-based
+parameters, type-based parameters, or a combination of both can be
+used. Atom-based parameters can be changed or added at any time during
+program execution. Type-based parameters cannot be manipulated, but
+additional entries can be added or the database erased and
+reinitialized. The mapping of atoms to chemical types can be
+manipulated by applying the vector statement to the chemical atom
+property. All these changes will take effect the next time the
+particular parameter is requested by an CNS application.</P>
+
+<P>The parameter specifications are insensitive to the order in which
+the atoms are specified:</P>
+
+<PRE>
+  bond a b 10.0 1.0 
+</PRE>
+
+<P>and</P>
+
+<PRE>
+  bond b a 10.0 1.0 
+</PRE>
+
+<P>are seen as identical parameter entries by CNS.</P>
+
+<P>The constants of the parameter statement are dimensioned such that
+A is the unit of length, kcal mole-1 is the unit of energy, the atomic
+mass unit is the unit of mass, and the charge of one electron is the
+unit of electric charge.</P>
+
+<P>Obtaining empirical parameters for macromolecules is a difficult
+task. To describe the development of parameters is beyond the scope of
+this text (see other sections for sources of information). CNS
+includes a number of parameter files for proteins, nucleic acids, and
+other biological macromolecules (see other sections for further
+details). Fortunately, structure determination and refinement of
+crystallographic or NMR-derived structures are usually not very
+sensitive to the exact choice of energy constants.</P>
+
+<P>The parameter statement is invoked from the main level of CNS (the
+parameter information is most often read from a library file).</P>
+
+<PRE>
+  parameter
+    { parameter-statements }
+  end
+
+  @CNS_TOPPAR:protein_rep.param
+</PRE>
+
+<P>The CNS parameter statements are as follows:</P>
+
+<UL>
+<LI><B>ANGLe type type type real real [UB real real]</B> adds a bond
+angle parameter set for the three atom types to the parameter
+database. The first real specifies the force constant, which has units
+of kcal mole-1 rad-2, and the second real specifies the equilibrium
+angle, which has units of degrees. The optional UB specification
+activates the Urey-Bradley term, where the first real is the
+Urey-Bradley energy constant and the second real is the Urey-Bradley
+equilibrium distance between the first and the third atom that define
+the angle. If UB is not specified, the Urey-Bradley equilibrium
+distance and energy constant default to zero. The program
+automatically performs an interchange of the first with the third atom
+types where this is required.</LI>
+
+<LI><B>ANGLe atom-selection atom-selection atom-selection real real
+[UB real real]</B> is an atom-based version of the ANGLe statement
+that specifies the bond angle parameters to be used for any angles in
+the molecular structure that match the given triple atom selection. It
+can apply to more than one angle, depending on the number of angles
+that match the triple atom selection.  The definition of the reals is
+identical to the type-based angle statement. The energy and
+equilibrium constants can be set to the string TOKEn, which implies
+that the corresponding parameter will be untouched by this
+statement.</LI>
+
+<LI><B>BOND type type real real</B> adds a covalent bond parameter set
+for the two atom types to the parameter database. The first real
+specifies the energy constant in units of kcal mole-1 &Aring;-2, and the
+second real specifies the equilibrium bond length in &Aring;.  The program
+automatically performs an interchange of the two atom types where this
+is required.</LI>
+
+<LI><B>BOND atom-selection atom-selection real real</B> is an
+atom-based version of the BOND statement.  The definition of the reals
+is identical to the type-based bond statement. It can apply to more
+than one bond, depending on the number of bonds that match the double
+atom selection. The energy and equilibrium constants can be set to the
+string TOKEn, which implies that the corresponding parameter will be
+untouched by this statement.</LI>
+
+<LI><B>DIHEdral type type type type [MULT integer] { real integer real
+}</B> adds a dihedral angle parameter set for the four atom types to
+the parameter database. The MULT option specifies the multiplicity m
+of the dihedral angle (default: m=1). For multiple dihedrals of
+multiplicity m, there are m groups of 3 items following the MULT
+integer statement. The first real of each group specifies the force
+constant for this term, the integer is the periodicity n, and the
+second real specifies the phase-shift angle, which has units of
+degrees. If the periodicity n is greater than 0, the force constant
+has the units of kcal mole-1; if the periodicity is 0, the force
+constant has the units of kcal mol-1 rad-2. The special character X is
+reserved for the following combination: X type type X; it acts as a
+wildcard. The parameter retrieval for a specified dihedral angle
+proceeds in the following way: first, a match without wildcards is
+attempted, and second, a match against dihedral parameters containing
+wildcards is attempted. Some instances (such as sugars) require the
+mixing of multiple dihedral angle terms with different
+periodicities. In this case, dihedral statements with the multiple
+option should be given in the parameter statement and in the topology
+statement. Wildcards are not allowed for multiple dihedral angles. The
+program automatically performs the interchange (a b c d) to (d c b a)
+where this is required.</LI>
+
+<LI><B>DIHEdral atom-selection atom-selection atom-selection
+atom-selection [MULT integer] { real integer real }</B> is an
+atom-based version of the DIHEdral statement. The definition of the
+real and integer numbers is identical to the DIHEdral definition. For
+multiple dihedrals of multiplicity m, there are 3m items following the
+MULT integer statement (i.e., m sets of one energy constant, one
+periodicity, and one offset). The statement can apply to more than one
+dihedral angle, depending on the number of bonds that match the
+quadruple atom selection.  An atom-based statement takes priority over
+any type-based parameter that may have been specified earlier. The
+energy constants, periodicities, and offsets can be set to the string
+TOKEn, which implies that the corresponding constant will be untouched
+by this statement.</LI>
+
+<LI><B>IMPRoper type type type type [MULT integer] { real integer real
+}</B> adds an improper angle parameter set for the four atom types to
+the parameter database. The definition is identical to the DIHEdral
+definition, except for wildcards. The wildcard cascading for improper
+angles is as follows: (a b c d) &gt; (a X X d) &gt; (X b c d) &gt; (X
+b c X) &gt; (X X c d). The program automatically performs the
+interchange (a b c d) to (d c b a) where this is required.</LI>
+
+<LI><B>IMPRoper atom-selection atom-selection atom-selection
+atom-selection [MULT integer] { real integer real }</B> is an
+atom-based version of the IMPRoper statement. The definition of the
+real and integer numbers is identical to the DIHEdral definition. The
+statement can apply to more than one improper angle, depending on the
+number of bonds that match the quadruple atom selection. The energy
+constants, periodicities, and offsets can be set to the string TOKEn,
+which implies that the corresponding constant will be untouched by
+this statement.</LI>
+
+<LI><B>LEARn { learn-statements } END</B> learns atom-based parameters
+from one or more sets of Cartesian coordinates.</LI>
+
+<LI><B>NBFIx type type real real real real</B> adds a Lennard-Jones
+parameter set for the specified pair of atom types to the parameter
+database. The first two real numbers are the A, B coefficients for all
+nonbonded interactions except the special 1-4 interactions; the second
+pair of reals is for the 1-4 (NBXMod=+/-5) nonbonded
+interactions. Appropriate NONB statements have to be specified for
+both atom types before invoking this statement. The NBFIx statement
+allows one to deviate from the standard combination rule for the
+Lennard-Jones potential.</LI>
+
+<LI><B>NBFIx atom-selection atom-selection real real real real</B> is
+an atom-based version of the NBFIx statement that adds a Lennard-Jones
+parameter set for the selected pairs of atoms to the atom-based
+parameters. The definition of the reals is identical to the type-based
+NBFIx statement. Appropriate atom-based NONB statements have to be
+specified for both atom selections before invoking this statement:
+<PRE>
+NONB ( chemical C* )  0.12  3.74     0.12  3.74 
+NONB ( chemical N* )  0.24  2.85     0.24  2.85 
+NBFIx ( chemical C* ) ( chemical N* )  10. 1000. 10. 1000. 
+</PRE>
+<P>Note that the TOKEn keyword is not allowed for the reals.</P></LI>
+
+<LI><B>NBONds { nbonds-statement } END</B> applies to both
+electrostatic and van der Waals energy calculations. It sets up global
+parameters for the nonbonded interaction list generation and
+determines the form of subsequent nonbonded energy calculations.</LI>
+
+<LI><B>NONB type real real real real</B> adds a Lennard-Jones
+parameter set for pairs of atoms of the same specified type to the
+parameter database. The first pair of reals is epsilon and sigma for
+all nonbonded interactions except the special 1-4 interactions; the
+second pair is epsilon and sigma for the 1-4 nonbonded interactions
+(NBXMod=+/-5).</LI>
+
+<LI><B>NONB atom-selection real real real real</B> is an atom-based
+version of the NONB statement that adds a Lennard-Jones parameter set
+for the selected atoms to the atom-based parameters.  The definition
+of the reals is identical to the type-based NONB statement. Note that
+the TOKEn keyword is not allowed for the reals.</LI>
+
+<LI><B>REDUce { reduce-statement } END</B> derives type-based
+parameters from existing atom-based parameters (see other sections).</LI>
+
+<LI><B>RESEt [ ALL | TYPE | ATOM ]</B> erases all information about
+type- and atom-based parameters. The optional specification of ALL
+erases both databases, TYPE erases just the type base, and ATOM erases
+just the atom base (default: ALL).</LI>
+
+<LI><B>VERBose</B> produces a verbose listing of all atom-based
+parameters.</LI>
+
+</UL> 
+
+<P>The nonbonded statements for setting up the nonbonded energy
+calculations are as follows:</P>
+
+<UL>
+
+<LI><B>CDIE|RDIE</B> specifies exclusive flags: constant dielectric
+(Coulomb's law) or 1/r-dependent dielectric. RDIE may only be used in
+combination with VSWItch, SWITch, and REPEl=0. CDIE may be used in
+combination with VSWItch, SHIFt, and REPEl=0 or in combination with
+TRUNcation and REPEl=0 (default: CDIE).</LI>
+
+<LI><B>CTOFNB=real</B> specifies the distance roff at which the
+switching function or shifting function forces the nonbonded energy to
+zero (default: 7.5&Aring;).</LI>
+
+<LI><B>CTONNB=real</B> specifies the distance ron at which the
+switching function becomes effective (default: 6.5&Aring;).</LI>
+
+<LI><B>CUTNb=real</B> specifies the nonbonded interaction cutoff rcut
+for the nonbonded list generation (default: 8.5&Aring;).</LI>
+
+<LI><B>E14Fac=real</B> specifies the scale factor e14 for the special
+1-4 electrostatic interactions (default: 1.0).</LI>
+
+<LI><B>EPS=real</B> specifies the dielectric constant e (default:
+1.0).</LI>
+
+<LI><B>GROUp | ATOM</B> specifies exclusive flags: group by group or
+atom by atom cutoff for nonbonded list generation (default: ATOM).</LI>
+
+<LI><B>INHIbit=real</B> specifies the distance dinhibit between two
+atoms below which the van der Waals potential is truncated (default:
+0.25&Aring;).</LI>
+
+<LI><B>IREXponent=integer</B> specifies the exponent irexp for the
+repel function (default: 2).</LI>
+
+<LI><B>NBXMod=+1|-1|+2|-2|+3|-3|+4|-4|+5|-5</B>	Exclusion list options:
+<UL>
+<LI><B>+-1</B> no nonbonded exclusions, that is, all nonbonded
+interactions are computed regardless of covalent bonds.</LI>
+<LI><B>+-2</B> excludes nonbonded interactions between bonded
+atoms.</LI>
+<LI><B>+-3</B> excludes nonbonded interactions between bonded atoms
+and atoms that are bonded to a common third atom.</LI>
+<LI><B>+-4</B> excludes nonbonded interactions between bonded atoms,
+atoms that are bonded to a common third atom, and or atoms that are
+connected to each other through three bonds.</LI>
+<LI><B>+-5</B> same as (+-3), but the 1-4 nonbonded interactions are
+computed using the 1-4 Lennard-Jones parameters and the electrostatic
+scale factor e14.</LI>
+</UL>
+A positive mode value causes explicit nonbonded exclusions to be taken
+into account; a negative value causes them to be discarded (default:
+5).</LI>
+
+<LI><B>RCONst=real</B> specifies the energy constant Crep for the
+repel function (default: 100.0).</LI>
+
+<LI><B>REPEl=real</B> specifies krep: if > 0, this option turns on the
+repel function and turns off the electrostatic energy. krep specifies
+the factor by which to multiply the van der Waals radius Rmin
+(default: 0).</LI>
+
+<LI><B>REXPonent=integer</B> specifies the exponent rexp for the repel
+function (default: 2).</LI>
+
+<LI><B>SWItch|SHIFt</B> specifies exclusive flags: electrostatic
+switching or shifting. SWITch may only be used in combination with
+RDIE, VSWItch, and REPEl=0. SHIFt may only be used in combination with
+CDIE, VSWItch, and REPEl=0 (default: SHIFt).</LI>
+
+<LI><B>TOLErance=real</B> specifies the distance that any atom is
+allowed to move before the nonbonded list gets updated. Note: if
+switching or shifting functions are used, the program expects CUTNB >=
+CTOFNB + 2*TOLErance. In this way the nonbonded energy is independent
+of the update frequency. For the REPEl option, CUTNB and TOLErance
+should be chosen such that CUTNB >= rmax + 2*TOLErance, where rmax is
+the maximum van der Waals radius. TOLErance has no influence on the
+TRUNcation option. (default: 0.5&Aring;).</LI>
+
+<LI><B>TRUNcation</B> turns off switching or shifting; i.e., the
+nonbonded energy functions are "truncated" at CUTNb regardless of the
+values of CTONNB and CTOFNB. All nonbonded energy terms that are
+included in the current nonbonded list are computed. May only be used
+in combination with CDIE. Note: in general, the nonbonded energy will
+not be conserved before and after nonbonded list updates when using
+TRUNcation. (default: inactive).</LI>
+
+<LI><B>VSWItch</B> turns on van der Waals switching. May only be used
+in combination with RDIE, SWITch, and REPEl=0 or in combination with
+CDIE, SHIFt, and REPEl=0 (default: active).</LI>
+
+<LI><B>WMIN=real</B> specifies the threshold distance for close
+contact warnings, i.e., a warning is issued when a pair of atoms gets
+closer than this distance unless the nonbonded interaction is excluded
+by the NBXMod option (default: 1.5&Aring;).</LI>
+
+</UL>
+
+<U>Requirements</U>
+
+<P>The atom selections of atom-based parameter statements are
+partially fragile; i.e, they are mapped when the molecular structure
+is modified, but newly created atoms do not have atom-based parameters
+associated with them.</P>
+
+<U>Writing a Parameter File</U>
+
+<P>The write parameter statement writes the current parameter database
+to the specified output file. Normally, only the type-based parameters
+are written. The parameter writing is invoked from the main level of
+CNS:</P>
+
+<PRE>
+WRITe PARAmeter
+  OUTPut=filename
+END
+</PRE>
+
+<U>Example of Type-based Parameters</U>
+
+<P>The following example is a partial list of parameters for proteins:</P>
+
+<PRE>
+ bond C    C      450.0  1.38 
+ bond C    CH1E   405.0  1.52 
+ bond C    CH2E   405.0  1.52 
+
+ angle C    C    C       70.0 106.5 
+ angle C    C    CH2E    65.0 126.5 
+
+ dihedral CR1E C    C    C    100.0  2 180.0 
+ dihedral CR1E C    C    NH1  100.0  2 180.0 
+ dihedral X    C    CH1E X    0.0    3   0.0 
+ dihedral X    C    CH2E X    0.0    3   0.0 
+
+ improper C    OC   OC   CH2E 100.0  0   0.0 
+ improper C    X    X    C     25.0  0   0.0 
+
+ nbonds 
+   nbxmod=5  atom cdiel shift vswitch 
+   cutnb=8.0  ctofnb=7.5  ctonnb=6.5  eps=1.0  e14fac=0.4  wmin=1.5 
+ end 
+
+ nonbonded  h   0.0498 1.4254   0.0498 1.4254 
+ nonbonded  c   0.1200 3.7418   0.1000 3.3854 
+</PRE>
+
+<U>How the Type-based Parameter Retrieval Works</U>
+
+<P>This example shows how CNS finds parameters for the covalent bonds,
+bond angles, improper angles, and nonbonded energy terms. It
+demonstrates that the introduction of atom types greatly reduces the
+number of parameters that have to be specified. The parameter
+retrieval is carried out when the energy statement is issued.</P>
+
+<PRE>
+topology 
+
+   autogenarate angle=true end
+
+   residue test 
+   atom a1  type=b  end 
+   atom a2  type=b  end 
+   atom a3  type=b  end 
+   atom a4  type=a  end 
+   atom a5  type=a  end 
+   atom a6  type=a  end 
+
+   bond a6    a5 
+   bond a5    a4 
+   bond a4    a2 
+   bond a4    a3   
+   bond a4    a1   
+
+   dihedral a6 a5 a4 a3 
+   dihedral a6 a5 a4 a2 
+   dihedral a6 a5 a4 a1 
+
+   improper a1 a2 a3 a4 
+
+   end 
+end 
+
+parameter 
+
+   bond a  b  100.0       1.0 
+   bond a  a  100.0       1.0 
+
+   angle a  a  a   50.0  100.0 
+   angle b  a  b   50.0  100.0 
+   angle a  a  b   50.0  100.0 
+
+   dihedral a  a  a  b   80.0  3 0.0 
+
+   improper b  b  b  a   30.0  0 180.0 
+
+   nonbonded a 0.1 1.0 0.1 1.0 
+   nonbonded b 0.1 1.0 0.1 1.0 
+
+end 
+
+segment 
+  name=test 
+  molecule number=1 name=test end 
+end 
+
+energy end  
+</PRE>
+
+<U>Examples of Atom-based Modifications of the Parameters</U>
+
+<P>The first example shows how to set the energy constants of all
+improper angles involving tyrosine residues to 500 kcal mol-1
+rad-2. The periodicity and the equilibrium constants are untouched by
+the TOKEn keyword.</P>
+
+<PRE>
+parameter 
+   improper ( resname tyr ) ( resname tyr ) 
+            ( resname tyr ) ( resname tyr )  500 TOKEN TOKEN 
+end 
+</PRE>
+
+<P>In the next example, the energy constants of all bonds are set to
+400 kcal mole-2 &Aring;-2:</P>
+
+<PRE>
+parameter 
+   bond ( all ) ( all ) 400. TOKEN 
+end 
+</PRE>
+
+<P>In the next example, the energy constant for the omega torsion
+angle for X-Pro peptide bonds is set to 500 kcal mole-1 &Aring;-2. This
+example applies only to topology files that define the omega torsion
+angle as a dihedral angle (which is the case in the CNS protein.top
+and protein_nohydrogen.top topology files).</P>
+
+<PRE>
+parameter 
+   dihedral ( name CA and resname * ) ( name C and resname * ) 
+            ( name N and resname PRO ) ( name CA and resname PRO ) 
+            500 TOKEN TOKEN 
+end 
+</PRE>
+
+<P>The last example is similar to the previous one, except that, in
+addition to increasing the energy constant, the periodicity is set to
+one and the equilibrium angle is set to 0 degrees ; i.e., only trans
+prolines are allowed.</P>
+
+<PRE>
+parameter 
+   dihedral ( name CA and resname * ) ( name C and resname * )  
+            ( name N and resname PRO ) ( name CA and resname PRO ) 
+            500 1 0. 
+end 
+</PRE>
+
+<U>Reducing to Type-based Parameters</U>
+
+<P>The reduce statement allows one to reduce the current parameters
+(atom-based as well as type-based) to type-based parameters using the
+CHEMical atom properties. Each type-based equilibrium constant is
+obtained as an average of all instances of that type of interaction
+(bond, bond angle, dihedral angle, or improper angle) in the molecular
+structure. The energy constants can be obtained as a simple average or
+from the same statistical analysis as that used for the learn
+statement. The latter option is useful only when several instances of
+the same type-based interaction occur in the molecular structure. If
+there is only one instance or the variance is zero, the "reduced"
+energy constant is set to 999999. The periodicities (n) of dihedral
+and improper angles have to be consistent for all instances of
+atom-based parameters; otherwise a warning message will occur. The
+"reduced" periodicities are taken directly from the atom-based
+parameters. The reduce statement affects parameters only for those
+interaction terms that are turned on by the flags statement.</P>
+
+<U>Syntax</U>
+
+<P>The reduce statements possible are:</P>
+
+<UL>
+
+<LI><B>SELEction=atom-selection</B> reduces parameters for specified
+atoms. All atoms of a particular interaction term (bond, bond angle,
+etc.) have to be selected in order for the parameters for that term to
+be learned (default: (ALL)).</LI>
+
+<LI><B>OVERwrite=TRUE | FALSE</B> will overwrite the existing REDUce
+statement type-based parameters if TRUE. If FALSE, the REDUce
+statement will add only new type-based parameters; it will not
+overwrite existing ones (default: FALSE).</LI>
+
+<LI><B>MODE=AVERage | STATistical</B> obtains energy constants from a
+simple average (AVERage) or from the statistical analysis
+(STATistical). The latter option is useful only when several instances
+of the same type-based interaction occur in the molecular
+structure. For single instances or zero variance, the energy constant
+will be set to 999999 (default: STATistics).</LI>
+
+</UL>
+
+<U>Example: Reducing Parameters Learned Previously</U>
+
+<P>Suppose one has learned atom-based parameters for a ligand with
+segment identifier LIGA from Cartesian coordinates. These atom-based
+parameters are reduced to type-based parameters and then written to a
+file:</P>
+
+<PRE>
+  parameters reduce sele=(segid LIGA ) mode=average end end 
+  write parameters output=protein_new.param end
+</PRE>
+
+<P>For each bonded pair of chemical types, an equilibrium geometry is
+obtained by averaging the atom-based parameters of all the bonds in
+the molecular structure that match this chemical type pair. For
+example, in a protein, this could imply averaging over all C-C bonds
+in aromatic rings, or all C-O carbonyl bonds. The same averaging is
+done for bond angles, dihedrals and impropers, equilibrium geometries,
+and energy constants. Dihedral and improper periodicities will
+correspond to their atom-based values. The new parameter file can be
+read by CNS in subsequent runs.</P>
+
+<HR WIDTH="100%"></P>
+
+<A HREF="../../text.html">Back to tutorials</A>&nbsp;&nbsp;
+<A HREF="../topology/text.html">Previous section</A>&nbsp;&nbsp;
+<A HREF="../learn/text.html">Next section</A>
+
+<HR WIDTH="100%"></P>
+
+</BODY>
+</HTML>

@@ -1,0 +1,451 @@
+{+ file: solvent_mask.inp +}
+{+ directory: xtal_phase +}
+{+ description: Calculate solvent mask from experimental phases +}
+{+ comment: 
+            uses either the reciprocal space Wang-Leslie method
+            or the real space density fluctuation method +}
+{+ authors: Axel T. Brunger, Alison Roberts and Paul D. Adams +}
+{+ copyright: Yale University +}
+
+{- Guidelines for using this file:
+   - all strings must be quoted by double-quotes
+   - logical variables (true/false) must not be quoted
+   - do not remove any evaluate statements from the file -}
+
+{- begin block parameter definition -} define(
+
+{====================== crystallographic data ========================}
+
+{* space group *}
+{* use International Table conventions with subcripts substituted
+   by parenthesis *}
+{===>} sg="P4(1)2(1)2";
+
+{* unit cell parameters in Angstroms and degrees *}
+{+ table: rows=1 "cell" cols=6 "a" "b" "c" "alpha" "beta" "gamma" +}
+{===>} a=101.4;
+{===>} b=101.4;
+{===>} c=199.5;
+{===>} alpha=90;
+{===>} beta=90;
+{===>} gamma=90;
+
+{* reflection file(s) containing scaled data *}
+{* specify non-anomalous reflection file(s) (if any)
+   before anomalous reflection file(s) *}
+{===>} reflection_infile_1="eg1_abcd.cv";
+{===>} reflection_infile_2="";
+{===>} reflection_infile_3="";
+{===>} reflection_infile_4="";
+
+{* reciprocal space array containing observed amplitudes: required *}
+{===>} obs_f="fobs";
+
+{* reciprocal space array containing sigma values for amplitudes: required *}
+{===>} obs_sigf="sigma";
+
+{* reciprocal space array containing observed intensities: optional *}
+{* may be used for reflection rejection *}
+{===>} obs_i="";
+
+{* reciprocal space array containing sigma values for intensities: optional *}
+{* may be used for reflection rejection *}
+{===>} obs_sigi="";
+
+{* experimental phase probability distribution: required *}
+{* required for phase combination *}
+{* reciprocal space arrays with Hendrickson-Lattman coefficients A,B,C,D *}
+{+ table: rows=1 "HL coefficients" cols=4 "A" "B" "C" "D" +}
+{===>} obs_pa="pa";
+{===>} obs_pb="pb";
+{===>} obs_pc="pc";
+{===>} obs_pd="pd";
+
+{* upper resolution limits for mask creation *}
+{===>} high_res=4.0;
+
+{* apply rejection criteria to amplitudes or intensities *}
+{+ choice: "amplitude" "intensity" +}
+{===>} obs_type="amplitude";
+
+{* Observed data cutoff criteria: applied to amplitudes or intensities *}
+{* reflections with magnitude(Obs)/sigma < &sigma_cut are rejected. *}
+{===>} sigma_cut=0.0;
+
+{* rms outlier cutoff: applied to amplitudes or intensities *}
+{* reflections with magnitude(Obs) > &obs_rms*rms(Obs) will be rejected *}
+{===>} obs_rms=10000;
+
+{=================== mask generation parameters ======================}
+
+{* solvent content of crystal *}
+{===>} solcon=0.55;
+
+{* mask generation method *}
+{* the reciprocal space Wang-Leslie method is faster but 
+   can be less accurate than the real space RMS method *}
+{+ choice: "wang-leslie" "rms" +}
+{===>} mask_method="rms";
+
+{* sphere radius in Angstrom for calculation of average (Wang-Leslie method)
+   or standard deviation of density (RMS method) *}
+{* for the Wang-Leslie method this should be approximately twice the
+   highest resolution limit of the experimental phases.
+   for the RMS method this should be approximately the 
+   highest resolution limit of the experimental phases *}
+{===>} ave_radius=4.0;
+
+{* extent of map *}
+{+ choice: "asymmetric" "unit_cell" "box" "fract" +}
+{===>} map_mode="unit_cell";
+
+{* limits in orthogonal angstroms for box mode or
+   fractional coordinates for fract mode *}
+{+ table: rows=3 "x" "y" "z" cols=2 "minimum" "maximum" +}
+{===>} xmin=0;
+{===>} xmax=0;
+{===>} ymin=0;
+{===>} ymax=0;
+{===>} zmin=0;
+{===>} zmax=0;
+
+{* memory allocation for FFT calculation *}
+{* this will be determined automatically if a negative value is given
+   otherwise the specified number of words will be allocated *}
+{===>} fft_memory=-1;
+
+{=========================== output files ============================}
+
+{* output mask file *}
+{===>} mask_outfile="solvent_mask.mask";
+
+{* mask format *}
+{+ choice: "cns" "omask" +}
+{===>} mask_type="omask";
+
+{===========================================================================}
+{         things below this line do not normally need to be changed         }
+{===========================================================================}
+
+ ) {- end block parameter definition -}
+
+ checkversion 1.3
+
+ evaluate ($log_level=quiet)
+
+ evaluate ($low_res=999)
+
+ xray
+
+   @CNS_XTALLIB:spacegroup.lib (sg=&sg;)
+
+   a=&a b=&b c=&c  alpha=&alpha beta=&beta gamma=&gamma
+
+   binresolution $low_res &high_res
+   mapresolution &high_res
+
+   generate $low_res &high_res
+
+   evaluate ($counter=1)
+   evaluate ($done=false)
+   while ( $done = false ) loop read
+    if ( &exist_reflection_infile_$counter = true ) then
+      if ( &BLANK%reflection_infile_$counter = false ) then
+       reflection
+         @@&reflection_infile_$counter
+       end
+      end if
+    else
+     evaluate ($done=true)
+    end if
+    evaluate ($counter=$counter+1)
+   end loop read
+
+   declare name=fobsold domain=reciprocal type=complex end
+   declare name=testold domain=reciprocal type=integer end
+
+   do (fobsold=&STRIP%obs_f) (all)
+
+   {- check that all data arrays are well-defined -}
+   set echo=off end
+
+   if ( &BLANK%obs_f = true ) then
+      display 
+      display  *********************************************************
+      display  Error: required observed amplitude array is not specified
+      display  *********************************************************
+      display
+      abort
+   else
+      query name=&STRIP%obs_f domain=reciprocal end
+      if ( $object_exist = false ) then
+          display 
+          display  **************************************************************
+          display  Error: required observed amplitude array &obs_f does not exist
+          display  **************************************************************
+          display
+          abort
+       end if
+    {- note: this array can be of any type -}
+    end if
+
+    if ( &BLANK%obs_sigf = true ) then
+      display 
+      display  *****************************************************
+      display  Error: required observed sigma array is not specified
+      display  *****************************************************
+      display
+      abort
+    else
+       query name=&STRIP%obs_sigf domain=reciprocal end
+       if ( $object_exist = false ) then
+          display 
+          display  *************************************************************
+          display  Error: required observed sigma array &obs_sigf does not exist
+          display  *************************************************************
+          display
+          abort
+       end if
+       if ( $object_type # "REAL" ) then
+          display 
+          display  **********************************************************************
+          display  Error: required observed sigma array &obs_sigf has the wrong data type
+          display  **********************************************************************
+          display
+          abort
+       end if
+   end if
+
+   @@CNS_XTALMODULE:check_abcd (pa=&obs_pa;
+                               pb=&obs_pb;
+                               pc=&obs_pc;
+                               pd=&obs_pd;)
+
+
+   if ( &BLANK%obs_i = false ) then
+     query name=&STRIP%obs_i domain=reciprocal end
+     if ( $object_exist = true ) then
+       do (iobs_orig=&STRIP%obs_i) (all)
+     else
+        display 
+        display  ********************************************
+        display  Error: intensity array &obs_i does not exist
+        display  ********************************************
+        display
+        abort
+     end if
+   end if
+   if ( &BLANK%obs_sigi = false ) then
+     query name=&STRIP%obs_sigi domain=reciprocal end
+     if ( $object_exist = true ) then
+       do (sigi_orig=&STRIP%obs_sigi) (all)
+     else
+        display 
+        display  *****************************************************
+        display  Error: intensity sigma array &obs_sigi does not exist
+        display  *****************************************************
+        display
+        abort     
+     end if
+   end if
+   
+   set echo=on end
+
+   if ( &obs_type = "intensity" ) then
+     evaluate ($reject_obs=&obs_i)
+     evaluate ($reject_sig=&obs_sigi)
+   else
+     evaluate ($reject_obs=&obs_f)
+     evaluate ($reject_sig=&obs_sigf)
+   end if
+
+   declare name=ref_active domain=reciprocal type=integer end
+   declare name=tst_active domain=reciprocal type=integer end
+
+   do (ref_active=0) ( all )
+   do (ref_active=1) ( ( $STRIP%reject_sig # 0 ) and
+                      ( $low_res >= d >= &high_res ) )
+
+   statistics overall
+     completeness
+     selection=( ref_active=1 )
+   end
+   evaluate ($total_compl=$expression1)
+
+   show sum(1) ( ref_active=1 )
+   evaluate ($total_read=$select)
+   evaluate ($total_theor=int(1./$total_compl * $total_read))
+
+   show rms (amplitude($STRIP%reject_obs)) ( ref_active=1 )
+   evaluate ($obs_high=$result*&obs_rms)
+   show min (amplitude($STRIP%reject_obs)) ( ref_active=1 )
+   evaluate ($obs_low=$result)
+
+   do (ref_active=0) ( all )
+   do (ref_active=1)
+                  ( ( amplitude($STRIP%reject_obs) > &sigma_cut*$STRIP%reject_sig ) and
+                    ( $STRIP%reject_sig # 0 ) and
+                    ( $obs_low <= amplitude($STRIP%reject_obs) <= $obs_high ) and
+                    ( $low_res >= d >= &high_res ) )
+
+   do (tst_active=0) (all)
+   do (tst_active=1) (none)
+
+   show sum(1) ( ref_active=1 and tst_active=0 )
+   evaluate ($total_work=$select)
+   show sum(1) ( ref_active=1 and tst_active=1 )
+   evaluate ($total_test=$select)
+   evaluate ($total_used=$total_work+$total_test)
+
+   evaluate ($unobserved=$total_theor-$total_read)
+   evaluate ($rejected=$total_read-$total_used)
+   evaluate ($per_unobs=100*($unobserved/$total_theor))
+   evaluate ($per_reject=100*($rejected/$total_theor))
+   evaluate ($per_used=100*($total_used/$total_theor))
+   evaluate ($per_work=100*($total_work/$total_theor))
+   evaluate ($per_test=100*($total_test/$total_theor))
+
+   tselection=( ref_active=1 )
+
+   cvselection=( none )
+
+   method=FFT          
+   
+   fft
+     if ( &fft_memory < 0 ) then
+       automemory=true
+     else
+       memory=&fft_memory
+     end if
+   end
+
+ end                  
+
+ if ( $log_level = verbose ) then
+   set message=normal echo=on end
+ else
+   set message=off echo=off end
+ end if
+
+ xray
+   declare name=m      domain=reci type=complex end  {(fom_obs, phi_obs)}
+   declare name=fcomb  domain=reci type=complex end  {combined FOM*Fo,phi}
+   declare name=map    domain=real              end  {density map}
+   declare name=sol_fom domain=reci type=real  end
+
+   @CNS_XTALMODULE:getfom ( pa=&STRIP%obs_pa;
+                           pb=&STRIP%obs_pb;
+                           pc=&STRIP%obs_pc;
+                           pd=&STRIP%obs_pd;
+                           m=m;
+                           phistep=5.0; )
+
+   do (sol_fom=0) (all)
+   do (sol_fom=amplitude(m)) 
+      ( (abs(&STRIP%obs_pa) > 0 or abs(&STRIP%obs_pb) > 0 or 
+         abs(&STRIP%obs_pc) > 0 or abs(&STRIP%obs_pd) > 0) )
+
+   do (fcomb=0) (all)
+   do (fcomb=combine( sol_fom amplitude(&STRIP%obs_f), phase (m) )) 
+      (sol_fom > 0)
+
+   do (map=ft(fcomb)) ($low_res >= d >= &high_res and sol_fom > 0)
+
+   declare name=mask domain=real end
+
+   if ( &mask_method = "wang-leslie" ) then
+
+     declare name=w_recip domain=reci type=real end  
+     declare name=w_temp  domain=reci type=comp end 
+
+     evaluate ($rtod=180.0/$pi)
+     do (w_recip=2.0*$pi*s*&ave_radius ) ($low_res >= d >= &high_res)
+     do (w_recip=3(sin(w_recip*$rtod) - w_recip cos(w_recip*$rtod)) / w_recip^3
+               - 3(2 w_recip sin(w_recip*$rtod)
+               -  ( w_recip^2-2) cos(w_recip*$rtod) - 2) / w_recip^4) 
+                          ($low_res >= d >= &high_res)
+
+     anomalous ?
+     if ($result=true) then
+        do (w_temp=w_recip*ft(combine(max(0.0,real(map)),0))) (all)
+     else
+        do (w_temp=w_recip*ft(max(0.0,map))) (all)
+     end if
+
+     do (mask=ft(w_temp)) ($low_res >= d >= &high_res)
+
+     undeclare name=w_recip domain=reci end  
+     undeclare name=w_temp  domain=reci end 
+
+   else
+
+     do (mask=sdev[radius=&ave_radius](real(map))) (all) 
+
+   end if
+
+   histogram
+     mbins=9999
+     solcon=&solcon
+     from=mask
+   end
+   evaluate ($cutoff=$result)
+
+   declare name=solmap domain=real end
+   do (solmap=mask) (all)
+
+   do (mask=1) (real(solmap) < $cutoff)
+   do (mask=0) (real(solmap) >= $cutoff)
+   undeclare name=solmap domain=real end
+ end
+
+ if ( &map_mode = "asymmetric" ) then
+   evaluate ($map_mode_string=ASYM)
+ elseif ( &map_mode = "box" ) then
+   evaluate ($map_mode_string=BOX)
+ elseif ( &map_mode = "fract" ) then
+   evaluate ($map_mode_string=FRAC)
+ elseif ( &map_mode = "unit_cell" ) then
+   evaluate ($map_mode_string=UNIT)
+ end if
+
+ remark a= &a b= &b c= &c alpha= &alpha beta= &beta gamma= &gamma sg= &STRIP%sg
+
+ xray
+   if ( &mask_type = "cns" ) then
+     write map
+       from=mask
+       output=&mask_outfile
+       type=cns
+       extend=$map_mode_string
+       if ( &map_mode = "box" ) then
+         xmin=&xmin xmax=&xmax
+         ymin=&ymin ymax=&ymax
+         zmin=&zmin zmax=&zmax
+       end if
+       if ( &map_mode = "fract" ) then
+         xmin=&xmin xmax=&xmax
+         ymin=&ymin ymax=&ymax
+         zmin=&zmin zmax=&zmax
+       end if
+     end
+   elseif ( &mask_type = "omask" ) then
+     write mask
+       from=mask
+       output=&mask_outfile
+       type=omask
+       extend=$map_mode_string
+       if ( &map_mode = "box" ) then
+         xmin=&xmin xmax=&xmax
+         ymin=&ymin ymax=&ymax
+         zmin=&zmin zmax=&zmax
+       end if
+       if ( &map_mode = "fract" ) then
+         xmin=&xmin xmax=&xmax
+         ymin=&ymin ymax=&ymax
+         zmin=&zmin zmax=&zmax
+       end if
+     end
+   end if
+ end
+
+ stop

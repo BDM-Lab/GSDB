@@ -1,0 +1,141 @@
+<HTML>
+<HEAD>
+   <TITLE>Crystallography & NMR System</TITLE>
+</HEAD>
+<BODY BGCOLOR=#8ebf8e>
+
+<HR WIDTH="100%">
+
+<H2>Docking calculations with single molecule FRET-derived distances</H2>
+
+<HR WIDTH="100%">
+<p><br>
+This section describes how to set up a docking calculation for rigid bodies that can be freely moving or that covalently connected to each other. If some of the bodies are covalently connected, the linker between the bodies is simulated by torsion angle dynamics, i.e., with fixed bonds and angles. For the purposes of easy comparison of the results, one of the bodies or, more generally, a group of atoms is defined as &quot;fixed&quot;. The other bodies are allowed to move. Pseudo-atoms are defined that represent the centers of associated dyes. These pseudo-atoms must be covalently linked to a residue associated with one of the rigid bodies, flexible linkers, or the group of fixed atoms. FRET-derived distance restraints are then applied causing the free bodies to move and assume a configuration that satisfies the distance restraints as best as possible. Multiple trials with different initial velocities and different configurations of the free bodies are performed. The solutions are then sorted with respect to total energy (distance restraints term plus empirical energy term - mostly van der Waals repulsion) and  a cluster analysis performed.</p>
+<p>For the docking calculation we need to define:</p>
+<ol>
+  <li> a set of fixed atoms </li>
+  <li>one or more sets of rigid bodies that can be connected by (multiple) covalent bonds allowing the simulation of rigid bodies connected by flexible linkers (with fixed bonds and angles)</li>
+  <li>pseudo-atoms that are covalently attached with the rigid bodies, flexible linkers, or the group of fixed atoms</li>
+  <li>distance assignments between the dye centers (aka pseudo-atoms).</li>
+</ol>
+<p>The starting configuration must place the rigid bodies and the fixed group of atoms sufficient far apart to allow for rotations of both bodies or groups around their respective centers of mass without causing steric clashes.</p>
+<p>As an example we use the single-molecule FRET structure determination of the complex between the synaptotagmin C2AB domain (defined as moving) and the core SNARE complex (which will be defined as fixed). Details about the experiments and the derivation of the distance restraints from single molecule FRET efficiency measurements are described in the following two references:</p>
+<p>U.B. Choi, P. Strop, M. Vrljic, S. Chu, A.T. Brunger, K.R. Weninger, Single-molecule FRET-derived model of the synaptotagmin 1-SNARE fusion complex.  <em>Nat. Struct. Mol. Biol.</em> <strong>17</strong>, 318-324 (2010).</p>
+<p>M. Vrljic, P. Strop, J.A. Ernst, R.B. Sutton, S.Chu, A.T. Brunger, Molecular mechanism of the synaptotagmin-SNARE interaction in Ca2+ -triggered vesicle fusion, <em>Nat. Struct. Mol. Biol.</em> <strong>17</strong>, 325-331(2010).</p>
+<h3>Setting up dye positions</h3>
+<p>The first step is to compute the average positions of all dye centers. This has to be done for each dye individually. In this particular example we simulate a Cy3 dye (residue name CY3) attached to position 61 of synaptobrevin. The first step is to mutate residue Ser61 to a cysteine residue. You can use a graphics program  (e.g. Coot or Pymol), or CNS. Here we use CNS. First, we   edit the coordinate file of the starting configuration of SNARE complex and synaptotagmin and change the residue name from SER to CYS for residue 61 ( segid A)  and we delete the line with the corresponding  OG atom. The edited file is:</p>
+<p><a href="model_A_S61C.pdb">model_A_S61C.pdb</a><br>
+</p>
+<p>Now we generate the missing SG coordinate using the CNS input file <tt>generate_easy.inp</tt>:</p>
+<PRE>
+      cns_solve &lt; <a href="generate_easy_A_S61C.inp">generate_easy_A_S61C.inp</a><a href="average_coordinates_A_S61C.inp"></a><A HREF="model_anneal.inp"></A> &gt; generate_easy_A_S61C.out
+</PRE>
+<p><br>
+Next we place the coordinates of the CBE atom of the Cy3 dye close to the SG.  <strong></strong>It does not have to be exact since the subsequent molecular dynamics simulation will regularize the geometry prior to the simulation. </p>
+<p><a href="generate_easy_A_S61C_cy3_built.pdb"><tt>generate_easy_A_S61C_cy3_built.pdb</tt></a></p>
+<p>We now perform multi-trial simulated annealing with the protein(s) fixed. The dye and the SG atom of the mutated Cys residue of synaptobrevin is free to move. See the<a href="../dye_simulations/text.html"> previous section</a> for more information about the dye topology, parameters, and coordinates of Cy3 and Cy5 dyes. The specific custom patch to link the Cy3 dye to residue 61 is:</p>
+<p><a href="dye_patches.def"><tt>dye_patches.def</tt></a></p>
+<p> For a tutorial on the CNS PATCh statement, please read this <a href="../../generate/molecular_topol/text.html">section</a> on &quot;Generating and manipulating the molecular topology. </p>
+<p>We perform multi-trial simulated annealing with a slowcooling schedule starting at 300,000 K, with a cool-rate of 500 dynamics steps per cycle (a cycle consists of 6 molecular dynamics steps with a  time step of  0.75 fsec). At least 100-200 trials (using different random initial velocities) should be performed (we only perform 10 trials in this tutorial to reduce computation time) (the <tt>model_anneal_A_S61C.inp</tt> file is taken from the <tt>model_anneal.inp</tt> input file, i..e, the only differences are the particular input parameter settings):</p>
+<pre>      cns_solve &lt; <a href="model_anneal_A_S61C.inp">model_anneal_A_S61C.inp</a><A HREF="distance_calculation.inp"></A> &gt; model_anneal_A_S61C.out 
+</pre>
+<br>
+Simulated annealing produces an ensemble of coordinates (<tt>model_anneal_A_S61C_1.pdb</tt>, <tt>model_anneal_A_S61C_2.pdb</tt>, ...). Next we calculate the average coordinates for the Cy3 dye (the <tt>average_coordinates_A_S61C.inp</tt> file is taken from the average_coordinates<tt>.inp</tt> input file, i.e., the only differences are the particular input parameter settings): : <br>
+<br>
+<pre>      cns_solve &lt; <a href="average_coordinates_A_S61C.inp">average_coordinates_A_S61C</a><A HREF="distance_calculation.inp"></A> &gt; average_coordinates_A_S61C.out 
+</pre>
+<p><br>
+We then take the average position of the dye center (which we define as the CAO atom of the Cy3 dye) from the coordinate file <tt>average_coordinates_A_S61C.pdb</tt> and use it for the subsequent docking calculations.  This procedure has to be repeated for all dye positions in the rigid and the moving bodies. We then combine the average dye positions for the CAO atoms for all dyes and appended them to the coordinates of the initial SNARE and synaptotatgmin configuration. We edit the coordinate file and change the residue name of all dye centers to PSO (aka pseudo-atom), and also change the resids and segids for the dye positions in order to make them match those of the covalently connected protein residues:</p>
+<p><a href="fret_start_model.pdb">fret_start_model.pdb</a><a href="merge_pseudo_syt2_ps.pdb"></a><br>
+  <br>
+</p>
+<h3>Docking by rigid-body/torsion angle simulated annealing </h3>
+<p>For the rigid-body/torsion angle simulated annealing calculation we generate a distance restraint file that contains the FRET-derived distances between all observed dye pairs. For a description of the distance restraint file see the section on <a href="../../formats/noe/text.html">distance restraints</a>. For a description how we obtained the particular distances and distance ranges, consult the two papers cited above.</p>
+<p><a href="fret_restraints.def"><tt>fret_restraints.def</tt></a></p>
+<p>It is useful to conduct docking calculations with different sets of distances in order to test the robustness of the final model(s) with respect to the particular selection of distances. To do this one can edit the distance restraint file and comment out a particular distance or one can make the upper/lower bounds of a particular distance much larger, effectively removing its influence on the docking calculations. For example, for the smFRET derived model of the synaptotagmin-SNARE complex we obtained a similar final model in  absence and presence of all FRET measurements involving the synapoptobrevin 61 label site.  </p>
+<p>We also need to make covalent links between the pseudo-atoms and the CA atoms of their corresponding residues to which they are attached. We make use of the topology and parameter files for pseudo-atoms that are located in the CNS <tt>/libraries/toppar</tt> directory:</p>
+<p><a href="../../../../../libraries/toppar/pseudo.top"><tt>pseudo.top</tt></a></p>
+<p><a href="../../../../../libraries/toppar/pseudo.param"><tt>pseudo.param</tt></a></p>
+<p> We create a custom patch file that makes covalent links between the dyes and the CA atom of the residue that the dye is connected to:</p>
+<p><a href="pseudo_atom_patches.def"><tt>pseudo_atom_patches.def</tt></a></p>
+<p>The pseudo-atoms &quot;do not see each other&quot; in the docking calculation (we defined the selection of pseudo-atoms in the <tt>docking.inp</tt> input file in order to exclude the empirical energy associated with the selected pseudo-atoms), i.e., no energy terms are computed for the pseudo-atoms except for the distance restraints. However, since the pseud-oatoms are covalently linked to their corresponding residues, any force that is applied to the pseudoatoms will be translated into a force that is applied to residues which then results in motions of the free rigid bodies and their covalent linkers. </p>
+<p>We now execute the CNS <tt>docking.inp</tt> input file:</p>
+<pre>      cns_solve &lt; <A HREF="distance_calculation.inp"></A><a href="docking.inp">docking.inp</a> &gt; docking.out 
+</pre>
+<p><br>
+This CNS run produces a series of files: </p>
+<ol>
+  <li>The starting configuration after initial scrambling of the free rigid bodies and connecting linkers (docking_start_0.pdb, docking_start_1.pdb,...)</li>
+  <li> The final coordinate files after simulated annealing (docking_0.pdb, docking_1.pdb,...)</li>
+  <li> The corresponding calculated and target distances along with statistical analysis of the distance satisfaction  (docking_0.dist, docking_1.dist, ...).</li>
+</ol>
+<p>The index of the coordinates runs from the specified start number (in this case: 0) for the specified number of trials (in this case: 10).  It is  generally advisable to run many  docking trials (typically 1000) to ensure a good solution is not missed by poor sampling. See below for submitting many trials in a distributed computing environment.</p>
+<h3>Analysis of the docking calculations</h3>
+<p>The final coordinates are then sorted with respect to the total energy (distance restraints energy plus empirical energy terms,which will primarily consist of the Waals energy since bonds and angles are kept fixed except for special situations that arise from topological loops). We use a Perl script to do this:<br>
+  <br>
+</p>
+<pre>      ./<a href="sort.pl">sort.pl</a><A HREF="distance_calculation.inp"></A> docking_*.pdb &gt; sort.list<br>
+</pre>
+<br>
+This Perl script creates a new directory &quot;sorted&quot; that contains the final coordinates and the corresponding distance files sorted by total energy, i.e., sorted/sort_1.pdb is the best coordinate set, the one with the lowest total energy, along with sorted/sort.dist with the corresponding distance satisfaction information).  The Perl script also produces a convenient summary:<br>
+<br>
+<br>
+<pre>
+<a href="sort.list">sort.list</a><a href="distance_calculation.list"></a>      
+</pre>
+<pre>&nbsp;
+    </pre>
+<br>
+Next we compute all pairwise rms differences between all final coordinates using the CNS<tt> rms_matrix.inp</tt> input file:<br>
+<br>
+<pre>  cns_solve &lt; <a href="rms_matrix.inp">rms_matrix.inp</a><A HREF="distance_calculation.inp"></A> &gt; rms_matrix.out 
+</pre>
+<br>
+This run produces a list file with all the pairwise rmsds (actually an upper triangular matrix):<a href="distance_calculation.list"> <br>
+</a><br>
+<pre><a href="distance_calculation.list"></a><a href="rms_matrix.list">rms_matrix.list</a>
+</pre>
+<p><br>
+We then perform a cluster analysis with the program cluster_struc (written by Sjoerd de Vries) that is provided as part of CNS. The use of the cluster_struc program is as follows:</p>
+<pre>      cluster_struc [-f] &lt;RMSD file&gt; &lt;cutoff&gt; &lt;minsize&gt;
+</pre>
+<br>
+<br>
+where
+the <tt>&lt;RMSD file&gt;</tt> is the file produced by the <tt>rms_matrix.inp</tt> job, <tt>&lt;cutoff&gt;</tt> is the cutoff (in Angstroms) that control the size of the clusters, specifically how far a structure can be from the central node (the central node is the one that is defined by the largest number of neighboring structures within the cutoff), and <tt>&lt;minsize&gt;</tt> specifies the minimum allowed cluster size (i.e., the minimum number of members of a cluster). If the <tt>-f </tt>option is specified, then &quot;full-linkage&quot; is applied, i.e., clusters comprise sets of structures that can be connected any path involving intermediate neighbors (as defined by the cutoff). For this example we use a cluster size cutoff of 3 A, minimum cluster size of 2, and no full-linkage.
+<pre>
+      cluster_struc rms_matrix.list 3. 2. &gt; cluster_struc.list <A HREF="distance_calculation.inp"></A></pre>
+<br>
+<br>
+Here is the result:<br>
+<pre>
+<a href="cluster_struc.list">cluster_struc.list</a><a href="distance_calculation.list"></a>
+
+</pre>
+<p><br>
+With 10 trials we obtain one cluster with 4 members and the best (in terms of lowest total energy) solution is not part of this cluster. This example illustrates that it is important to run many  docking trials to ensure proper sampling (typically ~1000). </p>
+<p>Here is the result with 1020 trials<br>
+</p>
+<pre>
+<a href="cluster_struc_1020.list">cluster_struc_1020.list</a><a href="cluster_struc.list"></a><a href="distance_calculation.list"></a>,</pre>
+<p>and here is the result with the full-linkage option:</p>
+<p><tt><a href="cluster_struc_1020.list_full_link">cluster_struc_1020.list_full_link</a></tt><a href="cluster_struc_1020.list">.</a></p>
+<p>Inspection of the file shows four top clusters with a large number of members. For discussion of these four solutions see the paper by Choi et al, cited above. </p>
+<p>&nbsp;</p>
+<h3>Setup for distributed (grid) computing</h3>
+<p>It can be very useful to run many jobs independently on different processors. If you have <a href="http://www.apple.com/server/macosx/technology/xgrid.html">Xgrid</a> installed on your MAC OS X server, here is a script file for the <a href="http://cmgm.stanford.edu/~cparnot/xgrid-stanford/html/goodies/GridStuffer-details.html">Gridstuffer</a> program:</p>
+<p><a href="docking.xgrid_stuffer.txt"><tt>docking_xgrid_stuffer.txt</tt></a></p>
+<p>which uses a convenient C Shell script file <a href="docking.csh"><tt>docking,csh</tt></a> which modifies the start number of the coordinate index, the first seed for the random velocity assignments, and runs the CNS job. This script file can of course be used in any distributed computing environment.</p>
+<p>&nbsp;</p>
+<p><A HREF="tutorial.csh">Script to run this tutorial</A>
+</p>
+<HR WIDTH="100%">
+
+<A HREF="../../text.html">Back to tutorials</A>&nbsp;&nbsp;
+<a href="../dye_simulations/text.html">Previous section</a><A HREF="../dye_simluations/text.html"></A>&nbsp;&nbsp;
+
+<a href="../fret_distribution_calculations/text.html">Next section</a><a href="../dye_simulations/text.html"></a><A HREF="../dye_simluations/text.html"></A>&nbsp;&nbsp;
+<HR WIDTH="100%"></P>
+
+</BODY>
+</HTML>

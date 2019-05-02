@@ -1,0 +1,132 @@
+#!/bin/csh -f
+#
+# script to convert a CNS map section into a postscript file
+#
+# written by: Paul Adams
+#
+# copyright Yale University
+#
+onintr exit
+#
+set map_file=''
+set section_type=x
+set plotfile='patterson.ps'
+set input_scale=0.06
+set max_plot_size=7.0
+set min_contour=2.0
+set contour_increment=0.5
+set spline_constant=1
+set axmod_constant=1.0
+set num_sections=1
+set first_section=1
+set spline_constant=1
+set sections_per_page=1
+set line_width=-5
+set itick=1
+set title=''
+#
+mapfile:
+echo -n 'patterson map file -> '
+set response=$<
+if ( $response == "" ) then
+  echo "a map file must be given"
+  exit 1
+else
+  if ( -e $response ) then
+    set mapfile=$response
+  else
+    echo "map file does not exist"
+    goto mapfile
+  endif
+endif
+#
+section_type:
+echo -n 'patterson plane (x/y/z) -> '
+set response=$<
+if ( $response == "x" || $response == "X" ) then
+  set section_type=x
+else if ( $response == "y" || $response == "Y" ) then
+  set section_type=y
+else if ( $response == "z" || $response == "Z" ) then
+  set section_type=z
+else
+  echo "unknown plane type"
+  goto section_type
+endif
+#
+plotfile:
+echo -n "postscript plot file [$plotfile]-> "
+set response=$<
+if ( $response != "" ) then
+  if ( -e $response ) then
+    echo -n "plot file already exists, overwrite (y/n) [n]-> "
+    set accept=$<
+    if ( $accept == 'y' || $accept == 'Y' ) then
+      set plotfile=$response
+    else
+      goto plotfile
+    endif
+  else
+    set plotfile=$response
+  endif
+endif
+#
+min_contour:
+echo -n "minimum contour level [$min_contour]-> "
+set response=$<
+if ( $response != "" && $response != " " ) then
+  set min_contour=$response
+endif
+#
+contour_increment:
+echo -n "contour increment [$contour_increment]-> "
+set response=$<
+if ( $response != "" && $response != " " ) then
+  set contour_increment=$response
+endif
+#
+input_scale:
+echo -n "plot scale factor [$input_scale]-> "
+set response=$<
+if ( $response != "" && $response != " " ) then
+  set input_scale=$response
+endif
+#
+title:
+echo -n 'plot title -> '
+set title=("$<")
+#
+if ( $section_type == x ) then
+  PSmapx << end_of_parameters
+    $mapfile
+    $plotfile
+    $input_scale $max_plot_size
+    $min_contour $contour_increment $spline_constant $axmod_constant
+    $num_sections $first_section $spline_constant $sections_per_page
+    $line_width $itick
+    $title
+end_of_parameters
+else if ( $section_type == y ) then
+  PSmapy << end_of_parameters
+    $mapfile
+    $plotfile
+    $input_scale $max_plot_size
+    $min_contour $contour_increment $spline_constant $axmod_constant
+    $num_sections $first_section $spline_constant $sections_per_page
+    $line_width $itick
+    $title
+end_of_parameters
+else if ( $section_type == z ) then
+  PSmapz << end_of_parameters
+    $mapfile
+    $plotfile
+    $input_scale $max_plot_size
+    $min_contour $contour_increment $spline_constant $axmod_constant
+    $num_sections $first_section $spline_constant $sections_per_page
+    $line_width $itick
+    $title
+end_of_parameters
+endif
+#
+exit:
+exit 0

@@ -1,0 +1,98 @@
+{+ file: flip_friedels.inp +}
+{+ directory: xtal_util +}
+{+ description: Flip Friedel mates for all input arrays +}
+{+ comment:
+        This task file is useful only if the diffraction data were
+        incorrectly indexed on a left handed basis system.  If the data
+        are correctly indexed on a right handed basis system, the
+        assignment of "F+" and "F-" is such that the experimental
+        electron density map will show amino acids and helices with the
+        correct hand.  Only if a left handed system was chosen (for 
+        example if the sign of Y SCALE in Denzo was chosen incorrectly),
+        the experimental electron density map will have the wrong hand.
+
+        Refer to the CNS on-line tutorial for more information. +}
+
+{+ authors: Ralf W. Grosse-Kunstleve and Paul D. Adams +}
+{+ copyright: Yale University +}
+
+{- Guidelines for using this file:
+   - all strings must be quoted by double-quotes
+   - logical variables (true/false) are not quoted
+   - do not remove any evaluate statements from the file -}
+
+{- begin block parameter definition -} define(
+
+{====================== crystallographic data ========================}
+
+{* space group *}
+{* use International Table conventions with subscripts substituted
+   by parenthesis *}
+{===>} sg="P2(1)2(1)2(1)";
+
+{* unit cell parameters in Angstroms and degrees *}
+{+ table: rows=1 "cell" cols=6 "a" "b" "c" "alpha" "beta" "gamma" +}
+{===>} a=65.508;
+{===>} b=72.216;
+{===>} c=45.035;
+{===>} alpha=90;
+{===>} beta=90;
+{===>} gamma=90;
+
+{========================= reflection file ===========================}
+
+{* reflection file *}
+{===>} reflection_infile="mbp_scale.hkl";
+
+{========================== output options ===========================}
+
+{* output file with flipped Friedel mates *}
+{===>} reflection_outfile="flip_friedels.hkl";
+
+{===========================================================================}
+{         things below this line do not normally need to be changed         }
+{===========================================================================}
+
+ ) {- end block parameter definition -}
+
+checkversion 1.3
+
+evaluate ($log_level=quiet)
+
+xray
+
+   @CNS_XTALLIB:spacegroup.lib (sg=&sg;sgparam=$sgparam;)
+
+   a=&a b=&b c=&c  alpha=&alpha beta=&beta gamma=&gamma
+
+   reflection @@&reflection_infile end
+
+   ANOMalous=?
+   if ($result = false) then
+     display ************************************************************
+     display ERROR: NO ANOMALOUS SIGNAL IN FILE &file
+     display ************************************************************
+     display
+     abort
+   end if
+
+   flip
+
+end
+
+set display=&reflection_outfile end
+
+@CNS_XTALMODULE:write_hkl_header (sg=&STRIP%sg;
+                                    sgparam=$sgparam;)
+
+xray
+
+   write reflection
+     output=&reflection_outfile
+   end
+
+   set display=OUTPUT end
+
+end
+
+stop

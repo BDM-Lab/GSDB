@@ -1,0 +1,311 @@
+! Module file: pattsearch
+!
+! CNS module
+! **********
+!
+! Authors: R.W. Grosse-Kunstleve & Axel Brunger
+!
+! copyright Yale University
+!
+! Function:
+!    Reciprocal space and/or direct space Patterson search for
+!    new heavy-atom site
+
+module {pattsearch}
+(
+  &initial_search;   { INPUT: Type: logical }
+  &fmap_addl2;       { INPUT/OUTPUT: Type: logical }
+  &sg;               { INPUT: space group symbol. Type: string }
+  &search_method;    { INPUT: search method. Type: string }
+  &W_IMF;            { INPUT: dynamic weight for IMF. Type: integer }
+  &sel_known_sites;  { INPUT: selection of known sites. Type: store }
+  &sel_current_site; { INPUT: resid of new site. Type: integer }
+  &init_bfac;        { INPUT: Type: real }
+  &LessMemory;       { INPUT: Type: logical }
+  &psearch_level;    { INPUT: Type: integer }
+  &pstore;           { INPUT: number of peak store. Type: integer }
+  &total_peaks;      { OUTPUT: Type: integer }
+  &nDoneTSMap;       { INPUT/OUTPUT: Type: integer }
+  &time_tsmap;       { INPUT/OUTPUT: Type: real }
+)
+
+set message ? end
+eval($message=$result)
+set echo ? end
+eval($echo=$result)
+if ( $log_level = verbose ) then
+  set echo=on message=normal end
+else
+  set echo=off message=off end
+end if
+
+checkversion 1.3
+
+show sum (1) (&sel_known_sites)
+eval($n_known_sites = $select)
+
+eval($DoDirect = false)
+eval($DoRecipr = false)
+eval($KeepPatmap = false)
+eval($min_norm_dsmap = 0)
+
+if     (&search_method = "direct space") then
+  eval($DoDirect=true)
+  eval($KeepPatmap=true)
+elseif (&search_method = "reciprocal space") then
+  eval($DoRecipr=true)
+elseif (&search_method = "reciprocal*direct") then
+  eval($DoRecipr=true)
+  if ($n_known_sites = 0) then
+    if (&W_IMF > 0) then
+      eval($KeepPatmap=true)
+    end if
+    eval($DoDirect=true)
+  elseif (&W_IMF >= $n_known_sites) then
+    if (  &W_IMF >  $n_known_sites) then
+      eval($KeepPatmap=true)
+    end if
+    eval($DoDirect=true)
+    eval($min_norm_dsmap = ($n_known_sites - 1) / &W_IMF)
+  end if
+else
+  display "Fatal Error: Unknown search method."
+  abort
+end if
+
+if ($DoDirect=true) then
+  if ($NCS > 1) then
+    set display=OUTPUT end
+    display ERROR: NCS only implemented for reciprocal space searches
+    abort
+  end if
+end if
+
+do (x=0)          (&sel_current_site)
+do (y=0)          (&sel_current_site)
+do (z=0)          (&sel_current_site)
+do (q=1)          (&sel_current_site)
+do (b=&init_bfac) (&sel_current_site)
+
+xray
+  expand
+
+  if (&initial_search = true) then
+    {- Define symmetry for FlagMap -}
+    fmap
+      @@CNS_XTALLIB:spacegroup.lib (sg=&sg; sgparam = $sgparam )
+
+      if ($sgparam.ssVM_1 # "VOID") then ssVM = $sgparam.ssVM_1 end if
+      if ($sgparam.ssVM_2 # "VOID") then ssVM = $sgparam.ssVM_2 end if
+      if ($sgparam.ssVM_3 # "VOID") then ssVM = $sgparam.ssVM_3 end if
+      if ($sgparam.GenK2L # "VOID") then Addl = $sgparam.GenK2L end if
+      ?
+      Symmetry ?
+      AddlGenerators ?
+    end
+    eval(&fmap_addl2 = false)
+  end if
+
+  if ($DoDirect = true) then
+    declare name=dsmap  domain=real end
+    declare name=patmap domain=real end
+
+    if (&initial_search = true) then
+      {- Compute straightforward Patterson map -}
+      do (patmap=FT(combine(amplitude(patt_fob)^2, 0))) (all)
+
+      {- Build flagmap for SMF -}
+      fmap
+        UseSym = true
+        Use_ss  = true
+        UseAddl = true
+        Action=Build
+      end
+
+      {- Get Harker operators from library -}
+      @@CNS_XTALLIB:harker_ops.lib (sg=&sg; harker=$harker)
+
+      if ( $log_level = verbose ) then
+        display Computing Symmetry Minimum Function
+      end if
+      smf
+        patmap=patmap
+        smfmap=dsmap
+        eval($i = 0)
+        while ($i < $harker.nOps) loop HarkerOps
+          eval($i = $i + 1)
+          HarkerOperator=$harker.Op_$i
+        end loop HarkerOps
+        unitweights=false
+        ?
+      end
+
+      if ($KeepPatmap = true) then
+        mapyard store patmap patmap end
+        mapyard store dsmap  dsmap  end
+      end if
+    else
+      mapyard restore patmap patmap end
+      mapyard restore dsmap  dsmap  end
+    end if
+  end if
+
+  if (&fmap_addl2 = false) then
+    if ($n_known_sites > 0) then
+      if ($sgparam.Addl2 # "VOID") then
+        fmap
+          Addl = $sgparam.Addl2
+          AddlGenerators ?
+        end
+        eval(&fmap_addl2 = true)
+      end if
+    end if
+  end if
+
+  {- Build FlagMap -}
+  fmap
+    if ($NCS < 2) then
+      UseSym = true
+    else
+      UseSym = false
+    end if
+    if ($n_known_sites = 0) then
+      Use_ss = true
+      if ($NCS < 2) then
+        UseAdd = true
+      else
+        UseAdd = false
+      end if
+    else
+      Use_ss = false
+      if ($n_known_sites < 1.5) then
+        UseAdd = &fmap_addl2
+      else
+        UseAdd = false
+      end if
+    end if
+    Action=Build
+    ?
+  end
+
+  if ($DoDirect = true) then
+    if ($n_known_sites > 0) then
+      {- Compute IMF map starting with SMF map -}
+      if ( $log_level = verbose ) then
+        display Computing Image-seeking Minimum Function
+      end if
+      imf
+        patmap=patmap
+        imfmap=dsmap
+        atomselection=(&sel_known_sites)
+        unitweights=true
+      end
+    end if
+
+    undeclare name=patmap domain=real end
+
+    {- Normalize direct space map -}
+    show min (real(dsmap)) (all)
+    do (dsmap=real(dsmap)-$result) (all)
+    show max (real(dsmap)) (all)
+    if ($result # 0) then
+      do (dsmap=real(dsmap)/$result) (all)
+    end if
+    if ($min_norm_dsmap # 0) then
+      do (dsmap = $min_norm_dsmap + real(dsmap) * (1 - $min_norm_dsmap)) (all)
+    end if
+    if ( $log_level = verbose ) then
+      show min (dsmap) (all)
+      display dsmap min = $result
+      show max (dsmap) (all)
+      display dsmap max = $result
+    end if
+  end if
+
+  if ($DoRecipr = true) then
+    associate fcalc (&sel_current_site)
+    predict
+      mode=reciprocal
+      to=fcalc
+      atomselection=(&sel_current_site)
+      selection=(all)
+    end
+
+    {- Compute FFT translation function -}
+    eval($cpu_start=$cpu)
+    if (&nDoneTSMap < 5) then
+      set timer=1 end
+    end if
+    if ( $log_level = verbose ) then
+      display Computing Fast Translation Function
+    end if
+    declare name=tsmap domain=real end
+    search tsmap
+      method=fft
+      fobsFrom=patt_fob
+      P1FcalcFrom=fcalc
+      TrFcalc=fcalc
+      if ($n_known_sites > 0) then FpartFrom=mod_fpart end if
+      to = tsmap
+      FPrecision=$FPrecision
+      LessMemory=&LessMemory
+      specialpositions = &special
+      if (&nDoneTSMap < 5) then
+        Verbose=true
+      else
+        Verbose=false
+      end if
+    end
+    set timer=0 end
+    eval(&time_tsmap = &time_tsmap + $cpu - $cpu_start)
+    set display=OUTPUT end
+    display Cumulative time search tsmap: &time_tsmap / $cpu
+    set display=$disp_file end
+    eval(&nDoneTSMap=&nDoneTSMap+1)
+    if ($n_known_sites = 0) then
+    if (&LessMemory=true) then
+      {- Free up 2D memory used for tabulation
+         of Fast Translation Search coefficients -}
+      search tsmap
+        reset=true
+      end
+    end if
+    end if
+
+    if ($DoDirect = true) then
+      if ( $log_level = verbose ) then
+        @@CNS_XTALMODULE:corrcoeff(domain = real;
+                                   objx = tsmap;
+                                   objy = dsmap;
+                                   selection=all;
+                                   cc=$realcc;)
+        display correlation of tsmap and dsmap $realcc[F7.4]
+      end if
+      do (tsmap = real(tsmap) * real(dsmap)) (all)
+      undeclare name=dsmap domain=real end
+    end if
+  end if
+
+  {- Peak Search -}
+  psearch
+    if ($DoRecipr = true) then
+      from = tsmap
+    else
+      from = dsmap
+    end if
+    level = &psearch_level
+    pstore = &pstore
+    nlist = 3
+  end
+  eval(&total_peaks = $pstore)
+
+  if     ($DoRecipr = true) then
+    undeclare name=tsmap domain=real end
+  elseif ($DoDirect = true) then
+    undeclare name=dsmap domain=real end
+  end if
+
+  unexpand
+end
+
+set message=$message echo=$echo end

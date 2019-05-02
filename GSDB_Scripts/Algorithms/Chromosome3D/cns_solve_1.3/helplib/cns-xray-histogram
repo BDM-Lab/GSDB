@@ -1,0 +1,37 @@
+histogram <xray-histogram-statement> end
+
+<xray-histogram-statement> :==
+
+  from=<real-space-object>
+  --{The map for histogram calculation.}
+  mbins=<integer>
+  --{The number of bins for the histogram.}
+  slot=<real>
+  --{Slot width for the histogram. Default from map: (maximum-minimum)/mbins}
+  rhomin=<real>
+  --{Low density limit for the histogram.
+     Default: the minimum density of the map.}
+  rhomax=<real>
+  --{High density limit for the histogram.
+     Default: the maximum density of the map.}
+  model=predicted|experimental
+  --{Predicted: predicted histogram curve.
+     Experimental: experimental histogram curve (default).}
+  selection=<map selection>
+  --{Select subset of map for analysis. Default=(all)}
+  lowfraction=<real>
+  --{If non-zero, a density level will be computed such that lowfraction%
+     of the selected density points are below this level. The level is
+     stored in the symbol $cutoff.}
+  export=<filename>
+  --{Export histogram to file.}
+  hresolution=<real>
+  --{Predict histogram at this highest resolution.
+     This should be the high resolution limit used in computing the map.
+     Default=0}
+  data=<real> <real> ... <real>
+  --{Assign histogram data for each bin. If read from a file
+     the number of data points must be consistent with mbins.}
+  match
+  --{Perform histogram matching.
+     Warning: this will overwrite the original map.}

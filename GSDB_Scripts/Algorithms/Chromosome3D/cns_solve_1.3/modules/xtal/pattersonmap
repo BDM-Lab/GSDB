@@ -1,0 +1,531 @@
+! Module file: pattersonmap
+!
+! CNS module
+! **********
+!
+! Authors: Axel Brunger
+!
+! copyright Yale University
+!
+! Function:
+!    Computes various Patterson maps and averages of Patterson maps
+!
+! Requirements:
+!    Needs to be called within xray
+
+module {checkrefinput}
+
+(
+  &map;               { INPUT: Patterson map data structure }
+  &number_of_maps;    { INPUT: number maps for averaging. Type: integer }              
+  &sharpen;           { INPUT: sharpening flag. Type: logical }            
+  &origin_remove;     { INPUT: origin removal flag.  Type: logical }       
+  &weight;            { INPUT: use weights for averaging. Type: logical }   
+  &bins_w;            { INPUT: number of bins. Type: integer }
+  &low_res;           { INPUT: low resolution limit for map calc.  Type: real }            
+  &high_res;          { INPUT: high resolution limit for map calc.  Type: real }
+  &reject_hard=false; { INPUT: reject reflections not observed in all maps. Type: logical }
+  &buffer_name;       { INPUT: buffer file name for info }         
+  &df_accum;          { OUTPUT: structure factor that contains the (averaged) Patterson map }    
+)
+
+set message ? end
+evaluate ($message=$result)
+set echo ? end
+evaluate ($echo=$result)
+if ( $log_level = verbose ) then
+  set echo=on message=normal end
+else
+  set echo=off message=off end
+end if
+
+checkversion 1.3
+
+   bins=?
+   evaluate ($bins_orig=$result)
+   bins=&bins_w
+
+   statistics overall
+     completeness
+     selection=( &low_res >= d >= &high_res )
+     output=OUTPUT
+   end
+   evaluate ($total_compl=$expression1)
+
+   show sum(1) ( &low_res >= d >= &high_res )
+   evaluate ($total_read=$select)
+   evaluate ($total=int(1./$total_compl * $total_read))
+  
+
+   declare name=df_sel domain=reciprocal  type=real end
+   declare name=df     domain=reciprocal  type=real end
+   declare name=s_df   domain=reciprocal  type=real end
+   declare name=weight domain=reciprocal  type=real end
+
+   if (&number_of_maps > 1) then
+     declare name=df_active domain=reciprocal  type=real end
+     do (df_active=0) ( all )
+   end if
+
+   do (&df_accum=0) ( all )
+
+   if (&number_of_maps > 1) then
+      buffer &buffer_name
+         display Average over &number_of_maps Patterson maps computed.  Weight=&weight
+      end
+   end if
+   buffer &buffer_name
+     display sharpen= &sharpen    origin_remove = &origin_remove
+   end
+   
+   set echo=off end    
+   eval ($nm=1) 
+   while ($nm <= &number_of_maps) loop main
+      if (&map.$nm.f_a = "") then
+        display 
+        display  *****************************************************
+        display  map=$nm : error, f_a amplitude array is not specified
+        display  *****************************************************
+        display
+        abort
+      else
+         query name=&&map.$nm.f_a domain=reciprocal end
+         if ( $object_exist=false ) then
+            display 
+            display ************************************************************
+            display map=$nm : error, f_a amplitude array &map.$nm.f_a does not exist
+            display ************************************************************
+            display 
+            abort
+         end if
+         {- note: this array can be of any type -}
+      end if
+      
+      evaluate ($map.$nm.s_a=&map.$nm.s_a)    
+      if (&map.$nm.s_a = "") then
+         evaluate ($map.$nm.s_a="s_tema"+encode($nm)) 
+         declare name=$$map.$nm.s_a type=real domain=reciprocal end
+         do ($$map.$nm.s_a=0.001) ( all ) 
+         display 
+         display *************************************************
+         display map=$nm : f_a sigma array missing -> set to 0.001
+         display *************************************************
+         display 
+      else
+         query name=$$map.$nm.s_a domain=reciprocal end
+         if ( $object_exist=false ) then
+            display first data set sigma array $$map.$nm.s_a does not exist
+            abort
+         end if
+         if ( $object_type # "REAL" ) then
+            display 
+            display *****************************************************************
+            display map=$nm : error, f_a sigma array &map.$nm.s_a has the wrong data type
+            display *****************************************************************
+            display
+            abort
+         end if
+      end if
+   
+      if (&map.$nm.mode="native") then
+         do (df=amplitude(&&map.$nm.f_a)) ( all ) 
+                                                     
+         eval($rms_df=0)
+         show sum (mult * df^2)
+             ( amplitude(df)>0 and &low_res >= d >= &high_res ) 
+         if ($select > 0) then
+           eval($sum=$result)
+           show sum (mult)
+             ( amplitude(df)>0 and &low_res >= d >= &high_res ) 
+           eval($rms_df=sqrt($sum / $result))
+         end if
+
+         do (df_sel=0) ( all )
+         do (df_sel=df) 
+         ( friedel_pair( amplitude(&&map.$nm.f_a) > &map.$nm.cut_f * $$map.$nm.s_a and 
+           df < &map.$nm.max_df * $rms_df and &low_res >= d >= &high_res )) 
+ 
+         eval ($total_used=$select) 
+         eval ($per_used=100*$total_used/$total) 
+         show sum ( 1 ) ( &low_res >= d >= &high_res and amplitude(&&map.$nm.f_a)>0  ) 
+         eval ($total_rejected=$select-$total_used) 
+         eval ($per_rejected=100*($total_rejected)/$total) 
+         eval ($total_unobserved=$total-$select)
+         eval ($per_unobserved=100*($total_unobserved)/$total)
+
+         evaluate ($remark=&map.$nm.mode + " Patterson-map : ") 
+         evaluate ($remark=$remark + "("+&map.$nm.f_a+")^2" )
+         buffer &buffer_name
+            display map $nm :  $remark
+            display reflections with &&map.$nm.f_a / &&map.$nm.s_a < &map.$nm.cut_f rejected
+            display reflections with &&map.$nm.f_a > &map.$nm.max_df * rms( &&map.$nm.f_a ) rejected
+         end
+
+     elseif (&map.$nm.mode="anomalous") then
+     
+         declare name=f_a_fried domain=reciprocal type=real end
+         declare name=s_a_fried domain=reciprocal type=real end
+         
+         do (f_a_fried=friedel(amplitude(&&map.$nm.f_a))) 
+                                     ( friedel_pair(amplitude(&&map.$nm.f_a)>0))
+         do (s_a_fried=friedel(amplitude(&&map.$nm.s_a))) 
+                                     ( friedel_pair(amplitude(&&map.$nm.f_a)>0))
+
+         {- intial scale factor: Friedel to wa -}
+
+         evaluate ($remark=&map.$nm.mode + " difference Patterson-map : ") 
+         evaluate ($remark=$remark + "[ " + &map.$nm.f_a + "+  -  " 
+                            + &map.$nm.f_a + "- ]^2" )
+         buffer &buffer_name
+            display map $nm :  $remark
+            display scaling applied to Friedel mates of &&map.$nm.f_a : k-scaling = &map.$nm.kscale  b-scaling = &map.$nm.bscale
+         end
+
+         @CNS_XTALMODULE:scalef (		    
+            kscale=&map.$nm.kscale;	       
+            bscale=&map.$nm.bscale;	
+            sel=( friedel_pair(&low_res >= d >= &high_res 
+               and amplitude(&&map.$nm.f_a)> &map.$nm.cut_f * $$map.$nm.s_a));  
+            apply="all"; 
+            fref=&&map.$nm.f_a;
+            f=f_a_fried;
+            s=s_a_fried;
+            buffer_name=&buffer_name;
+                )
+
+         buffer &buffer_name
+            concatenate  (iteration no. 0)
+         end
+
+         do (df=abs(amplitude(&&map.$nm.f_a)-f_a_fried))
+                                     ( friedel_pair(amplitude(&&map.$nm.f_a)>0)) 
+                                                    
+                                                     
+         do (s_df=sqrt($$map.$nm.s_a^2 + s_a_fried^2) ) 
+                                     ( friedel_pair( amplitude(&&map.$nm.f_a)>0))
+  
+         eval($rms_df=0)
+         show sum (mult * df^2)
+             ( amplitude(df)>0 and &low_res >= d >= &high_res ) 
+         if ($select > 0) then
+           eval($sum=$result)
+           show sum (mult)
+             ( amplitude(df)>0 and &low_res >= d >= &high_res ) 
+           eval($rms_df=sqrt($sum / $result))
+         end if
+
+         evaluate ($iter=0)
+         
+         {- iterate scale factor using rejection criteria -}
+         while ($iter < &map.$nm.nscale_iter) loop sitr
+
+            evaluate ($iter=$iter+1)
+
+            @CNS_XTALMODULE:scalef (		    
+               kscale=&map.$nm.kscale;	       
+               bscale=&map.$nm.bscale;	
+               sel=(friedel_pair( amplitude(&&map.$nm.f_a) > &map.$nm.cut_f * $$map.$nm.s_a 
+                         and df > &map.$nm.cut_df * s_df 
+                         and df < &map.$nm.max_df * $rms_df 
+                         and &low_res >= d >= &high_res ) ) ;
+               apply="all"; 
+               fref=&&map.$nm.f_a;
+               f=f_a_fried;
+               s=s_a_fried;
+               buffer_name=&buffer_name;
+               )
+               
+            buffer &buffer_name
+               concatenate  (iteration no. $iter)
+            end
+            
+            do (df=abs(amplitude(&&map.$nm.f_a)-f_a_fried))
+                                     ( friedel_pair(amplitude(&&map.$nm.f_a)>0)) 
+                                                    
+                                                     
+            do (s_df=sqrt($$map.$nm.s_a^2 + s_a_fried^2) ) 
+                                     ( friedel_pair( amplitude(&&map.$nm.f_a)>0))
+  
+            eval($rms_df=0)
+            show sum (mult * df^2)
+                ( amplitude(df)>0 and &low_res >= d >= &high_res ) 
+            if ($select > 0) then
+              eval($sum=$result)
+              show sum (mult)
+                ( amplitude(df)>0 and &low_res >= d >= &high_res ) 
+              eval($rms_df=sqrt($sum / $result))
+            end if
+
+         end loop sitr
+
+         do (df_sel=0) ( all )
+         do (df_sel=df) 
+         ( friedel_pair( amplitude(&&map.$nm.f_a) > &map.$nm.cut_f * $$map.$nm.s_a 
+                         and df > &map.$nm.cut_df * s_df 
+                         and df < &map.$nm.max_df * $rms_df 
+                         and &low_res >= d >= &high_res )) 
+
+         eval ($total_used=$select) 
+         eval ($per_used=100*$total_used/$total) 
+         show sum ( 1 ) ( &low_res >= d >= &high_res and amplitude(&&map.$nm.f_a)>0  ) 
+         eval ($total_rejected=$select-$total_used) 
+         eval ($per_rejected=100*($total_rejected)/$total) 
+         eval ($total_unobserved=$total-$select)
+         eval ($per_unobserved=100*($total_unobserved)/$total) 
+
+         buffer &buffer_name
+            display reflections with  &&map.$nm.f_a / $map.$nm.s_a < &&map.$nm.cut_f rejected
+            display reflections with | delta &&map.$nm.f_a | / sigma(| delta &&map.$nm.f_a |) \
+< &map.$nm.cut_df rejected
+            display reflections with | delta &&map.$nm.f_a | > &map.$nm.max_df * rms(| delta \
+&&map.$nm.f_a |) rejected
+            display all centric reflections rejected
+         end 
+         
+         undeclare name=f_a_fried domain=reciprocal end
+         undeclare name=s_a_fried domain=reciprocal end
+   
+       else  {- dispersive or isomorphous -}
+
+         if (&map.$nm.mode # "isomorphous") then
+            if (&map.$nm.mode # "dispersive") then
+               display 
+               display  ********************************************
+               display  map=$nm : error, unknown map mode: &map.$nm.mode
+               display  ********************************************
+               display
+               abort
+            end if
+         end if
+         
+         if (&map.$nm.f_b = "") then
+           display 
+           display  *****************************************************
+           display  map=$nm : error, f_b amplitude array is not specified
+           display  *****************************************************
+           display
+           abort
+         else
+            query name=&&map.$nm.f_b domain=reciprocal end
+            if ( $object_exist=false ) then
+               display 
+               display ************************************************************
+               display map=$nm : error, f_b amplitude array &map.$nm.f_b does not exist
+               display ************************************************************
+               display
+               abort
+            end if
+           {- note: this array can be of any type -}
+         end if
+         
+         evaluate ($map.$nm.s_b=&map.$nm.s_b) 
+         
+         if (&map.$nm.s_b = "") then
+            evaluate ($map.$nm.s_b="s_temb"+encode($nm)) 
+            declare name=$$map.$nm.s_b type=real domain=reciprocal end
+            do ($$map.$nm.s_b=0.001) ( all ) 
+            display 
+            display *************************************************
+            display map=$nm : f_b sigma array missing -> set to 0.001
+            display *************************************************
+            display 
+         else
+            query name=&&map.$nm.s_b domain=reciprocal end
+            if ( $object_exist=false ) then
+               display second data set sigma array (s_wb) &map.$nm.s_b does not exist
+               abort
+            end if
+            if ( $object_type # "REAL" ) then
+               display 
+               display *****************************************************************
+               display map=$nm : error, f_b sigma array &map.$nm.s_b has the wrong data type
+               display *****************************************************************
+               display
+               abort
+            end if
+         end if
+         
+         evaluate ($remark=&map.$nm.mode + " difference Patterson-map : ") 
+         evaluate ($remark=$remark +"[ "+ &map.$nm.f_a + " - " + &map.$nm.f_b +" ]^2" )
+         buffer &buffer_name
+            display map $nm :  $remark
+            display scaling applied to &&map.$nm.f_b : k-scaling = &map.$nm.kscale   b-scaling = &map.$nm.bscale
+         end
+         
+         {- scale wb to wa -}
+         @CNS_XTALMODULE:scalef (		    
+            kscale=&map.$nm.kscale;	       
+            bscale=&map.$nm.bscale;	
+            sel=( &low_res >= d >= &high_res 
+               and amplitude(&&map.$nm.f_a)> &map.$nm.cut_f * $$map.$nm.s_a 
+               and amplitude(&&map.$nm.f_b)> &map.$nm.cut_f * $$map.$nm.s_b);  
+            apply="all";
+            fref=&&map.$nm.f_a;
+            f=&&map.$nm.f_b;
+            s=$$map.$nm.s_b;
+            buffer_name=&buffer_name;
+            )
+
+        buffer &buffer_name
+           concatenate  (iteration no. 0)
+        end
+        
+        do (df=abs( amplitude(&&map.$nm.f_a) - amplitude(&&map.$nm.f_b) ))  ( all ) 
+
+         do (s_df=sqrt($$map.$nm.s_a^2 + $$map.$nm.s_b^2) )        ( all )
+
+         eval($rms_df=0)
+         show sum (mult * df^2)
+             ( amplitude(df)>0 and &low_res >= d >= &high_res ) 
+         if ($select > 0) then
+           eval($sum=$result)
+           show sum (mult)
+             ( amplitude(df)>0 and &low_res >= d >= &high_res ) 
+           eval($rms_df=sqrt($sum / $result))
+         end if
+
+         evaluate ($iter=0)
+         
+         {- iterate scale factor using rejection criteria -}
+         while ($iter < &map.$nm.nscale_iter) loop sitr
+
+            evaluate ($iter=$iter+1)
+            
+            @CNS_XTALMODULE:scalef (		    
+               kscale=&map.$nm.kscale;	       
+               bscale=&map.$nm.bscale;	
+               sel=(  amplitude(&&map.$nm.f_a) > &map.$nm.cut_f * $$map.$nm.s_a 
+                  and amplitude(&&map.$nm.f_b) > &map.$nm.cut_f * $$map.$nm.s_b 
+                  and df > &map.$nm.cut_df * s_df 
+                  and df < &map.$nm.max_df * $rms_df 
+                  and &low_res >= d >= &high_res ) ;
+               apply="all"; 
+               fref=&&map.$nm.f_a;
+               f=&&map.$nm.f_b;
+               s=$$map.$nm.s_b;
+               buffer_name=&buffer_name;
+               )
+               
+            buffer &buffer_name
+               concatenate  (iteration no. $iter)
+            end
+            
+            do (df=abs( amplitude(&&map.$nm.f_a) - amplitude(&&map.$nm.f_b) ))  ( all ) 
+
+            do (s_df=sqrt($$map.$nm.s_a^2 + $$map.$nm.s_b^2) )        ( all )
+
+            eval($rms_df=0)
+            show sum (mult * df^2)
+                ( amplitude(df)>0 and &low_res >= d >= &high_res ) 
+            if ($select > 0) then
+              eval($sum=$result)
+              show sum (mult)
+                ( amplitude(df)>0 and &low_res >= d >= &high_res ) 
+              eval($rms_df=sqrt($sum / $result))
+            end if
+
+         end loop sitr
+
+         do (df_sel=0) ( all )
+         do (df_sel=df) 
+           (  amplitude(&&map.$nm.f_a) > &map.$nm.cut_f * $$map.$nm.s_a 
+              and amplitude(&&map.$nm.f_b) > &map.$nm.cut_f * $$map.$nm.s_b 
+              and df > &map.$nm.cut_df * s_df 
+              and df < &map.$nm.max_df * $rms_df 
+              and &low_res >= d >= &high_res ) 
+
+         eval ($total_used=$select) 
+         eval ($per_used=100*$total_used/$total) 
+         show sum ( 1 ) ( &low_res >= d >= &high_res 
+                          and ( amplitude(&&map.$nm.f_a)>0 and amplitude(&&map.$nm.f_b)>0 ) )
+         eval ($total_rejected=$select-$total_used) 
+         eval ($per_rejected=100*($total_rejected)/$total) 
+         eval ($total_unobserved=$total-$select)
+         eval ($per_unobserved=100*($total_unobserved)/$total)
+
+         buffer &buffer_name
+            display reflections with  &&map.$nm.f_a / &&map.$nm.s_a < &map.$nm.cut_f \
+and/or  &&map.$nm.f_b / &&map.$nm.s_b < &map.$nm.cut_f rejected
+            display reflections with | &&map.$nm.f_a-&&map.$nm.f_b | / \
+sigma(| &&map.$nm.f_a-&&map.$nm.f_b |) < &map.$nm.cut_df rejected
+            display reflections with | &&map.$nm.f_a-&&map.$nm.f_b | > \
+&map.$nm.max_df * rms(| &&map.$nm.f_a-&&map.$nm.f_b |) rejected
+         end
+      end if
+
+      evaluate ($weight=&weight) 
+      if (&number_of_maps=1) then
+          evaluate ($weight=false)
+      end if
+
+      if ($weight=true) then
+         do (weight=max(0.001,save(abs(df_sel)^2)))  ( abs(df_sel)>0 ) 
+         do (&df_accum=&df_accum+ df_sel^2/ weight )   ( abs(df_sel)>0 ) 
+      else
+         do (&df_accum=df_sel^2)                      ( abs(df_sel)>0 ) 
+      end if
+      if (&number_of_maps > 1) then
+        do (df_active=df_active+1) ( abs(df_sel)>0 )
+      end if
+
+
+      buffer &buffer_name
+         display theoretical total number of refl. in resol. range: \
+$total[I7] ( 100.0  % )
+         display number of unobserved reflections (no entry or f=0):\
+$total_unobserved[I7] ( $per_unobserved[F5.1]  % )
+         display number of reflections rejected:                    \
+$total_rejected[I7] ( $per_rejected[F5.1]  % )
+         display total number of reflections used:                  \
+$total_used[I7] ( $per_used[F5.1]  % )
+      end 
+
+      evaluate ($nm=$nm+1)
+   end loop main  
+   set echo=on end
+
+   if (&number_of_maps > 1) then
+     if (&reject_hard=true) then
+       show sum (1) (df_active > 0)
+       eval($nactive=$select)
+       do (&df_accum=0) (abs(&df_accum)>0 and df_active + 0.5 < &number_of_maps)
+       buffer &buffer_name
+         display total number of active reflections:            $nactive
+         display number of reflections not present in all maps: $select
+         display     the accumulated structure factors for these
+         display     reflections were set to zero.
+       end
+     else
+       do (&df_accum=&df_accum/df_active) (df_active > 0)
+       eval($nactive=$select)
+       show sum (1) (abs(&df_accum)>0 and df_active + 0.5 < &number_of_maps)
+       buffer &buffer_name
+         display total number of active reflections:            $nactive
+         display number of reflections not present in all maps: $select
+         display     the accumulated structure factors for these
+         display     reflections were weighted accordingly.
+       end
+     end if
+     undeclare name=df_active domain=reciprocal  end
+   end if
+     
+   {- normalize -} 
+   if ( &sharpen = true ) then
+      do (&df_accum=sqrt(&df_accum))          ( abs(&df_accum)>0 ) 
+      do (&df_accum=norm(&df_accum))          ( abs(&df_accum)>0 )
+      do (&df_accum=&df_accum^2)              ( abs(&df_accum)>0 ) 
+   end if
+  
+   {- remove origin -}
+   if ( &origin_remove = true ) then
+      do (&df_accum=&df_accum-save(&df_accum)) ( abs(&df_accum)>0 ) 
+   end if
+
+   bins=$bins_orig
+
+   undeclare name=df_sel domain=reciprocal  end
+   undeclare name=df     domain=reciprocal  end
+   undeclare name=s_df   domain=reciprocal  end
+   undeclare name=weight domain=reciprocal  end
+
+set message=$message echo=$echo end

@@ -1,0 +1,342 @@
+!
+! CNS module
+! **********
+!
+! Authors: Jian-Sheng Jiang and Axel T. Brunger
+!
+! copyright Yale University
+!
+! Function:
+! 1. Estimate coordinates error by using Luzzati Plot,
+!    return the estimated error in "&ESDERR_LUZ".
+! 2. Produce the Luzzati plot for &MESS=LONG.
+!
+! Requirements:
+! 1. this module is used within xray
+!
+! Warnings:
+! Data lower than 5 angstroms resolution are not appropriate
+! for estimating coordinate error, unless the solvent refinement 
+! had been done properly.
+!
+! References:
+! 1. Luzzati P.V. (1952). Acta Cryst. 5, 802-810.
+!    "Traitement Statistique des Erreurs dans la Determination
+!    des Structure Cristallines."
+!  
+
+module { luzzaticoorderr } 
+(
+   &bins=8;               { number of bins for average    }
+   &fobs=fobs;            { first data set                }
+   &fcalc=fcalc;          { second data set               }
+   &fpart=fpart;          { bulk solvent correction       }
+   &low=5.0;              { low resolution limit          }
+   &high=2.0;             { high resolution limit         }
+   &sel=(amplitude(&fobs)>0 and &low >= d >= &high);
+                          { reflections selection         }
+   &disp=OUTPUT;          { display output filename       }
+   &mess=LONG;            { SHORT | LONG display messages }
+
+   &ESDERR_LUZ=$ESDERR_LUZ  { Output: symbol for coord. err. }
+)
+
+set message ? end
+evaluate ($message_old=$result)
+set echo ? end
+evaluate ($echo_old=$result)
+if ( $log_level = verbose ) then
+  set echo=on message=normal end
+else
+  set echo=off message=off end
+end if
+
+set display=? end
+evaluate ($curr_display=$result)
+
+checkversion 1.3
+
+evaluate ($old_bins=$bin_number) 
+evaluate ($old_bin_res_low=$bin_resolution_low) 
+evaluate ($old_bin_res_high=$bin_resolution_high)
+
+declare domain=reci type=comp name=local end
+
+evaluate ($LuzMacro_nbins=&bins)
+evaluate ($LuzMacro_low_res=&low)
+evaluate ($LuzMacro_high_res=&high)
+evaluate ($LuzMacro_display=&disp)
+if ($LuzMacro_display = " ") then
+  evaluate ($LuzMacro_display="luzzaticoorderr.list")
+end if
+evaluate ($LuzMacro_mess=&mess)
+
+
+{* check the low resolution and the number of bins *}
+if ($LuzMacro_low_res > 5.0) then
+  display %ESDERR-WRN: below 5A resolution are not appropriate for estimating 
+  display %ESDERR-WRN: coord. error, unless solvent refinement has been done properly.
+end if
+if ($LuzMacro_nbins < 4) then
+  display %ESDERR-WRN: at least  4 bins for estimating coord. error.
+  evaluate ($LuzMacro_nbins=4)
+end if 
+
+
+{* fcalc+fpart is scaled to fobs *}
+bins=1
+show max (d) (&sel)
+evaluate ($Wilson_low_res=$result+0.001) 
+show min (d) (&sel)
+evaluate ($Wilson_high_res=$result-0.001) 
+binresolution $wilson_low_res $wilson_high_res
+
+do (local=SCALE(amplitude(&fobs),amplitude(&fcalc+&fpart))*(&fcalc+&fpart)) ( &sel ) 
+
+
+{* estimate the coordinate error by using Luzzati Plot *}
+{* average over n estimations on n resolution bins     *}
+
+evaluate ($LuzMacro_n=$LuzMacro_nbins)
+evaluate ($LuzMacro_low_s=1.0/$LuzMacro_low_res^3)
+evaluate ($LuzMacro_high_s=1.0/$LuzMacro_high_res^3)
+evaluate ($LuzMacro_delta=($LuzMacro_high_s-$LuzMacro_low_s)/$LuzMacro_n)
+
+evaluate ($LuzMacro_i=0)
+evaluate ($LuzMacro_sum=0)
+while ($LuzMacro_i < $LuzMacro_n) loop main
+  evaluate ($LuzMacro_i=$LuzMacro_i+1)
+  evaluate ($LuzMacro_low=1.0/($LuzMacro_low_s+($LuzMacro_i-1)*$LuzMacro_delta)^(1/3))
+  evaluate ($LuzMacro_high=1.0/($LuzMacro_low_s+$LuzMacro_i*$LuzMacro_delta)^(1/3))
+
+   show max (d) ($LuzMacro_low >= d >= $LuzMacro_high and &sel)
+   evaluate ($Wilson_low_res=$result+0.001) 
+   show min (d) ($LuzMacro_low >= d >= $LuzMacro_high and &sel)
+   evaluate ($Wilson_high_res=$result-0.001) 
+   binresolution $wilson_low_res $wilson_high_res
+
+  {* compute R value in this resolution bin *}  
+     bins=1
+     statistics
+       output=OUTPUT
+       (sum( abs(abs(&fobs)-abs(local))) / sum(abs(&fobs)) )
+       selection=($LuzMacro_low >= d >= $LuzMacro_high and &sel)
+     end
+     evaluate ($LuzMacro_R=$expression1)
+
+  {* match the R value to the Luzzati table *}
+  evaluate ($LuzMacro_match=FALSE)
+  evaluate ($LuzMacro_counter=0)
+  evaluate ($LuzMacro_s1=0.0)
+  evaluate ($LuzMacro_v1=0.0)
+  for $LuzMacro_1 in ( 
+! Luzzati Table (Luzzati, P.V., Acta Cryst. (1952), 5, 802-810). 
+! R values as a function of coord. error and resolution (Table 2)
+!
+! <|del_r|>*|s|    R(cent.)     R(acent.)
+       0.          0.           0.
+       0.01        0.039        0.025
+       0.02        0.078        0.050
+       0.03        0.115        0.074
+       0.04        0.152        0.098
+       0.05        0.188        0.122
+       0.06        0.223        0.145
+       0.07        0.256        0.168
+       0.08        0.288        0.191
+       0.09        0.320        0.214
+       0.1         0.350        0.237
+       0.12        0.410        0.281
+       0.14        0.462        0.319
+       0.16        0.510        0.353
+       0.18        0.554        0.385
+       0.20        0.595        0.414
+       0.22        0.631        0.44
+       0.24        0.662        0.463
+       0.26        0.689        0.483
+       0.28        0.713        0.502
+       0.30        0.735        0.518
+       0.35        0.776        0.548
+       0.40        0.802        0.564
+       0.45        0.817        0.574
+       0.50        0.823        0.580
+ ) loop luz
+    evaluate ($LuzMacro_counter=$LuzMacro_counter+1)
+    if ($LuzMacro_counter = 4) then
+      evaluate ($LuzMacro_counter=1)
+    end if
+    if ($LuzMacro_match = FALSE) then
+      if ($LuzMacro_counter = 1) then
+        evaluate ($LuzMacro_s0=$LuzMacro_s1)
+        evaluate ($LuzMacro_s1=$LuzMacro_1)
+      elseif ($LuzMacro_counter = 2) then
+        {* for centric space groups *}
+        if ($CENTRIC_SPACEGROUP = TRUE) then
+          evaluate ($LuzMacro_v0=$LuzMacro_v1)
+          evaluate ($LuzMacro_v1=$LuzMacro_1)
+          if ($LuzMacro_v1 > $LuzMacro_R) then
+            evaluate ($LuzMacro_match=TRUE)
+          end if
+        end if
+      elseif ($LuzMacro_counter = 3) then
+        {* for acentric space groups *}
+        if ($CENTRIC_SPACEGROUP = FALSE) then
+          evaluate ($LuzMacro_v0=$LuzMacro_v1)
+          evaluate ($LuzMacro_v1=$LuzMacro_1)
+          if ($LuzMacro_v1 > $LuzMacro_R) then
+            evaluate ($LuzMacro_match=TRUE)
+          end if
+        end if
+      end if
+    end if
+  end loop luz
+  if ($LuzMacro_match = TRUE) then
+    {* a simple linear inteplolation *}
+    evaluate ($LuzMacro_sr=$LuzMacro_s0+($LuzMacro_R-$LuzMacro_v0)*
+            ($LuzMacro_s1-$LuzMacro_s0)/($LuzMacro_v1-$LuzMacro_v0))
+    evaluate (&ESDERR_LUZ=$LuzMacro_sr*$LuzMacro_high)
+  else
+    evaluate (&ESDERR_LUZ=0.0)
+  end if
+
+  {* ignore the first and the last resolution bins *}
+  if ($LuzMacro_i > 1) then
+    if ($LuzMacro_i < $LuzMacro_n) then
+      evaluate ($LuzMacro_sum=$LuzMacro_sum+&ESDERR_LUZ)
+    end if
+  end if
+
+end loop main
+
+{* average estimations over n-2 resolution bins *}
+evaluate (&ESDERR_LUZ=$LuzMacro_sum/($LuzMacro_n-2))
+
+
+
+
+{* produce a list file that contains the calculated R values  *}
+{* and corresponding R curve to the Luzzati table by          *}
+{* using the determined coordinate error "&ESDERR_LUZ"        *}
+
+if ($LuzMacro_mess = LONG ) then
+
+  set display=$LuzMacro_display end
+
+  evaluate ($LuzMacro_LUZ=&ESDERR_LUZ)
+  display  ESTIMATED COORD. ERROR FROM LUZZATI PLOT= $LuzMacro_LUZ[f8.4]
+  display  ESDERR_LUZ= $LuzMacro_LUZ[f8.3]
+
+  display  #bin | resolution range | #refl |   R_value   R_luzzati 
+
+evaluate ($LuzMacro_i=0)
+while ($LuzMacro_i < $LuzMacro_n) loop main
+  evaluate ($LuzMacro_i=$LuzMacro_i+1)
+  evaluate ($LuzMacro_low=1.0/($LuzMacro_low_s+($LuzMacro_i-1)*$LuzMacro_delta)^(1/3))
+  evaluate ($LuzMacro_high=1.0/($LuzMacro_low_s+$LuzMacro_i*$LuzMacro_delta)^(1/3))
+  evaluate ($LuzMacro_S=2.0/($LuzMacro_low+$LuzMacro_high))
+
+   show max (d) ($LuzMacro_low >= d >= $LuzMacro_high and &sel)
+   evaluate ($Wilson_low_res=$result+0.001) 
+   show min (d) ($LuzMacro_low >= d >= $LuzMacro_high and &sel)
+   evaluate ($Wilson_high_res=$result-0.001) 
+   binresolution $wilson_low_res $wilson_high_res
+
+  {* compute R value in this resolution bin *}  
+   bins=1
+   statistics
+       output=OUTPUT
+       (sum( abs(abs(&fobs)-abs(local))) / sum(abs(&fobs)) )
+       (sum(1))
+       selection=($LuzMacro_low >= d >= $LuzMacro_high and &sel)
+   end
+   evaluate ($LuzMacro_R=$expression1)
+   evaluate ($LuzMacro_NX=$expression2)
+
+  {* match the S value to the first column of Luzzati Table *}
+  evaluate ($LuzMacro_match=FALSE)
+  evaluate ($LuzMacro_found=FALSE)
+  evaluate ($LuzMacro_counter=0)
+  evaluate ($LuzMacro_s1=0.0)
+  evaluate ($LuzMacro_v1=0.0)
+  for $LuzMacro_1 in ( 
+! Luzzati Table (Luzzati, P.V., Acta Cryst. (1952), 5, 802-810). 
+! R values as a function of coord. error and resolution (Table 2)
+!
+! <|del_r|>*|s|    R(cent.)     R(acent.)
+       0.          0.           0.
+       0.01        0.039        0.025
+       0.02        0.078        0.050
+       0.03        0.115        0.074
+       0.04        0.152        0.098
+       0.05        0.188        0.122
+       0.06        0.223        0.145
+       0.07        0.256        0.168
+       0.08        0.288        0.191
+       0.09        0.320        0.214
+       0.1         0.350        0.237
+       0.12        0.410        0.281
+       0.14        0.462        0.319
+       0.16        0.510        0.353
+       0.18        0.554        0.385
+       0.20        0.595        0.414
+       0.22        0.631        0.44
+       0.24        0.662        0.463
+       0.26        0.689        0.483
+       0.28        0.713        0.502
+       0.30        0.735        0.518
+       0.35        0.776        0.548
+       0.40        0.802        0.564
+       0.45        0.817        0.574
+       0.50        0.823        0.580
+) loop luz
+    evaluate ($LuzMacro_counter=$LuzMacro_counter+1)
+    if ($LuzMacro_counter = 4) then
+      evaluate ($LuzMacro_counter=1)
+      if ($LuzMacro_found = TRUE) then
+        evaluate ($LuzMacro_match=TRUE)
+      end if
+    end if
+    if ($LuzMacro_match = FALSE) then
+      if ($LuzMacro_counter = 1) then
+        evaluate ($LuzMacro_s0=$LuzMacro_s1)
+        evaluate ($LuzMacro_s1=$LuzMacro_1/&ESDERR_LUZ)
+        if ($LuzMacro_s1 > $LuzMacro_S) then
+          evaluate ($LuzMacro_found=TRUE)
+        end if 
+      elseif ($LuzMacro_counter = 2) then
+        {* for centric space groups *}
+        if ($CENTRIC_SPACEGROUP = TRUE) then
+          evaluate ($LuzMacro_v0=$LuzMacro_v1)
+          evaluate ($LuzMacro_v1=$LuzMacro_1)
+        end if
+      elseif ($LuzMacro_counter = 3) then
+        {* for acentric space groups *}
+        if ($CENTRIC_SPACEGROUP = FALSE) then
+          evaluate ($LuzMacro_v0=$LuzMacro_v1)
+          evaluate ($LuzMacro_v1=$LuzMacro_1)
+        end if
+      end if
+    end if
+  end loop luz
+  if ($LuzMacro_match = TRUE) then
+    {* a simple linear inteplolation *}
+    evaluate ($LuzMacro_rs=$LuzMacro_v0+($LuzMacro_S-$LuzMacro_s0)*
+           ($LuzMacro_v1-$LuzMacro_v0)/($LuzMacro_s1-$LuzMacro_s0))
+  else
+    evaluate ($LuzMacro_rs=0.0)
+  end if
+
+  display $LuzMacro_i[i4] $LuzMacro_high[f6.2]  $LuzMacro_low[f6.2]     $LuzMacro_NX[i6]    $LuzMacro_R[f8.4]  $LuzMacro_rs[f8.4]
+
+end loop main
+
+set display=$curr_display end
+
+end if
+
+undeclare domain=reci name=local end
+
+bins=$old_bins
+binresolution $old_bin_res_low $old_bin_res_high
+
+set message=$message_old echo=$echo_old end
+

@@ -1,0 +1,145 @@
+<HTML>
+<HEAD>
+   <TITLE>Crystallography & NMR System</TITLE>
+</HEAD>
+<BODY BGCOLOR=#8ebf8e>
+
+<HR WIDTH="100%"></P>
+
+<H2>Initial refinement by rigid body, simulated annealing, positional minimization, and B-factor refinement</H2>
+
+<HR WIDTH="100%"></P>
+
+<P>The refinement is begun with rigid body refinement, which is
+important if the initial model has come from molecular replacement. This step can generally be omitted if the model has been obtained by fitting into an electron density map. The
+positions of the two molecules in the asymmetric unit is optimized
+using the CNS task file rigid.inp. In this example 2 cycles of 20
+steps are performed to ensure convergence. This can be important if
+the model is a significant distance from the correct position.</P>
+   
+<PRE>
+      cns_solve &lt; <A HREF="rigid.inp">rigid.inp</A> &gt; rigid.out
+</PRE>
+
+<P>The result of the rigid body refinement is a new coordinate file
+(rigid.pdb). In the majority of CNS refinement task files information
+about the refinement procedure is written out at the top of the output
+coordinate file (as REMARK statements):</P>
+
+<PRE>
+REMARK coordinates from rigid-body refinement
+REMARK refinement resolution: 500 - 1.8 A
+REMARK starting r= 0.4340 free_r= 0.4436
+REMARK final    r= 0.4273 free_r= 0.4342
+REMARK wa= 1.54159
+REMARK target= mlf cycles= 2 steps= 20
+REMARK sg= P2(1)2(1)2(1) a= 65.508 b= 72.216 c= 45.035 alpha= 90 beta= 90 gamma= 90
+REMARK parameter file 1  : CNS_TOPPAR:protein_rep.param
+REMARK molecular structure file: mbp.mtf
+REMARK input coordinates: mbp.pdb
+REMARK reflection file= mbp.cv
+REMARK ncs= none
+REMARK Anisotropic B-factor tensor Ucart of atomic model without isotropic component :
+REMARK   B11=   4.261 B22=  -2.520 B33=  -1.741
+REMARK   B12=   0.000 B13=   0.000 B23=   0.000
+REMARK Isotropic component added to coordinate array B:   -5.097
+REMARK bulk solvent: probe radius=1, shrink value=1
+REMARK bulk solvent: density level= 0.37 e/A^3, B-factor= -0.564043 A^2
+REMARK reflections with |Fobs|/sigma_F < 0.0 rejected
+REMARK reflections with |Fobs| > 1000 * rms(Fobs) rejected
+REMARK anomalous diffraction data was input
+REMARK fft gridding factor = 0.3333, B factor offset = 0 A^2, Elimit = 8
+REMARK theoretical total number of refl. in resol. range:     38245 ( 100.0 % )
+REMARK number of unobserved reflections (no entry or |F|=0):    323 (   0.8 % )
+REMARK number of reflections rejected:                            0 (   0.0 % )
+REMARK total number of reflections used:                      37922 (  99.2 % )
+REMARK number of reflections in working set:                  34248 (  89.5 % )
+REMARK number of reflections in test set:                      3674 (   9.6 % )
+CRYST1   65.508   72.216   45.035  90.00  90.00  90.00 P 21 21 21
+REMARK FILENAME="rigid.pdb"
+REMARK DATE:28-Nov-2009  12:50:37       created by user: brunger
+REMARK VERSION:1.3
+ATOM      1  CB  LYS A 109      16.055   7.285  46.969  1.00 14.90      A   
+ATOM      2  CG  LYS A 109      17.006   6.254  47.577  1.00 14.90      A   
+</PRE>
+
+<P>This information provides a summary of the refinement and also a
+record of the input data and parameters used to generate this
+structure.</P>
+
+<P>Following rigid body refinement, simulated annealing using torsion
+angle dynamics is used to improve the model. The use of torsion angle
+dynamics reduces the number of parameters being refined and hence
+reduces the degree of overfitting of the data. For an initial model
+with relatively large errors (due to manual building or misplaced
+atoms) a starting temperature of 3000-5000K is recommended. For a longer slow-cooling period, the cooling rate can be
+decreased from 50K to 25K. The general <TT>refine.inp</TT> refinement task
+file includes energy minimization both before and after the simulated
+annealing, as well as B-factor refinement after simulated annealing. The process is repeated for the specified number of refinement cycles (in this case 2 cycles). It is recommended to use the general <TT>refine.inp</TT> refinement task
+file for all types of refinement except rigid body refinement.</P>
+<P>The initial model has the same B-factor for all atoms. In order to
+take account of the possible variation in B-factors throughout the
+model, B-factors are then refined. The default is restrained B-factor refinement which is generally reasonably for diffraction data sets better than 3.5 A. For lower resolution data sets, group B-factor refinements shall be used. </P>
+<P>The  refinement is performed
+  with the CNS task file <TT>refine.inp</TT>:</P>
+<PRE>
+      cns_solve &lt; <A HREF="refine.inp">refine.inp</A> &gt; refine.out
+</PRE>
+
+<P>It is generally advisable to perform 5-10 repeats of the annealing refinement with different seeds that determine the initial random velocities for the molecular dynamics simulations. This can be easily done by setting up a <TT>C shell</TT> script file that modifies the CNS <TT>refine.inp</TT> task file. A particular example is:</P>
+<PRE>
+      ./<a href="refine.csh">refine.csh</a> 1</PRE>
+<p>This  script changes the seed in the <TT>refine.inp</TT> file to 1, changes the output_root to &quot;refine_1&quot;,  saves the modified file to <TT>refine_1.inp</TT>, and then runs the job. Multiple such scripts can be run to perform multiple jobs (e.g., <tt>./refine.csh 2</tt>). This approach of multiple independent jobs is particularly powerful in a distributed computing environment. Generally, the coordinates with the lowest Rfree should be used for further analysis. </p>
+<h3>Sorting the best structures obtained from multiple independent refinements</h3>
+<p>The refined coordinates from multiple independent refinements should be sorted with respect to Rfree. We use a Perl script to do this:<br>
+  <br>
+</p>
+<pre>      .<a href="sort.pl">/sort.pl</a> refine_*.pdb &gt; sort.list<br>
+</pre>
+<br>
+This Perl script creates a new directory &quot;sorted&quot; that contains the final coordinates and the corresponding Fourier coefficient map files (*.hkl files) sorted by Rfree, i.e., sorted/sort_1.pdb is the best coordinate set, the one with the lowest Rfree, and sorted/sorted_1.hkl is the corresponding Fourier coefficient file.  The  script also produces a convenient summary:<br>
+<br>
+<a href="sort.list"><br>
+</a>
+<pre>
+sort.list
+</pre>
+<h3>B-factor sharpening of electron density maps</h3>
+<p>B-factor sharpening of the electron density maps produced by <tt>refine.inp</tt> can be accomplished in several ways. First, the electron density map files (<tt>refine*.map</tt>) can be read by Coot (see also <a href="../model_complete/text.html">Next Section</a> for other methods to display electron density maps) and then B-factor sharpened using Calculate -&gt; Map Sharpening. This method also works when reading the CNS structure factor file that contains the coefficients for the 2Fo-Fc and Fo-Fc maps (<tt>refine.hkl</tt>) into Coot using File -&gt; Auto OpenMTZ. Second, the CNS structure factor file <tt>refine.hkl </tt>can be read by the CNS <tt>fourier_map.inp</tt> script and B-factor sharpening applied upon computing electron density maps (the coefficients for the Fo-Fc map are in the array called F1, the coefficients for the 2Fo-Fc map are in the array F2).</p>
+<h3>Averaging electron density maps obtained from multiple independent refinements</h3>
+<p>The electron density maps resulting form these multiple refinement runs can be averaged by using the <tt>model_map.inp</tt> script file:</p>
+<PRE>      cns_solve &lt; <A HREF="model_map.inp">model_map.inp</A> &gt; model_map.out
+</PRE>
+<p>In this case, we obtain an averaged map computed from the coordinates <tt>refine_1.pdb</tt> and <tt>refine_2.pdb</tt>. See the next section for hints how to display the resulting electron density maps. This type of averaging can be very powerful to improve model phases (L. M. Rice, P. D. Adams, Y. Shamoo, and A. T. Brunger, Phase improvement by multi-start simulated annealing refinement and structure factor averaging, J. Appl. Crystallography 31, 798-805, 1998). The <tt>model_map.inp</tt> script file also has an option for B-factor sharpening. </p>
+<h3>Use of non-crystallographic symmetry (NCS) information</h3>
+<P>Note that because there is a dimer in the asymmetric unit we could
+  use non-crystallographic symmetry as a restraint in the refinement
+  (see the tutorial <a href="../../using_ncs/restrain/text.html">Using NCS Restraints in Refinement</a>). NCS should be used if possible, especially if the resolution
+  of the data is limited (worse than 2.5A). For example, if we re-run the refinement job above in the presence of NCS restraints (the <tt>refine_ncs.inp</tt> file is taken from the <tt>refine.inp</tt> input file, i.e., the only differences are the particular input parameter settings): </P>
+<PRE>      cns_solve &lt; <A HREF="refine_ncs.inp">refine_ncs.inp</A> &gt; refine_ncs.out
+</PRE>
+<TABLE BORDER=2 ALIGN=CENTER>
+  <TR ALIGN=CENTER><TD></TD><TD>no NCS restraints</TD><TD>NCS restraints</TD></TR>
+<TR ALIGN=CENTER><TD ALIGN=RIGHT>free R-value</TD>
+<TD>0.3895</TD>
+  <TD>03851</TD></TR>
+<TR ALIGN=CENTER><TD ALIGN=RIGHT>R-value</TD>
+<TD>0.3418</TD>
+  <TD>0.3541</TD></TR>
+</TABLE>
+
+<P>This first round of refinement has reduced the free R-value from
+  43% to 39%. The next step is to locate any major part of the model
+which is currently missing (see the next section).</P>
+<BR><A HREF="tutorial.csh">Script to run this tutorial</A>
+
+<HR WIDTH="100%"></P>
+
+<A HREF="../../text.html">Back to tutorials</A>&nbsp;&nbsp;
+<A HREF="../model_stats/text.html">Previous section</A>&nbsp;&nbsp;
+<A HREF="../model_complete/text.html">Next section</A>
+
+<HR WIDTH="100%"></P>
+   
+</BODY>
+</HTML>

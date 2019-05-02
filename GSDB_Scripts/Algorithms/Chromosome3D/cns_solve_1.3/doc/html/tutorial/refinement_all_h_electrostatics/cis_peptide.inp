@@ -1,0 +1,276 @@
+{+ file: cis_peptide.inp +}
+{+ directory: general +}
+{+ description: Identify cis-peptides in a protein structure +}
+{+ comment: 
+   writes out appropriate parameter file to maintain 
+   cis-peptide geometry during refinement +}
+{+ authors: Axel T. Brunger, and Paul D. Adams +}
+{+ copyright: Yale University +}
+
+{- Guidelines for using this file:
+   - all strings must be quoted by double-quotes
+   - logical variables (true/false) are not quoted
+   - do not remove any evaluate statements from the file -}
+
+{- begin block parameter definition -} define(
+
+{============================ coordinates ============================}
+
+{* coordinate file *}
+{===>} coordinate_infile="generate_easy.pdb";
+
+{==================== molecular information ==========================}
+
+{* topology files *}
+{===>} topology_infile_1="CNS_TOPPAR:protein-allhdg5-4.top";
+{===>} topology_infile_2="CNS_TOPPAR:dna-rna-allatom-hj-opls.top";
+{===>} topology_infile_3="CNS_TOPPAR:water-allhdg5-4.top";
+{===>} topology_infile_4="CNS_TOPPAR:ion.top";
+{===>} topology_infile_5="CNS_TOPPAR:carbohydrate.top";
+{===>} topology_infile_6="";
+{===>} topology_infile_7="";
+{===>} topology_infile_8="";
+
+{* linkage files for linear, continuous polymers (protein, DNA, RNA) *}
+{===>} link_infile_1="CNS_TOPPAR:protein-allhdg5-4.link";
+{===>} link_infile_2="CNS_TOPPAR:dna-rna-pho.link";
+{===>} link_infile_3="";
+
+{* parameter files *}
+{===>} parameter_infile_1="CNS_TOPPAR:protein-allhdg5-4.param";
+{===>} parameter_infile_2="CNS_TOPPAR:dna-rna-allatom-hj-opls.param";
+{===>} parameter_infile_3="CNS_TOPPAR:water-allhdg5-4.param";
+{===>} parameter_infile_4="CNS_TOPPAR:ion.param";
+{===>} parameter_infile_5="CNS_TOPPAR:carbohydrate.param";
+{===>} parameter_infile_6="";
+{===>} parameter_infile_7="";
+{===>} parameter_infile_8="";
+
+{* molecular topology file: optional (leave blank for auto generation) *}
+{* 
+   Auto generation of the molecular topology from the coordinates should only 
+   be used if:
+   (1) Each distinct protein, DNA, or RNA chain must have a separate segid 
+       (or chainid if the chainid is non-blank). 
+   (2) Each contiguous protein, RNA, or RNA chain must not be disrupted by 
+       other types of residues or ligands.  Rather, these other residues 
+       should be listed after protein, RNA/DNA chains. 
+   (3) Disulphides are automatically detected based on distances between the sulfur atoms
+      (must be less than 3 A apart).
+   (4) Broken protein/RNA/DNA chains without terminii must be more than 2.5 A apart to be recognized as such.
+   (5) N-linked glycan links are automatically recognized if the bonded atoms are less than 2.5 A apart.
+   (6) Automatic generation cannot be used with alternate conformations. 
+   For ligands, the user must make suitable topology and parameter files.
+   For non-standard covalent linkages, the custom patch file should be used.
+   Alternatively, the generate.inp or generate_easy.inp task files
+   can be used to generated the mtf prior to running this task file.
+    *}
+{===>} structure_infile="";
+
+{* for auto generation: extra linkages and modifications by custom patches *}
+{===>} patch_infile="";
+
+{========================== atom selection ===========================}
+
+{* select atoms to be included in calculation *}
+{===>} atom_select=(known and not hydrogen);
+
+{=========================== output files ============================}
+
+{* output parameter file to be included in subsequent refinement *}
+{===>} list_outfile="cis_peptide.param";
+
+{===========================================================================}
+{        things below this line do not normally need to be changed          }
+{===========================================================================}
+
+ ) {- end block parameter definition -}
+
+ checkversion 1.3
+
+ evaluate ($log_level=quiet)
+
+  if ( $log_level = verbose ) then
+   set message=normal echo=on end
+ else
+   set message=off echo=off end
+ end if
+
+ if ( &BLANK%structure_infile = true ) then
+ 
+    {- read topology files -}
+    topology
+     evaluate ($counter=1)
+     evaluate ($done=false)
+     while ( $done = false ) loop read
+      if ( &exist_topology_infile_$counter = true ) then
+         if ( &BLANK%topology_infile_$counter = false ) then
+            @@&topology_infile_$counter
+         end if
+      else
+        evaluate ($done=true)
+      end if
+      evaluate ($counter=$counter+1)
+     end loop read
+    end
+    
+    @CNS_XTALMODULE:mtfautogenerate (
+                                  coordinate_infile=&coordinate_infile;
+                                  convert=true;
+                                  separate=true;
+                                  atom_delete=(not known);
+                                  hydrogen_flag=true;
+                                  break_cutoff=2.5;
+                                  disulphide_dist=3.0;
+                                  carbo_dist=2.5;
+                                  patch_infile=&patch_infile;
+                                  O5_becomes="O";
+                                 )
+
+ else
+
+   structure @&structure_infile end
+   coordinates @&coordinate_infile
+
+ end if
+
+ {- read parameter files -}
+ parameter
+  evaluate ($counter=1)
+  evaluate ($done=false)
+  while ( $done = false ) loop read
+   if ( &exist_parameter_infile_$counter = true ) then
+      if ( &BLANK%parameter_infile_$counter = false ) then
+         @@&parameter_infile_$counter
+      end if
+   else
+     evaluate ($done=true)
+   end if
+   evaluate ($counter=$counter+1)
+  end loop read
+ end
+
+ set message=normal echo=on end
+
+ if ( $log_level = verbose ) then
+   set message=normal echo=on end
+ else
+   set message=off echo=off end
+ end if
+
+ evaluate ($first=true)
+ evaluate ($written=false)
+
+ for $id in id ( &atom_select and name ca ) loop main
+
+   show (segid) (id $id)
+   evaluate ($segid=$result)
+   show (resid) (id $id)
+   evaluate ($resid=$result)
+   show (resname) (id $id)
+   evaluate ($resname=$result)
+
+   identity (store1) ( &atom_select and ( name c and bondedto 
+            ( name n and resid $resid and segid $segid ) ) )
+   if ( $select = 1 ) then
+     show element (store1) (attribute store1 > 0)
+     evaluate ($id_prev=$result)
+     show (segid) (id $id_prev)
+     evaluate ($segid_prev=$result)
+     show (resid) (id $id_prev)
+     evaluate ($resid_prev=$result)
+     show (resname) (id $id_prev)
+     evaluate ($resname_prev=$result)
+ 
+     pick dihedral
+       (name ca and segid $segid_prev and resid $resid_prev)
+       (name  c and segid $segid_prev and resid $resid_prev)
+       (name  n and segid $segid and resid $resid)
+       (name ca and segid $segid and resid $resid)
+       geometry
+       
+     evaluate ($dihedral=mod($result+360,360))
+
+     if ( $dihedral > 180 ) then
+       evaluate ($dihedral=$dihedral-360)
+     end if
+
+     evaluate ($absdihedral=abs($dihedral))
+
+     set display=&list_outfile end
+
+     if ( $absdihedral < 35 ) then
+       if ( $first = true ) then
+         display {===========================================================}
+         display ! atom based parameter modifications to maintain 
+         display !   cis-peptide geometry during refinement
+         display ! automatically generated by script cis_peptide.inp
+         display ! input coordinate file: &STRIP%coordinate_infile
+         display ! CNS version: $cns_version  date: $date  user: $name
+         display
+         display ! THIS PARAMETER FILE MUST BE READ AS THE LAST FILE IN THE LIST
+         display ! OF PARAMETER FILES
+         display
+         display {===========================================================}
+         display 
+         display set echo=off message=off end
+         display 
+         evaluate ($first=false)
+         evaluate ($written=true)
+       end if
+       
+       {- add double quotes to segid in order to allow blank segids -}
+       evaluate ($segid="""+$segid+""") 
+       evaluate ($segid_prev="""+$segid_prev+""")
+       
+       display {===========================================================}
+       display !>>>> cis-peptide: segid=$segid resid=$resid resname=$resname  
+       display !>>>>              current dihedral value= $dihedral[f8.3]
+       display 
+       display !to maintain this geometry use the 
+       display !  following parameter statement during refinement 
+       display !  (for protein.top/protein.param,protein_rep.param):
+       display
+       display dihedral ( name ca and segid $segid_prev and resid $resid_prev )
+       display          ( name  c and segid $segid_prev and resid $resid_prev )
+       display          ( name  n and segid $segid and resid $resid )
+       display          ( name ca and segid $segid and resid $resid ) 
+       display            1250.0 1 180.0
+       display 
+       display ! ( for protein-allhdg5-4.top, protein-allhdg5-4.param):
+       display improper ( name ca and segid $segid_prev and resid $resid_prev )
+       display          ( name  c and segid $segid_prev and resid $resid_prev )
+       display          ( name  n and segid $segid and resid $resid )
+       display          ( name ca and segid $segid and resid $resid ) 
+       display            1250.0 0 0.0
+       display
+       display
+       display {===========================================================}
+     elseif ( $absdihedral < 165 ) then
+       display {===========================================================}
+       display !>>>> distorted peptide: segid= $segid resid= $resid resname=$resname
+       display !>>>>                    current dihedral value= $dihedral[f8.3]
+       display 
+       display !this may require correction before starting refinement
+       display 
+       display {===========================================================}
+     end if
+
+     set display=OUTPUT end
+   else
+     display couldn't find anything bonded to atom N
+   end if
+
+ end loop main
+
+ if ( $written = true ) then
+   set display=&list_outfile end
+   display 
+   display set echo=on message=on end
+   display
+   set display=OUTPUT end
+ end if
+
+ stop
+
+

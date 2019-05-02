@@ -1,0 +1,183 @@
+#!/bin/csh -f
+#
+# script to automate installation of the CNSsolve HTML interface on
+# a local WWW server - this script makes changes to the CNSsolve installation
+# and should be run by the CNSsolve adminstrator
+#
+# need to know:
+#   - hostname of WWW server
+#   - path to start of WWW tree (directory from which documents are served)
+#   - name of the cgi-bin directory on the WWW server
+#   - location of PERL on the WWW server
+#
+# the CNSsolve directory must be visable from the WWW server
+# for the local HTML interface to work
+#
+# PERL version 5 or later is required for the HTML interface
+#
+# Written by: Paul Adams 6-2-98
+#
+# copyright Yale University
+#
+# defaults:
+#
+if ( ! $?CNS_SOLVE ) then
+ echo '$CNS_SOLVE variable undefined'
+ echo "please source cns_solve_env"
+ exit 1
+endif
+#
+if ( ! -e $CNS_SOLVE ) then
+ echo "CNSsolve directory does not exist"
+ echo "aborting installation"
+ exit 1
+endif
+#
+set version=`grep -i 'parameter *(cnsversion' $CNS_SOLVE/source/version.inc | cut -d\' -f2`
+set patch=`grep -i 'parameter *(cnspatch' $CNS_SOLVE/source/version.inc | cut -d\' -f2`
+if ( $patch == 0 ) set patch=''
+set version=$version$patch
+#
+set www_server=`hostname`
+set www_root="/home/httpd/html"
+set cgi_name="cgi-bin"
+set perl_bin='/usr/bin/perl'
+#
+echo -n "name of WWW server [default: $www_server ]-> "
+set response=$<
+if ( $response != "" ) then
+ set www_server=$response
+endif
+#
+echo -n "path to the start of WWW tree [default: $www_root ]-> "
+set response=$<
+if ( $response != "" ) then
+ set www_root=`echo $response | sed -e 's/\/$//'`
+endif
+#
+echo -n "name of WWW CGI directory [default: $cgi_name ]-> "
+set response=$<
+if ( $response != "" ) then
+ set cgi_name=`echo $response | sed -e 's/^\///;s/\/$//;s/.*\/.*\///'`
+endif
+#
+echo -n "full path to PERL on WWW server [default: $perl_bin ]-> "
+set response=$<
+if ( $response != "" ) then
+ set perl_bin=`echo $response | sed -e 's/\/$//'`
+endif
+#
+echo "=============================================================="
+echo "location of CNSsolve directory is: $CNS_SOLVE"
+echo "version of CNSsolve is: $version"
+echo "name of WWW server is: $www_server"
+echo "path to the start of the WWW tree is: $www_root"
+echo "name of the CGI directory is: $cgi_name"
+echo "location of the PERL program is: $perl_bin"
+echo "=============================================================="
+#
+echo -n "continue with these parameters? [y/n]-> "
+set response=$<
+if ( $response == "y" || $response == "Y" ) then
+ echo "proceeding with CNSsolve HTML interface installation"
+else
+ exit 0
+endif
+#
+if ( ! -e $CNS_SOLVE/doc/html/local ) then
+ echo "making directory $CNS_SOLVE/doc/html/local"
+ mkdir $CNS_SOLVE/doc/html/local
+endif
+#
+cd $CNS_SOLVE/doc/html/local
+#
+foreach file ($CNS_SOLVE/doc/html/cgi/*.cgi $CNS_SOLVE/doc/html/cgi/*.lib)
+ echo "making local version of $file:t"
+ sed -e "s#cns-online\.org#$www_server#g; \
+         s#cgi-bin#$cgi_name#g; \
+         s#\(www_root *= *'\).*\(';\)#\1$www_root\2#; \
+         s#/usr/bin/perl#$perl_bin#g" $file > $file:t
+ chmod a+x $file:t
+end
+#
+if ( ! -e $CNS_SOLVE/doc/html/local/input_files ) then
+ echo "making directory $CNS_SOLVE/doc/html/local/input_files"
+ mkdir $CNS_SOLVE/doc/html/local/input_files
+endif
+#      
+cd $CNS_SOLVE/doc/html/local/input_files
+echo "making $CNS_SOLVE/doc/html/local/input_files/frame_custom.html"
+sed -e "s#cns-online\.org#$www_server#g; \
+       s#cgi-bin#$cgi_name#g" \
+       $CNS_SOLVE/doc/html/input_files/frame_dist.html > frame_custom.html
+#
+cd $CNS_SOLVE/doc/html/input_files
+echo "removing old link for $CNS_SOLVE/doc/html/input_files/frame.html"
+/bin/rm -f frame.html
+echo "adding link from ../local/input_files/frame_custom.html to frame.html"
+/bin/ln -s ../local/input_files/frame_custom.html frame.html 
+#
+if ( ! -e $CNS_SOLVE/doc/html/local/modules ) then
+ echo "making directory $CNS_SOLVE/doc/html/local/modules"
+ mkdir $CNS_SOLVE/doc/html/local/modules
+endif
+#      
+cd $CNS_SOLVE/doc/html/local/modules
+echo "making $CNS_SOLVE/doc/html/local/modules/frame_custom.html"
+sed -e "s#cns-online\.org#$www_server#g; \
+       s#cgi-bin#$cgi_name#g" \
+       $CNS_SOLVE/doc/html/modules/frame_dist.html > frame_custom.html
+#
+cd $CNS_SOLVE/doc/html/modules
+echo "removing old link for $CNS_SOLVE/doc/html/modules/frame.html"
+/bin/rm -f frame.html
+echo "adding link from ../local/modules/frame_custom.html to frame.html"
+/bin/ln -s ../local/modules/frame_custom.html frame.html 
+#
+if ( ! -e $CNS_SOLVE/doc/html/local/libraries ) then
+ echo "making directory $CNS_SOLVE/doc/html/local/libraries"
+ mkdir $CNS_SOLVE/doc/html/local/libraries
+endif
+#      
+cd $CNS_SOLVE/doc/html/local/libraries
+echo "making $CNS_SOLVE/doc/html/local/libraries/frame_custom.html"
+sed -e "s#cns-online\.org#$www_server#g; \
+       s#cgi-bin#$cgi_name#g" \
+       $CNS_SOLVE/doc/html/libraries/frame_dist.html > frame_custom.html
+#
+cd $CNS_SOLVE/doc/html/libraries
+echo "removing old link for $CNS_SOLVE/doc/html/libraries/frame.html"
+/bin/rm -f frame.html
+echo "adding link from ../local/libraries/frame_custom.html to frame.html"
+/bin/ln -s ../local/libraries/frame_custom.html frame.html 
+#
+if ( ! -e $CNS_SOLVE/doc/html/local/utilities ) then
+ echo "making directory $CNS_SOLVE/doc/html/local/utilities"
+ mkdir $CNS_SOLVE/doc/html/local/utilities
+endif
+#      
+cd $CNS_SOLVE/doc/html/local/utilities
+echo "making $CNS_SOLVE/doc/html/local/utilities/text_custom.html"
+sed -e "s#cns-online\.org#$www_server#g; \
+       s#cgi-bin#$cgi_name#g" \
+       $CNS_SOLVE/doc/html/utilities/text_dist.html > text_custom.html
+#
+cd $CNS_SOLVE/doc/html/utilities
+echo "removing old link for $CNS_SOLVE/doc/html/utilities/text.html"
+/bin/rm -f text.html
+echo "adding link from ../local/utilities/text_custom.html to text.html"
+/bin/ln -s ../local/utilities/text_custom.html text.html 
+#
+cd $CNS_SOLVE/bin
+echo "making $CNS_SOLVE/bin/cns_edit_local"
+sed -e "s#cns-online\.org#$www_server#g; \
+       s#cgi-bin#$cgi_name#g" \
+       $CNS_SOLVE/bin/cns_edit > cns_edit_local
+chmod a+x cns_edit_local
+#
+echo "Completed local changes to CNSsolve for HTML interface installation"
+echo ""
+echo "Ask your WWW server administrator to run:"
+echo "  $CNS_SOLVE/bin/www_server_setup"
+echo "to modify your local WWW server for the CNSsolve HTML interface"
+#

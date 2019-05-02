@@ -1,0 +1,2071 @@
+          ============================================================
+           Written by: A.T.Brunger, P.D.Adams, G.M.Clore, W.L.DeLano,
+                       P.Gros, R.W.Grosse-Kunstleve,J.-S.Jiang,J.M.Krahn,
+                       J.Kuszewski, M.Nilges, N.S.Pannu, R.J.Read,
+                       L.M.Rice, G.F.Schroeder, T.Simonson, G.L.Warren.
+           Copyright (c) 1997-2010 Yale University
+          ============================================================
+
+
+	    Program: CNS
+	    Version: 1.3
+	Patch level: 0
+	     Status: general release
+
+Changes for version 1.3 patch level 0
+-------------------------------------
+
+Summary of major changes and new features:
+
+- DEN method for low resolution refinement.  See the new tutorial: 
+  Structure refinement at low resolution (below ~ 3.5 A resolution).
+  (Reference: 
+
+   G.F. Schroeder, M. Levitt, and A.T. Brunger, Super-resolution 
+   biomolecular crystallography with low-resolution data,  
+   Nature 464, 1218-1222, 2010)
+
+- Simulations of FRET-derived distances and docking calculations with 
+  FRET-derived distances.  See the new tutorial: Single molecule FRET.
+  (References: 
+   
+   M. Vrljic, P. Strop, J.A. Ernst, R.B. Sutton, S.Chu, A.T. Brunger, 
+   Molecular mechanism of the synaptotagmin-SNARE interaction in Ca2+ -triggered 
+   vesicle fusion, Nature Structural and Molecular Biology 17, 325-331, 2010;
+
+   U.B. Choi, P. Strop, M. Vrljic, S. Chu, A.T. Brunger, K.R. Weninger, 
+   Single-molecule FRET-derived model of the synaptotagmin 1-SNARE fusion complex. 
+   Nature Structural and Molecular Biology 17, 318-324, 2010).
+
+
+- Automatic generation ("on-the-fly") of molecular topology (mtf) 
+  files (see the tutorial in Generating PDB and MTF files).  Note that this
+  new feature has required that wildcards are not allowed anymore in 
+  the topology "link" files. 
+
+- Greatly expanded, general refinement script file 
+  (inputs/xtal_refine/refine.inp and inputs/xtal_twin/refine_twin.inp)
+  for most refinement tasks, including positional (xyz), B-factor refinement,
+  as well as simulated annealing. It also writes 2Fo-Fc and Fo-Fc electron density maps
+  in CNS/X-PLOR format as well as a coefficient file that can be read
+  directly by Coot (or by the CNS script fourier_map.inp for B-factor sharpening). 
+  
+- New and updated refinement tutorials, including a tutorials
+  for refinement at low resolution, refinement with DEN, and weight
+  optimization.
+
+- Protein, nucleic acid, and carbohydrates now conform to the PDB standard.
+
+- Automatic linkage detection for N-linked carbohydrates based on distance.
+
+- Hybrid-36 for atom serial numbers for PDB files produced by CNS and 
+  support for hybrid-36 for the "resid" field (see tutorial on
+  Coordinate fles). 
+
+- Generation of topology and parameter files from CIF files with new 
+  cns_import_cif utility written by Joseph M. Krahn. See the tutorial 
+  on "Conversion of CIF files into CNS parameter and topology files. 
+
+- Performance improvements for torsion angle topology generation 
+  for very large systems such as ribosome crystal structures. 
+
+- updated all-hydrogen topology and parameter files (protein-allhdg5-4*, and 
+  dna-rna-allatom-hj-opls.*). These files are primarily intended for
+  NMR structure determination but they could also be used for X-ray structure
+  refinement to include all hydrogens in the computation of the energy function. 
+
+
+Detailed chronological list of changes:
+
+1. pgf97_mp Makefile in instlib/machine/supported/mac_intel_darwin.  Note, to
+run this, you need to comment out the line ..."if (kmp_get_stacksize()... in
+xfft.f. 
+
+2. improved error handling in selrpn.f
+
+3. faster auto break handling in inputs/general/generate.inp,
+inputs/general/generate_easy.inp, inputs/xtal_refine/refine.inp
+
+4. modified source/distan.f, helplib/cns-distance, source/pick.inc
+
+5. new test/make_den.inp, test/make_den.out test files
+
+6. modified bin/maketar so linux binaries can be written to archive ( still need to update Installation docs)
+
+7. modified doc/html/installation/menu.html and doc/html/installation/text.html. 
+
+8. bug fix in inputs/xtal_refine/refine.inp: gridding for map and re-calculation of bulk solvent model. Modified Makefile in inputs/xtal_refine/run.
+
+9. new input file: inputs/xtal_twin/refine_twin.inp.  Modified Makefile in inputs/xtal_twin/run
+
+10. bug fix in source/dtorsion_top.f, line 1906: check for ILOOK less equal then MAXBND
+
+11. new inputs/xtal_data/den_make.den, porin.den
+
+12. new inputs/general/den_make.inp
+
+13. modified inputs/general/run/Makefile
+
+14. addition of DEN to inputs/xtal_refine/minimize.inp, anneal.inp, refine.inp, sa_omit_map.inp, composite_omit_map.inp, 
+    xtal_twin/miniimze_twin.inp,anneal_twin.inp, minimize_twin,inp
+    
+15. new input file /inputs/xtal_refine/optimize_den.inp
+
+16. addition of DEN functionality test in inputs/xtal_refine/run/Makefile, inputs/xtal_twin/run/Makefile
+
+17. modified inputs/xtal_refine/optimize_wa.inp to set mass assignments before drawing velocities from a Maxwell distribution
+
+18. modified modules/xtal/write_pdb: only known coordinates will be written
+
+19. define multiple rigid groups for torsion angle dynamics in all input files using torsion angle dynamics
+
+20  new modules/xtal/messagesilent, modules/xtal/messagervert
+
+21. changed all input files that contain torsion angle dynamics to specify multiple rigid groups
+
+22. minor changes in inputs/xtal_refine/bdomain.inp
+
+23. added optional bdomain refinement to inputs/xtal_refine/refine.inp and inputs/xtal_twin/refine_twin.inp
+
+24. changes in modules/xtal/scale_and_solvent, modules/xtal/scale_and_solvent_grid_search, 
+    modules/xtal/refinementtarget, modules/xtal/pattersonmap, modules/xtal/pdbsubmission, 
+    source/xmulti.f, source/xtarget.f, source/vector.f, source/xreduce.f
+    source/xshow.f, source/xstats.f, source/parser.f, source/xrmani.f, source/xparse.f to make the 
+    output less verbose when MESSage is set to OFF. 
+    
+25. automatic solvent mask parameter search: restricted solrad=shrink from 0.5 to 3 A (was 0.0 to 4 A). 
+
+26. included timer info in source/xray.f
+
+27. new module modules/xtal/calculate_phasedifff to calculate fom weighted phase differences between model phases and experimental phases
+
+12/17/08
+
+28. modifications in source/xmaxl.f, source/xfunct.f, modules/xtal/refinementtarget, test/xmaxl.inp: improved MLHL function that
+treats reflections with pa=pb=pc=pd=0 using the Rice function and incorporation of experimental sigmas. 
+
+12/20/08
+
+29. allowing both NCS restraints and constraints at the same time.  Modifications in inputs/auxiliary/ncs.def, inputs/xtal_refine/refine.inp,
+inputs/xtal_refine/model_stats.inp, inputs/xtal_refine/ncs_average_map.inp, inputs/xtal_twin/refine_twin.inp, inputs/xtal_twin/model_stats_twin.inp,
+inputs/xtal_util/average_map.inp.
+
+30. various small fixes:
+  - fixed missing reftarget definition in xtal_refine/optimize_average.inp
+  - fixed typo in xtal_phase/density_modify  ... must be blank if centroid phases are supplied instead
+  - moved to single file name definition for output in general/contact.inp
+  - in 11 input files fixed {+ choice: "cns" "ezd" +} ( + instead of * )
+  - included two "choice" option in inputs/general/alternate.inp 
+
+12/23/08
+
+31. modified source/xropti.s, Introduced new group constraint for restrained B-factor refinement.
+
+32. minor modification in lbfgs.f (removed unused common blocks) 
+
+33. new minimization method option for restrained, grouped, and overall B-factor refinement: method=POWELL|LBFGS.  If method=lbfgs is specified, the LBFGS minimizer is used.
+ 
+34. modified helplip/cns-xray-optimize-bfactor, helplib/cns-xray-optimize-group, helplib/cns-xray-optimize-overall
+
+35. using lbfgs minimization for positional, b-factor, and occupancy refinements in various input files and modules
+modules/xtal/coordinaterefinee, minimizecoordinates, scaleftarget, pqfpfdprefine, minimizeall, getweight, nmr/acceptavecalc, calcave, enscaleave
+
+36. new grid search default values for bulk solvent parameters: 
+  k_sol: 0.1 0.2 0.25 0.28 0.30 0.32 0.33 0.34 0.35 0.36 0.37 0.38 0.4 0.42 0.45 0.5 0.6
+  solrad=shrink =1 or 2 A for dmin > 3 A resolution.
+
+37. openmp parallelization of loops over NREFLCT in XRDRCT (xray.f) 
+
+38. writing generated molecular topology (mtf) file if generated in xtal_refine/refine.inp, xtal_twin/refine_twin,inp
+
+39. writing Fourier coefficients for maps in xtal_refine/refine.inp, xtal_twin/refine_twin,inp
+
+40. writing positive and negative peak list for maps in xtal_refine/refine.inp, xtal_twin/refine_twin,inp
+
+41. cell dimensions and space groups are written as "remarks" to call reflection and map files.
+
+01/07/09
+
+42. fcalc_p work-around removed in xfft.f.  Simplified xgrid invocation for parallel jobs.  Per Kay Diederichs.
+
+01/15/09
+
+43. moved ifort specific directive for kmp_set_stacksize from xfft.f to cns.f
+
+01/17/09
+
+44. included "limit stacksize unlimited" in cns_solve_env file (required for openmp). 
+
+01/25/09
+
+45. fixed problem with overall anistropic B-factor refinement in ir_phase and mad_phase methods (modules xtal/scaleftarget and xtal/scaleftarget2) by seting the
+phase of the temporary fcalc array to zero after expansion
+
+46. increased default number of overall B/k scaling steps to 50 in inputs/xtal_phase/ir_phase;inp and inputs/xtal_phase/mad_phase.inp
+
+47. incresed MSTACK to 10000 in source/xtarget.f, xstats.f, xshow.f, xsfsele.f, xdo.f to improve parallelization performance for xray target calculation
+
+48. parallelized loops (openmp) in source/xprobab.f
+
+02/06/09
+
+49. merged Fourier coefficients for the two maps written by xtal_refine/refine.inp and xtal_twin/refine_twin.inp
+
+02/17/09
+
+50. included Haddock modifications curtesy Alexandre Bonvin.  New test case veantest.inp/veantest.out in /test
+
+02/19/09
+
+51. modifications in source/string.f and xdeclare.f.  New subroutine CHKWRD to check if declared NAME for 
+object is valid (must start with letter and must not contain any special characters). 
+
+05/10/09
+- initial step to "update" DEN to starting structure in "refine.inp"
+
+07/18/09
+- bug fix in bin/cns_edit: use .html extension for "tmpfile".  Safari failed without the .html extension. 
+
+09/09/09
+- modified source/xstats.f and helplib/cns-xray-statistics to define compound symbols
+     $statistics.nbins
+     $statistics.<i>.nref
+     $statistics.<i>,high
+     $statistics.<i>.low
+     $statistics.<i>.value
+  for the first "expression".
+- modified modules/xtal/calculate_r and modules/xtal_calculate_r_twin to introduce
+  definition of R value statistics compound symbol
+- modified inputs/xtal_refine/refine.inp and inputs/xtal_twin/refine_twin.inp to print
+  R value statistics to output coordinate file
+
+09/09/09
+- bug fix bug in difference_distance.inp
+
+The following lines
+
+evaluate ($dist1=sqrt(($xm2-$xm1)^2+($ym2-$ym1)^2+($ym2-$ym1)^2))
+evaluate ($dist2=sqrt(($xc2-$xc1)^2+($yc2-$yc1)^2+($yc2-$yc1)^2))
+
+have been changed to:
+
+evaluate ($dist1=sqrt(($xm2-$xm1)^2+($ym2-$ym1)^2+($zm2-$zm1)^2))
+evaluate ($dist2=sqrt(($xc2-$xc1)^2+($yc2-$yc1)^2+($zc2-$zc1)^2))
+
+09/09/09
+- bug fix in xtal_refine/refine.inp and xtal_twin/refine_twin.inp
+{* linkage files *}
+{===>} link_infile_1="CNS_TOPPAR:protein.link";
+{===>} link_infile_2="CNS_TOPPAR:dna-rna.link";
+{===>} link_infile_3="";
+...
+     if ( &BLANK%link_infile_1 = false ) then @@&link_infile_1 end if
+     if ( &BLANK%link_infile_2 = false ) then @@&link_infile_2 end if
+     if ( &BLANK%link_infile_3 = false ) then @@&link_infile_3 end if
+
+- included a 'patch_infile' in xtal_refine/refine.inp and xtal_twin/refine_twin.inp, which is read inline to allow custom patching commands when needed. 
+
+- note in xtal_refine/refine.inp and xtal_twin/refine_twin that .hkl file can be read by COOT Auto Open MTZ... file option
+
+- note in xtal_refine/refine.inp and xtal_twin/refine_twin about how to compute minimized or annealed omit maps:
+  -- select atoms in refinement ( known and not ( segid A and resid 40:50))
+  -- select atoms to be harmonically restrained ( ( segid A and resid 40:50 ) around 5 ) 
+  -- select fixed atoms to include the omitted atoms: ( segid A and resid 40:50)
+
+09/11/09
+- modification in source/parser.f and helplib/global - exact conditional comparison "==" for if tests 
+- modified modules/xtal/sdb_to_coord : exact matching in four instances
+
+- fixed bug in modules/xtal/data_detwin:changed reference to ref_det_active to &ref_detwin and tst_det_active to &tst_detwin
+
+- modification in source/string.s, routine SPLITI to allow negative residue numbers
+
+- added auto generate DEN feature in inputs/xtal_refine/refine.inp and inputs/xtal_twin/refine.inp
+
+- removed "inputs/xtal_refine/optimize_den" task file
+
+- removed DEN from xtal_twin/anneal_twin.inp, xtal_twin/minimize_twin.inp, xtal_refine/anneal.inp, xtal_refine/minimize.inp, xtal_refine/sa_omit_map.inp, xtal_refine/composite_omit_map.inp
+
+10/30/09
+- calculation of RSR in inputs/xtal_refine/refine.inp and inputs/xtal_twin/refine_twin.inp
+
+- removed final DEN output in inputs/xtal_refine/refine.inp and inputs/xtal_twin/refine_twin.inp
+
+- print rms distance deviation to eference structure (initial and final) to PDB file header in inputs/xtal_refine/refine.inp and inputs/xtal_twin/refine_twin.inp
+
+- use D fcalc when calculating RSR for s_A weighted maps inputs/xtal_refine/refine.inp, inputs/xtal_refine/model_map.inp, inputs/xtal_twin/refine_twin.inp, inputs/xtal_twin/model_map_twin.inp. Exception: inputs/xtal_refine/composite_omit_map.inp.
+
+- moved main chain definition from selection section to minimization section in inputs/xtal_refine/refine.inp and inputs/xtal_twin/refine_twin.inp
+
+11/02/09
+- made solrad/shrink a fixed parameter throughout (/modules/xtal/scale-and-solvent-grid-search module and all inputs); changed wording for shrink, probe otpion in all refinement input files.
+
+- three more parameter and topology slots in inputs/xtal_refine/refine.inp and inputs/xtal_twin/refine_twin.inp
+
+- make torsionmods an input file parameter in inputs/xtal_refine/refine.inp, anneal.inp, sa_omit_map.inp, composite_omit_map.inp, ncs_average_map.inp, optimize_wa.inp, xtal_twin/refine_twin.inp, anneal_twin.inp, nmr_calc/anneal.inp, anneal_cv.inp, ensemble.inp, ensemble_cv.inp, pmrefine.inp, general/model_anneal.inp
+
+- rename _r. files to _rsr in xtal_refine/refine/inp, model_map.inp and xtal_twin/refine_twin.inp, model_twin_map.inp
+
+- reset echo and message in all topology, parameter, and linkage files to original values in libraries/toppar
+
+11/03/09
+- changed places where TRUE/FALSE was declared internally as a string rather than a logical:
+
+source/mmdisg.f:568:
+     CALL DECLAR('EMBEDDED', 'LO', 'TRUE', DBCOMP, DBREAL)
+
+source/mmdisg.f:570:
+     CALL DECLAR('EMBEDDED', 'LO', 'FALSE', DBCOMP, DBREAL)
+
+source/xsymm.f:307:
+     CALL DECLAR('CENTRIC_SPACEGROUP', 'LO', 'FALSE', DBCOMP, DBREAL)
+
+source/xsymm.f:337:
+     CALL DECLAR('CENTRIC_SPACEGROUP', 'LO', 'TRUE', DBCOMP, DBREAL)
+
+- check for unknown atoms for NCS restraints equivalence atom selection and application of strict NCS operators. source/ncs.f
+
+
+11/04/09
+- changed the variables CLASSNAME and CLASSINDEX to CLASNAME and CLASINDEX in source/rama.f and source/angledb.f to address compiler issue with these variable names.
+
+- new option in xtal_refine/refine.inp, anneal.inp, xtal_twin/refine_twin.inp, anneal_twin.inp to reduce van der Waals radii during initial refinement cycles. 
+
+11/22/09
+
+- changed selection from (all) in last "predict" statement to (&low_res >= d >= &high_res) in inputs/xtal_refine/refine.inp, model_map, inputs/xtal_twin/refine_twin.inp, model_map_twin.inp  
+
+- changed to version 1.3
+
+11/23/09
+
+- added xtal_refine/refine_lowres.inp and xtal_twin/refine_twin_lowres.inp. These files are generated with a new Makefile in the xtal_refine and xtal_twin directories from the
+refine.inp and refine_twin.inp files, respectively.  Also changed the Makefiles in the corresponding run directories to run these new scripts.  The new scripts represent
+examples of low-resolution DEN assisted refinements. 
+
+- updated Copyright notice in source/cns.f doc/html/main/text.html, doc/html/tutorial/text.html
+
+11/24/09
+
+- added files p97_adp_cns.par, p97_adp_reference.pdb, p97_adp_ncs.def, p97_adp_psad38.hkl, p97_adp_testset_to38.hkl, p97_adp.mtf, p97_adp_start.pdb, p97_adp_mad_phase.hkl to inputs/xtal_data directory. Changed
+refine_lowres.inp to illustrate application to p97. 
+
+11/25/09
+
+- updated helplib/cns-noe and helplib/cns-distance
+- updated html syntax files using ./bin/syntax_convert -source=helplib -dest=
+
+11/26/09
+
+- fixed location of perl in doc/html/tutorial/adm/* files. 
+- ran doc/html/tutorial/adm/update_tutorial_inp.pl (from doc/html/tutorial/ directory). Then fixed torsion angle defaults in files
+*/anneal*.inp
+
+- fixed workaround in inputs/tutorial/xtal_phase/ir_phase.inp to capitalize segid strings.
+
+11/27/09
+
+- modified inputs/xtal_refine/refine.inp and /xtal_twin/refine_twin.inp: geometry minimization is now carried out for both types of molecular dynamics. 
+
+11/30/09
+
+- modified inputs/xtal_refine/refine.inp and inputs/xtal_twin/refine_twin.inp to set number of bins to 10 for R/Rfree vs resolution in header of PDB file
+- modified source/segment.f, coorio.f, update.f, mtfio.f, vector.f to supress various information messages with IF (WRNLEV.GE.5)...
+- introduced new module modules/xtal/mtfoutgenerate for automatic generation of the MTF from coordinates.
+- changed inputs/generate/generate_easy.inp to use the new module mtfoutgenerate
+
+12/1/09
+- updated helplib/cns-coordinate (added "convert=<logical>") and helplib/cns-write-coordinate (fixed typo).
+- added WRNDIE in subroutine GENRES in source/genic.f if residue is not found in topology files
+- added HETSYN to the allowed PDB records (although CNS ignores the information associated with this keyword) - source/coorio.f,
+source/segmnt.f
+- modified segmnt.f.  If SEPArate=TRUE is specified, the chain is also restarted if no matching link in linkage dstabase is found.
+- modified segmnt.f: wildcard matching is not allowed anymore.
+- modified segmnt.f: various changes for informational WRITE statements.  Insert WRNDIE for two conditions (residue not found in topology, and duplicate residue).
+- modiifed libraries/toppar/protein.link. dna-rna.link, dna-rna-pho.link: replaced wildcard statements with explicit statements.
+
+12/08/09
+- changes in libraries/toppar/carbohyrates.top: changed nomenclature, added both anomer forms for most residues, generic patch residues
+- changed output statement in MAPIC.F ("atom number being changed") so this message only occurs when message=debug
+- incorporated automtf option into most input files in inputs/general, xtal_pdbsubmmission, xtal_mmcif, xtal_mr, xtal_util, xtal_refine, xtal_twin
+- removed inputs/xtal_refine/optimize_average.inp
+- added 2BF1.pdb to inputs/xtal_data
+- added additional test case for inputs/general/generate_easy.inp with 2BF1.pdb
+- modified test/segment.inp to test handling of chainids vs. segids
+- changed default dynamics type to "cartesian" in inputs/xtal_refine/sa_omit_map.inp
+
+12/11/09
+- changed residue name U to U1 in libraries/toppar/ions.top to match PDB convention
+- introduced A,G,C,U and DA, AG, DC, DT residues in libraries/toppar/dna-rna.top and libraries/toppar/dna-rna-allatom.top
+- added links for these new residues to libraries/toppar/dna-rna.link and dna-rna-pho.link
+
+12/12/09
+- renamed residue U to U1 (uranium) in libraries/toppar/ion.top
+- changed atom names in libraries/toppar/dna-rna.top and dna-rna-allatom.top: O1P to OP1, O2P to OP2, O5P to OP3, THY (=DT) C5A to C7
+- fixed bug in source/segmnt.f: left-justify residue name right after reading PDB record
+- added "ANISOU" record name to recognized items from PDB files.  However, the information of the ANISOU name is not (yet) interpreted.
+- added 3HXM.pdb to inputs/xtal_data and added another test for inputs/general/generate_easy.inp
+- added DNUC patch residue to toppar/dna-rna.top and dna-rna-allatom.top - reverses NUC patch, i.e., breaks the nucleotide bond between two residues.
+- introduced auto-chain break for nucleotides in modules/xtal/mtfautogenerate
+- write only known coordinates in inputs/general/generate_easy.inp and generate.inp
+
+12/13/09
+- added 3HXM_break.pdb to inputs/xtal_data (for testing chain break autodetection in both protein and DNA/RNA) and added another test for inputs/general/generate_easy.inp
+- changed default to atom_build=(none), atom_delete=( not known ) in general/generate_easy.inp
+- removed echo when reading PDB coordinate records (changed source/coorio.f)
+- moved protein breakage patch residues form libraries/toppar/protein_break.top to protein.top, protein_allhdg.top and protein_nohydrogen.top
+- changed ILE CD to ILE CD1 in libraries/toppar/protein.top and protein_nohydrogen.top
+- changed OT1, OT2 to O, OXT in CTER patch residues in libraries/toppar/protein.top, protein_nohydrogen.top, and protein_allhdg.top
+- removed ILE CD, CTER OT1, OT2, dna, and protein break file options from inputs/general/generate_easy.inp
+- using dna-rna-pho.link as default in all files
+- increased MXRTT to 3000 in source/rtf.inc
+
+12/14/09
+- consistent treatment for reflection input files (automatic reading of all specified files, write info to output coordinate files)
+- made PDBO option the default in all input files, except NMR files.
+
+12/20/09
+- added PDB examples 1axy.pdb, 2wn9.pdb, 2wr0.pdb to inputs/xtal_data/ and added additional test examples for inputs/generate_easy/run/Makefile using these PDB entries. Removed a TER card in 1axy.pdb for testing purposes. 
+- added amy_ensemble_1.pdb, amy_ensemble_2.pdb, amy_ensemble_3.pdb to inputs/xtal_data
+- modified inputs/xtal_refine/model_map.inp to allow averaging over ensembles of coordinates
+- added CAVEAT keyword to allowed (but not interpreted) PDB records in source/segment.f and source/coorio.f
+- complete removed "gradient" option from inputs/xtal_refine/refine.inp and inputs/xtal_twin/refine_twin.inp.
+- new ensemble averaging option, automatic writing of both 2fofc, and fofc maps, coot coefficient output, removed gradient option in inputs/xtal_refine/model_map.inp
+
+12/21/09
+- re-introduced rsr list file in inputs/xtal_refine/refine.inp and inputs/xtal_twin/refine_twin.inp
+- force Friedel mate averaging in xtal_refine/model_map.inp 
+- updated inputs/xtal_twin/model_map_twin.inp (similar to changes to xtal_refine/model_map.inp
+- removed gradient map option from xtal_refine/model_map.inp and introduced a new script file "gradient_map.inp
+- removed gradient map option from xtal_twin/modeL_map_twin.inp and introduced a new script file "gradient_map_twin.inp"
+
+12/27/09
+- calculated RSR using formula sum |rho_map-rho_calc|/ sym |rho_map + rho_calc| in addition to RSCC. Changed inputs/xtal_refine/refine.inp, model_map.inp,
+xtal_twin/refine_twin.inp, model_map_twin.inp
+
+12/28/09
+- increased default for MAXFEV (maximum number of function evaluations during line search) from 5 to 10 in source/lbfgs.f and xropti.f.  Made it a parameter that can be changed from the script level for
+minimize, optimize bfactor, and optimize overall. Also changed helplib and syntax documentation.
+
+12/30/09
+- changes in xtal_refine/water_pick.inp and xtal_twin/water_pick_twin.inp: start rvalues were calculated for intermediate structure.  Fixed to calculate initial R
+values. 
+
+12/31/09
+- updated all tutorials on Refinement and Use of NCS to use the new "refine.inp" and "refine_twin.inp" scripts for all refinements except rigid body refinement.
+- updated these tutorials to use molecular topology autogeneration.
+- introduced new tutorials for refinement at low resolution and refinement using DEN.
+- removed tab character in source/define.f, subroutine DOBUFFER, at "BFUNIT=6"
+- updated all generate tutorials.  New section on molecular topology auto generation.
+
+01/02/10
+- changed modules/xtal/mtfautogenerate to use pure distance calculation rather than "pick bond geometry" to calculate distance between atoms, removed parameter
+declaration for linkage_infile
+- changed inputs/general/generate.inp to use pure distance calculation rather than "pick bond geometry" to calculate distance between atoms.
+- changed all inputs that use mtfautogenerate to read parameters after mtfautogenerate, removed linkage_infile from mtfautogenerate invocation
+- removed obsolete fix_dna_rna from utils/
+- updated refine.def in inputs/auxiiary
+
+01/03/10
+- added "format=PDBO" to all "write coor" statememts in /modules/nmr and inputs/nmr_calc/*.inp
+
+01/08/10
+- tested all phasing and NMR tutorials. Various small modifications.
+
+01/10/10
+- check for atoms with reserved SEGID=PEAK in all task files that do a peaksearch
+- removed obsolete input file inputs/xtal_util/real_space.inp
+- inputs/xtal_util/fourier_map.inp - added mtfautogenerate in Fourier map for extent=molecule option 
+- new tutorial section for Cis peptides
+
+01/12/10
+- removed obsolete inputs/xtal_util/bsharp.inp
+- new module modules/xtal/write_hkl_header to write remarks with cell, spacegroup, symmetry and CRYST1 record
+- changed various inputs files in inputs/xtal_refine, xtal_twin, xtal_util, xtal_phase, xtal_patterson to write new hkl_header information to reflection files
+- added CRYST1 to subroutine MISCOM.  The CRYST1 information is ignored for the time being.
+
+01/14/10
+- allow Fobs=0 to be valid, using sigFobs!=0 to validate it. Likewise, Iobs checks for sigIobs!=0. Various task files
+  were changed to
+  ...
+  do (ref_active=0) ( all )
+  do (ref_active=1) ( ( $STRIP%reject_sig # 0 ) and
+                      ( &low_res >= d >= &high_res ) )
+  ..
+  also changed the sigma_cut criterion to: 
+  ...
+                    ( ( amplitude($STRIP%reject_obs) > &sigma_cut*$STRIP%reject_sig ) and
+  ...
+  instead of ">="
+  Thus, if Fobs=0 are to be included, sigma_cut should be set to a negative value. 
+                    
+- cis peptide info/ peptide distortion warning for refined structure in inputs/xtal_refine/refine.inp and inputs/xtal_twin/xtal_refine_twin.inp
+
+
+01/17/10
+
+- fixed missing torsionmdmods option in inputs/general/model_anneal.inp
+- added note to remap operator in helplib/xray-expression
+
+01/19/10
+
+- changed source/dtorsion_md.f, helplib/cns-dynamics-torsion (and associated tutorial/syntax_manual file) 
+  to indicate that both velocities and coordinates are passed between invocations of torsion angle dynamics
+  unless a TOPOlogy RESEt END statement is specified. 
+  
+- allowed the 'ATTR' selection code in SELATT() to interpret '>=' and '<=' - similar
+to conditional comparisons. Changed source/selrpn.f, helplib/atom-selection and associated new_syntax html file,
+Also changed test/testsel2.inp
+
+- changed descriptions for inputs/general/generate.inp and generate_easy.inp
+
+- removed - $moving redundancy in generate.inp and generate_easy.inp
+
+- changed inputs/xtal_util/make_cv.inp and inputs/xtal_twin/make_cv_twin.inp: removed test_flag option.  Test set is always
+defined as 1, and working set as 0. 
+
+01/22/10
+
+- fix in source/nbonds.f.  Added (IF (NPAIR.GT.MAXWRK) RETURN) after two "NPAIR=NPAIR+1" statements.
+- fix in source/vector_func.f.  Changed CALL DSPERR('XRDECODE ... to CALL DSPERR('XRCAPIT in subroutine XRCAPIT.
+- change in source/xfunct.f. Added "IF (ADOMAIN(NL).EQ.'  ') FDOMAIN='SF'" after "ELSEIF (WD(1:WDLEN).EQ.'REMAP') THEN" to default to reciprocal space for domain-less expressions.
+- commented out -malign-double option in supported arch_env files in instlib/machine/* directories. This is the default on 64 bit systems, and the option caused problems with the Portland Group compiler on
+32bit machines.
+
+01/26/10
+
+- fixes in libraries/toppar/carbohydrate.top and modules/xtal/mtfautogenerate: deal with missing impropers to maintain ring anomer
+
+- added dyes.top and dyes.param to libraries/toppar for Cy3 and Cy5 fluorescent dyes
+
+- new task file: inputs/general/average_coordinates.inp.  Computes average coordinates from an ensemble of coordinates.
+
+- new task file: inputs/general/distance_calculation.inp.  Computes distance between selected coordinates over an ensemble of coordinates.
+
+- new task file: inputs/general/rms_matrix.inp.  Computes all pairwise rms differences between coordinates an ensemble. 
+
+- new task file: inputs/general/docking.inp.  Docking of models with distance restraints.  
+
+- added cluster analysis program cluster_struc.cpp to utils. Modified instlib/utils/Makefile to compile .cpp programs and to add cluster_struc.cpp to CTARGETS
+
+- added new tutorials doc/html/tutorial/fret/dye_simulations and doc/html/tutorial/fret/docking_calculations
+
+
+01/30/10
+
+- fix in xdo.f: 
+  C check if a selection is specfied
+     IF (.NOT.ERR) THEN
+     CALL NEXTDO('DO>')
+     IF (WD(1:1).NE.'(') THEN
+     CALL DSPERR('DO>','selection expected.')
+     ERR=.TRUE.    !<<< JMK
+     ELSE
+
+
+02/03/10
+
+- various fixed in helplib and transferred to doc/html/syntax_manual/html
+
+- forced all ASN-linked NDGs into the NAG anomer by applying the B1N patch - this makes NDGs beta-anomers: changes in toppar/carbohydrate.top and modules/xtal/mtfautogenerate
+
+- add new dna/rna all-hydrogen parameters based on  OPLS force field (libraries/toppar/dna-rna-allatom-hj-opls;param and dna-rna-allatom-hj-opls.top)
+
+- updated Copyright year throughout
+
+02/04/10
+
+- updated utils/cluster_struc program
+
+- fixed helplib/cns-segment
+
+- updated inputs/info/ databases
+
+02/05/10
+
+- fixed duplications in inputs/xtal_twin/refine_twin.inp
+
+- updated reference for paper cited in inputs/xtal_refine/refine.inp and inputs/xtal_twin/refine_twin.inp.  Added reference to DEN tutorial. 
+
+02/07/10
+
+- added Cys to Cy3 and Cys to Cy5 patches to libraries/toppar/dyes.top and dyes.param
+
+- updated model_anneal.inp, tutorial.csh, and text.html in doc/html/tutorialfret/dye_simulations
+
+- added geometry regularization for torsion MD option in inputs/general/model_anneal.inp
+
+02/08/10
+
+- tutorials for simulation of FRET distributions and structures with a restraining distance between pseudo atoms
+
+- updated libraries/toppar/dna-rna-allatom-hj-opls.top to conform to PDB nomenclature (single letter code and explicit DNA residues)
+
+02/09/10
+
+- new libraries/toppar/pseudo.top and libraries/toppar/pseudo.param for pseudo-atoms, along with a patch to connect a pseudo-atom to a CA atom
+
+- new feature in inputs/general/model_anneal.inp : trajectories are written as individual coordinate files as well, and as combined coordinate file for reading with VMD.  The trajectory file is ASCII. Also, introduced periodic center of mass removal for "constant" molecular dynamics simulations. 
+
+02/09/10
+
+- added string function to EVALuate and DO statements:
+
+ integer LEN(string)               -- same as Fortran
+ string SUBSTR(string,start,end)   -- same as Fortran string(start:end)
+ integer INDEX(string,substring)   -- same as Fortran
+ integer RINDEX(string,substring)  -- same as INDEX, but last occurence
+ string FORMAT(fmt_string,any_type) -- same formatting as DISPLAY; example:
+                                      create either a formatted value or "NULL".
+ string ADJUSTL(string)            -- same as Fortran (length stays the same)
+ string TRIM(string)               -- same as Fortran
+ logical MATCH(pattern,string)     -- test if string matches CNS wildcard pattern
+
+Vector operation:
+
+ string multiplication:  (string * number) produces a concatenation of
+ string repeated number times.
+
+- modified helplib/atom-expression and helplib/cns-evaluate
+
+- new test case test/test_string_functions.inp
+
+- change in source/string.f: backslosh escape mechanism in eqstwc
+
+02/14/10
+
+- changed format for NSTEP output in source/dtorsion_md.f and source/dcartesian.f
+- check for all fixed atoms in source/dtorsion_top.f
+
+02/15/10
+
+- included the following statement into cns_solve_env: setenv KMP_STACKSIZE 64m
+- removed spurious "first" test in inputs/xtal_refine/refine.inp and xtal_twin/refine_twin.inp
+- included new PDB keyword: SPRSDE in source/coorio.f and source/segment.f
+- hybrid36 output for atom seriol numbers in PDB records: source/coorio.f and test/cooriotes.inp
+- new treatment of RESSEQ and ICODE in combination with hybrid-36 for resids: source/coorio.f
+- hybrid36 generation of resids for SEGMent MOLEcule and SEGMent SEQU: source/segmnt.f
+
+
+02/19/10
+
+- changed defaults in inputs/general/model_anneal.inp: no mtf file and no crystal symmetry
+
+02/21/10
+
+- changes in source/parser.f, instlib/machine/supported/*/machine_f.f, subroutine VCLOSE: always close DISPLAY 
+  unit except when it is standard OUTPUT. Redirect closed DISPLAY unit to standard output. 
+- check for missing END statement in coordinate file: source/coorio.f and segmnt.f
+- fixed mxchain length problem in source/dtorsion.top.f
+
+02/22/10
+
+- bug fix in source/nbonds.f: seg fault in MAKINB if 1-4 interaction list is zero
+
+
+- HYBRID-36 support functions: (vector_func.f, string.f, parser.f)
+1) Converted XRENCD and XRDECD to support hybrid-36 for encode() and
+   decode() script functions. NOTE: As before, decode() gives an
+   error for invalid strings, including any resid with an iCode.
+
+2) Re-wrote SPLITI from a generic numeric+alpha splitting routine to
+   be specific to resSeq+iCode with hybrid-36. It also allows
+   plain integers > 9999, so a selection can use normal base-10
+   residue numbers. (See examples in "testsel3.inp".)
+
+3) Formatting for DISPlay and the new format() string function both
+   switch to Hybrid-36 when the format is 'I4' or 'I5' and the value
+   is too large for base-10. If hybrid-36 overflows, it is filled with
+   asterisks, as happens with the normal integer formatting.
+
+- BACKSLASH function:  (parser.f, selrpn.f)
+4) Included backslash+char processing in NEXTWD.
+   ASCIIS(backslash) is defined so that it is tokenized correctly.
+   the parser tests show no differences.
+
+5) The length of wildcard string tokens in selrpn.f were doubled to
+   make room for backslashes, and to allow for large resid numbers
+   written in base10. The only change from existing behavior is that
+   literal strings 5-8 chars long silently fail to match instead of
+   an ST2MAX error. (None of the test inputs trigger this.)
+
+- STRING FUNCTIONS:
+6) Added RINDEX function. The diffs that were missing STRFMT were also
+   missing RINDEX. It does not affect ifort, because it has RINDEX as a
+   supported extension function.
+
+7) Updated the helplib text for strings, using a syntax more like
+   the <reciprocal-space-function> section in xray-expression.
+   Also moved encode, decode, capitalize to the string heading,
+   and defined encode/decode as 4-char Hybrid-36.
+
+- new test cases test/testsel3.inp and test_string_hybrid36.inp"
+
+- updated helplib/cns-evaluate, helplib/atom-expression
+
+
+02/24/10
+
+- removed KMP_STACKSIZE Omp statement in source/cns.f.  Included more general OMP_STACKSIZE in cns_solve_env with comments. 
+- added missing LEXLIB="if" to several Makefile.header.*.gfortran files in instlib/machine/supported/*
+- changed -axPT to -axSSSE3 for ifort and icc Makefile header files in instlib/machine/supported/mac-intel-darwin; made a note in the 0read.me file that this is option is specific to the Intel Core 2 Duo processors
+- note about advanced degugging options with ifort compiler in 0read.me files in instlib/machine/supported/* and doc/html/install/text.html
+    make install compiler=ifort debug='-g -mp -traceback -debug extended -debug inline_debug_info'
+- moved mac-ppc-darwin to unsupported platforms
+- new option "RESLOW" in distan.f: lower sequence separation cutoff.  source/distan.f, source/pick.inc, test/den_make.inp, helplib/cns-distance, doc/html/syntax-manual/html/cns-distance.html, inputs/general/den_make.inp, xtal_refine/refine.inp, xtal_twin/refine_twin.inp, doc/html/tutorial/refine_low_resolution/den_refinement/text.html
+- prevent word overflow in define parameter definitions.  In source/parser.f:
+
+     IF (QWORD.AND.(QSINGL.OR.QDELIM)) CLOOP1=.FALSE.
+C
+C prevent word overflows caused by symbol substitutions
+     WDLEN=MIN(LEN(WD),WDLEN)
+
+  and in source/comand.inc: length of WD set to STRING_SIZE+1 to allow overflows of WD past WDMAX
+
+
+02/25/10
+
+- modified XRSUBSTR to allow for negative indices, source/vector_fun.f and helplib/atom-expression, cns-evaluate and associated html files.
+- added note about HYBRID36 in helplib/cns-coordinate and associated html file
+- increased format for number of scatterers in source/xray.f (output beginning with " #scat:=")
+- added allowed PDB card "SPLIT" to source/coorio.f and segmnt.f
+- replaced "if (2.eq.2)" with "if (.true.)" in source/xfft.f for OpenMP 
+- warning message about "Extreme factorization" is removed when compiled with OpenMP in source/xfft.f
+
+02/26/10
+- fixed library/toppar/torsionmdmods for new RNA/DNA and carbohydrate residues
+
+02/27/10
+- included *allhdg5-4.* OPLS protein topology/link/parameter files in libraries/toppar
+
+02/28/10
+- changed torsion topology free bond: bonds are selected based on double-selection, so multiple bonds can be "free-ed".  Changed
+libraries/toppar/torsionmdmods to make use of this new feature.  source/dtorsion_top.f. helplib/cns-dynamics-torsion-topology
+- changed loop handling in source/dtorsion_top.f.  The DTOREST routine now makes the bond exlucions and TOPOLOGY is only
+called once. 
+- numerous changes in source/dtorsion_top.f dtorsion_md.f, dtorsion.inc, update.f to simply dynamic (heap) storage handling
+
+03/01/10
+- moved MAXSET definition above first invocation in source/xrscale.f, routine XSCLSQ2
+- inserted "if ( $patch == 0 ) set patch=''" in bin/www* script files to remove "0" from the CNS version string.
+- updated doc/html/tutorial/formats/oordinates
+
+03/02/10
+- fixed bug in dtorsion_top.f in routine GETCON (exclusion list test)
+- modified libraries/toppar/dna-rna.top: removed group statement in PRESidue NUC to speed MTF generation for large systems
+- updated doc/html/installation/*
+- ribosome example for "Coordinate and Topology tutorials", "Generating PDB and MTF files" subsection
+
+03/03/10
+- change in xtal_refine/refine.inp and xtal_twin/refine_twin.inp: torsion topology generation only during first macrocycle - use 
+  reassign feature for subsequent macrocycles.
+
+03/04/10
+- fixed cy5 patch in libraries/toppar/dyes.top
+
+03/05/10
+- source/cns.f - removed duplication of "started by" message.  Removed kmp_get_stacksize declaration since it is no longer needed.
+
+03/08/10
+- modified inputs/general/docking.inp: if a trial produces a clash, the script now just moves on to the next trial rather than aborting.
+- changed instlib/util/Makefile and inslib/machine/supported/Makefile* to define separate compilers for C and C++.
+- changed OMP_STACKSIZE to KMP_STACKSIZE in cns_solve_env.  KMP_STACKSIZE is specific to Intel ifort.  The setting does not work for the Portland group compiler. 
+
+03/09/10
+- use g++ for compilation of .cpp files in gfortran Makefiles
+- changed cns_solve_env:
+limit stacksize unlimited
+# KMP_STACKSIZE is specific for Intel ifort, icc
+setenv KMP_STACKSIZE 64m
+# OMP_STACKSIZE is used by the Portland group compiler
+###setenv OMP_STACKSIZE 32m
+
+
+- added cns_import_cif to bin/ directory
+- added alias for cns_import_cif to cns_solve_env
+- replaced text.html with coord.html and added new toppar.html in doc/html/tutorial/generate/tools
+- new refinement tutorial on optimization of wa and rweight parameters (doc/html/tutorial/refinement_optimization/)
+
+03/10/10
+- various changes in refine.csh files in doc/html/tutorial/refine_low_resolution/den_refinement/ refinement/
+   refinement_high_resolution/refine_start/ , refinement_mlhl/refine_start, refine_optimization
+   and docking.csh in fret/docking_calculations/ and corresponding xgrid files.
+
+- small change in inputs/general/docking.inp
+
+   
+03/16/10
+- numerous changes in doc/html/tutorial/generate/tools, /toppar, and other locations in the tutorial directory tree.
+
+-------pre-release----
+
+03/19/10
+- compiled CNS in Integer i8 mode on Mac.
+03/23/10
+- minor changes in doc/html/installation/text.html
+
+03/24/10
+- fixed bug in segmnt.f, re-determination of NATOM2 in subroutine SEGLNK after patch has been carried out.
+
+03/26/10
+- change in dtorsion_top.f: increased MAXLEV to <number of bonds>+1.  Enabled base body with two atoms and joint attached to it.
+- new test case: test/torsiontest8.inp, torsiontest8.out
+
+03/28/10
+- allow diatomic molecules as well in torsion angle dynamics
+- removed maxtree, maxlength, maxchain torsion angle dimension specifications from all input files since it is now fully automatic
+
+04/02/10
+- made "convert=true" the default for reading coordinates.  Changes in modules/xtal/mtfautogenerate and source/corman.f.  Also changed
+inputs/xtal_refine/Makefile to change refine_lowres.inp
+- changed Makefile.header files in instlib/machine/supported/mac-intel-darwin: 
+make install compiler=ifort  ! compilation with ifort compiler with i8 integers
+make install compiler=ifort_mp  ! compilation with ifort compiler with i8 integers and openmp parallelization enabled
+make install compiler=ifort_i4 ! compliation with ifort compiler with i4 integers and openmp parallelization enabled
+make install compiler=pgf95 ! compilation with pgf95 compiler
+make install compiler=pgf95_mp ! compilation with pgf95 compiler and openmp parallelization enabled
+
+
+04/07/10
+- reverted XRENCD subroutine in source/vector_func.f to CNS 1.21 release (affects DO and EVALUate functions). 
+- modified test/test_string_hybrid36.inp and .out and test/testsel3.inp, .out. 
+- modified helplib/atom-expression and helplib/cns-evaluate and associated .html files in /doc/html/syntax_manual/html/
+- replaced "encode(xxx)" with "adjustl(format("I4", xxx)) in places handling RESIDs in inputs/general/generate_seq.inp, merge_structures.inp, xtal_refine/water_pick.inp,
+xtal_twin/water_pick_twin.inp, libraries/confdb/setup_newdb.tbl, setup_angledb.tbl.
+
+04/08/10
+- numerous spelling corrections in /doc/html/...
+
+04/12/10
+- change in inputs/xtal_refine.refine.inp and inputs/xtal_twin/refine_twin.inp (number of rows = 5 for DEN criteria)
+- fixed typo in helplib/cns-distance and doc/html/syntax_manual/html/cns-distance.html
+- changed text regarding ndistance ratio in doc/html/tutorial/refinement_low_resolution/den_refinement/text.html
+
+04/13/10
+- change in subroutine ENBRA2 (source/distan.f) to use SPLITI for conversion of RESIDs to integer numbers, allowing hybrid36 RESIDs for the RESDeleta selection
+- change in subroutine SPLITI (source/string.f) to pass success flag (OK) to calling routines in source/selrpn.f and source/distan.f
+- change in test/testsel3.inp testsel3.out
+
+- removed IONS entries in protein*allh*.link files
+
+04/14/10
+- fixed minor bug in modules/xtal/scale_and_solvent_grid_search: replaced two references to &bulk_mask_infile to &bulk_mask 
+
+- source/xshow.f: initialization of SHOW2 in subroutine XDOSHOI
+- source/xsigmaa.f: initialization of XSTARG to R4BIG in subroutine XSWCAL, after line XSCYCLE=-1
+- source/define.f: initalization of parnam in subroutine DEFSUBAT, test for PRMLEN.GT.0 in subroutine DEFSUBAT, initialization of PARENT and PARENTLEN in subroutine DEFFINDREC
+- source/dtorsion_top.f, fixed wrong reference to JP, KP to JM, KM in subroutine XCLDIH
+- source/flagmap.f: ptFlagMap could be uninitialized.  Changed IF test.
+- source/psearch.f: ptFlagMap could be uninitialized.  Changed IF test.
+- source/genic.f: informative messages for situations that result in errors during patching: deletion of atoms, bonds, angles, etc.
+- source/cns.f: introduced local variable IMRT for invocation of VINQRE to make certain compilers happy (IMRT might be modified inside VQINRE)
+- source/util.f: introduced local variable LENDUM for invocation of VINQRE in subroutine ASSFIL to make certain compilers happy
+
+04/15/10
+- renamed TIP3 residue to WAT in water-allhdg5-4.top.  Removed TIP3 residue from water.top, and in test/den_make.inp, egrouptes.inp, enertest.inp, powelltes.inp, surftest.inp, testsel2.inp, tipstest1.inp, testsel3.inp.
+- renamed HISH residue to HSH in protein.top, protein_nohydrogen.top, protein-allhdg.top, protein-alllhdg5-4.top
+- renamed PSDO residue to PSO in pseudo.top
+- renamed CHEX residue in protein-allhg.top and protein-allhg5-4.top to CHX, GLUH to GLH, ASPH to ASH
+- multiple changes in doc/html/tutorial/fret/* to replace resname PSDO with PSO
+
+04/18/10
+- changed pgf makefiles in instlib/machine/supported/mac-intel-darwin to use i8
+
+04/19/10
+- changed recommendation in 0read.me in instlib/machine/supported/mac-intel-darwin.  Compilation with Portland pgf95 with OpenMP is not reliable. 
+- changed doc/html/installation/text.html.
+
+04/22/10
+- updated citation for Nature paper in Changes, inputs/xtal_refine/refine.inp, inputs/xtal_twin/refine_twin.inp, and doc/html/tutorial/refinement_low_resolution/den_refinement/text.html.
+
+04/30/10
+- included notes in doc/html/installation/text.html that the csh or tcsh is required for cns_solve_env
+- introduced more informative error messages in source/genic.f.  Added test for the new feature to test/patchtest.inp
+
+05/01/10
+- changes in source/coorio.f - support for atomic element field when writing coordinates in PDB format (format=PDBO).
+- changes to inputs/general/den_make.inp, xtal_refine/refine.inp, xtal_twin/refine_twin.inp: default is one "known" group for DEN. Included test for zero DEN distances. Number
+of DEN distances is written to PDB header.  Also updated doc/html/tutorial/refinement_low_resolution/den_refinement/text.html
+
+05/02/10
+- minor change in source/noe.f: fortran format statement for "CEILING"
+- changes to modules/xtal/pdbsubmission and inputs/xtal_pdbsubmission/xtal_pdbsubmission.inp: corrected handling of connected chains and heteroatoms 
+
+05/03/10
+- changes to modules/xtal/pdbsubmission and inputs/xtal_pdbsubmission/xtal_pdbsubmission.inp: handling of atoms not specified in ChainID selections.
+- changes to inputs/xtal_refine/refine.inp, model_stats.inp, xtal_twin/refine_twin.inp, model_stats_twin.inp to prevent errors during cis-peptide bond checking of some of the atoms atom unknown
+
+05/04/10
+- change to source/cns.f: moved initalization of WRNLEV and BOMLEV to top of program
+- change to source/parser.f, subroutine INIPRS: added initialzation of WDLEN, CURSOR, and QSCOPING
+- changes to inputs/xtal_refine/refine.inp and inputs/xtal_twin/refine_twin.inp - informative messages when reading coordinates during DEN generation
+
+05/05/10
+- removed redundant HSH residue from library/toppar/protein.top, protein_nohydrogen.top, protein-allhdg.top, protein-allhdg5-4.top. The HIS residue is doubly-protonated in all topology files. 
+- added info to doc/html/tutorial/refinement_low_resolution/den_refinement about reference models that have more or fewer atoms than the starting model for refinement, and about the generation of composite reference models. 
+- in source/segmnt.f changed conditional test for print statement "auto chain termination due to unavailable link" to "IF (WRNLEV.GE.5) THEN" (removed "NRES-NRSOLD.GT.1" which was incorrect for single residue chains)
+
+05/06/10
+- updated helpblib/cns-distance and associated syntax entry in syntax library
+- updated doc/html/tutorial/refinement_low_resolution/den_refinement/text.html
+
+05/10/10
+- minor change in doc/html/tutorial/refinement_low_resolution/den_refinement/text.html
+
+05/23/10
+- clarification for input parameters for bulk solvent correction. Affects all input files that use the bulk solvent correction.
+
+06/02/10
+- fixed typo in doc/html/tutorial/refinement_high_resolution/model_start/text.html
+
+06/04/10
+- fixed bug in source/dtorsion_top.f.  Is now:
+  IBXCL(NBNDXCL)=IB(I)
+  JBXCL(NBNDXCL)=JB(I)
+
+06/08/10
+- fixed bug in xfalgebra.f, subroutine XINTSP. calls to XDOIMAX did not get the right variable value (always var + increment). Affects IMAXIMIZE function. 
+
+06/16/10
+- fixed bug in source/genic.f - fixed bug in verbose error message handling
+
+07/06/10
+- numerous fixes in libraries/toppar/dna-rna-allatom-hj-opls.param, dna-rna-allatom-hj-opls.top (superfluous entries in DG residue, and missing parameters related to 3TER patch applied to DNA), protein-allhdg5-4.top, protein-allhdg5-4.param (missing mass for type CH1P in residue HYP, removed duplications), water-allhdg5-4.top (renamed residue CO to COM, introduced new residue HOH and DOD, changed OH2 to O in residues HOH and DOD, dna-rna-allatom.top, dna-rna-allatom.param. Renamed atom type HO to H0 in dna/rna files. 
+
+07/07/10
+- change in source/parmio.f: changed "PARRDR-ERROR" to "PARRDR-info" since some of the duplications are unavoidable when reading multiple (e.g., protein and dna/rna) parameter files.
+
+
+07/09/10
+- renamed protein_allhdg5-4.link to protein-allhdg5-4.link (note the hyphen)
+
+- switched to protein-allhdg5-4.* in all relevant test/*.inp, inputs/nmr_calc/*.inp files. doc/html/tutorial/nmr/*/*.inp files, doc/html/tutorial/nmr_calc/run/Makefile files.
+
+- removed obsolete doc/html/faq directory
+
+- updated doc/html/tutorial/generate/toppar/text.html file
+
+- updated inpouts/info/common.idb and general.idb
+
+- removed obsolete libraries/toppar/protein_hydrogen.top and water_protin.top files.
+
+- added CTER and NTER  - GLY statements in protein-allhdg5-4*.link.
+
+- updated inputs/nmr_data/trx.pdb and trx.mtf to work with new allh topology files.
+
+0710/10
+
+- added multiple sequence entries to inputs/general/generate_seq.inp.  Fixed bug when reading multiple sequences.
+
+- added DNUC patch residue to libraries/toppar/dna-rna-allatom-hj-opls.top
+
+- added DPEP and DPPP patch residues to libraries/toppar/protein-allhdg.top
+
+- added all hydrogen atom refinement tutorial (doc/html/tutorial/refinement_all_hydrogen_atoms/)
+
+- added TIP alias to WAT in libraries/toppar/water-allhdg5-4.top
+
+07/11/10
+- In protein-allhdg5-4.param: one missing improper added:
+
+IMPRoper  HA   HA   CH1E OHP       500.00 {sd     0.031}    0    -69.8494O
+
+- protein-allhdg5-4.link (and the others): missing linkage definitions added for ASH and GLH
+
+07/13/10
+
+- new file "electrostatics.settings" in libraries/toppar.  This file can be used to turn on electrostatics in force field calculations.  
+
+- included new option "force_field_infile" in xtal_refine/anneal.inp, composite_omit_map.inp, minimize.inp, model_stats.inp, ncs_average_map.inp, optimize_wa.inp, sa_omit_map.inp, refine.inp, refine_lowres.inp, xtal_twin/anneal_twin.inp, minimize_twin.inp, model_stats_twin.inp, refine_twin.inp, refine_twin_lowres.inp
+
+- changed "known and not hydrogen" to "known" for two atom selections in the definition section of inputs/xtal_refine/refine.inp, xtal_twin/refine_twin.inp
+
+- new tutorial doc/html/tutorial/refinement_all_h_electrostatics for refinements with all hydrogen atoms and electrostatics used in the force field calculation
+
+07/14/10
+
+- re-established download link in doc/html/index.html
+
+07/15/10
+
+- changed number of macrocycles to 10 in doc/html/tutorial/refinement_low_resolution/refine_den.inp.  Also, removed a line in refine.csh that set the den distance restraint file. Also, changed refine_xgrid_stuffer.txt: 20 trials are now performed for each parameter setting.
+
+
+
+-----GENERAL RELEASE-----
+
+08/06/10
+
+- fixed inputs/generate/cis_peptide.inp to work with both protein.top,protein.param,protein_rep.param and protein-allhdg5-4.top,protein-allhdg5-4.param
+
+08/08/10
+- modified inputs/general/generate.inp and generate_easy.inp: eliminated "hydrogen_build" option and changed explanation of "atom_build" and "atom_delete".
+- updated doc/html/tutorial/generate/toppar/text.html, doc/html/tutorial/generate/cis-peptides/text.html, doc/html/refinement_all_hydrogen_atoms/text.html,
+doc/html/refinement_all_h_electrostatics/text.html
+
+-----revision 1 release-----
+
+08/18/10
+
+- changed library/toppar/protein-allhdg5-4.param, library/toppar/protein-allhdg5-4.top to force proper NH1/NH2 stereo assignments for arginine residues
+and to prevent "improper angle singularities" if the starting structure is incorrectly assigned.
+- updated doc/html/tutorial/generate/toppar/text.html, doc/html/refinement_all_hydrogen_atoms/text.html, doc/html/refinement_all_h_electrostatics/text.html
+
+-----revision 2 release----
+
+10/13/10
+
+- removed reference to obsolete fix_dna_rna utility in doc/html/tutorial/utilities/text_dist.html
+- set message level to "ON" around "show" statements in modules/xtal/setupfixed 
+- added new convention RNA/DNA residue names to inputs/auxiliary/dna-rna_restraints.def
+
+11/18/10
+
+- changed force constants for bond and angles in libraries/toppar/water-allhdg5-4.param to 1000 and 500, respectively
+- fixed bug in source/connect.f: always set maxlev to at least 2 regardless of nbonds.
+- updated doc/html/installation/text.html
+- updated B-factor groups for nucleic acids and carbohydrates in refine.inp, refine_twin.inp, bgroup.inp, bgroup_twin.inp
+
+
+----revision 3 release -----
+
+11/24/10 fixed 5ter DNA terimus missing parameters in dna-rna-allatom-hj.param.
+
+
+----revision 4 release-----
+
+01/10/11 fixed bin/getarch to work with new MacPro hardware.  Added: 
+    x86_64:Darwin:*:*)
+        echo mac-intel-darwin
+
+
+01/13/11 reintroduced cns_solve_env_sh file with modifications for OpenMP. Added notes in Readme file in root directory and doc/html/installation/text.html.
+
+01/13/11 - in inputs/xtal_refine/refine.inp and inputs/xtal_twin/refine_twin.inp, added a note that sequence_separation_low = -1 and 
+ sequence_separation_high = -1 will bypass any sequence and chain-based selections for DEN distances.
+ 
+ 
+ ----revision 5 release----
+  
+ 03/18/11 - fixed uninitialized fpart_previous in modules/xtal/scale_and_solvent_grid_search for auto_sol=false.
+ 
+ 04/23/11 - fixed typo in inputs/xtal_refine/bdomain.inp: added "@" before CNS_XTALMODULE:write_pdb...
+
+ 06/07/11 - changed first DEN selection entry to (known) in doc/html/tutorial/refinement_low_resolution/refinement/refine_lowres.inp
+
+ 06/07/11 - changed first DEN selection entry to (known) in doc/html/tutorial/refinement_low_resolution/den_refinement/refine_den.inp
+
+ 06/07/11 - edited doc/html/tutorial/refinement_low_resolution/den_refinement/text.html
+
+ 06/07/11 - all derivatives of "refine.inp" in inputs/xtal_refine, inputs/xtal_twin, doc/html/tutorial/*/* : made DEN default parameters consistent throughout.
+
+ 06/14/11 - changed num_cycles to 10 in inputs/xtal_refine/refine_lowres.inp and inputs/xtal_twin/refine_two_lowres.inp (changed Makefiles in these directories).
+ 
+ 06/15/11 - added H3 and H32 spacegroups to libraries/xtal/spacegroup.lib. These entries are identical to the R3 and R32, entries respectively.
+
+ 06/15/11 - resolved R3 and R32 ambiguities in libraries/xtal/spacegroup.lib by mapping to the internal R3, R3R, R32, R32R entries. 
+
+ 06/15/11 - modified modules/xtal/pdbgetsgname : 
+      space group 146 (internal R3) mapped to H3 (PDB standard); 
+      space group 20146 (internal R3R) mapped to R3 (PDB standard);
+      space group 155 (internal R32) mapped to H32 (PDB standard);
+      space group 20155 (internal R32R) mapped to R32 (PDB standard)
+
+ 8/19/11 - added MSE residue to protein-allhdg5-4.top, and parameters for MSE residue to protein-allhdg5-4.param. Added links to protein-allhdg5-4*.link
+
+ 8/19/11 - fixed "refine_xgrid_stuffer.txt" in doc/html/refinement_low_resolution/den_refinement/
+
+ 8/20/11 - changed "atom+build=( hydrogen )" to "atom_build=( hydrogen and bondedto (known) )" in generate_easy.inp in both tutorials: /refinement_all_hydrogen_atoms and /refinement_all_n_electrostatics
+
+---- revision 6 release ----- (8-25-2011)
+
+
+9/4/11 - fixed title and fixed DEN comment descriptors in inputs/xtal_refine/refine.inp and inputs/xtal_twin/refine_twin.inp. Updated all tutorial files. 
+
+11/8/11 - changed charges in ZYF residue in libraries/toppar/protein-allhdg5-4.top and for ZN+2 residue in ion.top
+
+1/2/12 - renamed xtal_refine/refine_lowres.inp to xtal_refine/refine_den.inp and xtal_twin/refine_twin_lowres.inp to xtal_twin/refine_twin_den.inp and changed the settings to default settings for DEN-refinement.  Changed the Makefiles in these directories as well as in the ./run subdirectories.
+
+1/2/12 - renamed doc/html/tutorial/refinement_low_resolution/refinement/refine_lowres.inp to refine.inp, changed associated text.html, refine.csh, and tutorial.csh files
+
+1/2/12 - moved doc/html/tutorial/refinement_low_resolution/den_refinement/ to doc/html/tutorial/den_refinement/p97. Numerous changes in text.html and tutorial.csh files.
+
+1/2/12 - moved doc/html/tutorial/refinement_low_resolution/refinement to doc/html/tutorial/refinement_low_resolution
+
+1/2/12 - new DEN-refinement example in doc/html/tutorial/refinement/den_refinement/cgl1109
+
+1/10/12 - added improper NE2 CE1 CD2 HE2 for HIS residue in libraries/toppar/protein-allhdg5-4.top and protein-allhdg5-4.param. 
+
+1/11/12 - Four missing parameters added by Alexandre Bonvin in libraries/toppar/protein-allhdg5-4.param
+
+1/11/12 - modified helplib/xray-expression: added note to REMAP operation that the output of REMAP is always complex. If the input is REAL, then one should apply an ABS() operation after the REMAP
+operation, otherwise the resulting array may contain negative entries. Also updated doc/html/syntax_manual/html/xray-expression.html (using the bin/convert_syntax facility). 
+
+1/11/12 - updated cns-distnace.html in doc/html/syntax_manual/html/
+
+---- revision 7 release --- (1-23-2012)
+
+7/10/12 - new DEN tutorial example for photosystem I complex (PSI), doc/html/tutorial/den_refinement/ps1/
+
+7/10/12 - new DEN tutorial example for GPCR crystal structures, doc/html/tutorial/den_refinement/gpcr/
+
+7/10/12 - changed den_scale and den_gamma value to match the optimal values determined by a full grid search in the cgl1109 and p97 DEN refinement examples (doc/html/tutorial/den_refinement/cgl1109 and /p97)
+
+
+Changes for version 1.2 patch level 1
+-------------------------------------
+
+Program:
+
+- multiple changes to source/ dtorsion_top.f
+
+  1 removed disfunctional GROUp option
+  2 automatic dimensioning for MAXTREE, MAXLEN, MAXCHN
+  3 automatic dimensioning for MAXBND
+  4 automatic dimensioning for MAXJNT
+  5 automatic dimensioning for MAXDIHE
+  6 removed dysfunctional GROUp option
+  7 updated helplib/cns-dynamics-torsion-topology
+
+  8 old line 2135 -- No close quote at the end:
+    changed to:
+      WRITE(6,'(17A)')
+     @     '    %atoms "', SEGID(OUTATM),'-',RESID(OUTATM),'-',
+     @     RES(OUTATM),'-',TYPE(OUTATM),'" and "',
+     @     SEGID(JB(JBONDS(CONGRP(THISONE,3-I),J))),'-',
+     @     RESID(JB(JBONDS(CONGRP(THISONE,3-I),J))),'-',
+     @     RES(JB(JBONDS(CONGRP(THISONE,3-I),J))),'-',
+     @     TYPE(JB(JBONDS(CONGRP(THISONE,3-I),J))),'"'
+    also following statement. 
+
+  9 old line 3081:redefined IND(3) to INTEGER
+
+  10 fixed bug in routine TORMD when the majority of the molecule is fixed, changed to:
+   HPIBXCL=ALLHP(INTEG4(2*NBOND))
+   HPJBXCL=ALLHP(INTEG4(2*NBOND))
+   ...
+   CALL FREHP(HPJBXCL,INTEG4(2*NBOND))
+   CALL FREHP(HPIBXCL,INTEG4(2*NBOND))
+
+
+- source/noe.f and noe.inc: included DEN function (ongoing development) 
+
+- modifications in instlib/machine/unsupported/mac-intel-darwin/machine_f.f:
+  1 replaced call to INDEX(FILE,' ') with call to TRIMM(FILE,,,).
+  2 fixed last argument in call to LINSUB in subroutine SYTASK
+  3 removed leading UNIX pathname in file INQUIRE
+
+- modifications in instlib/machine/unsupported/mac-intel-darwin/machine_c.c:  removed rename_() function. 
+
+- copied these machine_f.f and machine_c.c files to  
+  instlib/machine/supported/linux/ 
+  instlib/machine/unsupported/intel-x86_64bit-linux/.  
+  instlib/machine/unsupported/intel-itanium-linux
+  instlib/machine/unsupported/g77-linux
+  instlib/machine/unsupported/mac-ppc-linux
+  instlib/machine/unsupported/mac-ppc-darwin
+  Changed machine name in corresponding machine_f.f files. 
+
+- fixed bug in xskel.f: increased dimension of stack to 0:SEARCHDEPTH throughout. 
+
+- angledb.f:2205
+   When shifting class values, the following loop ends up copying index 0
+   values to index 1, but the arrays all start at 1:
+                DO COUNT = NANGLEDBS+1,
+     &               ANGLEDBASSNDX(CURANGLEDBCLASS)+1, -1
+
+   changed to:
+                DO COUNT = NANGLEDBS+1,
+     &              MAX(ANGLEDBASSNDX(CURANGLEDBCLASS)+1,2), -1
+- coorio.f:422
+   The following can set IATOM to an invalid index if the atom is not
+   found, and returns MARK instead of a valid index. IOFFS should be
+   set only when a valid atom is found.  Changed to:
+      COND=SID.EQ.SEGID(IOFFS).AND.RID.EQ.RESID(IOFFS).AND.
+     &     REN.EQ.RES(IOFFS).AND.IUP.EQ.TYPE(IOFFS)
+      IF (COND) THEN
+      IATOM=IOFFS
+      ELSE
+      IATOM=GETATN(SID,RID,REN,IUP,MARK)
+      >>>     IF (IATOM.NE.MARK) IOFFS=IATOM
+
+- util.f:220 -- the following check is invalid if NTITLE==0
+      IF (INDEX(TITLE(1),'FILENAME').EQ.0) THEN
+      NTITLE=NTITLE+1
+
+   changed to:
+      COND=.FALSE.
+      IF (NTITLE.EQ.0) THEN
+      COND=.TRUE.
+      ELSE
+      IF (INDEX(TITLE(1),'FILENAME').EQ.0) COND=.TRUE 
+      END IF
+      IF (COND) THEN
+- ncs.f: CNS malfunctions if you define too many NCS groups,
+     because the following test allows NGROUP to go one past the
+     actual limit (i.e. the comparison should be .GE.):
+     Modification:
+   C make new group
+    >>>     IF (NGROUP.GE.MAXNGR) THEN
+      CALL WRNDIE(-5,'NCS-restraints',
+     & 'MAXNGR (max. no. of NCS groups) exceeded')
+      ELSE
+      NGROUP=NGROUP+1
+      END IF
+
+- corman.f:533
+     & ' ORTHO: transformation matrix =',((XRTR(I,J),J=1,3),I=1,3)
+   changed to:
+     & ' FRACT: transformation matrix =',((XRTR(I,J),J=1,3),I=1,3)
+
+- noe.f:165-181 -- wrong prompts:
+      ELSE IF (WD(1:4).EQ.'AVEX') THEN
+      ...
+      CALL NEXTF('AVERaging=',RTEMP)     <-- changed to "AVEXponent="
+      ...
+      ELSE IF (WD(1:4).EQ.'OREX') THEN
+      ...
+      CALL NEXTF('AVERaging=',RTEMP)     <-- changed to  "OREXponent="
+
+- parmio.f:2017 -- fixed format statement:
+  >>>    WRITE(6,'(8A)')
+     & ' %REDUce-ERR: incompatible dihedral periodicities for types ',
+     & IAC(IP(I)),' ',IAC(JP(I)),' ',IAC(KP(I)),' ',IAC(LP(I))
+
+- parmio.f:2156 -- Same format problem, but for impropers
+
+- tsmaplm.f:line 65 CF is DOUBLE COMPLEX
+- energy.f:26: EDUMMY is COMPLEX
+- dynio.f:851
+   The header string HDR is only set for ensemble
+   mode and is otherwise uninitialized. Added condition
+   to define HDR in all cases. 
+- mindist.f:287 changed to:
+      CALL CNSHELP('cns-mindist')
+ The current actual help file is called "cns-mindist".
+- xreflstar.f: both help files are non-existent:
+      call cnshelp('cns-xray-write-reflection-star-translate')
+      call cnshelp('cns-xray-write-reflection-star')
+  -> commented out lines.
+
+- vector_func.f 24, :326 -- "...(I)(1:LAST)" can go out-of-bounds.
+   Inserted additional condition in IF test:
+   IF ( LAST .GE. VUNIQ(I) .AND.LAST.LE.VNAMLN) THEN
+
+- xfunct.f:1045 -- the .OR. has been set to .AND.
+       &    ATYPE(NL-6)(1:1).EQ.'D'.AND.ATYPE(NL-7).EQ.'DC'.AND.
+
+- xmask.f:900 -- XSYMASK() is undefined if QAVER is false:
+      IF (QAVER.AND.XSYMASK(AA,BB,CC).NE.-9999) THEN
+    changed to:
+      IF (QAVER) THEN
+        IF (XSYMASK(AA,BB,CC).NE.-9999) THEN
+
+- xmulti.f:381 -- QFFK1 should be QFFK2
+      ELSE IF (WD(1:4).EQ.'FFK2') THEN
+      CALL NEXTF('FFK2=',FFK2)
+      IF (ABS(FFK2).LT.RSMALL) THEN
+      >>>      QFFK2=.TRUE.
+      ELSE
+      QFFK2=.FALSE.
+
+- xrmani.f:108 -- strings PROMPT and PROMPT2 are too short. They are the
+      same length as the names, but need to be longer, due to uses such as:
+      PROMPT=WD(1:WDLEN)//'_amplitude='.  Changed to max character size to 100. 
+
+- removed unused and unintialized CHISTEP array from angledb.f and angledb.inc. 
+
+- added EOF=EOF.OR.ERROR after two calls to GETLIN in parser.f to reduce parser error messages after ERROR has occurred during file read. 
+
+- source/util.f - set maximum filename size to WORD_SIZE (in two places). 
+
+- dimensioning of filename character variable in multiple places in source files:
+
+   cluster.f-29-C
+   cluster.f:30: CHARACTER*(WIORD_SIZE) LFILE
+   cluster.f-31- CHARACTER*4 ROTMOD
+
+   dsearch.f-30-C
+   dsearch.f:31: CHARACTER*(WIORD_SIZE) LFILE
+
+   parser.f-4332- INTEGER LL, TLEN
+   parser.f:4333: CHARACTER*(WIORD_SIZE) TEMP
+   parser.f-4334- LOGICAL GOTIT, FINISH
+
+   parser.f-4352- TLEN=5
+   parser.f:4353: CALL ADDST(TEMP,WIORD_SIZE,TLEN,WD(LL+1:WDLEN),WDLEN-LL)
+
+   rsearch.f-30-C
+   rsearch.f:31: CHARACTER*(WIORD_SIZE) LFILE
+   rsearch.f-32-C
+   rsearch.f:33: CHARACTER*(WIORD_SIZE) P1FILE
+   rsearch.f-34- INTEGER P1NA,P1AMIN,P1AMAX,P1NB,P1BMIN,P1BMAX,P1NC,P1CMIN,P1CMAX
+   rsearch.f-37-C
+   rsearch.f:38: CHARACTER*(WIORD_SIZE) P2FILE
+
+   util.f-468-C local
+   util.f-469- INTEGER L, TMAX, TLEN
+   util.f:470: PARAMETER (TMAX=WIORD_SIZE)
+
+   xmphisto.f-135- INTEGER EXUNIT, EXLEN
+   xmphisto.f:136: CHARACTER*(WIORD_SIZE) EXFILE
+   xmphisto.f-137- DOUBLE PRECISION HRESO
+
+   xskel.f-34- LOGICAL ERR, COND
+   xskel.f:35: CHARACTER*(WIORD_SIZE) CFILE
+   xskel.f-36-C pointer
+
+- increased default dimension for MXTITL to 2000 in ctitla.inc
+
+
+Task files:
+- included B-group refinement as an additional option in inputs/xtal_refine/refine.inp.  Set maximum B value to 900.  Modified inputs/xtal_refine/run/Makefile to test new group B-factor refinement option. 
+- added small scale values in inputs/xtal_refine/optimize_rweight.inp  ( 0.025 and 0.05 )
+- changed defaults in inputs/xtal_refine/optimize_wa.inp: "cartesian" instead of "torsion" and final_min steps = 200.
+- increased number of disulfide and carbohydrate link slots in inputs/general/generate.inp
+- introduced check for selection of omitted atoms (make sure it is not zero), and print info about omitted atoms in output header in inputs/xtal_refine/sa_omit_map.inp
+- changed defaults for maxtree, maxlen, maxchn, in general/model_anneal.inp xtal_refine/anneal.inp xtal_refine/composite_omit_map.inp 
+  xtal_refine/ncs_average_map.inp xtal_refine/optimize_wa.inp xtal_refine/refine.inp xtal_refine/sa_omit_map.inp xtal_twin/anneal_twin.inp
+  nmr_calc/anneal.inp nmr_calc/anneal_cv.inp nmr_calc/ensemble*.inp nmr_calc/pmrefine.inp.  Removed maxbnd.
+- fixed bug in inputs/xtal_refine/ncs_average_map.inp for strict NCS symmetry and automatic mask generation.  
+- new auxiliary file to define phi/psi restraints for proteins (inputs/auxiliary/phi_psi_restraints.def)
+- fixed problem in inputs/general/generate.inp, generate_easy.inp and inputs/xtal_refine/refine.inp when automatic S-S detection is set, but the sulfur positions are unknown. 
+- moved velocity assignment (from a Maxwell distribution) after modification of atomic masses in xtal_refine/anneal.inp, xtal_refine/composite_omit_map.inp, xtal_refine/ncs_average_map.inp, xtal_refine/refine.inp, xtal_refine/sa_omit_map.inp, xtal_twin/anneal_twin.inp
+
+HTML documentation:
+
+- updated URL address of CNS site (http://cns-online.org) in  bin/cns_edit, and various files in the doc/html directory tree.  
+- updated text.html and added new pdf files in doc/html/about_cns
+- updated doc/html/main/text.html -> Copyright year and patch level
+- updated doc/html/installation/text.html -> supported and unsupported machine versions. 
+- fixed problem in doc/html/cgi/cgi_form.cgi for non-Mozilla browsers (for example, for Safari, the input form delimiter is ------WebKitFormBoundary)
+
+Modules:
+
+- bug fix in module xtal/ scale_and_solvent_grid_search when bulk_sol is set to false.  Corrected code by excluding grid search if bulk_sol is set to false. 
+- bug fix in module xtal/scale_and_solvent: removed superfluous "isotropic=true" in two places.  Fixed do (fpart ...) statement.
+- updated contact author email address in modules/xtal/exportmmcifstruct
+- modification in modules/xtal/sdb_to_coord:  comparison of segids should not use wildcards to allow for derivative names such as ABC+
+- removed "close" statement in module modules/xtal/write_pdb
+
+Libraries:
+none
+
+Utilities:
+none
+
+Test files:
+- new test/noetest7.inp to test new den function. 
+- new test/torsiontest5.inp to test bug fix in dtorsion_top.f. 
+- new test/torsiontest6.inp and test/torsiontest7.inp to test new automatic dimensioning.   
+- Removed obsolete MAXLEN, MAXCHEN, MAXTREE torsion dynamics keywords in test cases.
+- new test for minimize.inp in inputs/xtal_refine/run/Makefile -> test "bulk_sol=false".
+- increased bmax to 900 in all refinement files. 
+
+General files:
+- changed "cc" to "icc" in instlib/machine/unsupported/mac-intel-darwin/Makefile.header
+- used 64 bit compilation for Intel mac os x version
+- changed bin/update_patch to allow numbers for patch ids
+- fixed three instances that produced warning messages in bin/to_cns.c
+- increased default maximum number of atoms to 1000000 
+- redistruted "supported" and "unsupported" architectures in instlib/machine to reflect actally tested hardware platforms. 
+- tested Portland Group pgf95 compiler on Intel Mac OS X platform
+- tested Intel ifort on 64 bit Intel Mac OS X, 64 bit and 32 bit linux PCs
+- tested Portland Group pgf95 on 64 bit Intel Mac OS X 
+- tested GNU gfortran on 64 bit and 32 bit linux PCs, and on Mac PPCs. 
+- new version of "make install" to support different compiler options.  Use the environmental variable fc to force a particular compiler, e.g.
+  setenv pgf95
+  make install
+
+
+Changes for version 1.2
+-----------------------
+
+Program: 
+
+- default number of atoms set to 200,000
+- atom number can go up to 999999 in the PDB files produced by CNS
+  by using some of the 'ATOM' and 'HETATM' record if the number goes
+  above 99999
+- fixed bug in treatment of HL coefficients for remapping of reflections
+  for some spacegroups
+- installation files for x86_64 linux platforms (using gfortran or ifort)
+- installation files for Intel Mac systems (using ifort)
+- installation files for Mac PPC systems
+- Intel Mac OSX binary distribution
+- all known dynamic memory pointer problems fixed
+- Windows binary installation removed
+- use of sort function updated in cns_solve_env file
+- use of sed updated in cns_solve_env file 
+- consolidated distribution into one tar file
+- updated output files in the test directory
+- generic CPU_TIME subroutine call for Intel Mac OSX, Intel X86_64, and Intel i686
+- replaced -tpp7 option with -axP for Intel X86_64 and Intel i686
+- removed "norm" function from atom property do command
+- enabled DISP=KEEP for CLOSe statement on linux and mac intel versions
+
+Task files:
+
+- updated bulk solvent model and scale factor calculations (developed for robust 
+  refinement and low resolution applications):
+    all refinement and model map task files:
+      - new solvent model grid search and solrad/shrink search
+      - absolute grid size range for solvent mask calculation is forced 
+        to be between [sqrt 3*0.577 = 1] 0.57 and 0.9 A
+      - removed low_res_bscale parameter, the low resolution limit is used
+      - reported anisotropic tensor in coordinate files is now Ucart (not 
+        Ucif as before)
+      - fixed anisostropic B-scaling symmetry restraints in all modules (scalef,
+      - removed "anisotropic_fixed_isotropic" option throughout all script files
+      - fixed method to remove isotropic component from anisotropic B-tensor
+
+- new bulk solvent and scaling routines in structure deposition files:
+    xtal_pdbsubmission/xtal_pdbsubmission.inp
+    xtal_mmcif/deposit_mmcif.inp
+
+- fixed bug when a structure has a lower resolution that th default Wilson
+  limit:
+    xtal_pdbsubmission/xtal_pdbsubmission.inp
+    
+- automatic and fixed bulk solvent parameter options:
+    all refinement and model map task files
+
+- new automatic sharpening B-factor determination script file:
+    xtal_util/bsharp.inp
+
+- B-sharpening parameter introduced into various map files:
+    xtal_util/fourier_map.inp
+    xtal_refine/model_map.inp
+                sa_omit_map.inp
+                composite_omit_map.inp
+                fo-fo_map.inp
+
+- corrected local real space correlation coefficient computation:
+    xtal_refine/model_map.inp
+                composite_omit_map.inp
+                water_delete.inp
+    xtal_twin/model_map_twin.inp
+
+- fixed Wilson calculation for very large structures
+    xtal_util/bsharp.inp
+              analyse.inp
+              scale.inp
+
+- fixed bug in water picking if no sites are found:
+    xtal_refine/water_pick.inp
+    xtal_twin/water_pick_twin.inp
+
+- duplicate water parameters no longer read in water picking:
+    xtal_refine/water_pick.inp
+    xtal_twin/water_pick_twin.inp
+
+- introduced optional B-factor reset option:
+    xtal_refine/refine.inp
+
+- increased the default number of cycles to 3:
+    xtal_refine/refine.inp
+
+- removed multiple coordinate file reading option:
+    xtal_refine/composite_omit_map.inp
+                sa_omit_map.inp
+                model_map.inp
+    xtal_util/model_phase.inp
+    xtal_twin/model_map_twin.inp
+
+- removed option to write separate bulk solvent model structure factors:
+    xtal_util/model_phase.inp
+
+- increased the default number of macrocycles to 15:
+    xtal_phase/mad_phase.inp
+
+- changed the default output array name to fmodel and added warning if fcalc 
+  is used as the name:
+    xtal_util/model_fcalc.inp
+
+- increased maxtree to 20:
+    in all torsion angle input files
+
+- Ucart reported instead of Ucif:
+    heavy atom site refinement scripts
+
+- modified Patterson map task files to use ascii map files instead of 
+  binary map files:
+    xtal_patterson/predict_patterson.inp
+                   patterson_map.inp
+
+- updated density_modify.inp task file:
+    mask completion
+    warning about absolute scaling of input amplitudes
+
+- new input file to calculate structure factors from an EM reconstruction map:
+    xtal_util/em_map_to_hkl.inp
+
+HTML Documentation:
+
+- updated installation documentation
+
+Modules:
+
+- fixed bug in siterefine module: FOMs for centrics were non-zero for SAD phasing
+- removed "anisotropic_fixed_isotropic" option throughout all modules:
+    scaleftarget, scaleftarget2, scale_and_solvent
+- new module: scale_solvent
+- new module for automatic determination of FFT gridding parameters fft_parameter_check:
+    - determines optimum B-factor increment
+    - ELIM parameter is automatically increased for atomic resolution structures 
+      (starting at 1.4 A and higher)
+    - default ELIM value is set to 8
+    - grid size is set to the min of ( 1,  d_min * 0.3333 )
+
+Libraries:
+
+- conformational database library files incorporated into distriubtion
+    libraries/confdb/*
+
+Utilities:
+
+- modified Patterson map programs to use ascii map files instead of binary 
+  map files:
+    utils/PSmap*
+
+============================================================================
+
+Changes for version 1.1
+-----------------------
+
+Program:
+
+- fixed bug in maximum likelihood targets when using anomalous data
+- fixed bug in fast translation search that could permit special
+  positions to be searched during molecular replacement
+- modified DEC Alpha installation to deal with treatment of backslash
+  by the latest Compaq Fortran compiler
+- modified Linux installations to only use -malign-double flag on x86 based
+  machines
+- added test in code to try to catch bug in fast math library on some SGIs
+- added new Makefile options for compilation with fast math library on SGIs
+- added Makefile for Compaq compilers running under Linux on Alpha platforms
+
+HTML Interface:
+
+- updated CGI scripts to account for treatment of undef in the latest
+  development version of PERL
+
+HTML Documentation:
+
+- added flowcharts (in PDF format) for phasing tutorials
+- added guidelines for MAD and SAD phasing tutorials
+- added information to the FAQ
+    - possible problems with RedHat 7 on Linux systems
+    - problems with fastmath library under Irix 6.5 on R5000 SGI systems
+- added recent papers to bibliography
+
+Task files:
+
+- fixed major bugs in:
+    xtal_refine/composite_omit_map.inp (map was made over most of unit cell
+					instead of around selected atoms)
+    auxiliary/ncs.def (incorrect application of skew matrix)
+    xtal_refine/refine.inp (atom-based parameter corrections were not 
+                            applied - cis-peptides were not recognized)
+    xtal_util/model_phase.inp (incorrect combination of structure factors from
+                               model and bulk solvent)
+
+- fixed minor bugs in:
+    general/neighbours.inp (environment option could not be enabled
+			    from HTML interface)
+    xtal_phase/mad_phase.inp (f'/f'' values not reported as absolute values in
+                              summary file)
+    xtal_mmcif/deposit_mmcif.inp (incorrect binwise free R-values reported)
+
+- changes to:
+    xtal_util/analyse.inp (output correlation of anomalous signal between 
+			   different datasets as both a matrix and by
+			   resolution - useful for determining quality of 
+			   anomalous data for a MAD experiment. Thanks to
+			   Tom Terwilliger for suggesting this.)
+    xtal_patterson/patterson_map.inp (set default resolution to be 15A to 4A)
+		   predict_patterson.inp ( " )
+	 	   patterson_refine.inp  ( " )
+    xtal_mmcif/deposit_mmcif.inp (default is to deposit unmodified experimental
+    				  data, i.e. uncorrected for anisotropy)
+
+- new files:
+    general/rms_fit.inp (calculate and apply RMS fit between 2 molecules)
+
+Modules:
+
+- fixed major bugs in:
+    xtal/scalenbulk (incorrect anisotropic scaling of intensities for the
+                     MLI target)
+
+- fixed minor bugs in:
+    xtal/twin_operators (incorrect twin operator definition for point group 23)
+
+- changes in:
+    xtal/siterefine
+    xtal/printcoordinates (correct printing of f'/f'' values by mad_phase.inp
+                           summary file)
+
+Libraries:
+
+- added toppar/single_atoms.top and toppar/single_atoms.par to provide
+  topology and parameters for isolated carbon and oxygen atoms. These can
+  be used as scatterers when topology information is missing (e.g. when
+  using an EM mask for molecular replacement).
+
+Utilities:
+
+- none
+
+============================================================================
+
+Changes for version 1.0
+-----------------------
+
+Program:
+
+- increased field length for reporting cell dimensions read from 
+  map and mask files
+- more informative message when program cannot obtain enough memory
+- removed use of C preprocessor 
+- faster automatic build of source directory Makefile
+
+HTML Interface:
+
+- numeric entries can be set to blank to allow cut and paste
+- error checking for blank numeric entries
+
+HTML Documentation:
+
+- added entries to FAQ
+- minor changes to fix typos in tutorials
+
+Task files:
+
+- fixed major bugs in:
+    xtal_twin/*.inp (incorrect number of reflections selected in some 
+                     spacegroups)
+
+- changes to:
+    general/neighbours.inp (option to write out only residues close to the
+                            molecule of interest)
+    xtal_phase/mad_phase.inp (write out f'/f'' values for each scattering type
+                              if multiple atom types are used)
+    xtal_refine/bindividual.inp (improved restraint weight estimation)
+                optimize_rweight.inp ( " )
+                refine.inp           ( " )
+                water_pick.inp (better handling of picking with strict NCS)
+    xtal_twin/bindividual_twin.inp (improved restraint weight estimation)
+              water_pick_twin.inp (better handling of picking with strict NCS)
+
+- new files:
+    general/mtf_to_psf.inp (convert MTF file to PSF file)
+    general/molecule_extent.inp (calculate extent of a molecule in orthogonal
+                                 Angstroms)
+   
+Libraries:
+
+- none
+
+Utilities:
+
+- fixed bug in mtz_to_cns (writing 2 headers when using CCP4 version 3.5)
+- fixed bug in to_cns which rejected scalepack reflections when the
+  intensity was equal to -1
+
+============================================================================
+
+Changes for version 0.9a
+------------------------
+
+Program:
+
+- revised installation procedure to deal with OSF v3 on older DEC-alpha
+  machines.
+
+HTML Interface:
+
+- none
+
+HTML Documentation:
+
+- none
+
+Task files:
+
+- fixed major bugs in:
+    general/generate_seq.inp (incorrect renumbering of protein residues)
+    xtal_mr/cross_rotation.inp (fastdirect option gives incorrect results)
+    xtal_refine/refine.inp (output coordinate file incorrectly named
+                            when user provides an input MTF file)
+    xtal_twin/detect_twinning.inp (crashes if input amplitude data is complex)
+    xtal_twin/detwin_partial.inp (crashes if no input or output test set array
+                                  is selected)
+    xtal_twin/detwin_perfect.inp (crashes if no input or output test set array
+                                  is selected)
+
+- changes to:
+    xtal_patterson/heavy_search.inp
+                   patterson_refine.inp (automatic determination of scattering
+                                         model for atoms)
+
+Libraries:
+
+- added missing dihedral parameter (CC-NH1-C-CC) to carbohydrate.param
+
+Utilities:
+
+- none
+
+============================================================================
+
+Changes for version 0.9
+-----------------------
+
+Program:
+
+- source code added for ARIA calculations (Michael Nigles, EMBL)
+- new coordinate minimizer added: 
+  Limited-memory Broyden-Fletcher-Goldfarb-Shanno (LBFGS) algorithm,
+  based on the code of Lui and Nocedal (On the limited memory BFGS
+  method for large scale optimization methods. Mathematical Programming 45
+  1989, 503-528). We are grateful to Greg McMullan (HPCF, University
+  of Cambridge, UK) for providing us with the initial implementation.
+- fixed bug in xpeakpik.F (out of memory if peaks picked with no atoms present)
+- new remap function for applying a twinning operator to reciprocal space data
+- several minor bug fixes
+- added specific installations for Mac MkLinux and DEC Alpha Linux. Unified
+  installation for other Linux platforms.
+- installation and execution under both C-shell (csh/tcsh) and Bourne-shell
+  (sh/bash)
+- modified installation to allow full performance from DEC EV6
+- SGI installation can be compiled for larger memory use (>2GB) if required
+- cns_solve and cns_refine unified into one single distribution
+
+HTML Interface:
+
+- faster online help
+- additional CGI scripts for downloading modules, libraries and utilities
+- PERL version automatically checked
+- minor changes for formatting
+
+HTML Documentation:
+
+- tutorial section added (worked examples and other documentation)
+- frequently-asked-questions list (FAQ) added
+- bibliography added
+- links to current libraries, modules and utilities
+- updated getting started notes (use with different user shells)
+- updated installation notes (DEC Alpha Linux installation notes)
+
+Task files:
+
+- fixed major bugs in:
+    auxiliary/ncs.def (calling script terminates if all NCS restraint slots
+                       are used in a restraint group)
+    xtal_mmcif/deposit_mmcif.inp (anomalous data treated incorrectly)
+    xtal_mr/cross_rotation.inp (for the realspace rotation search the size
+                                of the model P1 box is incorrectly calculated
+                                if only a subset of the structure read in is
+                                used as the search model)
+    xtal_patterson/patterson_map.inp
+                   predict_patterson.inp (3-d Patterson map only covers the
+                                          asymmetric unit even when the 
+                                          Harker sections are plotted over the
+                                          extent of the unit cell)
+    xtal_phase/ir_phase.inp
+               mad_phase.inp (script aborts if the derivative name is lower
+                              case in the site database file)
+    xtal_refine/model_map.inp (fill-in mode not using calculated data)
+    xtal_refine/water_pick.inp (bulk solvent and anisotropic correction
+                                incorrectly recomputed after water addition
+                                and peaks on special positions not removed)
+    xtal_refine/fo-fo_map.inp (incorrect map if data incomplete in either
+                               dataset)
+    xtal_refine/composite_omit_map.inp
+                model_map.inp
+                ncs_average_map.inp
+                sa_omit_map.inp
+                water_pick.inp (incorrect FOM weighting using the observed
+                                map type option)
+    xtal_refine/composite_omit_map.inp
+                ncs_average_map.inp
+                sa_omit_map.inp (inconsistant resolution limits for map and
+                                 refinement resulted in garbage maps)
+    xtal_util/scale.inp (script terminates when trying to applying Wilson
+                         scaling with more than 2000 residues)
+    nmr_calc/anneal_cv.inp
+             ensemble_cv.inp (script aborts if complete cross-validation is
+                              turned off without setting all complete
+                              cross-validation flags to false)
+
+- changes to:
+    general/generate.inp
+            generate_seq.inp
+            generate_easy.inp (simplfied patching of RNA to DNA for DNA
+                               structures)
+    general/generate.inp
+            generate_easy.inp (automatic disulphide bond detection for 
+                               proteins)
+    general/generate.inp
+            generate_easy.inp (automatic chain break detection for proteins)
+    xtal_mr/translation.inp (improved output listing)
+    xtal_mr/translation.inp (translation search peak list can be written for
+                             each rotation search tested)
+    xtal_phase/ir_phase.inp
+               mad_phase.inp (option for individual B-factor refinement of
+                              grouped atoms)
+    xtal_phase/density_modify.inp (histogram matching option removed, minor
+                                   changes to calculation of phase differences)
+    xtal_refine/composite_omit_map.inp (can be calculated over a subset of
+                                        the molecule)
+    xtal_refine/water_pick.inp (new h-bonding criteria for peak deletion,
+                                improved defaults)
+    xtal_util/fourier_map.inp (if a model has been read in around which the
+                               map will be calculated, picked peaks are
+                               mapped as close as possible to the molecule)
+   
+- new files:
+    auxiliary/refine.def (defaults file for xtal_refine/refine.inp)
+    general/delete_atoms.inp (delete atoms from a structure)
+    general/model_rigid.inp (rigid body minimization of a model)
+    general/psf_to_mtf.inp (convert old PSF format file to new MTF format)
+    general/rename_segid.inp (rename the segment indetifier(s) in a structure)
+    xtal_refine/refine.inp (combined simulated annealing, energy minimization,
+                            B-factor refinement, and map calculation)
+    xtal_util/average_friedels.inp (average anomalous information)
+    xtal_util/average_map.inp (apply NCS averaging to an electron density map)
+    xtal_util/flip_friedels.inp (flip anomalous data)
+    xtal_util/mask_map.inp (mask out regions of an electron density map with
+                            a mask)
+    xtal_util/model_fcalc.inp (calculate structure factors from a model)
+    xtal_twin/*.inp (task files for refinement of structures with hemihedral
+                     twinning)
+
+- removed:
+    xtal_phase/ir_refine.inp
+    xtal_phase/mad_refine.inp
+
+Libraries:
+
+- revised ion.top and ion.param (many more ions, more accurate parameters)
+- added protein_nohydrogen.top (protein topology with no hydrogens)
+- added protein_break.top (define patches to remove a peptide link)
+- added rhombohedral settings for rhombohedral spacegroups (append R to name)
+- minor bug fixes
+
+Utilities:
+
+- cns_transfer: transfers CNS parameter information from one task file 
+                to another
+- map_to_omap: convert CNS map to DSN6 format using MAPMAN
+- mtz_to_cns: convert simple MTZ file to CNS file using mtz2various
+- fix_dna_rna: reformat PDB nucleic acid file for use in CNS
+
+============================================================================
+
+Changes for version 0.5
+------------------------
+
+Program:
+
+- optional use of g77/gcc for compilation on Unix or Windows platforms
+- fixed bug with BREAK card processing in MTF generation
+
+HTML Interface:
+
+- none
+
+HTML Documentation:
+
+- updated installation notes
+- installation notes for g77/gcc
+
+Task files:
+
+- modified most map files to perform peak picking and writing of Fourier
+  coefficients.
+- fixed bug with negative numbers other than -9999 for b_sol and k_sol.
+- revised and significantly improved density modification protocols
+
+Libraries:
+
+- added CPR (O name for cis-proline) to protein.top
+
+Utilities:
+
+- none
+
+============================================================================
+
+Changes for version 0.4a
+------------------------
+
+Program:
+
+- optimized torsion angle dynamics integration (1.1 to 2 times faster
+  depending on hardware and problem size)
+
+- optimized torsion angle dynamics topology generation (2 to 3 times faster)
+
+- BREAK card can be used to indicate a chain break for coord/mtf generation
+
+- greatly simplified compilation
+
+- ported to Windows-NT
+
+- stand-alone Windows-NT distribution (self-extracting ZIP archive)
+
+- ported to Cray T3E single CPU
+
+HTML Interface:
+
+- minor bug fixes
+
+- minor changes for use with Internet Explorer 4 
+
+HTML Documentation:
+
+- updated installation notes
+
+Task files:
+
+- fixed major bugs in:
+    xtal_refine/composite_omit_map.inp
+    xtal_phase/mad_refine.inp
+    xtal_phase/mad_phase.inp
+    xtal_refine/water_pick.inp
+
+- changes to:
+    general/neighbours.inp (generate separate PDB file for each neighbour)
+    xtal_refine/composite_omit_map.inp (automatic determination of omit
+                                        cube size)
+    auxiliary/ncs.def (improved variable names)
+
+- new files:
+    general/fractional_transform.inp (apply fractional space transform to mol.)
+    general/realspace_transform.inp (apply realspace transform to mol.)
+    xtal_util/make_hlcoeff.inp  (generate HL coefficients from phase and FOM)
+    general/model_anneal.inp (dynamics/annealing without experimental data)
+    xtal_refine/fp_fdp_group.inp (obtain f'/f'' values for anomalous scatters)
+    xtal_refine/water_delete.inp (delete waters from a map based)
+    xtal_refine/fo-fo_map.inp (calculate Fo2-Fo1 map using phases from a model)
+    xtal_util/hlcoeff_blur.inp ("blur" HL coefficients to dampen bias)
+
+- renamed:
+    xtal_refine/waterpick.inp to xtal_refine/water_pick.inp
+
+- removed:
+    general/transform_molecules.inp
+
+- developmental
+    xtal_mmcif/deposit_mmcif.inp (create mmCIF file for deposition of a
+                                  structure to the structure database)
+    This is currently not accepted at the structure deposition site (PDB),
+    so the pdb submission tool (xtal_pdbsubmission.inp) should be used.
+
+Libraries:
+
+- none
+
+Utilities:
+
+- new dos2unix utility for removing ^M characters from a file created on
+  a Windows system.
+- new isdos utility identifies DOS files (containing ^M)
+
+============================================================================
+
+Changes for version 0.4
+-----------------------
+
+Program:
+
+- Molecular topology information is stored in a MTF (molecular
+  topology file) format (STAR format).
+
+- The internal help facility uses external database files. This help
+  database defines the syntax of the program language for the on-line
+  manual.
+
+- ~/ at the beginning of a filename is translated to HOME:
+
+HTML interface:
+
+- Defaults for input parameters can be passed to the HTML interface.
+
+- Online help is available for some input parameters when editing a task file.
+
+- The menu of available task files is created dynamically.
+
+HTML Documentation:
+
+- A HTML based syntax manual is now part of the documentation.
+
+- A list of known bugs is provided for previous versions.
+
+Task files:
+
+- Heavy atom information is no longer stored in the form of a PDB and
+  molecular topology file. These are replaced by a heavy atom site
+  database file. This file contains the appropriate information to
+  describe heavy atoms. The database file has the same format as the
+  header of a CNS task file. The entries are best modified using
+  the CNS HTML task file interface.
+
+- A comprehensive set of task files are provided for generation and
+  manipulation of CNS heavy atom database files. Task files are
+  also provided to convert preexisting coordinate and molecular
+  topology files to a CNS heavy atom database format.
+
+- New task files are provided for analysis of single models and
+  comparison of two models (see inputs/general).
+
+- A simplified generate script (generate_easy.inp) is provided for use
+  with common crystallographic structures
+  (eg. protein/DNA/non-covalent ligands). Coordinate information is
+  provided by the user in one PDB file, disulphide bonds are
+  automatically detected based on distance criteria.
+
+- A comprehensive set of NMR structure calculation files are now provided
+  in inputs/nmr_calc.
+
+- All known bugs in 0.3c task files have been fixed in 0.4 task files.
+
+- Crystallographic task files which output coordinates can output a
+  PDB file which is more O-friendly. If a single character segid is
+  used it will also be written in the chainid column.
+
+- For cross-rotation searches a new search option is provided:
+  fastdirect. This option performs a coarse search followed by a fine
+  search around the highest peaks using the direct rotation
+  search. This is significantly faster than a full direct search but
+  in some cases may miss significant peaks.
+
+- Task file heavy_search.inp has added site selection criteria based on
+  image-seeking minimum function (IMF) and symmetry minimum function 
+  (SMF).
+
+- Task file density_modify.inp has the option for gradual phase extension.
+
+- Task files density_modify.inp and solvent_mask.inp by default use
+  the local RMS of electron density for solvent mask calculation.
+
+Libraries:
+
+- Improved parameters for crystallographic refinement of proteins
+  (protein_rep.param).
+
+- Harker sections are automatically determined from a library.
+
+Utilities:
+
+- A new utility, to_cns, for converting both Scalepack/HKL2000 and d*trek
+  reflection files to CNS format is provided.
+
+- A new utility, cns_header, is provided for extracting the header
+  information from a task file.
+
+- A new utility, cns_info, is provided to print out important
+  information about the program to the screen.

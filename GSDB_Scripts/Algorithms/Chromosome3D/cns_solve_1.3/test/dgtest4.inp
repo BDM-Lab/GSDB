@@ -1,0 +1,96 @@
+remarks dgtest4.inp
+remarks   test the dg energy term
+remarks    tests on an ALA polypeptide chain 
+remarks Axel T. Brunger
+remarks ==============
+
+!---------------
+! test one:  random four-atom metrization
+!---------------
+
+
+structure reset end
+topology reset @CNS_TOPPAR:protein-allhdg5-4.top end
+
+segment
+   name="    "
+   chain
+      @CNS_TOPPAR:protein-allhdg5-4.link
+      sequence ala ala ala ala ala 
+               ala ala ala ala ala
+      end
+end
+end
+
+parameter 
+        @CNS_TOPPAR:protein-allhdg5-4.param 
+        nbonds repel = 0.8 end
+end
+
+set seed = 8787380 end
+
+noe
+   assign ( resid 1 and name ca ) ( resid 9 and name ca )  5. 0.01 0.01 
+end
+
+flags include noe end
+
+mmdg
+        iacc=0.2 tacc=0.2 bacc=0.001 pacc=0.2 
+        writebounds=dgtest4.dat 
+end
+mmdg
+        readbounds=dgtest4.dat
+end
+
+display $embedded
+display $non_met_gap
+display $dgscale
+
+coor copy end
+
+mmdg
+        readbounds=dgtest4.dat
+        storebounds
+        selection=( all )
+        scale=0.1   exponent=2
+end
+
+flags exclude * include dg end
+
+test first selection= (  resid 9 and name ca ) 
+   step=0.000001 tol=0.0 end
+
+minimize powell nstep=200 drop=10. nprint=100  tolg=0. end
+
+test first selection= ( resid 7 and name O  ) step=0.000001 tol=0.0 end
+
+flags exclude * include bonds angles impr dihe vdw noe end
+igroup interaction=( all )=( all ) weights * 0.0001 end end
+energy end
+
+coor swap end
+
+mmdg
+        readbounds=dgtest4.dat
+        storebounds
+        selection=( name ca or name n or name c )
+        scale=0.1   exponent=2
+end
+
+flags exclude * include dg end
+
+test first selection= (  resid 9 and name ca ) 
+   step=0.000001 tol=0.0 end
+
+minimize powell nstep=200 drop=10. nprint=100  tolg=0. end
+
+test first selection= ( resid 7 and name O  ) step=0.000001 tol=0.0 end
+
+flags exclude * include bonds angles impr dihe vdw noe end
+igroup interaction=( name ca or name n or name c )=( prev ) 
+           weights * 0.0001 end    end
+
+energy end
+
+stop

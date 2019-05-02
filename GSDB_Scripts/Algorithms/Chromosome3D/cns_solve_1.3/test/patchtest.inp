@@ -1,0 +1,463 @@
+remarks ++++++++++++++++PATCHTEST+++++++++++++++++++++++++++++
+remarks Test case for the PATCH command
+remarks by Axel Brunger, JAN-1983
+
+topology @CNS_TOPPAR:protein.top end
+parameter @CNS_TOPPAR:protein.param end
+
+topology
+
+ PRESidue HISE   ! Patch to change doubly protonated HIS to singly
+                 ! protonated histidine (HE2)
+                 ! has to be patched as REFErence=NIL=<selection>
+                        
+ GROUP
+  MODIFY ATOM  CB   TYPE CH2E  CHARGE  0.0   END
+  MODIFY ATOM  CG   TYPE C     CHARGE  0.0   END
+ GROUP
+  MODIFY ATOM  ND1  TYPE NR    CHARGE -0.24  END
+  MODIFY ATOM  CE1  TYPE CR1E  CHARGE  0.24  END
+ GROUP
+  MODIFY ATOM  CD2  TYPE CR1E  CHARGE  0.10  END
+  MODIFY ATOM  NE2  TYPE NH1   CHARGE -0.32  END
+  MODIFY ATOM  HE2  TYPE H     CHARGE  0.22  END
+  DELETE ATOM  HD1                           END
+
+ ADD ACCEPTOR  ND1 " "
+
+END {HISE}
+
+!--------------------------------------------------------------------------
+
+PRES HISD   ! Patch to change doubly protonated HIS to singly
+            ! protonated histidine (HD1)
+            ! has to be patched as REFErence=NIL=<selection>
+ GROUP
+  MODIFY ATOM  CB   TYPE CH2E  CHARGE  0.00  END
+  MODIFY ATOM  CG   TYPE C     CHARGE  0.03  END
+ GROUP
+  MODIFY ATOM  ND1  TYPE NH1   CHARGE -0.31  END
+  MODIFY ATOM  HD1  TYPE H     CHARGE  0.22  END
+ GROUP
+  MODIFY ATOM  CD2  TYPE CR1E  CHARGE  0.09  END
+  MODIFY ATOM  NE2  TYPE NR    CHARGE -0.25  END
+  MODIFY ATOM  CE1  TYPE CR1E  CHARGE  0.22  END
+  DELETE ATOM  HE2                        END
+
+ ADD ACCEPTOR  NE2 " "
+
+END {HISD}
+
+!-----------------------------------------------------------------------
+
+PRES HIST     !  INVERSE PATCH TO HISD
+              !  has to be patched as REFErence=NIL=<selection>
+
+ GROUP 
+  MODIFY ATOM  CB   TYPE CH2E    CHARGE  0.10  END
+  MODIFY ATOM  CG   TYPE C       CHARGE  0.15  END
+  MODIFY ATOM  CD2  TYPE CR1E    CHARGE  0.20  END
+ GROUP
+  MODIFY ATOM  ND1  TYPE NH1     CHARGE -0.25  END
+  MODIFY ATOM  HD1  TYPE H       CHARGE  0.32  END
+ GROUP
+  MODIFY ATOM  CE1  TYPE CR1E    CHARGE  0.41  END
+ GROUP
+  MODIFY ATOM  NE2  TYPE NH1     CHARGE -0.25  END
+  ADD    ATOM  HE2  TYPE H       CHARGE  0.32  END
+
+ ADD BOND  NE2  HE2
+
+ ADD ANGLE  HE2  NE2  CD2
+ ADD ANGLE  HE2  NE2  CE1
+
+ ADD IMPROPER  NE2  CE1  CD2  HE2
+
+ ADD DONOR   HE2  NE2
+ DELETE ACCEPTOR  NE2 " "
+
+END {HISD}
+
+!---------------------------------------------------------------------
+
+
+! the following patch is somewhat strange:
+! it shows what happens if one attempts to form groups between 
+! different residues in different segments
+
+
+  PRESidue TES2
+   GROUP
+    ADD ATOM 1XX TYPE C CHARGE 0.00 END
+    ADD ATOM 1YY TYPE C CHARGE 0.00 END
+    ADD ATOM 2YY TYPE C CHARGE 0.00 END
+    MODIFY ATOM 2CA TYPE CH1E CHARGE 0.00 END
+
+    DELETE BOND 1HT1 1N 
+  END {TES2}
+
+END !topology
+
+
+SEGMENT
+  NAME=MAIN
+    CHAIN
+       @CNS_TOPPAR:protein.link
+       SEQUENCE
+          HIS HIS
+       END
+    END
+END
+SEGMENT
+   NAME=COMP
+   CHAIN
+      @CNS_TOPPAR:protein.link
+      SEQUENCE
+          HIS HIS HIS HIS HIS
+       END
+    END
+END
+
+fix selection=( atom * * H* ) end
+
+patch hise  refer=NIL=( atom comp 1 * ) end
+patch hisd  refer=NIL=( atom comp 2 * ) end
+patch hist  refer=NIL=( atom comp 2 * ) end
+
+delete 
+  selection=( atom comp 3 * OR atom comp 4 * OR atom comp 5 * )
+end
+
+patch tes2 refer=1=( atom main 1 * )   refer=2=( atom comp 2 * ) end
+
+write structure end
+
+
+{* now test the handling of explicit exclusion lists during patch *}
+{* ============================================================== *}
+
+delete selection=( all ) end
+topology
+   RESIDUE EX1
+     ATOM ABCD  EXCLUSION=( B C ) END
+     ATOM B  EXCLUSION=( D )    END
+     ATOM C END
+     ATOM D END
+     ATOM E END
+   END
+  
+   RESIDUE EX2
+     ATOM A EXCLUSION=( B ) END
+     ATOM B END
+   END
+
+   PRESIDUE EXP
+     MODIFY ATOM 1ABCD EXCLUSION=( 1B  1C  1E  1X ) END
+     MODIFY ATOM 2A EXCLUSION=( 1B  1ABCD  1X ) END
+     ADD ATOM 1X EXCLUSION=( 2B ) END
+     ADD BOND 1ABCD 2A
+   END
+END
+
+SEGMENT
+  NAME=TEST
+    CHAIN
+       SEQUENCE
+          EX1 EX2
+       END
+     END
+END
+
+WRITE STRUCTURE END
+
+PATCH EXP REFERENCE=1=( RESID 1 )  REFERENCE=2=( RESID 2 ) END
+
+WRITE STRUCTURE END
+
+
+struc reset end
+
+
+remarks  Test multiple links.
+
+set echo=false end
+
+topology
+reset 
+RESIdue ALA
+  ATOM N    TYPE=NH1   CHARge=-0.35   END
+  ATOM H    TYPE=H     CHARge= 0.25   END
+  ATOM CA   TYPE=CH1A  CHARge= 0.10   END
+  ATOM CB   TYPE=CH3E  CHARge= 0.00   END
+  ATOM C    TYPE=C     CHARge= 0.55   END  !#
+  ATOM O    TYPE=O     CHARge=-0.55   END  !#
+ BOND N    CA
+ BOND CA   C
+ BOND C    O
+ BOND N    H
+ BOND CA   CB
+END {ALA}
+!------------------------------------------------------------------
+RESIdue GLY
+  ATOM N    TYPE=NH1   CHARge=-0.35   END
+  ATOM H    TYPE=H     CHARge= 0.25   END
+  ATOM CA   TYPE=CH1A  CHARge= 0.10   END
+  ATOM C    TYPE=C     CHARge= 0.55   END
+  ATOM O    TYPE=O     CHARge=-0.55   END
+ BOND N    CA
+ BOND CA   C
+ BOND C    O
+ BOND N    H
+END {VAL}
+!---------------------------------------------------------------------
+PRESidue L1 
+ ADD DIHEDRAL -O -C +N +H
+ ADD IMPRoper  +N -C +CA +H  {planar +N}
+ END
+!---------------------------------------------------------------------
+PRESidue L2  
+ ADD DIHEDRAL -C +N +CA +C
+ END
+!---------------------------------------------------------------------
+PRESidue L3
+ ADD DIHEDRAL  -N -CA -C +N
+ ADD IMPRoper  -C -CA +N -O  {planar -C}
+END
+end
+
+set echo=true end
+
+segment
+  name="    "
+  chain
+  link L1 head - ALA tail + GLY   end
+  link L1 head - ALA tail + ALA   end
+  link L2 head - GLY   tail + ALA end
+! sequence FOR GLY GLY ALA end
+  coordinates
+ATOM      1  C   ALA     1    9999.0009999.0009999.000  1.00  0.00 
+ATOM      2  O   ALA     1    9999.0009999.0009999.000  1.00  0.00 
+ATOM      3  N   GLY     2    9999.0009999.0009999.000  1.00  0.00 
+ATOM      4  H   GLY     2    9999.0009999.0009999.000  1.00  0.00 
+ATOM      5  CA  GLY     2    9999.0009999.0009999.000  1.00  0.00 
+ATOM      6  C   GLY     2    9999.0009999.0009999.000  1.00  0.00 
+ATOM      7  O   GLY     2    9999.0009999.0009999.000  1.00  0.00 
+ATOM      8  N   GLY     3    9999.0009999.0009999.000  1.00  0.00 
+ATOM      9  H   GLY     3    9999.0009999.0009999.000  1.00  0.00 
+ATOM     10  CA  GLY     3    9999.0009999.0009999.000  1.00  0.00 
+ATOM     11  C   GLY     3    9999.0009999.0009999.000  1.00  0.00 
+ATOM     12  O   GLY     3    9999.0009999.0009999.000  1.00  0.00 
+ATOM     13  N   ALA     4    9999.0009999.0009999.000  1.00  0.00 
+ATOM     14  H   ALA     4    9999.0009999.0009999.000  1.00  0.00 
+ATOM     15  CA  ALA     4    9999.0009999.0009999.000  1.00  0.00 
+ATOM     16  CB  ALA     4    9999.0009999.0009999.000  1.00  0.00 
+ATOM     17  C   ALA     4    9999.0009999.0009999.000  1.00  0.00 
+ATOM     18  O   ALA     4    9999.0009999.0009999.000  1.00  0.00 
+END
+  end
+end
+
+write structure end
+
+structure reset end
+
+topology reset end
+
+topology 
+  @CNS_TOPPAR:protein.top
+  @CNS_TOPPAR:carbohydrate.top
+  @CNS_TOPPAR:dna-rna.top
+end
+
+{- test convert and separate features -}
+segment 
+  chain
+     separate=true
+     convert=true
+     @CNS_TOPPAR:protein.link
+     set message=all end
+
+  coordinates
+ATOM      1  N   HIS A  64     -11.280  54.459  20.936  1.00140.77           N  
+ATOM      2  CA  HIS A  64     -10.236  53.634  20.232  1.00137.33           C  
+ATOM      3  C   HIS A  64     -10.811  52.425  19.442  1.00134.53           C  
+ATOM      4  O   HIS A  64     -10.991  52.498  18.217  1.00135.08           O  
+ATOM      5  CB  HIS A  64      -9.148  53.196  21.227  1.00135.24           C  
+ATOM      6  CG  HIS A  64      -7.763  53.254  20.665  1.00134.40           C  
+ATOM      7  ND1 HIS A  64      -7.075  54.439  20.507  1.00137.35           N  
+ATOM      8  CD2 HIS A  64      -6.938  52.279  20.215  1.00131.28           C  
+ATOM      9  CE1 HIS A  64      -5.886  54.189  19.985  1.00136.12           C  
+ATOM     10  NE2 HIS A  64      -5.777  52.886  19.799  1.00132.45           N  
+ATOM     11  N   MET A  65     -11.074  51.319  20.142  1.00131.84           N  
+ATOM     12  CA  MET A  65     -11.731  50.151  19.552  1.00129.54           C  
+ATOM     13  C   MET A  65     -13.187  50.163  19.956  1.00131.31           C  
+ATOM     14  O   MET A  65     -13.506  50.306  21.136  1.00132.20           O  
+ATOM     15  CB  MET A  65     -11.122  48.849  20.064  1.00125.76           C  
+ATOM     16  CG  MET A  65      -9.618  48.791  20.118  1.00124.28           C  
+ATOM     17  SD  MET A  65      -9.086  47.068  20.145  1.00120.04           S  
+ATOM     18  CE  MET A  65      -7.353  47.260  20.553  1.00119.49           C  
+ATOM     19  N   GLU A  66     -14.073  50.012  18.980  1.00132.14           N  
+ATOM     20  CA  GLU A  66     -15.502  50.053  19.245  1.00134.38           C  
+ATOM     21  C   GLU A  66     -16.232  49.124  18.300  1.00133.34           C  
+ATOM     22  O   GLU A  66     -17.065  49.550  17.509  1.00136.02           O  
+ATOM     23  CB  GLU A  66     -16.051  51.479  19.108  1.00139.02           C  
+ATOM     24  CG  GLU A  66     -15.819  52.383  20.305  1.00141.05           C  
+ATOM     25  CD  GLU A  66     -14.490  53.100  20.233  1.00140.96           C  
+ATOM     26  OE1 GLU A  66     -14.224  53.759  19.203  1.00142.53           O  
+ATOM     27  OE2 GLU A  66     -13.718  53.004  21.212  1.00139.64           O  
+ATOM     28  N   LEU A  67     -15.926  47.842  18.400  1.00129.75           N  
+ATOM     29  CA  LEU A  67     -16.499  46.853  17.503  1.00128.58           C  
+ATOM     30  C   LEU A  67     -18.018  46.752  17.516  1.00131.09           C  
+ATOM     31  O   LEU A  67     -18.737  47.694  17.865  1.00134.60           O  
+ATOM     32  CB  LEU A  67     -15.917  45.480  17.815  1.00124.59           C  
+ATOM     33  CG  LEU A  67     -14.904  44.959  16.808  1.00122.12           C  
+ATOM     34  CD1 LEU A  67     -14.001  43.994  17.510  1.00118.82           C  
+ATOM     35  CD2 LEU A  67     -15.612  44.298  15.623  1.00122.19           C  
+ATOM     36  N   ALA A  68     -18.483  45.579  17.097  1.00129.49           N  
+ATOM     37  CA  ALA A  68     -19.861  45.164  17.256  1.00131.40           C  
+ATOM     38  C   ALA A  68     -19.879  43.638  17.245  1.00128.34           C  
+ATOM     39  O   ALA A  68     -18.847  42.994  17.494  1.00124.96           O  
+ATOM     40  CB  ALA A  68     -20.725  45.736  16.139  1.00134.82           C  
+ATOM     41  N   LEU A  69     -21.058  43.070  16.989  1.00129.88           N  
+ATOM     42  CA  LEU A  69     -21.202  41.641  16.726  1.00127.63           C  
+ATOM     43  C   LEU A  69     -22.416  41.377  15.815  1.00130.25           C  
+ATOM     44  O   LEU A  69     -23.512  41.068  16.282  1.00132.34           O  
+ATOM     45  CB  LEU A  69     -21.245  40.840  18.038  1.00126.23           C  
+ATOM     46  CG  LEU A  69     -20.680  39.410  18.116  1.00122.72           C  
+ATOM     47  CD1 LEU A  69     -21.687  38.406  17.597  1.00123.52           C  
+ATOM     48  CD2 LEU A  69     -19.325  39.243  17.414  1.00119.65           C  
+ATOM     49  N   ASN A  70     -22.179  41.522  14.511  1.00130.40           N  
+ATOM     50  CA  ASN A  70     -23.160  41.321  13.446  1.00133.00           C  
+ATOM     51  C   ASN A  70     -22.485  40.507  12.340  1.00130.52           C  
+ATOM     52  O   ASN A  70     -21.256  40.459  12.299  1.00127.55           O  
+ATOM     53  CB  ASN A  70     -23.577  42.692  12.894  1.00137.00           C  
+ATOM     54  CG  ASN A  70     -25.026  42.726  12.427  1.00141.33           C  
+ATOM     55  OD1 ASN A  70     -25.314  42.416  11.265  1.00142.41           O  
+ATOM     56  ND2 ASN A  70     -25.957  43.059  13.350  1.00144.08           N  
+
+ATOM      1  N   HIS B  64     -11.280  54.459  20.936  1.00140.77           N  
+ATOM      2  CA  HIS B  64     -10.236  53.634  20.232  1.00137.33           C  
+ATOM      3  C   HIS B  64     -10.811  52.425  19.442  1.00134.53           C  
+ATOM      4  O   HIS B  64     -10.991  52.498  18.217  1.00135.08           O  
+ATOM      5  CB  HIS B  64      -9.148  53.196  21.227  1.00135.24           C  
+ATOM      6  CG  HIS B  64      -7.763  53.254  20.665  1.00134.40           C  
+ATOM      7  ND1 HIS B  64      -7.075  54.439  20.507  1.00137.35           N  
+ATOM      8  CD2 HIS B  64      -6.938  52.279  20.215  1.00131.28           C  
+ATOM      9  CE1 HIS B  64      -5.886  54.189  19.985  1.00136.12           C  
+ATOM     10  NE2 HIS B  64      -5.777  52.886  19.799  1.00132.45           N  
+ATOM     11  N   MET B  65     -11.074  51.319  20.142  1.00131.84           N  
+ATOM     12  CA  MET B  65     -11.731  50.151  19.552  1.00129.54           C  
+ATOM     13  C   MET B  65     -13.187  50.163  19.956  1.00131.31           C  
+ATOM     14  O   MET B  65     -13.506  50.306  21.136  1.00132.20           O  
+ATOM     15  CB  MET B  65     -11.122  48.849  20.064  1.00125.76           C  
+ATOM     16  CG  MET B  65      -9.618  48.791  20.118  1.00124.28           C  
+ATOM     17  SD  MET B  65      -9.086  47.068  20.145  1.00120.04           S  
+ATOM     18  CE  MET B  65      -7.353  47.260  20.553  1.00119.49           C  
+ATOM     19  N   GLU B  66     -14.073  50.012  18.980  1.00132.14           N  
+ATOM     20  CA  GLU B  66     -15.502  50.053  19.245  1.00134.38           C  
+ATOM     21  C   GLU B  66     -16.232  49.124  18.300  1.00133.34           C  
+ATOM     22  O   GLU B  66     -17.065  49.550  17.509  1.00136.02           O  
+ATOM     23  CB  GLU B  66     -16.051  51.479  19.108  1.00139.02           C  
+ATOM     24  CG  GLU B  66     -15.819  52.383  20.305  1.00141.05           C  
+ATOM     25  CD  GLU B  66     -14.490  53.100  20.233  1.00140.96           C  
+ATOM     26  OE1 GLU B  66     -14.224  53.759  19.203  1.00142.53           O  
+ATOM     27  OE2 GLU B  66     -13.718  53.004  21.212  1.00139.64           O  
+ATOM     28  N   LEU B  67     -15.926  47.842  18.400  1.00129.75           N  
+ATOM     29  CA  LEU B  67     -16.499  46.853  17.503  1.00128.58           C  
+ATOM     30  C   LEU B  67     -18.018  46.752  17.516  1.00131.09           C  
+ATOM     31  O   LEU B  67     -18.737  47.694  17.865  1.00134.60           O  
+ATOM     32  CB  LEU B  67     -15.917  45.480  17.815  1.00124.59           C  
+ATOM     33  CG  LEU B  67     -14.904  44.959  16.808  1.00122.12           C  
+ATOM     34  CD1 LEU B  67     -14.001  43.994  17.510  1.00118.82           C  
+ATOM     35  CD2 LEU B  67     -15.612  44.298  15.623  1.00122.19           C  
+ATOM     36  N   ALA B  68     -18.483  45.579  17.097  1.00129.49           N  
+ATOM     37  CA  ALA B  68     -19.861  45.164  17.256  1.00131.40           C  
+ATOM     38  C   ALA B  68     -19.879  43.638  17.245  1.00128.34           C  
+ATOM     39  O   ALA B  68     -18.847  42.994  17.494  1.00124.96           O  
+ATOM     40  CB  ALA B  68     -20.725  45.736  16.139  1.00134.82           C  
+ATOM     41  N   LEU B  69     -21.058  43.070  16.989  1.00129.88           N  
+ATOM     42  CA  LEU B  69     -21.202  41.641  16.726  1.00127.63           C  
+ATOM     43  C   LEU B  69     -22.416  41.377  15.815  1.00130.25           C  
+ATOM     44  O   LEU B  69     -23.512  41.068  16.282  1.00132.34           O  
+ATOM     45  CB  LEU B  69     -21.245  40.840  18.038  1.00126.23           C  
+ATOM     46  CG  LEU B  69     -20.680  39.410  18.116  1.00122.72           C  
+ATOM     47  CD1 LEU B  69     -21.687  38.406  17.597  1.00123.52           C  
+ATOM     48  CD2 LEU B  69     -19.325  39.243  17.414  1.00119.65           C  
+ATOM     49  N   ASN B  70     -22.179  41.522  14.511  1.00130.40           N  
+ATOM     50  CA  ASN B  70     -23.160  41.321  13.446  1.00133.00           C  
+ATOM     51  C   ASN B  70     -22.485  40.507  12.340  1.00130.52           C  
+ATOM     52  O   ASN B  70     -21.256  40.459  12.299  1.00127.55           O  
+ATOM     53  CB  ASN B  70     -23.577  42.692  12.894  1.00137.00           C  
+ATOM     54  CG  ASN B  70     -25.026  42.726  12.427  1.00141.33           C  
+ATOM     55  OD1 ASN B  70     -25.314  42.416  11.265  1.00142.41           O  
+ATOM     56  ND2 ASN B  70     -25.957  43.059  13.350  1.00144.08           N  
+
+ATOM   2473  C1  NAG B1500     -26.443  44.423  13.287  1.00148.44           C  
+ATOM   2474  C2  NAG B1500     -27.797  44.186  13.960  1.00151.73           C  
+ATOM   2475  C3  NAG B1500     -28.476  45.410  14.573  1.00156.31           C  
+ATOM   2476  C4  NAG B1500     -27.485  46.464  15.110  1.00155.28           C  
+ATOM   2477  C5  NAG B1500     -26.287  46.572  14.150  1.00152.35           C  
+ATOM   2478  C6  NAG B1500     -25.233  47.615  14.540  1.00151.55           C  
+ATOM   2479  C7  NAG B1500     -28.843  42.344  12.908  1.00151.95           C  
+ATOM   2480  C8  NAG B1500     -29.806  41.705  13.869  1.00153.38           C  
+ATOM   2481  N2  NAG B1500     -28.711  43.653  12.984  1.00154.16           N  
+ATOM   2482  O3  NAG B1500     -29.334  44.923  15.598  1.00157.61           O  
+ATOM   2483  O4  NAG B1500     -28.118  47.721  15.303  1.00160.30           O  
+ATOM   2484  O5  NAG B1500     -25.685  45.295  14.095  1.00147.63           O  
+ATOM   2485  O6  NAG B1500     -24.464  47.987  13.405  1.00151.01           O  
+ATOM   2486  O7  NAG B1500     -28.191  41.674  12.112  1.00149.05           O  
+ATOM   2487  C1  NAG B1501      -7.705  55.528  13.365  1.00143.72           C  
+ATOM   2488  C2  NAG B1501      -8.328  56.362  14.502  1.00145.97           C  
+ATOM   2489  C3  NAG B1501      -7.331  57.329  15.156  1.00148.03           C  
+ATOM   2490  C4  NAG B1501      -5.981  56.685  15.423  1.00145.09           C  
+ATOM   2491  C5  NAG B1501      -5.506  55.948  14.165  1.00143.37           C  
+ATOM   2492  C6  NAG B1501      -4.175  55.227  14.362  1.00140.65           C  
+ATOM   2493  C7  NAG B1501     -10.626  57.197  14.598  1.00150.67           C  
+ATOM   2494  C8  NAG B1501     -11.102  58.562  15.050  1.00155.52           C  
+ATOM   2495  N2  NAG B1501      -9.436  57.134  13.967  1.00149.77           N  
+ATOM   2496  O3  NAG B1501      -7.832  57.811  16.381  1.00149.26           O  
+ATOM   2497  O4  NAG B1501      -5.094  57.708  15.834  1.00147.88           O  
+ATOM   2498  O5  NAG B1501      -6.475  54.975  13.813  1.00140.98           O  
+ATOM   2499  O6  NAG B1501      -3.393  55.387  13.064  1.00142.01           O  
+ATOM   2500  O7  NAG B1501     -11.324  56.202  14.824  1.00148.00           O  
+ATOM   2501  C1  GLC A1502     -15.185  22.024  26.056  1.00110.36           C  
+ATOM   2502  C2  GLC A1502     -16.471  21.825  26.845  1.00113.20           C  
+ATOM   2503  C3  GLC A1502     -16.211  22.001  28.346  1.00114.91           C  
+ATOM   2504  C4  GLC A1502     -15.029  21.128  28.831  1.00114.73           C  
+ATOM   2505  C5  GLC A1502     -13.844  21.292  27.845  1.00111.77           C  
+ATOM   2506  C6  GLC A1502     -12.639  20.389  28.083  1.00111.66           C  
+ATOM   2507  C7  GLC A1502     -18.403  22.364  25.475  1.00114.13           C  
+ATOM   2508  C8  GLC A1502     -19.807  22.241  26.012  1.00117.31           C  
+ATOM   2509  O   GLC A1502     -14.242  21.080  26.507  1.00110.44           O  
+ATOM   2510  O3  GLC A1502     -17.405  21.776  29.080  1.00117.91           O  
+ATOM   2511  O4  GLC A1502     -14.600  21.510  30.140  1.00116.15           O  
+ATOM   2512  O6  GLC A1502     -13.060  19.359  28.928  1.00114.27           O  
+ATOM   2513  O7  GLC A1502     -18.154  22.117  24.281  1.00112.49           O  
+ATOM   2514  N2  GLC A1502     -17.478  22.750  26.363  1.00113.56           N  
+
+
+END
+end
+end
+
+write coordinates format=pdbo end
+
+! now test error handing for applying patch residues
+
+set abort=off end
+
+patch
+
+   nuc  refer=-=( resid 1 ) refe=+=( resid 2 )  end
+
+end
+
+set message=normal end
+
+patch
+
+   nuc  refer=-=( resid 1 ) refe=+=( resid 2 )  end
+
+end
+
+stop

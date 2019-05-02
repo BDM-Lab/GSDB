@@ -1,0 +1,3826 @@
+          ============================================================
+          |                                                          |
+          |            Crystallography & NMR System (CNS)            |
+          |                         CNSsolve                         |
+          |                                                          |
+          ============================================================
+           Version: 1.3
+           Status: General release
+          ============================================================
+           Written by: A.T.Brunger, P.D.Adams, G.M.Clore, W.L.DeLano,
+                       P.Gros, R.W.Grosse-Kunstleve,J.-S.Jiang,J.M.Krahn,
+                       J.Kuszewski, M.Nilges, N.S.Pannu, R.J.Read,
+                       L.M.Rice, G.F.Schroeder, T.Simonson, G.L.Warren.
+           Copyright (c) 1997-2010 Yale University
+          ============================================================
+           Running on machine: lewis4-r710-login-node223 (x86_64/Linux,64-bit)
+                               with 16 threads
+           Program started by: oeow39
+           Program started at: 16:08:05 on 05-Jul-2018
+          ============================================================
+
+ FFT3C: Using FFTPACK4.1
+
+ CNSsolve>{* complex procedures testing *} 
+ CNSsolve> 
+ CNSsolve>! matrix handling toolkit -- load as a library of procedure definitions 
+ CNSsolve> 
+ CNSsolve>set display=procedures.dat end 
+ ASSFIL: file procedures.dat opened.
+ CNSsolve> 
+ CNSsolve>literal procedure matrix_multiply ( &m1; &m2; &mr; ) 
+ CNSsolve>literal 
+ CNSsolve>literal if ( &m1.cols ne &m2.rows ) then 
+ CNSsolve>literal    literal MATRIX_MULTIPLY-ERR: DIMENSION MISMATCH &m1.cols != &m2.rows 
+ CNSsolve>literal else 
+ CNSsolve>literal eval ( $a = 1 ) 
+ CNSsolve>literal while ( $a le &m1.rows ) loop a 
+ CNSsolve>literal    eval ( $b = 1 ) 
+ CNSsolve>literal    while ( $b le &m2.cols ) loop b 
+ CNSsolve>literal       eval ( $z = 1 ) 
+ CNSsolve>literal       eval ( $sum = 0 ) 
+ CNSsolve>literal       while ( $z le &m1.cols ) loop z 
+ CNSsolve>literal          eval ( $sum = $sum + &m1.ji.$a.$z * &m2.ji.$z.$b ) 
+ CNSsolve>literal          eval ( $z = $z + 1 ) 
+ CNSsolve>literal       end loop z 
+ CNSsolve>literal       eval ( &mr.ji.$a.$b = $sum ) 
+ CNSsolve>literal       eval ( $b = $b + 1 ) 
+ CNSsolve>literal    end loop b 
+ CNSsolve>literal    eval ( $a = $a + 1 ) 
+ CNSsolve>literal end loop a 
+ CNSsolve>literal eval ( &mr.rows = &m1.rows ) 
+ CNSsolve>literal eval ( &mr.cols = &m2.cols ) 
+ CNSsolve>literal end if 
+ CNSsolve>literal 
+ CNSsolve>literal endprocedure 
+ CNSsolve>literal 
+ CNSsolve>literal !---------------------------------------------------------- 
+ CNSsolve>literal 
+ CNSsolve>literal procedure matrix_map ( &m1; &m2; &mr; &fn ) 
+ CNSsolve>literal if ( &m1.cols ne &m2.cols ) then 
+ CNSsolve>literal    literal MATRIX_MAP-ERR: DIMENSION MISMATCH &m1.cols != &m2.cols 
+ CNSsolve>literal elseif ( &m1.rows ne &m2.rows ) then 
+ CNSsolve>literal    literal MATRIX_MAP-ERR: DIMENSION MISMATCH &m1.rows != &m2.rows 
+ CNSsolve>literal else 
+ CNSsolve>literal eval ( $a = 1 ) 
+ CNSsolve>literal while ( $a le &m1.rows ) loop a 
+ CNSsolve>literal    eval ( $b = 1 ) 
+ CNSsolve>literal    while ( $b le &m1.cols ) loop b 
+ CNSsolve>literal       eval ( &mr.ji.$a.$b =  &m1.ji.$a.$b &fn &m2.ji.$a.$b ) 
+ CNSsolve>literal       eval ( $b = $b + 1 ) 
+ CNSsolve>literal    end loop b 
+ CNSsolve>literal    eval ( $a = $a + 1 ) 
+ CNSsolve>literal end loop a 
+ CNSsolve>literal eval ( &mr.rows = &m1.rows ) 
+ CNSsolve>literal eval ( &mr.cols = &m1.cols ) 
+ CNSsolve>literal end if 
+ CNSsolve>literal endprocedure 
+ CNSsolve>literal 
+ CNSsolve>literal !---------------------------------------------------------- 
+ CNSsolve>literal 
+ CNSsolve>literal procedure matrix_transpose ( &m1; &mr; ) 
+ CNSsolve>literal eval ( $a = 1 ) 
+ CNSsolve>literal while ( $a le &m1.rows ) loop a 
+ CNSsolve>literal    eval ( $b = 1 ) 
+ CNSsolve>literal    while ( $b le &m1.cols ) loop b 
+ CNSsolve>literal       eval ( &mr.ji.$b.$a =  &m1.ji.$a.$b ) 
+ CNSsolve>literal       eval ( $b = $b + 1 ) 
+ CNSsolve>literal    end loop b 
+ CNSsolve>literal    eval ( $a = $a + 1 ) 
+ CNSsolve>literal end loop a 
+ CNSsolve>literal eval ( &mr.rows = &m1.cols ) 
+ CNSsolve>literal eval ( &mr.cols = &m1.rows ) 
+ CNSsolve>literal endprocedure 
+ CNSsolve>literal 
+ CNSsolve>literal !---------------------------------------------------------- 
+ CNSsolve>literal 
+ CNSsolve>literal procedure matrix_add ( &m1; &m2; &mr ) 
+ CNSsolve>literal call matrix_map ( m1=&m1; m2=&m2; mr=&mr; fn = + ) 
+ CNSsolve>literal endprocedure 
+ CNSsolve>literal 
+ CNSsolve>literal !---------------------------------------------------------- 
+ CNSsolve>literal 
+ CNSsolve>literal procedure matrix_subtract ( &m1; &m2; &mr ) 
+ CNSsolve>literal call matrix_map ( m1=&m1; m2=&m2; mr=&mr; fn = - ) 
+ CNSsolve>literal endprocedure 
+ CNSsolve>literal 
+ CNSsolve>literal !---------------------------------------------------------- 
+ CNSsolve>literal 
+ CNSsolve>literal procedure matrix_scale ( &m1; &scale; &mr ) 
+ CNSsolve>literal eval ( $a = 1 ) 
+ CNSsolve>literal while ( $a le &m1.rows ) loop a 
+ CNSsolve>literal    eval ( $b = 1 ) 
+ CNSsolve>literal    while ( $b le &m1.cols ) loop b 
+ CNSsolve>literal       eval ( &mr.ji.$a.$b =  &m1.ji.$a.$b * &scale ) 
+ CNSsolve>literal       eval ( $b = $b + 1 ) 
+ CNSsolve>literal    end loop b 
+ CNSsolve>literal    eval ( $a = $a + 1 ) 
+ CNSsolve>literal end loop a 
+ CNSsolve>literal eval ( &mr.rows = &m1.rows ) 
+ CNSsolve>literal eval ( &mr.cols = &m1.cols ) 
+ CNSsolve>literal endprocedure 
+ CNSsolve>literal 
+ CNSsolve>literal !---------------------------------------------------------- 
+ CNSsolve>literal 
+ CNSsolve>literal procedure matrix_display_row ( &m1; &row; &format = [F8.3] ) 
+ CNSsolve>literal define ( &command = display ) 
+ CNSsolve>literal eval ( $b = 1 ) 
+ CNSsolve>literal buffer matrix_display 
+ CNSsolve>literal   reset 
+ CNSsolve>literal   display row [ &row ] = 
+ CNSsolve>literal end 
+ CNSsolve>literal while ( $b le &m1.cols ) loop b 
+ CNSsolve>literal    buffer matrix_display 
+ CNSsolve>literal      concat  &m1.ji.&row.$b&format 
+ CNSsolve>literal    end 
+ CNSsolve>literal    eval ( $b = $b + 1 ) 
+ CNSsolve>literal end loop b 
+ CNSsolve>literal buffer matrix_display flush end 
+ CNSsolve>literal endprocedure 
+ CNSsolve>literal 
+ CNSsolve>literal !---------------------------------------------------------- 
+ CNSsolve>literal 
+ CNSsolve>literal procedure matrix_display ( &m1;  &format = [F8.3] ) 
+ CNSsolve>literal eval ( $a = 1 ) 
+ CNSsolve>literal while ( $a le &m1.rows ) loop a 
+ CNSsolve>literal    call matrix_display_row ( m1 = &m1; row = $a; format = &format ) 
+ CNSsolve>literal    eval ( $a = $a + 1 ) 
+ CNSsolve>literal end loop a 
+ CNSsolve> 
+ CNSsolve>literal endprocedure 
+ CNSsolve> 
+ CNSsolve> 
+ CNSsolve>eval ( $message = normal ) 
+ Assuming literal string "NORMAL"
+ EVALUATE: symbol $MESSAGE set to "NORMAL" (string)
+ CNSsolve>eval ( $echo = on ) 
+ Assuming literal string "ON"
+ EVALUATE: symbol $ECHO set to "ON" (string)
+ CNSsolve> 
+ CNSsolve> 
+ CNSsolve>set display=OUTPUT end 
+ CNSsolve>close procedures.dat end 
+ CNSsolve> 
+ CNSsolve>inline @procedures.dat 
+ ASSFIL: file procedures.dat opened.
+ CNSsolve>procedure matrix_multiply ( &m1; &m2; &mr; ) 
+ PROC-BODY> 
+ PROC-BODY>if ( &m1.cols ne &m2.rows ) then 
+ PROC-BODY>   literal MATRIX_MULTIPLY-ERR: DIMENSION MISMATCH &m1.cols != &m2.rows 
+ PROC-BODY>else 
+ PROC-BODY>eval ( $a = 1 ) 
+ PROC-BODY>while ( $a le &m1.rows ) loop a 
+ PROC-BODY>   eval ( $b = 1 ) 
+ PROC-BODY>   while ( $b le &m2.cols ) loop b 
+ PROC-BODY>      eval ( $z = 1 ) 
+ PROC-BODY>      eval ( $sum = 0 ) 
+ PROC-BODY>      while ( $z le &m1.cols ) loop z 
+ PROC-BODY>         eval ( $sum = $sum + &m1.ji.$a.$z * &m2.ji.$z.$b ) 
+ PROC-BODY>         eval ( $z = $z + 1 ) 
+ PROC-BODY>      end loop z 
+ PROC-BODY>      eval ( &mr.ji.$a.$b = $sum ) 
+ PROC-BODY>      eval ( $b = $b + 1 ) 
+ PROC-BODY>   end loop b 
+ PROC-BODY>   eval ( $a = $a + 1 ) 
+ PROC-BODY>end loop a 
+ PROC-BODY>eval ( &mr.rows = &m1.rows ) 
+ PROC-BODY>eval ( &mr.cols = &m2.cols ) 
+ PROC-BODY>end if 
+ PROC-BODY> 
+ PROC-BODY>endprocedure 
+ CNSsolve> 
+ CNSsolve>!---------------------------------------------------------- 
+ CNSsolve> 
+ CNSsolve>procedure matrix_map ( &m1; &m2; &mr; &fn ) 
+ PROC-BODY>if ( &m1.cols ne &m2.cols ) then 
+ PROC-BODY>   literal MATRIX_MAP-ERR: DIMENSION MISMATCH &m1.cols != &m2.cols 
+ PROC-BODY>elseif ( &m1.rows ne &m2.rows ) then 
+ PROC-BODY>   literal MATRIX_MAP-ERR: DIMENSION MISMATCH &m1.rows != &m2.rows 
+ PROC-BODY>else 
+ PROC-BODY>eval ( $a = 1 ) 
+ PROC-BODY>while ( $a le &m1.rows ) loop a 
+ PROC-BODY>   eval ( $b = 1 ) 
+ PROC-BODY>   while ( $b le &m1.cols ) loop b 
+ PROC-BODY>      eval ( &mr.ji.$a.$b =  &m1.ji.$a.$b &fn &m2.ji.$a.$b ) 
+ PROC-BODY>      eval ( $b = $b + 1 ) 
+ PROC-BODY>   end loop b 
+ PROC-BODY>   eval ( $a = $a + 1 ) 
+ PROC-BODY>end loop a 
+ PROC-BODY>eval ( &mr.rows = &m1.rows ) 
+ PROC-BODY>eval ( &mr.cols = &m1.cols ) 
+ PROC-BODY>end if 
+ PROC-BODY>endprocedure 
+ CNSsolve> 
+ CNSsolve>!---------------------------------------------------------- 
+ CNSsolve> 
+ CNSsolve>procedure matrix_transpose ( &m1; &mr; ) 
+ PROC-BODY>eval ( $a = 1 ) 
+ PROC-BODY>while ( $a le &m1.rows ) loop a 
+ PROC-BODY>   eval ( $b = 1 ) 
+ PROC-BODY>   while ( $b le &m1.cols ) loop b 
+ PROC-BODY>      eval ( &mr.ji.$b.$a =  &m1.ji.$a.$b ) 
+ PROC-BODY>      eval ( $b = $b + 1 ) 
+ PROC-BODY>   end loop b 
+ PROC-BODY>   eval ( $a = $a + 1 ) 
+ PROC-BODY>end loop a 
+ PROC-BODY>eval ( &mr.rows = &m1.cols ) 
+ PROC-BODY>eval ( &mr.cols = &m1.rows ) 
+ PROC-BODY>endprocedure 
+ CNSsolve> 
+ CNSsolve>!---------------------------------------------------------- 
+ CNSsolve> 
+ CNSsolve>procedure matrix_add ( &m1; &m2; &mr ) 
+ PROC-BODY>call matrix_map ( m1=&m1; m2=&m2; mr=&mr; fn = + ) 
+ PROC-BODY>endprocedure 
+ CNSsolve> 
+ CNSsolve>!---------------------------------------------------------- 
+ CNSsolve> 
+ CNSsolve>procedure matrix_subtract ( &m1; &m2; &mr ) 
+ PROC-BODY>call matrix_map ( m1=&m1; m2=&m2; mr=&mr; fn = - ) 
+ PROC-BODY>endprocedure 
+ CNSsolve> 
+ CNSsolve>!---------------------------------------------------------- 
+ CNSsolve> 
+ CNSsolve>procedure matrix_scale ( &m1; &scale; &mr ) 
+ PROC-BODY>eval ( $a = 1 ) 
+ PROC-BODY>while ( $a le &m1.rows ) loop a 
+ PROC-BODY>   eval ( $b = 1 ) 
+ PROC-BODY>   while ( $b le &m1.cols ) loop b 
+ PROC-BODY>      eval ( &mr.ji.$a.$b =  &m1.ji.$a.$b * &scale ) 
+ PROC-BODY>      eval ( $b = $b + 1 ) 
+ PROC-BODY>   end loop b 
+ PROC-BODY>   eval ( $a = $a + 1 ) 
+ PROC-BODY>end loop a 
+ PROC-BODY>eval ( &mr.rows = &m1.rows ) 
+ PROC-BODY>eval ( &mr.cols = &m1.cols ) 
+ PROC-BODY>endprocedure 
+ CNSsolve> 
+ CNSsolve>!---------------------------------------------------------- 
+ CNSsolve> 
+ CNSsolve>procedure matrix_display_row ( &m1; &row; &format = [F8.3] ) 
+ PROC-BODY>define ( &command = display ) 
+ PROC-BODY>eval ( $b = 1 ) 
+ PROC-BODY>buffer matrix_display 
+ PROC-BODY>  reset 
+ PROC-BODY>  display row [ &row ] = 
+ PROC-BODY>end 
+ PROC-BODY>while ( $b le &m1.cols ) loop b 
+ PROC-BODY>   buffer matrix_display 
+ PROC-BODY>     concat  &m1.ji.&row.$b&format 
+ PROC-BODY>   end 
+ PROC-BODY>   eval ( $b = $b + 1 ) 
+ PROC-BODY>end loop b 
+ PROC-BODY>buffer matrix_display flush end 
+ PROC-BODY>endprocedure 
+ CNSsolve> 
+ CNSsolve>!---------------------------------------------------------- 
+ CNSsolve> 
+ CNSsolve>procedure matrix_display ( &m1;  &format = [F8.3] ) 
+ PROC-BODY>eval ( $a = 1 ) 
+ PROC-BODY>while ( $a le &m1.rows ) loop a 
+ PROC-BODY>   call matrix_display_row ( m1 = &m1; row = $a; format = &format ) 
+ PROC-BODY>   eval ( $a = $a + 1 ) 
+ PROC-BODY>end loop a 
+ PROC-BODY>endprocedure 
+ CNSsolve> 
+ CNSsolve>eval ( $mat1.rows = 2 ) 
+ EVALUATE: symbol $MAT1.ROWS set to    2.00000     (real)
+ CNSsolve>eval ( $mat1.cols = 8 ) 
+ EVALUATE: symbol $MAT1.COLS set to    8.00000     (real)
+ CNSsolve> 
+ CNSsolve> eval ( $a = 1 ) 
+ EVALUATE: symbol $A set to    1.00000     (real)
+ CNSsolve> while ( $a le $mat1.rows ) loop a 
+ NEXTCD: condition evaluated as true
+ CNSsolve>    eval ( $b = 1 ) 
+ EVALUATE: symbol $B set to    1.00000     (real)
+ CNSsolve>    while ( $b le $mat1.cols ) loop b 
+ NEXTCD: condition evaluated as true
+ CNSsolve>         eval ( $mat1.ji.$a.$b = $a * $b ) 
+ EVALUATE: symbol $MAT1.JI.1.1 set to    1.00000     (real)
+ CNSsolve>       eval ( $b = $b + 1 ) 
+ EVALUATE: symbol $B set to    2.00000     (real)
+ CNSsolve>    end loop b 
+ CNSsolve>    while ( $b le $mat1.cols ) loop b 
+ NEXTCD: condition evaluated as true
+ CNSsolve>         eval ( $mat1.ji.$a.$b = $a * $b ) 
+ EVALUATE: symbol $MAT1.JI.1.2 set to    2.00000     (real)
+ CNSsolve>       eval ( $b = $b + 1 ) 
+ EVALUATE: symbol $B set to    3.00000     (real)
+ CNSsolve>    end loop b 
+ CNSsolve>    while ( $b le $mat1.cols ) loop b 
+ NEXTCD: condition evaluated as true
+ CNSsolve>         eval ( $mat1.ji.$a.$b = $a * $b ) 
+ EVALUATE: symbol $MAT1.JI.1.3 set to    3.00000     (real)
+ CNSsolve>       eval ( $b = $b + 1 ) 
+ EVALUATE: symbol $B set to    4.00000     (real)
+ CNSsolve>    end loop b 
+ CNSsolve>    while ( $b le $mat1.cols ) loop b 
+ NEXTCD: condition evaluated as true
+ CNSsolve>         eval ( $mat1.ji.$a.$b = $a * $b ) 
+ EVALUATE: symbol $MAT1.JI.1.4 set to    4.00000     (real)
+ CNSsolve>       eval ( $b = $b + 1 ) 
+ EVALUATE: symbol $B set to    5.00000     (real)
+ CNSsolve>    end loop b 
+ CNSsolve>    while ( $b le $mat1.cols ) loop b 
+ NEXTCD: condition evaluated as true
+ CNSsolve>         eval ( $mat1.ji.$a.$b = $a * $b ) 
+ EVALUATE: symbol $MAT1.JI.1.5 set to    5.00000     (real)
+ CNSsolve>       eval ( $b = $b + 1 ) 
+ EVALUATE: symbol $B set to    6.00000     (real)
+ CNSsolve>    end loop b 
+ CNSsolve>    while ( $b le $mat1.cols ) loop b 
+ NEXTCD: condition evaluated as true
+ CNSsolve>         eval ( $mat1.ji.$a.$b = $a * $b ) 
+ EVALUATE: symbol $MAT1.JI.1.6 set to    6.00000     (real)
+ CNSsolve>       eval ( $b = $b + 1 ) 
+ EVALUATE: symbol $B set to    7.00000     (real)
+ CNSsolve>    end loop b 
+ CNSsolve>    while ( $b le $mat1.cols ) loop b 
+ NEXTCD: condition evaluated as true
+ CNSsolve>         eval ( $mat1.ji.$a.$b = $a * $b ) 
+ EVALUATE: symbol $MAT1.JI.1.7 set to    7.00000     (real)
+ CNSsolve>       eval ( $b = $b + 1 ) 
+ EVALUATE: symbol $B set to    8.00000     (real)
+ CNSsolve>    end loop b 
+ CNSsolve>    while ( $b le $mat1.cols ) loop b 
+ NEXTCD: condition evaluated as true
+ CNSsolve>         eval ( $mat1.ji.$a.$b = $a * $b ) 
+ EVALUATE: symbol $MAT1.JI.1.8 set to    8.00000     (real)
+ CNSsolve>       eval ( $b = $b + 1 ) 
+ EVALUATE: symbol $B set to    9.00000     (real)
+ CNSsolve>    end loop b 
+ CNSsolve>    while ( $b le $mat1.cols ) loop b 
+ NEXTCD: condition evaluated as false
+ CNSsolve>         eval ( $mat1.ji.$a.$b = $a * $b ) 
+ CNSsolve>       eval ( $b = $b + 1 ) 
+ CNSsolve>    end loop b 
+ CNSsolve>    eval ( $a = $a + 1 ) 
+ EVALUATE: symbol $A set to    2.00000     (real)
+ CNSsolve> end loop a 
+ CNSsolve> while ( $a le $mat1.rows ) loop a 
+ NEXTCD: condition evaluated as true
+ CNSsolve>    eval ( $b = 1 ) 
+ EVALUATE: symbol $B set to    1.00000     (real)
+ CNSsolve>    while ( $b le $mat1.cols ) loop b 
+ NEXTCD: condition evaluated as true
+ CNSsolve>         eval ( $mat1.ji.$a.$b = $a * $b ) 
+ EVALUATE: symbol $MAT1.JI.2.1 set to    2.00000     (real)
+ CNSsolve>       eval ( $b = $b + 1 ) 
+ EVALUATE: symbol $B set to    2.00000     (real)
+ CNSsolve>    end loop b 
+ CNSsolve>    while ( $b le $mat1.cols ) loop b 
+ NEXTCD: condition evaluated as true
+ CNSsolve>         eval ( $mat1.ji.$a.$b = $a * $b ) 
+ EVALUATE: symbol $MAT1.JI.2.2 set to    4.00000     (real)
+ CNSsolve>       eval ( $b = $b + 1 ) 
+ EVALUATE: symbol $B set to    3.00000     (real)
+ CNSsolve>    end loop b 
+ CNSsolve>    while ( $b le $mat1.cols ) loop b 
+ NEXTCD: condition evaluated as true
+ CNSsolve>         eval ( $mat1.ji.$a.$b = $a * $b ) 
+ EVALUATE: symbol $MAT1.JI.2.3 set to    6.00000     (real)
+ CNSsolve>       eval ( $b = $b + 1 ) 
+ EVALUATE: symbol $B set to    4.00000     (real)
+ CNSsolve>    end loop b 
+ CNSsolve>    while ( $b le $mat1.cols ) loop b 
+ NEXTCD: condition evaluated as true
+ CNSsolve>         eval ( $mat1.ji.$a.$b = $a * $b ) 
+ EVALUATE: symbol $MAT1.JI.2.4 set to    8.00000     (real)
+ CNSsolve>       eval ( $b = $b + 1 ) 
+ EVALUATE: symbol $B set to    5.00000     (real)
+ CNSsolve>    end loop b 
+ CNSsolve>    while ( $b le $mat1.cols ) loop b 
+ NEXTCD: condition evaluated as true
+ CNSsolve>         eval ( $mat1.ji.$a.$b = $a * $b ) 
+ EVALUATE: symbol $MAT1.JI.2.5 set to    10.0000     (real)
+ CNSsolve>       eval ( $b = $b + 1 ) 
+ EVALUATE: symbol $B set to    6.00000     (real)
+ CNSsolve>    end loop b 
+ CNSsolve>    while ( $b le $mat1.cols ) loop b 
+ NEXTCD: condition evaluated as true
+ CNSsolve>         eval ( $mat1.ji.$a.$b = $a * $b ) 
+ EVALUATE: symbol $MAT1.JI.2.6 set to    12.0000     (real)
+ CNSsolve>       eval ( $b = $b + 1 ) 
+ EVALUATE: symbol $B set to    7.00000     (real)
+ CNSsolve>    end loop b 
+ CNSsolve>    while ( $b le $mat1.cols ) loop b 
+ NEXTCD: condition evaluated as true
+ CNSsolve>         eval ( $mat1.ji.$a.$b = $a * $b ) 
+ EVALUATE: symbol $MAT1.JI.2.7 set to    14.0000     (real)
+ CNSsolve>       eval ( $b = $b + 1 ) 
+ EVALUATE: symbol $B set to    8.00000     (real)
+ CNSsolve>    end loop b 
+ CNSsolve>    while ( $b le $mat1.cols ) loop b 
+ NEXTCD: condition evaluated as true
+ CNSsolve>         eval ( $mat1.ji.$a.$b = $a * $b ) 
+ EVALUATE: symbol $MAT1.JI.2.8 set to    16.0000     (real)
+ CNSsolve>       eval ( $b = $b + 1 ) 
+ EVALUATE: symbol $B set to    9.00000     (real)
+ CNSsolve>    end loop b 
+ CNSsolve>    while ( $b le $mat1.cols ) loop b 
+ NEXTCD: condition evaluated as false
+ CNSsolve>         eval ( $mat1.ji.$a.$b = $a * $b ) 
+ CNSsolve>       eval ( $b = $b + 1 ) 
+ CNSsolve>    end loop b 
+ CNSsolve>    eval ( $a = $a + 1 ) 
+ EVALUATE: symbol $A set to    3.00000     (real)
+ CNSsolve> end loop a 
+ CNSsolve> while ( $a le $mat1.rows ) loop a 
+ NEXTCD: condition evaluated as false
+ CNSsolve>    eval ( $b = 1 ) 
+ CNSsolve>    while ( $b le $mat1.cols ) loop b 
+ CNSsolve>         eval ( $mat1.ji.$a.$b = $a * $b ) 
+ CNSsolve>       eval ( $b = $b + 1 ) 
+ CNSsolve>    end loop b 
+ CNSsolve>    eval ( $a = $a + 1 ) 
+ CNSsolve> end loop a 
+ CNSsolve> 
+ CNSsolve> 
+ CNSsolve>call matrix_transpose ( m1 = $mat1; mr = $mat2 ) 
+ PROC-DECLARATION>(&m1 ; &mr ;) 
+ PROC-INVOCATION> ( m1 = $mat1; mr = $mat2 ) 
+ &_2_M1 set to $_1_MAT1 
+ &_2_MR set to $_1_MAT2 
+ CNSsolve>eval ( $a = 1 ) 
+ EVALUATE: symbol $A set to    1.00000     (real)
+ CNSsolve>while ( $a le &m1.rows ) loop a 
+ NEXTCD: condition evaluated as true
+ CNSsolve>   eval ( $b = 1 ) 
+ EVALUATE: symbol $B set to    1.00000     (real)
+ CNSsolve>   while ( $b le &m1.cols ) loop b 
+ NEXTCD: condition evaluated as true
+ CNSsolve>      eval ( &mr.ji.$b.$a =  &m1.ji.$a.$b ) 
+ EVALUATE: symbol $_1_MAT2.JI.1.1 set to    1.00000     (real)
+ CNSsolve>      eval ( $b = $b + 1 ) 
+ EVALUATE: symbol $B set to    2.00000     (real)
+ CNSsolve>   end loop b 
+ CNSsolve>   while ( $b le &m1.cols ) loop b 
+ NEXTCD: condition evaluated as true
+ CNSsolve>      eval ( &mr.ji.$b.$a =  &m1.ji.$a.$b ) 
+ EVALUATE: symbol $_1_MAT2.JI.2.1 set to    2.00000     (real)
+ CNSsolve>      eval ( $b = $b + 1 ) 
+ EVALUATE: symbol $B set to    3.00000     (real)
+ CNSsolve>   end loop b 
+ CNSsolve>   while ( $b le &m1.cols ) loop b 
+ NEXTCD: condition evaluated as true
+ CNSsolve>      eval ( &mr.ji.$b.$a =  &m1.ji.$a.$b ) 
+ EVALUATE: symbol $_1_MAT2.JI.3.1 set to    3.00000     (real)
+ CNSsolve>      eval ( $b = $b + 1 ) 
+ EVALUATE: symbol $B set to    4.00000     (real)
+ CNSsolve>   end loop b 
+ CNSsolve>   while ( $b le &m1.cols ) loop b 
+ NEXTCD: condition evaluated as true
+ CNSsolve>      eval ( &mr.ji.$b.$a =  &m1.ji.$a.$b ) 
+ EVALUATE: symbol $_1_MAT2.JI.4.1 set to    4.00000     (real)
+ CNSsolve>      eval ( $b = $b + 1 ) 
+ EVALUATE: symbol $B set to    5.00000     (real)
+ CNSsolve>   end loop b 
+ CNSsolve>   while ( $b le &m1.cols ) loop b 
+ NEXTCD: condition evaluated as true
+ CNSsolve>      eval ( &mr.ji.$b.$a =  &m1.ji.$a.$b ) 
+ EVALUATE: symbol $_1_MAT2.JI.5.1 set to    5.00000     (real)
+ CNSsolve>      eval ( $b = $b + 1 ) 
+ EVALUATE: symbol $B set to    6.00000     (real)
+ CNSsolve>   end loop b 
+ CNSsolve>   while ( $b le &m1.cols ) loop b 
+ NEXTCD: condition evaluated as true
+ CNSsolve>      eval ( &mr.ji.$b.$a =  &m1.ji.$a.$b ) 
+ EVALUATE: symbol $_1_MAT2.JI.6.1 set to    6.00000     (real)
+ CNSsolve>      eval ( $b = $b + 1 ) 
+ EVALUATE: symbol $B set to    7.00000     (real)
+ CNSsolve>   end loop b 
+ CNSsolve>   while ( $b le &m1.cols ) loop b 
+ NEXTCD: condition evaluated as true
+ CNSsolve>      eval ( &mr.ji.$b.$a =  &m1.ji.$a.$b ) 
+ EVALUATE: symbol $_1_MAT2.JI.7.1 set to    7.00000     (real)
+ CNSsolve>      eval ( $b = $b + 1 ) 
+ EVALUATE: symbol $B set to    8.00000     (real)
+ CNSsolve>   end loop b 
+ CNSsolve>   while ( $b le &m1.cols ) loop b 
+ NEXTCD: condition evaluated as true
+ CNSsolve>      eval ( &mr.ji.$b.$a =  &m1.ji.$a.$b ) 
+ EVALUATE: symbol $_1_MAT2.JI.8.1 set to    8.00000     (real)
+ CNSsolve>      eval ( $b = $b + 1 ) 
+ EVALUATE: symbol $B set to    9.00000     (real)
+ CNSsolve>   end loop b 
+ CNSsolve>   while ( $b le &m1.cols ) loop b 
+ NEXTCD: condition evaluated as false
+ CNSsolve>      eval ( &mr.ji.$b.$a =  &m1.ji.$a.$b ) 
+ CNSsolve>      eval ( $b = $b + 1 ) 
+ CNSsolve>   end loop b 
+ CNSsolve>   eval ( $a = $a + 1 ) 
+ EVALUATE: symbol $A set to    2.00000     (real)
+ CNSsolve>end loop a 
+ CNSsolve>while ( $a le &m1.rows ) loop a 
+ NEXTCD: condition evaluated as true
+ CNSsolve>   eval ( $b = 1 ) 
+ EVALUATE: symbol $B set to    1.00000     (real)
+ CNSsolve>   while ( $b le &m1.cols ) loop b 
+ NEXTCD: condition evaluated as true
+ CNSsolve>      eval ( &mr.ji.$b.$a =  &m1.ji.$a.$b ) 
+ EVALUATE: symbol $_1_MAT2.JI.1.2 set to    2.00000     (real)
+ CNSsolve>      eval ( $b = $b + 1 ) 
+ EVALUATE: symbol $B set to    2.00000     (real)
+ CNSsolve>   end loop b 
+ CNSsolve>   while ( $b le &m1.cols ) loop b 
+ NEXTCD: condition evaluated as true
+ CNSsolve>      eval ( &mr.ji.$b.$a =  &m1.ji.$a.$b ) 
+ EVALUATE: symbol $_1_MAT2.JI.2.2 set to    4.00000     (real)
+ CNSsolve>      eval ( $b = $b + 1 ) 
+ EVALUATE: symbol $B set to    3.00000     (real)
+ CNSsolve>   end loop b 
+ CNSsolve>   while ( $b le &m1.cols ) loop b 
+ NEXTCD: condition evaluated as true
+ CNSsolve>      eval ( &mr.ji.$b.$a =  &m1.ji.$a.$b ) 
+ EVALUATE: symbol $_1_MAT2.JI.3.2 set to    6.00000     (real)
+ CNSsolve>      eval ( $b = $b + 1 ) 
+ EVALUATE: symbol $B set to    4.00000     (real)
+ CNSsolve>   end loop b 
+ CNSsolve>   while ( $b le &m1.cols ) loop b 
+ NEXTCD: condition evaluated as true
+ CNSsolve>      eval ( &mr.ji.$b.$a =  &m1.ji.$a.$b ) 
+ EVALUATE: symbol $_1_MAT2.JI.4.2 set to    8.00000     (real)
+ CNSsolve>      eval ( $b = $b + 1 ) 
+ EVALUATE: symbol $B set to    5.00000     (real)
+ CNSsolve>   end loop b 
+ CNSsolve>   while ( $b le &m1.cols ) loop b 
+ NEXTCD: condition evaluated as true
+ CNSsolve>      eval ( &mr.ji.$b.$a =  &m1.ji.$a.$b ) 
+ EVALUATE: symbol $_1_MAT2.JI.5.2 set to    10.0000     (real)
+ CNSsolve>      eval ( $b = $b + 1 ) 
+ EVALUATE: symbol $B set to    6.00000     (real)
+ CNSsolve>   end loop b 
+ CNSsolve>   while ( $b le &m1.cols ) loop b 
+ NEXTCD: condition evaluated as true
+ CNSsolve>      eval ( &mr.ji.$b.$a =  &m1.ji.$a.$b ) 
+ EVALUATE: symbol $_1_MAT2.JI.6.2 set to    12.0000     (real)
+ CNSsolve>      eval ( $b = $b + 1 ) 
+ EVALUATE: symbol $B set to    7.00000     (real)
+ CNSsolve>   end loop b 
+ CNSsolve>   while ( $b le &m1.cols ) loop b 
+ NEXTCD: condition evaluated as true
+ CNSsolve>      eval ( &mr.ji.$b.$a =  &m1.ji.$a.$b ) 
+ EVALUATE: symbol $_1_MAT2.JI.7.2 set to    14.0000     (real)
+ CNSsolve>      eval ( $b = $b + 1 ) 
+ EVALUATE: symbol $B set to    8.00000     (real)
+ CNSsolve>   end loop b 
+ CNSsolve>   while ( $b le &m1.cols ) loop b 
+ NEXTCD: condition evaluated as true
+ CNSsolve>      eval ( &mr.ji.$b.$a =  &m1.ji.$a.$b ) 
+ EVALUATE: symbol $_1_MAT2.JI.8.2 set to    16.0000     (real)
+ CNSsolve>      eval ( $b = $b + 1 ) 
+ EVALUATE: symbol $B set to    9.00000     (real)
+ CNSsolve>   end loop b 
+ CNSsolve>   while ( $b le &m1.cols ) loop b 
+ NEXTCD: condition evaluated as false
+ CNSsolve>      eval ( &mr.ji.$b.$a =  &m1.ji.$a.$b ) 
+ CNSsolve>      eval ( $b = $b + 1 ) 
+ CNSsolve>   end loop b 
+ CNSsolve>   eval ( $a = $a + 1 ) 
+ EVALUATE: symbol $A set to    3.00000     (real)
+ CNSsolve>end loop a 
+ CNSsolve>while ( $a le &m1.rows ) loop a 
+ NEXTCD: condition evaluated as false
+ CNSsolve>   eval ( $b = 1 ) 
+ CNSsolve>   while ( $b le &m1.cols ) loop b 
+ CNSsolve>      eval ( &mr.ji.$b.$a =  &m1.ji.$a.$b ) 
+ CNSsolve>      eval ( $b = $b + 1 ) 
+ CNSsolve>   end loop b 
+ CNSsolve>   eval ( $a = $a + 1 ) 
+ CNSsolve>end loop a 
+ CNSsolve>eval ( &mr.rows = &m1.cols ) 
+ EVALUATE: symbol $_1_MAT2.ROWS set to    8.00000     (real)
+ CNSsolve>eval ( &mr.cols = &m1.rows )  
+ EVALUATE: symbol $_1_MAT2.COLS set to    2.00000     (real)
+ CNSsolve>call matrix_scale ( m1 = $mat2; scale = 0.5; mr = $mat3 ) 
+ PROC-DECLARATION>(&m1 ; &scale ; &mr) 
+ PROC-INVOCATION> ( m1 = $mat2; scale = 0.5; mr = $mat3 ) 
+ &_2_M1 set to $_1_MAT2 
+ &_2_SCALE set to 0.5 
+ &_2_MR set to $_1_MAT3 
+ CNSsolve>eval ( $a = 1 ) 
+ EVALUATE: symbol $A set to    1.00000     (real)
+ CNSsolve>while ( $a le &m1.rows ) loop a 
+ NEXTCD: condition evaluated as true
+ CNSsolve>   eval ( $b = 1 ) 
+ EVALUATE: symbol $B set to    1.00000     (real)
+ CNSsolve>   while ( $b le &m1.cols ) loop b 
+ NEXTCD: condition evaluated as true
+ CNSsolve>      eval ( &mr.ji.$a.$b =  &m1.ji.$a.$b * &scale ) 
+ EVALUATE: symbol $_1_MAT3.JI.1.1 set to   0.500000     (real)
+ CNSsolve>      eval ( $b = $b + 1 ) 
+ EVALUATE: symbol $B set to    2.00000     (real)
+ CNSsolve>   end loop b 
+ CNSsolve>   while ( $b le &m1.cols ) loop b 
+ NEXTCD: condition evaluated as true
+ CNSsolve>      eval ( &mr.ji.$a.$b =  &m1.ji.$a.$b * &scale ) 
+ EVALUATE: symbol $_1_MAT3.JI.1.2 set to    1.00000     (real)
+ CNSsolve>      eval ( $b = $b + 1 ) 
+ EVALUATE: symbol $B set to    3.00000     (real)
+ CNSsolve>   end loop b 
+ CNSsolve>   while ( $b le &m1.cols ) loop b 
+ NEXTCD: condition evaluated as false
+ CNSsolve>      eval ( &mr.ji.$a.$b =  &m1.ji.$a.$b * &scale ) 
+ CNSsolve>      eval ( $b = $b + 1 ) 
+ CNSsolve>   end loop b 
+ CNSsolve>   eval ( $a = $a + 1 ) 
+ EVALUATE: symbol $A set to    2.00000     (real)
+ CNSsolve>end loop a 
+ CNSsolve>while ( $a le &m1.rows ) loop a 
+ NEXTCD: condition evaluated as true
+ CNSsolve>   eval ( $b = 1 ) 
+ EVALUATE: symbol $B set to    1.00000     (real)
+ CNSsolve>   while ( $b le &m1.cols ) loop b 
+ NEXTCD: condition evaluated as true
+ CNSsolve>      eval ( &mr.ji.$a.$b =  &m1.ji.$a.$b * &scale ) 
+ EVALUATE: symbol $_1_MAT3.JI.2.1 set to    1.00000     (real)
+ CNSsolve>      eval ( $b = $b + 1 ) 
+ EVALUATE: symbol $B set to    2.00000     (real)
+ CNSsolve>   end loop b 
+ CNSsolve>   while ( $b le &m1.cols ) loop b 
+ NEXTCD: condition evaluated as true
+ CNSsolve>      eval ( &mr.ji.$a.$b =  &m1.ji.$a.$b * &scale ) 
+ EVALUATE: symbol $_1_MAT3.JI.2.2 set to    2.00000     (real)
+ CNSsolve>      eval ( $b = $b + 1 ) 
+ EVALUATE: symbol $B set to    3.00000     (real)
+ CNSsolve>   end loop b 
+ CNSsolve>   while ( $b le &m1.cols ) loop b 
+ NEXTCD: condition evaluated as false
+ CNSsolve>      eval ( &mr.ji.$a.$b =  &m1.ji.$a.$b * &scale ) 
+ CNSsolve>      eval ( $b = $b + 1 ) 
+ CNSsolve>   end loop b 
+ CNSsolve>   eval ( $a = $a + 1 ) 
+ EVALUATE: symbol $A set to    3.00000     (real)
+ CNSsolve>end loop a 
+ CNSsolve>while ( $a le &m1.rows ) loop a 
+ NEXTCD: condition evaluated as true
+ CNSsolve>   eval ( $b = 1 ) 
+ EVALUATE: symbol $B set to    1.00000     (real)
+ CNSsolve>   while ( $b le &m1.cols ) loop b 
+ NEXTCD: condition evaluated as true
+ CNSsolve>      eval ( &mr.ji.$a.$b =  &m1.ji.$a.$b * &scale ) 
+ EVALUATE: symbol $_1_MAT3.JI.3.1 set to    1.50000     (real)
+ CNSsolve>      eval ( $b = $b + 1 ) 
+ EVALUATE: symbol $B set to    2.00000     (real)
+ CNSsolve>   end loop b 
+ CNSsolve>   while ( $b le &m1.cols ) loop b 
+ NEXTCD: condition evaluated as true
+ CNSsolve>      eval ( &mr.ji.$a.$b =  &m1.ji.$a.$b * &scale ) 
+ EVALUATE: symbol $_1_MAT3.JI.3.2 set to    3.00000     (real)
+ CNSsolve>      eval ( $b = $b + 1 ) 
+ EVALUATE: symbol $B set to    3.00000     (real)
+ CNSsolve>   end loop b 
+ CNSsolve>   while ( $b le &m1.cols ) loop b 
+ NEXTCD: condition evaluated as false
+ CNSsolve>      eval ( &mr.ji.$a.$b =  &m1.ji.$a.$b * &scale ) 
+ CNSsolve>      eval ( $b = $b + 1 ) 
+ CNSsolve>   end loop b 
+ CNSsolve>   eval ( $a = $a + 1 ) 
+ EVALUATE: symbol $A set to    4.00000     (real)
+ CNSsolve>end loop a 
+ CNSsolve>while ( $a le &m1.rows ) loop a 
+ NEXTCD: condition evaluated as true
+ CNSsolve>   eval ( $b = 1 ) 
+ EVALUATE: symbol $B set to    1.00000     (real)
+ CNSsolve>   while ( $b le &m1.cols ) loop b 
+ NEXTCD: condition evaluated as true
+ CNSsolve>      eval ( &mr.ji.$a.$b =  &m1.ji.$a.$b * &scale ) 
+ EVALUATE: symbol $_1_MAT3.JI.4.1 set to    2.00000     (real)
+ CNSsolve>      eval ( $b = $b + 1 ) 
+ EVALUATE: symbol $B set to    2.00000     (real)
+ CNSsolve>   end loop b 
+ CNSsolve>   while ( $b le &m1.cols ) loop b 
+ NEXTCD: condition evaluated as true
+ CNSsolve>      eval ( &mr.ji.$a.$b =  &m1.ji.$a.$b * &scale ) 
+ EVALUATE: symbol $_1_MAT3.JI.4.2 set to    4.00000     (real)
+ CNSsolve>      eval ( $b = $b + 1 ) 
+ EVALUATE: symbol $B set to    3.00000     (real)
+ CNSsolve>   end loop b 
+ CNSsolve>   while ( $b le &m1.cols ) loop b 
+ NEXTCD: condition evaluated as false
+ CNSsolve>      eval ( &mr.ji.$a.$b =  &m1.ji.$a.$b * &scale ) 
+ CNSsolve>      eval ( $b = $b + 1 ) 
+ CNSsolve>   end loop b 
+ CNSsolve>   eval ( $a = $a + 1 ) 
+ EVALUATE: symbol $A set to    5.00000     (real)
+ CNSsolve>end loop a 
+ CNSsolve>while ( $a le &m1.rows ) loop a 
+ NEXTCD: condition evaluated as true
+ CNSsolve>   eval ( $b = 1 ) 
+ EVALUATE: symbol $B set to    1.00000     (real)
+ CNSsolve>   while ( $b le &m1.cols ) loop b 
+ NEXTCD: condition evaluated as true
+ CNSsolve>      eval ( &mr.ji.$a.$b =  &m1.ji.$a.$b * &scale ) 
+ EVALUATE: symbol $_1_MAT3.JI.5.1 set to    2.50000     (real)
+ CNSsolve>      eval ( $b = $b + 1 ) 
+ EVALUATE: symbol $B set to    2.00000     (real)
+ CNSsolve>   end loop b 
+ CNSsolve>   while ( $b le &m1.cols ) loop b 
+ NEXTCD: condition evaluated as true
+ CNSsolve>      eval ( &mr.ji.$a.$b =  &m1.ji.$a.$b * &scale ) 
+ EVALUATE: symbol $_1_MAT3.JI.5.2 set to    5.00000     (real)
+ CNSsolve>      eval ( $b = $b + 1 ) 
+ EVALUATE: symbol $B set to    3.00000     (real)
+ CNSsolve>   end loop b 
+ CNSsolve>   while ( $b le &m1.cols ) loop b 
+ NEXTCD: condition evaluated as false
+ CNSsolve>      eval ( &mr.ji.$a.$b =  &m1.ji.$a.$b * &scale ) 
+ CNSsolve>      eval ( $b = $b + 1 ) 
+ CNSsolve>   end loop b 
+ CNSsolve>   eval ( $a = $a + 1 ) 
+ EVALUATE: symbol $A set to    6.00000     (real)
+ CNSsolve>end loop a 
+ CNSsolve>while ( $a le &m1.rows ) loop a 
+ NEXTCD: condition evaluated as true
+ CNSsolve>   eval ( $b = 1 ) 
+ EVALUATE: symbol $B set to    1.00000     (real)
+ CNSsolve>   while ( $b le &m1.cols ) loop b 
+ NEXTCD: condition evaluated as true
+ CNSsolve>      eval ( &mr.ji.$a.$b =  &m1.ji.$a.$b * &scale ) 
+ EVALUATE: symbol $_1_MAT3.JI.6.1 set to    3.00000     (real)
+ CNSsolve>      eval ( $b = $b + 1 ) 
+ EVALUATE: symbol $B set to    2.00000     (real)
+ CNSsolve>   end loop b 
+ CNSsolve>   while ( $b le &m1.cols ) loop b 
+ NEXTCD: condition evaluated as true
+ CNSsolve>      eval ( &mr.ji.$a.$b =  &m1.ji.$a.$b * &scale ) 
+ EVALUATE: symbol $_1_MAT3.JI.6.2 set to    6.00000     (real)
+ CNSsolve>      eval ( $b = $b + 1 ) 
+ EVALUATE: symbol $B set to    3.00000     (real)
+ CNSsolve>   end loop b 
+ CNSsolve>   while ( $b le &m1.cols ) loop b 
+ NEXTCD: condition evaluated as false
+ CNSsolve>      eval ( &mr.ji.$a.$b =  &m1.ji.$a.$b * &scale ) 
+ CNSsolve>      eval ( $b = $b + 1 ) 
+ CNSsolve>   end loop b 
+ CNSsolve>   eval ( $a = $a + 1 ) 
+ EVALUATE: symbol $A set to    7.00000     (real)
+ CNSsolve>end loop a 
+ CNSsolve>while ( $a le &m1.rows ) loop a 
+ NEXTCD: condition evaluated as true
+ CNSsolve>   eval ( $b = 1 ) 
+ EVALUATE: symbol $B set to    1.00000     (real)
+ CNSsolve>   while ( $b le &m1.cols ) loop b 
+ NEXTCD: condition evaluated as true
+ CNSsolve>      eval ( &mr.ji.$a.$b =  &m1.ji.$a.$b * &scale ) 
+ EVALUATE: symbol $_1_MAT3.JI.7.1 set to    3.50000     (real)
+ CNSsolve>      eval ( $b = $b + 1 ) 
+ EVALUATE: symbol $B set to    2.00000     (real)
+ CNSsolve>   end loop b 
+ CNSsolve>   while ( $b le &m1.cols ) loop b 
+ NEXTCD: condition evaluated as true
+ CNSsolve>      eval ( &mr.ji.$a.$b =  &m1.ji.$a.$b * &scale ) 
+ EVALUATE: symbol $_1_MAT3.JI.7.2 set to    7.00000     (real)
+ CNSsolve>      eval ( $b = $b + 1 ) 
+ EVALUATE: symbol $B set to    3.00000     (real)
+ CNSsolve>   end loop b 
+ CNSsolve>   while ( $b le &m1.cols ) loop b 
+ NEXTCD: condition evaluated as false
+ CNSsolve>      eval ( &mr.ji.$a.$b =  &m1.ji.$a.$b * &scale ) 
+ CNSsolve>      eval ( $b = $b + 1 ) 
+ CNSsolve>   end loop b 
+ CNSsolve>   eval ( $a = $a + 1 ) 
+ EVALUATE: symbol $A set to    8.00000     (real)
+ CNSsolve>end loop a 
+ CNSsolve>while ( $a le &m1.rows ) loop a 
+ NEXTCD: condition evaluated as true
+ CNSsolve>   eval ( $b = 1 ) 
+ EVALUATE: symbol $B set to    1.00000     (real)
+ CNSsolve>   while ( $b le &m1.cols ) loop b 
+ NEXTCD: condition evaluated as true
+ CNSsolve>      eval ( &mr.ji.$a.$b =  &m1.ji.$a.$b * &scale ) 
+ EVALUATE: symbol $_1_MAT3.JI.8.1 set to    4.00000     (real)
+ CNSsolve>      eval ( $b = $b + 1 ) 
+ EVALUATE: symbol $B set to    2.00000     (real)
+ CNSsolve>   end loop b 
+ CNSsolve>   while ( $b le &m1.cols ) loop b 
+ NEXTCD: condition evaluated as true
+ CNSsolve>      eval ( &mr.ji.$a.$b =  &m1.ji.$a.$b * &scale ) 
+ EVALUATE: symbol $_1_MAT3.JI.8.2 set to    8.00000     (real)
+ CNSsolve>      eval ( $b = $b + 1 ) 
+ EVALUATE: symbol $B set to    3.00000     (real)
+ CNSsolve>   end loop b 
+ CNSsolve>   while ( $b le &m1.cols ) loop b 
+ NEXTCD: condition evaluated as false
+ CNSsolve>      eval ( &mr.ji.$a.$b =  &m1.ji.$a.$b * &scale ) 
+ CNSsolve>      eval ( $b = $b + 1 ) 
+ CNSsolve>   end loop b 
+ CNSsolve>   eval ( $a = $a + 1 ) 
+ EVALUATE: symbol $A set to    9.00000     (real)
+ CNSsolve>end loop a 
+ CNSsolve>while ( $a le &m1.rows ) loop a 
+ NEXTCD: condition evaluated as false
+ CNSsolve>   eval ( $b = 1 ) 
+ CNSsolve>   while ( $b le &m1.cols ) loop b 
+ CNSsolve>      eval ( &mr.ji.$a.$b =  &m1.ji.$a.$b * &scale ) 
+ CNSsolve>      eval ( $b = $b + 1 ) 
+ CNSsolve>   end loop b 
+ CNSsolve>   eval ( $a = $a + 1 ) 
+ CNSsolve>end loop a 
+ CNSsolve>eval ( &mr.rows = &m1.rows ) 
+ EVALUATE: symbol $_1_MAT3.ROWS set to    8.00000     (real)
+ CNSsolve>eval ( &mr.cols = &m1.cols )  
+ EVALUATE: symbol $_1_MAT3.COLS set to    2.00000     (real)
+ CNSsolve>call matrix_multiply ( m1 = $mat1; m2 = $mat3; mr = $mat4 ) 
+ PROC-DECLARATION>(&m1 ; &m2 ; &mr ;) 
+ PROC-INVOCATION> ( m1 = $mat1; m2 = $mat3; mr = $mat4 ) 
+ &_2_M1 set to $_1_MAT1 
+ &_2_M2 set to $_1_MAT3 
+ &_2_MR set to $_1_MAT4 
+ CNSsolve>if ( &m1.cols ne &m2.rows ) then 
+ NEXTCD: condition evaluated as false
+ CNSsolve>   literal MATRIX_MULTIPLY-ERR: DIMENSION MISMATCH &m1.cols != &m2.rows 
+ CNSsolve>else 
+ CNSsolve>eval ( $a = 1 ) 
+ EVALUATE: symbol $A set to    1.00000     (real)
+ CNSsolve>while ( $a le &m1.rows ) loop a 
+ NEXTCD: condition evaluated as true
+ CNSsolve>   eval ( $b = 1 ) 
+ EVALUATE: symbol $B set to    1.00000     (real)
+ CNSsolve>   while ( $b le &m2.cols ) loop b 
+ NEXTCD: condition evaluated as true
+ CNSsolve>      eval ( $z = 1 ) 
+ EVALUATE: symbol $Z set to    1.00000     (real)
+ CNSsolve>      eval ( $sum = 0 ) 
+ EVALUATE: symbol $SUM set to    0.00000     (real)
+ CNSsolve>      while ( $z le &m1.cols ) loop z 
+ NEXTCD: condition evaluated as true
+ CNSsolve>         eval ( $sum = $sum + &m1.ji.$a.$z * &m2.ji.$z.$b ) 
+ EVALUATE: symbol $SUM set to   0.500000     (real)
+ CNSsolve>         eval ( $z = $z + 1 ) 
+ EVALUATE: symbol $Z set to    2.00000     (real)
+ CNSsolve>      end loop z 
+ CNSsolve>      while ( $z le &m1.cols ) loop z 
+ NEXTCD: condition evaluated as true
+ CNSsolve>         eval ( $sum = $sum + &m1.ji.$a.$z * &m2.ji.$z.$b ) 
+ EVALUATE: symbol $SUM set to    2.50000     (real)
+ CNSsolve>         eval ( $z = $z + 1 ) 
+ EVALUATE: symbol $Z set to    3.00000     (real)
+ CNSsolve>      end loop z 
+ CNSsolve>      while ( $z le &m1.cols ) loop z 
+ NEXTCD: condition evaluated as true
+ CNSsolve>         eval ( $sum = $sum + &m1.ji.$a.$z * &m2.ji.$z.$b ) 
+ EVALUATE: symbol $SUM set to    7.00000     (real)
+ CNSsolve>         eval ( $z = $z + 1 ) 
+ EVALUATE: symbol $Z set to    4.00000     (real)
+ CNSsolve>      end loop z 
+ CNSsolve>      while ( $z le &m1.cols ) loop z 
+ NEXTCD: condition evaluated as true
+ CNSsolve>         eval ( $sum = $sum + &m1.ji.$a.$z * &m2.ji.$z.$b ) 
+ EVALUATE: symbol $SUM set to    15.0000     (real)
+ CNSsolve>         eval ( $z = $z + 1 ) 
+ EVALUATE: symbol $Z set to    5.00000     (real)
+ CNSsolve>      end loop z 
+ CNSsolve>      while ( $z le &m1.cols ) loop z 
+ NEXTCD: condition evaluated as true
+ CNSsolve>         eval ( $sum = $sum + &m1.ji.$a.$z * &m2.ji.$z.$b ) 
+ EVALUATE: symbol $SUM set to    27.5000     (real)
+ CNSsolve>         eval ( $z = $z + 1 ) 
+ EVALUATE: symbol $Z set to    6.00000     (real)
+ CNSsolve>      end loop z 
+ CNSsolve>      while ( $z le &m1.cols ) loop z 
+ NEXTCD: condition evaluated as true
+ CNSsolve>         eval ( $sum = $sum + &m1.ji.$a.$z * &m2.ji.$z.$b ) 
+ EVALUATE: symbol $SUM set to    45.5000     (real)
+ CNSsolve>         eval ( $z = $z + 1 ) 
+ EVALUATE: symbol $Z set to    7.00000     (real)
+ CNSsolve>      end loop z 
+ CNSsolve>      while ( $z le &m1.cols ) loop z 
+ NEXTCD: condition evaluated as true
+ CNSsolve>         eval ( $sum = $sum + &m1.ji.$a.$z * &m2.ji.$z.$b ) 
+ EVALUATE: symbol $SUM set to    70.0000     (real)
+ CNSsolve>         eval ( $z = $z + 1 ) 
+ EVALUATE: symbol $Z set to    8.00000     (real)
+ CNSsolve>      end loop z 
+ CNSsolve>      while ( $z le &m1.cols ) loop z 
+ NEXTCD: condition evaluated as true
+ CNSsolve>         eval ( $sum = $sum + &m1.ji.$a.$z * &m2.ji.$z.$b ) 
+ EVALUATE: symbol $SUM set to    102.000     (real)
+ CNSsolve>         eval ( $z = $z + 1 ) 
+ EVALUATE: symbol $Z set to    9.00000     (real)
+ CNSsolve>      end loop z 
+ CNSsolve>      while ( $z le &m1.cols ) loop z 
+ NEXTCD: condition evaluated as false
+ CNSsolve>         eval ( $sum = $sum + &m1.ji.$a.$z * &m2.ji.$z.$b ) 
+ CNSsolve>         eval ( $z = $z + 1 ) 
+ CNSsolve>      end loop z 
+ CNSsolve>      eval ( &mr.ji.$a.$b = $sum ) 
+ EVALUATE: symbol $_1_MAT4.JI.1.1 set to    102.000     (real)
+ CNSsolve>      eval ( $b = $b + 1 ) 
+ EVALUATE: symbol $B set to    2.00000     (real)
+ CNSsolve>   end loop b 
+ CNSsolve>   while ( $b le &m2.cols ) loop b 
+ NEXTCD: condition evaluated as true
+ CNSsolve>      eval ( $z = 1 ) 
+ EVALUATE: symbol $Z set to    1.00000     (real)
+ CNSsolve>      eval ( $sum = 0 ) 
+ EVALUATE: symbol $SUM set to    0.00000     (real)
+ CNSsolve>      while ( $z le &m1.cols ) loop z 
+ NEXTCD: condition evaluated as true
+ CNSsolve>         eval ( $sum = $sum + &m1.ji.$a.$z * &m2.ji.$z.$b ) 
+ EVALUATE: symbol $SUM set to    1.00000     (real)
+ CNSsolve>         eval ( $z = $z + 1 ) 
+ EVALUATE: symbol $Z set to    2.00000     (real)
+ CNSsolve>      end loop z 
+ CNSsolve>      while ( $z le &m1.cols ) loop z 
+ NEXTCD: condition evaluated as true
+ CNSsolve>         eval ( $sum = $sum + &m1.ji.$a.$z * &m2.ji.$z.$b ) 
+ EVALUATE: symbol $SUM set to    5.00000     (real)
+ CNSsolve>         eval ( $z = $z + 1 ) 
+ EVALUATE: symbol $Z set to    3.00000     (real)
+ CNSsolve>      end loop z 
+ CNSsolve>      while ( $z le &m1.cols ) loop z 
+ NEXTCD: condition evaluated as true
+ CNSsolve>         eval ( $sum = $sum + &m1.ji.$a.$z * &m2.ji.$z.$b ) 
+ EVALUATE: symbol $SUM set to    14.0000     (real)
+ CNSsolve>         eval ( $z = $z + 1 ) 
+ EVALUATE: symbol $Z set to    4.00000     (real)
+ CNSsolve>      end loop z 
+ CNSsolve>      while ( $z le &m1.cols ) loop z 
+ NEXTCD: condition evaluated as true
+ CNSsolve>         eval ( $sum = $sum + &m1.ji.$a.$z * &m2.ji.$z.$b ) 
+ EVALUATE: symbol $SUM set to    30.0000     (real)
+ CNSsolve>         eval ( $z = $z + 1 ) 
+ EVALUATE: symbol $Z set to    5.00000     (real)
+ CNSsolve>      end loop z 
+ CNSsolve>      while ( $z le &m1.cols ) loop z 
+ NEXTCD: condition evaluated as true
+ CNSsolve>         eval ( $sum = $sum + &m1.ji.$a.$z * &m2.ji.$z.$b ) 
+ EVALUATE: symbol $SUM set to    55.0000     (real)
+ CNSsolve>         eval ( $z = $z + 1 ) 
+ EVALUATE: symbol $Z set to    6.00000     (real)
+ CNSsolve>      end loop z 
+ CNSsolve>      while ( $z le &m1.cols ) loop z 
+ NEXTCD: condition evaluated as true
+ CNSsolve>         eval ( $sum = $sum + &m1.ji.$a.$z * &m2.ji.$z.$b ) 
+ EVALUATE: symbol $SUM set to    91.0000     (real)
+ CNSsolve>         eval ( $z = $z + 1 ) 
+ EVALUATE: symbol $Z set to    7.00000     (real)
+ CNSsolve>      end loop z 
+ CNSsolve>      while ( $z le &m1.cols ) loop z 
+ NEXTCD: condition evaluated as true
+ CNSsolve>         eval ( $sum = $sum + &m1.ji.$a.$z * &m2.ji.$z.$b ) 
+ EVALUATE: symbol $SUM set to    140.000     (real)
+ CNSsolve>         eval ( $z = $z + 1 ) 
+ EVALUATE: symbol $Z set to    8.00000     (real)
+ CNSsolve>      end loop z 
+ CNSsolve>      while ( $z le &m1.cols ) loop z 
+ NEXTCD: condition evaluated as true
+ CNSsolve>         eval ( $sum = $sum + &m1.ji.$a.$z * &m2.ji.$z.$b ) 
+ EVALUATE: symbol $SUM set to    204.000     (real)
+ CNSsolve>         eval ( $z = $z + 1 ) 
+ EVALUATE: symbol $Z set to    9.00000     (real)
+ CNSsolve>      end loop z 
+ CNSsolve>      while ( $z le &m1.cols ) loop z 
+ NEXTCD: condition evaluated as false
+ CNSsolve>         eval ( $sum = $sum + &m1.ji.$a.$z * &m2.ji.$z.$b ) 
+ CNSsolve>         eval ( $z = $z + 1 ) 
+ CNSsolve>      end loop z 
+ CNSsolve>      eval ( &mr.ji.$a.$b = $sum ) 
+ EVALUATE: symbol $_1_MAT4.JI.1.2 set to    204.000     (real)
+ CNSsolve>      eval ( $b = $b + 1 ) 
+ EVALUATE: symbol $B set to    3.00000     (real)
+ CNSsolve>   end loop b 
+ CNSsolve>   while ( $b le &m2.cols ) loop b 
+ NEXTCD: condition evaluated as false
+ CNSsolve>      eval ( $z = 1 ) 
+ CNSsolve>      eval ( $sum = 0 ) 
+ CNSsolve>      while ( $z le &m1.cols ) loop z 
+ CNSsolve>         eval ( $sum = $sum + &m1.ji.$a.$z * &m2.ji.$z.$b ) 
+ CNSsolve>         eval ( $z = $z + 1 ) 
+ CNSsolve>      end loop z 
+ CNSsolve>      eval ( &mr.ji.$a.$b = $sum ) 
+ CNSsolve>      eval ( $b = $b + 1 ) 
+ CNSsolve>   end loop b 
+ CNSsolve>   eval ( $a = $a + 1 ) 
+ EVALUATE: symbol $A set to    2.00000     (real)
+ CNSsolve>end loop a 
+ CNSsolve>while ( $a le &m1.rows ) loop a 
+ NEXTCD: condition evaluated as true
+ CNSsolve>   eval ( $b = 1 ) 
+ EVALUATE: symbol $B set to    1.00000     (real)
+ CNSsolve>   while ( $b le &m2.cols ) loop b 
+ NEXTCD: condition evaluated as true
+ CNSsolve>      eval ( $z = 1 ) 
+ EVALUATE: symbol $Z set to    1.00000     (real)
+ CNSsolve>      eval ( $sum = 0 ) 
+ EVALUATE: symbol $SUM set to    0.00000     (real)
+ CNSsolve>      while ( $z le &m1.cols ) loop z 
+ NEXTCD: condition evaluated as true
+ CNSsolve>         eval ( $sum = $sum + &m1.ji.$a.$z * &m2.ji.$z.$b ) 
+ EVALUATE: symbol $SUM set to    1.00000     (real)
+ CNSsolve>         eval ( $z = $z + 1 ) 
+ EVALUATE: symbol $Z set to    2.00000     (real)
+ CNSsolve>      end loop z 
+ CNSsolve>      while ( $z le &m1.cols ) loop z 
+ NEXTCD: condition evaluated as true
+ CNSsolve>         eval ( $sum = $sum + &m1.ji.$a.$z * &m2.ji.$z.$b ) 
+ EVALUATE: symbol $SUM set to    5.00000     (real)
+ CNSsolve>         eval ( $z = $z + 1 ) 
+ EVALUATE: symbol $Z set to    3.00000     (real)
+ CNSsolve>      end loop z 
+ CNSsolve>      while ( $z le &m1.cols ) loop z 
+ NEXTCD: condition evaluated as true
+ CNSsolve>         eval ( $sum = $sum + &m1.ji.$a.$z * &m2.ji.$z.$b ) 
+ EVALUATE: symbol $SUM set to    14.0000     (real)
+ CNSsolve>         eval ( $z = $z + 1 ) 
+ EVALUATE: symbol $Z set to    4.00000     (real)
+ CNSsolve>      end loop z 
+ CNSsolve>      while ( $z le &m1.cols ) loop z 
+ NEXTCD: condition evaluated as true
+ CNSsolve>         eval ( $sum = $sum + &m1.ji.$a.$z * &m2.ji.$z.$b ) 
+ EVALUATE: symbol $SUM set to    30.0000     (real)
+ CNSsolve>         eval ( $z = $z + 1 ) 
+ EVALUATE: symbol $Z set to    5.00000     (real)
+ CNSsolve>      end loop z 
+ CNSsolve>      while ( $z le &m1.cols ) loop z 
+ NEXTCD: condition evaluated as true
+ CNSsolve>         eval ( $sum = $sum + &m1.ji.$a.$z * &m2.ji.$z.$b ) 
+ EVALUATE: symbol $SUM set to    55.0000     (real)
+ CNSsolve>         eval ( $z = $z + 1 ) 
+ EVALUATE: symbol $Z set to    6.00000     (real)
+ CNSsolve>      end loop z 
+ CNSsolve>      while ( $z le &m1.cols ) loop z 
+ NEXTCD: condition evaluated as true
+ CNSsolve>         eval ( $sum = $sum + &m1.ji.$a.$z * &m2.ji.$z.$b ) 
+ EVALUATE: symbol $SUM set to    91.0000     (real)
+ CNSsolve>         eval ( $z = $z + 1 ) 
+ EVALUATE: symbol $Z set to    7.00000     (real)
+ CNSsolve>      end loop z 
+ CNSsolve>      while ( $z le &m1.cols ) loop z 
+ NEXTCD: condition evaluated as true
+ CNSsolve>         eval ( $sum = $sum + &m1.ji.$a.$z * &m2.ji.$z.$b ) 
+ EVALUATE: symbol $SUM set to    140.000     (real)
+ CNSsolve>         eval ( $z = $z + 1 ) 
+ EVALUATE: symbol $Z set to    8.00000     (real)
+ CNSsolve>      end loop z 
+ CNSsolve>      while ( $z le &m1.cols ) loop z 
+ NEXTCD: condition evaluated as true
+ CNSsolve>         eval ( $sum = $sum + &m1.ji.$a.$z * &m2.ji.$z.$b ) 
+ EVALUATE: symbol $SUM set to    204.000     (real)
+ CNSsolve>         eval ( $z = $z + 1 ) 
+ EVALUATE: symbol $Z set to    9.00000     (real)
+ CNSsolve>      end loop z 
+ CNSsolve>      while ( $z le &m1.cols ) loop z 
+ NEXTCD: condition evaluated as false
+ CNSsolve>         eval ( $sum = $sum + &m1.ji.$a.$z * &m2.ji.$z.$b ) 
+ CNSsolve>         eval ( $z = $z + 1 ) 
+ CNSsolve>      end loop z 
+ CNSsolve>      eval ( &mr.ji.$a.$b = $sum ) 
+ EVALUATE: symbol $_1_MAT4.JI.2.1 set to    204.000     (real)
+ CNSsolve>      eval ( $b = $b + 1 ) 
+ EVALUATE: symbol $B set to    2.00000     (real)
+ CNSsolve>   end loop b 
+ CNSsolve>   while ( $b le &m2.cols ) loop b 
+ NEXTCD: condition evaluated as true
+ CNSsolve>      eval ( $z = 1 ) 
+ EVALUATE: symbol $Z set to    1.00000     (real)
+ CNSsolve>      eval ( $sum = 0 ) 
+ EVALUATE: symbol $SUM set to    0.00000     (real)
+ CNSsolve>      while ( $z le &m1.cols ) loop z 
+ NEXTCD: condition evaluated as true
+ CNSsolve>         eval ( $sum = $sum + &m1.ji.$a.$z * &m2.ji.$z.$b ) 
+ EVALUATE: symbol $SUM set to    2.00000     (real)
+ CNSsolve>         eval ( $z = $z + 1 ) 
+ EVALUATE: symbol $Z set to    2.00000     (real)
+ CNSsolve>      end loop z 
+ CNSsolve>      while ( $z le &m1.cols ) loop z 
+ NEXTCD: condition evaluated as true
+ CNSsolve>         eval ( $sum = $sum + &m1.ji.$a.$z * &m2.ji.$z.$b ) 
+ EVALUATE: symbol $SUM set to    10.0000     (real)
+ CNSsolve>         eval ( $z = $z + 1 ) 
+ EVALUATE: symbol $Z set to    3.00000     (real)
+ CNSsolve>      end loop z 
+ CNSsolve>      while ( $z le &m1.cols ) loop z 
+ NEXTCD: condition evaluated as true
+ CNSsolve>         eval ( $sum = $sum + &m1.ji.$a.$z * &m2.ji.$z.$b ) 
+ EVALUATE: symbol $SUM set to    28.0000     (real)
+ CNSsolve>         eval ( $z = $z + 1 ) 
+ EVALUATE: symbol $Z set to    4.00000     (real)
+ CNSsolve>      end loop z 
+ CNSsolve>      while ( $z le &m1.cols ) loop z 
+ NEXTCD: condition evaluated as true
+ CNSsolve>         eval ( $sum = $sum + &m1.ji.$a.$z * &m2.ji.$z.$b ) 
+ EVALUATE: symbol $SUM set to    60.0000     (real)
+ CNSsolve>         eval ( $z = $z + 1 ) 
+ EVALUATE: symbol $Z set to    5.00000     (real)
+ CNSsolve>      end loop z 
+ CNSsolve>      while ( $z le &m1.cols ) loop z 
+ NEXTCD: condition evaluated as true
+ CNSsolve>         eval ( $sum = $sum + &m1.ji.$a.$z * &m2.ji.$z.$b ) 
+ EVALUATE: symbol $SUM set to    110.000     (real)
+ CNSsolve>         eval ( $z = $z + 1 ) 
+ EVALUATE: symbol $Z set to    6.00000     (real)
+ CNSsolve>      end loop z 
+ CNSsolve>      while ( $z le &m1.cols ) loop z 
+ NEXTCD: condition evaluated as true
+ CNSsolve>         eval ( $sum = $sum + &m1.ji.$a.$z * &m2.ji.$z.$b ) 
+ EVALUATE: symbol $SUM set to    182.000     (real)
+ CNSsolve>         eval ( $z = $z + 1 ) 
+ EVALUATE: symbol $Z set to    7.00000     (real)
+ CNSsolve>      end loop z 
+ CNSsolve>      while ( $z le &m1.cols ) loop z 
+ NEXTCD: condition evaluated as true
+ CNSsolve>         eval ( $sum = $sum + &m1.ji.$a.$z * &m2.ji.$z.$b ) 
+ EVALUATE: symbol $SUM set to    280.000     (real)
+ CNSsolve>         eval ( $z = $z + 1 ) 
+ EVALUATE: symbol $Z set to    8.00000     (real)
+ CNSsolve>      end loop z 
+ CNSsolve>      while ( $z le &m1.cols ) loop z 
+ NEXTCD: condition evaluated as true
+ CNSsolve>         eval ( $sum = $sum + &m1.ji.$a.$z * &m2.ji.$z.$b ) 
+ EVALUATE: symbol $SUM set to    408.000     (real)
+ CNSsolve>         eval ( $z = $z + 1 ) 
+ EVALUATE: symbol $Z set to    9.00000     (real)
+ CNSsolve>      end loop z 
+ CNSsolve>      while ( $z le &m1.cols ) loop z 
+ NEXTCD: condition evaluated as false
+ CNSsolve>         eval ( $sum = $sum + &m1.ji.$a.$z * &m2.ji.$z.$b ) 
+ CNSsolve>         eval ( $z = $z + 1 ) 
+ CNSsolve>      end loop z 
+ CNSsolve>      eval ( &mr.ji.$a.$b = $sum ) 
+ EVALUATE: symbol $_1_MAT4.JI.2.2 set to    408.000     (real)
+ CNSsolve>      eval ( $b = $b + 1 ) 
+ EVALUATE: symbol $B set to    3.00000     (real)
+ CNSsolve>   end loop b 
+ CNSsolve>   while ( $b le &m2.cols ) loop b 
+ NEXTCD: condition evaluated as false
+ CNSsolve>      eval ( $z = 1 ) 
+ CNSsolve>      eval ( $sum = 0 ) 
+ CNSsolve>      while ( $z le &m1.cols ) loop z 
+ CNSsolve>         eval ( $sum = $sum + &m1.ji.$a.$z * &m2.ji.$z.$b ) 
+ CNSsolve>         eval ( $z = $z + 1 ) 
+ CNSsolve>      end loop z 
+ CNSsolve>      eval ( &mr.ji.$a.$b = $sum ) 
+ CNSsolve>      eval ( $b = $b + 1 ) 
+ CNSsolve>   end loop b 
+ CNSsolve>   eval ( $a = $a + 1 ) 
+ EVALUATE: symbol $A set to    3.00000     (real)
+ CNSsolve>end loop a 
+ CNSsolve>while ( $a le &m1.rows ) loop a 
+ NEXTCD: condition evaluated as false
+ CNSsolve>   eval ( $b = 1 ) 
+ CNSsolve>   while ( $b le &m2.cols ) loop b 
+ CNSsolve>      eval ( $z = 1 ) 
+ CNSsolve>      eval ( $sum = 0 ) 
+ CNSsolve>      while ( $z le &m1.cols ) loop z 
+ CNSsolve>         eval ( $sum = $sum + &m1.ji.$a.$z * &m2.ji.$z.$b ) 
+ CNSsolve>         eval ( $z = $z + 1 ) 
+ CNSsolve>      end loop z 
+ CNSsolve>      eval ( &mr.ji.$a.$b = $sum ) 
+ CNSsolve>      eval ( $b = $b + 1 ) 
+ CNSsolve>   end loop b 
+ CNSsolve>   eval ( $a = $a + 1 ) 
+ CNSsolve>end loop a 
+ CNSsolve>eval ( &mr.rows = &m1.rows ) 
+ EVALUATE: symbol $_1_MAT4.ROWS set to    2.00000     (real)
+ CNSsolve>eval ( &mr.cols = &m2.cols ) 
+ EVALUATE: symbol $_1_MAT4.COLS set to    2.00000     (real)
+ CNSsolve>end if  
+ CNSsolve>call matrix_multiply ( m1 = $mat3; m2 = $mat1; mr = $mat5 ) 
+ PROC-DECLARATION>(&m1 ; &m2 ; &mr ;) 
+ PROC-INVOCATION> ( m1 = $mat3; m2 = $mat1; mr = $mat5 ) 
+ &_2_M1 set to $_1_MAT3 
+ &_2_M2 set to $_1_MAT1 
+ &_2_MR set to $_1_MAT5 
+ CNSsolve>if ( &m1.cols ne &m2.rows ) then 
+ NEXTCD: condition evaluated as false
+ CNSsolve>   literal MATRIX_MULTIPLY-ERR: DIMENSION MISMATCH &m1.cols != &m2.rows 
+ CNSsolve>else 
+ CNSsolve>eval ( $a = 1 ) 
+ EVALUATE: symbol $A set to    1.00000     (real)
+ CNSsolve>while ( $a le &m1.rows ) loop a 
+ NEXTCD: condition evaluated as true
+ CNSsolve>   eval ( $b = 1 ) 
+ EVALUATE: symbol $B set to    1.00000     (real)
+ CNSsolve>   while ( $b le &m2.cols ) loop b 
+ NEXTCD: condition evaluated as true
+ CNSsolve>      eval ( $z = 1 ) 
+ EVALUATE: symbol $Z set to    1.00000     (real)
+ CNSsolve>      eval ( $sum = 0 ) 
+ EVALUATE: symbol $SUM set to    0.00000     (real)
+ CNSsolve>      while ( $z le &m1.cols ) loop z 
+ NEXTCD: condition evaluated as true
+ CNSsolve>         eval ( $sum = $sum + &m1.ji.$a.$z * &m2.ji.$z.$b ) 
+ EVALUATE: symbol $SUM set to   0.500000     (real)
+ CNSsolve>         eval ( $z = $z + 1 ) 
+ EVALUATE: symbol $Z set to    2.00000     (real)
+ CNSsolve>      end loop z 
+ CNSsolve>      while ( $z le &m1.cols ) loop z 
+ NEXTCD: condition evaluated as true
+ CNSsolve>         eval ( $sum = $sum + &m1.ji.$a.$z * &m2.ji.$z.$b ) 
+ EVALUATE: symbol $SUM set to    2.50000     (real)
+ CNSsolve>         eval ( $z = $z + 1 ) 
+ EVALUATE: symbol $Z set to    3.00000     (real)
+ CNSsolve>      end loop z 
+ CNSsolve>      while ( $z le &m1.cols ) loop z 
+ NEXTCD: condition evaluated as false
+ CNSsolve>         eval ( $sum = $sum + &m1.ji.$a.$z * &m2.ji.$z.$b ) 
+ CNSsolve>         eval ( $z = $z + 1 ) 
+ CNSsolve>      end loop z 
+ CNSsolve>      eval ( &mr.ji.$a.$b = $sum ) 
+ EVALUATE: symbol $_1_MAT5.JI.1.1 set to    2.50000     (real)
+ CNSsolve>      eval ( $b = $b + 1 ) 
+ EVALUATE: symbol $B set to    2.00000     (real)
+ CNSsolve>   end loop b 
+ CNSsolve>   while ( $b le &m2.cols ) loop b 
+ NEXTCD: condition evaluated as true
+ CNSsolve>      eval ( $z = 1 ) 
+ EVALUATE: symbol $Z set to    1.00000     (real)
+ CNSsolve>      eval ( $sum = 0 ) 
+ EVALUATE: symbol $SUM set to    0.00000     (real)
+ CNSsolve>      while ( $z le &m1.cols ) loop z 
+ NEXTCD: condition evaluated as true
+ CNSsolve>         eval ( $sum = $sum + &m1.ji.$a.$z * &m2.ji.$z.$b ) 
+ EVALUATE: symbol $SUM set to    1.00000     (real)
+ CNSsolve>         eval ( $z = $z + 1 ) 
+ EVALUATE: symbol $Z set to    2.00000     (real)
+ CNSsolve>      end loop z 
+ CNSsolve>      while ( $z le &m1.cols ) loop z 
+ NEXTCD: condition evaluated as true
+ CNSsolve>         eval ( $sum = $sum + &m1.ji.$a.$z * &m2.ji.$z.$b ) 
+ EVALUATE: symbol $SUM set to    5.00000     (real)
+ CNSsolve>         eval ( $z = $z + 1 ) 
+ EVALUATE: symbol $Z set to    3.00000     (real)
+ CNSsolve>      end loop z 
+ CNSsolve>      while ( $z le &m1.cols ) loop z 
+ NEXTCD: condition evaluated as false
+ CNSsolve>         eval ( $sum = $sum + &m1.ji.$a.$z * &m2.ji.$z.$b ) 
+ CNSsolve>         eval ( $z = $z + 1 ) 
+ CNSsolve>      end loop z 
+ CNSsolve>      eval ( &mr.ji.$a.$b = $sum ) 
+ EVALUATE: symbol $_1_MAT5.JI.1.2 set to    5.00000     (real)
+ CNSsolve>      eval ( $b = $b + 1 ) 
+ EVALUATE: symbol $B set to    3.00000     (real)
+ CNSsolve>   end loop b 
+ CNSsolve>   while ( $b le &m2.cols ) loop b 
+ NEXTCD: condition evaluated as true
+ CNSsolve>      eval ( $z = 1 ) 
+ EVALUATE: symbol $Z set to    1.00000     (real)
+ CNSsolve>      eval ( $sum = 0 ) 
+ EVALUATE: symbol $SUM set to    0.00000     (real)
+ CNSsolve>      while ( $z le &m1.cols ) loop z 
+ NEXTCD: condition evaluated as true
+ CNSsolve>         eval ( $sum = $sum + &m1.ji.$a.$z * &m2.ji.$z.$b ) 
+ EVALUATE: symbol $SUM set to    1.50000     (real)
+ CNSsolve>         eval ( $z = $z + 1 ) 
+ EVALUATE: symbol $Z set to    2.00000     (real)
+ CNSsolve>      end loop z 
+ CNSsolve>      while ( $z le &m1.cols ) loop z 
+ NEXTCD: condition evaluated as true
+ CNSsolve>         eval ( $sum = $sum + &m1.ji.$a.$z * &m2.ji.$z.$b ) 
+ EVALUATE: symbol $SUM set to    7.50000     (real)
+ CNSsolve>         eval ( $z = $z + 1 ) 
+ EVALUATE: symbol $Z set to    3.00000     (real)
+ CNSsolve>      end loop z 
+ CNSsolve>      while ( $z le &m1.cols ) loop z 
+ NEXTCD: condition evaluated as false
+ CNSsolve>         eval ( $sum = $sum + &m1.ji.$a.$z * &m2.ji.$z.$b ) 
+ CNSsolve>         eval ( $z = $z + 1 ) 
+ CNSsolve>      end loop z 
+ CNSsolve>      eval ( &mr.ji.$a.$b = $sum ) 
+ EVALUATE: symbol $_1_MAT5.JI.1.3 set to    7.50000     (real)
+ CNSsolve>      eval ( $b = $b + 1 ) 
+ EVALUATE: symbol $B set to    4.00000     (real)
+ CNSsolve>   end loop b 
+ CNSsolve>   while ( $b le &m2.cols ) loop b 
+ NEXTCD: condition evaluated as true
+ CNSsolve>      eval ( $z = 1 ) 
+ EVALUATE: symbol $Z set to    1.00000     (real)
+ CNSsolve>      eval ( $sum = 0 ) 
+ EVALUATE: symbol $SUM set to    0.00000     (real)
+ CNSsolve>      while ( $z le &m1.cols ) loop z 
+ NEXTCD: condition evaluated as true
+ CNSsolve>         eval ( $sum = $sum + &m1.ji.$a.$z * &m2.ji.$z.$b ) 
+ EVALUATE: symbol $SUM set to    2.00000     (real)
+ CNSsolve>         eval ( $z = $z + 1 ) 
+ EVALUATE: symbol $Z set to    2.00000     (real)
+ CNSsolve>      end loop z 
+ CNSsolve>      while ( $z le &m1.cols ) loop z 
+ NEXTCD: condition evaluated as true
+ CNSsolve>         eval ( $sum = $sum + &m1.ji.$a.$z * &m2.ji.$z.$b ) 
+ EVALUATE: symbol $SUM set to    10.0000     (real)
+ CNSsolve>         eval ( $z = $z + 1 ) 
+ EVALUATE: symbol $Z set to    3.00000     (real)
+ CNSsolve>      end loop z 
+ CNSsolve>      while ( $z le &m1.cols ) loop z 
+ NEXTCD: condition evaluated as false
+ CNSsolve>         eval ( $sum = $sum + &m1.ji.$a.$z * &m2.ji.$z.$b ) 
+ CNSsolve>         eval ( $z = $z + 1 ) 
+ CNSsolve>      end loop z 
+ CNSsolve>      eval ( &mr.ji.$a.$b = $sum ) 
+ EVALUATE: symbol $_1_MAT5.JI.1.4 set to    10.0000     (real)
+ CNSsolve>      eval ( $b = $b + 1 ) 
+ EVALUATE: symbol $B set to    5.00000     (real)
+ CNSsolve>   end loop b 
+ CNSsolve>   while ( $b le &m2.cols ) loop b 
+ NEXTCD: condition evaluated as true
+ CNSsolve>      eval ( $z = 1 ) 
+ EVALUATE: symbol $Z set to    1.00000     (real)
+ CNSsolve>      eval ( $sum = 0 ) 
+ EVALUATE: symbol $SUM set to    0.00000     (real)
+ CNSsolve>      while ( $z le &m1.cols ) loop z 
+ NEXTCD: condition evaluated as true
+ CNSsolve>         eval ( $sum = $sum + &m1.ji.$a.$z * &m2.ji.$z.$b ) 
+ EVALUATE: symbol $SUM set to    2.50000     (real)
+ CNSsolve>         eval ( $z = $z + 1 ) 
+ EVALUATE: symbol $Z set to    2.00000     (real)
+ CNSsolve>      end loop z 
+ CNSsolve>      while ( $z le &m1.cols ) loop z 
+ NEXTCD: condition evaluated as true
+ CNSsolve>         eval ( $sum = $sum + &m1.ji.$a.$z * &m2.ji.$z.$b ) 
+ EVALUATE: symbol $SUM set to    12.5000     (real)
+ CNSsolve>         eval ( $z = $z + 1 ) 
+ EVALUATE: symbol $Z set to    3.00000     (real)
+ CNSsolve>      end loop z 
+ CNSsolve>      while ( $z le &m1.cols ) loop z 
+ NEXTCD: condition evaluated as false
+ CNSsolve>         eval ( $sum = $sum + &m1.ji.$a.$z * &m2.ji.$z.$b ) 
+ CNSsolve>         eval ( $z = $z + 1 ) 
+ CNSsolve>      end loop z 
+ CNSsolve>      eval ( &mr.ji.$a.$b = $sum ) 
+ EVALUATE: symbol $_1_MAT5.JI.1.5 set to    12.5000     (real)
+ CNSsolve>      eval ( $b = $b + 1 ) 
+ EVALUATE: symbol $B set to    6.00000     (real)
+ CNSsolve>   end loop b 
+ CNSsolve>   while ( $b le &m2.cols ) loop b 
+ NEXTCD: condition evaluated as true
+ CNSsolve>      eval ( $z = 1 ) 
+ EVALUATE: symbol $Z set to    1.00000     (real)
+ CNSsolve>      eval ( $sum = 0 ) 
+ EVALUATE: symbol $SUM set to    0.00000     (real)
+ CNSsolve>      while ( $z le &m1.cols ) loop z 
+ NEXTCD: condition evaluated as true
+ CNSsolve>         eval ( $sum = $sum + &m1.ji.$a.$z * &m2.ji.$z.$b ) 
+ EVALUATE: symbol $SUM set to    3.00000     (real)
+ CNSsolve>         eval ( $z = $z + 1 ) 
+ EVALUATE: symbol $Z set to    2.00000     (real)
+ CNSsolve>      end loop z 
+ CNSsolve>      while ( $z le &m1.cols ) loop z 
+ NEXTCD: condition evaluated as true
+ CNSsolve>         eval ( $sum = $sum + &m1.ji.$a.$z * &m2.ji.$z.$b ) 
+ EVALUATE: symbol $SUM set to    15.0000     (real)
+ CNSsolve>         eval ( $z = $z + 1 ) 
+ EVALUATE: symbol $Z set to    3.00000     (real)
+ CNSsolve>      end loop z 
+ CNSsolve>      while ( $z le &m1.cols ) loop z 
+ NEXTCD: condition evaluated as false
+ CNSsolve>         eval ( $sum = $sum + &m1.ji.$a.$z * &m2.ji.$z.$b ) 
+ CNSsolve>         eval ( $z = $z + 1 ) 
+ CNSsolve>      end loop z 
+ CNSsolve>      eval ( &mr.ji.$a.$b = $sum ) 
+ EVALUATE: symbol $_1_MAT5.JI.1.6 set to    15.0000     (real)
+ CNSsolve>      eval ( $b = $b + 1 ) 
+ EVALUATE: symbol $B set to    7.00000     (real)
+ CNSsolve>   end loop b 
+ CNSsolve>   while ( $b le &m2.cols ) loop b 
+ NEXTCD: condition evaluated as true
+ CNSsolve>      eval ( $z = 1 ) 
+ EVALUATE: symbol $Z set to    1.00000     (real)
+ CNSsolve>      eval ( $sum = 0 ) 
+ EVALUATE: symbol $SUM set to    0.00000     (real)
+ CNSsolve>      while ( $z le &m1.cols ) loop z 
+ NEXTCD: condition evaluated as true
+ CNSsolve>         eval ( $sum = $sum + &m1.ji.$a.$z * &m2.ji.$z.$b ) 
+ EVALUATE: symbol $SUM set to    3.50000     (real)
+ CNSsolve>         eval ( $z = $z + 1 ) 
+ EVALUATE: symbol $Z set to    2.00000     (real)
+ CNSsolve>      end loop z 
+ CNSsolve>      while ( $z le &m1.cols ) loop z 
+ NEXTCD: condition evaluated as true
+ CNSsolve>         eval ( $sum = $sum + &m1.ji.$a.$z * &m2.ji.$z.$b ) 
+ EVALUATE: symbol $SUM set to    17.5000     (real)
+ CNSsolve>         eval ( $z = $z + 1 ) 
+ EVALUATE: symbol $Z set to    3.00000     (real)
+ CNSsolve>      end loop z 
+ CNSsolve>      while ( $z le &m1.cols ) loop z 
+ NEXTCD: condition evaluated as false
+ CNSsolve>         eval ( $sum = $sum + &m1.ji.$a.$z * &m2.ji.$z.$b ) 
+ CNSsolve>         eval ( $z = $z + 1 ) 
+ CNSsolve>      end loop z 
+ CNSsolve>      eval ( &mr.ji.$a.$b = $sum ) 
+ EVALUATE: symbol $_1_MAT5.JI.1.7 set to    17.5000     (real)
+ CNSsolve>      eval ( $b = $b + 1 ) 
+ EVALUATE: symbol $B set to    8.00000     (real)
+ CNSsolve>   end loop b 
+ CNSsolve>   while ( $b le &m2.cols ) loop b 
+ NEXTCD: condition evaluated as true
+ CNSsolve>      eval ( $z = 1 ) 
+ EVALUATE: symbol $Z set to    1.00000     (real)
+ CNSsolve>      eval ( $sum = 0 ) 
+ EVALUATE: symbol $SUM set to    0.00000     (real)
+ CNSsolve>      while ( $z le &m1.cols ) loop z 
+ NEXTCD: condition evaluated as true
+ CNSsolve>         eval ( $sum = $sum + &m1.ji.$a.$z * &m2.ji.$z.$b ) 
+ EVALUATE: symbol $SUM set to    4.00000     (real)
+ CNSsolve>         eval ( $z = $z + 1 ) 
+ EVALUATE: symbol $Z set to    2.00000     (real)
+ CNSsolve>      end loop z 
+ CNSsolve>      while ( $z le &m1.cols ) loop z 
+ NEXTCD: condition evaluated as true
+ CNSsolve>         eval ( $sum = $sum + &m1.ji.$a.$z * &m2.ji.$z.$b ) 
+ EVALUATE: symbol $SUM set to    20.0000     (real)
+ CNSsolve>         eval ( $z = $z + 1 ) 
+ EVALUATE: symbol $Z set to    3.00000     (real)
+ CNSsolve>      end loop z 
+ CNSsolve>      while ( $z le &m1.cols ) loop z 
+ NEXTCD: condition evaluated as false
+ CNSsolve>         eval ( $sum = $sum + &m1.ji.$a.$z * &m2.ji.$z.$b ) 
+ CNSsolve>         eval ( $z = $z + 1 ) 
+ CNSsolve>      end loop z 
+ CNSsolve>      eval ( &mr.ji.$a.$b = $sum ) 
+ EVALUATE: symbol $_1_MAT5.JI.1.8 set to    20.0000     (real)
+ CNSsolve>      eval ( $b = $b + 1 ) 
+ EVALUATE: symbol $B set to    9.00000     (real)
+ CNSsolve>   end loop b 
+ CNSsolve>   while ( $b le &m2.cols ) loop b 
+ NEXTCD: condition evaluated as false
+ CNSsolve>      eval ( $z = 1 ) 
+ CNSsolve>      eval ( $sum = 0 ) 
+ CNSsolve>      while ( $z le &m1.cols ) loop z 
+ CNSsolve>         eval ( $sum = $sum + &m1.ji.$a.$z * &m2.ji.$z.$b ) 
+ CNSsolve>         eval ( $z = $z + 1 ) 
+ CNSsolve>      end loop z 
+ CNSsolve>      eval ( &mr.ji.$a.$b = $sum ) 
+ CNSsolve>      eval ( $b = $b + 1 ) 
+ CNSsolve>   end loop b 
+ CNSsolve>   eval ( $a = $a + 1 ) 
+ EVALUATE: symbol $A set to    2.00000     (real)
+ CNSsolve>end loop a 
+ CNSsolve>while ( $a le &m1.rows ) loop a 
+ NEXTCD: condition evaluated as true
+ CNSsolve>   eval ( $b = 1 ) 
+ EVALUATE: symbol $B set to    1.00000     (real)
+ CNSsolve>   while ( $b le &m2.cols ) loop b 
+ NEXTCD: condition evaluated as true
+ CNSsolve>      eval ( $z = 1 ) 
+ EVALUATE: symbol $Z set to    1.00000     (real)
+ CNSsolve>      eval ( $sum = 0 ) 
+ EVALUATE: symbol $SUM set to    0.00000     (real)
+ CNSsolve>      while ( $z le &m1.cols ) loop z 
+ NEXTCD: condition evaluated as true
+ CNSsolve>         eval ( $sum = $sum + &m1.ji.$a.$z * &m2.ji.$z.$b ) 
+ EVALUATE: symbol $SUM set to    1.00000     (real)
+ CNSsolve>         eval ( $z = $z + 1 ) 
+ EVALUATE: symbol $Z set to    2.00000     (real)
+ CNSsolve>      end loop z 
+ CNSsolve>      while ( $z le &m1.cols ) loop z 
+ NEXTCD: condition evaluated as true
+ CNSsolve>         eval ( $sum = $sum + &m1.ji.$a.$z * &m2.ji.$z.$b ) 
+ EVALUATE: symbol $SUM set to    5.00000     (real)
+ CNSsolve>         eval ( $z = $z + 1 ) 
+ EVALUATE: symbol $Z set to    3.00000     (real)
+ CNSsolve>      end loop z 
+ CNSsolve>      while ( $z le &m1.cols ) loop z 
+ NEXTCD: condition evaluated as false
+ CNSsolve>         eval ( $sum = $sum + &m1.ji.$a.$z * &m2.ji.$z.$b ) 
+ CNSsolve>         eval ( $z = $z + 1 ) 
+ CNSsolve>      end loop z 
+ CNSsolve>      eval ( &mr.ji.$a.$b = $sum ) 
+ EVALUATE: symbol $_1_MAT5.JI.2.1 set to    5.00000     (real)
+ CNSsolve>      eval ( $b = $b + 1 ) 
+ EVALUATE: symbol $B set to    2.00000     (real)
+ CNSsolve>   end loop b 
+ CNSsolve>   while ( $b le &m2.cols ) loop b 
+ NEXTCD: condition evaluated as true
+ CNSsolve>      eval ( $z = 1 ) 
+ EVALUATE: symbol $Z set to    1.00000     (real)
+ CNSsolve>      eval ( $sum = 0 ) 
+ EVALUATE: symbol $SUM set to    0.00000     (real)
+ CNSsolve>      while ( $z le &m1.cols ) loop z 
+ NEXTCD: condition evaluated as true
+ CNSsolve>         eval ( $sum = $sum + &m1.ji.$a.$z * &m2.ji.$z.$b ) 
+ EVALUATE: symbol $SUM set to    2.00000     (real)
+ CNSsolve>         eval ( $z = $z + 1 ) 
+ EVALUATE: symbol $Z set to    2.00000     (real)
+ CNSsolve>      end loop z 
+ CNSsolve>      while ( $z le &m1.cols ) loop z 
+ NEXTCD: condition evaluated as true
+ CNSsolve>         eval ( $sum = $sum + &m1.ji.$a.$z * &m2.ji.$z.$b ) 
+ EVALUATE: symbol $SUM set to    10.0000     (real)
+ CNSsolve>         eval ( $z = $z + 1 ) 
+ EVALUATE: symbol $Z set to    3.00000     (real)
+ CNSsolve>      end loop z 
+ CNSsolve>      while ( $z le &m1.cols ) loop z 
+ NEXTCD: condition evaluated as false
+ CNSsolve>         eval ( $sum = $sum + &m1.ji.$a.$z * &m2.ji.$z.$b ) 
+ CNSsolve>         eval ( $z = $z + 1 ) 
+ CNSsolve>      end loop z 
+ CNSsolve>      eval ( &mr.ji.$a.$b = $sum ) 
+ EVALUATE: symbol $_1_MAT5.JI.2.2 set to    10.0000     (real)
+ CNSsolve>      eval ( $b = $b + 1 ) 
+ EVALUATE: symbol $B set to    3.00000     (real)
+ CNSsolve>   end loop b 
+ CNSsolve>   while ( $b le &m2.cols ) loop b 
+ NEXTCD: condition evaluated as true
+ CNSsolve>      eval ( $z = 1 ) 
+ EVALUATE: symbol $Z set to    1.00000     (real)
+ CNSsolve>      eval ( $sum = 0 ) 
+ EVALUATE: symbol $SUM set to    0.00000     (real)
+ CNSsolve>      while ( $z le &m1.cols ) loop z 
+ NEXTCD: condition evaluated as true
+ CNSsolve>         eval ( $sum = $sum + &m1.ji.$a.$z * &m2.ji.$z.$b ) 
+ EVALUATE: symbol $SUM set to    3.00000     (real)
+ CNSsolve>         eval ( $z = $z + 1 ) 
+ EVALUATE: symbol $Z set to    2.00000     (real)
+ CNSsolve>      end loop z 
+ CNSsolve>      while ( $z le &m1.cols ) loop z 
+ NEXTCD: condition evaluated as true
+ CNSsolve>         eval ( $sum = $sum + &m1.ji.$a.$z * &m2.ji.$z.$b ) 
+ EVALUATE: symbol $SUM set to    15.0000     (real)
+ CNSsolve>         eval ( $z = $z + 1 ) 
+ EVALUATE: symbol $Z set to    3.00000     (real)
+ CNSsolve>      end loop z 
+ CNSsolve>      while ( $z le &m1.cols ) loop z 
+ NEXTCD: condition evaluated as false
+ CNSsolve>         eval ( $sum = $sum + &m1.ji.$a.$z * &m2.ji.$z.$b ) 
+ CNSsolve>         eval ( $z = $z + 1 ) 
+ CNSsolve>      end loop z 
+ CNSsolve>      eval ( &mr.ji.$a.$b = $sum ) 
+ EVALUATE: symbol $_1_MAT5.JI.2.3 set to    15.0000     (real)
+ CNSsolve>      eval ( $b = $b + 1 ) 
+ EVALUATE: symbol $B set to    4.00000     (real)
+ CNSsolve>   end loop b 
+ CNSsolve>   while ( $b le &m2.cols ) loop b 
+ NEXTCD: condition evaluated as true
+ CNSsolve>      eval ( $z = 1 ) 
+ EVALUATE: symbol $Z set to    1.00000     (real)
+ CNSsolve>      eval ( $sum = 0 ) 
+ EVALUATE: symbol $SUM set to    0.00000     (real)
+ CNSsolve>      while ( $z le &m1.cols ) loop z 
+ NEXTCD: condition evaluated as true
+ CNSsolve>         eval ( $sum = $sum + &m1.ji.$a.$z * &m2.ji.$z.$b ) 
+ EVALUATE: symbol $SUM set to    4.00000     (real)
+ CNSsolve>         eval ( $z = $z + 1 ) 
+ EVALUATE: symbol $Z set to    2.00000     (real)
+ CNSsolve>      end loop z 
+ CNSsolve>      while ( $z le &m1.cols ) loop z 
+ NEXTCD: condition evaluated as true
+ CNSsolve>         eval ( $sum = $sum + &m1.ji.$a.$z * &m2.ji.$z.$b ) 
+ EVALUATE: symbol $SUM set to    20.0000     (real)
+ CNSsolve>         eval ( $z = $z + 1 ) 
+ EVALUATE: symbol $Z set to    3.00000     (real)
+ CNSsolve>      end loop z 
+ CNSsolve>      while ( $z le &m1.cols ) loop z 
+ NEXTCD: condition evaluated as false
+ CNSsolve>         eval ( $sum = $sum + &m1.ji.$a.$z * &m2.ji.$z.$b ) 
+ CNSsolve>         eval ( $z = $z + 1 ) 
+ CNSsolve>      end loop z 
+ CNSsolve>      eval ( &mr.ji.$a.$b = $sum ) 
+ EVALUATE: symbol $_1_MAT5.JI.2.4 set to    20.0000     (real)
+ CNSsolve>      eval ( $b = $b + 1 ) 
+ EVALUATE: symbol $B set to    5.00000     (real)
+ CNSsolve>   end loop b 
+ CNSsolve>   while ( $b le &m2.cols ) loop b 
+ NEXTCD: condition evaluated as true
+ CNSsolve>      eval ( $z = 1 ) 
+ EVALUATE: symbol $Z set to    1.00000     (real)
+ CNSsolve>      eval ( $sum = 0 ) 
+ EVALUATE: symbol $SUM set to    0.00000     (real)
+ CNSsolve>      while ( $z le &m1.cols ) loop z 
+ NEXTCD: condition evaluated as true
+ CNSsolve>         eval ( $sum = $sum + &m1.ji.$a.$z * &m2.ji.$z.$b ) 
+ EVALUATE: symbol $SUM set to    5.00000     (real)
+ CNSsolve>         eval ( $z = $z + 1 ) 
+ EVALUATE: symbol $Z set to    2.00000     (real)
+ CNSsolve>      end loop z 
+ CNSsolve>      while ( $z le &m1.cols ) loop z 
+ NEXTCD: condition evaluated as true
+ CNSsolve>         eval ( $sum = $sum + &m1.ji.$a.$z * &m2.ji.$z.$b ) 
+ EVALUATE: symbol $SUM set to    25.0000     (real)
+ CNSsolve>         eval ( $z = $z + 1 ) 
+ EVALUATE: symbol $Z set to    3.00000     (real)
+ CNSsolve>      end loop z 
+ CNSsolve>      while ( $z le &m1.cols ) loop z 
+ NEXTCD: condition evaluated as false
+ CNSsolve>         eval ( $sum = $sum + &m1.ji.$a.$z * &m2.ji.$z.$b ) 
+ CNSsolve>         eval ( $z = $z + 1 ) 
+ CNSsolve>      end loop z 
+ CNSsolve>      eval ( &mr.ji.$a.$b = $sum ) 
+ EVALUATE: symbol $_1_MAT5.JI.2.5 set to    25.0000     (real)
+ CNSsolve>      eval ( $b = $b + 1 ) 
+ EVALUATE: symbol $B set to    6.00000     (real)
+ CNSsolve>   end loop b 
+ CNSsolve>   while ( $b le &m2.cols ) loop b 
+ NEXTCD: condition evaluated as true
+ CNSsolve>      eval ( $z = 1 ) 
+ EVALUATE: symbol $Z set to    1.00000     (real)
+ CNSsolve>      eval ( $sum = 0 ) 
+ EVALUATE: symbol $SUM set to    0.00000     (real)
+ CNSsolve>      while ( $z le &m1.cols ) loop z 
+ NEXTCD: condition evaluated as true
+ CNSsolve>         eval ( $sum = $sum + &m1.ji.$a.$z * &m2.ji.$z.$b ) 
+ EVALUATE: symbol $SUM set to    6.00000     (real)
+ CNSsolve>         eval ( $z = $z + 1 ) 
+ EVALUATE: symbol $Z set to    2.00000     (real)
+ CNSsolve>      end loop z 
+ CNSsolve>      while ( $z le &m1.cols ) loop z 
+ NEXTCD: condition evaluated as true
+ CNSsolve>         eval ( $sum = $sum + &m1.ji.$a.$z * &m2.ji.$z.$b ) 
+ EVALUATE: symbol $SUM set to    30.0000     (real)
+ CNSsolve>         eval ( $z = $z + 1 ) 
+ EVALUATE: symbol $Z set to    3.00000     (real)
+ CNSsolve>      end loop z 
+ CNSsolve>      while ( $z le &m1.cols ) loop z 
+ NEXTCD: condition evaluated as false
+ CNSsolve>         eval ( $sum = $sum + &m1.ji.$a.$z * &m2.ji.$z.$b ) 
+ CNSsolve>         eval ( $z = $z + 1 ) 
+ CNSsolve>      end loop z 
+ CNSsolve>      eval ( &mr.ji.$a.$b = $sum ) 
+ EVALUATE: symbol $_1_MAT5.JI.2.6 set to    30.0000     (real)
+ CNSsolve>      eval ( $b = $b + 1 ) 
+ EVALUATE: symbol $B set to    7.00000     (real)
+ CNSsolve>   end loop b 
+ CNSsolve>   while ( $b le &m2.cols ) loop b 
+ NEXTCD: condition evaluated as true
+ CNSsolve>      eval ( $z = 1 ) 
+ EVALUATE: symbol $Z set to    1.00000     (real)
+ CNSsolve>      eval ( $sum = 0 ) 
+ EVALUATE: symbol $SUM set to    0.00000     (real)
+ CNSsolve>      while ( $z le &m1.cols ) loop z 
+ NEXTCD: condition evaluated as true
+ CNSsolve>         eval ( $sum = $sum + &m1.ji.$a.$z * &m2.ji.$z.$b ) 
+ EVALUATE: symbol $SUM set to    7.00000     (real)
+ CNSsolve>         eval ( $z = $z + 1 ) 
+ EVALUATE: symbol $Z set to    2.00000     (real)
+ CNSsolve>      end loop z 
+ CNSsolve>      while ( $z le &m1.cols ) loop z 
+ NEXTCD: condition evaluated as true
+ CNSsolve>         eval ( $sum = $sum + &m1.ji.$a.$z * &m2.ji.$z.$b ) 
+ EVALUATE: symbol $SUM set to    35.0000     (real)
+ CNSsolve>         eval ( $z = $z + 1 ) 
+ EVALUATE: symbol $Z set to    3.00000     (real)
+ CNSsolve>      end loop z 
+ CNSsolve>      while ( $z le &m1.cols ) loop z 
+ NEXTCD: condition evaluated as false
+ CNSsolve>         eval ( $sum = $sum + &m1.ji.$a.$z * &m2.ji.$z.$b ) 
+ CNSsolve>         eval ( $z = $z + 1 ) 
+ CNSsolve>      end loop z 
+ CNSsolve>      eval ( &mr.ji.$a.$b = $sum ) 
+ EVALUATE: symbol $_1_MAT5.JI.2.7 set to    35.0000     (real)
+ CNSsolve>      eval ( $b = $b + 1 ) 
+ EVALUATE: symbol $B set to    8.00000     (real)
+ CNSsolve>   end loop b 
+ CNSsolve>   while ( $b le &m2.cols ) loop b 
+ NEXTCD: condition evaluated as true
+ CNSsolve>      eval ( $z = 1 ) 
+ EVALUATE: symbol $Z set to    1.00000     (real)
+ CNSsolve>      eval ( $sum = 0 ) 
+ EVALUATE: symbol $SUM set to    0.00000     (real)
+ CNSsolve>      while ( $z le &m1.cols ) loop z 
+ NEXTCD: condition evaluated as true
+ CNSsolve>         eval ( $sum = $sum + &m1.ji.$a.$z * &m2.ji.$z.$b ) 
+ EVALUATE: symbol $SUM set to    8.00000     (real)
+ CNSsolve>         eval ( $z = $z + 1 ) 
+ EVALUATE: symbol $Z set to    2.00000     (real)
+ CNSsolve>      end loop z 
+ CNSsolve>      while ( $z le &m1.cols ) loop z 
+ NEXTCD: condition evaluated as true
+ CNSsolve>         eval ( $sum = $sum + &m1.ji.$a.$z * &m2.ji.$z.$b ) 
+ EVALUATE: symbol $SUM set to    40.0000     (real)
+ CNSsolve>         eval ( $z = $z + 1 ) 
+ EVALUATE: symbol $Z set to    3.00000     (real)
+ CNSsolve>      end loop z 
+ CNSsolve>      while ( $z le &m1.cols ) loop z 
+ NEXTCD: condition evaluated as false
+ CNSsolve>         eval ( $sum = $sum + &m1.ji.$a.$z * &m2.ji.$z.$b ) 
+ CNSsolve>         eval ( $z = $z + 1 ) 
+ CNSsolve>      end loop z 
+ CNSsolve>      eval ( &mr.ji.$a.$b = $sum ) 
+ EVALUATE: symbol $_1_MAT5.JI.2.8 set to    40.0000     (real)
+ CNSsolve>      eval ( $b = $b + 1 ) 
+ EVALUATE: symbol $B set to    9.00000     (real)
+ CNSsolve>   end loop b 
+ CNSsolve>   while ( $b le &m2.cols ) loop b 
+ NEXTCD: condition evaluated as false
+ CNSsolve>      eval ( $z = 1 ) 
+ CNSsolve>      eval ( $sum = 0 ) 
+ CNSsolve>      while ( $z le &m1.cols ) loop z 
+ CNSsolve>         eval ( $sum = $sum + &m1.ji.$a.$z * &m2.ji.$z.$b ) 
+ CNSsolve>         eval ( $z = $z + 1 ) 
+ CNSsolve>      end loop z 
+ CNSsolve>      eval ( &mr.ji.$a.$b = $sum ) 
+ CNSsolve>      eval ( $b = $b + 1 ) 
+ CNSsolve>   end loop b 
+ CNSsolve>   eval ( $a = $a + 1 ) 
+ EVALUATE: symbol $A set to    3.00000     (real)
+ CNSsolve>end loop a 
+ CNSsolve>while ( $a le &m1.rows ) loop a 
+ NEXTCD: condition evaluated as true
+ CNSsolve>   eval ( $b = 1 ) 
+ EVALUATE: symbol $B set to    1.00000     (real)
+ CNSsolve>   while ( $b le &m2.cols ) loop b 
+ NEXTCD: condition evaluated as true
+ CNSsolve>      eval ( $z = 1 ) 
+ EVALUATE: symbol $Z set to    1.00000     (real)
+ CNSsolve>      eval ( $sum = 0 ) 
+ EVALUATE: symbol $SUM set to    0.00000     (real)
+ CNSsolve>      while ( $z le &m1.cols ) loop z 
+ NEXTCD: condition evaluated as true
+ CNSsolve>         eval ( $sum = $sum + &m1.ji.$a.$z * &m2.ji.$z.$b ) 
+ EVALUATE: symbol $SUM set to    1.50000     (real)
+ CNSsolve>         eval ( $z = $z + 1 ) 
+ EVALUATE: symbol $Z set to    2.00000     (real)
+ CNSsolve>      end loop z 
+ CNSsolve>      while ( $z le &m1.cols ) loop z 
+ NEXTCD: condition evaluated as true
+ CNSsolve>         eval ( $sum = $sum + &m1.ji.$a.$z * &m2.ji.$z.$b ) 
+ EVALUATE: symbol $SUM set to    7.50000     (real)
+ CNSsolve>         eval ( $z = $z + 1 ) 
+ EVALUATE: symbol $Z set to    3.00000     (real)
+ CNSsolve>      end loop z 
+ CNSsolve>      while ( $z le &m1.cols ) loop z 
+ NEXTCD: condition evaluated as false
+ CNSsolve>         eval ( $sum = $sum + &m1.ji.$a.$z * &m2.ji.$z.$b ) 
+ CNSsolve>         eval ( $z = $z + 1 ) 
+ CNSsolve>      end loop z 
+ CNSsolve>      eval ( &mr.ji.$a.$b = $sum ) 
+ EVALUATE: symbol $_1_MAT5.JI.3.1 set to    7.50000     (real)
+ CNSsolve>      eval ( $b = $b + 1 ) 
+ EVALUATE: symbol $B set to    2.00000     (real)
+ CNSsolve>   end loop b 
+ CNSsolve>   while ( $b le &m2.cols ) loop b 
+ NEXTCD: condition evaluated as true
+ CNSsolve>      eval ( $z = 1 ) 
+ EVALUATE: symbol $Z set to    1.00000     (real)
+ CNSsolve>      eval ( $sum = 0 ) 
+ EVALUATE: symbol $SUM set to    0.00000     (real)
+ CNSsolve>      while ( $z le &m1.cols ) loop z 
+ NEXTCD: condition evaluated as true
+ CNSsolve>         eval ( $sum = $sum + &m1.ji.$a.$z * &m2.ji.$z.$b ) 
+ EVALUATE: symbol $SUM set to    3.00000     (real)
+ CNSsolve>         eval ( $z = $z + 1 ) 
+ EVALUATE: symbol $Z set to    2.00000     (real)
+ CNSsolve>      end loop z 
+ CNSsolve>      while ( $z le &m1.cols ) loop z 
+ NEXTCD: condition evaluated as true
+ CNSsolve>         eval ( $sum = $sum + &m1.ji.$a.$z * &m2.ji.$z.$b ) 
+ EVALUATE: symbol $SUM set to    15.0000     (real)
+ CNSsolve>         eval ( $z = $z + 1 ) 
+ EVALUATE: symbol $Z set to    3.00000     (real)
+ CNSsolve>      end loop z 
+ CNSsolve>      while ( $z le &m1.cols ) loop z 
+ NEXTCD: condition evaluated as false
+ CNSsolve>         eval ( $sum = $sum + &m1.ji.$a.$z * &m2.ji.$z.$b ) 
+ CNSsolve>         eval ( $z = $z + 1 ) 
+ CNSsolve>      end loop z 
+ CNSsolve>      eval ( &mr.ji.$a.$b = $sum ) 
+ EVALUATE: symbol $_1_MAT5.JI.3.2 set to    15.0000     (real)
+ CNSsolve>      eval ( $b = $b + 1 ) 
+ EVALUATE: symbol $B set to    3.00000     (real)
+ CNSsolve>   end loop b 
+ CNSsolve>   while ( $b le &m2.cols ) loop b 
+ NEXTCD: condition evaluated as true
+ CNSsolve>      eval ( $z = 1 ) 
+ EVALUATE: symbol $Z set to    1.00000     (real)
+ CNSsolve>      eval ( $sum = 0 ) 
+ EVALUATE: symbol $SUM set to    0.00000     (real)
+ CNSsolve>      while ( $z le &m1.cols ) loop z 
+ NEXTCD: condition evaluated as true
+ CNSsolve>         eval ( $sum = $sum + &m1.ji.$a.$z * &m2.ji.$z.$b ) 
+ EVALUATE: symbol $SUM set to    4.50000     (real)
+ CNSsolve>         eval ( $z = $z + 1 ) 
+ EVALUATE: symbol $Z set to    2.00000     (real)
+ CNSsolve>      end loop z 
+ CNSsolve>      while ( $z le &m1.cols ) loop z 
+ NEXTCD: condition evaluated as true
+ CNSsolve>         eval ( $sum = $sum + &m1.ji.$a.$z * &m2.ji.$z.$b ) 
+ EVALUATE: symbol $SUM set to    22.5000     (real)
+ CNSsolve>         eval ( $z = $z + 1 ) 
+ EVALUATE: symbol $Z set to    3.00000     (real)
+ CNSsolve>      end loop z 
+ CNSsolve>      while ( $z le &m1.cols ) loop z 
+ NEXTCD: condition evaluated as false
+ CNSsolve>         eval ( $sum = $sum + &m1.ji.$a.$z * &m2.ji.$z.$b ) 
+ CNSsolve>         eval ( $z = $z + 1 ) 
+ CNSsolve>      end loop z 
+ CNSsolve>      eval ( &mr.ji.$a.$b = $sum ) 
+ EVALUATE: symbol $_1_MAT5.JI.3.3 set to    22.5000     (real)
+ CNSsolve>      eval ( $b = $b + 1 ) 
+ EVALUATE: symbol $B set to    4.00000     (real)
+ CNSsolve>   end loop b 
+ CNSsolve>   while ( $b le &m2.cols ) loop b 
+ NEXTCD: condition evaluated as true
+ CNSsolve>      eval ( $z = 1 ) 
+ EVALUATE: symbol $Z set to    1.00000     (real)
+ CNSsolve>      eval ( $sum = 0 ) 
+ EVALUATE: symbol $SUM set to    0.00000     (real)
+ CNSsolve>      while ( $z le &m1.cols ) loop z 
+ NEXTCD: condition evaluated as true
+ CNSsolve>         eval ( $sum = $sum + &m1.ji.$a.$z * &m2.ji.$z.$b ) 
+ EVALUATE: symbol $SUM set to    6.00000     (real)
+ CNSsolve>         eval ( $z = $z + 1 ) 
+ EVALUATE: symbol $Z set to    2.00000     (real)
+ CNSsolve>      end loop z 
+ CNSsolve>      while ( $z le &m1.cols ) loop z 
+ NEXTCD: condition evaluated as true
+ CNSsolve>         eval ( $sum = $sum + &m1.ji.$a.$z * &m2.ji.$z.$b ) 
+ EVALUATE: symbol $SUM set to    30.0000     (real)
+ CNSsolve>         eval ( $z = $z + 1 ) 
+ EVALUATE: symbol $Z set to    3.00000     (real)
+ CNSsolve>      end loop z 
+ CNSsolve>      while ( $z le &m1.cols ) loop z 
+ NEXTCD: condition evaluated as false
+ CNSsolve>         eval ( $sum = $sum + &m1.ji.$a.$z * &m2.ji.$z.$b ) 
+ CNSsolve>         eval ( $z = $z + 1 ) 
+ CNSsolve>      end loop z 
+ CNSsolve>      eval ( &mr.ji.$a.$b = $sum ) 
+ EVALUATE: symbol $_1_MAT5.JI.3.4 set to    30.0000     (real)
+ CNSsolve>      eval ( $b = $b + 1 ) 
+ EVALUATE: symbol $B set to    5.00000     (real)
+ CNSsolve>   end loop b 
+ CNSsolve>   while ( $b le &m2.cols ) loop b 
+ NEXTCD: condition evaluated as true
+ CNSsolve>      eval ( $z = 1 ) 
+ EVALUATE: symbol $Z set to    1.00000     (real)
+ CNSsolve>      eval ( $sum = 0 ) 
+ EVALUATE: symbol $SUM set to    0.00000     (real)
+ CNSsolve>      while ( $z le &m1.cols ) loop z 
+ NEXTCD: condition evaluated as true
+ CNSsolve>         eval ( $sum = $sum + &m1.ji.$a.$z * &m2.ji.$z.$b ) 
+ EVALUATE: symbol $SUM set to    7.50000     (real)
+ CNSsolve>         eval ( $z = $z + 1 ) 
+ EVALUATE: symbol $Z set to    2.00000     (real)
+ CNSsolve>      end loop z 
+ CNSsolve>      while ( $z le &m1.cols ) loop z 
+ NEXTCD: condition evaluated as true
+ CNSsolve>         eval ( $sum = $sum + &m1.ji.$a.$z * &m2.ji.$z.$b ) 
+ EVALUATE: symbol $SUM set to    37.5000     (real)
+ CNSsolve>         eval ( $z = $z + 1 ) 
+ EVALUATE: symbol $Z set to    3.00000     (real)
+ CNSsolve>      end loop z 
+ CNSsolve>      while ( $z le &m1.cols ) loop z 
+ NEXTCD: condition evaluated as false
+ CNSsolve>         eval ( $sum = $sum + &m1.ji.$a.$z * &m2.ji.$z.$b ) 
+ CNSsolve>         eval ( $z = $z + 1 ) 
+ CNSsolve>      end loop z 
+ CNSsolve>      eval ( &mr.ji.$a.$b = $sum ) 
+ EVALUATE: symbol $_1_MAT5.JI.3.5 set to    37.5000     (real)
+ CNSsolve>      eval ( $b = $b + 1 ) 
+ EVALUATE: symbol $B set to    6.00000     (real)
+ CNSsolve>   end loop b 
+ CNSsolve>   while ( $b le &m2.cols ) loop b 
+ NEXTCD: condition evaluated as true
+ CNSsolve>      eval ( $z = 1 ) 
+ EVALUATE: symbol $Z set to    1.00000     (real)
+ CNSsolve>      eval ( $sum = 0 ) 
+ EVALUATE: symbol $SUM set to    0.00000     (real)
+ CNSsolve>      while ( $z le &m1.cols ) loop z 
+ NEXTCD: condition evaluated as true
+ CNSsolve>         eval ( $sum = $sum + &m1.ji.$a.$z * &m2.ji.$z.$b ) 
+ EVALUATE: symbol $SUM set to    9.00000     (real)
+ CNSsolve>         eval ( $z = $z + 1 ) 
+ EVALUATE: symbol $Z set to    2.00000     (real)
+ CNSsolve>      end loop z 
+ CNSsolve>      while ( $z le &m1.cols ) loop z 
+ NEXTCD: condition evaluated as true
+ CNSsolve>         eval ( $sum = $sum + &m1.ji.$a.$z * &m2.ji.$z.$b ) 
+ EVALUATE: symbol $SUM set to    45.0000     (real)
+ CNSsolve>         eval ( $z = $z + 1 ) 
+ EVALUATE: symbol $Z set to    3.00000     (real)
+ CNSsolve>      end loop z 
+ CNSsolve>      while ( $z le &m1.cols ) loop z 
+ NEXTCD: condition evaluated as false
+ CNSsolve>         eval ( $sum = $sum + &m1.ji.$a.$z * &m2.ji.$z.$b ) 
+ CNSsolve>         eval ( $z = $z + 1 ) 
+ CNSsolve>      end loop z 
+ CNSsolve>      eval ( &mr.ji.$a.$b = $sum ) 
+ EVALUATE: symbol $_1_MAT5.JI.3.6 set to    45.0000     (real)
+ CNSsolve>      eval ( $b = $b + 1 ) 
+ EVALUATE: symbol $B set to    7.00000     (real)
+ CNSsolve>   end loop b 
+ CNSsolve>   while ( $b le &m2.cols ) loop b 
+ NEXTCD: condition evaluated as true
+ CNSsolve>      eval ( $z = 1 ) 
+ EVALUATE: symbol $Z set to    1.00000     (real)
+ CNSsolve>      eval ( $sum = 0 ) 
+ EVALUATE: symbol $SUM set to    0.00000     (real)
+ CNSsolve>      while ( $z le &m1.cols ) loop z 
+ NEXTCD: condition evaluated as true
+ CNSsolve>         eval ( $sum = $sum + &m1.ji.$a.$z * &m2.ji.$z.$b ) 
+ EVALUATE: symbol $SUM set to    10.5000     (real)
+ CNSsolve>         eval ( $z = $z + 1 ) 
+ EVALUATE: symbol $Z set to    2.00000     (real)
+ CNSsolve>      end loop z 
+ CNSsolve>      while ( $z le &m1.cols ) loop z 
+ NEXTCD: condition evaluated as true
+ CNSsolve>         eval ( $sum = $sum + &m1.ji.$a.$z * &m2.ji.$z.$b ) 
+ EVALUATE: symbol $SUM set to    52.5000     (real)
+ CNSsolve>         eval ( $z = $z + 1 ) 
+ EVALUATE: symbol $Z set to    3.00000     (real)
+ CNSsolve>      end loop z 
+ CNSsolve>      while ( $z le &m1.cols ) loop z 
+ NEXTCD: condition evaluated as false
+ CNSsolve>         eval ( $sum = $sum + &m1.ji.$a.$z * &m2.ji.$z.$b ) 
+ CNSsolve>         eval ( $z = $z + 1 ) 
+ CNSsolve>      end loop z 
+ CNSsolve>      eval ( &mr.ji.$a.$b = $sum ) 
+ EVALUATE: symbol $_1_MAT5.JI.3.7 set to    52.5000     (real)
+ CNSsolve>      eval ( $b = $b + 1 ) 
+ EVALUATE: symbol $B set to    8.00000     (real)
+ CNSsolve>   end loop b 
+ CNSsolve>   while ( $b le &m2.cols ) loop b 
+ NEXTCD: condition evaluated as true
+ CNSsolve>      eval ( $z = 1 ) 
+ EVALUATE: symbol $Z set to    1.00000     (real)
+ CNSsolve>      eval ( $sum = 0 ) 
+ EVALUATE: symbol $SUM set to    0.00000     (real)
+ CNSsolve>      while ( $z le &m1.cols ) loop z 
+ NEXTCD: condition evaluated as true
+ CNSsolve>         eval ( $sum = $sum + &m1.ji.$a.$z * &m2.ji.$z.$b ) 
+ EVALUATE: symbol $SUM set to    12.0000     (real)
+ CNSsolve>         eval ( $z = $z + 1 ) 
+ EVALUATE: symbol $Z set to    2.00000     (real)
+ CNSsolve>      end loop z 
+ CNSsolve>      while ( $z le &m1.cols ) loop z 
+ NEXTCD: condition evaluated as true
+ CNSsolve>         eval ( $sum = $sum + &m1.ji.$a.$z * &m2.ji.$z.$b ) 
+ EVALUATE: symbol $SUM set to    60.0000     (real)
+ CNSsolve>         eval ( $z = $z + 1 ) 
+ EVALUATE: symbol $Z set to    3.00000     (real)
+ CNSsolve>      end loop z 
+ CNSsolve>      while ( $z le &m1.cols ) loop z 
+ NEXTCD: condition evaluated as false
+ CNSsolve>         eval ( $sum = $sum + &m1.ji.$a.$z * &m2.ji.$z.$b ) 
+ CNSsolve>         eval ( $z = $z + 1 ) 
+ CNSsolve>      end loop z 
+ CNSsolve>      eval ( &mr.ji.$a.$b = $sum ) 
+ EVALUATE: symbol $_1_MAT5.JI.3.8 set to    60.0000     (real)
+ CNSsolve>      eval ( $b = $b + 1 ) 
+ EVALUATE: symbol $B set to    9.00000     (real)
+ CNSsolve>   end loop b 
+ CNSsolve>   while ( $b le &m2.cols ) loop b 
+ NEXTCD: condition evaluated as false
+ CNSsolve>      eval ( $z = 1 ) 
+ CNSsolve>      eval ( $sum = 0 ) 
+ CNSsolve>      while ( $z le &m1.cols ) loop z 
+ CNSsolve>         eval ( $sum = $sum + &m1.ji.$a.$z * &m2.ji.$z.$b ) 
+ CNSsolve>         eval ( $z = $z + 1 ) 
+ CNSsolve>      end loop z 
+ CNSsolve>      eval ( &mr.ji.$a.$b = $sum ) 
+ CNSsolve>      eval ( $b = $b + 1 ) 
+ CNSsolve>   end loop b 
+ CNSsolve>   eval ( $a = $a + 1 ) 
+ EVALUATE: symbol $A set to    4.00000     (real)
+ CNSsolve>end loop a 
+ CNSsolve>while ( $a le &m1.rows ) loop a 
+ NEXTCD: condition evaluated as true
+ CNSsolve>   eval ( $b = 1 ) 
+ EVALUATE: symbol $B set to    1.00000     (real)
+ CNSsolve>   while ( $b le &m2.cols ) loop b 
+ NEXTCD: condition evaluated as true
+ CNSsolve>      eval ( $z = 1 ) 
+ EVALUATE: symbol $Z set to    1.00000     (real)
+ CNSsolve>      eval ( $sum = 0 ) 
+ EVALUATE: symbol $SUM set to    0.00000     (real)
+ CNSsolve>      while ( $z le &m1.cols ) loop z 
+ NEXTCD: condition evaluated as true
+ CNSsolve>         eval ( $sum = $sum + &m1.ji.$a.$z * &m2.ji.$z.$b ) 
+ EVALUATE: symbol $SUM set to    2.00000     (real)
+ CNSsolve>         eval ( $z = $z + 1 ) 
+ EVALUATE: symbol $Z set to    2.00000     (real)
+ CNSsolve>      end loop z 
+ CNSsolve>      while ( $z le &m1.cols ) loop z 
+ NEXTCD: condition evaluated as true
+ CNSsolve>         eval ( $sum = $sum + &m1.ji.$a.$z * &m2.ji.$z.$b ) 
+ EVALUATE: symbol $SUM set to    10.0000     (real)
+ CNSsolve>         eval ( $z = $z + 1 ) 
+ EVALUATE: symbol $Z set to    3.00000     (real)
+ CNSsolve>      end loop z 
+ CNSsolve>      while ( $z le &m1.cols ) loop z 
+ NEXTCD: condition evaluated as false
+ CNSsolve>         eval ( $sum = $sum + &m1.ji.$a.$z * &m2.ji.$z.$b ) 
+ CNSsolve>         eval ( $z = $z + 1 ) 
+ CNSsolve>      end loop z 
+ CNSsolve>      eval ( &mr.ji.$a.$b = $sum ) 
+ EVALUATE: symbol $_1_MAT5.JI.4.1 set to    10.0000     (real)
+ CNSsolve>      eval ( $b = $b + 1 ) 
+ EVALUATE: symbol $B set to    2.00000     (real)
+ CNSsolve>   end loop b 
+ CNSsolve>   while ( $b le &m2.cols ) loop b 
+ NEXTCD: condition evaluated as true
+ CNSsolve>      eval ( $z = 1 ) 
+ EVALUATE: symbol $Z set to    1.00000     (real)
+ CNSsolve>      eval ( $sum = 0 ) 
+ EVALUATE: symbol $SUM set to    0.00000     (real)
+ CNSsolve>      while ( $z le &m1.cols ) loop z 
+ NEXTCD: condition evaluated as true
+ CNSsolve>         eval ( $sum = $sum + &m1.ji.$a.$z * &m2.ji.$z.$b ) 
+ EVALUATE: symbol $SUM set to    4.00000     (real)
+ CNSsolve>         eval ( $z = $z + 1 ) 
+ EVALUATE: symbol $Z set to    2.00000     (real)
+ CNSsolve>      end loop z 
+ CNSsolve>      while ( $z le &m1.cols ) loop z 
+ NEXTCD: condition evaluated as true
+ CNSsolve>         eval ( $sum = $sum + &m1.ji.$a.$z * &m2.ji.$z.$b ) 
+ EVALUATE: symbol $SUM set to    20.0000     (real)
+ CNSsolve>         eval ( $z = $z + 1 ) 
+ EVALUATE: symbol $Z set to    3.00000     (real)
+ CNSsolve>      end loop z 
+ CNSsolve>      while ( $z le &m1.cols ) loop z 
+ NEXTCD: condition evaluated as false
+ CNSsolve>         eval ( $sum = $sum + &m1.ji.$a.$z * &m2.ji.$z.$b ) 
+ CNSsolve>         eval ( $z = $z + 1 ) 
+ CNSsolve>      end loop z 
+ CNSsolve>      eval ( &mr.ji.$a.$b = $sum ) 
+ EVALUATE: symbol $_1_MAT5.JI.4.2 set to    20.0000     (real)
+ CNSsolve>      eval ( $b = $b + 1 ) 
+ EVALUATE: symbol $B set to    3.00000     (real)
+ CNSsolve>   end loop b 
+ CNSsolve>   while ( $b le &m2.cols ) loop b 
+ NEXTCD: condition evaluated as true
+ CNSsolve>      eval ( $z = 1 ) 
+ EVALUATE: symbol $Z set to    1.00000     (real)
+ CNSsolve>      eval ( $sum = 0 ) 
+ EVALUATE: symbol $SUM set to    0.00000     (real)
+ CNSsolve>      while ( $z le &m1.cols ) loop z 
+ NEXTCD: condition evaluated as true
+ CNSsolve>         eval ( $sum = $sum + &m1.ji.$a.$z * &m2.ji.$z.$b ) 
+ EVALUATE: symbol $SUM set to    6.00000     (real)
+ CNSsolve>         eval ( $z = $z + 1 ) 
+ EVALUATE: symbol $Z set to    2.00000     (real)
+ CNSsolve>      end loop z 
+ CNSsolve>      while ( $z le &m1.cols ) loop z 
+ NEXTCD: condition evaluated as true
+ CNSsolve>         eval ( $sum = $sum + &m1.ji.$a.$z * &m2.ji.$z.$b ) 
+ EVALUATE: symbol $SUM set to    30.0000     (real)
+ CNSsolve>         eval ( $z = $z + 1 ) 
+ EVALUATE: symbol $Z set to    3.00000     (real)
+ CNSsolve>      end loop z 
+ CNSsolve>      while ( $z le &m1.cols ) loop z 
+ NEXTCD: condition evaluated as false
+ CNSsolve>         eval ( $sum = $sum + &m1.ji.$a.$z * &m2.ji.$z.$b ) 
+ CNSsolve>         eval ( $z = $z + 1 ) 
+ CNSsolve>      end loop z 
+ CNSsolve>      eval ( &mr.ji.$a.$b = $sum ) 
+ EVALUATE: symbol $_1_MAT5.JI.4.3 set to    30.0000     (real)
+ CNSsolve>      eval ( $b = $b + 1 ) 
+ EVALUATE: symbol $B set to    4.00000     (real)
+ CNSsolve>   end loop b 
+ CNSsolve>   while ( $b le &m2.cols ) loop b 
+ NEXTCD: condition evaluated as true
+ CNSsolve>      eval ( $z = 1 ) 
+ EVALUATE: symbol $Z set to    1.00000     (real)
+ CNSsolve>      eval ( $sum = 0 ) 
+ EVALUATE: symbol $SUM set to    0.00000     (real)
+ CNSsolve>      while ( $z le &m1.cols ) loop z 
+ NEXTCD: condition evaluated as true
+ CNSsolve>         eval ( $sum = $sum + &m1.ji.$a.$z * &m2.ji.$z.$b ) 
+ EVALUATE: symbol $SUM set to    8.00000     (real)
+ CNSsolve>         eval ( $z = $z + 1 ) 
+ EVALUATE: symbol $Z set to    2.00000     (real)
+ CNSsolve>      end loop z 
+ CNSsolve>      while ( $z le &m1.cols ) loop z 
+ NEXTCD: condition evaluated as true
+ CNSsolve>         eval ( $sum = $sum + &m1.ji.$a.$z * &m2.ji.$z.$b ) 
+ EVALUATE: symbol $SUM set to    40.0000     (real)
+ CNSsolve>         eval ( $z = $z + 1 ) 
+ EVALUATE: symbol $Z set to    3.00000     (real)
+ CNSsolve>      end loop z 
+ CNSsolve>      while ( $z le &m1.cols ) loop z 
+ NEXTCD: condition evaluated as false
+ CNSsolve>         eval ( $sum = $sum + &m1.ji.$a.$z * &m2.ji.$z.$b ) 
+ CNSsolve>         eval ( $z = $z + 1 ) 
+ CNSsolve>      end loop z 
+ CNSsolve>      eval ( &mr.ji.$a.$b = $sum ) 
+ EVALUATE: symbol $_1_MAT5.JI.4.4 set to    40.0000     (real)
+ CNSsolve>      eval ( $b = $b + 1 ) 
+ EVALUATE: symbol $B set to    5.00000     (real)
+ CNSsolve>   end loop b 
+ CNSsolve>   while ( $b le &m2.cols ) loop b 
+ NEXTCD: condition evaluated as true
+ CNSsolve>      eval ( $z = 1 ) 
+ EVALUATE: symbol $Z set to    1.00000     (real)
+ CNSsolve>      eval ( $sum = 0 ) 
+ EVALUATE: symbol $SUM set to    0.00000     (real)
+ CNSsolve>      while ( $z le &m1.cols ) loop z 
+ NEXTCD: condition evaluated as true
+ CNSsolve>         eval ( $sum = $sum + &m1.ji.$a.$z * &m2.ji.$z.$b ) 
+ EVALUATE: symbol $SUM set to    10.0000     (real)
+ CNSsolve>         eval ( $z = $z + 1 ) 
+ EVALUATE: symbol $Z set to    2.00000     (real)
+ CNSsolve>      end loop z 
+ CNSsolve>      while ( $z le &m1.cols ) loop z 
+ NEXTCD: condition evaluated as true
+ CNSsolve>         eval ( $sum = $sum + &m1.ji.$a.$z * &m2.ji.$z.$b ) 
+ EVALUATE: symbol $SUM set to    50.0000     (real)
+ CNSsolve>         eval ( $z = $z + 1 ) 
+ EVALUATE: symbol $Z set to    3.00000     (real)
+ CNSsolve>      end loop z 
+ CNSsolve>      while ( $z le &m1.cols ) loop z 
+ NEXTCD: condition evaluated as false
+ CNSsolve>         eval ( $sum = $sum + &m1.ji.$a.$z * &m2.ji.$z.$b ) 
+ CNSsolve>         eval ( $z = $z + 1 ) 
+ CNSsolve>      end loop z 
+ CNSsolve>      eval ( &mr.ji.$a.$b = $sum ) 
+ EVALUATE: symbol $_1_MAT5.JI.4.5 set to    50.0000     (real)
+ CNSsolve>      eval ( $b = $b + 1 ) 
+ EVALUATE: symbol $B set to    6.00000     (real)
+ CNSsolve>   end loop b 
+ CNSsolve>   while ( $b le &m2.cols ) loop b 
+ NEXTCD: condition evaluated as true
+ CNSsolve>      eval ( $z = 1 ) 
+ EVALUATE: symbol $Z set to    1.00000     (real)
+ CNSsolve>      eval ( $sum = 0 ) 
+ EVALUATE: symbol $SUM set to    0.00000     (real)
+ CNSsolve>      while ( $z le &m1.cols ) loop z 
+ NEXTCD: condition evaluated as true
+ CNSsolve>         eval ( $sum = $sum + &m1.ji.$a.$z * &m2.ji.$z.$b ) 
+ EVALUATE: symbol $SUM set to    12.0000     (real)
+ CNSsolve>         eval ( $z = $z + 1 ) 
+ EVALUATE: symbol $Z set to    2.00000     (real)
+ CNSsolve>      end loop z 
+ CNSsolve>      while ( $z le &m1.cols ) loop z 
+ NEXTCD: condition evaluated as true
+ CNSsolve>         eval ( $sum = $sum + &m1.ji.$a.$z * &m2.ji.$z.$b ) 
+ EVALUATE: symbol $SUM set to    60.0000     (real)
+ CNSsolve>         eval ( $z = $z + 1 ) 
+ EVALUATE: symbol $Z set to    3.00000     (real)
+ CNSsolve>      end loop z 
+ CNSsolve>      while ( $z le &m1.cols ) loop z 
+ NEXTCD: condition evaluated as false
+ CNSsolve>         eval ( $sum = $sum + &m1.ji.$a.$z * &m2.ji.$z.$b ) 
+ CNSsolve>         eval ( $z = $z + 1 ) 
+ CNSsolve>      end loop z 
+ CNSsolve>      eval ( &mr.ji.$a.$b = $sum ) 
+ EVALUATE: symbol $_1_MAT5.JI.4.6 set to    60.0000     (real)
+ CNSsolve>      eval ( $b = $b + 1 ) 
+ EVALUATE: symbol $B set to    7.00000     (real)
+ CNSsolve>   end loop b 
+ CNSsolve>   while ( $b le &m2.cols ) loop b 
+ NEXTCD: condition evaluated as true
+ CNSsolve>      eval ( $z = 1 ) 
+ EVALUATE: symbol $Z set to    1.00000     (real)
+ CNSsolve>      eval ( $sum = 0 ) 
+ EVALUATE: symbol $SUM set to    0.00000     (real)
+ CNSsolve>      while ( $z le &m1.cols ) loop z 
+ NEXTCD: condition evaluated as true
+ CNSsolve>         eval ( $sum = $sum + &m1.ji.$a.$z * &m2.ji.$z.$b ) 
+ EVALUATE: symbol $SUM set to    14.0000     (real)
+ CNSsolve>         eval ( $z = $z + 1 ) 
+ EVALUATE: symbol $Z set to    2.00000     (real)
+ CNSsolve>      end loop z 
+ CNSsolve>      while ( $z le &m1.cols ) loop z 
+ NEXTCD: condition evaluated as true
+ CNSsolve>         eval ( $sum = $sum + &m1.ji.$a.$z * &m2.ji.$z.$b ) 
+ EVALUATE: symbol $SUM set to    70.0000     (real)
+ CNSsolve>         eval ( $z = $z + 1 ) 
+ EVALUATE: symbol $Z set to    3.00000     (real)
+ CNSsolve>      end loop z 
+ CNSsolve>      while ( $z le &m1.cols ) loop z 
+ NEXTCD: condition evaluated as false
+ CNSsolve>         eval ( $sum = $sum + &m1.ji.$a.$z * &m2.ji.$z.$b ) 
+ CNSsolve>         eval ( $z = $z + 1 ) 
+ CNSsolve>      end loop z 
+ CNSsolve>      eval ( &mr.ji.$a.$b = $sum ) 
+ EVALUATE: symbol $_1_MAT5.JI.4.7 set to    70.0000     (real)
+ CNSsolve>      eval ( $b = $b + 1 ) 
+ EVALUATE: symbol $B set to    8.00000     (real)
+ CNSsolve>   end loop b 
+ CNSsolve>   while ( $b le &m2.cols ) loop b 
+ NEXTCD: condition evaluated as true
+ CNSsolve>      eval ( $z = 1 ) 
+ EVALUATE: symbol $Z set to    1.00000     (real)
+ CNSsolve>      eval ( $sum = 0 ) 
+ EVALUATE: symbol $SUM set to    0.00000     (real)
+ CNSsolve>      while ( $z le &m1.cols ) loop z 
+ NEXTCD: condition evaluated as true
+ CNSsolve>         eval ( $sum = $sum + &m1.ji.$a.$z * &m2.ji.$z.$b ) 
+ EVALUATE: symbol $SUM set to    16.0000     (real)
+ CNSsolve>         eval ( $z = $z + 1 ) 
+ EVALUATE: symbol $Z set to    2.00000     (real)
+ CNSsolve>      end loop z 
+ CNSsolve>      while ( $z le &m1.cols ) loop z 
+ NEXTCD: condition evaluated as true
+ CNSsolve>         eval ( $sum = $sum + &m1.ji.$a.$z * &m2.ji.$z.$b ) 
+ EVALUATE: symbol $SUM set to    80.0000     (real)
+ CNSsolve>         eval ( $z = $z + 1 ) 
+ EVALUATE: symbol $Z set to    3.00000     (real)
+ CNSsolve>      end loop z 
+ CNSsolve>      while ( $z le &m1.cols ) loop z 
+ NEXTCD: condition evaluated as false
+ CNSsolve>         eval ( $sum = $sum + &m1.ji.$a.$z * &m2.ji.$z.$b ) 
+ CNSsolve>         eval ( $z = $z + 1 ) 
+ CNSsolve>      end loop z 
+ CNSsolve>      eval ( &mr.ji.$a.$b = $sum ) 
+ EVALUATE: symbol $_1_MAT5.JI.4.8 set to    80.0000     (real)
+ CNSsolve>      eval ( $b = $b + 1 ) 
+ EVALUATE: symbol $B set to    9.00000     (real)
+ CNSsolve>   end loop b 
+ CNSsolve>   while ( $b le &m2.cols ) loop b 
+ NEXTCD: condition evaluated as false
+ CNSsolve>      eval ( $z = 1 ) 
+ CNSsolve>      eval ( $sum = 0 ) 
+ CNSsolve>      while ( $z le &m1.cols ) loop z 
+ CNSsolve>         eval ( $sum = $sum + &m1.ji.$a.$z * &m2.ji.$z.$b ) 
+ CNSsolve>         eval ( $z = $z + 1 ) 
+ CNSsolve>      end loop z 
+ CNSsolve>      eval ( &mr.ji.$a.$b = $sum ) 
+ CNSsolve>      eval ( $b = $b + 1 ) 
+ CNSsolve>   end loop b 
+ CNSsolve>   eval ( $a = $a + 1 ) 
+ EVALUATE: symbol $A set to    5.00000     (real)
+ CNSsolve>end loop a 
+ CNSsolve>while ( $a le &m1.rows ) loop a 
+ NEXTCD: condition evaluated as true
+ CNSsolve>   eval ( $b = 1 ) 
+ EVALUATE: symbol $B set to    1.00000     (real)
+ CNSsolve>   while ( $b le &m2.cols ) loop b 
+ NEXTCD: condition evaluated as true
+ CNSsolve>      eval ( $z = 1 ) 
+ EVALUATE: symbol $Z set to    1.00000     (real)
+ CNSsolve>      eval ( $sum = 0 ) 
+ EVALUATE: symbol $SUM set to    0.00000     (real)
+ CNSsolve>      while ( $z le &m1.cols ) loop z 
+ NEXTCD: condition evaluated as true
+ CNSsolve>         eval ( $sum = $sum + &m1.ji.$a.$z * &m2.ji.$z.$b ) 
+ EVALUATE: symbol $SUM set to    2.50000     (real)
+ CNSsolve>         eval ( $z = $z + 1 ) 
+ EVALUATE: symbol $Z set to    2.00000     (real)
+ CNSsolve>      end loop z 
+ CNSsolve>      while ( $z le &m1.cols ) loop z 
+ NEXTCD: condition evaluated as true
+ CNSsolve>         eval ( $sum = $sum + &m1.ji.$a.$z * &m2.ji.$z.$b ) 
+ EVALUATE: symbol $SUM set to    12.5000     (real)
+ CNSsolve>         eval ( $z = $z + 1 ) 
+ EVALUATE: symbol $Z set to    3.00000     (real)
+ CNSsolve>      end loop z 
+ CNSsolve>      while ( $z le &m1.cols ) loop z 
+ NEXTCD: condition evaluated as false
+ CNSsolve>         eval ( $sum = $sum + &m1.ji.$a.$z * &m2.ji.$z.$b ) 
+ CNSsolve>         eval ( $z = $z + 1 ) 
+ CNSsolve>      end loop z 
+ CNSsolve>      eval ( &mr.ji.$a.$b = $sum ) 
+ EVALUATE: symbol $_1_MAT5.JI.5.1 set to    12.5000     (real)
+ CNSsolve>      eval ( $b = $b + 1 ) 
+ EVALUATE: symbol $B set to    2.00000     (real)
+ CNSsolve>   end loop b 
+ CNSsolve>   while ( $b le &m2.cols ) loop b 
+ NEXTCD: condition evaluated as true
+ CNSsolve>      eval ( $z = 1 ) 
+ EVALUATE: symbol $Z set to    1.00000     (real)
+ CNSsolve>      eval ( $sum = 0 ) 
+ EVALUATE: symbol $SUM set to    0.00000     (real)
+ CNSsolve>      while ( $z le &m1.cols ) loop z 
+ NEXTCD: condition evaluated as true
+ CNSsolve>         eval ( $sum = $sum + &m1.ji.$a.$z * &m2.ji.$z.$b ) 
+ EVALUATE: symbol $SUM set to    5.00000     (real)
+ CNSsolve>         eval ( $z = $z + 1 ) 
+ EVALUATE: symbol $Z set to    2.00000     (real)
+ CNSsolve>      end loop z 
+ CNSsolve>      while ( $z le &m1.cols ) loop z 
+ NEXTCD: condition evaluated as true
+ CNSsolve>         eval ( $sum = $sum + &m1.ji.$a.$z * &m2.ji.$z.$b ) 
+ EVALUATE: symbol $SUM set to    25.0000     (real)
+ CNSsolve>         eval ( $z = $z + 1 ) 
+ EVALUATE: symbol $Z set to    3.00000     (real)
+ CNSsolve>      end loop z 
+ CNSsolve>      while ( $z le &m1.cols ) loop z 
+ NEXTCD: condition evaluated as false
+ CNSsolve>         eval ( $sum = $sum + &m1.ji.$a.$z * &m2.ji.$z.$b ) 
+ CNSsolve>         eval ( $z = $z + 1 ) 
+ CNSsolve>      end loop z 
+ CNSsolve>      eval ( &mr.ji.$a.$b = $sum ) 
+ EVALUATE: symbol $_1_MAT5.JI.5.2 set to    25.0000     (real)
+ CNSsolve>      eval ( $b = $b + 1 ) 
+ EVALUATE: symbol $B set to    3.00000     (real)
+ CNSsolve>   end loop b 
+ CNSsolve>   while ( $b le &m2.cols ) loop b 
+ NEXTCD: condition evaluated as true
+ CNSsolve>      eval ( $z = 1 ) 
+ EVALUATE: symbol $Z set to    1.00000     (real)
+ CNSsolve>      eval ( $sum = 0 ) 
+ EVALUATE: symbol $SUM set to    0.00000     (real)
+ CNSsolve>      while ( $z le &m1.cols ) loop z 
+ NEXTCD: condition evaluated as true
+ CNSsolve>         eval ( $sum = $sum + &m1.ji.$a.$z * &m2.ji.$z.$b ) 
+ EVALUATE: symbol $SUM set to    7.50000     (real)
+ CNSsolve>         eval ( $z = $z + 1 ) 
+ EVALUATE: symbol $Z set to    2.00000     (real)
+ CNSsolve>      end loop z 
+ CNSsolve>      while ( $z le &m1.cols ) loop z 
+ NEXTCD: condition evaluated as true
+ CNSsolve>         eval ( $sum = $sum + &m1.ji.$a.$z * &m2.ji.$z.$b ) 
+ EVALUATE: symbol $SUM set to    37.5000     (real)
+ CNSsolve>         eval ( $z = $z + 1 ) 
+ EVALUATE: symbol $Z set to    3.00000     (real)
+ CNSsolve>      end loop z 
+ CNSsolve>      while ( $z le &m1.cols ) loop z 
+ NEXTCD: condition evaluated as false
+ CNSsolve>         eval ( $sum = $sum + &m1.ji.$a.$z * &m2.ji.$z.$b ) 
+ CNSsolve>         eval ( $z = $z + 1 ) 
+ CNSsolve>      end loop z 
+ CNSsolve>      eval ( &mr.ji.$a.$b = $sum ) 
+ EVALUATE: symbol $_1_MAT5.JI.5.3 set to    37.5000     (real)
+ CNSsolve>      eval ( $b = $b + 1 ) 
+ EVALUATE: symbol $B set to    4.00000     (real)
+ CNSsolve>   end loop b 
+ CNSsolve>   while ( $b le &m2.cols ) loop b 
+ NEXTCD: condition evaluated as true
+ CNSsolve>      eval ( $z = 1 ) 
+ EVALUATE: symbol $Z set to    1.00000     (real)
+ CNSsolve>      eval ( $sum = 0 ) 
+ EVALUATE: symbol $SUM set to    0.00000     (real)
+ CNSsolve>      while ( $z le &m1.cols ) loop z 
+ NEXTCD: condition evaluated as true
+ CNSsolve>         eval ( $sum = $sum + &m1.ji.$a.$z * &m2.ji.$z.$b ) 
+ EVALUATE: symbol $SUM set to    10.0000     (real)
+ CNSsolve>         eval ( $z = $z + 1 ) 
+ EVALUATE: symbol $Z set to    2.00000     (real)
+ CNSsolve>      end loop z 
+ CNSsolve>      while ( $z le &m1.cols ) loop z 
+ NEXTCD: condition evaluated as true
+ CNSsolve>         eval ( $sum = $sum + &m1.ji.$a.$z * &m2.ji.$z.$b ) 
+ EVALUATE: symbol $SUM set to    50.0000     (real)
+ CNSsolve>         eval ( $z = $z + 1 ) 
+ EVALUATE: symbol $Z set to    3.00000     (real)
+ CNSsolve>      end loop z 
+ CNSsolve>      while ( $z le &m1.cols ) loop z 
+ NEXTCD: condition evaluated as false
+ CNSsolve>         eval ( $sum = $sum + &m1.ji.$a.$z * &m2.ji.$z.$b ) 
+ CNSsolve>         eval ( $z = $z + 1 ) 
+ CNSsolve>      end loop z 
+ CNSsolve>      eval ( &mr.ji.$a.$b = $sum ) 
+ EVALUATE: symbol $_1_MAT5.JI.5.4 set to    50.0000     (real)
+ CNSsolve>      eval ( $b = $b + 1 ) 
+ EVALUATE: symbol $B set to    5.00000     (real)
+ CNSsolve>   end loop b 
+ CNSsolve>   while ( $b le &m2.cols ) loop b 
+ NEXTCD: condition evaluated as true
+ CNSsolve>      eval ( $z = 1 ) 
+ EVALUATE: symbol $Z set to    1.00000     (real)
+ CNSsolve>      eval ( $sum = 0 ) 
+ EVALUATE: symbol $SUM set to    0.00000     (real)
+ CNSsolve>      while ( $z le &m1.cols ) loop z 
+ NEXTCD: condition evaluated as true
+ CNSsolve>         eval ( $sum = $sum + &m1.ji.$a.$z * &m2.ji.$z.$b ) 
+ EVALUATE: symbol $SUM set to    12.5000     (real)
+ CNSsolve>         eval ( $z = $z + 1 ) 
+ EVALUATE: symbol $Z set to    2.00000     (real)
+ CNSsolve>      end loop z 
+ CNSsolve>      while ( $z le &m1.cols ) loop z 
+ NEXTCD: condition evaluated as true
+ CNSsolve>         eval ( $sum = $sum + &m1.ji.$a.$z * &m2.ji.$z.$b ) 
+ EVALUATE: symbol $SUM set to    62.5000     (real)
+ CNSsolve>         eval ( $z = $z + 1 ) 
+ EVALUATE: symbol $Z set to    3.00000     (real)
+ CNSsolve>      end loop z 
+ CNSsolve>      while ( $z le &m1.cols ) loop z 
+ NEXTCD: condition evaluated as false
+ CNSsolve>         eval ( $sum = $sum + &m1.ji.$a.$z * &m2.ji.$z.$b ) 
+ CNSsolve>         eval ( $z = $z + 1 ) 
+ CNSsolve>      end loop z 
+ CNSsolve>      eval ( &mr.ji.$a.$b = $sum ) 
+ EVALUATE: symbol $_1_MAT5.JI.5.5 set to    62.5000     (real)
+ CNSsolve>      eval ( $b = $b + 1 ) 
+ EVALUATE: symbol $B set to    6.00000     (real)
+ CNSsolve>   end loop b 
+ CNSsolve>   while ( $b le &m2.cols ) loop b 
+ NEXTCD: condition evaluated as true
+ CNSsolve>      eval ( $z = 1 ) 
+ EVALUATE: symbol $Z set to    1.00000     (real)
+ CNSsolve>      eval ( $sum = 0 ) 
+ EVALUATE: symbol $SUM set to    0.00000     (real)
+ CNSsolve>      while ( $z le &m1.cols ) loop z 
+ NEXTCD: condition evaluated as true
+ CNSsolve>         eval ( $sum = $sum + &m1.ji.$a.$z * &m2.ji.$z.$b ) 
+ EVALUATE: symbol $SUM set to    15.0000     (real)
+ CNSsolve>         eval ( $z = $z + 1 ) 
+ EVALUATE: symbol $Z set to    2.00000     (real)
+ CNSsolve>      end loop z 
+ CNSsolve>      while ( $z le &m1.cols ) loop z 
+ NEXTCD: condition evaluated as true
+ CNSsolve>         eval ( $sum = $sum + &m1.ji.$a.$z * &m2.ji.$z.$b ) 
+ EVALUATE: symbol $SUM set to    75.0000     (real)
+ CNSsolve>         eval ( $z = $z + 1 ) 
+ EVALUATE: symbol $Z set to    3.00000     (real)
+ CNSsolve>      end loop z 
+ CNSsolve>      while ( $z le &m1.cols ) loop z 
+ NEXTCD: condition evaluated as false
+ CNSsolve>         eval ( $sum = $sum + &m1.ji.$a.$z * &m2.ji.$z.$b ) 
+ CNSsolve>         eval ( $z = $z + 1 ) 
+ CNSsolve>      end loop z 
+ CNSsolve>      eval ( &mr.ji.$a.$b = $sum ) 
+ EVALUATE: symbol $_1_MAT5.JI.5.6 set to    75.0000     (real)
+ CNSsolve>      eval ( $b = $b + 1 ) 
+ EVALUATE: symbol $B set to    7.00000     (real)
+ CNSsolve>   end loop b 
+ CNSsolve>   while ( $b le &m2.cols ) loop b 
+ NEXTCD: condition evaluated as true
+ CNSsolve>      eval ( $z = 1 ) 
+ EVALUATE: symbol $Z set to    1.00000     (real)
+ CNSsolve>      eval ( $sum = 0 ) 
+ EVALUATE: symbol $SUM set to    0.00000     (real)
+ CNSsolve>      while ( $z le &m1.cols ) loop z 
+ NEXTCD: condition evaluated as true
+ CNSsolve>         eval ( $sum = $sum + &m1.ji.$a.$z * &m2.ji.$z.$b ) 
+ EVALUATE: symbol $SUM set to    17.5000     (real)
+ CNSsolve>         eval ( $z = $z + 1 ) 
+ EVALUATE: symbol $Z set to    2.00000     (real)
+ CNSsolve>      end loop z 
+ CNSsolve>      while ( $z le &m1.cols ) loop z 
+ NEXTCD: condition evaluated as true
+ CNSsolve>         eval ( $sum = $sum + &m1.ji.$a.$z * &m2.ji.$z.$b ) 
+ EVALUATE: symbol $SUM set to    87.5000     (real)
+ CNSsolve>         eval ( $z = $z + 1 ) 
+ EVALUATE: symbol $Z set to    3.00000     (real)
+ CNSsolve>      end loop z 
+ CNSsolve>      while ( $z le &m1.cols ) loop z 
+ NEXTCD: condition evaluated as false
+ CNSsolve>         eval ( $sum = $sum + &m1.ji.$a.$z * &m2.ji.$z.$b ) 
+ CNSsolve>         eval ( $z = $z + 1 ) 
+ CNSsolve>      end loop z 
+ CNSsolve>      eval ( &mr.ji.$a.$b = $sum ) 
+ EVALUATE: symbol $_1_MAT5.JI.5.7 set to    87.5000     (real)
+ CNSsolve>      eval ( $b = $b + 1 ) 
+ EVALUATE: symbol $B set to    8.00000     (real)
+ CNSsolve>   end loop b 
+ CNSsolve>   while ( $b le &m2.cols ) loop b 
+ NEXTCD: condition evaluated as true
+ CNSsolve>      eval ( $z = 1 ) 
+ EVALUATE: symbol $Z set to    1.00000     (real)
+ CNSsolve>      eval ( $sum = 0 ) 
+ EVALUATE: symbol $SUM set to    0.00000     (real)
+ CNSsolve>      while ( $z le &m1.cols ) loop z 
+ NEXTCD: condition evaluated as true
+ CNSsolve>         eval ( $sum = $sum + &m1.ji.$a.$z * &m2.ji.$z.$b ) 
+ EVALUATE: symbol $SUM set to    20.0000     (real)
+ CNSsolve>         eval ( $z = $z + 1 ) 
+ EVALUATE: symbol $Z set to    2.00000     (real)
+ CNSsolve>      end loop z 
+ CNSsolve>      while ( $z le &m1.cols ) loop z 
+ NEXTCD: condition evaluated as true
+ CNSsolve>         eval ( $sum = $sum + &m1.ji.$a.$z * &m2.ji.$z.$b ) 
+ EVALUATE: symbol $SUM set to    100.000     (real)
+ CNSsolve>         eval ( $z = $z + 1 ) 
+ EVALUATE: symbol $Z set to    3.00000     (real)
+ CNSsolve>      end loop z 
+ CNSsolve>      while ( $z le &m1.cols ) loop z 
+ NEXTCD: condition evaluated as false
+ CNSsolve>         eval ( $sum = $sum + &m1.ji.$a.$z * &m2.ji.$z.$b ) 
+ CNSsolve>         eval ( $z = $z + 1 ) 
+ CNSsolve>      end loop z 
+ CNSsolve>      eval ( &mr.ji.$a.$b = $sum ) 
+ EVALUATE: symbol $_1_MAT5.JI.5.8 set to    100.000     (real)
+ CNSsolve>      eval ( $b = $b + 1 ) 
+ EVALUATE: symbol $B set to    9.00000     (real)
+ CNSsolve>   end loop b 
+ CNSsolve>   while ( $b le &m2.cols ) loop b 
+ NEXTCD: condition evaluated as false
+ CNSsolve>      eval ( $z = 1 ) 
+ CNSsolve>      eval ( $sum = 0 ) 
+ CNSsolve>      while ( $z le &m1.cols ) loop z 
+ CNSsolve>         eval ( $sum = $sum + &m1.ji.$a.$z * &m2.ji.$z.$b ) 
+ CNSsolve>         eval ( $z = $z + 1 ) 
+ CNSsolve>      end loop z 
+ CNSsolve>      eval ( &mr.ji.$a.$b = $sum ) 
+ CNSsolve>      eval ( $b = $b + 1 ) 
+ CNSsolve>   end loop b 
+ CNSsolve>   eval ( $a = $a + 1 ) 
+ EVALUATE: symbol $A set to    6.00000     (real)
+ CNSsolve>end loop a 
+ CNSsolve>while ( $a le &m1.rows ) loop a 
+ NEXTCD: condition evaluated as true
+ CNSsolve>   eval ( $b = 1 ) 
+ EVALUATE: symbol $B set to    1.00000     (real)
+ CNSsolve>   while ( $b le &m2.cols ) loop b 
+ NEXTCD: condition evaluated as true
+ CNSsolve>      eval ( $z = 1 ) 
+ EVALUATE: symbol $Z set to    1.00000     (real)
+ CNSsolve>      eval ( $sum = 0 ) 
+ EVALUATE: symbol $SUM set to    0.00000     (real)
+ CNSsolve>      while ( $z le &m1.cols ) loop z 
+ NEXTCD: condition evaluated as true
+ CNSsolve>         eval ( $sum = $sum + &m1.ji.$a.$z * &m2.ji.$z.$b ) 
+ EVALUATE: symbol $SUM set to    3.00000     (real)
+ CNSsolve>         eval ( $z = $z + 1 ) 
+ EVALUATE: symbol $Z set to    2.00000     (real)
+ CNSsolve>      end loop z 
+ CNSsolve>      while ( $z le &m1.cols ) loop z 
+ NEXTCD: condition evaluated as true
+ CNSsolve>         eval ( $sum = $sum + &m1.ji.$a.$z * &m2.ji.$z.$b ) 
+ EVALUATE: symbol $SUM set to    15.0000     (real)
+ CNSsolve>         eval ( $z = $z + 1 ) 
+ EVALUATE: symbol $Z set to    3.00000     (real)
+ CNSsolve>      end loop z 
+ CNSsolve>      while ( $z le &m1.cols ) loop z 
+ NEXTCD: condition evaluated as false
+ CNSsolve>         eval ( $sum = $sum + &m1.ji.$a.$z * &m2.ji.$z.$b ) 
+ CNSsolve>         eval ( $z = $z + 1 ) 
+ CNSsolve>      end loop z 
+ CNSsolve>      eval ( &mr.ji.$a.$b = $sum ) 
+ EVALUATE: symbol $_1_MAT5.JI.6.1 set to    15.0000     (real)
+ CNSsolve>      eval ( $b = $b + 1 ) 
+ EVALUATE: symbol $B set to    2.00000     (real)
+ CNSsolve>   end loop b 
+ CNSsolve>   while ( $b le &m2.cols ) loop b 
+ NEXTCD: condition evaluated as true
+ CNSsolve>      eval ( $z = 1 ) 
+ EVALUATE: symbol $Z set to    1.00000     (real)
+ CNSsolve>      eval ( $sum = 0 ) 
+ EVALUATE: symbol $SUM set to    0.00000     (real)
+ CNSsolve>      while ( $z le &m1.cols ) loop z 
+ NEXTCD: condition evaluated as true
+ CNSsolve>         eval ( $sum = $sum + &m1.ji.$a.$z * &m2.ji.$z.$b ) 
+ EVALUATE: symbol $SUM set to    6.00000     (real)
+ CNSsolve>         eval ( $z = $z + 1 ) 
+ EVALUATE: symbol $Z set to    2.00000     (real)
+ CNSsolve>      end loop z 
+ CNSsolve>      while ( $z le &m1.cols ) loop z 
+ NEXTCD: condition evaluated as true
+ CNSsolve>         eval ( $sum = $sum + &m1.ji.$a.$z * &m2.ji.$z.$b ) 
+ EVALUATE: symbol $SUM set to    30.0000     (real)
+ CNSsolve>         eval ( $z = $z + 1 ) 
+ EVALUATE: symbol $Z set to    3.00000     (real)
+ CNSsolve>      end loop z 
+ CNSsolve>      while ( $z le &m1.cols ) loop z 
+ NEXTCD: condition evaluated as false
+ CNSsolve>         eval ( $sum = $sum + &m1.ji.$a.$z * &m2.ji.$z.$b ) 
+ CNSsolve>         eval ( $z = $z + 1 ) 
+ CNSsolve>      end loop z 
+ CNSsolve>      eval ( &mr.ji.$a.$b = $sum ) 
+ EVALUATE: symbol $_1_MAT5.JI.6.2 set to    30.0000     (real)
+ CNSsolve>      eval ( $b = $b + 1 ) 
+ EVALUATE: symbol $B set to    3.00000     (real)
+ CNSsolve>   end loop b 
+ CNSsolve>   while ( $b le &m2.cols ) loop b 
+ NEXTCD: condition evaluated as true
+ CNSsolve>      eval ( $z = 1 ) 
+ EVALUATE: symbol $Z set to    1.00000     (real)
+ CNSsolve>      eval ( $sum = 0 ) 
+ EVALUATE: symbol $SUM set to    0.00000     (real)
+ CNSsolve>      while ( $z le &m1.cols ) loop z 
+ NEXTCD: condition evaluated as true
+ CNSsolve>         eval ( $sum = $sum + &m1.ji.$a.$z * &m2.ji.$z.$b ) 
+ EVALUATE: symbol $SUM set to    9.00000     (real)
+ CNSsolve>         eval ( $z = $z + 1 ) 
+ EVALUATE: symbol $Z set to    2.00000     (real)
+ CNSsolve>      end loop z 
+ CNSsolve>      while ( $z le &m1.cols ) loop z 
+ NEXTCD: condition evaluated as true
+ CNSsolve>         eval ( $sum = $sum + &m1.ji.$a.$z * &m2.ji.$z.$b ) 
+ EVALUATE: symbol $SUM set to    45.0000     (real)
+ CNSsolve>         eval ( $z = $z + 1 ) 
+ EVALUATE: symbol $Z set to    3.00000     (real)
+ CNSsolve>      end loop z 
+ CNSsolve>      while ( $z le &m1.cols ) loop z 
+ NEXTCD: condition evaluated as false
+ CNSsolve>         eval ( $sum = $sum + &m1.ji.$a.$z * &m2.ji.$z.$b ) 
+ CNSsolve>         eval ( $z = $z + 1 ) 
+ CNSsolve>      end loop z 
+ CNSsolve>      eval ( &mr.ji.$a.$b = $sum ) 
+ EVALUATE: symbol $_1_MAT5.JI.6.3 set to    45.0000     (real)
+ CNSsolve>      eval ( $b = $b + 1 ) 
+ EVALUATE: symbol $B set to    4.00000     (real)
+ CNSsolve>   end loop b 
+ CNSsolve>   while ( $b le &m2.cols ) loop b 
+ NEXTCD: condition evaluated as true
+ CNSsolve>      eval ( $z = 1 ) 
+ EVALUATE: symbol $Z set to    1.00000     (real)
+ CNSsolve>      eval ( $sum = 0 ) 
+ EVALUATE: symbol $SUM set to    0.00000     (real)
+ CNSsolve>      while ( $z le &m1.cols ) loop z 
+ NEXTCD: condition evaluated as true
+ CNSsolve>         eval ( $sum = $sum + &m1.ji.$a.$z * &m2.ji.$z.$b ) 
+ EVALUATE: symbol $SUM set to    12.0000     (real)
+ CNSsolve>         eval ( $z = $z + 1 ) 
+ EVALUATE: symbol $Z set to    2.00000     (real)
+ CNSsolve>      end loop z 
+ CNSsolve>      while ( $z le &m1.cols ) loop z 
+ NEXTCD: condition evaluated as true
+ CNSsolve>         eval ( $sum = $sum + &m1.ji.$a.$z * &m2.ji.$z.$b ) 
+ EVALUATE: symbol $SUM set to    60.0000     (real)
+ CNSsolve>         eval ( $z = $z + 1 ) 
+ EVALUATE: symbol $Z set to    3.00000     (real)
+ CNSsolve>      end loop z 
+ CNSsolve>      while ( $z le &m1.cols ) loop z 
+ NEXTCD: condition evaluated as false
+ CNSsolve>         eval ( $sum = $sum + &m1.ji.$a.$z * &m2.ji.$z.$b ) 
+ CNSsolve>         eval ( $z = $z + 1 ) 
+ CNSsolve>      end loop z 
+ CNSsolve>      eval ( &mr.ji.$a.$b = $sum ) 
+ EVALUATE: symbol $_1_MAT5.JI.6.4 set to    60.0000     (real)
+ CNSsolve>      eval ( $b = $b + 1 ) 
+ EVALUATE: symbol $B set to    5.00000     (real)
+ CNSsolve>   end loop b 
+ CNSsolve>   while ( $b le &m2.cols ) loop b 
+ NEXTCD: condition evaluated as true
+ CNSsolve>      eval ( $z = 1 ) 
+ EVALUATE: symbol $Z set to    1.00000     (real)
+ CNSsolve>      eval ( $sum = 0 ) 
+ EVALUATE: symbol $SUM set to    0.00000     (real)
+ CNSsolve>      while ( $z le &m1.cols ) loop z 
+ NEXTCD: condition evaluated as true
+ CNSsolve>         eval ( $sum = $sum + &m1.ji.$a.$z * &m2.ji.$z.$b ) 
+ EVALUATE: symbol $SUM set to    15.0000     (real)
+ CNSsolve>         eval ( $z = $z + 1 ) 
+ EVALUATE: symbol $Z set to    2.00000     (real)
+ CNSsolve>      end loop z 
+ CNSsolve>      while ( $z le &m1.cols ) loop z 
+ NEXTCD: condition evaluated as true
+ CNSsolve>         eval ( $sum = $sum + &m1.ji.$a.$z * &m2.ji.$z.$b ) 
+ EVALUATE: symbol $SUM set to    75.0000     (real)
+ CNSsolve>         eval ( $z = $z + 1 ) 
+ EVALUATE: symbol $Z set to    3.00000     (real)
+ CNSsolve>      end loop z 
+ CNSsolve>      while ( $z le &m1.cols ) loop z 
+ NEXTCD: condition evaluated as false
+ CNSsolve>         eval ( $sum = $sum + &m1.ji.$a.$z * &m2.ji.$z.$b ) 
+ CNSsolve>         eval ( $z = $z + 1 ) 
+ CNSsolve>      end loop z 
+ CNSsolve>      eval ( &mr.ji.$a.$b = $sum ) 
+ EVALUATE: symbol $_1_MAT5.JI.6.5 set to    75.0000     (real)
+ CNSsolve>      eval ( $b = $b + 1 ) 
+ EVALUATE: symbol $B set to    6.00000     (real)
+ CNSsolve>   end loop b 
+ CNSsolve>   while ( $b le &m2.cols ) loop b 
+ NEXTCD: condition evaluated as true
+ CNSsolve>      eval ( $z = 1 ) 
+ EVALUATE: symbol $Z set to    1.00000     (real)
+ CNSsolve>      eval ( $sum = 0 ) 
+ EVALUATE: symbol $SUM set to    0.00000     (real)
+ CNSsolve>      while ( $z le &m1.cols ) loop z 
+ NEXTCD: condition evaluated as true
+ CNSsolve>         eval ( $sum = $sum + &m1.ji.$a.$z * &m2.ji.$z.$b ) 
+ EVALUATE: symbol $SUM set to    18.0000     (real)
+ CNSsolve>         eval ( $z = $z + 1 ) 
+ EVALUATE: symbol $Z set to    2.00000     (real)
+ CNSsolve>      end loop z 
+ CNSsolve>      while ( $z le &m1.cols ) loop z 
+ NEXTCD: condition evaluated as true
+ CNSsolve>         eval ( $sum = $sum + &m1.ji.$a.$z * &m2.ji.$z.$b ) 
+ EVALUATE: symbol $SUM set to    90.0000     (real)
+ CNSsolve>         eval ( $z = $z + 1 ) 
+ EVALUATE: symbol $Z set to    3.00000     (real)
+ CNSsolve>      end loop z 
+ CNSsolve>      while ( $z le &m1.cols ) loop z 
+ NEXTCD: condition evaluated as false
+ CNSsolve>         eval ( $sum = $sum + &m1.ji.$a.$z * &m2.ji.$z.$b ) 
+ CNSsolve>         eval ( $z = $z + 1 ) 
+ CNSsolve>      end loop z 
+ CNSsolve>      eval ( &mr.ji.$a.$b = $sum ) 
+ EVALUATE: symbol $_1_MAT5.JI.6.6 set to    90.0000     (real)
+ CNSsolve>      eval ( $b = $b + 1 ) 
+ EVALUATE: symbol $B set to    7.00000     (real)
+ CNSsolve>   end loop b 
+ CNSsolve>   while ( $b le &m2.cols ) loop b 
+ NEXTCD: condition evaluated as true
+ CNSsolve>      eval ( $z = 1 ) 
+ EVALUATE: symbol $Z set to    1.00000     (real)
+ CNSsolve>      eval ( $sum = 0 ) 
+ EVALUATE: symbol $SUM set to    0.00000     (real)
+ CNSsolve>      while ( $z le &m1.cols ) loop z 
+ NEXTCD: condition evaluated as true
+ CNSsolve>         eval ( $sum = $sum + &m1.ji.$a.$z * &m2.ji.$z.$b ) 
+ EVALUATE: symbol $SUM set to    21.0000     (real)
+ CNSsolve>         eval ( $z = $z + 1 ) 
+ EVALUATE: symbol $Z set to    2.00000     (real)
+ CNSsolve>      end loop z 
+ CNSsolve>      while ( $z le &m1.cols ) loop z 
+ NEXTCD: condition evaluated as true
+ CNSsolve>         eval ( $sum = $sum + &m1.ji.$a.$z * &m2.ji.$z.$b ) 
+ EVALUATE: symbol $SUM set to    105.000     (real)
+ CNSsolve>         eval ( $z = $z + 1 ) 
+ EVALUATE: symbol $Z set to    3.00000     (real)
+ CNSsolve>      end loop z 
+ CNSsolve>      while ( $z le &m1.cols ) loop z 
+ NEXTCD: condition evaluated as false
+ CNSsolve>         eval ( $sum = $sum + &m1.ji.$a.$z * &m2.ji.$z.$b ) 
+ CNSsolve>         eval ( $z = $z + 1 ) 
+ CNSsolve>      end loop z 
+ CNSsolve>      eval ( &mr.ji.$a.$b = $sum ) 
+ EVALUATE: symbol $_1_MAT5.JI.6.7 set to    105.000     (real)
+ CNSsolve>      eval ( $b = $b + 1 ) 
+ EVALUATE: symbol $B set to    8.00000     (real)
+ CNSsolve>   end loop b 
+ CNSsolve>   while ( $b le &m2.cols ) loop b 
+ NEXTCD: condition evaluated as true
+ CNSsolve>      eval ( $z = 1 ) 
+ EVALUATE: symbol $Z set to    1.00000     (real)
+ CNSsolve>      eval ( $sum = 0 ) 
+ EVALUATE: symbol $SUM set to    0.00000     (real)
+ CNSsolve>      while ( $z le &m1.cols ) loop z 
+ NEXTCD: condition evaluated as true
+ CNSsolve>         eval ( $sum = $sum + &m1.ji.$a.$z * &m2.ji.$z.$b ) 
+ EVALUATE: symbol $SUM set to    24.0000     (real)
+ CNSsolve>         eval ( $z = $z + 1 ) 
+ EVALUATE: symbol $Z set to    2.00000     (real)
+ CNSsolve>      end loop z 
+ CNSsolve>      while ( $z le &m1.cols ) loop z 
+ NEXTCD: condition evaluated as true
+ CNSsolve>         eval ( $sum = $sum + &m1.ji.$a.$z * &m2.ji.$z.$b ) 
+ EVALUATE: symbol $SUM set to    120.000     (real)
+ CNSsolve>         eval ( $z = $z + 1 ) 
+ EVALUATE: symbol $Z set to    3.00000     (real)
+ CNSsolve>      end loop z 
+ CNSsolve>      while ( $z le &m1.cols ) loop z 
+ NEXTCD: condition evaluated as false
+ CNSsolve>         eval ( $sum = $sum + &m1.ji.$a.$z * &m2.ji.$z.$b ) 
+ CNSsolve>         eval ( $z = $z + 1 ) 
+ CNSsolve>      end loop z 
+ CNSsolve>      eval ( &mr.ji.$a.$b = $sum ) 
+ EVALUATE: symbol $_1_MAT5.JI.6.8 set to    120.000     (real)
+ CNSsolve>      eval ( $b = $b + 1 ) 
+ EVALUATE: symbol $B set to    9.00000     (real)
+ CNSsolve>   end loop b 
+ CNSsolve>   while ( $b le &m2.cols ) loop b 
+ NEXTCD: condition evaluated as false
+ CNSsolve>      eval ( $z = 1 ) 
+ CNSsolve>      eval ( $sum = 0 ) 
+ CNSsolve>      while ( $z le &m1.cols ) loop z 
+ CNSsolve>         eval ( $sum = $sum + &m1.ji.$a.$z * &m2.ji.$z.$b ) 
+ CNSsolve>         eval ( $z = $z + 1 ) 
+ CNSsolve>      end loop z 
+ CNSsolve>      eval ( &mr.ji.$a.$b = $sum ) 
+ CNSsolve>      eval ( $b = $b + 1 ) 
+ CNSsolve>   end loop b 
+ CNSsolve>   eval ( $a = $a + 1 ) 
+ EVALUATE: symbol $A set to    7.00000     (real)
+ CNSsolve>end loop a 
+ CNSsolve>while ( $a le &m1.rows ) loop a 
+ NEXTCD: condition evaluated as true
+ CNSsolve>   eval ( $b = 1 ) 
+ EVALUATE: symbol $B set to    1.00000     (real)
+ CNSsolve>   while ( $b le &m2.cols ) loop b 
+ NEXTCD: condition evaluated as true
+ CNSsolve>      eval ( $z = 1 ) 
+ EVALUATE: symbol $Z set to    1.00000     (real)
+ CNSsolve>      eval ( $sum = 0 ) 
+ EVALUATE: symbol $SUM set to    0.00000     (real)
+ CNSsolve>      while ( $z le &m1.cols ) loop z 
+ NEXTCD: condition evaluated as true
+ CNSsolve>         eval ( $sum = $sum + &m1.ji.$a.$z * &m2.ji.$z.$b ) 
+ EVALUATE: symbol $SUM set to    3.50000     (real)
+ CNSsolve>         eval ( $z = $z + 1 ) 
+ EVALUATE: symbol $Z set to    2.00000     (real)
+ CNSsolve>      end loop z 
+ CNSsolve>      while ( $z le &m1.cols ) loop z 
+ NEXTCD: condition evaluated as true
+ CNSsolve>         eval ( $sum = $sum + &m1.ji.$a.$z * &m2.ji.$z.$b ) 
+ EVALUATE: symbol $SUM set to    17.5000     (real)
+ CNSsolve>         eval ( $z = $z + 1 ) 
+ EVALUATE: symbol $Z set to    3.00000     (real)
+ CNSsolve>      end loop z 
+ CNSsolve>      while ( $z le &m1.cols ) loop z 
+ NEXTCD: condition evaluated as false
+ CNSsolve>         eval ( $sum = $sum + &m1.ji.$a.$z * &m2.ji.$z.$b ) 
+ CNSsolve>         eval ( $z = $z + 1 ) 
+ CNSsolve>      end loop z 
+ CNSsolve>      eval ( &mr.ji.$a.$b = $sum ) 
+ EVALUATE: symbol $_1_MAT5.JI.7.1 set to    17.5000     (real)
+ CNSsolve>      eval ( $b = $b + 1 ) 
+ EVALUATE: symbol $B set to    2.00000     (real)
+ CNSsolve>   end loop b 
+ CNSsolve>   while ( $b le &m2.cols ) loop b 
+ NEXTCD: condition evaluated as true
+ CNSsolve>      eval ( $z = 1 ) 
+ EVALUATE: symbol $Z set to    1.00000     (real)
+ CNSsolve>      eval ( $sum = 0 ) 
+ EVALUATE: symbol $SUM set to    0.00000     (real)
+ CNSsolve>      while ( $z le &m1.cols ) loop z 
+ NEXTCD: condition evaluated as true
+ CNSsolve>         eval ( $sum = $sum + &m1.ji.$a.$z * &m2.ji.$z.$b ) 
+ EVALUATE: symbol $SUM set to    7.00000     (real)
+ CNSsolve>         eval ( $z = $z + 1 ) 
+ EVALUATE: symbol $Z set to    2.00000     (real)
+ CNSsolve>      end loop z 
+ CNSsolve>      while ( $z le &m1.cols ) loop z 
+ NEXTCD: condition evaluated as true
+ CNSsolve>         eval ( $sum = $sum + &m1.ji.$a.$z * &m2.ji.$z.$b ) 
+ EVALUATE: symbol $SUM set to    35.0000     (real)
+ CNSsolve>         eval ( $z = $z + 1 ) 
+ EVALUATE: symbol $Z set to    3.00000     (real)
+ CNSsolve>      end loop z 
+ CNSsolve>      while ( $z le &m1.cols ) loop z 
+ NEXTCD: condition evaluated as false
+ CNSsolve>         eval ( $sum = $sum + &m1.ji.$a.$z * &m2.ji.$z.$b ) 
+ CNSsolve>         eval ( $z = $z + 1 ) 
+ CNSsolve>      end loop z 
+ CNSsolve>      eval ( &mr.ji.$a.$b = $sum ) 
+ EVALUATE: symbol $_1_MAT5.JI.7.2 set to    35.0000     (real)
+ CNSsolve>      eval ( $b = $b + 1 ) 
+ EVALUATE: symbol $B set to    3.00000     (real)
+ CNSsolve>   end loop b 
+ CNSsolve>   while ( $b le &m2.cols ) loop b 
+ NEXTCD: condition evaluated as true
+ CNSsolve>      eval ( $z = 1 ) 
+ EVALUATE: symbol $Z set to    1.00000     (real)
+ CNSsolve>      eval ( $sum = 0 ) 
+ EVALUATE: symbol $SUM set to    0.00000     (real)
+ CNSsolve>      while ( $z le &m1.cols ) loop z 
+ NEXTCD: condition evaluated as true
+ CNSsolve>         eval ( $sum = $sum + &m1.ji.$a.$z * &m2.ji.$z.$b ) 
+ EVALUATE: symbol $SUM set to    10.5000     (real)
+ CNSsolve>         eval ( $z = $z + 1 ) 
+ EVALUATE: symbol $Z set to    2.00000     (real)
+ CNSsolve>      end loop z 
+ CNSsolve>      while ( $z le &m1.cols ) loop z 
+ NEXTCD: condition evaluated as true
+ CNSsolve>         eval ( $sum = $sum + &m1.ji.$a.$z * &m2.ji.$z.$b ) 
+ EVALUATE: symbol $SUM set to    52.5000     (real)
+ CNSsolve>         eval ( $z = $z + 1 ) 
+ EVALUATE: symbol $Z set to    3.00000     (real)
+ CNSsolve>      end loop z 
+ CNSsolve>      while ( $z le &m1.cols ) loop z 
+ NEXTCD: condition evaluated as false
+ CNSsolve>         eval ( $sum = $sum + &m1.ji.$a.$z * &m2.ji.$z.$b ) 
+ CNSsolve>         eval ( $z = $z + 1 ) 
+ CNSsolve>      end loop z 
+ CNSsolve>      eval ( &mr.ji.$a.$b = $sum ) 
+ EVALUATE: symbol $_1_MAT5.JI.7.3 set to    52.5000     (real)
+ CNSsolve>      eval ( $b = $b + 1 ) 
+ EVALUATE: symbol $B set to    4.00000     (real)
+ CNSsolve>   end loop b 
+ CNSsolve>   while ( $b le &m2.cols ) loop b 
+ NEXTCD: condition evaluated as true
+ CNSsolve>      eval ( $z = 1 ) 
+ EVALUATE: symbol $Z set to    1.00000     (real)
+ CNSsolve>      eval ( $sum = 0 ) 
+ EVALUATE: symbol $SUM set to    0.00000     (real)
+ CNSsolve>      while ( $z le &m1.cols ) loop z 
+ NEXTCD: condition evaluated as true
+ CNSsolve>         eval ( $sum = $sum + &m1.ji.$a.$z * &m2.ji.$z.$b ) 
+ EVALUATE: symbol $SUM set to    14.0000     (real)
+ CNSsolve>         eval ( $z = $z + 1 ) 
+ EVALUATE: symbol $Z set to    2.00000     (real)
+ CNSsolve>      end loop z 
+ CNSsolve>      while ( $z le &m1.cols ) loop z 
+ NEXTCD: condition evaluated as true
+ CNSsolve>         eval ( $sum = $sum + &m1.ji.$a.$z * &m2.ji.$z.$b ) 
+ EVALUATE: symbol $SUM set to    70.0000     (real)
+ CNSsolve>         eval ( $z = $z + 1 ) 
+ EVALUATE: symbol $Z set to    3.00000     (real)
+ CNSsolve>      end loop z 
+ CNSsolve>      while ( $z le &m1.cols ) loop z 
+ NEXTCD: condition evaluated as false
+ CNSsolve>         eval ( $sum = $sum + &m1.ji.$a.$z * &m2.ji.$z.$b ) 
+ CNSsolve>         eval ( $z = $z + 1 ) 
+ CNSsolve>      end loop z 
+ CNSsolve>      eval ( &mr.ji.$a.$b = $sum ) 
+ EVALUATE: symbol $_1_MAT5.JI.7.4 set to    70.0000     (real)
+ CNSsolve>      eval ( $b = $b + 1 ) 
+ EVALUATE: symbol $B set to    5.00000     (real)
+ CNSsolve>   end loop b 
+ CNSsolve>   while ( $b le &m2.cols ) loop b 
+ NEXTCD: condition evaluated as true
+ CNSsolve>      eval ( $z = 1 ) 
+ EVALUATE: symbol $Z set to    1.00000     (real)
+ CNSsolve>      eval ( $sum = 0 ) 
+ EVALUATE: symbol $SUM set to    0.00000     (real)
+ CNSsolve>      while ( $z le &m1.cols ) loop z 
+ NEXTCD: condition evaluated as true
+ CNSsolve>         eval ( $sum = $sum + &m1.ji.$a.$z * &m2.ji.$z.$b ) 
+ EVALUATE: symbol $SUM set to    17.5000     (real)
+ CNSsolve>         eval ( $z = $z + 1 ) 
+ EVALUATE: symbol $Z set to    2.00000     (real)
+ CNSsolve>      end loop z 
+ CNSsolve>      while ( $z le &m1.cols ) loop z 
+ NEXTCD: condition evaluated as true
+ CNSsolve>         eval ( $sum = $sum + &m1.ji.$a.$z * &m2.ji.$z.$b ) 
+ EVALUATE: symbol $SUM set to    87.5000     (real)
+ CNSsolve>         eval ( $z = $z + 1 ) 
+ EVALUATE: symbol $Z set to    3.00000     (real)
+ CNSsolve>      end loop z 
+ CNSsolve>      while ( $z le &m1.cols ) loop z 
+ NEXTCD: condition evaluated as false
+ CNSsolve>         eval ( $sum = $sum + &m1.ji.$a.$z * &m2.ji.$z.$b ) 
+ CNSsolve>         eval ( $z = $z + 1 ) 
+ CNSsolve>      end loop z 
+ CNSsolve>      eval ( &mr.ji.$a.$b = $sum ) 
+ EVALUATE: symbol $_1_MAT5.JI.7.5 set to    87.5000     (real)
+ CNSsolve>      eval ( $b = $b + 1 ) 
+ EVALUATE: symbol $B set to    6.00000     (real)
+ CNSsolve>   end loop b 
+ CNSsolve>   while ( $b le &m2.cols ) loop b 
+ NEXTCD: condition evaluated as true
+ CNSsolve>      eval ( $z = 1 ) 
+ EVALUATE: symbol $Z set to    1.00000     (real)
+ CNSsolve>      eval ( $sum = 0 ) 
+ EVALUATE: symbol $SUM set to    0.00000     (real)
+ CNSsolve>      while ( $z le &m1.cols ) loop z 
+ NEXTCD: condition evaluated as true
+ CNSsolve>         eval ( $sum = $sum + &m1.ji.$a.$z * &m2.ji.$z.$b ) 
+ EVALUATE: symbol $SUM set to    21.0000     (real)
+ CNSsolve>         eval ( $z = $z + 1 ) 
+ EVALUATE: symbol $Z set to    2.00000     (real)
+ CNSsolve>      end loop z 
+ CNSsolve>      while ( $z le &m1.cols ) loop z 
+ NEXTCD: condition evaluated as true
+ CNSsolve>         eval ( $sum = $sum + &m1.ji.$a.$z * &m2.ji.$z.$b ) 
+ EVALUATE: symbol $SUM set to    105.000     (real)
+ CNSsolve>         eval ( $z = $z + 1 ) 
+ EVALUATE: symbol $Z set to    3.00000     (real)
+ CNSsolve>      end loop z 
+ CNSsolve>      while ( $z le &m1.cols ) loop z 
+ NEXTCD: condition evaluated as false
+ CNSsolve>         eval ( $sum = $sum + &m1.ji.$a.$z * &m2.ji.$z.$b ) 
+ CNSsolve>         eval ( $z = $z + 1 ) 
+ CNSsolve>      end loop z 
+ CNSsolve>      eval ( &mr.ji.$a.$b = $sum ) 
+ EVALUATE: symbol $_1_MAT5.JI.7.6 set to    105.000     (real)
+ CNSsolve>      eval ( $b = $b + 1 ) 
+ EVALUATE: symbol $B set to    7.00000     (real)
+ CNSsolve>   end loop b 
+ CNSsolve>   while ( $b le &m2.cols ) loop b 
+ NEXTCD: condition evaluated as true
+ CNSsolve>      eval ( $z = 1 ) 
+ EVALUATE: symbol $Z set to    1.00000     (real)
+ CNSsolve>      eval ( $sum = 0 ) 
+ EVALUATE: symbol $SUM set to    0.00000     (real)
+ CNSsolve>      while ( $z le &m1.cols ) loop z 
+ NEXTCD: condition evaluated as true
+ CNSsolve>         eval ( $sum = $sum + &m1.ji.$a.$z * &m2.ji.$z.$b ) 
+ EVALUATE: symbol $SUM set to    24.5000     (real)
+ CNSsolve>         eval ( $z = $z + 1 ) 
+ EVALUATE: symbol $Z set to    2.00000     (real)
+ CNSsolve>      end loop z 
+ CNSsolve>      while ( $z le &m1.cols ) loop z 
+ NEXTCD: condition evaluated as true
+ CNSsolve>         eval ( $sum = $sum + &m1.ji.$a.$z * &m2.ji.$z.$b ) 
+ EVALUATE: symbol $SUM set to    122.500     (real)
+ CNSsolve>         eval ( $z = $z + 1 ) 
+ EVALUATE: symbol $Z set to    3.00000     (real)
+ CNSsolve>      end loop z 
+ CNSsolve>      while ( $z le &m1.cols ) loop z 
+ NEXTCD: condition evaluated as false
+ CNSsolve>         eval ( $sum = $sum + &m1.ji.$a.$z * &m2.ji.$z.$b ) 
+ CNSsolve>         eval ( $z = $z + 1 ) 
+ CNSsolve>      end loop z 
+ CNSsolve>      eval ( &mr.ji.$a.$b = $sum ) 
+ EVALUATE: symbol $_1_MAT5.JI.7.7 set to    122.500     (real)
+ CNSsolve>      eval ( $b = $b + 1 ) 
+ EVALUATE: symbol $B set to    8.00000     (real)
+ CNSsolve>   end loop b 
+ CNSsolve>   while ( $b le &m2.cols ) loop b 
+ NEXTCD: condition evaluated as true
+ CNSsolve>      eval ( $z = 1 ) 
+ EVALUATE: symbol $Z set to    1.00000     (real)
+ CNSsolve>      eval ( $sum = 0 ) 
+ EVALUATE: symbol $SUM set to    0.00000     (real)
+ CNSsolve>      while ( $z le &m1.cols ) loop z 
+ NEXTCD: condition evaluated as true
+ CNSsolve>         eval ( $sum = $sum + &m1.ji.$a.$z * &m2.ji.$z.$b ) 
+ EVALUATE: symbol $SUM set to    28.0000     (real)
+ CNSsolve>         eval ( $z = $z + 1 ) 
+ EVALUATE: symbol $Z set to    2.00000     (real)
+ CNSsolve>      end loop z 
+ CNSsolve>      while ( $z le &m1.cols ) loop z 
+ NEXTCD: condition evaluated as true
+ CNSsolve>         eval ( $sum = $sum + &m1.ji.$a.$z * &m2.ji.$z.$b ) 
+ EVALUATE: symbol $SUM set to    140.000     (real)
+ CNSsolve>         eval ( $z = $z + 1 ) 
+ EVALUATE: symbol $Z set to    3.00000     (real)
+ CNSsolve>      end loop z 
+ CNSsolve>      while ( $z le &m1.cols ) loop z 
+ NEXTCD: condition evaluated as false
+ CNSsolve>         eval ( $sum = $sum + &m1.ji.$a.$z * &m2.ji.$z.$b ) 
+ CNSsolve>         eval ( $z = $z + 1 ) 
+ CNSsolve>      end loop z 
+ CNSsolve>      eval ( &mr.ji.$a.$b = $sum ) 
+ EVALUATE: symbol $_1_MAT5.JI.7.8 set to    140.000     (real)
+ CNSsolve>      eval ( $b = $b + 1 ) 
+ EVALUATE: symbol $B set to    9.00000     (real)
+ CNSsolve>   end loop b 
+ CNSsolve>   while ( $b le &m2.cols ) loop b 
+ NEXTCD: condition evaluated as false
+ CNSsolve>      eval ( $z = 1 ) 
+ CNSsolve>      eval ( $sum = 0 ) 
+ CNSsolve>      while ( $z le &m1.cols ) loop z 
+ CNSsolve>         eval ( $sum = $sum + &m1.ji.$a.$z * &m2.ji.$z.$b ) 
+ CNSsolve>         eval ( $z = $z + 1 ) 
+ CNSsolve>      end loop z 
+ CNSsolve>      eval ( &mr.ji.$a.$b = $sum ) 
+ CNSsolve>      eval ( $b = $b + 1 ) 
+ CNSsolve>   end loop b 
+ CNSsolve>   eval ( $a = $a + 1 ) 
+ EVALUATE: symbol $A set to    8.00000     (real)
+ CNSsolve>end loop a 
+ CNSsolve>while ( $a le &m1.rows ) loop a 
+ NEXTCD: condition evaluated as true
+ CNSsolve>   eval ( $b = 1 ) 
+ EVALUATE: symbol $B set to    1.00000     (real)
+ CNSsolve>   while ( $b le &m2.cols ) loop b 
+ NEXTCD: condition evaluated as true
+ CNSsolve>      eval ( $z = 1 ) 
+ EVALUATE: symbol $Z set to    1.00000     (real)
+ CNSsolve>      eval ( $sum = 0 ) 
+ EVALUATE: symbol $SUM set to    0.00000     (real)
+ CNSsolve>      while ( $z le &m1.cols ) loop z 
+ NEXTCD: condition evaluated as true
+ CNSsolve>         eval ( $sum = $sum + &m1.ji.$a.$z * &m2.ji.$z.$b ) 
+ EVALUATE: symbol $SUM set to    4.00000     (real)
+ CNSsolve>         eval ( $z = $z + 1 ) 
+ EVALUATE: symbol $Z set to    2.00000     (real)
+ CNSsolve>      end loop z 
+ CNSsolve>      while ( $z le &m1.cols ) loop z 
+ NEXTCD: condition evaluated as true
+ CNSsolve>         eval ( $sum = $sum + &m1.ji.$a.$z * &m2.ji.$z.$b ) 
+ EVALUATE: symbol $SUM set to    20.0000     (real)
+ CNSsolve>         eval ( $z = $z + 1 ) 
+ EVALUATE: symbol $Z set to    3.00000     (real)
+ CNSsolve>      end loop z 
+ CNSsolve>      while ( $z le &m1.cols ) loop z 
+ NEXTCD: condition evaluated as false
+ CNSsolve>         eval ( $sum = $sum + &m1.ji.$a.$z * &m2.ji.$z.$b ) 
+ CNSsolve>         eval ( $z = $z + 1 ) 
+ CNSsolve>      end loop z 
+ CNSsolve>      eval ( &mr.ji.$a.$b = $sum ) 
+ EVALUATE: symbol $_1_MAT5.JI.8.1 set to    20.0000     (real)
+ CNSsolve>      eval ( $b = $b + 1 ) 
+ EVALUATE: symbol $B set to    2.00000     (real)
+ CNSsolve>   end loop b 
+ CNSsolve>   while ( $b le &m2.cols ) loop b 
+ NEXTCD: condition evaluated as true
+ CNSsolve>      eval ( $z = 1 ) 
+ EVALUATE: symbol $Z set to    1.00000     (real)
+ CNSsolve>      eval ( $sum = 0 ) 
+ EVALUATE: symbol $SUM set to    0.00000     (real)
+ CNSsolve>      while ( $z le &m1.cols ) loop z 
+ NEXTCD: condition evaluated as true
+ CNSsolve>         eval ( $sum = $sum + &m1.ji.$a.$z * &m2.ji.$z.$b ) 
+ EVALUATE: symbol $SUM set to    8.00000     (real)
+ CNSsolve>         eval ( $z = $z + 1 ) 
+ EVALUATE: symbol $Z set to    2.00000     (real)
+ CNSsolve>      end loop z 
+ CNSsolve>      while ( $z le &m1.cols ) loop z 
+ NEXTCD: condition evaluated as true
+ CNSsolve>         eval ( $sum = $sum + &m1.ji.$a.$z * &m2.ji.$z.$b ) 
+ EVALUATE: symbol $SUM set to    40.0000     (real)
+ CNSsolve>         eval ( $z = $z + 1 ) 
+ EVALUATE: symbol $Z set to    3.00000     (real)
+ CNSsolve>      end loop z 
+ CNSsolve>      while ( $z le &m1.cols ) loop z 
+ NEXTCD: condition evaluated as false
+ CNSsolve>         eval ( $sum = $sum + &m1.ji.$a.$z * &m2.ji.$z.$b ) 
+ CNSsolve>         eval ( $z = $z + 1 ) 
+ CNSsolve>      end loop z 
+ CNSsolve>      eval ( &mr.ji.$a.$b = $sum ) 
+ EVALUATE: symbol $_1_MAT5.JI.8.2 set to    40.0000     (real)
+ CNSsolve>      eval ( $b = $b + 1 ) 
+ EVALUATE: symbol $B set to    3.00000     (real)
+ CNSsolve>   end loop b 
+ CNSsolve>   while ( $b le &m2.cols ) loop b 
+ NEXTCD: condition evaluated as true
+ CNSsolve>      eval ( $z = 1 ) 
+ EVALUATE: symbol $Z set to    1.00000     (real)
+ CNSsolve>      eval ( $sum = 0 ) 
+ EVALUATE: symbol $SUM set to    0.00000     (real)
+ CNSsolve>      while ( $z le &m1.cols ) loop z 
+ NEXTCD: condition evaluated as true
+ CNSsolve>         eval ( $sum = $sum + &m1.ji.$a.$z * &m2.ji.$z.$b ) 
+ EVALUATE: symbol $SUM set to    12.0000     (real)
+ CNSsolve>         eval ( $z = $z + 1 ) 
+ EVALUATE: symbol $Z set to    2.00000     (real)
+ CNSsolve>      end loop z 
+ CNSsolve>      while ( $z le &m1.cols ) loop z 
+ NEXTCD: condition evaluated as true
+ CNSsolve>         eval ( $sum = $sum + &m1.ji.$a.$z * &m2.ji.$z.$b ) 
+ EVALUATE: symbol $SUM set to    60.0000     (real)
+ CNSsolve>         eval ( $z = $z + 1 ) 
+ EVALUATE: symbol $Z set to    3.00000     (real)
+ CNSsolve>      end loop z 
+ CNSsolve>      while ( $z le &m1.cols ) loop z 
+ NEXTCD: condition evaluated as false
+ CNSsolve>         eval ( $sum = $sum + &m1.ji.$a.$z * &m2.ji.$z.$b ) 
+ CNSsolve>         eval ( $z = $z + 1 ) 
+ CNSsolve>      end loop z 
+ CNSsolve>      eval ( &mr.ji.$a.$b = $sum ) 
+ EVALUATE: symbol $_1_MAT5.JI.8.3 set to    60.0000     (real)
+ CNSsolve>      eval ( $b = $b + 1 ) 
+ EVALUATE: symbol $B set to    4.00000     (real)
+ CNSsolve>   end loop b 
+ CNSsolve>   while ( $b le &m2.cols ) loop b 
+ NEXTCD: condition evaluated as true
+ CNSsolve>      eval ( $z = 1 ) 
+ EVALUATE: symbol $Z set to    1.00000     (real)
+ CNSsolve>      eval ( $sum = 0 ) 
+ EVALUATE: symbol $SUM set to    0.00000     (real)
+ CNSsolve>      while ( $z le &m1.cols ) loop z 
+ NEXTCD: condition evaluated as true
+ CNSsolve>         eval ( $sum = $sum + &m1.ji.$a.$z * &m2.ji.$z.$b ) 
+ EVALUATE: symbol $SUM set to    16.0000     (real)
+ CNSsolve>         eval ( $z = $z + 1 ) 
+ EVALUATE: symbol $Z set to    2.00000     (real)
+ CNSsolve>      end loop z 
+ CNSsolve>      while ( $z le &m1.cols ) loop z 
+ NEXTCD: condition evaluated as true
+ CNSsolve>         eval ( $sum = $sum + &m1.ji.$a.$z * &m2.ji.$z.$b ) 
+ EVALUATE: symbol $SUM set to    80.0000     (real)
+ CNSsolve>         eval ( $z = $z + 1 ) 
+ EVALUATE: symbol $Z set to    3.00000     (real)
+ CNSsolve>      end loop z 
+ CNSsolve>      while ( $z le &m1.cols ) loop z 
+ NEXTCD: condition evaluated as false
+ CNSsolve>         eval ( $sum = $sum + &m1.ji.$a.$z * &m2.ji.$z.$b ) 
+ CNSsolve>         eval ( $z = $z + 1 ) 
+ CNSsolve>      end loop z 
+ CNSsolve>      eval ( &mr.ji.$a.$b = $sum ) 
+ EVALUATE: symbol $_1_MAT5.JI.8.4 set to    80.0000     (real)
+ CNSsolve>      eval ( $b = $b + 1 ) 
+ EVALUATE: symbol $B set to    5.00000     (real)
+ CNSsolve>   end loop b 
+ CNSsolve>   while ( $b le &m2.cols ) loop b 
+ NEXTCD: condition evaluated as true
+ CNSsolve>      eval ( $z = 1 ) 
+ EVALUATE: symbol $Z set to    1.00000     (real)
+ CNSsolve>      eval ( $sum = 0 ) 
+ EVALUATE: symbol $SUM set to    0.00000     (real)
+ CNSsolve>      while ( $z le &m1.cols ) loop z 
+ NEXTCD: condition evaluated as true
+ CNSsolve>         eval ( $sum = $sum + &m1.ji.$a.$z * &m2.ji.$z.$b ) 
+ EVALUATE: symbol $SUM set to    20.0000     (real)
+ CNSsolve>         eval ( $z = $z + 1 ) 
+ EVALUATE: symbol $Z set to    2.00000     (real)
+ CNSsolve>      end loop z 
+ CNSsolve>      while ( $z le &m1.cols ) loop z 
+ NEXTCD: condition evaluated as true
+ CNSsolve>         eval ( $sum = $sum + &m1.ji.$a.$z * &m2.ji.$z.$b ) 
+ EVALUATE: symbol $SUM set to    100.000     (real)
+ CNSsolve>         eval ( $z = $z + 1 ) 
+ EVALUATE: symbol $Z set to    3.00000     (real)
+ CNSsolve>      end loop z 
+ CNSsolve>      while ( $z le &m1.cols ) loop z 
+ NEXTCD: condition evaluated as false
+ CNSsolve>         eval ( $sum = $sum + &m1.ji.$a.$z * &m2.ji.$z.$b ) 
+ CNSsolve>         eval ( $z = $z + 1 ) 
+ CNSsolve>      end loop z 
+ CNSsolve>      eval ( &mr.ji.$a.$b = $sum ) 
+ EVALUATE: symbol $_1_MAT5.JI.8.5 set to    100.000     (real)
+ CNSsolve>      eval ( $b = $b + 1 ) 
+ EVALUATE: symbol $B set to    6.00000     (real)
+ CNSsolve>   end loop b 
+ CNSsolve>   while ( $b le &m2.cols ) loop b 
+ NEXTCD: condition evaluated as true
+ CNSsolve>      eval ( $z = 1 ) 
+ EVALUATE: symbol $Z set to    1.00000     (real)
+ CNSsolve>      eval ( $sum = 0 ) 
+ EVALUATE: symbol $SUM set to    0.00000     (real)
+ CNSsolve>      while ( $z le &m1.cols ) loop z 
+ NEXTCD: condition evaluated as true
+ CNSsolve>         eval ( $sum = $sum + &m1.ji.$a.$z * &m2.ji.$z.$b ) 
+ EVALUATE: symbol $SUM set to    24.0000     (real)
+ CNSsolve>         eval ( $z = $z + 1 ) 
+ EVALUATE: symbol $Z set to    2.00000     (real)
+ CNSsolve>      end loop z 
+ CNSsolve>      while ( $z le &m1.cols ) loop z 
+ NEXTCD: condition evaluated as true
+ CNSsolve>         eval ( $sum = $sum + &m1.ji.$a.$z * &m2.ji.$z.$b ) 
+ EVALUATE: symbol $SUM set to    120.000     (real)
+ CNSsolve>         eval ( $z = $z + 1 ) 
+ EVALUATE: symbol $Z set to    3.00000     (real)
+ CNSsolve>      end loop z 
+ CNSsolve>      while ( $z le &m1.cols ) loop z 
+ NEXTCD: condition evaluated as false
+ CNSsolve>         eval ( $sum = $sum + &m1.ji.$a.$z * &m2.ji.$z.$b ) 
+ CNSsolve>         eval ( $z = $z + 1 ) 
+ CNSsolve>      end loop z 
+ CNSsolve>      eval ( &mr.ji.$a.$b = $sum ) 
+ EVALUATE: symbol $_1_MAT5.JI.8.6 set to    120.000     (real)
+ CNSsolve>      eval ( $b = $b + 1 ) 
+ EVALUATE: symbol $B set to    7.00000     (real)
+ CNSsolve>   end loop b 
+ CNSsolve>   while ( $b le &m2.cols ) loop b 
+ NEXTCD: condition evaluated as true
+ CNSsolve>      eval ( $z = 1 ) 
+ EVALUATE: symbol $Z set to    1.00000     (real)
+ CNSsolve>      eval ( $sum = 0 ) 
+ EVALUATE: symbol $SUM set to    0.00000     (real)
+ CNSsolve>      while ( $z le &m1.cols ) loop z 
+ NEXTCD: condition evaluated as true
+ CNSsolve>         eval ( $sum = $sum + &m1.ji.$a.$z * &m2.ji.$z.$b ) 
+ EVALUATE: symbol $SUM set to    28.0000     (real)
+ CNSsolve>         eval ( $z = $z + 1 ) 
+ EVALUATE: symbol $Z set to    2.00000     (real)
+ CNSsolve>      end loop z 
+ CNSsolve>      while ( $z le &m1.cols ) loop z 
+ NEXTCD: condition evaluated as true
+ CNSsolve>         eval ( $sum = $sum + &m1.ji.$a.$z * &m2.ji.$z.$b ) 
+ EVALUATE: symbol $SUM set to    140.000     (real)
+ CNSsolve>         eval ( $z = $z + 1 ) 
+ EVALUATE: symbol $Z set to    3.00000     (real)
+ CNSsolve>      end loop z 
+ CNSsolve>      while ( $z le &m1.cols ) loop z 
+ NEXTCD: condition evaluated as false
+ CNSsolve>         eval ( $sum = $sum + &m1.ji.$a.$z * &m2.ji.$z.$b ) 
+ CNSsolve>         eval ( $z = $z + 1 ) 
+ CNSsolve>      end loop z 
+ CNSsolve>      eval ( &mr.ji.$a.$b = $sum ) 
+ EVALUATE: symbol $_1_MAT5.JI.8.7 set to    140.000     (real)
+ CNSsolve>      eval ( $b = $b + 1 ) 
+ EVALUATE: symbol $B set to    8.00000     (real)
+ CNSsolve>   end loop b 
+ CNSsolve>   while ( $b le &m2.cols ) loop b 
+ NEXTCD: condition evaluated as true
+ CNSsolve>      eval ( $z = 1 ) 
+ EVALUATE: symbol $Z set to    1.00000     (real)
+ CNSsolve>      eval ( $sum = 0 ) 
+ EVALUATE: symbol $SUM set to    0.00000     (real)
+ CNSsolve>      while ( $z le &m1.cols ) loop z 
+ NEXTCD: condition evaluated as true
+ CNSsolve>         eval ( $sum = $sum + &m1.ji.$a.$z * &m2.ji.$z.$b ) 
+ EVALUATE: symbol $SUM set to    32.0000     (real)
+ CNSsolve>         eval ( $z = $z + 1 ) 
+ EVALUATE: symbol $Z set to    2.00000     (real)
+ CNSsolve>      end loop z 
+ CNSsolve>      while ( $z le &m1.cols ) loop z 
+ NEXTCD: condition evaluated as true
+ CNSsolve>         eval ( $sum = $sum + &m1.ji.$a.$z * &m2.ji.$z.$b ) 
+ EVALUATE: symbol $SUM set to    160.000     (real)
+ CNSsolve>         eval ( $z = $z + 1 ) 
+ EVALUATE: symbol $Z set to    3.00000     (real)
+ CNSsolve>      end loop z 
+ CNSsolve>      while ( $z le &m1.cols ) loop z 
+ NEXTCD: condition evaluated as false
+ CNSsolve>         eval ( $sum = $sum + &m1.ji.$a.$z * &m2.ji.$z.$b ) 
+ CNSsolve>         eval ( $z = $z + 1 ) 
+ CNSsolve>      end loop z 
+ CNSsolve>      eval ( &mr.ji.$a.$b = $sum ) 
+ EVALUATE: symbol $_1_MAT5.JI.8.8 set to    160.000     (real)
+ CNSsolve>      eval ( $b = $b + 1 ) 
+ EVALUATE: symbol $B set to    9.00000     (real)
+ CNSsolve>   end loop b 
+ CNSsolve>   while ( $b le &m2.cols ) loop b 
+ NEXTCD: condition evaluated as false
+ CNSsolve>      eval ( $z = 1 ) 
+ CNSsolve>      eval ( $sum = 0 ) 
+ CNSsolve>      while ( $z le &m1.cols ) loop z 
+ CNSsolve>         eval ( $sum = $sum + &m1.ji.$a.$z * &m2.ji.$z.$b ) 
+ CNSsolve>         eval ( $z = $z + 1 ) 
+ CNSsolve>      end loop z 
+ CNSsolve>      eval ( &mr.ji.$a.$b = $sum ) 
+ CNSsolve>      eval ( $b = $b + 1 ) 
+ CNSsolve>   end loop b 
+ CNSsolve>   eval ( $a = $a + 1 ) 
+ EVALUATE: symbol $A set to    9.00000     (real)
+ CNSsolve>end loop a 
+ CNSsolve>while ( $a le &m1.rows ) loop a 
+ NEXTCD: condition evaluated as false
+ CNSsolve>   eval ( $b = 1 ) 
+ CNSsolve>   while ( $b le &m2.cols ) loop b 
+ CNSsolve>      eval ( $z = 1 ) 
+ CNSsolve>      eval ( $sum = 0 ) 
+ CNSsolve>      while ( $z le &m1.cols ) loop z 
+ CNSsolve>         eval ( $sum = $sum + &m1.ji.$a.$z * &m2.ji.$z.$b ) 
+ CNSsolve>         eval ( $z = $z + 1 ) 
+ CNSsolve>      end loop z 
+ CNSsolve>      eval ( &mr.ji.$a.$b = $sum ) 
+ CNSsolve>      eval ( $b = $b + 1 ) 
+ CNSsolve>   end loop b 
+ CNSsolve>   eval ( $a = $a + 1 ) 
+ CNSsolve>end loop a 
+ CNSsolve>eval ( &mr.rows = &m1.rows ) 
+ EVALUATE: symbol $_1_MAT5.ROWS set to    8.00000     (real)
+ CNSsolve>eval ( &mr.cols = &m2.cols ) 
+ EVALUATE: symbol $_1_MAT5.COLS set to    8.00000     (real)
+ CNSsolve>end if  
+ CNSsolve>call matrix_add ( m1 = $mat2; m2 = $mat3; mr = $mat6 ) 
+ PROC-DECLARATION>(&m1 ; &m2 ; &mr) 
+ PROC-INVOCATION> ( m1 = $mat2; m2 = $mat3; mr = $mat6 ) 
+ &_2_M1 set to $_1_MAT2 
+ &_2_M2 set to $_1_MAT3 
+ &_2_MR set to $_1_MAT6 
+ CNSsolve>call matrix_map ( m1=&m1; m2=&m2; mr=&mr; fn = + )  
+ PROC-DECLARATION>(&m1 ; &m2 ; &mr ; &fn) 
+ PROC-INVOCATION> ( m1=&m1; m2=&m2; mr=&mr; fn = + )  
+ &_3_M1 set to &_2_M1 
+ &_3_M2 set to &_2_M2 
+ &_3_MR set to &_2_MR 
+ &_3_FN set to + 
+ CNSsolve>if ( &m1.cols ne &m2.cols ) then 
+ NEXTCD: condition evaluated as false
+ CNSsolve>   literal MATRIX_MAP-ERR: DIMENSION MISMATCH &m1.cols != &m2.cols 
+ CNSsolve>elseif ( &m1.rows ne &m2.rows ) then 
+ NEXTCD: condition evaluated as false
+ CNSsolve>   literal MATRIX_MAP-ERR: DIMENSION MISMATCH &m1.rows != &m2.rows 
+ CNSsolve>else 
+ CNSsolve>eval ( $a = 1 ) 
+ EVALUATE: symbol $A set to    1.00000     (real)
+ CNSsolve>while ( $a le &m1.rows ) loop a 
+ NEXTCD: condition evaluated as true
+ CNSsolve>   eval ( $b = 1 ) 
+ EVALUATE: symbol $B set to    1.00000     (real)
+ CNSsolve>   while ( $b le &m1.cols ) loop b 
+ NEXTCD: condition evaluated as true
+ CNSsolve>      eval ( &mr.ji.$a.$b =  &m1.ji.$a.$b &fn &m2.ji.$a.$b ) 
+ EVALUATE: symbol $_1_MAT6.JI.1.1 set to    1.50000     (real)
+ CNSsolve>      eval ( $b = $b + 1 ) 
+ EVALUATE: symbol $B set to    2.00000     (real)
+ CNSsolve>   end loop b 
+ CNSsolve>   while ( $b le &m1.cols ) loop b 
+ NEXTCD: condition evaluated as true
+ CNSsolve>      eval ( &mr.ji.$a.$b =  &m1.ji.$a.$b &fn &m2.ji.$a.$b ) 
+ EVALUATE: symbol $_1_MAT6.JI.1.2 set to    3.00000     (real)
+ CNSsolve>      eval ( $b = $b + 1 ) 
+ EVALUATE: symbol $B set to    3.00000     (real)
+ CNSsolve>   end loop b 
+ CNSsolve>   while ( $b le &m1.cols ) loop b 
+ NEXTCD: condition evaluated as false
+ CNSsolve>      eval ( &mr.ji.$a.$b =  &m1.ji.$a.$b &fn &m2.ji.$a.$b ) 
+ CNSsolve>      eval ( $b = $b + 1 ) 
+ CNSsolve>   end loop b 
+ CNSsolve>   eval ( $a = $a + 1 ) 
+ EVALUATE: symbol $A set to    2.00000     (real)
+ CNSsolve>end loop a 
+ CNSsolve>while ( $a le &m1.rows ) loop a 
+ NEXTCD: condition evaluated as true
+ CNSsolve>   eval ( $b = 1 ) 
+ EVALUATE: symbol $B set to    1.00000     (real)
+ CNSsolve>   while ( $b le &m1.cols ) loop b 
+ NEXTCD: condition evaluated as true
+ CNSsolve>      eval ( &mr.ji.$a.$b =  &m1.ji.$a.$b &fn &m2.ji.$a.$b ) 
+ EVALUATE: symbol $_1_MAT6.JI.2.1 set to    3.00000     (real)
+ CNSsolve>      eval ( $b = $b + 1 ) 
+ EVALUATE: symbol $B set to    2.00000     (real)
+ CNSsolve>   end loop b 
+ CNSsolve>   while ( $b le &m1.cols ) loop b 
+ NEXTCD: condition evaluated as true
+ CNSsolve>      eval ( &mr.ji.$a.$b =  &m1.ji.$a.$b &fn &m2.ji.$a.$b ) 
+ EVALUATE: symbol $_1_MAT6.JI.2.2 set to    6.00000     (real)
+ CNSsolve>      eval ( $b = $b + 1 ) 
+ EVALUATE: symbol $B set to    3.00000     (real)
+ CNSsolve>   end loop b 
+ CNSsolve>   while ( $b le &m1.cols ) loop b 
+ NEXTCD: condition evaluated as false
+ CNSsolve>      eval ( &mr.ji.$a.$b =  &m1.ji.$a.$b &fn &m2.ji.$a.$b ) 
+ CNSsolve>      eval ( $b = $b + 1 ) 
+ CNSsolve>   end loop b 
+ CNSsolve>   eval ( $a = $a + 1 ) 
+ EVALUATE: symbol $A set to    3.00000     (real)
+ CNSsolve>end loop a 
+ CNSsolve>while ( $a le &m1.rows ) loop a 
+ NEXTCD: condition evaluated as true
+ CNSsolve>   eval ( $b = 1 ) 
+ EVALUATE: symbol $B set to    1.00000     (real)
+ CNSsolve>   while ( $b le &m1.cols ) loop b 
+ NEXTCD: condition evaluated as true
+ CNSsolve>      eval ( &mr.ji.$a.$b =  &m1.ji.$a.$b &fn &m2.ji.$a.$b ) 
+ EVALUATE: symbol $_1_MAT6.JI.3.1 set to    4.50000     (real)
+ CNSsolve>      eval ( $b = $b + 1 ) 
+ EVALUATE: symbol $B set to    2.00000     (real)
+ CNSsolve>   end loop b 
+ CNSsolve>   while ( $b le &m1.cols ) loop b 
+ NEXTCD: condition evaluated as true
+ CNSsolve>      eval ( &mr.ji.$a.$b =  &m1.ji.$a.$b &fn &m2.ji.$a.$b ) 
+ EVALUATE: symbol $_1_MAT6.JI.3.2 set to    9.00000     (real)
+ CNSsolve>      eval ( $b = $b + 1 ) 
+ EVALUATE: symbol $B set to    3.00000     (real)
+ CNSsolve>   end loop b 
+ CNSsolve>   while ( $b le &m1.cols ) loop b 
+ NEXTCD: condition evaluated as false
+ CNSsolve>      eval ( &mr.ji.$a.$b =  &m1.ji.$a.$b &fn &m2.ji.$a.$b ) 
+ CNSsolve>      eval ( $b = $b + 1 ) 
+ CNSsolve>   end loop b 
+ CNSsolve>   eval ( $a = $a + 1 ) 
+ EVALUATE: symbol $A set to    4.00000     (real)
+ CNSsolve>end loop a 
+ CNSsolve>while ( $a le &m1.rows ) loop a 
+ NEXTCD: condition evaluated as true
+ CNSsolve>   eval ( $b = 1 ) 
+ EVALUATE: symbol $B set to    1.00000     (real)
+ CNSsolve>   while ( $b le &m1.cols ) loop b 
+ NEXTCD: condition evaluated as true
+ CNSsolve>      eval ( &mr.ji.$a.$b =  &m1.ji.$a.$b &fn &m2.ji.$a.$b ) 
+ EVALUATE: symbol $_1_MAT6.JI.4.1 set to    6.00000     (real)
+ CNSsolve>      eval ( $b = $b + 1 ) 
+ EVALUATE: symbol $B set to    2.00000     (real)
+ CNSsolve>   end loop b 
+ CNSsolve>   while ( $b le &m1.cols ) loop b 
+ NEXTCD: condition evaluated as true
+ CNSsolve>      eval ( &mr.ji.$a.$b =  &m1.ji.$a.$b &fn &m2.ji.$a.$b ) 
+ EVALUATE: symbol $_1_MAT6.JI.4.2 set to    12.0000     (real)
+ CNSsolve>      eval ( $b = $b + 1 ) 
+ EVALUATE: symbol $B set to    3.00000     (real)
+ CNSsolve>   end loop b 
+ CNSsolve>   while ( $b le &m1.cols ) loop b 
+ NEXTCD: condition evaluated as false
+ CNSsolve>      eval ( &mr.ji.$a.$b =  &m1.ji.$a.$b &fn &m2.ji.$a.$b ) 
+ CNSsolve>      eval ( $b = $b + 1 ) 
+ CNSsolve>   end loop b 
+ CNSsolve>   eval ( $a = $a + 1 ) 
+ EVALUATE: symbol $A set to    5.00000     (real)
+ CNSsolve>end loop a 
+ CNSsolve>while ( $a le &m1.rows ) loop a 
+ NEXTCD: condition evaluated as true
+ CNSsolve>   eval ( $b = 1 ) 
+ EVALUATE: symbol $B set to    1.00000     (real)
+ CNSsolve>   while ( $b le &m1.cols ) loop b 
+ NEXTCD: condition evaluated as true
+ CNSsolve>      eval ( &mr.ji.$a.$b =  &m1.ji.$a.$b &fn &m2.ji.$a.$b ) 
+ EVALUATE: symbol $_1_MAT6.JI.5.1 set to    7.50000     (real)
+ CNSsolve>      eval ( $b = $b + 1 ) 
+ EVALUATE: symbol $B set to    2.00000     (real)
+ CNSsolve>   end loop b 
+ CNSsolve>   while ( $b le &m1.cols ) loop b 
+ NEXTCD: condition evaluated as true
+ CNSsolve>      eval ( &mr.ji.$a.$b =  &m1.ji.$a.$b &fn &m2.ji.$a.$b ) 
+ EVALUATE: symbol $_1_MAT6.JI.5.2 set to    15.0000     (real)
+ CNSsolve>      eval ( $b = $b + 1 ) 
+ EVALUATE: symbol $B set to    3.00000     (real)
+ CNSsolve>   end loop b 
+ CNSsolve>   while ( $b le &m1.cols ) loop b 
+ NEXTCD: condition evaluated as false
+ CNSsolve>      eval ( &mr.ji.$a.$b =  &m1.ji.$a.$b &fn &m2.ji.$a.$b ) 
+ CNSsolve>      eval ( $b = $b + 1 ) 
+ CNSsolve>   end loop b 
+ CNSsolve>   eval ( $a = $a + 1 ) 
+ EVALUATE: symbol $A set to    6.00000     (real)
+ CNSsolve>end loop a 
+ CNSsolve>while ( $a le &m1.rows ) loop a 
+ NEXTCD: condition evaluated as true
+ CNSsolve>   eval ( $b = 1 ) 
+ EVALUATE: symbol $B set to    1.00000     (real)
+ CNSsolve>   while ( $b le &m1.cols ) loop b 
+ NEXTCD: condition evaluated as true
+ CNSsolve>      eval ( &mr.ji.$a.$b =  &m1.ji.$a.$b &fn &m2.ji.$a.$b ) 
+ EVALUATE: symbol $_1_MAT6.JI.6.1 set to    9.00000     (real)
+ CNSsolve>      eval ( $b = $b + 1 ) 
+ EVALUATE: symbol $B set to    2.00000     (real)
+ CNSsolve>   end loop b 
+ CNSsolve>   while ( $b le &m1.cols ) loop b 
+ NEXTCD: condition evaluated as true
+ CNSsolve>      eval ( &mr.ji.$a.$b =  &m1.ji.$a.$b &fn &m2.ji.$a.$b ) 
+ EVALUATE: symbol $_1_MAT6.JI.6.2 set to    18.0000     (real)
+ CNSsolve>      eval ( $b = $b + 1 ) 
+ EVALUATE: symbol $B set to    3.00000     (real)
+ CNSsolve>   end loop b 
+ CNSsolve>   while ( $b le &m1.cols ) loop b 
+ NEXTCD: condition evaluated as false
+ CNSsolve>      eval ( &mr.ji.$a.$b =  &m1.ji.$a.$b &fn &m2.ji.$a.$b ) 
+ CNSsolve>      eval ( $b = $b + 1 ) 
+ CNSsolve>   end loop b 
+ CNSsolve>   eval ( $a = $a + 1 ) 
+ EVALUATE: symbol $A set to    7.00000     (real)
+ CNSsolve>end loop a 
+ CNSsolve>while ( $a le &m1.rows ) loop a 
+ NEXTCD: condition evaluated as true
+ CNSsolve>   eval ( $b = 1 ) 
+ EVALUATE: symbol $B set to    1.00000     (real)
+ CNSsolve>   while ( $b le &m1.cols ) loop b 
+ NEXTCD: condition evaluated as true
+ CNSsolve>      eval ( &mr.ji.$a.$b =  &m1.ji.$a.$b &fn &m2.ji.$a.$b ) 
+ EVALUATE: symbol $_1_MAT6.JI.7.1 set to    10.5000     (real)
+ CNSsolve>      eval ( $b = $b + 1 ) 
+ EVALUATE: symbol $B set to    2.00000     (real)
+ CNSsolve>   end loop b 
+ CNSsolve>   while ( $b le &m1.cols ) loop b 
+ NEXTCD: condition evaluated as true
+ CNSsolve>      eval ( &mr.ji.$a.$b =  &m1.ji.$a.$b &fn &m2.ji.$a.$b ) 
+ EVALUATE: symbol $_1_MAT6.JI.7.2 set to    21.0000     (real)
+ CNSsolve>      eval ( $b = $b + 1 ) 
+ EVALUATE: symbol $B set to    3.00000     (real)
+ CNSsolve>   end loop b 
+ CNSsolve>   while ( $b le &m1.cols ) loop b 
+ NEXTCD: condition evaluated as false
+ CNSsolve>      eval ( &mr.ji.$a.$b =  &m1.ji.$a.$b &fn &m2.ji.$a.$b ) 
+ CNSsolve>      eval ( $b = $b + 1 ) 
+ CNSsolve>   end loop b 
+ CNSsolve>   eval ( $a = $a + 1 ) 
+ EVALUATE: symbol $A set to    8.00000     (real)
+ CNSsolve>end loop a 
+ CNSsolve>while ( $a le &m1.rows ) loop a 
+ NEXTCD: condition evaluated as true
+ CNSsolve>   eval ( $b = 1 ) 
+ EVALUATE: symbol $B set to    1.00000     (real)
+ CNSsolve>   while ( $b le &m1.cols ) loop b 
+ NEXTCD: condition evaluated as true
+ CNSsolve>      eval ( &mr.ji.$a.$b =  &m1.ji.$a.$b &fn &m2.ji.$a.$b ) 
+ EVALUATE: symbol $_1_MAT6.JI.8.1 set to    12.0000     (real)
+ CNSsolve>      eval ( $b = $b + 1 ) 
+ EVALUATE: symbol $B set to    2.00000     (real)
+ CNSsolve>   end loop b 
+ CNSsolve>   while ( $b le &m1.cols ) loop b 
+ NEXTCD: condition evaluated as true
+ CNSsolve>      eval ( &mr.ji.$a.$b =  &m1.ji.$a.$b &fn &m2.ji.$a.$b ) 
+ EVALUATE: symbol $_1_MAT6.JI.8.2 set to    24.0000     (real)
+ CNSsolve>      eval ( $b = $b + 1 ) 
+ EVALUATE: symbol $B set to    3.00000     (real)
+ CNSsolve>   end loop b 
+ CNSsolve>   while ( $b le &m1.cols ) loop b 
+ NEXTCD: condition evaluated as false
+ CNSsolve>      eval ( &mr.ji.$a.$b =  &m1.ji.$a.$b &fn &m2.ji.$a.$b ) 
+ CNSsolve>      eval ( $b = $b + 1 ) 
+ CNSsolve>   end loop b 
+ CNSsolve>   eval ( $a = $a + 1 ) 
+ EVALUATE: symbol $A set to    9.00000     (real)
+ CNSsolve>end loop a 
+ CNSsolve>while ( $a le &m1.rows ) loop a 
+ NEXTCD: condition evaluated as false
+ CNSsolve>   eval ( $b = 1 ) 
+ CNSsolve>   while ( $b le &m1.cols ) loop b 
+ CNSsolve>      eval ( &mr.ji.$a.$b =  &m1.ji.$a.$b &fn &m2.ji.$a.$b ) 
+ CNSsolve>      eval ( $b = $b + 1 ) 
+ CNSsolve>   end loop b 
+ CNSsolve>   eval ( $a = $a + 1 ) 
+ CNSsolve>end loop a 
+ CNSsolve>eval ( &mr.rows = &m1.rows ) 
+ EVALUATE: symbol $_1_MAT6.ROWS set to    8.00000     (real)
+ CNSsolve>eval ( &mr.cols = &m1.cols ) 
+ EVALUATE: symbol $_1_MAT6.COLS set to    2.00000     (real)
+ CNSsolve>end if   
+ CNSsolve>call matrix_subtract ( m1 = $mat3; m2 = $mat3; mr = $mat7 ) 
+ PROC-DECLARATION>(&m1 ; &m2 ; &mr) 
+ PROC-INVOCATION> ( m1 = $mat3; m2 = $mat3; mr = $mat7 ) 
+ &_2_M1 set to $_1_MAT3 
+ &_2_M2 set to $_1_MAT3 
+ &_2_MR set to $_1_MAT7 
+ CNSsolve>call matrix_map ( m1=&m1; m2=&m2; mr=&mr; fn = - )  
+ PROC-DECLARATION>(&m1 ; &m2 ; &mr ; &fn) 
+ PROC-INVOCATION> ( m1=&m1; m2=&m2; mr=&mr; fn = - )  
+ &_3_M1 set to &_2_M1 
+ &_3_M2 set to &_2_M2 
+ &_3_MR set to &_2_MR 
+ &_3_FN set to - 
+ CNSsolve>if ( &m1.cols ne &m2.cols ) then 
+ NEXTCD: condition evaluated as false
+ CNSsolve>   literal MATRIX_MAP-ERR: DIMENSION MISMATCH &m1.cols != &m2.cols 
+ CNSsolve>elseif ( &m1.rows ne &m2.rows ) then 
+ NEXTCD: condition evaluated as false
+ CNSsolve>   literal MATRIX_MAP-ERR: DIMENSION MISMATCH &m1.rows != &m2.rows 
+ CNSsolve>else 
+ CNSsolve>eval ( $a = 1 ) 
+ EVALUATE: symbol $A set to    1.00000     (real)
+ CNSsolve>while ( $a le &m1.rows ) loop a 
+ NEXTCD: condition evaluated as true
+ CNSsolve>   eval ( $b = 1 ) 
+ EVALUATE: symbol $B set to    1.00000     (real)
+ CNSsolve>   while ( $b le &m1.cols ) loop b 
+ NEXTCD: condition evaluated as true
+ CNSsolve>      eval ( &mr.ji.$a.$b =  &m1.ji.$a.$b &fn &m2.ji.$a.$b ) 
+ EVALUATE: symbol $_1_MAT7.JI.1.1 set to    0.00000     (real)
+ CNSsolve>      eval ( $b = $b + 1 ) 
+ EVALUATE: symbol $B set to    2.00000     (real)
+ CNSsolve>   end loop b 
+ CNSsolve>   while ( $b le &m1.cols ) loop b 
+ NEXTCD: condition evaluated as true
+ CNSsolve>      eval ( &mr.ji.$a.$b =  &m1.ji.$a.$b &fn &m2.ji.$a.$b ) 
+ EVALUATE: symbol $_1_MAT7.JI.1.2 set to    0.00000     (real)
+ CNSsolve>      eval ( $b = $b + 1 ) 
+ EVALUATE: symbol $B set to    3.00000     (real)
+ CNSsolve>   end loop b 
+ CNSsolve>   while ( $b le &m1.cols ) loop b 
+ NEXTCD: condition evaluated as false
+ CNSsolve>      eval ( &mr.ji.$a.$b =  &m1.ji.$a.$b &fn &m2.ji.$a.$b ) 
+ CNSsolve>      eval ( $b = $b + 1 ) 
+ CNSsolve>   end loop b 
+ CNSsolve>   eval ( $a = $a + 1 ) 
+ EVALUATE: symbol $A set to    2.00000     (real)
+ CNSsolve>end loop a 
+ CNSsolve>while ( $a le &m1.rows ) loop a 
+ NEXTCD: condition evaluated as true
+ CNSsolve>   eval ( $b = 1 ) 
+ EVALUATE: symbol $B set to    1.00000     (real)
+ CNSsolve>   while ( $b le &m1.cols ) loop b 
+ NEXTCD: condition evaluated as true
+ CNSsolve>      eval ( &mr.ji.$a.$b =  &m1.ji.$a.$b &fn &m2.ji.$a.$b ) 
+ EVALUATE: symbol $_1_MAT7.JI.2.1 set to    0.00000     (real)
+ CNSsolve>      eval ( $b = $b + 1 ) 
+ EVALUATE: symbol $B set to    2.00000     (real)
+ CNSsolve>   end loop b 
+ CNSsolve>   while ( $b le &m1.cols ) loop b 
+ NEXTCD: condition evaluated as true
+ CNSsolve>      eval ( &mr.ji.$a.$b =  &m1.ji.$a.$b &fn &m2.ji.$a.$b ) 
+ EVALUATE: symbol $_1_MAT7.JI.2.2 set to    0.00000     (real)
+ CNSsolve>      eval ( $b = $b + 1 ) 
+ EVALUATE: symbol $B set to    3.00000     (real)
+ CNSsolve>   end loop b 
+ CNSsolve>   while ( $b le &m1.cols ) loop b 
+ NEXTCD: condition evaluated as false
+ CNSsolve>      eval ( &mr.ji.$a.$b =  &m1.ji.$a.$b &fn &m2.ji.$a.$b ) 
+ CNSsolve>      eval ( $b = $b + 1 ) 
+ CNSsolve>   end loop b 
+ CNSsolve>   eval ( $a = $a + 1 ) 
+ EVALUATE: symbol $A set to    3.00000     (real)
+ CNSsolve>end loop a 
+ CNSsolve>while ( $a le &m1.rows ) loop a 
+ NEXTCD: condition evaluated as true
+ CNSsolve>   eval ( $b = 1 ) 
+ EVALUATE: symbol $B set to    1.00000     (real)
+ CNSsolve>   while ( $b le &m1.cols ) loop b 
+ NEXTCD: condition evaluated as true
+ CNSsolve>      eval ( &mr.ji.$a.$b =  &m1.ji.$a.$b &fn &m2.ji.$a.$b ) 
+ EVALUATE: symbol $_1_MAT7.JI.3.1 set to    0.00000     (real)
+ CNSsolve>      eval ( $b = $b + 1 ) 
+ EVALUATE: symbol $B set to    2.00000     (real)
+ CNSsolve>   end loop b 
+ CNSsolve>   while ( $b le &m1.cols ) loop b 
+ NEXTCD: condition evaluated as true
+ CNSsolve>      eval ( &mr.ji.$a.$b =  &m1.ji.$a.$b &fn &m2.ji.$a.$b ) 
+ EVALUATE: symbol $_1_MAT7.JI.3.2 set to    0.00000     (real)
+ CNSsolve>      eval ( $b = $b + 1 ) 
+ EVALUATE: symbol $B set to    3.00000     (real)
+ CNSsolve>   end loop b 
+ CNSsolve>   while ( $b le &m1.cols ) loop b 
+ NEXTCD: condition evaluated as false
+ CNSsolve>      eval ( &mr.ji.$a.$b =  &m1.ji.$a.$b &fn &m2.ji.$a.$b ) 
+ CNSsolve>      eval ( $b = $b + 1 ) 
+ CNSsolve>   end loop b 
+ CNSsolve>   eval ( $a = $a + 1 ) 
+ EVALUATE: symbol $A set to    4.00000     (real)
+ CNSsolve>end loop a 
+ CNSsolve>while ( $a le &m1.rows ) loop a 
+ NEXTCD: condition evaluated as true
+ CNSsolve>   eval ( $b = 1 ) 
+ EVALUATE: symbol $B set to    1.00000     (real)
+ CNSsolve>   while ( $b le &m1.cols ) loop b 
+ NEXTCD: condition evaluated as true
+ CNSsolve>      eval ( &mr.ji.$a.$b =  &m1.ji.$a.$b &fn &m2.ji.$a.$b ) 
+ EVALUATE: symbol $_1_MAT7.JI.4.1 set to    0.00000     (real)
+ CNSsolve>      eval ( $b = $b + 1 ) 
+ EVALUATE: symbol $B set to    2.00000     (real)
+ CNSsolve>   end loop b 
+ CNSsolve>   while ( $b le &m1.cols ) loop b 
+ NEXTCD: condition evaluated as true
+ CNSsolve>      eval ( &mr.ji.$a.$b =  &m1.ji.$a.$b &fn &m2.ji.$a.$b ) 
+ EVALUATE: symbol $_1_MAT7.JI.4.2 set to    0.00000     (real)
+ CNSsolve>      eval ( $b = $b + 1 ) 
+ EVALUATE: symbol $B set to    3.00000     (real)
+ CNSsolve>   end loop b 
+ CNSsolve>   while ( $b le &m1.cols ) loop b 
+ NEXTCD: condition evaluated as false
+ CNSsolve>      eval ( &mr.ji.$a.$b =  &m1.ji.$a.$b &fn &m2.ji.$a.$b ) 
+ CNSsolve>      eval ( $b = $b + 1 ) 
+ CNSsolve>   end loop b 
+ CNSsolve>   eval ( $a = $a + 1 ) 
+ EVALUATE: symbol $A set to    5.00000     (real)
+ CNSsolve>end loop a 
+ CNSsolve>while ( $a le &m1.rows ) loop a 
+ NEXTCD: condition evaluated as true
+ CNSsolve>   eval ( $b = 1 ) 
+ EVALUATE: symbol $B set to    1.00000     (real)
+ CNSsolve>   while ( $b le &m1.cols ) loop b 
+ NEXTCD: condition evaluated as true
+ CNSsolve>      eval ( &mr.ji.$a.$b =  &m1.ji.$a.$b &fn &m2.ji.$a.$b ) 
+ EVALUATE: symbol $_1_MAT7.JI.5.1 set to    0.00000     (real)
+ CNSsolve>      eval ( $b = $b + 1 ) 
+ EVALUATE: symbol $B set to    2.00000     (real)
+ CNSsolve>   end loop b 
+ CNSsolve>   while ( $b le &m1.cols ) loop b 
+ NEXTCD: condition evaluated as true
+ CNSsolve>      eval ( &mr.ji.$a.$b =  &m1.ji.$a.$b &fn &m2.ji.$a.$b ) 
+ EVALUATE: symbol $_1_MAT7.JI.5.2 set to    0.00000     (real)
+ CNSsolve>      eval ( $b = $b + 1 ) 
+ EVALUATE: symbol $B set to    3.00000     (real)
+ CNSsolve>   end loop b 
+ CNSsolve>   while ( $b le &m1.cols ) loop b 
+ NEXTCD: condition evaluated as false
+ CNSsolve>      eval ( &mr.ji.$a.$b =  &m1.ji.$a.$b &fn &m2.ji.$a.$b ) 
+ CNSsolve>      eval ( $b = $b + 1 ) 
+ CNSsolve>   end loop b 
+ CNSsolve>   eval ( $a = $a + 1 ) 
+ EVALUATE: symbol $A set to    6.00000     (real)
+ CNSsolve>end loop a 
+ CNSsolve>while ( $a le &m1.rows ) loop a 
+ NEXTCD: condition evaluated as true
+ CNSsolve>   eval ( $b = 1 ) 
+ EVALUATE: symbol $B set to    1.00000     (real)
+ CNSsolve>   while ( $b le &m1.cols ) loop b 
+ NEXTCD: condition evaluated as true
+ CNSsolve>      eval ( &mr.ji.$a.$b =  &m1.ji.$a.$b &fn &m2.ji.$a.$b ) 
+ EVALUATE: symbol $_1_MAT7.JI.6.1 set to    0.00000     (real)
+ CNSsolve>      eval ( $b = $b + 1 ) 
+ EVALUATE: symbol $B set to    2.00000     (real)
+ CNSsolve>   end loop b 
+ CNSsolve>   while ( $b le &m1.cols ) loop b 
+ NEXTCD: condition evaluated as true
+ CNSsolve>      eval ( &mr.ji.$a.$b =  &m1.ji.$a.$b &fn &m2.ji.$a.$b ) 
+ EVALUATE: symbol $_1_MAT7.JI.6.2 set to    0.00000     (real)
+ CNSsolve>      eval ( $b = $b + 1 ) 
+ EVALUATE: symbol $B set to    3.00000     (real)
+ CNSsolve>   end loop b 
+ CNSsolve>   while ( $b le &m1.cols ) loop b 
+ NEXTCD: condition evaluated as false
+ CNSsolve>      eval ( &mr.ji.$a.$b =  &m1.ji.$a.$b &fn &m2.ji.$a.$b ) 
+ CNSsolve>      eval ( $b = $b + 1 ) 
+ CNSsolve>   end loop b 
+ CNSsolve>   eval ( $a = $a + 1 ) 
+ EVALUATE: symbol $A set to    7.00000     (real)
+ CNSsolve>end loop a 
+ CNSsolve>while ( $a le &m1.rows ) loop a 
+ NEXTCD: condition evaluated as true
+ CNSsolve>   eval ( $b = 1 ) 
+ EVALUATE: symbol $B set to    1.00000     (real)
+ CNSsolve>   while ( $b le &m1.cols ) loop b 
+ NEXTCD: condition evaluated as true
+ CNSsolve>      eval ( &mr.ji.$a.$b =  &m1.ji.$a.$b &fn &m2.ji.$a.$b ) 
+ EVALUATE: symbol $_1_MAT7.JI.7.1 set to    0.00000     (real)
+ CNSsolve>      eval ( $b = $b + 1 ) 
+ EVALUATE: symbol $B set to    2.00000     (real)
+ CNSsolve>   end loop b 
+ CNSsolve>   while ( $b le &m1.cols ) loop b 
+ NEXTCD: condition evaluated as true
+ CNSsolve>      eval ( &mr.ji.$a.$b =  &m1.ji.$a.$b &fn &m2.ji.$a.$b ) 
+ EVALUATE: symbol $_1_MAT7.JI.7.2 set to    0.00000     (real)
+ CNSsolve>      eval ( $b = $b + 1 ) 
+ EVALUATE: symbol $B set to    3.00000     (real)
+ CNSsolve>   end loop b 
+ CNSsolve>   while ( $b le &m1.cols ) loop b 
+ NEXTCD: condition evaluated as false
+ CNSsolve>      eval ( &mr.ji.$a.$b =  &m1.ji.$a.$b &fn &m2.ji.$a.$b ) 
+ CNSsolve>      eval ( $b = $b + 1 ) 
+ CNSsolve>   end loop b 
+ CNSsolve>   eval ( $a = $a + 1 ) 
+ EVALUATE: symbol $A set to    8.00000     (real)
+ CNSsolve>end loop a 
+ CNSsolve>while ( $a le &m1.rows ) loop a 
+ NEXTCD: condition evaluated as true
+ CNSsolve>   eval ( $b = 1 ) 
+ EVALUATE: symbol $B set to    1.00000     (real)
+ CNSsolve>   while ( $b le &m1.cols ) loop b 
+ NEXTCD: condition evaluated as true
+ CNSsolve>      eval ( &mr.ji.$a.$b =  &m1.ji.$a.$b &fn &m2.ji.$a.$b ) 
+ EVALUATE: symbol $_1_MAT7.JI.8.1 set to    0.00000     (real)
+ CNSsolve>      eval ( $b = $b + 1 ) 
+ EVALUATE: symbol $B set to    2.00000     (real)
+ CNSsolve>   end loop b 
+ CNSsolve>   while ( $b le &m1.cols ) loop b 
+ NEXTCD: condition evaluated as true
+ CNSsolve>      eval ( &mr.ji.$a.$b =  &m1.ji.$a.$b &fn &m2.ji.$a.$b ) 
+ EVALUATE: symbol $_1_MAT7.JI.8.2 set to    0.00000     (real)
+ CNSsolve>      eval ( $b = $b + 1 ) 
+ EVALUATE: symbol $B set to    3.00000     (real)
+ CNSsolve>   end loop b 
+ CNSsolve>   while ( $b le &m1.cols ) loop b 
+ NEXTCD: condition evaluated as false
+ CNSsolve>      eval ( &mr.ji.$a.$b =  &m1.ji.$a.$b &fn &m2.ji.$a.$b ) 
+ CNSsolve>      eval ( $b = $b + 1 ) 
+ CNSsolve>   end loop b 
+ CNSsolve>   eval ( $a = $a + 1 ) 
+ EVALUATE: symbol $A set to    9.00000     (real)
+ CNSsolve>end loop a 
+ CNSsolve>while ( $a le &m1.rows ) loop a 
+ NEXTCD: condition evaluated as false
+ CNSsolve>   eval ( $b = 1 ) 
+ CNSsolve>   while ( $b le &m1.cols ) loop b 
+ CNSsolve>      eval ( &mr.ji.$a.$b =  &m1.ji.$a.$b &fn &m2.ji.$a.$b ) 
+ CNSsolve>      eval ( $b = $b + 1 ) 
+ CNSsolve>   end loop b 
+ CNSsolve>   eval ( $a = $a + 1 ) 
+ CNSsolve>end loop a 
+ CNSsolve>eval ( &mr.rows = &m1.rows ) 
+ EVALUATE: symbol $_1_MAT7.ROWS set to    8.00000     (real)
+ CNSsolve>eval ( &mr.cols = &m1.cols ) 
+ EVALUATE: symbol $_1_MAT7.COLS set to    2.00000     (real)
+ CNSsolve>end if   
+ CNSsolve> 
+ CNSsolve> 
+ CNSsolve>set echo = off message = off end 
+row [ 1 ] =    1.0    2.0    3.0    4.0    5.0    6.0    7.0    8.0
+row [ 2 ] =    2.0    4.0    6.0    8.0   10.0   12.0   14.0   16.0
+
+row [ 1 ] =    1.000    2.000
+row [ 2 ] =    2.000    4.000
+row [ 3 ] =    3.000    6.000
+row [ 4 ] =    4.000    8.000
+row [ 5 ] =    5.000   10.000
+row [ 6 ] =    6.000   12.000
+row [ 7 ] =    7.000   14.000
+row [ 8 ] =    8.000   16.000
+
+row [ 1 ] =    0.500    1.000
+row [ 2 ] =    1.000    2.000
+row [ 3 ] =    1.500    3.000
+row [ 4 ] =    2.000    4.000
+row [ 5 ] =    2.500    5.000
+row [ 6 ] =    3.000    6.000
+row [ 7 ] =    3.500    7.000
+row [ 8 ] =    4.000    8.000
+
+row [ 1 ] =  102.000  204.000
+row [ 2 ] =  204.000  408.000
+
+row [ 1 ] =    2.5    5.0    7.5   10.0   12.5   15.0   17.5   20.0
+row [ 2 ] =    5.0   10.0   15.0   20.0   25.0   30.0   35.0   40.0
+row [ 3 ] =    7.5   15.0   22.5   30.0   37.5   45.0   52.5   60.0
+row [ 4 ] =   10.0   20.0   30.0   40.0   50.0   60.0   70.0   80.0
+row [ 5 ] =   12.5   25.0   37.5   50.0   62.5   75.0   87.5  100.0
+row [ 6 ] =   15.0   30.0   45.0   60.0   75.0   90.0  105.0  120.0
+row [ 7 ] =   17.5   35.0   52.5   70.0   87.5  105.0  122.5  140.0
+row [ 8 ] =   20.0   40.0   60.0   80.0  100.0  120.0  140.0  160.0
+
+row [ 1 ] =    1.500    3.000
+row [ 2 ] =    3.000    6.000
+row [ 3 ] =    4.500    9.000
+row [ 4 ] =    6.000   12.000
+row [ 5 ] =    7.500   15.000
+row [ 6 ] =    9.000   18.000
+row [ 7 ] =   10.500   21.000
+row [ 8 ] =   12.000   24.000
+
+row [ 1 ] =    0.000    0.000
+row [ 2 ] =    0.000    0.000
+row [ 3 ] =    0.000    0.000
+row [ 4 ] =    0.000    0.000
+row [ 5 ] =    0.000    0.000
+row [ 6 ] =    0.000    0.000
+row [ 7 ] =    0.000    0.000
+row [ 8 ] =    0.000    0.000
+ CNSsolve> 
+ CNSsolve>stop 
+          ============================================================
+           Maximum dynamic memory allocation:     8201488 bytes
+           Maximum dynamic memory overhead:           208 bytes
+           Program started at: 16:08:05 on 05-Jul-2018
+           Program stopped at: 16:08:05 on 05-Jul-2018
+           CPU time used:       0.0618 seconds
+          ============================================================

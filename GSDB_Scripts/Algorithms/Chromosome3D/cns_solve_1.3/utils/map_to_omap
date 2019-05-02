@@ -1,0 +1,22 @@
+#! /bin/csh -f
+#
+# script to convert a CNS map to O DSN6 format using MAPMAN 
+# MAPMAN must be installed and in your path for this script to work
+# MAPMAN can be obtained from:
+#   http://alpha2.bmc.uu.se/~gerard/manuals/gerard_manuals.html
+#
+# written by: Ralf Grosse-Kunstleve
+#
+# copyright Yale University
+#
+
+foreach f ($*)
+  set mapf = "$f:r"
+  mapman << EOT
+read map $mapf.map x-plor
+mappage map $mapf.omap
+quit
+EOT
+end
+
+exit 0

@@ -1,0 +1,415 @@
+          ============================================================
+          |                                                          |
+          |            Crystallography & NMR System (CNS)            |
+          |                         CNSsolve                         |
+          |                                                          |
+          ============================================================
+           Version: 1.3
+           Status: General release
+          ============================================================
+           Written by: A.T.Brunger, P.D.Adams, G.M.Clore, W.L.DeLano,
+                       P.Gros, R.W.Grosse-Kunstleve,J.-S.Jiang,J.M.Krahn,
+                       J.Kuszewski, M.Nilges, N.S.Pannu, R.J.Read,
+                       L.M.Rice, G.F.Schroeder, T.Simonson, G.L.Warren.
+           Copyright (c) 1997-2010 Yale University
+          ============================================================
+           Running on machine: lewis4-r710-login-node223 (x86_64/Linux,64-bit)
+                               with 16 threads
+           Program started by: oeow39
+           Program started at: 16:07:58 on 05-Jul-2018
+          ============================================================
+
+ FFT3C: Using FFTPACK4.1
+
+ CNSsolve>remarks dgtest3.inp 
+ CNSsolve>remarks test metric matrix distrance geometry module -- 
+ CNSsolve>remarks    basic tests on four connected atoms 
+ CNSsolve>remarks John Kuszewski and Axel T. Brunger 
+ CNSsolve>remarks ================================== 
+ CNSsolve> 
+ CNSsolve>topology reset @CNS_TOPPAR:protein-allhdg5-4.top end   {* this is the DG-version of this file *} 
+ ASSFIL: file protein-allhdg5-4.top opened.
+ RTFRDR>remarks file toppar/protein-allhdg5-4.top 
+ RTFRDR>remarks 
+ RTFRDR>remarks   file topallhdg.pro  version 5.4  date 07-July-10 
+ RTFRDR>remarks      for file parallhdg.pro version 5.4 date 07-July-10 or later 
+ RTFRDR>remarks   Geometric energy function parameters for distance geometry and 
+ RTFRDR>remarks      simulated annealing. 
+ RTFRDR>remarks   Author: Michael Nilges, EMBL Heidelberg; Institut Pasteur, Paris 
+ RTFRDR>remarks   This file contains modifications from M. Williams, UCL London 
+ RTFRDR>remarks   and multiple modifications for HADDOCK from A. Bonvin, Utrecht University 
+ RTFRDR>remarks   Last modification 10-01-2012 
+ RTFRDR> 
+ RTFRDR>set message ? end eval ($old_message=$result) set echo ? end eval ($old_echo=$result) 
+ MESSage=NORM
+ EVALUATE: symbol $OLD_MESSAGE set to "NORM" (string)
+ ECHO=TRUE {ON}
+ EVALUATE: symbol $OLD_ECHO set to TRUE (logical)
+ RTFRDR>set message=off echo=off end 
+ RTFRDR> 
+ RTFRDR> end   {* this is the DG-version of this file *} 
+ CNSsolve> 
+ CNSsolve>segment 
+ SEGMENT>   name="TRYP" 
+ SEGMENT>   chain 
+ CHAIN>      @CNS_TOPPAR:protein-allhdg5-4.link 
+ ASSFIL: file protein-allhdg5-4.link opened.
+ CHAIN>remarks file toppar/protein-allhdg5-4.link 
+ CHAIN>remarks 
+ CHAIN>remarks this is a macro to define standard protein peptide bonds 
+ CHAIN>remarks and termini to generate a protein sequence. 
+ CHAIN> 
+ CHAIN>!added links for MSE (8-19-2011, ATB) 
+ CHAIN> 
+ CHAIN>set message ? end eval ($old_message=$result) set echo ? end eval ($old_echo=$result) 
+ MESSage=NORM
+ EVALUATE: symbol $OLD_MESSAGE set to "NORM" (string)
+ ECHO=TRUE {ON}
+ EVALUATE: symbol $OLD_ECHO set to TRUE (logical)
+ CHAIN>set message=off echo=off end 
+ CHAIN> 
+ CHAIN>      sequence trp 
+ SEQUence-element (terminate with END) =      end 
+ SEGMNT:     1 residues were inserted into segment "TRYP"
+ CHAIN>end 
+ SEGMENT>end 
+ Status of internal molecular topology database:
+ -> NATOM=         27(MAXA=     1000000)  NBOND=         28(MAXB=     1000000)
+ -> NTHETA=        48(MAXT=     2000000)  NGRP=           3(MAXGRP=   1000000)
+ -> NPHI=           4(MAXP=     2000000)  NIMPHI=        23(MAXIMP=   1000000)
+ -> NNB=            6(MAXNB=    1000000) 
+ CNSsolve> 
+ CNSsolve>parameter 
+ PARRDR>        @CNS_TOPPAR:protein-allhdg5-4.param 
+ ASSFIL: file protein-allhdg5-4.param opened.
+ PARRDR>remarks file toppar/protein-allhdg5-4.param 
+ PARRDR>remark 
+ PARRDR>remark   for file protein-allhdg-ucl.top  version UCL  date 14-MAR-00 
+ PARRDR>remark   for file protein-allhdg-dih-ucl.top  version UCL  date 07-JUL-01 
+ PARRDR>remark   Geometric energy function parameters for distance geometry and 
+ PARRDR>remark   simulated annealing. 
+ PARRDR>remark   Original author: Michael Nilges, EMBL Heidelberg 
+ PARRDR>remark   Modifications: Mark A. Williams, UCL London 
+ PARRDR>remark   Several modifications for HADDOCK: Alexandre Bonvin, Utrecht Uni 
+ PARRDR>remark   Last modification 8-19-2011 
+ PARRDR> 
+ PARRDR>set message ? end eval ($old_message=$result) set echo ? end eval ($old_echo=$result) 
+ MESSage=NORM
+ EVALUATE: symbol $OLD_MESSAGE set to "NORM" (string)
+ ECHO=TRUE {ON}
+ EVALUATE: symbol $OLD_ECHO set to TRUE (logical)
+ PARRDR>set message=off echo=off end 
+ PARRDR> 
+ PARRDR>        nbonds repel = 0.8 end 
+ PARRDR>end 
+ %PARRDR-info: duplication of bond HC   NC2 
+ %PARRDR-info: duplication of angle CH2P CH2E HA  
+ CNSsolve> 
+ CNSsolve>coor 
+ COOR>ATOM      1  CA  TRP     1       1.331   1.246   0.096  1.00  0.00      TRYP 
+ COOR>ATOM      2  HA  TRP     1       1.571   0.780   1.039  1.00  0.00      TRYP 
+ CNSsolve> 
+ CNSsolve>flags 
+ FLAGS>   include noe cdihe 
+ FLAGS>end 
+ CNSsolve> 
+ CNSsolve>{* delete everything except one dihedral angle *} 
+ CNSsolve>delete selection=( not ( name ca or name cb or name cg or name cd1 ) ) end 
+ SELRPN:     23 atoms have been selected out of     27
+ Status of internal molecular topology database:
+ -> NATOM=          4(MAXA=     1000000)  NBOND=          3(MAXB=     1000000)
+ -> NTHETA=         2(MAXT=     2000000)  NGRP=           2(MAXGRP=   1000000)
+ -> NPHI=           1(MAXP=     2000000)  NIMPHI=         0(MAXIMP=   1000000)
+ -> NNB=            0(MAXNB=    1000000) 
+ CNSsolve> 
+ CNSsolve>{* =============================================================== *} 
+ CNSsolve>{*    test 1: test dihedral angle restraints                       *} 
+ CNSsolve>{* =============================================================== *} 
+ CNSsolve> 
+ CNSsolve> 
+ CNSsolve>restraints 
+ RESTraints>   dihedral 
+ DIHEDRAL>   nassign=10 
+ RSTDIH: allocating space for      10 assignments.
+ DIHEDRAL>   assign ( name ca ) ( name cb ) ( name cg ) ( name cd1 ) 1. 70.  0.01  2 
+ SELRPN:      1 atoms have been selected out of      4
+ SELRPN:      1 atoms have been selected out of      4
+ SELRPN:      1 atoms have been selected out of      4
+ SELRPN:      1 atoms have been selected out of      4
+ DIHEDRAL>end 
+ CNSsolve> 
+ CNSsolve>flags include cdih end 
+ CNSsolve> 
+ CNSsolve>set seed=12345 end 
+ CNSsolve> 
+ CNSsolve>mmdg 
+ MMDG>        verbose off 
+ MMDG>        iacc=0.01 tacc=0.01 bacc=0.001 pacc=0.01 
+ MMDG>        random 
+ MMDG>        metrize (all) 100 
+ SELRPN:      4 atoms have been selected out of      4
+ MMDG>end 
+ MMDG:      4 atoms will be randomly metrized.
+ DGSETNX: found     10 exclusions (1--2, 1--3) for repulsive lower bounds.
+ CNSsolve> 
+ CNSsolve> 
+ CNSsolve>pick dihedral ( name ca ) ( name cb ) ( name cg ) ( name cd1 ) geometry 
+ SELRPN:      1 atoms have been selected out of      4
+ SELRPN:      1 atoms have been selected out of      4
+ SELRPN:      1 atoms have been selected out of      4
+ SELRPN:      1 atoms have been selected out of      4
+ GEOM=     70.508394
+ CNSsolve>print angles 
+ (atom-i        |atom-j        |atom-k        )  angle    equil.     delta    energy  const. 
+
+ (TRYP 1    CA  |TRYP 1    CB  |TRYP 1    CG  )  113.513  113.579   -0.066    0.001  500.000
+ (TRYP 1    CB  |TRYP 1    CG  |TRYP 1    CD1 )  127.002  126.919    0.082    0.001  500.000
+ RMS deviation=   0.075
+ CNSsolve>print bonds 
+ (atom-i        |atom-j        )    dist.   equil.   delta    energy   const. 
+
+ (TRYP 1    CA  |TRYP 1    CB  )    1.529    1.530   -0.001    0.001 1000.000
+ (TRYP 1    CB  |TRYP 1    CG  )    1.498    1.498    0.000    0.000 1000.000
+ (TRYP 1    CG  |TRYP 1    CD1 )    1.366    1.365    0.001    0.000 1000.000
+ RMS deviation=   0.001
+ CNSsolve> 
+ CNSsolve>{* =============================================================== *} 
+ CNSsolve>{*    test 2: test inconsistency handling                          *} 
+ CNSsolve>{* =============================================================== *} 
+ CNSsolve> 
+ CNSsolve>restraints 
+ RESTraints>   dihedral 
+ DIHEDRAL>   nassign=10 
+ DIHEDRAL>   assign ( name ca ) ( name cb ) ( name cg ) ( name cd1 ) 1. 70.  0.01  2 
+ SELRPN:      1 atoms have been selected out of      4
+ SELRPN:      1 atoms have been selected out of      4
+ SELRPN:      1 atoms have been selected out of      4
+ SELRPN:      1 atoms have been selected out of      4
+ DIHEDRAL>   assign ( name ca ) ( name cb ) ( name cg ) ( name cd1 ) 1. 80.  0.01  2 
+ SELRPN:      1 atoms have been selected out of      4
+ SELRPN:      1 atoms have been selected out of      4
+ SELRPN:      1 atoms have been selected out of      4
+ SELRPN:      1 atoms have been selected out of      4
+ DIHEDRAL>end 
+ CNSsolve> 
+ CNSsolve>set seed=12345 end 
+ CNSsolve> 
+ CNSsolve>mmdg 
+ MMDG>        verbose off 
+ MMDG>        iacc=0.01 tacc=0.01 bacc=0.001 pacc=0.01 
+ MMDG>        random 
+ MMDG>        metrize (all) 100 
+ SELRPN:      4 atoms have been selected out of      4
+ MMDG>end 
+ MMDG:      4 atoms will be randomly metrized.
+ DGSETNX: found     10 exclusions (1--2, 1--3) for repulsive lower bounds.
+TRYP 1    CA   TRYP 1    CD1           3.2774          3.3268          3.3419 *
+* Geometric inconsistency--lower bound greater than upper. Attempted to continue by inverting these bounds. 
+ %DISGEO error encountered: There are geometric inconsistencies. Proceed at own risk.
+   (CNS is in mode: SET ABORT=NORMal END)
+ CNSsolve> 
+ CNSsolve> 
+ CNSsolve>pick dihedral ( name ca ) ( name cb ) ( name cg ) ( name cd1 ) geometry 
+ SELRPN:      1 atoms have been selected out of      4
+ SELRPN:      1 atoms have been selected out of      4
+ SELRPN:      1 atoms have been selected out of      4
+ SELRPN:      1 atoms have been selected out of      4
+ GEOM=     77.290000
+ CNSsolve> 
+ CNSsolve>{* =============================================================== *} 
+ CNSsolve>{*    test 3: test flags (turning on/off of terms)                 *} 
+ CNSsolve>{* =============================================================== *} 
+ CNSsolve>flags exclude cdihe end 
+ CNSsolve> 
+ CNSsolve>set seed=12345 end 
+ CNSsolve> 
+ CNSsolve>mmdg 
+ MMDG>        verbose off 
+ MMDG>        iacc=0.01 tacc=0.01 bacc=0.001 pacc=0.01 
+ MMDG>        random 
+ MMDG>        metrize (all) 100 
+ SELRPN:      4 atoms have been selected out of      4
+ MMDG>end 
+ MMDG:      4 atoms will be randomly metrized.
+ DGSETNX: found     10 exclusions (1--2, 1--3) for repulsive lower bounds.
+ CNSsolve> 
+ CNSsolve>pick dihedral ( name ca ) ( name cb ) ( name cg ) ( name cd1 ) geometry 
+ SELRPN:      1 atoms have been selected out of      4
+ SELRPN:      1 atoms have been selected out of      4
+ SELRPN:      1 atoms have been selected out of      4
+ SELRPN:      1 atoms have been selected out of      4
+ GEOM=   -137.899532
+ CNSsolve>print angles 
+ (atom-i        |atom-j        |atom-k        )  angle    equil.     delta    energy  const. 
+
+ (TRYP 1    CA  |TRYP 1    CB  |TRYP 1    CG  )  113.513  113.579   -0.066    0.001  500.000
+ (TRYP 1    CB  |TRYP 1    CG  |TRYP 1    CD1 )  127.002  126.919    0.082    0.001  500.000
+ RMS deviation=   0.075
+ CNSsolve>print bonds 
+ (atom-i        |atom-j        )    dist.   equil.   delta    energy   const. 
+
+ (TRYP 1    CA  |TRYP 1    CB  )    1.529    1.530   -0.001    0.001 1000.000
+ (TRYP 1    CB  |TRYP 1    CG  )    1.498    1.498    0.000    0.000 1000.000
+ (TRYP 1    CG  |TRYP 1    CD1 )    1.366    1.365    0.001    0.000 1000.000
+ RMS deviation=   0.001
+ CNSsolve> 
+ CNSsolve> 
+ CNSsolve>{* =============================================================== *} 
+ CNSsolve>{*    test 4: test coordinate reference                            *} 
+ CNSsolve>{* =============================================================== *} 
+ CNSsolve> 
+ CNSsolve>structure reset end 
+ SCRATC-warning: RESTraints DIHEdral database erased.
+ Status of internal molecular topology database:
+ -> NATOM=          0(MAXA=     1000000)  NBOND=          0(MAXB=     1000000)
+ -> NTHETA=         0(MAXT=     2000000)  NGRP=           0(MAXGRP=   1000000)
+ -> NPHI=           0(MAXP=     2000000)  NIMPHI=         0(MAXIMP=   1000000)
+ -> NNB=            0(MAXNB=    1000000) 
+ CNSsolve> 
+ CNSsolve>segment 
+ SEGMENT>   name="TRYP" 
+ SEGMENT>   chain 
+ CHAIN>      @CNS_TOPPAR:protein-allhdg5-4.link 
+ ASSFIL: file protein-allhdg5-4.link opened.
+ CHAIN>remarks file toppar/protein-allhdg5-4.link 
+ CHAIN>remarks 
+ CHAIN>remarks this is a macro to define standard protein peptide bonds 
+ CHAIN>remarks and termini to generate a protein sequence. 
+ CHAIN> 
+ CHAIN>!added links for MSE (8-19-2011, ATB) 
+ CHAIN> 
+ CHAIN>set message ? end eval ($old_message=$result) set echo ? end eval ($old_echo=$result) 
+ MESSage=NORM
+ EVALUATE: symbol $OLD_MESSAGE set to "NORM" (string)
+ ECHO=TRUE {ON}
+ EVALUATE: symbol $OLD_ECHO set to TRUE (logical)
+ CHAIN>set message=off echo=off end 
+ CHAIN> 
+ CHAIN>      sequence trp 
+ SEQUence-element (terminate with END) =      end 
+ SEGMNT:     1 residues were inserted into segment "TRYP"
+ CHAIN>    end 
+ SEGMENT>end 
+ Status of internal molecular topology database:
+ -> NATOM=         27(MAXA=     1000000)  NBOND=         28(MAXB=     1000000)
+ -> NTHETA=        48(MAXT=     2000000)  NGRP=           3(MAXGRP=   1000000)
+ -> NPHI=           4(MAXP=     2000000)  NIMPHI=        23(MAXIMP=   1000000)
+ -> NNB=            6(MAXNB=    1000000) 
+ CNSsolve> 
+ CNSsolve>coor 
+ COOR>ATOM      1  CA  TRP     1       1.331   1.246   0.096  1.00  0.00      TRYP 
+ COOR>ATOM      2  HA  TRP     1       1.571   0.780   1.039  1.00  0.00      TRYP 
+ CNSsolve> 
+ CNSsolve>flags 
+ FLAGS>   exclude *  include bond dihe angl impr vdw 
+ FLAGS>end 
+ CNSsolve> 
+ CNSsolve>{* delete everything except Ca and substituents *} 
+ CNSsolve>delete selection=( not 
+ SELRPN>     ( name ca or name cb or name c or name n or name ha ) ) end 
+ SELRPN:     22 atoms have been selected out of     27
+ Status of internal molecular topology database:
+ -> NATOM=          5(MAXA=     1000000)  NBOND=          4(MAXB=     1000000)
+ -> NTHETA=         6(MAXT=     2000000)  NGRP=           3(MAXGRP=   1000000)
+ -> NPHI=           0(MAXP=     2000000)  NIMPHI=         1(MAXIMP=   1000000)
+ -> NNB=            0(MAXNB=    1000000) 
+ CNSsolve> 
+ CNSsolve>do (x=x+4.) ( name ha ) 
+ SELRPN:      1 atoms have been selected out of      5
+ CNSsolve> 
+ CNSsolve>coor copy end 
+ COOR: selected main coordinates copied to comp
+ CNSsolve> 
+ CNSsolve>mmdg 
+ MMDG>        reference=parameters 
+ MMDG>        verbose off 
+ MMDG>        iacc=0.01 tacc=0.01 bacc=0.001 pacc=0.01 
+ MMDG>        random 
+ MMDG>        metrize (all) 100 
+ SELRPN:      5 atoms have been selected out of      5
+ MMDG>end 
+ MMDG:      5 atoms will be randomly metrized.
+ DGSETNX: found     20 exclusions (1--2, 1--3) for repulsive lower bounds.
+TRYP 1    HA   TRYP 1    CB            2.1458          2.1478          2.1478 *
+* Geometric inconsistency--lower bound greater than upper. Attempted to continue by inverting these bounds. 
+ %DISGEO error encountered: There are geometric inconsistencies. Proceed at own risk.
+   (CNS is in mode: SET ABORT=NORMal END)
+ CNSsolve> 
+ CNSsolve>set mess=off end   coor fit end    set mess=on end 
+ R.m.s. diff. between fitted set and comp. set for selected atoms =    1.4014
+ CNSsolve>coor rms end 
+ COOR: ATTENTION: atom rms differences copied to RMSD array. 
+ COOR: rms=     1.401385, square sum=       9.8194, denominator=       5.0000
+ CNSsolve>do (z=-z) ( all ) 
+ SELRPN:      5 atoms have been selected out of      5
+ CNSsolve>set mess=off end   coor fit end    set mess=on end 
+ R.m.s. diff. between fitted set and comp. set for selected atoms =    1.7962
+ CNSsolve>coor rms end 
+ COOR: ATTENTION: atom rms differences copied to RMSD array. 
+ COOR: rms=     1.796150, square sum=      16.1308, denominator=       5.0000
+ CNSsolve>coor swap end 
+ COOR: selected coordinates swaped (main<->comp)
+ CNSsolve>coor copy end 
+ COOR: selected main coordinates copied to comp
+ CNSsolve> 
+ CNSsolve>do (refx=x ) ( all ) 
+ SELRPN:      5 atoms have been selected out of      5
+ CNSsolve>do (refy=y) ( all ) 
+ SELRPN:      5 atoms have been selected out of      5
+ CNSsolve>do (refz=z)  ( all ) 
+ SELRPN:      5 atoms have been selected out of      5
+ CNSsolve>mmdg 
+ MMDG>        reference=coordinates 
+ MMDG>        verbose off 
+ MMDG>        iacc=0.01 tacc=0.01 bacc=0.001 pacc=0.01 
+ MMDG>        random 
+ MMDG>        metrize (all) 100 
+ SELRPN:      5 atoms have been selected out of      5
+ MMDG>end 
+ MMDG:      5 atoms will be randomly metrized.
+ DGSETNX: found     20 exclusions (1--2, 1--3) for repulsive lower bounds.
+ CNSsolve> 
+ CNSsolve>set mess=off end   coor fit end    set mess=on end 
+ R.m.s. diff. between fitted set and comp. set for selected atoms =    0.8695
+ CNSsolve>coor rms end 
+ COOR: ATTENTION: atom rms differences copied to RMSD array. 
+ COOR: rms=     0.869525, square sum=       3.7804, denominator=       5.0000
+ CNSsolve>do (z=-z) ( all ) 
+ SELRPN:      5 atoms have been selected out of      5
+ CNSsolve>set mess=off end   coor fit end    set mess=on end 
+ R.m.s. diff. between fitted set and comp. set for selected atoms =    0.0007
+ CNSsolve>coor rms end 
+ COOR: ATTENTION: atom rms differences copied to RMSD array. 
+ COOR: rms=     0.000683, square sum=       0.0000, denominator=       5.0000
+ CNSsolve>if ( $RESULT > 0.1 ) then 
+ NEXTCD: condition evaluated as false
+ CNSsolve>   do (z=-z) ( all ) 
+ CNSsolve>end if 
+ CNSsolve> 
+ CNSsolve>print angles 
+ (atom-i        |atom-j        |atom-k        )  angle    equil.     delta    energy  const. 
+
+ (TRYP 1    N   |TRYP 1    CA  |TRYP 1    HA  )  108.655  108.507    0.148    0.003  500.000
+ (TRYP 1    N   |TRYP 1    CA  |TRYP 1    CB  )  111.156  110.476    0.680    0.070  500.000
+ (TRYP 1    N   |TRYP 1    CA  |TRYP 1    C   )  108.470  111.170   -2.700    1.110  500.000
+ (TRYP 1    HA  |TRYP 1    CA  |TRYP 1    CB  )   51.507  109.249  -57.742  507.811  500.000
+ (TRYP 1    HA  |TRYP 1    CA  |TRYP 1    C   )  142.464  108.991   33.473  170.651  500.000
+ (TRYP 1    CB  |TRYP 1    CA  |TRYP 1    C   )  108.638  110.109   -1.471    0.330  500.000
+ RMS deviation=  27.278
+ CNSsolve>print impropers 
+ (atom-i        |atom-j        |atom-k        |atom-L        )    angle    equil.   delta    energy   const.   period
+
+ (TRYP 1    HA  |TRYP 1    N   |TRYP 1    C   |TRYP 1    CB  )   30.614   66.326   35.712  194.247  500.000   0
+ RMS deviation=  35.712
+ CNSsolve>print dihedrals 
+ (atom-i        |atom-j        |atom-k        |atom-L        )    angle    equil.   delta    energy   const.   period
+
+ CNSsolve> 
+ CNSsolve>stop 
+          ============================================================
+           Maximum dynamic memory allocation:     8257520 bytes
+           Maximum dynamic memory overhead:           672 bytes
+           Program started at: 16:07:58 on 05-Jul-2018
+           Program stopped at: 16:07:59 on 05-Jul-2018
+           CPU time used:       0.0586 seconds
+          ============================================================

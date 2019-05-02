@@ -1,0 +1,101 @@
+remarks ++++++++++++++++DUPLICATE+++++++++++++++++++++++++++++
+remarks by Axel T. Brunger
+
+topology @CNS_TOPPAR:protein.top end
+parameter @CNS_TOPPAR:protein.param end
+
+segment
+  name="MAIN"
+  chain
+     @CNS_TOPPAR:protein.link
+     sequence ARG PRO ASP  end
+  end
+end
+
+coor 
+ATOM      1  HT1 ARG     1      27.191  26.667  -2.955  1.00  0.00      MAIN
+ATOM      2  HT2 ARG     1      27.046  28.232  -2.309  1.00  0.00      MAIN
+ATOM      3  N   ARG     1      26.521  27.417  -2.687  1.00  0.00      MAIN
+ATOM      4  HT3 ARG     1      25.978  27.712  -3.523  1.00  0.00      MAIN
+ATOM      5  CA  ARG     1      25.603  26.909  -1.661  1.00  0.00      MAIN
+ATOM      6  CB  ARG     1      24.610  25.885  -2.248  1.00  0.00      MAIN
+ATOM      7  CG  ARG     1      25.171  24.458  -2.379  1.00  0.00      MAIN
+ATOM      8  CD  ARG     1      24.124  23.541  -2.979  1.00  0.00      MAIN
+ATOM      9  NE  ARG     1      23.644  24.058  -4.269  1.00  0.00      MAIN
+ATOM     10  HE  ARG     1      22.809  24.569  -4.284  1.00  0.00      MAIN
+ATOM     11  CZ  ARG     1      24.299  23.863  -5.432  1.00  0.00      MAIN
+ATOM     12  NH1 ARG     1      25.434  23.152  -5.473  1.00  0.00      MAIN
+ATOM     13 HH11 ARG     1      25.807  22.758  -4.633  1.00  0.00      MAIN
+ATOM     14 HH12 ARG     1      25.908  23.016  -6.342  1.00  0.00      MAIN
+ATOM     15  NH2 ARG     1      23.797  24.379  -6.539  1.00  0.00      MAIN
+ATOM     16 HH21 ARG     1      22.947  24.904  -6.505  1.00  0.00      MAIN
+ATOM     17 HH22 ARG     1      24.268  24.245  -7.411  1.00  0.00      MAIN
+ATOM     18  C   ARG     1      26.256  26.217  -0.466  1.00  0.00      MAIN
+ATOM     19  O   ARG     1      27.268  25.519  -0.612  1.00  0.00      MAIN
+ATOM     20  N   PRO     2      25.669  26.420   0.698  1.00  0.00      MAIN
+ATOM     21  CD  PRO     2      24.639  27.414   0.964  1.00  0.00      MAIN
+ATOM     22  CA  PRO     2      26.191  25.807   1.926  1.00  0.00      MAIN
+ATOM     23  CB  PRO     2      25.364  26.408   3.014  1.00  0.00      MAIN
+ATOM     24  CG  PRO     2      24.531  27.554   2.480  1.00  0.00      MAIN
+ATOM     25  C   PRO     2      26.248  24.283   1.838  1.00  0.00      MAIN
+ATOM     26  O   PRO     2      25.462  23.661   1.112  1.00  0.00      MAIN
+ATOM     27  N   ASP     3      27.177  23.707   2.577  1.00  0.00      MAIN
+ATOM     28  H   ASP     3      27.794  24.263   3.097  1.00  0.00      MAIN
+ATOM     29  CA  ASP     3      27.299  22.245   2.632  1.00  0.00      MAIN
+ATOM     30  CB  ASP     3      28.503  21.852   3.505  1.00  0.00      MAIN
+ATOM     31  CG  ASP     3      29.779  21.829   2.716  1.00  0.00      MAIN
+ATOM     32  OD1 ASP     3      29.879  22.171   1.551  1.00  0.00      MAIN
+ATOM     33  OD2 ASP     3      30.759  21.495   3.319  1.00  0.00      MAIN
+ATOM     34  C   ASP     3      26.084  21.485   3.155  1.00  0.00      MAIN
+ATOM     35  O   ASP     3      25.834  20.338   2.764  1.00  0.00      MAIN
+ATOM     36  OXT ASP     3      26.162  21.391   2.743  1.00  0.00      MAIN
+END
+
+do (b=10. ) ( resid 1 ) 
+do (q=1. ) ( resid 2 ) 
+do (q=0.5 )  ( resid 3 ) 
+
+write structure end
+write coordinates end
+
+duplicate 
+   selection=( all ) 
+   segid="COMP"
+end
+
+
+delete selection=( segid "MAIN" ) end
+do ( segid="MAIN" ) ( all )
+
+write structure  end
+write coordinates end
+
+do ( segid="ALT1" ) 
+  ( resid 1 and not ( name ca or name n or name c or name o ) ) 
+duplicate
+    segid="ALT2"
+    selection=
+      ( resid 1 and not ( name ca or name n or name c or name o ) ) 
+end
+
+write structure  end
+write coordinates  end
+
+igroup
+     inter = ( segid main ) ( segid main ) 
+     inter = ( segid main or segid ALT1 ) ( segid ALT1  ) 
+     inter = ( segid main or segid ALT2 ) ( segid ALT2 ) 
+end
+
+energy end
+
+print bonds
+print angles
+print impropers
+print dihedrals
+
+
+stop
+
+
+

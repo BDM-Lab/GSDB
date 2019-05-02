@@ -1,0 +1,58 @@
+optimize bfactor {<xray-optimize-bfactor-statement>} end
+
+<xray-optimize-bfactor-statement> :==
+
+  ?
+  --{Print current parameters and options.}
+  drop=<real>
+  --{Expected initial drop in energy (only for POWELL method). Default=10}
+  nstep=<integer>
+  --{Number of conjugate gradient steps. Default=0}
+  tolerance=<real>
+  --{Minimum gradient that forces exit of optimization. Default=0.000001}
+  maxfevaluations=<integer>
+  --{For LBFGS method only: Maximum number of energy evalulations during 
+     line search. Default=10}
+  method=powell|lbfgs
+  --{Minimization method: POWELL or LBFGS. Default=POWELL}
+  rweight=<real>
+  --{Weight for B-factor restraints. If negative, weight will be set
+     automatically. If zero, no restraints will be computed. Default=-1}
+  bsigma <atom-selection> <real>
+  --{Target standard-deviation between B-factors of selected bonded atoms.}
+  asigma <atom-selection> <real>
+  --{Target standard-deviation between B-factors of selected 
+     terminal atoms in angles.}
+  group <atom-selection> 
+  --(defines a grouped B-factor constraint: the B-factor change will be 
+     constrained to be identical for all selected atom. Multiple groups 
+     can be specified.) 
+  bmin=<real>
+  --{Minimum allowed B-factor. Default=2}
+  bmax=<real>
+  --{Maximum allowed B-factor. Default=100}
+  debug=<logical>
+  --{Perform finite difference test for derivatives. Default=false}
+
+  --{Note:
+     - B-factor restraints are imposed as suggested by Konnert and
+       Hendrickson. Backbone and sidechain B-factor restraints can be
+       assigned by using multiple asigma, bsigma assignments.
+     - B-factors will only be refined for atoms that are both selected
+       in the xray target and are also free to move (i.e. not fixed).
+     - The weights for ncs restraints are specified in the
+       <ncs-restraints-statement>.
+     - The following symbols are declared:
+         $brms_bond     - overall rmsd for bond b restraints
+         $bn_bond       - total number of bond b restraints
+         $ngroup_bond   - number of groups of bond restraints
+         $brms_bond_$k  - rmsd for bond b restraints for group k
+         $bn_bond_$k    - number of bond b restraints for group k
+         $ngroup_angl   - number of groups of angle restraints
+         $brms_angl     - overall rmsd for angle b restraints
+         $bn_angl       - total number of angle restraints
+         $brms_angl_$k  - rmsd for angle b restraints for group k
+         $bn_angl_$k    - number of angle b restraints for group k
+         $ngroup_ncs    - number of groups of ncs restraints
+         $brms_ncs_$k   - rmsd for ncs b restraints for group k
+         $bn_ncs_$k     - number of ncs b restraints for group k}

@@ -1,0 +1,42 @@
+distance <distance-statement> end
+
+--{Nonbonded distance analysis: analyses the nonbonded distances as
+   provided by the nonbonded list routines.}
+
+<distance-statement> :==
+
+  from=<atom-selection>
+  --{Select subset of atoms for distance analysis.}
+  to=<atom-selection>
+  --{Select subset of atoms for distance analysis.}
+  cuton=<real>
+  --{Lower distance cutoff for distance analysis.}
+  cutoff=<real>
+  --{Upper distance cutoff for distance analysis.
+     Distances less than cutoff and less than the list cutoff (cutnb)
+     will be used.}
+  resdelta=<integer>
+  --{If specified then only selected distances between atoms in the same
+     segid and sequence separation less or equal to RESDELTA will be used. If 
+     both resdelta and reslow are set to -1, no selections based on sequence
+     or SEGIDs will be done.}
+  reslow=<integer>
+  --{If specified then only selected distances between atoms in the same
+     segid and sequence separation larger or equal to RESLOW will be used. If 
+     both resdelta and reslow are set to -1, no selections based on sequence
+     or SEGIDs will be done.}
+  ndistance=<integer>
+  --{If specified then NDISTANCE distances will be randomly
+     picked from the subset of selected interactions from the interaction list.}
+  disposition=den|print|rmsd|matrix
+  --{Define destination for analysis results.
+     rmsd: stores the minimum nonbonded distance for each atom in 
+           from set to all atoms in to set in rmsd array.
+     print: writes all selected nonbonded distances to the specified 
+            output file.
+     den: generates DEN distance assignments and writes them to 
+          specified file.
+     matrix: stores all selected, nonbonded distances in a matrix and 
+             then writes the matrix to the specified output file.}
+  output=<filename>
+  --{File for distance matrix. Default: output.}

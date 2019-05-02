@@ -1,0 +1,36 @@
+statistics [overall] {<xray-statistics-statement>} end
+
+<xray-statistics-statement> :==
+
+  ( <expression> )
+  --{Multiple expressions may be specified. Expressions must be 
+     of type real. The following symbols are defined for the highest
+     resolution shell: $expression1 .. $expression<n>
+     The number of reflections selected is returned in: $reflections}
+  output=<filename>
+  --{Destination for statistics printout. Default=output}
+  selection=<xray-selection>
+  --{Structure factors to analyse. Default=(all)
+     i.e. any reflection for which there is at least one observation.}
+  completeness
+  --{Ratio of selected to theoretically possible reflections in
+     each resolution bin.}
+
+  --{if overall is specified, bins=1 is used for all expressions and
+     the statistical breakdown. This means that overall statistical
+     quantities are produced for the specified binresolution range.
+     If overall is not specified, the analysis is broken down into
+     resolution shells (determined by the current number of bins).}
+
+  -- Declares variables $expression1, $expression2, ...
+     for highest resolution bin.  $reflections contains the
+     number of reflections in that bin.
+
+     Also declaures the compound symbols:
+      $statistics.nbins
+      $statistics.<i>.nref
+      $statistics.<i>,high
+      $statistics.<i>.low
+      $statistics.<i>.value
+     for the first "expression".
+

@@ -1,0 +1,164 @@
+<HTML>
+<HEAD>
+   <TITLE>Crystallography & NMR System</TITLE>
+</HEAD>
+<BODY BGCOLOR=#8ebf8e>
+
+<HR WIDTH="100%"></P>
+
+<H2>Checking the model statistics and maps</H2>
+
+<HR WIDTH="100%"></P>
+   
+<P>The model statistics are checked (as at the start of refinement) in
+order to check the model geometry and fit to the experimental
+diffraction data. In this example the CNS task file
+<TT>model_stats_final.inp</TT> is used to analyze the model geometry
+and diffraction statistics (the <tt>model_stats_final.inp</tt> file is taken from the <tt>model_stats.inp</tt> input file, i.e., the only differences are the particular input parameter settings): :</P>
+
+<PRE>
+      cns_solve &lt; <A HREF="model_stats_final.inp">model_stats_final.inp</A> &gt; model_stats_final.out
+</PRE>
+
+<P>The output listing file (<A
+HREF="model_stats_final.list">model_stats_final.list</A>) contains a
+variety of information which is self-explanatory. Important things to
+note are:<P>
+
+<P>R-values:</P>
+
+<p>=================================== summary ==================================</p>
+<p>resolution range: 500 - 1.9 A<br>
+  R-values:<br>
+  initial                                        r= 0.3711 free_r= 0.3669<br>
+  after B-factor and/or bulk solvent correction  r= 0.2481 free_r= 0.2811</p>
+<PRE>&nbsp;</PRE>
+
+<P>R-values versus resolution:</P>
+
+<pre>================================= R-values ===================================
+ </pre>
+<pre>=======&gt; R-values with |Fobs|/sigma cutoff= 0.0</pre>
+<pre> Test set (test = 1):</pre>
+<pre> #bin | resolution range | #refl | 
+   1   4.09  500.01        529      0.2421
+   2   3.25    4.09        439      0.2420
+   3   2.84    3.25        538      0.2910
+   4   2.58    2.84        514      0.3291
+   5   2.39    2.58        517      0.2995
+   6   2.25    2.39        484      0.3083
+   7   2.14    2.25        456      0.2996
+   8   2.05    2.14        461      0.3472
+   9   1.97    2.05        393      0.3806
+  10   1.90    1.97        382      0.3674</pre>
+<pre> Working set:</pre>
+<pre> #bin | resolution range | #refl | 
+   1   4.09  500.01       4660      0.2004
+   2   3.25    4.09       4764      0.2305
+   3   2.84    3.25       4636      0.2716
+   4   2.58    2.84       4532      0.2759
+   5   2.39    2.58       4460      0.2679
+   6   2.25    2.39       4336      0.2662
+   7   2.14    2.25       4185      0.2750
+   8   2.05    2.14       3993      0.2994
+   9   1.97    2.05       3754      0.3228
+  10   1.90    1.97       3412      0.3505</pre>
+<PRE>&nbsp;</PRE>
+
+<P>This distribution of R-values is reasonable - there is no dramatic
+increase in R-value (in particular free R-value) as resolution
+increases. If there were resolution shells with R-values significantly
+higher than the rest this might indicate possible problems with the
+data processing (ice rings for example). However, the R-values
+indicate the fit to the experimental data and should not be
+manipulated by removing data - in particular by the use of sigma
+cutoffs to exclude weak data.</P>
+
+<P>The overall geometry:</P>
+
+<PRE>
+rmsd bonds= 0.008832 with 5 bond violations &gt; 0.05<br>rmsd angles=  1.30821 with 5 angle violations &gt;  8.0<br>rmsd dihedrals= 21.86979 with 3 angle violations &gt;  60.0<br>rmsd improper=  0.86649 with 10 angle violations &gt;  3.0
+</PRE>
+<p><br>
+  These overall statistics are acceptable, but it is necessary to<br>
+  check the outlying angle and improper deviations in the detailed<br>
+  geometry analysis (below).</p>
+
+<p>The geometry in detail:</p>
+
+<pre>================================= geometry ===================================</pre>
+<pre>=======&gt; bond violations</pre>
+<pre>   (atom-i        |atom-j        )    dist.   equil.   delta    energy   const. </pre>
+<pre>   (     100  SD  |     100  CE  )    1.725    1.791   -0.066    0.732  170.066
+   (     112  SD  |     112  CE  )    1.738    1.791   -0.053    0.484  170.066
+   (     182  SD  |     182  CE  )    1.613    1.791   -0.178    5.416  170.066
+   (     184  SD  |     184  CE  )    1.660    1.791   -0.131    2.914  170.066
+   (     195  CB  |     195  CG  )    1.542    1.492    0.050    0.601  236.800</pre>
+<pre>=======&gt; angle violations</pre>
+<pre>   (atom-i        |atom-j        |atom-k        )  angle    equil.     delta    energy  const. </pre>
+<pre>   (     28   N   |     28   CA  |     28   C   )   98.669  111.200  -12.531   11.857  247.886
+   (     68   N   |     68   CA  |     68   C   )  101.611  111.200   -9.589    6.943  247.886
+   (     129  N   |     129  CA  |     129  C   )  102.623  111.200   -8.577    5.555  247.886
+   (     162  N   |     162  CA  |     162  C   )  121.296  111.800    9.496    8.541  310.948
+   (     197  N   |     197  CA  |     197  C   )   99.548  111.200  -11.652   10.252  247.886</pre>
+<pre>=======&gt; improper angle violations</pre>
+<pre>   (atom-i        |atom-j        |atom-k        |atom-L        )    angle    equil.   delta    energy   const.   period</pre>
+<pre>   (     40   N   |     40   CA  |     40   CD  |     39   C   )   -5.398    0.000    5.398    0.888  100.000   0
+   (     140  N   |     140  CA  |     140  CD  |     139  C   )   -3.465    0.000    3.465    0.366  100.000   0
+   (     143  CA  |     143  N   |     143  C   |     143  CB  )   38.567   35.264   -3.303    2.492  750.000   0
+   (     162  N   |     162  CA  |     162  CD  |     161  C   )    6.009    0.000   -6.009    1.100  100.000   0
+   (     170  CA  |     170  N   |     170  C   |     170  CB  )   32.039   35.264    3.226    2.377  750.000   0
+   (     195  N   |     195  CA  |     195  CD  |     194  C   )    5.693    0.000   -5.693    0.987  100.000   0
+   (     249  N   |     249  CA  |     249  CD  |     248  C   )    8.319    0.000   -8.319    2.108  100.000   0
+   (     600  PG  |     600  O1G |     600  O2G |     600  O3G )  -30.135  -35.000   -4.865    5.407  750.000   0
+   (     600  C3* |     600  C4* |     600  O3* |     600  C2* )  -38.073  -35.000    3.073    2.158  750.000   0
+   (     600  C2* |     600  C3* |     600  O2* |     600  C1* )  -38.171  -35.000    3.171    2.297  750.000   0</pre>
+<pre>=======&gt; dihedral angle violations</pre>
+<pre>   (atom-i        |atom-j        |atom-k        |atom-L        )    angle    equil.   delta    energy   const.   period</pre>
+<pre>   (     100  CB  |     100  CG  |     100  SD  |     100  CE  ) -154.275  -90.000   64.275    8.116    5.000   2
+   (     600  O1A |     600  PA  |     600  O5* |     600  C5* )  -13.368  180.000 -166.632    0.000    0.000   0
+   (     600  O5* |     600  C5* |     600  C4* |     600  C3* )  -86.433  180.000  -93.567    0.000    0.000   0</pre>
+<pre>&nbsp;</pre>
+
+<P>Specific problems with the model geometry can be identified
+here. The systematically longer bond lengths for the methionine SD CE
+bond may seems strange. However, they are caused by the use of the
+experimental phases in the refinement. These phases were generated for
+the protein with selenomethionine. The selenium carbon bond for (SE
+CE) is longer and the force constant for the SD CE bond is low
+(allowing the bond length to deviate from the expected values).</P>
+
+<P>After analysis of the geometry and fit to the experimental data
+electron density maps should be checked. Cross-validated, sigma-A
+weighted, phase combined 2Fo-Fc and Fo-Fc difference maps are
+calculated (the <tt>model_map_final.inp</tt> file is taken from the <tt>model_map.inp</tt> input file, i.e., the only differences are the particular input parameter settings):</P>
+
+<PRE>
+      cns_solve &lt; <A HREF="model_map_final.inp">model_map_final.inp</A> &gt; model_map_final.out
+</PRE>
+<P>Analysis of the difference map (model_map_final_fofc.map or model_map_final_fofc.hkl) shows that some ordered water
+molecules are still missing. These can be placed either
+manually or by further rounds of automated water picking. It appears that the criteria (e.g., maximum allowed water B-factor) used to reject waters in the previous water picking round may have been too stringent.</P>
+
+<TABLE ALIGN=CENTER>
+<TR>
+<TD ALIGN=CENTER><IMG SRC="final_diff.jpeg"
+    HEIGHT=340 WIDTH=429></TD>
+</TR>
+<TR>
+<TD ALIGN=CENTER>Cross-validated, phase combined Sigma-A weighted difference map (red is +4 sigma, green is -4 sigma).<BR>
+                 Missing waters around the magnesium ion are clear.</TD>
+</TR>
+</TABLE>
+
+<BR><A HREF="tutorial.csh">Script to run this tutorial</A>
+
+<HR WIDTH="100%"></P>
+
+<A HREF="../../text.html">Back to tutorials</A>&nbsp;&nbsp;
+<A HREF="../water_pick/text.html">Previous section</A>&nbsp;&nbsp;
+
+<HR WIDTH="100%"></P>
+   
+</BODY>
+</HTML>

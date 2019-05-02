@@ -1,0 +1,109 @@
+! Module file: read_delete_sdb
+!
+! CNS module
+! **********
+!
+! Authors: Axel Brunger and Paul Adams
+!
+! copyright Yale University
+!
+! Function:
+!    Read a site database files and transfer the information
+!    to a compound symbol, the sites in the compound variable
+!    delete are deleted from the list
+!
+! Requirements:
+
+module {read_delete_sdb}
+
+(
+&file;
+&siteinfo;
+&delete;
+&sg_expected;
+&sg_read;
+)
+
+ set message ? end
+ evaluate ($message_old=$result)
+ set echo ? end
+ evaluate ($echo_old=$result)
+ if ( $log_level = verbose ) then
+   set echo=on message=normal end
+ else
+   set echo=off message=off end
+ end if
+
+ set display=? end
+ evaluate ($curr_display=$result)
+
+ checkversion 1.3
+
+ inline @@&file
+
+ if (&EXIST%sg = true) then
+   eval(&sg_read = &sg)
+ else
+   eval(&sg_read = "")
+ end if
+
+ if (&BLANK%sg_expected = false) then
+   if (&BLANK%sg_read = false) then
+     eval($sgecaps=capitalize(&sg_expected))
+     eval($sgrcaps=capitalize(&sg_read))
+     if ($sgecaps # $sgrcaps) then
+       set display=OUTPUT end
+       display
+       display ************************************************************
+       display FATAL ERROR: SPACE GROUP NAME MISMATCH
+       display Expected space group name: &sg_expected
+       display Space group in &file: &sg_read
+       display Please check the space group definitions!
+       display ************************************************************
+       display
+       abort
+     end if
+   end if
+ end if
+
+ evaluate ($done=false)
+ evaluate ($count=1)
+ evaluate ($add=0)
+
+ while ( $done = false ) loop new
+
+   if ( &EXIST%site.action_$count = true ) then
+     if ( &BLANK%site.segid_$count = true ) then
+       evaluate ($del_this=true)
+     else
+       evaluate ($dcount=1)
+       evaluate ($del_this=false)
+       while ( $dcount <= &delete.num ) loop del
+         if ( &delete.$dcount = $count ) then
+           evaluate ($del_this=true)
+         end if
+         evaluate ($dcount=$dcount+1)
+       end loop del
+     end if
+     if ( $del_this = false ) then
+       evaluate ($add=$add+1)
+       evaluate (&siteinfo.x_$add=&site.x_$count)
+       evaluate (&siteinfo.y_$add=&site.y_$count)
+       evaluate (&siteinfo.z_$add=&site.z_$count)
+       evaluate (&siteinfo.b_$add=&site.b_$count)
+       evaluate (&siteinfo.q_$add=&site.q_$count)
+       evaluate (&siteinfo.g_$add=&site.g_$count)
+       evaluate (&siteinfo.type_$add=&site.type_$count)
+       evaluate (&siteinfo.segid_$add=capitalize(&site.segid_$count))
+       evaluate (&siteinfo.action_$add=&site.action_$count)
+       evaluate (&siteinfo.counter=$add)
+     end if
+   else
+     evaluate ($done=true)
+   end if
+
+   evaluate ($count=$count+1)
+
+ end loop new
+
+ set message=$message_old echo=$echo_old end

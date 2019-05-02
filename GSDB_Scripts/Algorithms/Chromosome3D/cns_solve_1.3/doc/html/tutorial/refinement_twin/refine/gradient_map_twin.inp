@@ -1,0 +1,1052 @@
+{+ file: gradient_map_twin.inp +}
+{+ directory: xtal_twin +}
+{+ description: Make a gradient electron density map  +}
+{+ authors: Axel T. Brunger and Paul D. Adams +}
+{+ copyright: Yale University +}
+
+{+ reference: T.O. Yeates, Detecting and Overcoming Crystal Twinning,
+              Methods in Enzymology 276, 344-358 (1997) +}
+{+ reference: R.J. Read, Improved Fourier coefficients for maps using 
+              phases from partial structures with errors. Acta Cryst. 
+              A42, 140-149 (1986) +}
+{+ reference: G.J. Kleywegt and A.T. Brunger, Checking your imagination:
+              Applications of the free R value, Structure 4,
+              897-904 (1996) +}
+{+ reference: A.T. Brunger, P.D. Adams and L.M. Rice, New applications
+              of simulated annealing in X-ray crystallography and
+              solution NMR, Structure 5, 325-336, (1997) +}
+
+{- Guidelines for using this file:
+   - all strings must be quoted by double-quotes
+   - logical variables (true/false) must not be quoted
+   - do not remove any evaluate statements from the file -}
+
+{========================== IMPORTANT NOTE ===========================}
+
+{* This input file requires that the test set has been generated with
+   the CNS task file make_cv_twin.inp. This ensures that twin related
+   reflections are part of the same set. *}
+
+{- begin block parameter definition -} define(
+
+{============================ coordinates ============================}
+
+{* coordinate file *}
+{===>} coordinate_infile="refine_twin.pdb";
+
+{==================== molecular information ==========================}
+
+{* topology files *}
+{===>} topology_infile_1="CNS_TOPPAR:protein.top";
+{===>} topology_infile_2="CNS_TOPPAR:dna-rna.top";
+{===>} topology_infile_3="CNS_TOPPAR:water.top";
+{===>} topology_infile_4="CNS_TOPPAR:ion.top";
+{===>} topology_infile_5="CNS_TOPPAR:carbohydrate.top";
+{===>} topology_infile_6="";
+{===>} topology_infile_7="";
+{===>} topology_infile_8="";
+
+{* linkage files for linear, continuous polymers (protein, DNA, RNA) *}
+{===>} link_infile_1="CNS_TOPPAR:protein.link";
+{===>} link_infile_2="CNS_TOPPAR:dna-rna-pho.link";
+{===>} link_infile_3="";
+
+{* parameter files *}
+{===>} parameter_infile_1="CNS_TOPPAR:protein_rep.param";
+{===>} parameter_infile_2="CNS_TOPPAR:dna-rna_rep.param";
+{===>} parameter_infile_3="CNS_TOPPAR:water_rep.param";
+{===>} parameter_infile_4="CNS_TOPPAR:ion.param";
+{===>} parameter_infile_5="CNS_TOPPAR:carbohydrate.param";
+{===>} parameter_infile_6="";
+{===>} parameter_infile_7="";
+{===>} parameter_infile_8="";
+
+{* molecular topology file: optional (leave blank for auto generation) *}
+{* 
+   Auto generation of the molecular topology from the coordinates should only 
+   be used if:
+   (1) Each distinct protein, DNA, or RNA chain must have a separate segid 
+       (or chainid if the chainid is non-blank). 
+   (2) Each contiguous protein, RNA, or RNA chain must not be disrupted by 
+       other types of residues or ligands.  Rather, these other residues 
+       should be listed after protein, RNA/DNA chains. 
+   (3) Disulphides are automatically detected based on distances between the sulfur atoms
+      (must be less than 3 A apart).
+   (4) Broken protein/RNA/DNA chains without terminii must be more than 2.5 A apart to be recognized as such.
+   (5) N-linked glycan links are automatically recognized if the bonded atoms are less than 2.5 A apart.
+   (6) Automatic generation cannot be used with alternate conformations. 
+   For ligands, the user must make suitable topology and parameter files.
+   For non-standard covalent linkages, the custom patch file should be used.
+   Alternatively, the generate.inp or generate_easy.inp task files
+   can be used to generated the mtf prior to running this task file.
+    *}
+{===>} structure_infile="";
+
+{* for auto generation: extra linkages and modifications by custom patches *}
+{===>} patch_infile="";
+
+{====================== crystallographic data ========================}
+
+{* space group *}
+{* use International Table conventions with subscripts substituted
+   by parenthesis *}
+{===>} sg="R3";
+
+{* unit cell parameters in Angstroms and degrees *}
+{+ table: rows=1 "cell" cols=6 "a" "b" "c" "alpha" "beta" "gamma" +}
+{===>} a=104.400;
+{===>} b=104.400;
+{===>} c=124.250;
+{===>} alpha=90;
+{===>} beta=90;
+{===>} gamma=120;
+
+{* anomalous f' f'' library file *}
+{* If a file is not specified, no anomalous contribution will be included *}
+{+ choice: "CNS_XRAYLIB:anom_cu.lib" "CNS_XRAYLIB:anom_mo.lib" "" user_file +}
+{===>} anom_library="";
+
+{* reflection files *}
+{* specify non-anomalous reflection files before anomalous reflection files. *}
+{* files must contain unique array names otherwise errors will occur *}
+{===>} reflection_infile_1="porin.cv";
+{===>} reflection_infile_2="";
+{===>} reflection_infile_3="";
+{===>} reflection_infile_4="";
+
+{* reciprocal space array containing observed amplitudes: required *}
+{===>} obs_f="fobs";
+
+{* reciprocal space array containing sigma values for amplitudes: required *}
+{===>} obs_sigf="sigma";
+
+{* reciprocal space array containing test set for cross-validation:
+   required for calculation of cross-validated sigmaA values *}
+{===>} test_set="test";
+
+{* number for selection of test reflections: required for cross-validation *}
+{* ie. reflections with the test set array equal to this number will be
+       used for cross-validation, all other reflections form the working set *}
+{===>} test_flag=1;
+
+{* reciprocal space array containing weighting scheme for observed
+   amplitudes: optional *}
+{* only used for the "residual" and "vector" targets - this will
+   default to a constant value of 1 if array is not present *}
+{===>} obs_w="";
+
+{* reciprocal space array containing observed intensities: optional *}
+{* required for the "mli" target *}
+{===>} obs_i="";
+
+{* reciprocal space array containing sigma values for intensities: optional *}
+{* required for the "mli" target *}
+{===>} obs_sigi="";
+
+{* reciprocal space arrays with experimental phase probability
+   distribution: optional *}
+{* Hendrickson-Lattman coefficients A,B,C,D *}
+{* required for the "mlhl" target and phase combined or observed maps *}
+{+ table: rows=1 "HL coefficients" cols=4 "A" "B" "C" "D" +}
+{===>} obs_pa="";
+{===>} obs_pb="";
+{===>} obs_pc="";
+{===>} obs_pd="";
+
+{* complex reciprocal space array containing experimental phases: optional *}
+{* required for the "mixed" and "vector" targets *}
+{===>} obs_phase="";
+
+{* reciprocal space array containing experimental figures of merit: optional *}
+{* required for the "mixed" target *}
+{===>} obs_fom="";
+
+{* resolution limits for data included in map calculation *}
+{* all data available should be included in the map calculation *}
+{+ table: rows=1 "resolution" cols=2 "lowest" "highest" +}
+{===>} low_res=500.0;
+{===>} high_res=2.25;
+
+{* apply rejection criteria to amplitudes or intensities *}
+{+ choice: "amplitude" "intensity" +}
+{===>} obs_type="amplitude";
+
+{* Observed data cutoff criteria: applied to amplitudes or intensities *}
+{* reflections with magnitude(Obs)/sigma < cutoff are rejected. *}
+{===>} sigma_cut=0.0;
+
+{* rms outlier cutoff: applied to amplitudes or intensities *}
+{* reflections with magnitude(Obs) > cutoff*rms(Obs) will be rejected *}
+{===>} obs_rms=10000;
+
+{=================== non-crystallographic symmetry ===================}
+
+{* NCS-restraints/constraints file *}
+{* see auxiliary/ncs.def *}
+{===>} ncs_infile="";
+
+{============ overall B-factor and bulk solvent corrections ==========}
+
+{* overall B-factor correction *}
+{+ choice: "no" "isotropic" "anisotropic" +}
+{===>} bscale="anisotropic";
+
+{* bulk solvent correction *}
+{* a mask is required around the molecule(s). The region
+   outside this mask is the solvent region *}
+{+ choice: true false +}
+{===>} bulk_sol=true;
+
+{* bulk solvent mask file *}
+{* mask will be read from O type mask file if a name is given
+   otherwise calculated from coordinates of selected atoms *}
+{===>} bulk_mask_infile="";
+
+{* automatic bulk solvent parameter optimization for e-density level sol_k (e/A^3) and B-factor sol_b (A^2) *}
+{+ choice: true false +}
+{===>} sol_auto=true;
+
+{* fixed solvent parameters (used if the automatic option is turned off) *}
+{+ table: rows=1 "bulk solvent" cols=2 "e-density level sol_k (e/A^3)" "B-factor sol_b (A^2) " +}
+{===>} sol_k=-1;
+{===>} sol_b=-1;
+
+{* optional file with a listing of the results of the automatic bulk solvent optimization *}
+{===>} sol_output="";
+
+{* solvent mask parameters *}
+{+ table: rows=1 "bulk solvent" cols=2 "probe radius (A) (usually set to 1)" "shrink radius (A) (usually set to 1)" +}
+{===>} sol_rad=1.0;
+{===>} sol_shrink=1.0;
+
+{======================= twinning parameters =========================}
+
+{* twinning operation *}
+{===>} twin_oper="h,-h-k,-l";
+
+{* twinning fraction *}
+{===>} twin_frac=0.304;
+
+{========================== atom selection ===========================}
+
+{* select atoms to be included in map calculation *}
+{===>} atom_select=(known and not hydrogen);
+
+{==================== map generation parameters ======================}
+
+{* refinement target *}
+{+ list: twin_lsq: least squares residual for hemihedral twinning +}
+{+ choice: "twin_lsq" +}
+{===>} reftarget="twin_lsq";
+
+{* number of bins for refinement target *}
+{* this will be determined automatically if a negative value is given
+   otherwise the specified number of bins will be used *}
+{===>} target_bins=-1;
+
+{* use model amplitudes for unmeasured data *}
+{* this will not be applied to gradient or difference maps *}
+{+ choice: true false +}
+{===>} fill_in=false;
+
+{* scale map by dividing by the rms sigma of the map *}
+{* otherwise map will be on an absolute fobs scale *}
+{+ choice: true false +}
+{===>} map_scale=true;
+
+{* map format *}
+{+ choice: "cns" "ezd" +}
+{===>} map_format="cns";
+
+{* b-factor sharpening (A^2), for example, -100 *}
+{===>} bsharp=0;
+
+{* map grid size: dmin*grid *}
+{* use grid=0.25 for better map appearance *}
+{===>} grid=0.25;
+
+{* memory allocation for FFT calculation *}
+{* this will be determined automatically if a negative value is given
+   otherwise the specified number of words will be allocated *}
+{===>} fft_memory=-1;
+
+{* extent of map *}
+{+ choice: "molecule" "asymmetric" "unit" "box" "fract" +}
+{===>} map_mode="molecule";
+
+{* select atoms around which map will be written *}
+{* change if different to atoms selected for map calculation *}
+{===>} atom_map=(known and not hydrogen);
+
+{* cushion (in Angstroms) around selected atoms in "molecule" mode *}
+{===>} map_cushion=3.0;
+
+{* limits in orthogonal angstroms for box mode or
+   fractional coordinates for fract mode *}
+{+ table: rows=3 "x" "y" "z" cols=2 "minimum" "maximum" +}
+{===>} xmin=0.;
+{===>} xmax=0.;
+{===>} ymin=0.;
+{===>} ymax=0.;
+{===>} zmin=0.;
+{===>} zmax=0.;
+
+{=========================== output files ============================}
+
+{* root name for output files *}
+{+ list:
+         map file will be in: <output_root>.map
+         positive peaks in: <output_root>_positive.peaks
+         negative peaks in: <output_root>_negative.peaks
+         Fourier coefficients will be in: <output_root>.hkl +}
+{===>} output_root="gradient_map_twin";
+
+{* write map file *}
+{+ choice: true false +}
+{===>} write_map=true;
+
+{* do peak picking on map *}
+{* optional - use water_pick_twin.inp to pick waters *} 
+{+ choice: true false +}
+{===>} peak_search=false;
+
+{* number of peaks to pick from map *}
+{===>} peak_num=30;
+
+{* write a reflection file with the Fourier coefficients of the map *}
+{+ list: arrays written:
+         map_coeff: Fourier map coefficients - map=ft(map_coeff) +}
+{+ choice: true false +}
+{===>} write_coeff=false;
+
+{===========================================================================}
+{         things below this line do not normally need to be changed         }
+{===========================================================================}
+
+ ) {- end block parameter definition -}
+
+ checkversion 1.3
+
+ evaluate ($log_level=quiet)
+
+ if ( $log_level = verbose ) then
+   set message=normal echo=on end
+ else
+   set message=off echo=off end
+ end if
+
+ if ( &BLANK%structure_infile = true ) then
+ 
+    {- read topology files -}
+    topology
+     evaluate ($counter=1)
+     evaluate ($done=false)
+     while ( $done = false ) loop read
+      if ( &exist_topology_infile_$counter = true ) then
+         if ( &BLANK%topology_infile_$counter = false ) then
+            @@&topology_infile_$counter
+         end if
+      else
+        evaluate ($done=true)
+      end if
+      evaluate ($counter=$counter+1)
+     end loop read
+    end
+    
+    @CNS_XTALMODULE:mtfautogenerate (
+                                  coordinate_infile=&coordinate_infile;
+                                  convert=true;
+                                  separate=true;
+                                  atom_delete=(not known);
+                                  hydrogen_flag=true;
+                                  break_cutoff=2.5;
+                                  disulphide_dist=3.0;
+                                  carbo_dist=2.5;
+                                  patch_infile=&patch_infile;
+                                  O5_becomes="O";
+                                 )
+
+ else
+
+   structure @&structure_infile end
+   coordinates @&coordinate_infile
+
+ end if
+
+ {- read parameter files -}
+ parameter
+  evaluate ($counter=1)
+  evaluate ($done=false)
+  while ( $done = false ) loop read
+   if ( &exist_parameter_infile_$counter = true ) then
+      if ( &BLANK%parameter_infile_$counter = false ) then
+         @@&parameter_infile_$counter
+      end if
+   else
+     evaluate ($done=true)
+   end if
+   evaluate ($counter=$counter+1)
+  end loop read
+ end
+
+ set message=normal echo=on end
+
+ xray
+
+   @CNS_XTALLIB:spacegroup.lib (sg=&sg;sgparam=$sgparam;)
+
+   a=&a b=&b c=&c  alpha=&alpha beta=&beta gamma=&gamma
+  
+   @CNS_XRAYLIB:scatter.lib
+
+   binresolution &low_res &high_res
+   mapresolution &high_res
+
+   generate &low_res &high_res
+
+   evaluate ($counter=1)
+   evaluate ($done=false)
+   while ( $done = false ) loop read
+    if ( &exist_reflection_infile_$counter = true ) then
+      if ( &BLANK%reflection_infile_$counter = false ) then
+       reflection
+         @@&reflection_infile_$counter
+       end
+      end if
+   else
+     evaluate ($done=true)
+   end if
+   evaluate ($counter=$counter+1)
+  end loop read
+
+ end
+
+ if ( &BLANK%anom_library = false ) then
+   @@&anom_library
+ else
+   set echo=off end
+   xray anomalous=? end
+   if ( $result = true ) then
+     display Warning: no anomalous library has been specified
+     display          no anomalous contribution will used in refinement
+   end if
+   set echo=on end
+ end if
+
+ set echo=off end
+ if ( &twin_frac > 0.5 ) then
+   display Error: twinning fraction must be less than or equal 0.5
+   abort
+ end if
+ set echo=on end
+
+ {- copy define parameters of optional arrays into symbols so 
+    we can redefine them -}
+    
+ evaluate ($obs_i=&obs_i)
+ evaluate ($obs_sigi=&obs_sigi)
+ evaluate ($obs_w=&obs_w)
+ xray
+   @@CNS_XTALMODULE:checkrefinput (
+                                  reftarget=&reftarget;
+                                  obs_f=&obs_f;
+                                  obs_sigf=&obs_sigf;
+                                  test_set=&test_set;
+                                  obs_pa=&obs_pa;
+                                  obs_pb=&obs_pb;
+                                  obs_pc=&obs_pc;
+                                  obs_pd=&obs_pd;
+                                  obs_phase=&obs_phase;
+                                  obs_fom=&obs_fom;
+                                  obs_w=$obs_w;
+                                  obs_i=$obs_i;
+                                  obs_sigi=$obs_sigi;
+                                  )
+
+   query name=fcalc domain=reciprocal end
+   if ( $object_exist = false ) then
+      declare name=fcalc domain=reciprocal type=complex end
+   end if
+   declare name=fbulk domain=reciprocal type=complex end
+   do (fbulk=0) ( all )
+
+   query name=&STRIP%obs_f domain=reciprocal end
+   declare name=fobs_orig domain=reciprocal type=$object_type end
+   declare name=sigma_orig domain=reciprocal type=real end
+
+   do (fobs_orig=&STRIP%obs_f) (all)
+   do (sigma_orig=&STRIP%obs_sigf) (all)
+
+   if ( &BLANK%obs_i = false ) then
+     query name=&STRIP%obs_i domain=reciprocal end
+     declare name=iobs_orig domain=reciprocal type=$object_type end
+     declare name=sigi_orig domain=reciprocal type=real end
+     do (iobs_orig=&STRIP%obs_i) (all)
+     do (sigi_orig=&STRIP%obs_sigi) (all)
+   end if
+
+   if ( &obs_type = "intensity" ) then
+     if ( &BLANK%obs_i = true ) then
+       display  Error: observed intensity array is undefined
+       display         aborting script
+       abort
+     end if
+     evaluate ($reject_obs=&obs_i)
+     evaluate ($reject_sig=&obs_sigi)
+   else
+     evaluate ($reject_obs=&obs_f)
+     evaluate ($reject_sig=&obs_sigf)
+   end if
+
+   declare name=ref_active domain=reciprocal type=integer end
+   declare name=tst_active domain=reciprocal type=integer end
+
+   do (ref_active=0) ( all )
+   do (ref_active=1) ( ( $STRIP%reject_sig # 0 ) and
+                      ( &low_res >= d >= &high_res ) )
+
+   statistics overall
+     completeness
+     selection=( ref_active=1 )
+   end
+   evaluate ($total_compl=$expression1)
+
+   show sum(1) ( ref_active=1 )
+   evaluate ($total_read=$select)
+   evaluate ($total_theor=int(1./$total_compl * $total_read))
+
+   show rms (amplitude($STRIP%reject_obs)) ( ref_active=1 )
+   evaluate ($obs_high=$result*&obs_rms)
+   show min (amplitude($STRIP%reject_obs)) ( ref_active=1 )
+   evaluate ($obs_low=$result)
+
+   do (ref_active=0) ( all )
+   do (ref_active=1)
+                  ( ( amplitude($STRIP%reject_obs) > &sigma_cut*$STRIP%reject_sig ) and
+                    ( $STRIP%reject_sig # 0 ) and
+                    ( $obs_low <= amplitude($STRIP%reject_obs) <= $obs_high ) and
+                    ( $obs_low <= amplitude(remap[&STRIP%twin_oper]($STRIP%reject_obs)) <= $obs_high ) and
+                    ( &low_res >= d >= &high_res ) )
+
+   do (tst_active=0) (all)
+   if ( &BLANK%test_set = false ) then
+     do (tst_active=1) (ref_active=1 and &STRIP%test_set=&test_flag)
+   end if
+
+   show sum(1) ( ref_active=1 and tst_active=0 )
+   evaluate ($total_work=$select)
+   show sum(1) ( ref_active=1 and tst_active=1 )
+   evaluate ($total_test=$select)
+   evaluate ($total_used=$total_work+$total_test)
+
+   evaluate ($unobserved=$total_theor-$total_read)
+   evaluate ($rejected=$total_read-$total_used)
+   evaluate ($per_unobs=100*($unobserved/$total_theor))
+   evaluate ($per_reject=100*($rejected/$total_theor))
+   evaluate ($per_used=100*($total_used/$total_theor))
+   evaluate ($per_work=100*($total_work/$total_theor))
+   evaluate ($per_test=100*($total_test/$total_theor))
+
+   associate fcalc ( &atom_select )
+
+   tselection=( ref_active=1 )
+
+   cvselection=( tst_active=1 )
+
+   method=FFT          
+
+ end
+ 
+
+ show min ( b ) ( &atom_select )
+ evaluate ($b_min=$result)
+ @@CNS_XTALMODULE:fft_parameter_check ( 
+                             d_min=&high_res; 
+                             b_min=$b_min;
+                             grid=&grid;
+                             fft_memory=&fft_memory;
+                             fft_grid=$fft_grid;   
+                             fft_b_add=$fft_b_add; 
+                             fft_elim=$fft_elim; 
+                                      )
+                            
+ xray
+   
+   tolerance=0.0 lookup=false
+   
+ end                  
+
+ if ( &reftarget = "mlhl" ) then
+   evalaute ($test_hl=true)
+ elseif ( &reftarget = "vector" ) then
+   evalaute ($test_hl=true)
+ elseif ( &reftarget = "combined" ) then
+   evalaute ($test_hl=true)
+ else
+   evalaute ($test_hl=false)
+ end if
+
+ if ( $test_hl = true ) then
+   xray
+     @@CNS_XTALMODULE:check_abcd (pa=&obs_pa;
+                                 pb=&obs_pb;
+                                 pc=&obs_pc;
+                                 pd=&obs_pd;)
+   end
+ end if
+
+ if ( &BLANK%ncs_infile = false ) then
+    inline @&ncs_infile
+ end if
+
+ xray
+   declare name=dtarg domain=reciprocal type=complex end
+   declare name=total domain=reciprocal type=complex end
+   declare name=fmap domain=reciprocal type=complex end
+ end
+
+ xray
+     do (&STRIP%obs_f=fobs_orig) (all)
+     do (&STRIP%obs_sigf=sigma_orig) (all)
+     if ( &BLANK%obs_i = false ) then
+       do (&STRIP%obs_i=iobs_orig) (all)
+       do (&STRIP%obs_sigi=sigi_orig) (all)
+     end if
+ end
+
+ xray
+      predict
+        mode=reciprocal
+        to=fcalc
+        selection=( &low_res >= d >= &high_res )
+        atomselection=( &atom_select ) 
+      end
+ end
+
+ @CNS_XTALMODULE:scale_and_solvent_grid_search (
+                             bscale=&bscale;
+                             sel=( ref_active=1 );
+                             sel_test=( tst_active=1 );
+                             atom_select=( &atom_select );
+                             bulk_sol=&bulk_sol;
+                             bulk_mask=&bulk_mask_infile;
+                             bulk_atoms=( &atom_select );
+                             
+                             sol_auto=&sol_auto;
+                             sol_k=&sol_k;
+                             sol_b=&sol_b;
+                             sol_rad=&sol_rad;
+                             sol_shrink=&sol_shrink;
+  
+                             fcalc=fcalc;
+                             obs_f=&STRIP%obs_f;
+                             obs_sigf=&STRIP%obs_sigf;
+                             obs_i=$STRIP%obs_i;
+                             obs_sigi=$STRIP%obs_sigi;                             
+                             fpart=fbulk;
+
+                             Baniso_11=$Baniso_11;
+                             Baniso_22=$Baniso_22;
+                             Baniso_33=$Baniso_33;
+                             Baniso_12=$Baniso_12;
+                             Baniso_13=$Baniso_13;
+                             Baniso_23=$Baniso_23;
+                             Biso=$Biso_model;
+                             
+                             sol_k_best=$sol_k_ref;
+                             sol_b_best=$sol_b_ref;
+			     solrad_best=$solrad_best;
+			     shrink_best=$shrink_best;
+                             
+                             b=b;
+
+                             low_b_flag=$low_b_flag;
+                            
+                             sol_output=&sol_output;
+                             
+                             )
+ 
+ {- check the gridding again since the minimum B-factor may have changed -}
+ show min ( b ) ( &atom_select )
+ evaluate ($b_min=$result)
+ @@CNS_XTALMODULE:fft_parameter_check ( 
+                             d_min=&high_res; 
+                             b_min=$b_min;
+                             grid=&grid;
+                             fft_memory=&fft_memory;
+                             fft_grid=$fft_grid;   
+                             fft_b_add=$fft_b_add; 
+                             fft_elim=$fft_elim; 
+                                      )
+ xray
+       @@CNS_XTALMODULE:refinementtarget_twin (target=&reftarget;
+                                               sig_sigacv=0.07;
+                                               mbins=&target_bins;
+                                               fobs=&STRIP%obs_f;
+                                               sigma=&STRIP%obs_sigf;
+                                               weight=$STRIP%obs_w;
+                                               iobs=$STRIP%obs_i;
+                                               sigi=$STRIP%obs_sigi;
+                                               test=tst_active;
+                                               fcalc=fcalc;
+                                               fpart=fbulk;
+                                               twin_oper=&STRIP%twin_oper;
+                                               twin_frac=&twin_frac;
+                                               pa=&STRIP%obs_pa;
+                                               pb=&STRIP%obs_pb;
+                                               pc=&STRIP%obs_pc;
+                                               pd=&STRIP%obs_pd;
+                                               phase=&STRIP%obs_phase;
+                                               fom=&STRIP%obs_fom;
+                                               sel=(ref_active=1);
+                                               sel_test=(tst_active=1);
+                                               statistics=true;)
+       predict
+          mode=dtarget(fcalc)
+          to=dtarg
+          selection=(ref_active=1)
+          atomselection=( &atom_select ) 
+       end
+
+ end
+ 
+ xray
+   @@CNS_XTALMODULE:calculate_r_twin (fobs=&STRIP%obs_f;
+                                      fcalc=fcalc;
+                                      fpart=fbulk;
+                                      twin_oper=&STRIP%twin_oper;
+                                      twin_frac=&twin_frac;
+                                      sel=(ref_active=1);
+                                      sel_test=(tst_active=1);
+                                      print=true;
+                                      output=OUTPUT;
+                                      r=$map_r;
+                                      test_r=$map_free_r;)
+ end
+
+ {- detwin the observed data -}
+ xray
+   if ( &twin_frac < 0.5 ) then
+     do (&STRIP%obs_f=fobs_orig) (all)
+     do (&STRIP%obs_sigf=sigma_orig) (all)
+   end if
+   query name=fo_detwin domain=reciprocal end
+   if ( $object_exist = false ) then
+     declare name=fo_detwin domain=reciprocal type=real end
+   else
+     do (fo_detwin=0) (all)
+   end if
+   declare name=ref_det_active domain=reciprocal type=integer end
+   declare name=tst_det_active domain=reciprocal type=integer end
+ end
+
+ xray
+
+   @@CNS_XTALMODULE:data_detwin (fobs=&STRIP%obs_f;
+                                 fcalc=fcalc;
+                                 fpart=fbulk;
+                                 twin_oper=&STRIP%twin_oper;
+                                 twin_frac=&twin_frac;
+                                 sel=(ref_active=1);
+                                 sel_test=(tst_active=1);
+                                 fobs_detwin=fo_detwin;
+                                 ref_detwin=ref_det_active;
+                                 tst_detwin=tst_det_active;
+                                 ref_reject=$ref_detwin_reject;
+                                 tst_reject=$tst_detwin_reject;
+                                 total_reject=$detwin_reject;)
+ end
+
+   @CNS_XTALMODULE:scale_and_solvent_grid_search (
+                             bscale=&bscale;
+                             sel=( ref_det_active=1 );
+                             sel_test=( tst_det_active=1 );
+                             atom_select=( &atom_select );
+                             bulk_sol=&bulk_sol;
+                             bulk_mask=&bulk_mask_infile;
+                             bulk_atoms=( &atom_select );
+                             
+                             sol_auto=&sol_auto;
+                             sol_k=&sol_k;
+                             sol_b=&sol_b;
+                             sol_rad=&sol_rad;
+                             sol_shrink=&sol_shrink;
+  
+                             fcalc=fcalc;
+                             obs_f=fo_detwin;
+                             obs_sigf=&STRIP%obs_sigf;
+                             obs_i=$STRIP%obs_i;
+                             obs_sigi=$STRIP%obs_sigi;                             
+                             fpart=fbulk;
+
+                             Baniso_11=$Baniso_11;
+                             Baniso_22=$Baniso_22;
+                             Baniso_33=$Baniso_33;
+                             Baniso_12=$Baniso_12;
+                             Baniso_13=$Baniso_13;
+                             Baniso_23=$Baniso_23;
+                             Biso=$Biso_model;
+                             
+                             sol_k_best=$sol_k_ref;
+                             sol_b_best=$sol_b_ref;
+			     solrad_best=$solrad_best;
+			     shrink_best=$shrink_best;
+                             
+                             b=b;
+
+                             low_b_flag=$low_b_flag;
+                            
+                             sol_output=&sol_output;
+                             
+                             )
+
+
+ xray
+   @@CNS_XTALMODULE:calculate_r (fobs=fo_detwin;
+                                 fcalc=fcalc;
+                                 fpart=fbulk;
+                                 sel=(ref_det_active=1);
+                                 sel_test=(tst_det_active=1);
+                                 print=true;
+                                 output=OUTPUT;
+                                 r=$detwin_r;
+                                 test_r=$detwin_test_r;)
+
+ end
+
+ xray
+   {- take the negative of the gradient so the map is the same sign
+        as a standard difference map -}
+   do (fmap=-dtarg) (ref_active=1)
+ end
+
+ if (&bsharp # 0) then 
+   {- b-factor sharpening -} 
+    evaluate ($bsharp= (-1) * &bsharp) 
+    xray
+      do (fmap=exp( $bsharp * s^2/4) * fmap) ( all )
+    end
+ end if
+ 
+ xray
+   declare name=map domain=real end
+   do (map=ft(fmap)) (ref_active=1)
+ end
+
+ xray
+   undeclare name=dtarg     domain=reciprocal end
+   undeclare name=total     domain=reciprocal end
+ end
+
+ if (&map_scale=true) then    
+   xray                                        
+     show rms (real(map)) ( all )
+     do (map=map/$result) ( all )
+     evaluate ($map_scale=$result)
+   end
+ end if
+
+ set remarks=reset end
+ set remarks=accumulate end
+
+ xray
+   show sum (1) (tst_det_active=1)
+   if ( $result > 0 ) then
+     evaluate ($test_exist=true)
+   else
+     evaluate ($test_exist=false)
+   end if
+ end
+
+ evaluate ($remark="( d(" + &reftarget + ")/dFc )")
+ 
+ evaluate ($remark=$remark + " map")
+
+ remark twinning operator= &STRIP%twin_oper  twinning fraction= &twin_frac
+
+ remark reflections rejected (I_detwin <= 0): $detwin_reject
+ remark                          working set: $ref_detwin_reject
+ if ( $tst_detwin_reject > 0 ) then
+   remark                             test set: $tst_detwin_reject
+ end if
+
+ if ( $total_test > 0 ) then
+   remark detwinned r= $detwin_r[f6.4] detwinned free_r= $detwin_test_r[f6.4]
+ else
+   remark detwinned r= $detwin_r[f6.4]
+ end if
+
+ if ( $total_test > 0 ) then
+   remark   twinned r= $map_r[f6.4]   twinned free_r= $map_free_r[f6.4]
+ else
+   remark   twinned r= $map_r[f6.4]
+ end if
+
+ remark resolution range of map: &low_res - &high_res
+
+ if ( &obs_type = "intensity" ) then
+   remark reflections with Iobs/sigma_I < &sigma_cut rejected
+   remark reflections with Iobs > &obs_rms * rms(Iobs) rejected
+   remark reflections with Iobs[&STRIP%twin_oper] = 0 rejected
+ else
+   remark reflections with |Fobs|/sigma_F < &sigma_cut rejected
+   remark reflections with |Fobs| > &obs_rms * rms(Fobs) rejected
+   remark reflections with |Fobs|[&STRIP%twin_oper] = 0 rejected
+ end if
+ xray anomalous=? end
+ if ( $result = true ) then
+   remark anomalous diffraction data was input
+ end if
+ 
+  remark fft gridding factor = $fft_grid, B factor offset = $fft_b_add A^2, Elimit = $fft_elim
+ 
+ remark theoretical total number of refl. in resol. range:    $total_theor[I6] ( 100.0 % )
+ remark number of unobserved reflections (no entry):          $unobserved[I6] ( $per_unobs[f5.1] % )
+ remark number of reflections rejected:                       $rejected[I6] ( $per_reject[f5.1] % )
+ remark total number of reflections used:                     $total_used[I6] ( $per_used[f5.1] % )
+ remark number of reflections in working set:                 $total_work[I6] ( $per_work[f5.1] % )
+ remark number of reflections in test set:                    $total_test[I6] ( $per_test[f5.1] % )
+
+ if ( &bscale = "anisotropic" ) then
+   REMARK Anisotropic B-factor tensor Ucart of atomic model without isotropic component :
+   REMARK   B11=$Baniso_11[f8.3] B22=$Baniso_22[f8.3] B33=$Baniso_33[f8.3]
+   REMARK   B12=$Baniso_12[f8.3] B13=$Baniso_13[f8.3] B23=$Baniso_23[f8.3]
+   REMARK Isotropic component added to coordinate array B: $Biso_model[f8.3]
+ elseif ( &bscale = "isotropic" ) then
+   REMARK B-factor applied to coordinate array B: $Biso_model[f8.3]
+ else
+   REMARK initial B-factor correction: none
+ end if
+ 
+ if ( &bulk_sol = true ) then
+   remark bulk solvent: probe radius=$solrad_best, shrink value=$solrad_best
+   remark bulk solvent: density level= $sol_k_ref e/A^3, B-factor= $sol_b_ref A^2
+ else
+   remark bulk solvent: false
+ end if
+
+ if (&bsharp # 0) then
+   remark B-factor sharpening applied to map: exp( Bsharp * S^2/4 ) where Bsharp = &bsharp
+ end if
+
+ if (&map_scale=true) then
+    remarks map has been scaled by 1/rms (rms= $map_scale[F11.5] )
+ end if
+
+ remark a= &a b= &b c= &c alpha= &alpha beta= &beta gamma= &gamma sg= &STRIP%sg
+
+ if ( &write_coeff = true ) then
+   evaluate ($coeff_out=&output_root + ".hkl")
+   xray
+     declare name=map_coeff domain=reciprocal type=complex end
+     do (map_coeff=fmap) (all)
+ 
+     set display=$coeff_out end
+   end
+   
+   @CNS_XTALMODULE:write_hkl_header (sg=&STRIP%sg;
+                                    sgparam=$sgparam;)
+
+   xray
+     write reflection
+       output=$coeff_out
+       sele=(ref_active=1)
+       map_coeff
+     end
+
+     set display=OUTPUT end
+
+     undeclare name=map_coeff domain=reciprocal end
+   end
+ end if
+
+ xray
+   undeclare name=fo_detwin domain=reciprocal end
+   undeclare name=fmap      domain=reciprocal end
+ end
+
+ if ( &write_map = true ) then
+
+   evaluate ($filename=&output_root + ".map") 
+
+   if ( &map_mode = "asymmetric" ) then
+     evaluate ($map_mode_string=ASYM)
+   elseif ( &map_mode = "unit" ) then
+     evaluate ($map_mode_string=UNIT)
+   elseif ( &map_mode = "box" ) then
+     evaluate ($map_mode_string=BOX)
+   elseif ( &map_mode = "fract" ) then
+     evaluate ($map_mode_string=FRAC)
+   else
+     evaluate ($map_mode_string=MOLE)
+   end if
+
+   xray
+     write map
+       if ( &map_format = "ezd" ) then
+         type=ezd
+       else
+         type=cns
+       end if
+       automatic=false
+       from=map
+       output=$filename
+       cushion=&map_cushion
+       selection=&atom_map
+       extend=$map_mode_string
+       if ( &map_mode = "box" ) then
+         xmin=&xmin xmax=&xmax
+         ymin=&ymin ymax=&ymax
+         zmin=&zmin zmax=&zmax
+       end if
+       if ( &map_mode = "fract" ) then
+         xmin=&xmin xmax=&xmax
+         ymin=&ymin ymax=&ymax
+         zmin=&zmin zmax=&zmax
+       end if
+     end
+   end
+ end if
+
+ if ( &peak_search = true ) then
+
+   show sum ( x ) ( segid PEAK) 
+   if ($SELECT > 0) then
+      display
+      display  WARNING: there are atoms that have the reserved segid PEAK. 
+      display           They will be deleted prior to the peak search.
+      display
+   end if
+   delete sele=(segid=PEAK) end
+
+   evaluate ($filename=&output_root + "_positive.peaks")
+   xray
+     peakpik
+       from=map
+       mpeak=&peak_num
+       selection=( all )
+       atom=true
+       proximity=(&atom_map)
+     end
+   end
+
+   write coor output=$filename selection=(segid=PEAK) end
+
+   delete sele=(segid=PEAK) end
+
+   evaluate ($filename=&output_root + "_negative.peaks")
+   xray
+     do (map=-map) ( all )
+     peakpik
+       from=map
+       mpeak=&peak_num
+       selection=( all )
+       atom=true
+       proximity=(&atom_map)
+     end
+   end
+
+   write coor output=$filename selection=(segid=PEAK) end
+ end if
+
+ stop

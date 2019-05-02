@@ -1,0 +1,37 @@
+#!/usr/sbin/smake -W -J 1
+###############################################################################
+# 									      #
+#	Machine dependent Makefile header for CNSsolve			      #
+#	Paul Adams  20-10-98						      #
+#       copyright Yale University					      #
+# 									      #
+###############################################################################
+
+# fortran options
+F77 = f77
+F77STD =
+#ifdef ( $(F77BUG) != "" )
+  F77OPT = $(CNS_DEBG)
+#else
+  F77OPT = $(CNS_COMP)
+#endif
+F77FLAGS = $(F77STD) $(F77OPT) $(EXT_F77FLAGS) $(F77BUG)
+
+# C options
+CC = cc
+CCFLAGS = $(CNS_MIPS) $(CNS_ABI) -DCNS_ARCH_TYPE_$(CNS_ARCH_TYPE) \
+          $(EXT_CCFLAGS)
+
+# link options
+LD = f77
+LDFLAGS = -Wl,-w $(CNS_LINK) $(EXT_LDFLAGS)
+
+# utility programs
+compile-utils:
+	@ cd $(CNS_INST)/utils; \
+	  make utils F77="$(F77)"  CC="$(CC)" \
+	             F77FLAGS="-O $(CNS_MIPS) $(CNS_ABI)" \
+	             CCFLAGS="-O -w $(CNS_MIPS) $(CNS_ABI)" \
+	             F77LINK="" CCLINK="" LEXLIB="l"
+
+#==============================================================================

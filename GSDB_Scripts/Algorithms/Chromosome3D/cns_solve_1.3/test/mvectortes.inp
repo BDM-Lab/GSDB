@@ -1,0 +1,269 @@
+remarks MVECTORTES
+remarks test case for new VECTOR commands
+remarks by Axel Brunger, Mark McCallum Yale, 14-DEC-87
+
+topology
+   !
+   mass A   1.0
+   mass B   2.0
+   mass C   3.0
+   mass D   4.0
+   mass E   5.0
+   mass F   6.0
+   mass G   7.0
+   mass H   8.0
+   mass I   9.0
+   !
+   residue test 
+     atom A  type A  charge 10.0 end
+     atom B  type B  charge 20.0 end
+     atom C  type C  charge 30.0 end
+     atom D  type D  charge 40.0 end
+     atom E  type E  charge 50.0 end
+     atom F  type F  charge 60.0 end
+     atom G  type G  charge 70.0 end
+     atom H  type H  charge 80.0 end
+     atom I  type I  charge 90.0 end
+   end
+   !
+end !topology
+
+segment
+   name=test
+   molecule name=test number=1 end
+end
+
+remarks ensure access to all variables
+                       
+   do ( b = 1.0 )     ( all )
+   show element ( b ) ( all )
+
+   do ( q = 1.0 )     ( all )
+   show element ( q ) ( all )
+
+   do ( bcom = 2.0 )  ( all )
+   show ( bcom )      ( all )
+
+   do ( qcomp = 1.0 ) ( all )
+   show ( qcomp )     ( all )
+                                    
+   remarks 'cons' & 'harmonic' access same data
+
+   do ( cons = 1.0 )  ( all )
+   show ( cons )      ( all )
+                                    
+   do ( harmonic = 2.0 ) ( all )
+   show ( harm )     ( all )
+
+   do ( mass = 1.0 )   ( all )
+   show ( mass )       ( all )
+
+   do ( char = 2.0 )   ( all )
+   show ( char )       ( all )
+
+   do ( fbeta = 1.0 )  ( all )
+   show ( fbeta )      ( all )
+
+   do ( x = 1.0 ) ( all )
+   show ( x )     ( all )
+
+   do ( y = 2.0 ) ( all )
+   show ( y )     ( all )
+
+   do ( z = 3.0 ) ( all )
+   show ( z )     ( all )
+
+   do ( xcom = 1.0 ) ( all )
+   show ( xcom )     ( all )
+
+   do ( ycom = 2.0 ) ( all )
+   show ( ycom )     ( all )
+
+   do ( zcom = 3.0 ) ( all )
+   show ( zcom )     ( all )
+
+   do ( dx = 1.0 ) ( all )
+   show ( dx )     ( all )
+
+   do ( dy = 1.0 ) ( all )
+   show ( dy )     ( all )
+
+   do ( dz = 1.0 ) ( all )
+   show ( dz )     ( all )
+
+   do ( refx = 1.0 ) ( all )
+   show ( refx )     ( all )
+ 
+   do ( refy = 2.0 ) ( all )
+   show ( refy )     ( all )
+
+   do ( refz = 3.0 ) ( all )
+   show ( refz )     ( all )
+
+   do ( vx = 1.0 )   ( all ) 
+   show ( vx )       ( all )
+
+   do ( vy = 2.0 )   ( all )
+   show ( vy )       ( all )
+
+   do ( vz = 3.0 )   ( all )
+   show ( vz )       ( all )
+
+   do ( segid = "XXXX" ) ( all )
+   show ( segid )        ( all )
+
+   do ( resid = "YYYY" ) ( all )
+   show ( resid )        ( all )
+
+   do ( resn = "ZZZZ" ) ( all )
+   show ( resn ) ( all )
+
+   do ( iupac = "BBBB" ) ( name aaaa )
+   show ( iupa ) ( all )
+
+   do ( name = "A   " ) ( name bbbb )
+   show ( name ) ( all )
+
+   do ( chem = "DDDD" ) ( all )
+   show ( chem ) ( all )
+
+
+remarks now perform each operation singularly
+
+   show ( x ) ( name a )
+   do ( x = x + 1 ) ( name a )
+   show ( x ) ( name a )
+
+   do ( x = x - 1 ) ( name a )
+   show ( x ) ( name a )
+
+   do ( x = x * 4.0 ) ( name a )
+   show ( x ) ( name a )
+
+   do ( x = x / 2.0 ) ( name a )
+   show ( x ) ( name a )
+
+   do ( x = -x ) ( name a )
+   show ( x ) ( name a )
+
+   do ( x = ~x ) ( name a )
+   show ( x ) ( name a )
+
+   do ( x = x**2 ) ( name a )
+   show ( x ) ( name a )
+
+   do ( x = x^0.5 ) ( name a )
+   show ( x ) ( name a )
+
+remarks now try each of the defined functions
+
+   do ( x = gaus(1.5) ) ( all )
+   show ( x ) ( all )
+
+   show norm  ( x ) ( all )
+   do ( x = x / ( $result * sqrt ($select) ) ) ( all )
+
+   show ( x ) ( all )
+
+   show ( y ) ( all )
+   do ( x = max( x, y ) ) ( all )
+   show ( x ) ( all )
+
+   show ( z ) ( all )
+   do ( x = min( x, z ) ) ( all )
+   show ( x ) ( all )
+
+   do ( x = log(x) ) ( all )
+   show ( x ) ( all )
+
+   do ( x = exp(x) ) ( all )
+   show ( x ) ( all )
+
+   do ( x = heavy( x ) ) ( all )
+   show ( x ) ( all )
+
+   do ( x = step( x ) ) ( all )
+   show ( x ) ( all )
+
+   do ( x = -x ) ( all )
+   show ( x ) ( all )
+
+   do ( x = abs( x ) ) ( all )
+   show ( x ) ( all )
+
+   do ( x = .5 ) ( all )
+   do ( x = cos(x) ) ( all )
+   show ( x ) ( all )
+   do ( x = sin(x) ) ( all )
+   show ( x ) ( all )
+   do ( x = tan(x) ) ( all )
+   show ( x ) ( all )
+   do ( x = log10(x) ) ( all )
+   show ( x ) ( all )
+   do ( x = exp( x ) ) ( all )
+   show ( x ) ( all )
+   do ( x = acos( 0.3 ) ) ( all )
+   show ( x ) ( all )
+   do ( x = asin ( 0.4 ) ) ( all )
+   show ( x ) ( all )
+   do ( x = 10.5 ) ( all )
+   do ( x = mod(x,5) ) ( all )
+   show ( x ) ( all )
+   do ( x = 9.3 ) ( all )
+   do ( x = int(x)) ( all )
+   show ( x ) ( all )
+   do ( x = 16.3 ) ( all )
+   do ( x = sqrt(x) ) ( all )
+   show ( x ) ( all )
+
+remarks now test order of operations
+
+   remarks order should be:   - ; unary minus
+   remarks                 ** ^ ; raise to the power of
+   remarks                  * / ; multiplication or division
+   remarks                  + - ; addition or subtraction
+   remarks all operators with the same precedence are evaluated
+   remarks from left to right, except raising to a power.
+
+   do ( x = -min( 3, 4, 5, 6 ) ) ( name a )
+   show ( x ) ( name a )
+
+   do ( x = 3 * 4 - 2 * 5 ) ( name a )
+   show ( x ) ( name a )
+
+   do ( x = 3 + 2**2 ) ( name a )
+   show ( x ) ( name a )
+
+   do ( x = 1 + ~2 ) ( name a )
+   show ( x ) ( name a )
+
+   do ( x = 3 * -4 ) ( name a )
+   show ( x ) ( name a )
+
+   do ( x = ~2^4^.5 ) ( name a )
+   show ( x ) ( name a )
+
+   do ( x = -2^.5^4 ) ( name a )
+   show ( x ) ( name a )
+
+   do ( x = 4 - 12 / 3 - 1 + 5 ) ( name a )
+   show ( x ) ( name a )
+
+   remarks test parens effect on precedence
+
+   do ( x = -min(3,4,5,6)) ( name a )
+   show ( x ) ( name a )
+
+   do ( x = -(min(3,4,5,6))) ( name a )
+   show ( x ) ( name a )
+
+   do ( x = 3 * ( 2 + 3 ) ) ( name a )
+   show ( x ) ( name a )
+
+   do ( x = min( 3+4/2, 1*(5+1), 8/2*42 ) ) ( name a )
+   show ( x ) ( name a )
+
+   do ( x = min(max(2+3,3/4),min(6,9),max(8*2,33)) )(name a)
+   show ( x ) ( name a )
+
+stop 

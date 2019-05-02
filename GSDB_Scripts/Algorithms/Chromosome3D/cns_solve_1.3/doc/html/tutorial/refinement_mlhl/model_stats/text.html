@@ -1,0 +1,164 @@
+<HTML>
+<HEAD>
+   <TITLE>Crystallography & NMR System</TITLE>
+</HEAD>
+<BODY BGCOLOR=#8ebf8e>
+
+<HR WIDTH="100%"></P>
+
+<H2>Checking the initial model</H2>
+
+<HR WIDTH="100%"></P>
+   
+<P>The model has been obtained by manual building, and therefore may
+have distorted geometry so it is sensible to check the model prior to
+starting refinement. In this example the CNS task file
+<TT>model_stats_start.inp</TT> is used to analyze the model geometry
+and diffraction statistics. The results will indicate if the model has
+poor geometry which can occur in the course of manual rebuilding or
+also due to an error at the generate stage (see previous
+section). Locating any possible problems prior to refinement will save
+time later on. </P>
+<P>Note that we leave the molecular topology file blank so we use the coordinate file to automatically generate the molecular topology. There are two chain breaks in the initial model (the density was
+  too poor to build these sections). The automatic molecular topology generation will automatically
+  identify chain breaks (on the basis of distance) and remove the
+peptide linkage at the break point. </P>
+<P>Note that we are reading the experimental (MAD) phases that are stored in the file <tt>mad_phase2.hkl</tt> after the file that contains the native data plus test array for cross-validation <tt>nsf.cv </tt>(the <tt>model_stats_start.inp</tt> file is taken from the <tt>model_stats.inp</tt> input file, i.e., the only differences are the particular input parameter settings): </P>
+<p><br>
+  cns_solve &lt; <A HREF="model_stats_start.inp">model_stats_start.inp</A> &gt; model_stats_start.out<br>
+</p>
+<p>To make sure that the automatic molecular topology generation performed normally, have a look at the output file (model_stats_start.out) and search for &quot;automatically generating molecular topology&quot;. You find:</p>
+<pre>
+ automatically generating molecular topology</pre>
+<pre> ASSFIL: file nsf.pdb opened.
+   SEGMNT-info: chain termination due to END keyword.   237 residues were inserted into segid &quot;    &quot;
+   link removed (applied DPEP): from      213  to      217 
+   link removed (applied DPEP): from      248  to      254 
+</pre>
+<p><br>
+  Note the two messages that links have been removed between residues 213,217 and 248,254.  These are the two chain breaks that it correctly identified.</p>
+<p>The output listing file (<A
+HREF="model_stats_start.list">model_stats_start.list</A>) contains a
+  variety of information which is self-explanatory. Important things to
+note are:</p>
+<P>
+
+<P>Initial R-values:</P>
+
+<PRE>
+=================================== summary ==================================
+
+resolution range: 500 - 1.9 A<br>  R-values:<br>  initial                                        r= 0.4634 free_r= 0.4451<br>  after B-factor and/or bulk solvent correction  r= 0.3692 free_r= 0.3757</PRE>
+
+<P>Initial R-values that are very different from expected are usually
+the result of a simple mistake such as incorrect space group, unit
+cell dimensions, input diffraction data or input model.</P>
+
+<P>R-values versus resolution:</P>
+
+<PRE>
+================================= R-values ===================================
+
+
+</PRE>
+<pre>=======&gt; R-values with |Fobs|/sigma cutoff= 0.0</pre>
+<pre> Test set (test = 1):</pre>
+<pre> #bin | resolution range | #refl | 
+   1   4.09  500.01        529      0.2948
+   2   3.25    4.09        439      0.3477
+   3   2.84    3.25        538      0.4155
+   4   2.58    2.84        514      0.4004
+   5   2.39    2.58        517      0.4087
+   6   2.25    2.39        484      0.4802
+   7   2.14    2.25        456      0.4348
+   8   2.05    2.14        461      0.4491
+   9   1.97    2.05        393      0.4557
+   10   1.90    1.97        382      0.4709</pre>
+<pre> Working set:</pre>
+<pre> #bin | resolution range | #refl | 
+   1   4.09  500.01       4660      0.2917
+   2   3.25    4.09       4764      0.3366
+   3   2.84    3.25       4636      0.3951
+   4   2.58    2.84       4532      0.4219
+   5   2.39    2.58       4460      0.4318
+   6   2.25    2.39       4336      0.4356
+   7   2.14    2.25       4185      0.4277
+   8   2.05    2.14       3993      0.4365
+   9   1.97    2.05       3754      0.4523
+   10   1.90    1.97       3412      0.4808</pre>
+<PRE>&nbsp;
+
+</PRE>
+
+<P>This distribution of R-values is reasonable - there is no dramatic
+increase in R-value (in particular free R-value) as resolution
+increases. If there were resolution shells with R-values significantly
+higher than the rest this might indicate possible problems with the
+data processing (ice rings for example). However, the R-values
+indicate the fit to the experimental data and should not be
+manipulated by removing data - in particular by the use of sigma
+cutoffs to exclude weak data.</P>
+
+<P>The overall geometry:</P>
+
+<PRE>
+rmsd bonds= 0.080245 with 125 bond violations &gt; 0.05<br>rmsd angles=  6.54140 with 194 angle violations &gt;  8.0<br>rmsd dihedrals= 25.37542 with 6 angle violations &gt;  60.0<br>rmsd improper=  6.58153 with 86 angle violations &gt;  3.0
+</PRE>
+<p><br>
+  If the model has been through extensive manual rebuilding the<br>
+  initial geometry may have significant deviations from ideality. Any<br>
+  major problem can be detected by the detailed geometry analysis<br>
+  (below).</p>
+
+<P>The geometry in detail:</P>
+
+<pre>=======&gt; bond violations</pre>
+<pre> (atom-i        |atom-j        )    dist.   equil.   delta    energy   const. </pre>
+<pre> (     19   CA  |     19   C   )    1.617    1.525    0.092   11.463 1342.404
+   (     20   N   |     20   CA  )    1.536    1.451    0.085   16.650 2312.500
+   (     20   C   |     21   N   )    1.181    1.329   -0.148   66.167 3020.408
+   (     21   C   |     22   N   )    0.991    1.329   -0.338  345.526 3020.408
+   (     24   C   |     24   O   )    1.300    1.231    0.069    7.053 1480.000
+   (     24   C   |     25   N   )    2.088    1.329    0.759 1737.859 3020.408
+   (     25   C   |     26   N   )    1.805    1.329    0.476  685.730 3020.408
+   (     26   C   |     27   N   )    1.096    1.329   -0.233  164.524 3020.408
+   (     28   C   |     28   O   )    1.818    1.231    0.587  510.202 1480.000
+   (     27   C   |     28   N   )    1.903    1.329    0.574  994.880 3020.408
+   (     29   N   |     29   CA  )    1.333    1.458   -0.125   25.427 1639.889
+   (     29   CA  |     29   C   )    1.803    1.525    0.278  104.095 1342.404
+   (     29   C   |     29   O   )    1.334    1.231    0.103   15.622 1480.000</pre>
+<PRE>&nbsp;</PRE>
+
+<P>Specific problems with the model geometry can be identified
+here. In particular the deviations for the bond lengths should be
+checked. If there are very long bond lengths the model should be
+checked. This can occur as a result of a mistake at the generate
+stage, in particular forgetting to include a TER or BREAK card between
+separate chains. If present, these unphysical bonds will cause serious
+problems in refinement.</P>
+
+<P>Non-trans peptide bonds:</P>
+
+<PRE>
+============================ non-trans peptides ==============================
+
+distorted peptide: segid=  resid= 143 resname=PRO<br>                   current dihedral value=  -68.354<br>&gt;&gt;&gt;&gt; this may require correction before starting refinement</PRE>
+
+<P>The presence of non-trans peptides, unless they are proline
+residues, will cause problems in refinement. They can be identified,
+and an appropriate parameter file created using the CNS task file
+<TT>general/cis_peptide.inp</TT>. The parameter file generated is read
+into subsequent refinement task files.</P>
+
+<BR><A HREF="tutorial.csh">Script to run this tutorial</A>
+
+<HR WIDTH="100%"></P>
+
+<A HREF="../../text.html">Back to tutorials</A>&nbsp;&nbsp;
+<A HREF="../data_prep/text.html">Previous section</A>&nbsp;&nbsp;
+<A HREF="../refine_start/text.html">Next section</A>
+
+<HR WIDTH="100%"></P>
+   
+</BODY>
+</HTML>

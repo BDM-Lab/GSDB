@@ -1,0 +1,154 @@
+{+ file: make_hlcoeff.inp +}
+{+ directory: xtal_util +}
+{+ description: Calculation of Hendrickson-Lattman coefficients from 
+                centroid phases and figures-of-merit +}
+{+ comment:
+           For each reflection a unimodal phase probability distribution
+           will be calculated from the input centroid phase and
+           figure of merit.
+           Warning: it is usually better to use the original phase probability
+                    distribution rather than one reconstructed from centroid
+                    phases and figures-of-merit. If the program that generated
+                    the centroid phases and figures-of-merit can also write
+                    Hendrickson-Lattman coefficients use these instead. +}
+{+ authors: Axel T. Brunger and Paul D. Adams +}
+{+ copyright: Yale University +}
+
+{- Guidelines for using this file:
+   - all strings must be quoted by double-quotes
+   - logical variables (true/false) are not quoted
+   - do not remove any evaluate statements from the file -}
+
+{- begin block parameter definition -} define(
+
+{====================== crystallographic data ========================}
+
+{* space group *}
+{* use International Table conventions with subscripts substituted
+   by parenthesis *}
+{===>} sg="P2(1)2(1)2(1)";
+
+{* unit cell parameters in Angstroms and degrees *}
+{+ table: rows=1 "cell" cols=6 "a" "b" "c" "alpha" "beta" "gamma" +}
+{===>} a=61.76;
+{===>} b=40.73;
+{===>} c=26.74;
+{===>} alpha=90;
+{===>} beta=90;
+{===>} gamma=90;
+
+{* reflection file(s) *}
+{* if anomalous and non-anomalous data are to be combined
+   read non-anomalous data first *}
+{===>} reflection_infile_1="amy_mir.hkl";
+{===>} reflection_infile_2="";
+{===>} reflection_infile_3="";
+{===>} reflection_infile_4="";
+{===>} reflection_infile_5="";
+
+{============================ input arrays ===========================}
+
+{* array containing centroid phases - must be of type complex *}
+{===>} cen_array="fobs";
+
+{* array containing figures-of-merit - must be of type real *}
+{===>} fom_array="fom";
+
+{=========================== output arrays ===========================}
+
+{* output Hendrickson-Lattman coefficients *}
+{+ table: rows=1 "HL coefficients" cols=4 "A" "B" "C" "D" +}
+{===>} pa_out="pa_conv";
+{===>} pb_out="pb_conv";
+{===>} pc_out="pc_conv";
+{===>} pd_out="pd_conv";
+
+{============================ output files ===========================}
+
+{* output reflection file *}
+{===>} reflection_outfile="make_hlcoeff.hkl";
+
+{* merge input data arrays with output arrays, otherwise only output
+   arrays will be written *}
+{+ choice: true false +}
+{===>} merge_inout=false;
+
+{===========================================================================}
+{         things below this line do not normally need to be changed         }
+{===========================================================================}
+
+ ) {- end block parameter definition -}
+
+ checkversion 1.3
+
+ evaluate ($log_level=quiet)
+
+ xray   
+                                  
+   @CNS_XTALLIB:spacegroup.lib (sg=&sg;sgparam=$sgparam;)
+
+   a=&a b=&b c=&c  alpha=&alpha beta=&beta gamma=&gamma      
+
+   evaluate ($counter=1)
+   evaluate ($done=false)
+   while ( $done = false ) loop read
+    if ( &exist_reflection_infile_$counter = true ) then
+      if ( &BLANK%reflection_infile_$counter = false ) then
+       reflection
+         @@&reflection_infile_$counter
+       end
+      end if
+    else
+     evaluate ($done=true)
+    end if
+    evaluate ($counter=$counter+1)
+   end loop read
+
+   declare name=x_conv domain=reciprocal type=real end
+   declare name=&STRIP%pa_out domain=reciprocal type=real end
+   declare name=&STRIP%pb_out domain=reciprocal type=real end
+   declare name=&STRIP%pc_out domain=reciprocal type=real end
+   declare name=&STRIP%pd_out domain=reciprocal type=real end
+
+   group type=hl
+     object=&STRIP%pa_out
+     object=&STRIP%pb_out
+     object=&STRIP%pc_out
+     object=&STRIP%pd_out
+   end
+
+   @CNS_XTALMODULE:fom_to_x (fom=&STRIP%fom_array;
+                             x=x_conv;
+                             selection=(all);)
+
+   do (&STRIP%pa_out=2*x_conv*cos(phase(&STRIP%cen_array))) (all)
+   do (&STRIP%pb_out=2*x_conv*sin(phase(&STRIP%cen_array))) (all)
+
+   do (&STRIP%pc_out=0) (all)
+   do (&STRIP%pd_out=0) (all)
+
+   undeclare name=x_conv domain=reciprocal end
+
+ end
+
+ set display=&STRIP%reflection_outfile end     
+
+ @CNS_XTALMODULE:write_hkl_header (sg=&STRIP%sg;
+                                   sgparam=$sgparam;)
+
+ xray 
+   if ( &merge_inout = true ) then
+      write reflection
+        output=&STRIP%reflection_outfile
+        sele=(all)
+      end
+   else
+      write reflection
+        &STRIP%pa_out &STRIP%pb_out &STRIP%pc_out &STRIP%pd_out
+        output=&STRIP%reflection_outfile
+        sele=(all)
+      end
+   end if
+ end
+
+ stop

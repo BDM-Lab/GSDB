@@ -1,0 +1,112 @@
+#! /bin/csh -f
+#
+# Create a CNSsolve patch file
+#
+# written by: Ralf W. Grosse-Kunstleve
+#
+# copyright Yale University
+#
+
+set noglob
+
+set progn = "$0"
+set progn = "$progn:t"
+
+set wdir = "`pwd`"; if ($status != 0) exit 1
+
+if ($#argv != 2 && $#argv != 3) then
+  echo 'usage: '"$progn"' older-compressed-tar-file newer-compressed-tar-file [target-dir-for-patch-file]'
+  exit 1
+endif
+
+set tmpdir = /var/tmp/tmpdir$$
+set ExitStatus = 1
+onintr CLEAN
+
+mkdir $tmpdir; if ($status != 0) goto CLEAN
+cd $tmpdir
+mkdir tmp; if ($status != 0) goto CLEAN
+cd tmp
+
+set otaz = "$1"
+if (X`echo "$otaz" | cut -c1` != X/) set otaz = "$wdir/$otaz"
+set ntaz = "$2"
+if (X`echo "$ntaz" | cut -c1` != X/) set ntaz = "$wdir/$ntaz"
+
+if ($#argv == 3) then
+  set tdir = "$3"
+  if (X`echo "$tdir" | cut -c1` != X/) set tdir = "$wdir/$tdir"
+else
+  set tdir = "$wdir"
+endif
+
+echo '***********************************'
+echo '***** UNPACKING OLDER RELEASE *****'
+echo '***********************************'
+gunzip -c "$otaz" | tar xvf -; if ($status != 0) goto CLEAN
+echo ''
+unset noglob; mv * ../older; set noglob
+
+echo '***********************************'
+echo '***** UNPACKING NEWER RELEASE *****'
+echo '***********************************'
+gunzip -c "$ntaz" | tar xvf -; if ($status != 0) goto CLEAN
+echo ''
+unset noglob; mv * ../newer; set noglob
+
+cd ..
+rmdir tmp; if ($status != 0) goto CLEAN
+
+echo '************************************'
+echo '***** BUILDING PATCH FILE NAME *****'
+echo '************************************'
+set overs=0.0
+set opatch=""
+set nvers=0.0
+set npatch=""
+set vinc = older/source/version.inc
+if (-f $vinc) then
+  set overs  = "`grep -i 'parameter *(cnsversion' $vinc | cut -d\' -f2`"
+  set opatch = "`grep -i 'parameter *(cnspatch'   $vinc | cut -d\' -f2`"
+  if (X"$opatch" == X"0") set opatch = ""
+endif
+set vinc = newer/source/version.inc
+if (-f $vinc) then
+  set nvers  = "`grep -i 'parameter *(cnsversion' $vinc | cut -d\' -f2`"
+  set npatch = "`grep -i 'parameter *(cnspatch'   $vinc | cut -d\' -f2`"
+  if (X"$npatch" == X"0") set npatch = ""
+endif
+set ptaz = "$tdir"/patch_"$overs""$opatch"_"$nvers""$npatch".tar.Z
+echo 'Patch file name: '"$ptaz"
+echo ''
+
+echo '************************'
+echo '***** RUNNING DIFF *****'
+echo '************************'
+diff -r older newer | grep -v '^diff .*er/source/Makefile  *' | grep -v '^diff .*er/doc/html/inputs_files/frame.html' > delta; if ($status > 1) goto CLEAN
+echo ''
+
+echo '#\! /bin/sh -f' > newer/patch.del
+grep '^Only in older' delta | sed 's/Only in older[:\/]//; s/^ //; s/: /\//; s/^/rm -rf /' >> newer/patch.del
+chmod 755 newer/patch.del; if ($status > 1) goto CLEAN
+
+set chgfilesD = (`grep '^diff '                   delta | awk '{ print $3 }' | cut -d/ -f2-`)
+set chgfilesB = (`grep '^Binary files .* differ$' delta | awk '{ print $3 }' | cut -d/ -f2-`)
+set newfiles  = (`grep '^Only in newer' delta | sed 's/Only in newer[:\/]//; s/^ //; s/: /\//'`)
+
+cd newer
+echo '*******************************'
+echo '***** CREATING PATCH FILE *****'
+echo '*******************************'
+tar cvf - $chgfilesD $chgfilesB $newfiles patch.del | compress > "$ptaz"
+if ($status != 0) goto CLEAN
+echo ''
+
+set ExitStatus = 0
+
+CLEAN:
+
+cd $tmpdir/..
+rm -rf $tmpdir
+
+exit $ExitStatus

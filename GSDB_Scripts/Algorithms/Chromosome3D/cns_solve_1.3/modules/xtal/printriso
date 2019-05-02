@@ -1,0 +1,78 @@
+! Module file: printriso
+!
+! CNS module
+! **********
+!
+! Authors: Piet Gros and Axel T. Brunger
+!
+! copyright Yale University
+!
+! Function: 
+! Print Kraut R-factor statistics for isomorphous replacement
+!
+! Requirements:
+! 1. This module can only be called from xray
+!
+
+module {printriso}
+(
+   &text="";          {identifying text}
+   &table="";         {identifying text for table}
+   &fp=fobs;          {native data}
+   &fph;              {derivative data}
+   &fh;               {heavy atom structure factors}
+   &sel=(all);        {structure factor selection}
+   &output=OUTPUT;
+)
+
+checkversion 1.3
+
+set display=&output end
+
+
+declare domain=reci type=real name=centr end 
+
+do (centr=1) (centric)
+do (centr=0) (acentric)
+
+evaluate ($pr_tiny=1E-9)
+
+
+
+display                                      Kraut R-value
+display                                      -------------
+display                                      sum|(|Fp+Fh|-|Fph|)|/sum|Fp|
+display                                      centrics  acentrics    all 
+if (&text # "") then
+   display &text
+end if
+
+bins ? evaluate ($old_bins=$result) 
+statistics 
+   ( sum(centr*abs(abs(&fp+&fh)-abs(&fph)))/max($pr_tiny,sum(centr*abs(&fp))) )
+   ( sum((1-centr)*abs(abs(&fp+&fh)-abs(&fph)))/max($pr_tiny,sum((1-centr)*abs(&fp))) )
+   ( sum(abs(abs(&fp+&fh)-abs(&fph)))/max($pr_tiny,sum(abs(&fp))) )
+   sele=(&sel)
+   output=&output
+end 
+bins=1
+statistics 
+      ( sum(centr*abs(abs(&fp+&fh)-abs(&fph)))/max($pr_tiny,sum(centr*abs(&fp))) )
+      ( sum((1-centr)*abs(abs(&fp+&fh)-abs(&fph)))/max($pr_tiny,sum((1-centr)*abs(&fp))) )
+      ( sum(abs(abs(&fp+&fh)-abs(&fph)))/max($pr_tiny,sum(abs(&fp))) )
+   sele=(&sel)
+   output=&output
+end 
+bins=$old_bins
+
+if (&table # "") then
+   display TAB: &table R-Kraut(centric)= $expression1[F5.3] R-Kraut(acentric)= $expression2[F5.3] \
+R-Kraut(all)= $expression3[F5.3]
+end if
+
+
+
+undeclare domain=reci name=centr end 
+
+
+

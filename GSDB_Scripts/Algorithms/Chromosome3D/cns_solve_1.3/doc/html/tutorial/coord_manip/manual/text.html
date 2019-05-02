@@ -1,0 +1,257 @@
+<HTML>
+<HEAD>
+   <TITLE>Crystallography & NMR System</TITLE>
+</HEAD>
+<BODY BGCOLOR=#8ebf8e>
+
+<HR WIDTH="100%"></P>
+
+<H2>Manual coordinate manipulation</H2>
+
+<HR WIDTH="100%"></P>
+
+<P>The coordinate statement is used to read and manipulate
+coordinates, such as least-squares fitting to a comparison coordinate
+set, rotation, translation, and conversion between fractional and
+orthogonal coordinates.</P>
+
+<U>Syntax</U>
+
+<P>The coordinate statement options are carried out when the END
+statement is issued. If one wants to carry out several coordinate
+manipulations, each manipulation has to be initiated separately from
+the main level of CNS.</P>
+
+<P><B>COORdinates coordinate-statement END</B> is invoked from the
+main level of CNS. The END statement activates execution of the
+particular operation.</P>
+
+<UL>
+
+<LI><B>COPY [SELEction=atom-selection]</B> copies main coordinate set
+into comparison set; XCOMP:=X,YCOMP:=Y,ZCOMP:=Z; B,Q are unaffected
+(default for selection: (ALL) ).</LI>
+
+<LI><B>FIT [SELEction=atom-selection] [MASS=logical] [LSQ=logical]</B>
+rotates (if LSQ is TRUE) and translates all main coordinates to obtain
+a best fit between the selected main and comparison atoms. Translation
+superimposes the geometric centers (or the centers of mass if MASS is
+TRUE) of the two coordinate sets. Rotation occurs with the Kabsch
+(1976) least-squares fitting algorithm. Mass-weighting is applied if
+MASS is set to TRUE. Upon successful completion of this operation, the
+Eulerian angles describing the rotation matrix R are stored in the
+symbols $THETA1, $THETA2, $THETA3, and the translation vector T is
+stored in the symbols $X, $Y, $Z. The fitted coordinate set r' is
+related to original set r by r'=R*r + T (default for selection: (ALL);
+for MASS: FALSE; for LSQ: TRUE).</LI>
+
+<LI><B>FRACtionalize [SELEction=atom-selection]</B> fractionalizes
+selected coordinates. The CNS convention keeps the direction of the
+x-axis (x same direction as a; y is in (a,b) plane) and is the same
+that is used internally by all CNS routines (default for selected
+atoms: (ALL)). The unit cell geometry needs to be specified before
+invoking this statement.</LI>
+
+<LI><B>INITialize [SELEction=atom-selection]</B> initializes main
+coordinate set; i.e., X:=9999.0, Y:=9999.0, Z:=9999.0; B,Q are
+unaffected (default for selection: (ALL) ).</LI>
+
+<LI><B>ORIEnt [SELEction=atom-selection] [MASS=logical]
+[LSQ=logical]</B> rotates (if LSQ is TRUE) and translates all
+coordinates such that the principal axis system of the selected atoms
+corresponds to the x,y,z axis. The translation superimposes the
+geometric center (or the center of mass if MASS is TRUE) and the
+coordinate origin. The rotation occurs with the Kabsch (1976)
+least-squares fitting algorithm. Mass-weighting is applied if MASS is
+set to TRUE.  Upon successful completion of this operation, the
+Eulerian angles describing the rotation matrix R are stored in the
+symbols $THETA1, $THETA2, $THETA3, and the translation vector T is
+stored in the symbols $X, $Y, $Z. The oriented coordinate set r' is
+related to original set r by r'=R*r + T (default for selection: (ALL);
+for MASS: FALSE; for LSQ: TRUE).</LI>
+
+<LI><B>ORTHogonalize [SELEction=atom-selection]</B> orthogonalizes
+selected coordinates. The CNS convention keeps the direction of the
+x-axis (x same direction as a; y is in (a,b) plane) and is the same
+that is used internally by all CNS routines (default for selected
+atoms: (ALL)). The unit cell geometry needs to be specified before
+invoking this statement.</B>
+
+<LI><B>RGYRation [SELEction=atom-selection] [MASS=logical]
+[FACT=real]</B> computes radius of gyration
+(Rgyr=sqrt(&lt;(r-&lt;r&gt;)^2&gt;) where the angle brackets denote
+averaging over selected atoms. The averaging is mass-weighted if MASS
+is TRUE. The factor FACT is subtracted from the masses before applying
+the mass-weighting. The symbols $RG (radius of gyration), $XCM, $YCM,
+$ZCM (center of mass) are declared (default for selected atoms: (ALL);
+for MASS: FALSE; for FACT: 0.0).</LI>
+
+<LI><B>RMS [SELEction atom-selection] [MASS=logical]</B> computes the
+(mass-weighted if MASS is TRUE) rms difference for selected atoms
+between the main and comparison set. The rms value is stored in the
+symbol $RESULT. The individual atomic rms differences are stored in
+the RMSD array (default for selection: (ALL); for MASS: FALSE).</LI>
+
+<LI><B>ROTAte [SELEction=atom-selection] [CENTer=vector]
+<matrix></B> rotates selected atoms around the specified rotation
+center (default: ( 0 0 0 ) ). The rotation matrix is specified through
+the matrix statement (default for selection: (ALL)).</LI>
+
+<LI><B>SWAP [SELEction=atom-selection]</B> exchanges main and comparison
+coordinate set, i.e., X,Y,Z ? XCOMP,YCOMP,ZCOMP; B,Q are unaffected
+(default for selection: (ALL) ).</LI>
+
+<LI><B>SYMMetry symmetry-operator [SELEction=atom-selection]</B>
+applies the specified crystallographic symmetry operator to the
+selected coordinates. The notation for the symmetry operator is the
+same as in the International Tables for Crystallography (Hahn
+ed. 1987), e.g., (- x, y+1/2, -z). The unit cell geometry needs to be
+specified before invoking this statement. The coordinates are
+converted into fractional coordinates before application of the
+symmetry operator and converted back into orthogonal coordinates
+afterward.</LI>
+
+<LI><B>TRANslate [SELEction=atom-selection] VECTor=vector
+[DISTance=real]</B> translates selected atoms by specified translation
+vector. If DISTance is specified, the translation occurs along the
+specified vector for the specified distance (default for selection:
+(ALL) ).</LI>
+
+</UL>
+
+<P>Coordinates are also read using the COORdinate statement:</P>
+
+<PRE>
+  coordinates @file.pdb
+</PRE>
+
+<P>Coordinates can be read into different destination within CNS using
+the DISPosition qualifier:</P>
+
+<UL>
+<LI>COORdinate [DISPosition= COMParison | DERIvative | MAIN | REFErence ] { pdb-records } END
+</UL>
+
+<P>This reads Brookhaven Data Bank formatted records consisting of
+x,y,z coordinates, occupancies, and B-factors, while trying to match
+the atom name, residue name, residue number, and segment name to the
+internal molecular topology information. The coordinates are deposited
+in the main (X,Y,Z,B,Q), comparison (XCOMP, YCOMP, ZCOMP, BCOMP,
+QCOMP), reference (REFX, REFY, REFZ, HARM, HARM), or derivative (DX,
+DY, DZ, FBETA, FBETA) coordinate arrays. The information is deposited
+only if the atom has been selected. Note that the syntax is strict;
+i.e., the SELEction and the DISPosition have to be specified before
+one can read a <pdb-record>. Also, the PDB convention suggests an END
+statement at the end of the file that will terminate the coordinate
+statement (default for selected atoms: (ALL); for DISPosition:
+MAIN).<P>
+
+<P>According to the Brookhaven Protein Data Bank, the entry for atoms
+is defined as follows:</P>
+
+<PRE>
+ATOM    837 HG23 THR  1055      -8.573   5.657  -3.818  1.00  0.00      A    
+HETATM 1223  O   GLY   153A    -11.704  -9.200    .489  1.00  0.80      1MOL
+      uuuuu vvvv uuuuCuuuuI   vvvvvvvvuuuuuuuuvvvvvvvvuuuuuuvvvvvv      uuuu
+        atom     residue          x      y        z     q      b        segid
+     number name name number     
+                          ^ insertion character 
+                     ^ chain identifier 
+            ^ additional character for some atom names (mostly h's) 
+</PRE>
+
+<P>CNS can use the chain identifier information at the stage of
+molecular topology generation, but the information is stored
+internally as a segment identifier - the characters in columns 73-76
+are used for the segment name. The segment name has to match the
+definition in the segment statement. The insertion character is
+treated as part of the residue number (note: the residue number is a
+string consisting of a maximum of four characters). CNS ignores any
+reference to the atom numbers and instead generates its own numbering
+scheme. The REMARK record of PDB files is treated as a title
+record. No other type of PDB specification, such as SCALE, or SEQU, is
+interpreted at present, but are ignored instead. Normally, CNS expects
+orthogonal coordinates. The ORTHogonalize option can be used to
+convert fractional coordinates into orthogonal &Aring; coordinates.</P>
+
+<P>The PDB convention requires an END statement at the end of the
+coordinate file. CNS uses the same convention. The inclusion of the
+END statement implies that the coordinate statement must not be
+terminated with an END statement from the main level of CNS. However,
+if the END statement is missing in the coordinate file, parsing errors
+will result.</P>
+
+<U>Requirements</U>
+
+<P>The molecular structure has to be defined before any coordinates can
+be read and/or manipulated.</P>
+
+<U>Examples</U>
+
+<P>The first example reads the coordinates from two files into the
+main and comparison sets:</P>
+
+<PRE>
+  coordinates @set1.pdb 
+
+  coordinates disposition=comparison  @set2.pdb
+</PRE>
+
+<P>In the second example, the first set is least-squares fitted to the
+second (comparison) set using Ca atoms only. Note that all atoms are
+translated and rotated. Then the rms difference between the two sets
+is computed for backbone atoms and stored in the symbol
+$rms_backbone. Finally, the individual rms differ- ences are printed
+for all backbone atoms that show rms differences greater than 1 &Aring;.</P>
+
+<PRE>
+  coordinates fit selection=( name ca ) end 
+  coordinates rms selection=( name ca or name n or name c ) end 
+
+  evaluate ($rms_backbone=$result) 
+
+  show ( rmsd ) 
+       ( attribute rmsd > 1.0 and ( name ca or name n or name c )) 
+</PRE>
+
+<P>In the third example, the main coordinates are fractionalized, a
+translation and a rotation are applied, and the coordinates are
+orthogonalized again. The rotation and translation is the space-group
+operator (- x,y+1/2,-z).</P>
+
+<PRE>
+  xray a=94.5 b=65.3 c=67.2 alpha=90 beta=90 gamma=90 end
+
+  coordinates fractionalize end 
+
+  coordinates rotate 
+     matrix=( -1  0  0  ) 
+            (  0  1  0  ) 
+            (  0  0 -1  ) 
+  end 
+
+  coordinates translate 
+     vector=( 0 0.5 0 ) 
+  end 
+
+  coordinates orthogonalize end 
+</PRE>
+
+<P>The final example shows how to rotate the coordinates using
+Eulerian angles:</P>
+
+<PRE>
+  coordinates rotate 
+    euler=( 10., 30., 2. ) 
+  end 
+</PRE>
+
+<HR WIDTH="100%"></P>
+
+<A HREF="../../text.html">Back to tutorials</A>&nbsp;&nbsp;
+<A HREF="../ncs_trans/text.html">Next section</A>
+
+<HR WIDTH="100%"></P>
+   
+</BODY>
+</HTML>

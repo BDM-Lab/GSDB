@@ -1,0 +1,68 @@
+! Module file: twin_operators
+!
+! CNS module
+! **********
+!
+! Authors: Axel Brunger and Paul Adams
+!
+! copyright Yale University
+!
+! Function:
+!    Return the twinning operator for a specified point group
+!
+! Requirements:
+!    None
+
+module {twin_operators}
+
+(
+  &point_group;
+  &operator_num;
+  &twin_oper;
+)
+
+set message ? end
+evaluate ($message_old=$result)
+set echo ? end
+evaluate ($echo_old=$result)
+if ( $log_level = verbose ) then
+  set echo=on message=normal end
+else
+  set echo=off message=off end
+end if
+
+checkversion 1.3
+
+evaluate (&twin_oper="VOID")
+
+if     ( &point_group = 3 ) then
+  if     ( &operator_num = 1 ) then
+    evaluate (&twin_oper="h,-h-k,-l")
+  elseif ( &operator_num = 2 ) then
+    evaluate (&twin_oper="h+k,-k,-l")
+  elseif ( &operator_num = 3 ) then
+    evaluate (&twin_oper="-h,-k,l")
+  end if
+elseif ( &point_group = 4 ) then
+  if     ( &operator_num = 1 ) then
+    evaluate (&twin_oper="h,-k,-l")
+  end if
+elseif ( &point_group = 6 ) then
+  if     ( &operator_num = 1 ) then
+    evaluate (&twin_oper="h,-h-k,-l")
+  end if
+elseif ( &point_group = 321 ) then
+  if     ( &operator_num = 1 ) then
+    evaluate (&twin_oper="-h,-k,l")
+  end if
+elseif ( &point_group = 312 ) then
+  if     ( &operator_num = 1 ) then
+    evaluate (&twin_oper="-h,-k,l")
+  end if
+elseif ( &point_group = 23 ) then
+  if     ( &operator_num = 1 ) then
+    evaluate (&twin_oper="k,-h,l")
+  end if
+end if
+
+set message=$message_old echo=$echo_old end

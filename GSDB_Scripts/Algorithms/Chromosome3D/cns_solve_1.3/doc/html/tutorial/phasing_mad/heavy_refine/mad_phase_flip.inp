@@ -1,0 +1,1701 @@
+{+ file: mad_phase.inp +}
+{+ directory: xtal_phase +}
+{+ description: Computes phase probability distributions from MAD
+                experiment and refine anomalous scatterer parameters
+                against the MAD data. +}
+{+ comment:
+           The algorithm is a combination of the Phillips & Hodgson
+           method with maximum-likelihood refinement using an error
+           model similar to that of Terwilliger & Eisenberg.
+
+           Refer to the CNS on-line tutorial for more information. +}
+{+ authors: Axel T. Brunger +}
+{+ copyright: Yale University +}
+
+{+ reference: J.C. Phillips, K.O. Hodgson, The use of anomalous
+              scattering effects to phase diffraction patterson from
+              macromolecules. Acta Cryst. A 36, 856-864 (1980). +}
+
+{+ reference: G. Bricogne, Maximum entropy and the foundation of
+              direct methods.  Acta Cryst. A40, 410-445 (1984). +}
+
+{+ reference: T.C. Terwilliger, D. Eisenberg, Isomorphous replacement:
+              effect of errors on the phase probability distribution.
+              Acta Cryst. A 43, 6-13 (1987). +}
+
+{+ reference: W.A. Hendrickson, J.L. Smith, R.P. Phizackerley,
+              and E.A. Merritt, Crystallographic structure analysis
+              of lamprey myoglobin from anomalous dispersion
+              of synchrotron radation, Proteins 4, 77-88 (1988) +}
+
+{+ reference: W.A. Hendrickson, Determination of macromolecular structures
+              from anomalous diffraction of synchrotron radiation,
+              Science 254, 51-58, (1991). +}
+
+{+ reference: Z. Otwinowski, In: Proc. CCP4 study weekend 25-26 January
+              1991 (W. Wolf, P.R. Evans, A.G.W. Leslie, eds.), SERC
+              Daresbury laboratory, 80-85, (1991). +}
+
+{+ reference: A.T. Brunger, The free R value: a novel statistical quantity for
+              assessing the accuracy of crystal structures, Nature 355,
+              472-474 (1992).  +}
+
+{+ reference: F.T. Burling, W.I. Weis, K.M. Flaherty, A.T. Brunger,
+              Direct observation of protein solvation and discrete disorder
+              with experimental crystallographic phases,
+              Science 271, 72-77 (1996). +}
+
+{- Guidelines for using this file:
+   - all strings must be quoted by double-quotes
+   - logical variables (true/false) are not quoted
+   - do not remove any evaluate statements from the file -}
+
+{====================== IMPORTANT NOTE ===============================}
+
+{* This input file requires that the data have been properly scaled prior
+   to running this file (absolute scale of "reference" and relative scale
+   between other wavelengths and "reference").  Otherwise, the reflection
+   selection definitions and the occupancies will be ill-defined.  *}
+
+{- begin block parameter definition -} define(
+
+{====================== crystallographic data ========================}
+
+{* space group *}
+{* use International Table conventions with subscripts substituted
+   by parenthesis *}
+{===>} sg="P6";
+
+{* unit cell parameters in Angstroms and degrees *}
+{+ table: rows=1 "cell" cols=6 "a" "b" "c" "alpha" "beta" "gamma" +}
+{===>} a=116.097;
+{===>} b=116.097;
+{===>} c=44.175;
+{===>} alpha=90;
+{===>} beta=90;
+{===>} gamma=120;
+
+{* reflection file(s) containing scaled data *}
+{* specify non-anomalous reflection file(s) (if any)
+   before anomalous reflection file(s) *}
+{===>} reflection_infile_1="mad_scale.hkl";
+{===>} reflection_infile_2="";
+{===>} reflection_infile_3="";
+{===>} reflection_infile_4="";
+
+{* Prior phase probability distribution. *}
+{* Leave blank if not used. *}
+{* Hendrickson-Lattman coefficient arrays *}
+{+ table: rows=1 "HL coefficients" cols=4 "A" "B" "C" "D" +}
+{===>} priora="";
+{===>} priorb="";
+{===>} priorc="";
+{===>} priord="";
+
+{* reciprocal space array containing test set for cross-validation: optional *}
+{* Leave blank if not used *}
+{===>} testcv="";
+
+{* number for selection of test reflections. *}
+{* ie. reflections with the test set array equal to this number will be
+       used for cross-validation, all other reflections form the working set *}
+{===>} test_flag=1;
+
+{* Names of amplitude and sigma arrays for each wavelength that
+   is to be used *}
+{* Leave empty ("") for unused slots (up to 5 wavelengths) *}
+{+ table: rows=5 numbered cols=2 "amplitude array" "sigma array" +}
+
+{===>} f_w_1="f_w1";
+{===>} s_w_1="s_w1";
+
+{===>} f_w_2="f_w2";
+{===>} s_w_2="s_w2";
+
+{===>} f_w_3="f_w3";
+{===>} s_w_3="s_w3";
+
+{===>} f_w_4="f_w4";
+{===>} s_w_4="s_w4";
+
+{===>} f_w_5="";
+{===>} s_w_5="";
+
+{============================ sites ==============================}
+
+{+ list:
+        Heavy atom database files are obtained from:
+          - Heavy atom searching (xtal_patterson/heavy_search.inp).
+          - Conversion of pdb and mtf files (xtal_phase/cns_to_sdb.inp).
+          - Conversion of pdb file (xtal_phase/pdb_to_sdb.inp).
+          - Manual entry (auxiliary/heavy_atom.sdb). +}
+
+{* CNS heavy atom site database files containing heavy atom sites *}
+{===>} sitedatabase_infile.1="heavy_search_1_flipped.sdb";
+{===>} sitedatabase_infile.2="";
+{===>} sitedatabase_infile.3="";
+{===>} sitedatabase_infile.4="";
+{===>} sitedatabase_infile.5="";
+
+{* reset initial B-values to specified value.
+   If set to -1 then the original values are used *}
+{===>} initial_bvalue=20;
+
+{* reset initial occupancies to specified value.
+   If set to -1 then the original values are used *}
+{===>} initial_qvalue=1;
+
+{* NCS-restraints/constraints file *}
+{* only strict NCS is allowed *}
+{* see auxiliary/ncs.def *}
+{===>} ncs_infile="";
+
+{=================== wavelength-dependent form factors ================}
+
+{* List the initial (guessed or theoretical) f' and f'' values
+   for each wavelength *}
+{* set to zero if not used *}
+{+ table: rows=5 numbered cols=2 "f-prime" "f-double-prime" +}
+
+{===>} fp_w_1=-11;
+{===>} fdp_w_1=4;
+
+{===>} fp_w_2=-10;
+{===>} fdp_w_2=6;
+
+{===>} fp_w_3=-2;
+{===>} fdp_w_3=5;
+
+{===>} fp_w_4=-2;
+{===>} fdp_w_4=1;
+
+{===>} fp_w_5=0.;
+{===>} fdp_w_5=0.;
+
+{============ selection criteria for phased reflections ==============}
+
+{* Resolution range. *}
+{+ table: rows=1 "resolution" cols=2 "lowest" "highest" +}
+{===>} low_res=500;
+{===>} high_res=2.4;
+
+{======== selection criteria for scaling and refinement target =======}
+
+{+ list: for each wavelength specify:
+         - the amplitude cutoff
+         - the dispersive difference cutoff to reference wavelength
+         - the dispersive difference outlier cutoff to reference wavelength
+         - the anomalous difference cutoff
+         - the anomalous difference outlier cutoff +}
+
+{+ list: the cutoffs are defined:
+       - amplitude cutoff:
+        f_wav > cutoff * s_wav
+       - dispersive difference:
+        abs(f_wav-f_ref ) > cutoff * sqrt(s_wav^2+s_ref^2)
+       - dispersive difference outlier:
+        abs(f_wav-f_ref ) < cutoff * rms[abs(f_wav-f_ref)]
+       - anomalous difference:
+        abs(f_wav-f_wav_fried) > cutoff * sqrt(s_wav(+)^2 + s_wav_fried^2)
+       - anomalous difference outlier:
+        abs(f_wav-f_wav_fried ) < cutoff * rms[abs(f_wav-f_wav_fried)]
+
+  NB: dispersive differences are fairly weak, so the cutoff should be small
+  NB: remote wavelengths or weak data require low anomalous difference cutoffs
+  NB: use histograms to determine outlier cutoffs at requested phasing
+      resolution range
+  NB: the rms value is defined with respect to requested phasing
+      resolution range +}
+
+{+ table: rows=5 numbered cols=5 "amplitude cutoff"
+                                 "dispersive difference cutoff"
+                                 "dispersive difference outlier cutoff"
+                                 "anomalous difference cutoff"
+                                 "anomalous difference outlier cutoff" +}
+
+{===>} cut_f_1=1;
+{===>} cut_disp_df_1=0.1;
+{===>} max_disp_df_1=6;
+{===>} cut_anom_df_1=0.1;
+{===>} max_anom_df_1=6;
+
+{===>} cut_f_2=1;
+{===>} cut_disp_df_2=0.1;
+{===>} max_disp_df_2=6;
+{===>} cut_anom_df_2=0.1;
+{===>} max_anom_df_2=6;
+
+{===>} cut_f_3=1;
+{===>} cut_disp_df_3=0.1;
+{===>} max_disp_df_3=6;
+{===>} cut_anom_df_3=0.1;
+{===>} max_anom_df_3=6;
+
+{===>} cut_f_4=1;
+{===>} cut_disp_df_4=0.1;
+{===>} max_disp_df_4=6;
+{===>} cut_anom_df_4=0.1;
+{===>} max_anom_df_4=6;
+
+{===>} cut_f_5=1;
+{===>} cut_disp_df_5=0.1;
+{===>} max_disp_df_5=6;
+{===>} cut_anom_df_5=0.1;
+{===>} max_anom_df_5=6;
+
+{* Flag for common selection *}
+{* If true then all the above criteria are combined to produce a
+   common working set for the target otherwise each LOC has its
+   own selection according to the specified criteria *}
+{+ choice: true false +}
+{===>} common_work_set=true;
+
+{====================== refinement parameters ========================}
+
+{* Define reference wavelength. *}
+{* Usually, a remote wavelength (with small anomalous signal) is used. *}
+{+ choice: 1 2 3 4 5 +}
+{===>} ref_wave=4;
+
+{* Refinement method *}
+{+ choice: "maxlike" "chisquare" +}
+{===>} mad_method="maxlike";
+
+{* K-scaling *}
+{+ choice: "yes" "no" +}
+{===>} mad_kscale="yes";
+
+{* B-scaling *}
+{+ choice: "no" "isotropic" "anisotropic" +}
+{===>} mad_bscale="anisotropic";
+
+{* Number of positional refinement steps *}
+{===>} mad_xstep=15;
+
+{* Number of individual isotropic B factor refinement steps  *}
+{===>} mad_bstep=15;
+
+{* Refine individual atomic B-values for each atom in a group *}
+{+ choice: true false +}
+{===>} mad_bindgroup=false;
+
+{* Number of scale factor refinement steps.  *}
+{===>} mad_kstep=20;
+
+{* Number of individual occupancy refinement steps *}
+{* (do not use if individual f' and f'' are refined) *}
+{===>} mad_qstep=0;
+
+{* Number of f' refinement steps. *}
+{===>} mad_fpstep=15;
+
+{* Number of f'' refinement steps. *}
+{===>} mad_fdpstep=15;
+
+{* Form factor wavelength constraints. *}
+{* If true, f' and f'' will be constrained to be equal for all atoms
+   at a particular wavelength.
+   If false, f' and f'' will be refined individually for each atom
+   and wavelength. *}
+{+ choice: true false +}
+{===>} mad_fpconst=true;
+
+{* Number of refinement macro cycles. *}
+{===>} mad_macrocycle=8;
+
+{* Integration step size (in degrees) for phase centroid and
+   figure of merit calculation *}
+{===>} mad_phistep=10;
+
+{* Convergence criterion for iterating the estimated model error <H^2> *}
+{* The same criterion is used for convergence of the gradients
+   during minimization *}
+{===>} mad_tolerance=0.01;
+
+{* sigma LOC cutoff for automatic outlier detection. *}
+{===>} mad_cutoff=4;
+
+{* minimum b-factor allowed. *}
+{===>} mad_bmin=1;
+
+{* maximum b-factor allowed  *}
+{===>} mad_bmax=300;
+
+{* minimum occupancy allowed *}
+{===>} mad_qmin=0.01;
+
+{* maximum occupancy allowed *}
+{===>} mad_qmax=20;
+
+{* minimum f' allowed *}
+{===>} mad_fpmin=-300;
+
+{* maximum f' allowed *}
+{===>} mad_fpmax=300;
+
+{* minimum f'' allowed *}
+{===>} mad_fdpmin=-300;
+
+{* maximum f'' allowed *}
+{===>} mad_fdpmax=300;
+
+{* Centric phase probability distribution *}
+{* If "yes" uses full 0...360 range for the phase probability distribution
+   of centric reflections in the case of anomalous data.  If "no", only
+   the centric phase choices are allowed regardless of the presence
+   of an anomalous signal at the reference wavelength.  "yes" is useful
+   if the reference wavelength has a very strong anomalous signal and
+   the phase will thus deviate from the centric phase choices. *}
+{+ choice: "yes" "no" +}
+{===>} mad_cen360="no";
+
+{* summation method for structure factor calculation *}
+{* for small numbers of sites use the direct summation method,
+   for large numbers (more than 10), the fft method may be more
+   efficient *}
+{+ choice: "direct" "fft" +}
+{===>} sum_method="direct";
+
+{* grid spacing relative to high resolution limit (for fft summation
+   method only) *}
+{* use 0.2 for data at or below 3 A, use 0.3 for higher resolution *}
+{===>} fft_grid=0.2;
+
+{* memory allocation (for fft summation method only) *}
+{* this will be determined automatically if a negative value is given
+   otherwise the specified number of words will be allocated *}
+{===>} fft_memory=-1;
+
+{================ output phase probability distribution ======================}
+
+{* Output: combined MAD phase probability distribution (WITHOUT
+   including prior phase information). *}
+{* Hendrickson-Lattman coefficient arrays *}
+{+ table: rows=1 "HL coefficients" cols=4 "A" "B" "C" "D" +}
+{===>} pa_name="pa";
+{===>} pb_name="pb";
+{===>} pc_name="pc";
+{===>} pd_name="pd";
+
+{================ output centroid phases and figure of merit =================}
+
+{* Output: name of structure factor complex array with centroid phases and
+   native amplitudes (including prior phase information) *}
+{* Note: this must have a distinct name different from arrays already in use *}
+{===>} centroid_phase_name="mad";
+
+{* Output: name of corresp. figure of merit array (including prior phase
+   information) *}
+{===>} fom_name="fom";
+
+{======================= output files and options ============================}
+
+{* Write scaled input data arrays with output arrays, otherwise only output
+   arrays will be written *}
+{+ choice: true false +}
+{===>} merge_inout=false;
+
+{* Calculate structure factors that can be used to compute a gradient map *}
+{+ list: for example by using the xtal_util/fourier_map.inp input file
+         The quantity - d target / d fcalc will be returned in array
+         "grad" in file [output_root]_grad.hkl +}
+{+ choice: true false +}
+{===>} gradient_map=true;
+
+{* Root name for output files. *}
+{+ list: Ouput filenames will be
+         <output_root>.hkl: scaled data, phases, foms, hl coefficients
+         <output_root>.summary: summary of refinement.
+         <output_root>.fp: summary of final f' and f'' values.
+         <output_root>.sdb: refined coordinate heavy atom database. +}
+{===>} output_root="mad_phase_flip";
+
+{===========================================================================}
+{         things below this line do not normally need to be changed         }
+{===========================================================================}
+
+ ) {- end block parameter definition -}
+
+ checkversion 1.3
+
+ evaluate ($log_level=quiet)
+
+ @CNS_XTALMODULE:read_multi_sdb (filegroup=&sitedatabase_infile;
+                                 use_array=store3;
+                                 fix_array=store4;
+                                 sg_expected=&sg;
+                                 sg_read=$sg_read;)
+
+show sum (1) (store3)
+eval($n_use_sites = $select)
+show sum (1) (store4)
+eval($n_fix_sites = $select)
+
+ @CNS_XTALMODULE:coord_to_sdb (sitedb=$allsites;
+                               use_array=store3;
+                               fix_array=store4;
+                               selection=(all);)
+if (&initial_bvalue > 0) then
+   do (b=&initial_bvalue) ( all )
+end if
+
+if (&initial_qvalue > 0) then
+   do (q=&initial_qvalue) ( all )
+end if
+
+
+evaluate ($n_wave=5)  { maximum number of wavelengths: 5 (fixed)}
+
+evaluate ($ref_wave=&ref_wave)
+
+{- Create duplicate anonalous scatterer sites for each LOC.
+   The segids are encoded according to the particular LOC,
+   e.g., TO+2 refers to the F->Fref LOC and TO-2
+   refers to the Friedel(F)->Fref LOC. -}
+
+delete sele=(not(store3)) end
+
+do (segid="") ( all )
+
+evaluate ($i_wave=1)
+while ($i_wave <= $n_wave) loop dup
+   if ($i_wave # $ref_wave) then
+      if (&blank%f_w_$i_wave = false) then
+         evaluate ($UP="TO+"+encode($i_wave))
+         evaluate ($DOWN="TO-"+encode($i_wave))
+         duplicate selection=( segid "" ) segid=$UP end
+         duplicate selection=( segid "" ) segid=$DOWN end
+      end if
+   end if
+   evaluate ($i_wave=$i_wave+1)
+end loop dup
+
+{- Make the site for the reference wavelength. -}
+evaluate ($DOWN="TO-"+encode($ref_wave))
+do (segid=$DOWN) ( segid "" )
+
+
+xray
+
+   @CNS_XTALLIB:spacegroup.lib (sg=&sg;sgparam=$sgparam;)
+
+   a=&a b=&b c=&c  alpha=&alpha beta=&beta gamma=&gamma
+
+   evaluate ($counter=1)
+   evaluate ($done=false)
+   while ( $done = false ) loop read
+    if ( &exist_reflection_infile_$counter = true ) then
+      if ( &BLANK%reflection_infile_$counter = false ) then
+       reflection
+         @@&reflection_infile_$counter
+       end
+      end if
+    else
+     evaluate ($done=true)
+    end if
+    evaluate ($counter=$counter+1)
+   end loop read
+
+   set echo=off end
+   anomalous ?
+   if ( $result = false ) then
+     display >>>> error: Anomalous must be true for MAD refinement
+     display             check input reflection files for ANOMalous=FALSE
+   end if
+   set echo=on end
+
+   {- declare zero array -}
+   declare name=null domain=reciprocal type=real end
+   do (null=0) ( all )
+
+   if ( $log_level = verbose ) then
+     set message=normal echo=on end
+   else
+     set message=off echo=off end
+   end if
+
+   {- check that all reciprocal space objects are defined -}
+
+   evaluate ($i_wave=1)
+   while ($i_wave <= $n_wave) loop ccc
+      if (&blank%f_w_$i_wave = false) then
+         query name=&strip%f_w_$i_wave domain=reciprocal end
+         if ( $object_exist = false ) then
+            display
+            display ****************************************************************
+            display wavelength $i_wave : amplitude array &f_w_$i_wave does not exist
+            display ****************************************************************
+            display
+            abort
+         end if
+         {- this array can be of any type -}
+
+         if (&blank%s_w_$i_wave = true) then
+            display
+            display **********************************************
+            display wavelength $i_wave : sigma array not specified
+            display **********************************************
+            display
+            abort
+         else
+            query name=&strip%s_w_$i_wave domain=reciprocal end
+            if ( $object_exist = false ) then
+               display
+               display ************************************************************
+               display wavelength $i_wave : sigma array &s_w_$i_wave does not exist
+               display ************************************************************
+               display
+               abort
+            end if
+            if ( $object_type # "REAL" ) then
+               display
+               display *********************************************************************
+               display wavelength $i_wave : sigma array &s_w_$i_wave has the wrong data type
+               display *********************************************************************
+               display
+               abort
+            end if
+         end if
+       end if
+      evaluate ($i_wave=$i_wave+1)
+   end loop ccc
+
+   {- note: the test array is optional -}
+   if (&blank%testcv = false ) then
+      query name=&strip%testcv domain=reciprocal end
+      if ( $object_exist = false ) then
+         display
+         display *************************************
+         display test set array &testcv does not exist
+         display *************************************
+         display
+         abort
+      end if
+      if ( $object_type = "COMPLEX" ) then
+         display
+         display **********************************************
+         display test set array &testcv has the wrong data type
+         display **********************************************
+         display
+         abort
+      end if
+   end if
+
+   {- note: the prior phase probability distribution is optional -}
+   if (&blank%priora = false ) then
+      @@CNS_XTALMODULE:check_abcd (pa=&priora;
+                                  pb=&priorb;
+                                  pc=&priorc;
+                                  pd=&priord;)
+   end if
+
+   evaluate ($testcv=&testcv)
+   if (&blank%testcv=true) then
+      evaluate ($testcv="null")
+   end if
+
+   evaluate ($priora=&priora)
+   evaluate ($priorb=&priorb)
+   evaluate ($priorc=&priorc)
+   evaluate ($priord=&priord)
+   if (&blank%priora=true) then
+      evaluate ($priora="null")
+      evaluate ($priorb="null")
+      evaluate ($priorc="null")
+      evaluate ($priord="null")
+   end if
+
+   if (&blank%pa_name=true) then
+      display
+      display ***********************************************************
+      display output phase probability distribution A array not specified
+      display ***********************************************************
+      display
+      abort
+   elseif (&blank%pb_name=true) then
+      display
+      display ***********************************************************
+      display output phase probability distribution B array not specified
+      display ***********************************************************
+      display
+      abort
+   elseif (&blank%pc_name=true) then
+      display
+      display ***********************************************************
+      display output phase probability distribution C array not specified
+      display ***********************************************************
+      display
+      abort
+   elseif (&blank%pd_name=true) then
+      display
+      display ***********************************************************
+      display output phase probability distribution D array not specified
+      display ***********************************************************
+      display
+      abort
+   elseif (&blank%fom_name=true) then
+      display
+      display ******************************************
+      display output figure of merit array not specified
+      display ******************************************
+      display
+      abort
+   elseif (&blank%centroid_phase_name=true) then
+      display
+      display *****************************************************
+      display output amplitude / centroid phase array not specified
+      display *****************************************************
+      display
+      abort
+   end if
+
+   buffer harvest
+      display sg= &strip%sg
+      display a= &a b= &b c= &c alpha= &alpha beta= &beta gamma= &gamma
+      display
+      display number of used  sites = $n_use_sites
+      display number of fixed sites = $n_fix_sites
+      display
+      display Selection criteria for scaling and refinement:
+   end
+   evaluate ($i_wave=1)
+   while ($i_wave <= $n_wave) loop prt
+      if (&blank%f_w_$i_wave = false) then
+         if ($i_wave=$ref_wave) then
+            buffer harvest
+                display wavelength $i_wave: ampl= &strip%f_w_$i_wave sigma= &strip%s_w_$i_wave\
+      <- reference wavelength
+                display      sigma-cut= &cut_f_$i_wave
+                display      anomalous  diff.: sigma-cut= &cut_anom_df_$i_wave\
+ rms-cut= &max_anom_df_$i_wave
+            end
+         else
+            buffer harvest
+               display wavelength $i_wave: ampl= &strip%f_w_$i_wave sigma= &strip%s_w_$i_wave
+               display      sigma-cut= &cut_f_$i_wave
+               display      anomalous  diff.: sigma-cut= &cut_anom_df_$i_wave rms-cut=\
+ &max_anom_df_$i_wave
+               display      dispersive diff.: sigma-cut= &cut_disp_df_$i_wave rms-cut=\
+ &max_disp_df_$i_wave  (vs. &strip%f_w_$ref_wave )
+            end
+         end if
+      end if
+      evaluate ($i_wave=$i_wave+1)
+   end loop prt
+   buffer harvest
+      display
+   end
+   if (&blank%priora = false) then
+      buffer harvest
+         display Prior phase probability distribution &priora , &priorb , &priorc , &priord
+      end
+   else
+      buffer harvest
+         display No prior phase probability distribution used
+      end
+   end if
+   display
+   if (&blank%testcv = false) then
+      buffer harvest
+         display Using cross-validation with test set &testcv
+      end
+   else
+      buffer harvest
+         display No cross-validation is used
+      end
+   end if
+   buffer harvest
+      display
+      display Reflections in the range &low_res < d < &high_res A \
+are phased regardless of the above criteria.
+   end
+
+   declare name=&strip%pa_name    domain=reciprocal   type=real end  {type=hl }
+   declare name=&strip%pb_name    domain=reciprocal   type=real end  {type=hl }
+   declare name=&strip%pc_name    domain=reciprocal   type=real end  {type=hl }
+   declare name=&strip%pd_name    domain=reciprocal   type=real end  {type=hl }
+   group
+       type=hl
+       object=&strip%pa_name object=&strip%pb_name object=&strip%pc_name object=&strip%pd_name
+   end
+   declare name=&strip%centroid_phase_name   domain=reciprocal   type=complex end
+   declare name=&strip%fom_name    domain=reciprocal   type=real    end
+
+   {- Store reference data set in &strip%centroid_phase_name -}
+   do (&strip%centroid_phase_name=amplitude(&strip%f_w_$ref_wave )) ( all )
+
+   { Declare and store Friedel mates for all wavelengths in separate arrays. }
+   { For each observed reflection the value of the Friedel mate is stored    }
+   { in the F_W*_FRIED arrays if it exists (existence of the Friedel mate is }
+   { indicated by the friedel_pair operator.                                 }
+
+   evaluate ($i_wave=1)
+   while ($i_wave <= $n_wave) loop frd
+      evaluate ($f_w_fried_$i_wave=&f_w_$i_wave+"_FRIED")
+      evaluate ($s_w_fried_$i_wave=&s_w_$i_wave+"_FRIED")
+      if (&blank%f_w_$i_wave = false) then
+         declare name=$strip%f_w_fried_$i_wave  domain=reciprocal   type=real end
+         declare name=$strip%s_w_fried_$i_wave  domain=reciprocal   type=real end
+         do ($strip%f_w_fried_$i_wave=friedel(amplitude(&strip%f_w_$i_wave))) ( friedel_pair(true))
+         do ($strip%s_w_fried_$i_wave=friedel(amplitude(&strip%s_w_$i_wave))) ( friedel_pair(true))
+      end if
+      evaluate ($i_wave=$i_wave+1)
+   end loop frd
+
+   { define selections for all LOCs }
+
+   { amplitude-based cutoffs and anomalous cutoffs. }
+   { exclude centrics from anomalous cutoffs.       }
+   evaluate ($i_wave=1)
+   while ($i_wave <= $n_wave) loop selc
+
+      if (&blank%f_w_$i_wave = false) then
+
+         evaluate ($sha_$i_wave="sha_"+encode($i_wave))
+         declare name=$strip%sha_$i_wave type=integer domain=reciprocal end
+         do ($strip%sha_$i_wave=1) ( all )
+
+         {- amplitude-based cutoffs -}
+         do ($strip%sha_$i_wave=0) (
+                    &strip%f_w_$i_wave = 0
+                or  $strip%f_w_fried_$i_wave = 0
+                or  amplitude(&strip%f_w_$i_wave) <= &cut_f_$i_wave * &strip%s_w_$i_wave
+                or  amplitude($strip%f_w_fried_$i_wave) <= &cut_f_$i_wave * $strip%s_w_fried_$i_wave)
+
+         {- anomalous difference based cutoffs -}
+         show rms (abs(amplitude(&strip%f_w_$i_wave)-amplitude($strip%f_w_fried_$i_wave)))
+                  ( friedel_pair(amplitude(&strip%f_w_$i_wave)>0) and &low_res >= d >= &high_res )
+         evaluate ($rms_df=$result)
+
+         if ($rms_df < 0.001) then
+            buffer harvest
+               display
+               display ********************************************************
+               display no anomalous signal present for wavelength &strip%f_w_$i_wave
+               display anomalous difference of this wavelength not used for phasing
+               display ********************************************************
+               display
+            end
+            evaluate ($anom_$i_wave=false)
+         else
+            evaluate ($anom_$i_wave=true)
+            do ($strip%sha_$i_wave=0) ((
+                   abs(amplitude(&strip%f_w_$i_wave)-amplitude($strip%f_w_fried_$i_wave) ) <=
+                    &cut_anom_df_$i_wave * sqrt(&strip%s_w_$i_wave^2 + $strip%s_w_fried_$i_wave^2)
+                or abs(amplitude(&strip%f_w_$i_wave)-amplitude($strip%f_w_fried_$i_wave) ) >=
+                    &max_anom_df_$i_wave * $rms_df ) and not centric )
+
+         end if
+
+      end if
+      evaluate ($i_wave=$i_wave+1)
+
+   end loop selc
+
+   {- dispersive cutoffs (for both Friedel LOCs) -}
+   evaluate ($i_wave=1)
+   while ($i_wave <= $n_wave) loop sel2
+      if ($i_wave # $ref_wave) then
+
+         if (&blank%f_w_$i_wave = false) then
+
+            show rms (abs(amplitude(&strip%f_w_$i_wave)-amplitude(&strip%f_w_$ref_wave) ))
+            ( &low_res >= d >= &high_res and amplitude(&strip%f_w_$i_wave)>0
+                                         and amplitude(&strip%f_w_$ref_wave)>0 )
+            evaluate ($rms_df=$result)
+
+            if ($rms_df < 0.001) then
+               buffer harvest
+                  display
+                  display ***************************************************************
+                  display no dispersive signal present between wavelengths \
+&strip%f_w_$i_wave and &strip%f_w_$ref_wave
+                  display aborting program
+                  display ***************************************************************
+                  display
+                  abort
+               end
+            else
+
+            do ($strip%sha_$i_wave=0) ($strip%sha_$i_wave=0
+               or abs(amplitude(&strip%f_w_$i_wave)-amplitude(&strip%f_w_$ref_wave) ) <=
+                  &cut_disp_df_$i_wave * sqrt(&strip%s_w_$i_wave^2 + &strip%s_w_$ref_wave^2)
+               or abs(amplitude(&strip%f_w_$i_wave)-amplitude(&strip%f_w_$ref_wave) ) >=
+                  &max_disp_df_$i_wave * $rms_df )
+
+            do ($strip%sha_$i_wave=0) ($strip%sha_$i_wave=0
+               or abs(amplitude($strip%f_w_fried_$i_wave)-amplitude($strip%f_w_fried_$ref_wave) ) <=
+                  &cut_disp_df_$i_wave * sqrt($strip%s_w_fried_$i_wave^2 + $strip%s_w_fried_$ref_wave^2)
+               or abs(amplitude($strip%f_w_fried_$i_wave)-amplitude($strip%f_w_fried_$ref_wave) ) >=
+                  &max_disp_df_$i_wave * $rms_df )
+             end if
+
+         end if
+      end if
+
+      evaluate ($i_wave=$i_wave+1)
+   end loop sel2
+
+   if (&common_work_set=true) then
+      { produce a common working set (for the phasing and refinement target) for all LOCs }
+      declare name=w_sel domain=reciprocal type=real end
+      do (w_sel=1) ( all )
+      evaluate ($i_wave=1)
+      while ($i_wave <= $n_wave) loop comm
+         if (&blank%f_w_$i_wave = false) then
+            do (w_sel=0) ( $strip%sha_$i_wave =0 )
+         end if
+         evaluate ($i_wave=$i_wave+1)
+      end loop comm
+
+      evaluate ($i_wave=1)
+      while ($i_wave <= $n_wave) loop com2
+         if (&blank%f_w_$i_wave = false) then
+            do ( $strip%sha_$i_wave = w_sel ) ( all )
+         end if
+         evaluate ($i_wave=$i_wave+1)
+      end loop com2
+
+      undeclare name=w_sel domain=reciprocal end
+   end if
+
+   {- check that all working sets are large enough -}
+
+   {- get number of phased reflections -}
+   show sum ( 1 ) ( &low_res >= d >= &high_res and amplitude(&strip%f_w_$ref_wave)>0 )
+   evaluate ($n_phase_set=$result)
+
+   display TAB  total # of reflections to be phased : $n_phase_set
+
+   evaluate ($i_wave=1)
+   while ($i_wave <= $n_wave) loop chck
+      if (&blank%f_w_$i_wave = false) then
+         show sum ( $strip%sha_$i_wave ) ( all )
+
+         display TAB wavelength $i_wave: # of refl. selected for scal. and ref. target: $result
+
+         evaluate ($threshold=0.2 * $n_phase_set )
+         if ($result < $threshold) then
+
+            display
+            display  ********************************************************
+            display  Error: selection of reflections used for scaling and
+            display         refinement target for wavelength $i_wave produces
+            display         only $result reflections out of $n_phase_set
+            display         reflections that will be phased.  This is less than 20%
+            display         and may produce unstable refinements.  Check your
+            display         selections and increase the number of selected reflections.
+            display
+
+            abort
+
+         end if
+      end if
+      evaluate ($i_wave=$i_wave+1)
+   end loop chck
+
+
+end
+
+{ define gradient maps }
+
+xray
+   if (&gradient_map=true) then
+      declare name=grad type=complex domain=reciprocal end
+   end if
+   evaluate ($i_wave=1)
+   while ($i_wave <= $n_wave) loop fr3
+     evaluate ($grad_map_f_$i_wave=&f_w_$i_wave+"_fgrad")
+     evaluate ($grad_map_$i_wave=&f_w_$i_wave+"_grad")
+     if (&blank%f_w_$i_wave = false) then
+        if (&gradient_map=true) then
+           declare name=$strip%grad_map_f_$i_wave type=complex domain=reciprocal end
+           do ($strip%grad_map_f_$i_wave=0) ( all )
+           if ($i_wave # $ref_wave) then
+              declare name=$strip%grad_map_$i_wave type=complex domain=reciprocal end
+              do ($strip%grad_map_$i_wave=0) ( all )
+           end if
+        else
+           evaluate ($grad_map_$i_wave="")
+           evaluate ($grad_map_f_$i_wave="")
+        end if
+     end if
+     evaluate ($i_wave=$i_wave+1)
+   end loop fr3
+end
+
+@CNS_XTALMODULE:get_subgroups (selection=(all);
+                               subgroups=$subgroups;)
+
+xray
+
+
+   {Reference wavelength.}
+   evaluate ($fp_ref=&fp_w_$ref_wave)
+   evaluate ($fdp_ref=&fdp_w_$ref_wave)
+
+
+   if (&mad_fpconst=true) then
+   { constrained f', f'' refinement - make step number positive }
+      evaluate ($mad_fpstep=abs(&mad_fpstep))
+      evaluate ($mad_fdpstep=abs(&mad_fdpstep))
+   else
+   { constrained f', f'' refinement, make step number negative }
+      evaluate ($mad_fpstep=-abs(&mad_fpstep))
+      evaluate ($mad_fdpstep=-abs(&mad_fdpstep))
+   end if
+
+   { Set up scattering tables. }
+   evaluate ($i_wave=1)
+   while ($i_wave <= $n_wave) loop sct
+      if (&blank%f_w_$i_wave = false ) then
+        evaluate ($UP="TO+"+encode($i_wave))
+        evaluate ($DOWN="TO-"+encode($i_wave))
+
+        {fref+ -> f_w+}
+        evaluate ($fp=&fp_w_$i_wave - $fp_ref)
+        evaluate ($fdp=&fdp_w_$i_wave - $fdp_ref)
+
+        evaluate ($counter=1)
+        while ( $counter <= $subgroups.num ) loop sub
+          if (&mad_fpconst=true) then
+            SCATter ( segid $UP and chemical $subgroups.type.$counter )
+                                   0 0 0 0 0 0 0 0 0 fp $fp  fdp $fdp
+          else
+            for $indx in id ( tag and segid $UP ) loop in1
+              SCATter ( byresidue ( id $indx ) and
+                        chemical $subgroups.type.$counter )
+                                    0 0 0 0 0 0 0 0 0 fp $fp fdp $fdp
+            end loop in1
+          end if
+          evaluate ($counter=$counter+1)
+        end loop sub
+
+        {fref+ -> f_w-}
+        evaluate ($fp=&fp_w_$i_wave - $fp_ref)
+        evaluate ($fdp=-(&fdp_w_$i_wave + $fdp_ref))
+
+        evaluate ($counter=1)
+        while ( $counter <= $subgroups.num ) loop sub
+          if (&mad_fpconst=true) then
+            SCATter ( segid $DOWN and chemical $subgroups.type.$counter )
+                                   0 0 0 0 0 0 0 0 0 fp $fp  fdp $fdp
+          else
+            for $indx in id ( tag and segid $DOWN ) loop in2
+              SCATter ( byresidue ( id $indx ) and
+                        chemical $subgroups.type.$counter )
+                                    0 0 0 0 0 0 0 0 0 fp $fp fdp $fdp
+            end loop in2
+          end if
+          evaluate ($counter=$counter+1)
+        end loop sub
+
+      end if
+      evaluate ($i_wave=$i_wave+1)
+
+   end loop sct
+end
+
+{ Set up flags that indicate which lack-of-closure expressions should be used. }
+{ Set up flags for fp refinement.                                              }
+evaluate ($iloc=1)
+evaluate ($i_wave=1)
+while ($i_wave <= $n_wave) loop flag
+   if (&blank%f_w_$i_wave = true) then
+      evaluate ($on_off_$iloc="off")
+      evaluate ($fp_$iloc=0)
+      evaluate ($iloc=$iloc+1)
+      evaluate ($on_off_$iloc="off")
+      evaluate ($fp_$iloc=0)
+      evaluate ($iloc=$iloc+1)
+   elseif ($i_wave = $ref_wave) then
+      { For the reference wavelength don't use the trivial Fref->Fref LOC. }
+      evaluate ($on_off_$iloc="off")
+      evaluate ($fp_$iloc=0)
+      evaluate ($iloc=$iloc+1)
+      { For the reference wavelength just use the Friedel(Fref)->Fref LOC. unless
+        anomalous signal is missing }
+      if ($anom_$i_wave=true) then
+         evaluate ($on_off_$iloc="on")
+         { fp is not refined for the Friedel(Fref)->Fref LOC. }
+         evaluate ($fp_$iloc=0)
+         evaluate ($iloc=$iloc+1)
+      else
+         evaluate ($on_off_$iloc="off")
+         evaluate ($fp_$iloc=0)
+         evaluate ($iloc=$iloc+1)
+      end if
+   else
+      { For all other available wavelengths: }
+      evaluate ($on_off_$iloc="on")
+      evaluate ($fp_$iloc=$mad_fpstep)
+      evaluate ($iloc=$iloc+1)
+      { don't use if no anomalous signal is present }
+      if ($anom_$i_wave=true) then
+         evaluate ($on_off_$iloc="on")
+         evaluate ($fp_$iloc=$mad_fpstep)
+         evaluate ($iloc=$iloc+1)
+      else
+         evaluate ($on_off_$iloc="off")
+         evaluate ($fp_$iloc=0)
+         evaluate ($iloc=$iloc+1)
+      end if
+   end if
+   evaluate ($i_wave=$i_wave+1)
+end loop flag
+
+if (&blank%ncs_infile = false) then
+   inline @&ncs_infile
+end if
+
+evaluate ($summary_out_file=&output_root+".summary")
+set display=$summary_out_file end
+buffer harvest
+  to=display
+  dump
+end
+set display=OUTPUT end
+
+@CNS_XTALMODULE:siterefine(
+
+list= 1 2 3 4 5 6 7 8 9 10;
+
+fp=&strip%centroid_phase_name;
+sp=&strip%s_w_$ref_wave;
+
+priora=$strip%priora;  {prior probability} {HL}
+priorb=$strip%priorb;  {prior probability} {HL}
+priorc=$strip%priorc;  {prior probability} {HL}
+priord=$strip%priord;  {prior probability} {HL}
+
+pa=&strip%pa_name;   {output probability Hendrickson and Lattman A array}
+pb=&strip%pb_name;   {output probability Hendrickson and Lattman B array}
+pc=&strip%pc_name;   {output probability Hendrickson and Lattman C array}
+pd=&strip%pd_name;   {output probability Hendrickson and Lattman D array}
+fom=&strip%fom_name;
+
+scatter="" ;
+
+
+summary=$summary_out_file;
+
+
+{Lack-of-closure (LOC) expression 1: wavelength 1 vs. reference.}
+{===============================================================}
+on_off_1=$on_off_1;
+fph_1=&f_w_1;
+sph_1=&s_w_1;
+target_set_1=($strip%sha_1=1) ;
+target_set_a_1=( none );
+h_1=(segid "TO+1");
+hfix_1=(none);
+xstep_1=&mad_xstep;
+qstep_1=&mad_qstep;
+bstep_1=&mad_bstep;
+bindgroup_1=&mad_bindgroup;
+fpstep_1=$fp_1;
+fdpstep_1=$mad_fdpstep;
+kstep_1=&mad_kstep;
+kscale_1=&mad_kscale;
+bscale_1=&mad_bscale;
+grad_map_1=$strip%grad_map_1;
+
+{Lack-of-closure (LOC) expression 2: friedel(wavelength 1) vs. reference.}
+{========================================================================}
+on_off_2=$on_off_2;
+fph_2=$strip%f_w_fried_1;
+sph_2=$strip%s_w_fried_1;
+target_set_2=($strip%sha_1=1) ;
+target_set_a_2=( none );
+h_2=(segid "TO-1");
+hfix_2=(none);
+xstep_2=&mad_xstep;
+qstep_2=&mad_qstep;
+bstep_2=&mad_bstep;
+bindgroup_2=&mad_bindgroup;
+fpstep_2=$fp_2;
+fdpstep_2=$mad_fdpstep;
+kstep_2=&mad_kstep;
+kscale_2=&mad_kscale;
+bscale_2=&mad_bscale;
+grad_map_2=$strip%grad_map_f_1;
+
+{Lack-of-closure (LOC) expression 3: wavelength 2 vs. reference.}
+{===============================================================}
+on_off_3=$on_off_3;
+fph_3=&f_w_2;
+sph_3=&s_w_2;
+target_set_3=($strip%sha_2=1) ;
+target_set_a_3=( none );
+h_3=(segid "TO+2");
+hfix_3=(none);
+xstep_3=&mad_xstep;
+qstep_3=&mad_qstep;
+bstep_3=&mad_bstep;
+bindgroup_3=&mad_bindgroup;
+fpstep_3=$fp_3;
+fdpstep_3=$mad_fdpstep;
+kstep_3=&mad_kstep;
+kscale_3=&mad_kscale;
+bscale_3=&mad_bscale;
+grad_map_3=$strip%grad_map_2;
+
+{Lack-of-closure (LOC) expression 4: friedel(wavelength 2) vs. reference.}
+{========================================================================}
+on_off_4=$on_off_4;
+fph_4=$strip%f_w_fried_2;
+sph_4=$strip%s_w_fried_2;
+target_set_4=($strip%sha_2=1) ;
+target_set_a_4=( none );
+h_4=(segid "TO-2");
+hfix_4=(none);
+xstep_4=&mad_xstep;
+qstep_4=&mad_qstep;
+bstep_4=&mad_bstep;
+bindgroup_4=&mad_bindgroup;
+fpstep_4=$fp_4;
+fdpstep_4=$mad_fdpstep;
+kstep_4=&mad_kstep;
+kscale_4=&mad_kscale;
+bscale_4=&mad_bscale;
+grad_map_4=$strip%grad_map_f_2;
+
+{Lack-of-closure (LOC) expression 5: wavelength 3 vs. reference.}
+{===============================================================}
+on_off_5=$on_off_5;
+fph_5=&f_w_3;
+sph_5=&s_w_3;
+target_set_5=($strip%sha_3=1) ;
+target_set_a_5=( none );
+h_5=(segid "TO+3");
+hfix_5=(none);
+xstep_5=&mad_xstep;
+qstep_5=&mad_qstep;
+bstep_5=&mad_bstep;
+bindgroup_5=&mad_bindgroup;
+fpstep_5=$fp_5;
+fdpstep_5=$mad_fdpstep;
+kstep_5=&mad_kstep;
+kscale_5=&mad_kscale;
+bscale_5=&mad_bscale;
+grad_map_5=$strip%grad_map_3;
+
+{Lack-of-closure (LOC) expression 6: friedel(wavelength 3) vs. reference.}
+{========================================================================}
+on_off_6=$on_off_6;
+fph_6=$strip%f_w_fried_3;
+sph_6=$strip%s_w_fried_3;
+target_set_6=($strip%sha_3=1) ;
+target_set_a_6=( none );
+h_6=(segid "TO-3");
+hfix_6=(none);
+xstep_6=&mad_xstep;
+qstep_6=&mad_qstep;
+bstep_6=&mad_bstep;
+bindgroup_6=&mad_bindgroup;
+fpstep_6=$fp_6;
+fdpstep_6=$mad_fdpstep;
+kstep_6=&mad_kstep;
+kscale_6=&mad_kscale;
+bscale_6=&mad_bscale;
+grad_map_6=$strip%grad_map_f_3;
+
+
+{Lack-of-closure (LOC) expression 7: wavelength 4 vs. reference.}
+{===============================================================}
+on_off_7=$on_off_7;
+fph_7=&f_w_4;
+sph_7=&s_w_4;
+target_set_7=($strip%sha_4=1) ;
+target_set_a_7=( none );
+h_7=(segid "TO+4");
+hfix_7=(none);
+xstep_7=&mad_xstep;
+qstep_7=&mad_qstep;
+bstep_7=&mad_bstep;
+bindgroup_7=&mad_bindgroup;
+fpstep_7=$fp_7;
+fdpstep_7=$mad_fdpstep;
+kstep_7=&mad_kstep;
+kscale_7=&mad_kscale;
+bscale_7=&mad_bscale;
+grad_map_7=$strip%grad_map_4;
+
+{Lack-of-closure (LOC) expression 8: friedel(wavelength 4) vs. reference.}
+{========================================================================}
+on_off_8=$on_off_8;
+fph_8=$strip%f_w_fried_4;
+sph_8=$strip%s_w_fried_4;
+target_set_8=($strip%sha_4=1) ;
+target_set_a_8=( none );
+h_8=(segid "TO-4");
+hfix_8=(none);
+xstep_8=&mad_xstep;
+qstep_8=&mad_qstep;
+bstep_8=&mad_bstep;
+bindgroup_8=&mad_bindgroup;
+fpstep_8=$fp_8;
+fdpstep_8=$mad_fdpstep;
+kstep_8=&mad_kstep;
+kscale_8=&mad_kscale;
+bscale_8=&mad_bscale;
+grad_map_8=$strip%grad_map_f_4;
+
+
+{Lack-of-closure (LOC) expression 9: wavelength 5 vs. reference.}
+{===============================================================}
+on_off_9=$on_off_9;
+fph_9=&f_w_5;
+sph_9=&s_w_5;
+target_set_9=($strip%sha_5=1) ;
+target_set_a_9=( none );
+h_9=(segid "TO+5");
+hfix_9=(none);
+xstep_9=&mad_xstep;
+qstep_9=&mad_qstep;
+bstep_9=&mad_bstep;
+bindgroup_9=&mad_bindgroup;
+fpstep_9=$fp_9;
+fdpstep_9=$mad_fdpstep;
+kstep_9=&mad_kstep;
+kscale_9=&mad_kscale;
+bscale_9=&mad_bscale;
+grad_map_9=$strip%grad_map_5;
+
+{Lack-of-closure (LOC) expression 10: friedel(wavelength 5) vs. reference.}
+{========================================================================}
+on_off_10=$on_off_10;
+fph_10=$strip%f_w_fried_5;
+sph_10=$strip%s_w_fried_5;
+target_set_10=($strip%sha_5=1) ;
+target_set_a_10=( none );
+h_10=(segid "TO-5");
+hfix_10=(none);
+xstep_10=&mad_xstep;
+qstep_10=&mad_qstep;
+bstep_10=&mad_bstep;
+bindgroup_10=&mad_bindgroup;
+fpstep_10=$fp_10;
+fdpstep_10=$mad_fdpstep;
+kstep_10=&mad_kstep;
+kscale_10=&mad_kscale;
+bscale_10=&mad_bscale;
+grad_map_10=$strip%grad_map_f_5;
+
+{GLOBAL PARAMETERS}
+{=================}
+phase_set=( &low_res >= d >= &high_res and amplitude(&strip%f_w_$ref_wave)>0 ) ;
+test_array=$strip%testcv ;
+test_flag=&test_flag ;
+text="this is a test";
+messages="normal";
+method=&mad_method;
+integration="analytic";
+sum_method=&sum_method;
+fft_grid=&fft_grid;
+fft_memory=&fft_memory;
+macrocycle=&mad_macrocycle;
+tolerance=&mad_tolerance;
+iteration=4;
+cutoff=&mad_cutoff;
+epsilon="yes";
+resetzero=0.001;
+zerovar=0.001;
+phistep=&mad_phistep;
+workbin=8;
+bmin=&mad_bmin;
+bmax=&mad_bmax;
+qmin=&mad_qmin;
+qmax=&mad_qmax;
+fpmin=&mad_fpmin;
+fpmax=&mad_fpmax;
+fdpmin=&mad_fdpmin;
+fdpmax=&mad_fdpmax;
+anomalous_mode="deltaf";
+ref_wavelength=$ref_wave;
+ref_fp=$fp_ref;
+cen360=&mad_cen360;
+qmaxshift=0.4;
+fpmaxshift=10.;
+fdpmaxshift=10.;
+bmaxshift=20;
+
+)
+
+
+
+buffer harvest
+   to=remarks
+   dump
+end
+
+
+if (&gradient_map=true) then
+ { add all gradient structure factor arrays, multiply with refined f' f'' form factors }
+   xray
+      do (grad=0) ( all )
+   end
+   evaluate ($i_wave=1)
+   while ($i_wave <= $n_wave) loop fr1
+      if (&blank%f_w_$i_wave = false) then
+
+         evaluate ($DOWN="TO-"+encode($i_wave))
+
+         show ave (scatter_fp) (segid $DOWN)
+         evaluate ($r_fp=$result)
+
+         show ave (scatter_fdp)  (segid $DOWN)
+         evaluate ($r_fdp=$result)
+         xray
+            do (grad=grad+($r_fp - i*$r_fdp)*$strip%grad_map_f_$i_wave) ( all )
+         end
+
+         if ($i_wave # $ref_wave) then
+
+            evaluate ($UP="TO+"+encode($i_wave))
+            show ave (scatter_fp) (segid $UP)
+            evaluate ($r_fp=$result)
+
+            show ave (scatter_fdp)  (segid $UP)
+            evaluate ($r_fdp=$result)
+
+            xray
+               do (grad=grad+($r_fp - i*$r_fdp)*$strip%grad_map_$i_wave) ( all )
+            end
+
+          end if
+      end if
+      evaluate ($i_wave=$i_wave+1)
+   end loop fr1
+
+   xray
+
+      { scale gradient array and change the sign }
+      { take the negative gradient in order to get positive peaks }
+      show ave (amplitude(grad)^2) ( amplitude(grad )>0 )
+      if ($result>0) then
+         do (grad =grad /sqrt($result)) ( all )
+      end if
+      do (grad = -grad ) ( all )
+
+      evaluate ($grad_file=&output_root+"_grad.hkl")
+   end 
+ 
+   set display=$grad_file end
+
+   @CNS_XTALMODULE:write_hkl_header (sg=&STRIP%sg;
+                                     sgparam=$sgparam;)
+
+   xray
+
+      write reflection grad
+          sele=( amplitude(grad )>0 )
+          output=$grad_file
+      end
+
+      set display=OUTPUT end
+
+      evaluate ($i_wave=1)
+      while ($i_wave <= $n_wave) loop fr4
+         if (&blank%f_w_$i_wave = false) then
+            undeclare name=$strip%grad_map_f_$i_wave domain=reciprocal end
+            if ($i_wave # $ref_wave) then
+               undeclare name=$strip%grad_map_$i_wave domain=reciprocal end
+            end if
+         end if
+         evaluate ($i_wave=$i_wave+1)
+      end loop fr4
+
+      undeclare name=grad domain=reciprocal end
+
+   end
+end if
+
+
+xray
+   evaluate ($i_wave=1)
+   while ($i_wave <= $n_wave) loop wrt
+      if (&blank%f_w_$i_wave = false) then
+         undeclare name=$strip%f_w_fried_$i_wave  domain=reciprocal end
+         undeclare name=$strip%s_w_fried_$i_wave  domain=reciprocal end
+         undeclare name=$strip%sha_$i_wave        domain=reciprocal end
+      end if
+      evaluate ($i_wave=$i_wave+1)
+   end loop wrt
+
+   undeclare name=null domain=reciprocal end
+
+   evaluate ($refl_out_file=&output_root+".hkl")
+   
+end
+
+set display=$refl_out_file end
+
+@CNS_XTALMODULE:write_hkl_header (sg=&STRIP%sg;
+                                  sgparam=$sgparam;)
+
+xray
+    
+   if (&merge_inout=true) then
+      write reflection
+          output=$refl_out_file
+          sele=( all )
+      end
+   else
+      write reflection
+          &strip%centroid_phase_name &strip%pa_name &strip%pb_name &strip%pc_name &strip%pd_name &strip%fom_name
+          output=$refl_out_file
+          sele=( all )
+      end
+   end if
+   
+   set display=OUTPUT end
+
+end
+
+{ Write refined delta f' and absolute f'' values. }
+
+evaluate ($fp_out_file=&output_root+".fp")
+set display=$fp_out_file end
+
+display From Friedel(F)->Fref LOCs     f'             f''    type
+display ==========================================================
+
+evaluate ($DOWN_REF="TO-"+encode($ref_wave))
+
+{ Get f' and f''. }
+evaluate ($i_wave=1)
+while ($i_wave <= $n_wave) loop scn
+   if (&blank%f_w_$i_wave = false) then
+     evaluate ($DOWN="TO-"+encode($i_wave))
+     {fref+ -> f_w-}
+
+     if (&mad_fpconst=true) then
+        evaluate ($counter=1)
+        while ( $counter <= $subgroups.num ) loop sub
+           show ave (scatter_fp) (segid $DOWN and 
+                                  chemical $subgroups.type.$counter)
+           evaluate ($fp=$result)
+           evaluate ($fp_w_$i_wave=$fp + $fp_ref)
+
+           show ave (scatter_fdp)  (segid $DOWN and 
+                                    chemical $subgroups.type.$counter)
+           evaluate ($fdp=$result)
+           show ave (scatter_fdp)  (segid $DOWN_REF and 
+                                    chemical $subgroups.type.$counter)
+           evaluate ($fdp_ref=-$result/2)
+           evaluate ($fdp_w_$i_wave=-($fdp + $fdp_ref))
+
+           display  wavelength ($i_wave)           \
+$fp_w_$i_wave[F8.2]        $fdp_w_$i_wave[F8.2]    $subgroups.type.$counter
+           evaluate ($counter=$counter+1)
+        end loop sub
+     else
+        for $indx in id ( segid $DOWN ) loop in5
+           show elem (scatter_fp)   (id $indx )
+           evaluate ($fp=$result)
+           evaluate ($fp_w_$i_wave=$fp + $fp_ref)
+
+           show elem (scatter_fdp)  (id $indx )
+           evaluate ($fdp=$result)
+
+           show elem ( resid ) ( id $indx)
+           evaluate ($resid=$result)
+           show elem (scatter_fdp)  (segid $DOWN_REF and resid $resid )
+           evaluate ($fdp_ref=-$result/2)
+           evaluate ($fdp_w_$i_wave=-($fdp + $fdp_ref))
+
+           show elem (resid) ( id $indx )
+           evaluate ($resid=$result)
+
+           show (chemical) ( id $indx )
+           evaluate ($type=$result)
+
+           display  wavelength ($i_wave)   site ($resid) \
+$fp_w_$i_wave[F8.2]        $fdp_w_$i_wave[F8.2]    $type
+        end loop in5
+        display
+     end if
+
+   end if
+   evaluate ($i_wave=$i_wave+1)
+end loop scn
+
+
+
+
+display
+display From F->Fref LOCs.             f'             f''    type
+display ==========================================================
+
+evaluate ($i_wave=1)
+while ($i_wave <= $n_wave) loop scc
+   if (&blank%f_w_$i_wave = false) then
+      if ($i_wave # $ref_wave) then
+         evaluate ($UP="TO+"+encode($i_wave))
+         {fref+ -> f_w+}
+
+         if (&mad_fpconst=true) then
+            evaluate ($counter=1)
+            while ( $counter <= $subgroups.num ) loop sub
+               show elem (scatter_fp) (segid $UP and
+                                      chemical $subgroups.type.$counter)
+               evaluate ($fp=$result)
+               evaluate ($fp_w_$i_wave=$fp + $fp_ref)
+
+               show elem (scatter_fdp)  (segid $UP and
+                                         chemical $subgroups.type.$counter)
+               evaluate ($fdp=$result)
+               show ave (scatter_fdp)  (segid $DOWN_REF and
+                                        chemical $subgroups.type.$counter)
+               evaluate ($fdp_ref=-$result/2)
+               evaluate ($fdp_w_$i_wave=$fdp + $fdp_ref)
+
+               display  wavelength ($i_wave)           \
+$fp_w_$i_wave[F8.2]        $fdp_w_$i_wave[F8.2]    $subgroups.type.$counter
+               evaluate ($counter=$counter+1)
+            end loop sub
+         else
+           for $indx in id ( segid $UP ) loop in6
+              show elem (scatter_fp)   (id $indx)
+              evaluate ($fp=$result)
+              evaluate ($fp_w_$i_wave=$fp + $fp_ref)
+
+              show elem (scatter_fdp)  (id $indx)
+              evaluate ($fdp=$result)
+
+              show elem ( resid ) ( id $indx)
+              evaluate ($resid=$result)
+              show elem (scatter_fdp)  (segid $DOWN_REF and resid $resid)
+              evaluate ($fdp_ref=-$result/2)
+              evaluate ($fdp_w_$i_wave=$fdp + $fdp_ref)
+
+              show elem (resid) ( id $indx )
+              evaluate ($resid=$result)
+ 
+              show (chemical) ( id $indx )
+              evaluate ($type=$result)
+
+              display  wavelength ($i_wave)   site ($resid) \
+$fp_w_$i_wave[F8.2]        $fdp_w_$i_wave[F8.2]    $type
+           end loop in6
+           display
+        end if
+      end if
+   end if
+   evaluate ($i_wave=$i_wave+1)
+end loop scc
+
+{- average results for each wavelength and write out as site database file -}
+
+evaluate ($nsites=1)
+evaluate ($done=false)
+while ( $done = false ) loop count
+  if ( $EXIST%allsites.action_$nsites = false ) then
+    evaluate ($done=true)
+    evaluate ($nsites=$nsites-1)
+  else
+    evaluate ($nsites=$nsites+1)
+  end if
+end loop count
+
+evaluate ($count=1)
+while ($count <= $nsites) loop zero
+  if ( $allsites.action_$count # "ignore" ) then
+    evaluate ($allsites.x_$count=0)
+    evaluate ($allsites.y_$count=0)
+    evaluate ($allsites.z_$count=0)
+    evaluate ($allsites.b_$count=0)
+    evaluate ($allsites.q_$count=0)
+  end if
+  evaluate ($count=$count+1)
+end loop zero
+
+evaluate ($ntotal=0)
+evaluate ($i_wave=1)
+while ($i_wave <= $n_wave) loop dup
+   if ($i_wave # $ref_wave) then
+      if (&f_w_$i_wave # "") then
+         evaluate ($UP="TO+"+encode($i_wave))
+         evaluate ($DOWN="TO-"+encode($i_wave))
+         for $segid in ( $UP $DOWN ) loop segid
+           evaluate ($id=1)
+           evaluate ($count=1)
+           while ($count <= $nsites) loop add
+             if ( $allsites.action_$count # "ignore" ) then
+               show (resid) (id $id)
+               evaluate ($resid=$result)
+               show (resname) (id $id)
+               evaluate ($resname=$result)
+               show (name) (id $id)
+               evaluate ($name=$result)
+               show (x) (segid $segid and resid $resid and
+                         resname $resname and name $name)
+               evaluate ($allsites.x_$count=$allsites.x_$count+$result)
+               show (y) (segid $segid and resid $resid and
+                         resname $resname and name $name)
+               evaluate ($allsites.y_$count=$allsites.y_$count+$result)
+               show (z) (segid $segid and resid $resid and
+                         resname $resname and name $name)
+               evaluate ($allsites.z_$count=$allsites.z_$count+$result)
+               show (b) (segid $segid and resid $resid and
+                         resname $resname and name $name)
+               evaluate ($allsites.b_$count=$allsites.b_$count+$result)
+               show (q) (segid $segid and resid $resid and
+                         resname $resname and name $name)
+               evaluate ($allsites.q_$count=$allsites.q_$count+$result)
+               evaluate ($id=$id+1)
+             end if
+             evaluate ($count=$count+1)
+           end loop add
+           evaluate ($ntotal=$ntotal+1)
+         end loop segid
+      end if
+   end if
+   evaluate ($i_wave=$i_wave+1)
+end loop dup
+
+evaluate ($ntotal=$ntotal+1)
+evaluate ($segid="TO-"+encode($ref_wave))
+evaluate ($id=1)
+evaluate ($count=1)
+while ($count <= $nsites) loop add
+  if ( $allsites.action_$count # "ignore" ) then
+    show (resid) (id $id)
+    evaluate ($resid=$result)
+    show (resname) (id $id)
+    evaluate ($resname=$result)
+    show (name) (id $id)
+    evaluate ($name=$result)
+    show (x) (segid $segid and resid $resid and
+              resname $resname and name $name)
+    evaluate ($allsites.x_$count=$allsites.x_$count+$result)
+    evaluate ($allsites.x_$count=$allsites.x_$count/$ntotal)
+    show (y) (segid $segid and resid $resid and
+              resname $resname and name $name)
+    evaluate ($allsites.y_$count=$allsites.y_$count+$result)
+    evaluate ($allsites.y_$count=$allsites.y_$count/$ntotal)
+    show (z) (segid $segid and resid $resid and
+              resname $resname and name $name)
+    evaluate ($allsites.z_$count=$allsites.z_$count+$result)
+    evaluate ($allsites.z_$count=$allsites.z_$count/$ntotal)
+    show (b) (segid $segid and resid $resid and
+              resname $resname and name $name)
+    evaluate ($allsites.b_$count=$allsites.b_$count+$result)
+    evaluate ($allsites.b_$count=$allsites.b_$count/$ntotal)
+    show (q) (segid $segid and resid $resid and
+              resname $resname and name $name)
+    evaluate ($allsites.q_$count=$allsites.q_$count+$result)
+    evaluate ($allsites.q_$count=$allsites.q_$count/$ntotal)
+    evaluate ($id=$id+1)
+  end if
+  evaluate ($count=$count+1)
+end loop add
+
+evaluate ($sitedatabase_outfile=&output_root+".sdb")
+
+@CNS_XTALMODULE:write_sdb (sitedb=$allsites;
+                           sg=&sg;
+                           output=$sitedatabase_outfile;)
+
+stop

@@ -1,0 +1,126 @@
+! Module file: calculate_phasediff
+!
+! CNS module
+! ************
+!
+! Authors: Axel Brunger 
+!
+! copyright Yale University
+!
+! Function:
+!    Calculates fom-weighted difference between model phases and experimental phases
+!    Either a phase probability distribution (pa, pb, pc, pd) or centroid phases and fom
+!    can be specified for the experimental phase information.  If neither is specified,
+!    nothing will be computed. 
+!
+! Requirements:
+!    Needs to be called within xray
+
+module {calculate_phasediff}
+
+(
+&fobs=fobs;
+&fcalc=fcalc;
+&fpart=fpart;
+&sel=all;
+&print=false;
+&output=OUTPUT;
+&deltap=$deltap;
+&obs_pa=;
+&obs_pb=;
+&obs_pc=;
+&obs_pd=;
+&obs_phase=;
+&obs_fom=;
+)
+
+set message ? end
+evaluate ($message_old=$result)
+set echo ? end
+evaluate ($echo_old=$result)
+if ( $log_level = verbose ) then
+  set echo=on message=normal end
+else
+  set echo=off message=off end
+end if
+
+set display=? end
+evaluate ($curr_display=$result)
+
+checkversion 1.3
+
+show sum(1) (&sel)
+
+if ( $result <= 0 ) then
+  display Error: no reflections are selected for calculation
+  display        aborting program
+  abort
+end if
+
+set display=&output end
+
+if (&blank%obs_pa = false) then
+   declare name=mphase domain=reciprocal type=complex end        
+   @CNS_XTALMODULE:getfom (
+                        pa=&STRIP%obs_pa;
+                        pb=&STRIP%obs_pb;
+                        pc=&STRIP%obs_pc;
+                        pd=&STRIP%obs_pd;
+                        sel=(&sel);
+                        m=mphase;
+                        phistep=5;
+                        )
+  if ( &print = true ) then
+    display
+    display ===============================================
+    display      Fom weighed phase difference by resolution
+    display ===============================================
+            statistics
+               (sum( amplitude(mphase) * abs(mod(phase(mphase)-phase(&fcalc+&fpart)+540,360) -180.))
+                    / max(0.0000001,sum(amplitude(mphase))))
+               selection=(&sel)
+               output=&output
+            end
+  end if
+  statistics
+     overall
+     (sum( amplitude(mphase) * abs(mod(phase(mphase)-phase(&fcalc+&fpart)+540,360) -180.))
+          / max(0.0000001,sum(amplitude(mphase))))
+     selection=(&sel)
+  end
+  evaluate (&deltap=$expression1)
+  display
+  display  fom-weighted mean difference to experimental phases: &deltap[f6.2] degrees
+  display
+  undeclare name=mphase domain=reciprocal end 
+  
+elseif (&blank%obs_phase = false) then
+   if (&blank%obs_fom = false) then
+     if ( &print = true ) then
+       display
+       display ===============================================
+       display      Fom weighed phase difference by resolution
+       display ===============================================
+       statistics
+          (sum( &STRIP%obs_fom * abs(mod(phase(&STRIP%obs_phase)-phase(&fcalc+&fpart)+540,360) -180.))
+               / max(0.0000001,sum(&STRIP%obs_fom)))
+          selection=(&sel)
+          output=&OUTPUT
+       end
+     end if
+     statistics
+          overall
+          (sum( &STRIP%obs_fom * abs(mod(phase(&STRIP%obs_phase)-phase(&fcalc+&fpart)+540,360) -180.))
+               / max(0.0000001,sum(&STRIP%obs_fom)))
+          selection=(&sel)
+     end
+     evaluate (&deltap=$expression1)
+     display 
+     display  fom-weighted mean difference to experimental phases: &deltap[f6.2] degrees
+     display
+    end if
+end if
+
+set display=$curr_display end
+
+set message=$message_old echo=$echo_old end

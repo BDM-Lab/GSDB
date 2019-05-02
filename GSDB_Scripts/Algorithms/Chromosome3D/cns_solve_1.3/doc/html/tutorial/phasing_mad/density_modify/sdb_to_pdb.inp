@@ -1,0 +1,56 @@
+{+ file: sdb_to_pdb.inp +}
+{+ directory: xtal_phase +}
+{+ description: Convert a CNS heavy atom site database file to
+                a PDB coordinate file +}
+{+ comment: 
+           Only active heavy atom sites will be written to the PDB file.
+           (i.e. sites which are flagged to be "ignored" in the site
+                 database will be omitted from the PDB file). +}
+{+ authors: Axel T. Brunger, and Paul D. Adams +}
+{+ copyright: Yale University +}
+
+{- Guidelines for using this file:
+   - all strings must be quoted by double-quotes
+   - logical variables (true/false) are not quoted
+   - do not remove any evaluate statements from the file -}
+
+{- begin block parameter definition -} define(
+
+{======================= heavy atom database =========================}
+
+{* heavy atom database file *}
+{===>} sitedatabase_infile.1="mad_phase2.sdb";
+
+{=========================== output files ============================}
+
+{* output coordinate file *}
+{===>} coordinate_outfile="mad_phase2.pdb";
+
+{* output molecular structure file (leave blank if file is not needed) *}
+{===>} structure_outfile="";
+
+{===========================================================================}
+{        things below this line do not normally need to be changed          }
+{===========================================================================}
+
+ ) {- end block parameter definition -}
+
+ checkversion 1.3
+
+ evaluate ($log_level=quiet)
+
+ @CNS_XTALMODULE:read_multi_sdb (filegroup=&sitedatabase_infile;
+                                 use_array=store3;
+                                 fix_array=store4;
+                                 sg_expected="";
+                                 sg_read=$sg_read;)
+
+ write coordinates output=&coordinate_outfile selection=(store3) end
+
+ delete selection=(not(store3)) end
+
+ if (&BLANK%structure_outfile = false) then
+   write structure output=&structure_outfile end
+ end if
+
+ stop

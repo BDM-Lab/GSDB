@@ -1,0 +1,243 @@
+          ============================================================
+          |                                                          |
+          |            Crystallography & NMR System (CNS)            |
+          |                         CNSsolve                         |
+          |                                                          |
+          ============================================================
+           Version: 1.3
+           Status: General release
+          ============================================================
+           Written by: A.T.Brunger, P.D.Adams, G.M.Clore, W.L.DeLano,
+                       P.Gros, R.W.Grosse-Kunstleve,J.-S.Jiang,J.M.Krahn,
+                       J.Kuszewski, M.Nilges, N.S.Pannu, R.J.Read,
+                       L.M.Rice, G.F.Schroeder, T.Simonson, G.L.Warren.
+           Copyright (c) 1997-2010 Yale University
+          ============================================================
+           Running on machine: lewis4-r710-login-node223 (x86_64/Linux,64-bit)
+                               with 16 threads
+           Program started by: oeow39
+           Program started at: 16:08:24 on 05-Jul-2018
+          ============================================================
+
+ FFT3C: Using FFTPACK4.1
+
+ CNSsolve>remarks   file xdo4.inp 
+ CNSsolve> 
+ CNSsolve> 
+ CNSsolve>xray 
+ XRAY> 
+ XRAY>   declare name=fobs type=complex domain=reciprocal end 
+ XDECLARE: Object FOBS has been declared.
+ XRAY>   declare name=fpart domain=reciprocal type=complex end 
+ XDECLARE: Object FPART has been declared.
+ XRAY>   declare name=fcalc domain=reciprocal type=complex end 
+ XDECLARE: Object FCALC has been declared.
+ XRAY>   declare name=fom domain=reciprocal type=real end 
+ XDECLARE: Object FOM has been declared.
+ XRAY>   declare name=weight domain=reciprocal type=real end 
+ XDECLARE: Object WEIGHT has been declared.
+ XRAY>   declare name=sigma domain=reciprocal type=real end 
+ XDECLARE: Object SIGMA has been declared.
+ XRAY>   declare name=test domain=reciprocal type=integer end 
+ XDECLARE: Object TEST has been declared.
+ XRAY> 
+ XRAY>   evaluate ($lr=10.) 
+ EVALUATE: symbol $LR set to    10.0000     (real)
+ XRAY>   evaluate ($hr=3) 
+ EVALUATE: symbol $HR set to    3.00000     (real)
+ XRAY>   binresolution $lr $hr 
+ XRAY>   mapresolution $hr 
+ XRAY>   tselection=( $hr <= d <= $lr ) 
+ XRAY> 
+ XRAY>   reflection 
+ REFLection>     index 1 2 3 fobs 1. 
+ XSFAL: allocating space for complex reciprocal space object.
+ XRRR2:        2 new h,k,l indices have been added.
+ XRAY> 
+ XRAY>   do (fcalc=integrate[_x,0,100,10](fobs)) ( all ) 
+ XSFAL: allocating space for complex reciprocal space object.
+ Total of         2 structure factor elements were selected.
+ XRAY> 
+ XRAY>   show (fcalc) ( all ) 
+ [H=    1 K=    2 L=    3]  Amplitude=     100.0000  Phase=       0.0000
+ [H=    2 K=    3 L=    4]  Amplitude=    1000.0000  Phase=       0.0000
+ Total of         2 elements were selected.
+ XRAY> 
+ XRAY>   do (fcalc=integrate[_x,1,7,0.01](fobs _x^2)) ( all ) 
+ Total of         2 structure factor elements were selected.
+ XRAY> 
+ XRAY>   show (fcalc) ( all ) 
+ [H=    1 K=    2 L=    3]  Amplitude=     114.0001  Phase=       0.0000
+ [H=    2 K=    3 L=    4]  Amplitude=    1140.0010  Phase=       0.0000
+ Total of         2 elements were selected.
+ XRAY> 
+ XRAY>   do (fcalc=integrate[_x,1,7,0.05]( 
+ DO>                 integrate[_y,2,8,0.05] (fobs _y^2 _x^2))) ( all ) 
+ Total of         2 structure factor elements were selected.
+ XRAY> 
+ XRAY>   show (fcalc) ( all ) 
+ [H=    1 K=    2 L=    3]  Amplitude=   19152.7050  Phase=       0.0000
+ [H=    2 K=    3 L=    4]  Amplitude=  191527.0501  Phase=       0.0000
+ Total of         2 elements were selected.
+ XRAY> 
+ XRAY>   do (fcalc=debug 100+ 2*integrate[_x,1,7,0.05]( 
+ DO>                     integrate[_y,2,8,0.05] (fobs _y^2 _x^2)) + 300.) 
+ expression type=DC
+ expression depth=         7
+ level | command     |   type |  #args |              constants
+   1 [CONS;    ;    ;    ] DP     0 [100.0  0.0 ;  0.0  0.0 ;  0.0  0.0 ;  0.0  0.0]
+   2 [CONS;    ;    ;    ] DP     0 [  2.0  0.0 ;  0.0  0.0 ;  0.0  0.0 ;  0.0  0.0]
+   3 [FOBS;    ;    ;    ] DC SF  0 [  0.0  0.0 ;  0.0  0.0 ;  0.0  0.0 ;  0.0  0.0]
+   4 [_VAR;_Y  ;    ;    ] DP     0 [  0.0  0.0 ;  0.0  0.0 ;  0.0  0.0 ;  0.0  0.0]
+   5 [CONS;    ;    ;    ] DP     0 [  2.0  0.0 ;  0.0  0.0 ;  0.0  0.0 ;  0.0  0.0]
+   4 [^   ;    ;    ;    ] DP     0 [  0.0  0.0 ;  0.0  0.0 ;  0.0  0.0 ;  0.0  0.0]
+   3 [*   ;    ;    ;    ] DC SF  0 [  0.0  0.0 ;  0.0  0.0 ;  0.0  0.0 ;  0.0  0.0]
+   4 [_VAR;_X  ;    ;    ] DP     0 [  0.0  0.0 ;  0.0  0.0 ;  0.0  0.0 ;  0.0  0.0]
+   5 [CONS;    ;    ;    ] DP     0 [  2.0  0.0 ;  0.0  0.0 ;  0.0  0.0 ;  0.0  0.0]
+   4 [^   ;    ;    ;    ] DP     0 [  0.0  0.0 ;  0.0  0.0 ;  0.0  0.0 ;  0.0  0.0]
+   3 [*   ;    ;    ;    ] DC SF  0 [  0.0  0.0 ;  0.0  0.0 ;  0.0  0.0 ;  0.0  0.0]
+   3 [INTE;_Y  ;    ;    ] DC SF  1 [  2.0  0.0 ;  8.0  0.0 ;  0.1  0.0 ;  0.0  0.0]
+   3 [INTE;_X  ;    ;    ] DC SF  1 [  1.0  0.0 ;  7.0  0.0 ;  0.1  0.0 ;  0.0  0.0]
+   2 [*   ;    ;    ;    ] DC SF  0 [  0.0  0.0 ;  0.0  0.0 ;  0.0  0.0 ;  0.0  0.0]
+   1 [+   ;    ;    ;    ] DC SF  0 [  0.0  0.0 ;  0.0  0.0 ;  0.0  0.0 ;  0.0  0.0]
+   2 [CONS;    ;    ;    ] DP     0 [300.0  0.0 ;  0.0  0.0 ;  0.0  0.0 ;  0.0  0.0]
+   1 [+   ;    ;    ;    ] DC SF  0 [  0.0  0.0 ;  0.0  0.0 ;  0.0  0.0 ;  0.0  0.0]
+ DO>                   ( all ) 
+ Total of         2 structure factor elements were selected.
+ XRAY> 
+ XRAY>   show (fcalc) ( all ) 
+ [H=    1 K=    2 L=    3]  Amplitude=   38705.4100  Phase=       0.0000
+ [H=    2 K=    3 L=    4]  Amplitude=  383454.1001  Phase=       0.0000
+ Total of         2 elements were selected.
+ XRAY> 
+ XRAY> 
+ XRAY>   do (fcalc=add[_x,1,7,0.01](fobs _x^2)) ( all ) 
+ Total of         2 structure factor elements were selected.
+ XRAY> 
+ XRAY>   show (fcalc) ( all ) 
+ [H=    1 K=    2 L=    3]  Amplitude=   11425.0100  Phase=       0.0000
+ [H=    2 K=    3 L=    4]  Amplitude=  114250.1000  Phase=       0.0000
+ Total of         2 elements were selected.
+ XRAY> 
+ XRAY>   do (fcalc=add[_x,1,7,0.1]( 
+ DO>                 add[_y,2,8,0.1] (fobs _y^2 _x^2))) ( all ) 
+ Total of         2 structure factor elements were selected.
+ XRAY> 
+ XRAY>   show (fcalc) ( all ) 
+ [H=    1 K=    2 L=    3]  Amplitude= 1997097.9100  Phase=       0.0000
+ [H=    2 K=    3 L=    4]  Amplitude=19970979.1000  Phase=       0.0000
+ Total of         2 elements were selected.
+ XRAY> 
+ XRAY>   declare name=map1  domain=real end 
+ XRAY>   declare name=map2  domain=real end 
+ XRAY>   declare name=map3  domain=real end 
+ XRAY>   declare name=map4  domain=real end 
+ XRAY> 
+ XRAY>   do (map1=add[_x,1,7,0.01]( _x^2)) ( all ) 
+ XMAPASU: using grid [   2,   2,   2] and sublattice [   2,   2,   2]
+ Maps will be stored in P1:
+   A=     0,...,     1  B=     0,...,     1  C=     0,...,     1
+ XMAPAL: allocating space for real space object.
+ Total of         8 map elements were selected.
+ XRAY> 
+ XRAY>   show ave (map1) (all ) 
+ SHOW: average of         8 elements=             11425.0098
+ XRAY> 
+ XRAY>   do (map1=integrate[_x,1,7,0.01]( _x^2)) ( all ) 
+ Total of         8 map elements were selected.
+ XRAY> 
+ XRAY>   show ave (map1) ( all ) 
+ SHOW: average of         8 elements=               114.0001
+ XRAY> 
+ XRAY> 
+ XRAY>   do (fcalc=multiply[_x,1,7,1]( _x )) ( all ) 
+ Total of         2 structure factor elements were selected.
+ XRAY> 
+ XRAY>   show (fcalc) ( all ) 
+ [H=    1 K=    2 L=    3]  Amplitude=    5040.0000  Phase=       0.0000
+ [H=    2 K=    3 L=    4]  Amplitude=    5040.0000  Phase=       0.0000
+ Total of         2 elements were selected.
+ XRAY> 
+ XRAY>   do (fcalc=exp(multiply[_x,1,7,1]( 
+ DO>                 multiply[_y,2,8,1] (_x _y /15.)))) ( all ) 
+ Total of         2 structure factor elements were selected.
+ XRAY> 
+ XRAY>   show (fcalc) ( all ) 
+ [H=    1 K=    2 L=    3]  Amplitude=      28.9785  Phase=       0.0000
+ [H=    2 K=    3 L=    4]  Amplitude=      28.9785  Phase=       0.0000
+ Total of         2 elements were selected.
+ XRAY> 
+ XRAY>   do (fcalc=add[_x,1,7,0.01](fobs _x^2)) ( all ) 
+ Total of         2 structure factor elements were selected.
+ XRAY> 
+ XRAY>   show (fcalc) ( all ) 
+ [H=    1 K=    2 L=    3]  Amplitude=   11425.0100  Phase=       0.0000
+ [H=    2 K=    3 L=    4]  Amplitude=  114250.1000  Phase=       0.0000
+ Total of         2 elements were selected.
+ XRAY> 
+ XRAY>   do (fcalc=add[_x,1,7,0.01](fobs _x^2) 
+ DO>           + add[_x,1,7,0.01](fobs _x^2) 
+ DO>           + add[_y,1,7,0.01](fobs _y^2) ) ( all ) 
+ Total of         2 structure factor elements were selected.
+ XRAY> 
+ XRAY>   show (fcalc) ( all ) 
+ [H=    1 K=    2 L=    3]  Amplitude=   34275.0300  Phase=       0.0000
+ [H=    2 K=    3 L=    4]  Amplitude=  342750.3000  Phase=       0.0000
+ Total of         2 elements were selected.
+ XRAY> 
+ XRAY>   do (fobs=1) ( all ) 
+ Total of         2 structure factor elements were selected.
+ XRAY>   do (fcalc=maximize[_x,0,360,0.1](- abs(fobs) sin(_x) * _x )  ) ( all ) 
+ Total of         2 structure factor elements were selected.
+ XRAY> 
+ XRAY>   show (fcalc) ( all ) 
+ [H=    1 K=    2 L=    3]  Amplitude=     275.8488  Phase=       0.0000
+ [H=    2 K=    3 L=    4]  Amplitude=     275.8488  Phase=       0.0000
+ Total of         2 elements were selected.
+ XRAY> 
+ XRAY>   do (fcalc=maximize[_x,0,360,0.1](+ abs(fobs) sin(_x) * _x )  ) ( all ) 
+ Total of         2 structure factor elements were selected.
+ XRAY> 
+ XRAY>   show (fcalc) ( all ) 
+ [H=    1 K=    2 L=    3]  Amplitude=     104.2614  Phase=       0.0000
+ [H=    2 K=    3 L=    4]  Amplitude=     104.2614  Phase=       0.0000
+ Total of         2 elements were selected.
+ XRAY> 
+ XRAY> 
+ XRAY>   do (fcalc=imaximize[_x,0,360,0.1](- abs(fobs) sin(_x) * _x )  ) ( all ) 
+ Total of         2 structure factor elements were selected.
+ XRAY> 
+ XRAY>   show (fcalc) ( all ) 
+ [H=    1 K=    2 L=    3]  Amplitude=     281.5000  Phase=       0.0000
+ [H=    2 K=    3 L=    4]  Amplitude=     281.5000  Phase=       0.0000
+ Total of         2 elements were selected.
+ XRAY> 
+ XRAY>   do (fcalc=imaximize[_x,0,360,0.1](+ abs(fobs) sin(_x) * _x )  ) ( all ) 
+ Total of         2 structure factor elements were selected.
+ XRAY> 
+ XRAY>   show (fcalc) ( all ) 
+ [H=    1 K=    2 L=    3]  Amplitude=     116.2000  Phase=       0.0000
+ [H=    2 K=    3 L=    4]  Amplitude=     116.2000  Phase=       0.0000
+ Total of         2 elements were selected.
+ XRAY> 
+ XRAY> 
+ XRAY>   do (fcalc=4.0 + imaximize[_x,0,360,0.1](+ abs(fobs) sin(_x) * _x )  + 
+ DO>             3.0 + 
+ DO>                   imaximize[_x,0,360,0.1](+ abs(fobs) sin(_x) * _x )) ( all ) 
+ Total of         2 structure factor elements were selected.
+ XRAY> 
+ XRAY>   show (fcalc) ( all ) 
+ [H=    1 K=    2 L=    3]  Amplitude=     239.4000  Phase=       0.0000
+ [H=    2 K=    3 L=    4]  Amplitude=     239.4000  Phase=       0.0000
+ Total of         2 elements were selected.
+ XRAY> 
+ XRAY>end 
+ CNSsolve> 
+ CNSsolve>stop 
+          ============================================================
+           Maximum dynamic memory allocation:     8302536 bytes
+           Maximum dynamic memory overhead:           416 bytes
+           Program started at: 16:08:24 on 05-Jul-2018
+           Program stopped at: 16:08:25 on 05-Jul-2018
+           CPU time used:       0.1897 seconds
+          ============================================================

@@ -1,0 +1,325 @@
+! Module file: scalef
+!
+! CNS module
+! **********
+!
+! Authors: Piet Gros and Axel T. Brunger
+!
+! copyright Yale University
+!
+! Function:
+! Linear (k) and non-linear (k,B) scaling of structure-factor 
+! amplitudes f wrt fref. 
+!
+! Requirements:
+! This module can only be used from within xray.
+!
+! remarks:
+! 1. If apply is specified, the scaling operation will be 
+!    applied to structure factor arrays (f, s, fop, fop2, fop3). 
+!
+
+module {scalef}
+(
+   &text="";            {identifying text for display}
+   &table="";           {identifying text for table}
+   &messages="normal";  {set verbosity for display: "normal" | "all" | "off"}  
+   &buffer_name="";          {write info to specified buffer}
+   
+   &kscale="yes";      {"yes" | "no" k-scaling}
+   &bscale="no";       {"no" | "isotropic" | "anisotropic" B scaling }  
+   &apply="all";       {apply scale factor to ALL | SELECTION | NONE} 
+
+
+   &f=fcalc;    {name of structure factor array -- scaling will be applied }
+   &fop="null"; { additional derivative structure factor array - scaling will be applied }
+   &fop2="null";{ additional derivative structure factor array - scaling will be applied }
+   &fop3="null";{ additional derivative structure factor array - scaling will be applied }
+   &s="null";     {name of corresponding sigma array}
+
+   &fref=fobs;   {name of reference structure factor array (f will be scaled to fref}
+   &sel=(all);   {structure factor selection}
+
+   &scalingremark="";   {obsolete}
+   &iterremark="";      {obsolete}
+   &display="";         {obsolete}
+)
+
+checkversion 1.3
+
+{ Initialize }
+
+!
+! modifications: increased B limits
+!                perform anisotropic scaling in P1 to avoid issues with symmetry constraints
+!                removed fixed-isotropic-anisotropic scaling
+!                indicated that the B-tensor is Ucif
+! ATB 6/29/2006
+!
+
+if (&text # "") then
+   display SCALEF: &text
+end if
+
+
+{ Initialize scale factors }
+evaluate ($K2=1.) 
+evaluate ($B2=0.)
+evaluate ($B2_11=0.)
+evaluate ($B2_22=0.)
+evaluate ($B2_33=0.)
+evaluate ($B2_12=0.)
+evaluate ($B2_13=0.)
+evaluate ($B2_23=0.)
+
+show sum ( amplitude(&fref) ) ( &sel ) 
+
+if ($select=0) then
+   display  
+   display  ******************************************************************************
+   display  SCALEF: zero reflections selected for scaling between &strip%f and &strip%fref 
+   display          check your reflection selections and selection criteria
+   display  
+   abort
+else 
+
+if (&kscale = "yes") then
+   if (&bscale = "no") then
+      multiscale                       {compute linear k scale factor}
+            set1=&fref     k1=-1 b1=0
+            set2=&f        b2=0
+            selection=(&sel)
+      end
+      evaluate ($b2=0) 
+   elseif (&bscale = "isotropic") then
+      multiscale                  {compute k,isotropic b scale factor}
+            bfmin=-9000 bfmax=9000
+            set1=&fref     k1=-1 b1=0
+            set2=&f        
+            selection=(&sel)
+      end
+   elseif (&bscale = "anisotropic") then
+      expand
+      multiscale                  {compute k,anisotropic b scale factor}
+            anisotropic=true isotropic=true
+            restrictions=none
+            bfmin=-9000 bfmax=9000
+            set1=&fref     k1=-1 b1=0
+            set2=&f        
+            selection=(&sel)
+      end
+      unexpand
+   else
+      display SCALEF: BSCALE=&bscale  scaling option not implemented
+   end if
+elseif (&kscale="no") then
+   if (&bscale = "no") then
+      evaluate ($b2=0) 
+   elseif (&bscale = "isotropic") then
+      multiscale                  {compute isotropic b scale factor}
+            bfmin=-9000 bfmax=9000
+            set1=&fref     k1=-1 b1=0
+            set2=&f        k2=1
+            selection=(&sel)
+      end
+   elseif (&bscale = "anisotropic") then
+      expand
+      multiscale                  {compute anisotropic b scale factor}
+            anisotropic=true isotropic=true
+            restrictions=none
+            bfmin=-9000 bfmax=9000
+            set1=&fref     k1=-1 b1=0
+            set2=&f        k2=1
+            selection=(&sel)
+      end
+      unexpand
+   else
+      display SCALEF: BSCALE=&bscale  scaling option not implemented
+   end if
+else
+   display SCALEF: KSCALE=&kscale  scaling option not implemented
+end if
+
+if (&bscale = "anisotropic") then
+   evaluate ($do_aniso=true)
+else
+   evaluate ($do_aniso=false) 
+end if
+
+if ($do_aniso = false) then		
+   if (&apply = "all") then    { apply scaling operation to f }
+      do (&f=$k2*exp(-$b2*s*s/4.0)*&f) (all)	
+   elseif (&apply = "selection") then
+      do (&f=$k2*exp(-$b2*s*s/4.0)*&f) (&sel)	
+   end if
+   
+   if (&s # "null") then                  { apply scaling operation to sigma }
+      if (&apply = "all") then   
+         do (&s=$k2*exp(-$b2*s*s/4.0)*&s) (all)	
+      elseif (&apply = "selection") then
+         do (&s=$k2*exp(-$b2*s*s/4.0)*&s) (&sel)	
+      end if
+   end if
+   
+   if (&fop # "null") then                  { apply scaling operation to fop }
+      if (&apply = "all") then   
+         do (&fop=$k2*exp(-$b2*s*s/4.0)*&fop) (all)	
+      elseif (&apply = "selection") then
+         do (&fop=$k2*exp(-$b2*s*s/4.0)*&fop) (&sel)	
+      end if
+   end if
+   
+   if (&fop2 # "null") then                  { apply scale factor to fop2 }
+      if (&apply = "all") then   
+         do (&fop2=$k2*exp(-$b2*s*s/4.0)*&fop2) (all)	
+      elseif (&apply = "selection") then
+         do (&fop2=$k2*exp(-$b2*s*s/4.0)*&fop2) (&sel)	
+      end if
+   end if
+   
+   if (&fop3 # "null") then                  { apply scaling operation to fop3 }
+      if (&apply = "all") then   
+         do (&fop3=$k2*exp(-$b2*s*s/4.0)*&fop3) (all)	
+      elseif (&apply = "selection") then
+         do (&fop3=$k2*exp(-$b2*s*s/4.0)*&fop3) (&sel)	
+      end if
+   end if
+   
+   if (&messages = "all") then        {print}
+      display SCALEF: k= $k2   B= $b2
+   end if
+
+   if (&blank%buffer_name = false ) then
+      buffer &buffer_name
+         display  k= $k2   B= $b2
+      end
+   end if
+   
+   if (&table # "") then
+      display TAB: &table k= $k2  B= $b2
+   end if
+
+   evaluate ($B2_11=$b2)
+   evaluate ($B2_22=$b2)
+   evaluate ($B2_33=$b2)
+
+else
+   if (&apply = "all") then    { apply scaling operation to f }
+       do (&f=$K2*exp(-( $B2_11*h*h*$astar*$astar
+                        +$B2_22*k*k*$bstar*$bstar
+                        +$B2_33*l*l*$cstar*$cstar
+                     +2.0*$B2_12*h*k*$astar*$bstar
+                     +2.0*$B2_13*h*l*$astar*$cstar
+                     +2.0*$B2_23*k*l*$bstar*$cstar
+                           )/4.0)*&f) ( all )
+   elseif (&apply = "selection") then
+       do (&f=$K2*exp(-( $B2_11*h*h*$astar*$astar
+                        +$B2_22*k*k*$bstar*$bstar
+                        +$B2_33*l*l*$cstar*$cstar
+                     +2.0*$B2_12*h*k*$astar*$bstar
+                     +2.0*$B2_13*h*l*$astar*$cstar
+                     +2.0*$B2_23*k*l*$bstar*$cstar
+                           )/4.0)*&f) ( &sel )
+   end if
+   
+   if (&s # "null") then                  { apply scaling operation to sigma }
+      if (&apply = "all") then   
+          do (&s=$K2*exp(-( $B2_11*h*h*$astar*$astar
+                           +$B2_22*k*k*$bstar*$bstar
+                           +$B2_33*l*l*$cstar*$cstar
+                        +2.0*$B2_12*h*k*$astar*$bstar
+                        +2.0*$B2_13*h*l*$astar*$cstar
+                        +2.0*$B2_23*k*l*$bstar*$cstar
+                              )/4.0)*&s) ( all )
+      elseif (&apply = "selection") then
+          do (&s=$K2*exp(-( $B2_11*h*h*$astar*$astar
+                           +$B2_22*k*k*$bstar*$bstar
+                           +$B2_33*l*l*$cstar*$cstar
+                        +2.0*$B2_12*h*k*$astar*$bstar
+                        +2.0*$B2_13*h*l*$astar*$cstar
+                        +2.0*$B2_23*k*l*$bstar*$cstar
+                              )/4.0)*&s) ( &sel )
+      end if
+   end if
+   
+   if (&fop # "null") then                  { apply scaling operation to fop }
+      if (&apply = "all") then   
+        do (&fop=$K2*exp(-( $B2_11*h*h*$astar*$astar
+                           +$B2_22*k*k*$bstar*$bstar
+                           +$B2_33*l*l*$cstar*$cstar
+                        +2.0*$B2_12*h*k*$astar*$bstar
+                        +2.0*$B2_13*h*l*$astar*$cstar
+                        +2.0*$B2_23*k*l*$bstar*$cstar
+                              )/4.0)*&fop) ( all )
+      elseif (&apply = "selection") then
+         do (&fop=$K2*exp(-( $B2_11*h*h*$astar*$astar
+                           +$B2_22*k*k*$bstar*$bstar
+                           +$B2_33*l*l*$cstar*$cstar
+                        +2.0*$B2_12*h*k*$astar*$bstar
+                        +2.0*$B2_13*h*l*$astar*$cstar
+                        +2.0*$B2_23*k*l*$bstar*$cstar
+                              )/4.0)*&fop) ( &sel )
+      end if
+   end if
+   
+   if (&fop2 # "null") then                  { apply scale factor to fop2 }
+      if (&apply = "all") then   
+          do (&fop2=$K2*exp(-( $B2_11*h*h*$astar*$astar
+                              +$B2_22*k*k*$bstar*$bstar
+                              +$B2_33*l*l*$cstar*$cstar
+                           +2.0*$B2_12*h*k*$astar*$bstar
+                           +2.0*$B2_13*h*l*$astar*$cstar
+                           +2.0*$B2_23*k*l*$bstar*$cstar
+                                 )/4.0)*&fop2) ( all )
+      elseif (&apply = "selection") then
+          do (&fop2=$K2*exp(-( $B2_11*h*h*$astar*$astar
+                              +$B2_22*k*k*$bstar*$bstar
+                              +$B2_33*l*l*$cstar*$cstar
+                           +2.0*$B2_12*h*k*$astar*$bstar
+                           +2.0*$B2_13*h*l*$astar*$cstar
+                           +2.0*$B2_23*k*l*$bstar*$cstar
+                      )/4.0)*&fop2) ( &sel )
+      end if
+   end if
+   
+   if (&fop3 # "null") then                  { apply scaling operation to fop3 }
+      if (&apply = "all") then   
+          do (&fop3=$K2*exp(-( $B2_11*h*h*$astar*$astar
+                              +$B2_22*k*k*$bstar*$bstar
+                              +$B2_33*l*l*$cstar*$cstar
+                           +2.0*$B2_12*h*k*$astar*$bstar
+                           +2.0*$B2_13*h*l*$astar*$cstar
+                           +2.0*$B2_23*k*l*$bstar*$cstar
+                                 )/4.0)*&fop3) ( all )
+      elseif (&apply = "selection") then
+          do (&fop3=$K2*exp(-( $B2_11*h*h*$astar*$astar
+                              +$B2_22*k*k*$bstar*$bstar
+                              +$B2_33*l*l*$cstar*$cstar
+                           +2.0*$B2_12*h*k*$astar*$bstar
+                           +2.0*$B2_13*h*l*$astar*$cstar
+                           +2.0*$B2_23*k*l*$bstar*$cstar
+                      )/4.0)*&fop3) ( &sel )
+      end if
+   end if
+
+   if (&messages = "all") then        {print}
+display  SCALEF: k= $k2[F8.3]  Ucif: B11=$B2_11[F8.3] B22=$B2_22[F8.3] B33=$B2_33[F8.3] \
+B12=$B2_12[F8.3] B13=$B2_13[F8.3] B23=$B2_23[F8.3] 
+   end if
+
+   if (&blank%buffer_name = false ) then
+      buffer &buffer_name
+display  k= $k2[F8.3]  Ucif: B11=$B2_11[F8.3] B22=$B2_22[F8.3] B33=$B2_33[F8.3] \
+B12=$B2_12[F8.3] B13=$B2_13[F8.3] B23=$B2_23[F8.3] 
+      end
+   end if
+   
+   if (&table # "") then
+display TAB: &table k= $k2[F8.3] Ucif: B11=$B2_11[F8.3] B22=$B2_22[F8.3] \
+B33=$B2_33[F8.3] B12=$B2_12[F8.3] B13=$B2_13 B23=$B2_23[F8.3]
+   end if
+
+   
+end if
+
+end if

@@ -1,0 +1,120 @@
+! Module file: write_sdb
+!
+! CNS module
+! ************
+!
+! Authors: Axel Brunger and Paul Adams
+!
+! copyright Yale University
+!
+! Function:
+!    Writes out a CNS heavy atom database file
+!
+! Requirements:
+!    The molecular topology and coordinates must be defined
+
+module {write_sdb}
+
+(
+&sitedb;
+&sg;
+&output=OUTPUT;
+)
+
+set message ? end
+evaluate ($message_old=$result)
+set echo ? end
+evaluate ($echo_old=$result)
+if ( $log_level = verbose ) then
+  set echo=on message=normal end
+else
+  set echo=off message=off end
+end if
+
+set display=? end
+evaluate ($curr_display=$result)
+
+checkversion 1.3
+
+set display=&output end
+
+display
+display {- begin block parameter definition -} define(
+display
+
+eval($tmp_sg = """ + &sg + """)
+
+display {============================ space group ============================}
+display
+display {* space group *}
+display {* use International Table conventions with subscripts substituted
+display    by parenthesis *}
+display {===>} sg=$tmp_sg;
+display
+
+display {==================== derivative/MAD coordinates =====================}
+display
+display {+ list: for each site define:
+display          - whether the site is to be refined, fixed or ignored
+display          - derivative name (must be the same for all sites in a derivative)
+display          - chemical type (note: wavelength-dependent form factors
+display                                 are specified in mad_refine.inp)
+display          - coordinates (x, y, z)
+display          - B-value (b)
+display          - occupancy (q)
+display          - group name (g) +}
+display
+display {+ list: the optional group name (g) is a string of upto 4 characters.
+display          If a group is left blank, each site is refined individually.
+display          If a group is specified, all sites with the same group name
+display          and the same derivative name are treated as a rigid body, and their
+display          occupancies, B-values, and form factors are refined as a group. +}
+display
+
+if (&EXIST%sitedb.counter = false) then
+  display module error: sitedb.counter not defined.
+  abort
+end if
+
+display {+ table: rows=&sitedb.counter numbered
+display           cols=9 "action" "derivative name" "chemical type"
+display                  "x coordinate" "y coordinate" "z coordinate"
+display                  "B-value" "occupancy" "group" +}
+display
+
+evaluate ($n=1)
+
+while ( $n <= &sitedb.counter ) loop site
+
+  evaluate ($tmp_action=""" + &sitedb.action_$n + """)
+  evaluate ($tmp_segid=""" + &sitedb.segid_$n + """)
+  evaluate ($tmp_type=""" + &sitedb.type_$n + """)
+  evaluate ($tmp_group=""" + &sitedb.g_$n + """)
+
+  display {+ choice: "refine" "fix" "ignore" +}
+  display {===>} site.action_$n=$tmp_action;
+  display {===>} site.segid_$n=$tmp_segid; site.type_$n=$tmp_type;
+  display {===>} site.x_$n=&sitedb.x_$n; site.y_$n=&sitedb.y_$n; site.z_$n=&sitedb.z_$n;
+  display {===>} site.b_$n=&sitedb.b_$n; site.q_$n=&sitedb.q_$n; site.g_$n=$tmp_group;
+  display
+
+  evaluate ($n=$n+1)
+
+end loop site
+
+display {* to appended new entries or merge this file with other
+display    site database files use sdb_manipulate.inp *}
+display
+display {* to delete sites from this file either set the derivative
+display    name to be blank or use delete_sites.inp *}
+display
+display {===========================================================================}
+display {         things below this line do not normally need to be changed         }
+display {===========================================================================}
+display
+display ) {- end block parameter definition -}
+display
+
+set display=$curr_display end
+
+set message=$message_old echo=$echo_old end

@@ -1,0 +1,23 @@
+#! /bin/csh -f
+#
+# script which reports whether a file is unix or dos format
+# (as indicated by presence of ^M in a dos file).
+#
+# Written by: Ralf Grosse-Kunstleve
+#
+# copyright Yale University
+#
+
+set noglob
+
+foreach f ($*)
+  echo -n "$f"': '
+  set CR = (`head -1 $f | cat -v | grep '\^M$'| wc -l`)
+  if ($CR == 0) then
+    echo 'unix'
+  else
+    echo 'dos'
+  endif
+end
+
+exit 0

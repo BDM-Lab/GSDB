@@ -1,0 +1,133 @@
+remarks file test/xrefio.inp
+remarks  tests reflection input/output
+
+
+xray
+   declare name=fobs type=complex domain=reciprocal end
+   declare name=fpart domain=reciprocal type=complex end
+   declare name=fcalc domain=reciprocal type=complex end
+   declare name=fom domain=reciprocal type=real end
+   declare name=weight domain=reciprocal type=real end
+   declare name=sigma domain=reciprocal type=real end
+   declare name=test domain=reciprocal type=integer end
+
+  refl
+   nref=200
+
+   index 1 2 3 fobs 40. 50.  fcalc 30. 20.  test 1 
+ end
+
+ write refl sele=( all ) end
+
+ declare name=deri1 type=complex domain=reciprocal end
+
+ do (deri1=40) ( all )
+
+ write refl sele=( all ) end
+
+ undeclare name=deri1 domain=reciprocal end
+
+ write refl sele=( all ) end
+
+ do (weight=0.9) ( all )
+
+ write refl sele=( all ) end
+
+ do (weight=1.0) ( all )
+
+ write refl sele=( all ) end
+
+ declare name=uuu type=real domain=reciprocal end
+ declare name=vvv type=integer domain=reciprocal end
+ declare name=ttt type=complex domain=reciprocal end
+
+ write refl sele=( all ) end
+
+ do (uuu=3) ( all )
+
+ write refl sele=( all ) end
+
+ do (vvv=4) ( all )
+ write refl sele=( all ) end
+
+ do (ttt=4+i * 4 ) ( all )
+
+ write refl sele=( all ) end
+
+ undeclare name=uuu domain=reciprocal end
+ undeclare name=vvv domain=reciprocal end
+ undeclare name=ttt domain=reciprocal end
+
+ refl
+   nref=1
+   
+   declare name=uuu type=real domain=reciprocal end
+   declare name=vvv type=integer domain=reciprocal end
+   declare name=ttt type=complex domain=reciprocal end
+   index 1 2 3 fobs 40. 30. uuu 3 vvv 4 ttt 10 10 test 2 weight 2
+ end
+
+ write refl sele=( all ) end
+
+ write refl fobs test sele=( all ) end
+
+ refl
+   index 1 2 3 fobs 40 30  fcalc 40. 40
+ end
+
+ write refl fobs fcalc sele=( all ) end
+
+ 
+ refl
+   reset
+ end
+
+ a=100 b=100 c=100  
+
+  evaluate ($lr=10.)
+  evaluate ($hr=9.9) 
+  binresolution $lr $hr 
+  mapresolution $hr
+  tselection=( $hr <= d <= $lr ) 
+
+ generate 9.9 10. 
+
+ do (fobs=combine(d,0)) ( all ) 
+ undeclare name=uuu domain=reciprocal end
+ 
+ declare name=uuu type=complex domain=reciprocal end
+
+ do (uuu=combine(d*2,0)) ( all )
+
+ do (weight=d*3) ( all )
+
+ do (sigma=d*4) ( all )
+
+  evaluate ($lr=10.)
+  evaluate ($hr=9.) 
+  binresolution $lr $hr 
+  mapresolution $hr
+  tselection=( $hr <= d <= $lr ) 
+
+ nref=1000
+ generate 9. 10. 
+
+ show max (abs(amplitude(fobs)-d)) ( 9.9 <= d <=10. ) 
+ show max (amplitude(fobs)) ( 9 <= d< 9.9) 
+
+
+ show max (abs(amplitude(uuu)-d*2)) ( 9.9 <= d <=10. ) 
+ show max (amplitude(uuu)) ( 9 <= d< 9.9) 
+
+ show max (abs(weight-d*3)) ( 9.9 <= d <=10. ) 
+ show max (weight) ( 9 <= d< 9.9) 
+
+ show max (abs(sigma-d*4)) ( 9.9 <= d <=10. ) 
+ show max (sigma) ( 9 <= d< 9.9) 
+end
+
+stop
+
+
+
+

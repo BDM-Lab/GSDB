@@ -1,0 +1,134 @@
+#!/bin/csh -f
+#
+# A fairly general script to run input files.
+# Run with -links first to set up links to inputs.
+# 
+# options:
+#         -help     [print usage]
+#         -tidy     [remove all output data files produced by input files]
+#         -link     [remake links to input files]
+#         -clean    [remove all files]
+#         -echo     [echo commands only]
+#          file(s)  [a list of input files to run]
+#          note: the default is to run no input files
+#
+# Written by: Paul Adams 20-3-97
+#
+# copyright Yale University
+#
+# ===========================================================================
+#
+# determine which files we need to process
+#
+set tidy=0
+set echoonly=0
+set links=0
+set filelist=()
+if ( $#argv > 0 ) then
+  foreach arg ( $argv[*] )
+    switch ( $arg )
+    case -clean:
+      goto clean
+      breaksw
+    case -echo:
+      set echoonly=1
+      breaksw
+    case -tidy:
+      set tidy=1
+      breaksw
+    case -link:
+      set links=1
+      breaksw
+    case -help:
+      echo 'usage: run_tests [-help] [-link] [-tidy] [-clean] [-echo] file(s)'
+      goto exit
+    default:
+      if ( "$arg" =~ "-"* ) then
+        echo unknown option: $arg
+      else
+        set filelist=($filelist $arg)
+      endif
+    endsw
+  end
+else
+  echo 'usage: run_tests [-help] [-link] [-tidy] [-clean] [-echo] file(s)'
+  goto exit
+endif
+#
+# try to make the filelist unique and remove extensions
+#
+if ( $#filelist != 0 ) then
+  set tmplist=()
+  foreach file ($filelist)
+    set tmpfile=`echo $file | awk 'BEGIN{FS="."}{print $1}'`
+    if ( $tmpfile != $tmplist[$#tmplist] ) then
+      set tmplist=($tmplist $file:r)
+    endif
+  end
+  set filelist=($tmplist)
+endif
+#
+# remove old output files
+#
+if ( $tidy ) then
+  foreach file (`/bin/ls -l | grep -v '\.out' | grep -v '\.inp' | grep -v '\.diff' | awk '{print $9}'`)
+    echo "removing $file"
+    if ( ! $echoonly ) /bin/rm -f $file
+  end
+endif
+#
+# make links to files
+#
+if ( ! -e $CNS_SOLVE/test ) then
+  echo "main level test directory not installed - aborting"
+  exit 1
+endif
+#
+if ( $links ) then
+  foreach dir ( ../../test )
+    foreach file ( $dir/*.inp )
+      if ( ! -e $file:t && ! -d $file ) then
+        echo adding link to $file:t
+        if ( ! $echoonly ) ln -s $file $file:t
+      endif
+    end
+  end
+endif
+#
+# stop if filelist blank
+#
+if ( $#filelist == 0 ) goto exit
+#
+# run the input files in the list
+#
+if ( $#filelist > 0 ) then
+  foreach file ($filelist)
+    if ( -e $file.inp ) then
+      echo "cns_solve < $file.inp > $file.out"
+      if ( ! $echoonly ) then
+        cns_solve < $file.inp > $file.out
+      endif
+    else
+      echo file $file.inp does not exist
+    endif
+  end
+endif
+#
+exit:
+exit 0
+#
+# remove all files
+#
+clean:
+set current_dir=$cwd
+set testdir=`cd $CNS_SOLVE/test;pwd`
+if ( $current_dir != $testdir ) then
+  foreach file (*)
+    echo "removing $file"
+    if ( ! $echoonly ) /bin/rm -f $file
+  end
+else
+  echo "cannot clean out main test directory"
+  exit 1
+endif
+#

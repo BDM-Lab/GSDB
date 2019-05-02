@@ -1,0 +1,422 @@
+#!/bin/csh -f
+#
+# make a tar file of the CNSsolve distribution
+#
+# written by: Paul Adams and Ralf Grosse-Kunstleve 22-10-98
+#
+# copyright Yale University
+#
+# ========================================================================
+#
+# defaults
+#
+set all=0
+set basic=1
+set inputs=1
+set data=0
+set get_inp=0
+set db=0
+set test=0
+set winnt=0
+set mac=0
+set linux=0
+set get_dist=0
+set dist_dir=""
+set gzip=1
+set input_default=(xtal_refine xtal_mr xtal_patterson xtal_phase xtal_mmcif \
+                   xtal_util xtal_twin xtal_pdbsubmission nmr_calc general \
+                   auxiliary )
+set input_dirs=()
+#
+set first_pass=0
+if ( $#argv > 0 ) then
+  set first_pass=1
+  foreach arg ( $argv[*] )
+    switch ( $arg )
+    case -basic:
+    case -inputs:
+    case -db:
+    case -test:
+    case -windows-nt:
+    case -mac:
+    case -linux:
+    case -data:
+      if ( $first_pass == 1 ) then
+        set basic=0
+        set inputs=0
+        set db=0
+        set test=0
+        set winnt=0
+	set mac=0
+        set linux=0
+        set first_pass=0
+        set data=0
+      endif
+    endsw
+  end
+  foreach arg ( $argv[*] )
+    switch ( $arg )
+    case -all:
+      set basic=1
+      set inputs=1
+      set data=1
+      set db=1
+      set test=1
+      set all=1
+      breaksw
+    case -basic:
+      set basic=1
+      breaksw
+    case -inputs:
+      set inputs=1
+      set get_inp=1
+      breaksw
+    case -db:
+      set db=1
+      breaksw
+    case -test:
+      set test=1
+      breaksw
+    case -data:
+      set data=1
+      breaksw
+    case -windows-nt:
+      set winnt=1
+      set get_dist=1
+      breaksw
+    case -mac:
+      set mac=1
+      breaksw
+    case -linux:
+      set linux=1
+      breaksw
+    case -compress:
+      set gzip=0
+      breaksw
+    case -help:
+      echo 'usage: maketar [-compress] [-basic] [-db] [-test] [-all] [-data]'
+      echo '               [-inputs [list]] [-windows-nt [dist_dir]] [-mac] [-linux]'
+      echo '               default: -basic -inputs'
+      goto exit
+      breaksw
+    case -*:
+      echo "maketar: unknown option $arg"
+      echo 'usage: maketar [-compress] [-basic] [-db] [-test] [-all] [-data]'
+      echo '               [-inputs [list]] [-windows-nt [dist_dir]] [-mac] [-linux]'
+      echo '               default: -basic -inputs'
+      exit 1
+    default:
+      if ($get_dist) then
+        set dist_dir="$arg"
+        set get_dist=0
+      else if ( $get_inp ) then
+        set input_dirs=($input_dirs $arg)
+      endif
+    endsw
+  end
+endif
+#
+if ( $#input_dirs == 0 ) then
+  set input_dirs=($input_default)
+endif
+#
+set rootdir=$CNS_SOLVE
+cd $rootdir/..
+set cnsdir=`echo $CNS_SOLVE | awk 'BEGIN{FS="/"}{if ($NF!=""){print $NF}else{print $(NF-1)}}'`
+set currv=`grep -i 'parameter *(cnsversion' $CNS_SOLVE/source/version.inc | cut -d\' -f2`
+set currp=`grep -i 'parameter *(cnspatch' $CNS_SOLVE/source/version.inc | cut -d\' -f2`
+if ( $currp == 0 ) set currp=''
+set verstring=$currv$currp
+set dirs=''
+set version="$verstring"
+set tarname='cns_solve'
+#
+if ($winnt) then
+  if (X"$dist_dir" == X) set dist_dir="windist"
+  cd $CNS_SOLVE
+  if (! -d "$dist_dir") then
+    echo mkdir "$dist_dir"
+         mkdir "$dist_dir"
+    if ($status != 0) exit 1
+  endif
+  if ( $data ) then
+    set tarname="$tarname"_data
+  endif
+  if (-d "$dist_dir/${tarname}_$verstring") then
+    echo 'Directory "'"dist_dir/${tarname}_$verstring"'" already exists.'
+    echo 'Rename or remove first.'
+    exit 1
+  endif
+  echo mkdir "$dist_dir/${tarname}_$verstring"
+       mkdir "$dist_dir/${tarname}_$verstring"
+  if ($status != 0) exit 1
+#
+  if ( $data ) then
+    set zip=(inputs/{nmr_data,xtal_data} \
+             doc/html/tutorial/data)
+    tar cf - $zip | (cd "$dist_dir/${tarname}_$verstring"; tar xvf -)
+  else
+    set zip=(inputs/{Makefile.include,Description,info} \
+             libraries/{nmr,toppar,xray,xtal} \
+             helplib \
+             modules \
+             windows-nt/{cns_solve_env.bat,cns_solve.exe})
+    set docdirs=(`/bin/ls doc/html | grep -v tutorial | awk '{print "doc/html/"$1}'`)
+    set docdirs=($docdirs \
+      `/bin/ls doc/html/tutorial | grep -v data | awk '{print "doc/html/tutorial/"$1}'`)
+    set zip = ($zip $docdirs)
+    tar cf - $zip | (cd "$dist_dir/${tarname}_$verstring"; tar xvf -)
+#
+    foreach directory ( $input_dirs )
+      tar cf - inputs/$directory/*.* | (cd "$dist_dir/${tarname}_$verstring"; tar xvf -)
+      if (-d inputs/$directory/run) then
+        tar cf - inputs/$directory/run/Makefile | (cd "$dist_dir/${tarname}_$verstring"; tar xvf -)
+      endif
+    end
+#
+    foreach f (Changes License Readme)
+      echo "$f.txt"
+      awk '{ printf "%s\r\n", $0 }' $f > "$dist_dir/${tarname}_$verstring/$f.txt"
+    end
+#
+    cd "$dist_dir/${tarname}_$verstring/windows-nt"
+    awk '{ printf "%s\r\n", $0 }' cns_solve_env.bat > tmp.bat
+    mv tmp.bat cns_solve_env.bat
+#
+  endif
+#
+  exit 0
+endif
+#
+if ($basic) then
+  set dirs=(Makefile License Readme Changes cns_solve_env .cns_solve_env_sh bin \
+            instlib helplib utils modules libraries/{nmr,toppar,xray,xtal} source)
+  if (! $all) then
+    set version="$version"_basic
+  endif
+  set docdirs=(`/bin/ls $cnsdir/doc/html | grep -v tutorial | awk '{print "doc/html/"$1}'`)
+  set docdirs=($docdirs \
+    `/bin/ls $cnsdir/doc/html/tutorial | grep -v data | awk '{print "doc/html/tutorial/"$1}'`)
+  set dirs=($dirs $docdirs)
+  if ($mac) then
+    if ( -d $cnsdir/mac-intel-darwin ) then
+      set macbinary=`/bin/ls $cnsdir/mac-intel-darwin/source/cns_solve-*.exe`
+      set macdirs=(mac-intel-darwin/{bin,utils} mac-intel-darwin/source/$macbinary:t)
+      set dirs=($dirs $macdirs)
+    endif    
+  endif
+
+  if ($linux) then
+    if ( -d $cnsdir/intel-i686-linux ) then
+      set macbinary=`/bin/ls $cnsdir/intel-i686-linux/source/cns_solve-*.exe`
+      set macdirs=(intel-i686-linux/{bin,utils} intel-i686-linux/source/$macbinary:t)
+      set dirs=($dirs $macdirs)
+    endif    
+    if ( -d $cnsdir/intel-x86_64bit-linux ) then
+      set macbinary=`/bin/ls $cnsdir/intel-x86_64bit-linux/source/cns_solve-*.exe`
+      set macdirs=(intel-x86_64bit-linux/{bin,utils} intel-x86_64bit-linux/source/$macbinary:t)
+      set dirs=($dirs $macdirs)
+    endif    
+  endif
+
+
+endif
+if ($all) then
+  set dirs=($dirs libraries/confdb)
+  set version="$version"_all
+else
+  if ($inputs) then
+    set version="$version"_inputs
+  endif
+  if ($test) then
+    set version="$version"_test
+  endif
+  if ($data) then
+    set version="$version"_data
+  endif
+  if ($db) then
+    set dirs=($dirs libraries/confdb)
+    set version="$version"_db
+  endif
+endif
+#
+if ($mac) then
+  set version="$version"_intel-mac
+endif
+#
+if ($linux) then
+  set version="$version"_linux
+endif
+#
+foreach directory ( $dirs ) 
+  if ( ! -e $cnsdir/${tarname}_${version}.tar ) then
+    tar -cvf $cnsdir/${tarname}_${version}.tar $cnsdir/$directory
+  else
+    tar -uvf $cnsdir/${tarname}_${version}.tar $cnsdir/$directory
+  endif
+end
+#
+if ( $inputs ) then
+  if ( ! -e $cnsdir/${tarname}_${version}.tar ) then
+    tar -cvf $cnsdir/${tarname}_${version}.tar $cnsdir/inputs/Makefile.include
+    tar -uvf $cnsdir/${tarname}_${version}.tar $cnsdir/inputs/Description
+  else
+    tar -uvf $cnsdir/${tarname}_${version}.tar $cnsdir/inputs/Makefile.include
+    tar -uvf $cnsdir/${tarname}_${version}.tar $cnsdir/inputs/Description
+  endif
+#
+  foreach directory ( info $input_dirs )
+    if ( ! -e $cnsdir/${tarname}_${version}.tar ) then
+      tar -cvf $cnsdir/${tarname}_${version}.tar $cnsdir/inputs/$directory/*.*
+      if ( -d $cnsdir/inputs/$directory/run ) then
+        tar -cvf $cnsdir/${tarname}_${version}.tar \
+                 $cnsdir/inputs/$directory/run/Makefile
+      endif
+    else
+      tar -uvf $cnsdir/${tarname}_${version}.tar $cnsdir/inputs/$directory/*.*
+      if ( -d $cnsdir/inputs/$directory/run ) then
+        tar -uvf $cnsdir/${tarname}_${version}.tar \
+                 $cnsdir/inputs/$directory/run/Makefile
+      endif
+    endif
+  end
+endif
+#
+if ( $data ) then
+  foreach directory ( xtal_data nmr_data )
+    foreach file ( `ls -d $cnsdir/inputs/$directory/*` )
+      if ( ! -d $file ) then
+        if ( ! -e $cnsdir/${tarname}_${version}.tar ) then
+          tar -cvf $cnsdir/${tarname}_${version}.tar $file
+        else
+          tar -uvf $cnsdir/${tarname}_${version}.tar $file
+        endif
+      endif
+    end
+  end
+  tar -uvf $cnsdir/${tarname}_${version}.tar $cnsdir/doc/html/tutorial/data
+endif
+#
+if ( $test ) then
+  if ( ! -e $cnsdir/${tarname}_${version}.tar ) then
+    tar -cvf $cnsdir/${tarname}_${version}.tar $cnsdir/test/*.inp \
+                                               $cnsdir/test/*.out \
+					       $cnsdir/test/Readme
+  else
+    tar -uvf $cnsdir/${tarname}_${version}.tar $cnsdir/test/*.inp \
+                                               $cnsdir/test/*.out \
+					       $cnsdir/test/Readme
+  endif
+endif
+#
+if ( -d /usr/tmp ) then
+  set tmpdirroot='/usr/tmp'
+else if ( -d /var/tmp ) then
+  set tmpdirroot='/var/tmp' 
+else
+  echo "problems locating temporary directory - exiting"
+  exit 1
+endif
+#
+echo "making directory $tmpdirroot/$$"
+mkdir $tmpdirroot/$$
+if ( $status != 0 ) then
+  echo "problems making temporary directory - exiting"
+  exit 1
+endif
+#
+mv $cnsdir/${tarname}_${version}.tar $tmpdirroot/$$
+#
+cd $tmpdirroot/$$
+if ( $status != 0 ) then
+  echo "problems changing to temporary directory - exiting"
+  exit 1
+endif
+#
+echo "extracting tar archive ${tarname}_${version}.tar in temporary directory"
+tar xf ${tarname}_${version}.tar --exclude "._*"
+#
+if ( "$cnsdir" != "${tarname}_${currv}${currp}" ) then
+  echo "moving directory $cnsdir to ${tarname}_${currv}${currp}"
+  mv $cnsdir ${tarname}_${currv}${currp}
+endif
+#
+if ( -e ${tarname}_${currv}${currp}/cns_solve_env ) then
+  echo "removing CNS_SOLVE definition from cns_solve_env"
+  set oldenv=${tarname}_${currv}${currp}/cns_solve_env
+  set newenv=${tarname}_${currv}${currp}/cns_solve_env.tmp
+  sed "s/setenv CNS_SOLVE '.*'/setenv CNS_SOLVE \'_CNSsolve_location_\'/" $oldenv > $newenv
+  if ( ( ! -z $newenv ) && ( `diff $oldenv $newenv | wc -l` != 0 ) ) then
+    mv $newenv $oldenv
+  else
+    echo "Warning: failed to modify cns_solve_env"
+    /bin/rm -f $newenv
+  endif
+endif
+#
+if ( -e ${tarname}_${currv}${currp}/.cns_solve_env_sh ) then
+  echo "removing CNS_SOLVE definition from .cns_solve_env_sh"
+  set oldenv=${tarname}_${currv}${currp}/.cns_solve_env_sh
+  set newenv=${tarname}_${currv}${currp}/cns_solve_env_sh.tmp
+  sed 's/CNS_SOLVE=[^$].*/CNS_SOLVE=_CNSsolve_location_/' $oldenv > $newenv
+  if ( ( ! -z $newenv ) && ( `diff $oldenv $newenv | wc -l` != 0 ) ) then
+    mv $newenv $oldenv
+  else
+    echo "Warning: failed to modify .cns_solve_env_sh"
+    /bin/rm -f $newenv
+  endif
+endif
+#
+echo "removing old tar archive ${tarname}_${version}.tar"
+/bin/rm ${tarname}_${version}.tar
+#
+echo "making new tar archive ${tarname}_${version}.tar"
+tar cvf ${tarname}_${version}.tar ${tarname}_${currv}${currp}
+#
+if ( $gzip ) then
+  set comp_ext=gz
+else
+  set comp_ext=Z
+endif
+#
+if ( -e ${tarname}_${version}.tar ) then
+  echo "compressing tar archive"
+  if ( $gzip ) then
+    gzip ${tarname}_${version}.tar 
+  else
+    compress ${tarname}_${version}.tar
+  endif
+else
+  goto clean
+endif
+#
+if ( -e $CNS_SOLVE/${tarname}_${version}.tar.$comp_ext ) then
+  echo "moving $CNS_SOLVE/${tarname}_${version}.tar.$comp_ext to \
+        $CNS_SOLVE/${tarname}_${version}.tar.${comp_ext}_bak"
+  mv $CNS_SOLVE/${tarname}_${version}.tar.$comp_ext \
+     $CNS_SOLVE/${tarname}_${version}.tar.${comp_ext}_bak
+endif
+#
+echo "moving tar archive ${tarname}_${version}.tar.$comp_ext to $CNS_SOLVE"
+mv ${tarname}_${version}.tar.$comp_ext $CNS_SOLVE
+#
+clean:
+#
+echo "removing directory ${tarname}_${currv}${currp}"
+/bin/rm -r ./${tarname}_${currv}${currp}
+#
+echo "returning to $CNS_SOLVE/.."
+cd $CNS_SOLVE/..
+#
+echo "removing directory $tmpdirroot/$$"
+/bin/rmdir $tmpdirroot/$$
+#
+if ( -e $CNS_SOLVE/${tarname}_${version}.tar.$comp_ext ) then
+  echo "made compressed tar archive:"
+  echo "      $CNS_SOLVE/${tarname}_${version}.tar.$comp_ext"
+else
+  echo "there were errors: compressed tar archive not made"
+  exit 1
+endif
+#
+exit:

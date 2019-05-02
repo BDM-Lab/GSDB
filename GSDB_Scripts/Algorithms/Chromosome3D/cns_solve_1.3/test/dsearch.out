@@ -1,0 +1,2178 @@
+          ============================================================
+          |                                                          |
+          |            Crystallography & NMR System (CNS)            |
+          |                         CNSsolve                         |
+          |                                                          |
+          ============================================================
+           Version: 1.3
+           Status: General release
+          ============================================================
+           Written by: A.T.Brunger, P.D.Adams, G.M.Clore, W.L.DeLano,
+                       P.Gros, R.W.Grosse-Kunstleve,J.-S.Jiang,J.M.Krahn,
+                       J.Kuszewski, M.Nilges, N.S.Pannu, R.J.Read,
+                       L.M.Rice, G.F.Schroeder, T.Simonson, G.L.Warren.
+           Copyright (c) 1997-2010 Yale University
+          ============================================================
+           Running on machine: lewis4-r710-login-node223 (x86_64/Linux,64-bit)
+                               with 16 threads
+           Program started by: oeow39
+           Program started at: 16:07:59 on 05-Jul-2018
+          ============================================================
+
+ FFT3C: Using FFTPACK4.1
+
+ CNSsolve>remarks  file DSEARCH.INP --- test rotation search 
+ CNSsolve>remarks  Author: Axel T. Brunger 
+ CNSsolve> 
+ CNSsolve>structure 
+ STRUcture>data_cns_mtf 
+ REMARKS FILENAME="/data/rwgk/test/tmp.mtf"
+ REMARKS DATE:18-Nov-98  14:17:01       created by user: rwgk
+ REMARKS VERSION:0.4a
+ Status of internal molecular topology database:
+ -> NATOM=        396(MAXA=     1000000)  NBOND=        406(MAXB=     1000000)
+ -> NTHETA=       587(MAXT=     2000000)  NGRP=         165(MAXGRP=   1000000)
+ -> NPHI=         244(MAXP=     2000000)  NIMPHI=       182(MAXIMP=   1000000)
+ -> NNB=            9(MAXNB=    1000000) 
+ STRUcture> 
+ STRUcture>end 
+ CNSsolve> 
+ CNSsolve>{* read coordinates of ROTATED crambin structure *} 
+ CNSsolve> 
+ CNSsolve>coor 
+ COOR>ATOM      1  N   THR     1      21.799  -2.958   4.368  0.00  8.00 
+ COOR>ATOM      5  CA  THR     1      21.052  -1.780   4.915  0.00  8.00 
+ %READC-WRN: still     69 missing coordinates (in selected subset)
+ CNSsolve> 
+ CNSsolve> 
+ CNSsolve> 
+ CNSsolve>xray 
+ XRAY>   declare name=fobs type=complex domain=reciprocal end 
+ XDECLARE: Object FOBS has been declared.
+ XRAY>   declare name=fpart domain=reciprocal type=complex end 
+ XDECLARE: Object FPART has been declared.
+ XRAY>   declare name=fcalc domain=reciprocal type=complex end 
+ XDECLARE: Object FCALC has been declared.
+ XRAY>   declare name=fom domain=reciprocal type=real end 
+ XDECLARE: Object FOM has been declared.
+ XRAY>   declare name=weight domain=reciprocal type=real end 
+ XDECLARE: Object WEIGHT has been declared.
+ XRAY>   declare name=sigma domain=reciprocal type=real end 
+ XDECLARE: Object SIGMA has been declared.
+ XRAY>   declare name=test domain=reciprocal type=integer end 
+ XDECLARE: Object TEST has been declared.
+ XRAY> 
+ XRAY>   a=40.96 b=18.65 c=22.52 alpha=90.0 beta=90.77 gamma=90.0 
+ XRAY> 
+ XRAY>   symmetry=(x,y,z)        ! unit cell and 
+ XRAY>   symmetry=(-x,y+1/2,-z)  ! symmetry ops for peak redundancy check 
+ XRAY> 
+ XRAY>   SCATter ( chemical C* ) 
+ SELRPN:    202 atoms have been selected out of    396
+ SCATTER_A1=   2.31000 20.8439 1.02000 10.2075 1.58860 .568700 .865000 51.6512 .215600 
+ XRAY> 
+ XRAY>   SCATter ( chemical N* ) 
+ SELRPN:     55 atoms have been selected out of    396
+ SCATTER_A1=   12.2126 .005700 3.13220 9.89330 2.01250 28.9975 1.16630 .582600 -11.529 
+ XRAY> 
+ XRAY>   SCATter ( chemical O* ) 
+ SELRPN:     64 atoms have been selected out of    396
+ SCATTER_A1=   3.04850 13.2771 2.28680 5.70110 1.54630 .323900 .867000 32.9089 .250800 
+ XRAY> 
+ XRAY>   SCATter ( chemical S* ) 
+ SELRPN:      6 atoms have been selected out of    396
+ SCATTER_A1=   6.90530 1.46790 5.20340 22.2151 1.43790 .253600 1.58630 56.1720 .866900 
+ XRAY> 
+ XRAY>   nreflections=20000 
+ XRAY: allocating space for   20000 reflections.
+ XRAY> 
+ XRAY> reflection 
+ REFLection> INDEx    0   2   0  Fobs 4171.8999 
+ XSFAL: allocating space for complex reciprocal space object.
+ XRRR2:      729 new h,k,l indices have been added.
+ XRAY> 
+ XRAY>  evaluate ($lr=10.0001) 
+ EVALUATE: symbol $LR set to    10.0001     (real)
+ XRAY>  evaluate ($hr=5.0001) 
+ EVALUATE: symbol $HR set to    5.00010     (real)
+ XRAY>  binresolution $lr $hr 
+ XRAY>  mapresolution $hr 
+ XRAY>  tselection=( $hr <= d <= $lr and 100000. >= amplitude(fobs)>=0.1 ) 
+ XRAY> 
+ XRAY>   method=fft 
+ XRAY>   fft 
+ XFFT>      memory=1000000                   {*FFT method with memory statement.*} 
+ XFFT>   end 
+ XRAY> 
+ XRAY>   wa=10000 
+ XRAY>   target=(E2E2(amplitude(fobs),fcalc)) 
+ XRAY>   dtarget=(DE2E2(amplitude(fobs),fcalc)) 
+ XRAY>   monitor=(E2E2(amplitude(fobs),fcalc)) 
+ XRAY>                                {*Specify target used for rotation search.  *} 
+ XRAY>   mbins=20                        {*Number of bins used for E calculation.*} 
+ XRAY> 
+ XRAY>   tolerance=0. lookup=false              {*This makes the minimizer happy.*} 
+ XRAY> 
+ XRAY>                                          {*Expand data to a P1 hemisphere.*} 
+ XRAY>   hermitian=false  expand  hermitian=true  symmetry reset 
+ XPARSE: expanding data set (h,k,l)->{(h,k,l),(-h,-k,-l)}
+ XEXPFR2:      580 new reflections have been generated.
+ XREDUC: some reflection(s) converted to CNS standard asymm. unit.
+ XEXPA2:     1303 new reflections have been generated.
+ XRAY: data expanded and symmetry reset to P1.
+ XPARSE: data will be reduced to hemisphere.          Anomalous signal will be lost.
+ XAVEFRIED: Friedel mates of all recipr. space obj. will be averaged.
+    (also operates on phases and HL coefficients)
+ XREDUC: some reflection(s) converted to CNS standard asymm. unit.
+ XREDU2: multiple instances found for some reflections.
+ XREDU2: deleting redundant reflections.
+ XREDU2:     1306 reflections have been deleted.
+ XREDU2: sorting all reflections.
+ XRAY> 
+ XRAY>   associate fcalc (not hydrogen) 
+ SELRPN:    327 atoms have been selected out of    396
+ XRAY> 
+ XRAY>end 
+ CNSsolve> 
+ CNSsolve>!coor rota euler ( 0.1 0.1 0.1 ) end 
+ CNSsolve> 
+ CNSsolve>do (b=8.0) ( all ) 
+ SELRPN:    396 atoms have been selected out of    396
+ CNSsolve>do (q=1.0) ( all ) 
+ SELRPN:    396 atoms have been selected out of    396
+ CNSsolve> 
+ CNSsolve>{* now we're ready to do the rotation search *} 
+ CNSsolve>xray 
+ XRAY> 
+ XRAY>   search direct 
+ DRSEARCH>      tmmin=0.0 tmmax=720. 
+ DRSEARCH>      t2min=0.0 t2max=90. 
+ DRSEARCH>      tpmin=0.0 tpmax=360. 
+ DRSEARCH>      delta=30.0 
+ DRSEARCH>      nlist=100 
+ DRSEARCH>      epsilon=0.5 
+ DRSEARCH>      output=OUTPUT 
+ DRSEARCH>      symmetry=(x,y,z)        ! unit cell and 
+ DRSEARCH>      symmetry=(-x,y+1/2,-z)  ! symmetry ops for peak redundancy check 
+ DRSEARCH>      ? 
+ -----------rotation search-parameters---------------------------------------
+ | The quasi-orthogonal Eulerian angle sampling method is used
+ | TPMIn=     0.00000 TPMAx=   360.00000
+ | TMMIn=     0.00000 TMMAx=   720.00000
+ | T2MIn=     0.00000 T2MAx=    90.00000
+ | DELTa=    30.00000
+ | NLISt=     100
+ | EPSIlon= 0.50
+ | Symmetry operators for cluster analysis
+ | SYMMetry=(X,Y,Z)
+ | SYMMetry=(-X,Y+1/2,-Z)
+ -------------------------------------------------------------------------------
+ DRSEARCH>      symbols="RF" 
+ DRSEARCH>      set message=off end 
+ DRSEARCH>   end 
+ DRSEAR: Number of rotations to be searched:      393
+ (* Rotation Function *)
+   rnumber=    393;
+   rave= -0.0013;
+   rsigma=  0.0623;
+   rmax=  0.2014;
+   rmin= -0.1930;
+ var={ "theta2", "theta-", "theta+" };
+ min={    0.00000 ,    0.00000 ,    0.00000 };
+ max={   90.00000 ,  720.00000 ,  360.00000 };
+ rf={
+ {
+ {
+    -0.0258,    -0.0543,    -0.0298,    -0.0378,     0.0397,     0.0948,
+    -0.0095,    -0.0004,     0.0479,    -0.0467,     0.0725,     0.1071,
+    -0.0258
+ }
+ },
+ {
+ {
+    -0.0100,    -0.0682,    -0.0143,    -0.0413,     0.0795,    -0.0256,
+     0.0024,    -0.0405,     0.0115,    -0.0231,     0.0207,     0.0842
+ },
+ {
+    -0.0782,    -0.0769,    -0.0798,    -0.0300,     0.0898,    -0.0428,
+    -0.0679,    -0.0179,    -0.0785,    -0.1930,     0.0358,    -0.0912
+ },
+ {
+     0.0847,    -0.0198,    -0.0676,    -0.0804,    -0.0559,    -0.0340,
+     0.1636,    -0.0902,     0.0763,     0.0712,     0.0059,     0.0497
+ },
+ {
+     0.0842,     0.0686,     0.0507,    -0.0932,    -0.0782,    -0.0653,
+    -0.0130,    -0.0031,    -0.0453,    -0.0084,    -0.1181,    -0.0100
+ },
+ {
+    -0.0912,     0.0150,     0.1149,     0.0599,    -0.0048,    -0.0347,
+    -0.0025,    -0.0583,     0.0651,     0.0264,    -0.1052,    -0.0782
+ },
+ {
+     0.0497,    -0.0787,    -0.0191,    -0.0399,    -0.0117,     0.1291,
+    -0.0498,    -0.0500,    -0.1499,     0.0188,    -0.0515,     0.0847
+ },
+ {
+    -0.0100,    -0.0682,    -0.0143,    -0.0413,     0.0795,    -0.0256,
+     0.0024,    -0.0405,     0.0115,    -0.0231,     0.0207,     0.0842
+ }
+ },
+ {
+ {
+     0.0564,     0.1307,     0.0791,    -0.0109,    -0.0881,     0.0587,
+    -0.0092,     0.0836,     0.0746,    -0.1025,    -0.0432
+ },
+ {
+    -0.0269,     0.0328,     0.0487,     0.0070,     0.0337,     0.0070,
+     0.0745,    -0.0775,    -0.0692,     0.0264,    -0.0284
+ },
+ {
+     0.0501,     0.0584,    -0.0664,     0.0219,     0.0601,     0.0195,
+    -0.0395,    -0.0376,    -0.1433,    -0.1312,    -0.0037
+ },
+ {
+     0.1147,    -0.0561,    -0.0812,     0.0129,    -0.0496,     0.0640,
+    -0.0311,    -0.0518,    -0.0602,     0.0673,    -0.0031
+ },
+ {
+     0.0228,    -0.0253,    -0.1066,    -0.0298,     0.1075,    -0.0348,
+    -0.0427,    -0.0572,     0.0569,    -0.0334,     0.0673
+ },
+ {
+     0.1029,    -0.0096,    -0.0812,    -0.0674,    -0.0677,     0.1039,
+     0.0116,    -0.1052,     0.0536,    -0.0692,     0.0754
+ },
+ {
+    -0.0432,    -0.0671,    -0.0329,     0.0314,    -0.0259,    -0.0483,
+     0.0345,    -0.0716,    -0.0776,     0.0504,     0.0564
+ },
+ {
+    -0.0284,    -0.0496,     0.0678,     0.0222,    -0.0037,    -0.0147,
+    -0.0723,    -0.0599,     0.0192,    -0.0622,    -0.0269
+ },
+ {
+    -0.0037,     0.0839,    -0.0025,     0.0835,    -0.0063,     0.0742,
+     0.0045,    -0.0208,     0.0205,    -0.0690,     0.0501
+ },
+ {
+    -0.0031,     0.0107,    -0.0354,    -0.0335,     0.1379,     0.1204,
+     0.2014,     0.0709,     0.0188,     0.0060,     0.1147
+ },
+ {
+     0.0673,     0.0290,    -0.0650,    -0.0129,     0.0492,     0.0333,
+     0.0340,     0.0731,    -0.0144,     0.0304,     0.0228
+ },
+ {
+     0.0754,    -0.0232,    -0.0099,    -0.0188,    -0.0646,    -0.0604,
+     0.0145,    -0.0648,    -0.0291,     0.1907,     0.1029
+ },
+ {
+     0.0564,     0.1307,     0.0791,    -0.0109,    -0.0881,     0.0587,
+    -0.0092,     0.0836,     0.0746,    -0.1025,    -0.0432
+ }
+ },
+ {
+ {
+    -0.0216,     0.0069,    -0.0507,    -0.1096,     0.0109,    -0.0473,
+    -0.0136,     0.0842,     0.0075
+ },
+ {
+    -0.0636,    -0.0468,    -0.0537,     0.0545,     0.0175,     0.0748,
+     0.1358,    -0.0028,    -0.0298
+ },
+ {
+    -0.0229,     0.0398,    -0.0220,    -0.0289,     0.0146,     0.0856,
+    -0.0391,     0.0516,    -0.0437
+ },
+ {
+    -0.0738,    -0.0476,    -0.0672,     0.0414,     0.0226,     0.0016,
+    -0.0258,     0.0116,    -0.0335
+ },
+ {
+     0.0086,    -0.0696,     0.0711,     0.1079,    -0.0216,    -0.0636,
+    -0.0229,    -0.0738,     0.0086
+ },
+ {
+     0.0082,     0.1571,     0.0430,    -0.0445,     0.0069,    -0.0468,
+     0.0398,    -0.0476,    -0.0696
+ },
+ {
+     0.0820,     0.0685,    -0.0993,    -0.1516,    -0.0507,    -0.0537,
+    -0.0220,    -0.0672,     0.0711
+ },
+ {
+    -0.0145,    -0.0224,     0.0020,     0.0099,    -0.1096,     0.0545,
+    -0.0289,     0.0414,     0.1079
+ },
+ {
+     0.0075,     0.0059,    -0.0533,    -0.0228,     0.0109,     0.0175,
+     0.0146,     0.0226,    -0.0216
+ },
+ {
+    -0.0298,    -0.0382,     0.0464,    -0.0196,    -0.0473,     0.0748,
+     0.0856,     0.0016,    -0.0636
+ },
+ {
+    -0.0437,    -0.0475,    -0.0721,    -0.0199,    -0.0136,     0.1358,
+    -0.0391,    -0.0258,    -0.0229
+ },
+ {
+    -0.0335,    -0.0233,     0.0827,     0.0716,     0.0842,    -0.0028,
+     0.0516,     0.0116,    -0.0738
+ },
+ {
+     0.0086,     0.0082,     0.0820,    -0.0145,     0.0075,    -0.0298,
+    -0.0437,    -0.0335,     0.0086
+ },
+ {
+    -0.0696,     0.1571,     0.0685,    -0.0224,     0.0059,    -0.0382,
+    -0.0475,    -0.0233,     0.0082
+ },
+ {
+     0.0711,     0.0430,    -0.0993,     0.0020,    -0.0533,     0.0464,
+    -0.0721,     0.0827,     0.0820
+ },
+ {
+     0.1079,    -0.0445,    -0.1516,     0.0099,    -0.0228,    -0.0196,
+    -0.0199,     0.0716,    -0.0145
+ },
+ {
+    -0.0216,     0.0069,    -0.0507,    -0.1096,     0.0109,    -0.0473,
+    -0.0136,     0.0842,     0.0075
+ }
+ }
+ };
+ Summary of rotation search:
+   number of grid points=   393
+   mean of R-function= -0.001
+   sigma of R-function=  0.062
+   maximum of R-function=  0.201
+   minimum of R-function= -0.193
+ Clustered list (EPSIlon= 0.50) of first    100 highest peaks
+ (the [] indicate a symmetry operation)
+     no.  priority     theta1, theta2, theta3          RF
+ ===========================================================
+      1      1           (  18.000  60.000 198.000)      0.2014
+ 
+      2      2           ( 132.000  60.000 192.000)      0.1907
+ 
+      3      3           ( 218.182  30.000 338.182)      0.1636
+ 
+      4      4           ( 135.000  90.000 270.000)      0.1571
+      5      4 [  1,  2] ( 315.000  90.000  90.000)      0.1571
+ 
+      6      5           ( 342.000  60.000 162.000)      0.1379
+ 
+      7      6           ( 157.500  90.000 112.500)      0.1358
+      8      6 [  1,  2] ( 337.500  90.000 247.500)      0.1358
+ 
+      9      7           (  18.000  60.000  18.000)      0.1307
+ 
+     11      8           (  21.818  30.000 141.818)      0.1291
+ 
+     12      9           (   0.000  60.000 180.000)      0.1204
+ 
+     13     10           ( 272.727  30.000 152.727)      0.1149
+ 
+     14     11           (  90.000  60.000 270.000)      0.1147
+ 
+     16     12           ( 157.500  90.000 337.500)      0.1079
+     17     12 [  1,  2] ( 337.500  90.000  22.500)      0.1079
+     18     12 [  1,  2] ( 337.500  90.000  22.500)      0.1079
+ 
+     19     13           ( 192.000  60.000 312.000)      0.1075
+ 
+     20     14           ( 165.000   0.000 165.000)      0.1071
+ 
+     21     15           ( 240.000  60.000 300.000)      0.1039
+ 
+     22     16           ( 150.000  60.000 210.000)      0.1029
+ 
+     24     17           (  75.000   0.000  75.000)      0.0948
+ 
+     25     18           ( 125.455  30.000   5.455)      0.0898
+ 
+     26     19           ( 157.500  90.000  67.500)      0.0856
+     27     19 [  1,  2] ( 337.500  90.000 292.500)      0.0856
+ 
+     28     20           ( 120.000  30.000 240.000)      0.0847
+ 
+     30     21           ( 157.500  90.000 157.500)      0.0842
+     31     21 [  1,  2] ( 337.500  90.000 202.500)      0.0842
+ 
+     33     22           ( 180.000  30.000 180.000)      0.0842
+ 
+     36     23           ( 258.000  60.000 138.000)      0.0839
+ 
+     37     24           ( 126.000  60.000 126.000)      0.0836
+ 
+     39     25           ( 294.000  60.000 174.000)      0.0835
+ 
+     40     26           ( 292.500  90.000 157.500)      0.0827
+     41     26 [  1,  2] ( 112.500  90.000 202.500)      0.0827
+ 
+     42     27           ( 135.000  90.000 225.000)      0.0820
+     43     27 [  1,  2] ( 315.000  90.000 135.000)      0.0820
+ 
+     45     28           (  65.455  30.000  65.455)      0.0795
+ 
+     47     29           (  36.000  60.000  36.000)      0.0791
+ 
+     49     30           ( 250.909  30.000  10.909)      0.0763
+ 
+     50     31           ( 330.000  60.000  30.000)      0.0754
+ 
+     52     32           ( 135.000  90.000  90.000)      0.0748
+     53     32 [  1,  2] ( 315.000  90.000 270.000)      0.0748
+ 
+     54     33           ( 144.000  60.000 144.000)      0.0746
+ 
+     56     34           ( 138.000  60.000  78.000)      0.0745
+ 
+     57     35           ( 330.000  60.000 210.000)      0.0742
+ 
+     58     36           (  66.000  60.000 186.000)      0.0731
+ 
+     59     37           ( 150.000   0.000 150.000)      0.0725
+ 
+     60     38           ( 315.000  90.000 180.000)      0.0716
+     61     38 [  1,  2] ( 135.000  90.000 180.000)      0.0716
+ 
+     62     39           ( 267.273  30.000  27.273)      0.0712
+ 
+     63     40           ( 135.000  90.000 315.000)      0.0711
+     64     40 [  1,  2] ( 315.000  90.000  45.000)      0.0711
+     65     40 [  1,  2] ( 315.000  90.000  45.000)      0.0711
+ 
+     66     41           (  36.000  60.000 216.000)      0.0709
+ 
+     67     42           ( 196.364  30.000 196.364)      0.0686
+ 
+     68     43           ( 157.500  90.000 247.500)      0.0685
+     69     43 [  1,  2] ( 337.500  90.000 112.500)      0.0685
+ 
+     70     44           ( 246.000  60.000 186.000)      0.0678
+ 
+     71     45           ( 252.000  60.000  72.000)      0.0673
+ 
+     72     46           ( 300.000  60.000  60.000)      0.0673
+ 
+     74     47           (  10.909  30.000 250.909)      0.0651
+ 
+     75     48           ( 180.000  60.000   0.000)      0.0640
+ 
+     76     49           ( 132.000  60.000  12.000)      0.0601
+ 
+     77     50           ( 289.091  30.000 169.091)      0.0599
+ 
+     78     51           (  90.000  60.000  90.000)      0.0587
+ 
+     80     52           (  78.000  60.000 318.000)      0.0584
+ 
+     81     53           ( 264.000  60.000  24.000)      0.0569
+ 
+     82     54           (   0.000  60.000   0.000)      0.0564
+ 
+     85     55           (  90.000  90.000  45.000)      0.0545
+     86     55 [  1,  2] ( 270.000  90.000 315.000)      0.0545
+ 
+     87     56           ( 294.000  60.000 354.000)      0.0536
+ 
+     88     57           ( 202.500  90.000 112.500)      0.0516
+     89     57 [  1,  2] (  22.500  90.000 247.500)      0.0516
+ 
+     90     58           ( 212.727  30.000 212.727)      0.0507
+ 
+     91     59           ( 342.000  60.000 342.000)      0.0504
+ 
+     92     60           (  60.000  60.000 300.000)      0.0501
+ 
+     94     61           ( 300.000  30.000  60.000)      0.0497
+ 
+     96     62           (  12.000  60.000 132.000)      0.0492
+ 
+     97     63           (  66.000  60.000   6.000)      0.0487
+ 
+     98     64           ( 120.000   0.000 120.000)      0.0479
+ 
+     99     65           ( 247.500  90.000 202.500)      0.0464
+    100     65 [  1,  2] (  67.500  90.000 157.500)      0.0464
+ List of the highest peaks of the clusters (EPSIlon= 0.50)
+     no.  priority     theta1, theta2, theta3          RF
+ ===========================================================
+      1      1       (  18.000  60.000 198.000)      0.2014
+      2      2       ( 132.000  60.000 192.000)      0.1907
+      3      3       ( 218.182  30.000 338.182)      0.1636
+      4      4       ( 135.000  90.000 270.000)      0.1571
+      6      5       ( 342.000  60.000 162.000)      0.1379
+      7      6       ( 157.500  90.000 112.500)      0.1358
+      9      7       (  18.000  60.000  18.000)      0.1307
+     11      8       (  21.818  30.000 141.818)      0.1291
+     12      9       (   0.000  60.000 180.000)      0.1204
+     13     10       ( 272.727  30.000 152.727)      0.1149
+     14     11       (  90.000  60.000 270.000)      0.1147
+     16     12       ( 157.500  90.000 337.500)      0.1079
+     19     13       ( 192.000  60.000 312.000)      0.1075
+     20     14       ( 165.000   0.000 165.000)      0.1071
+     21     15       ( 240.000  60.000 300.000)      0.1039
+     22     16       ( 150.000  60.000 210.000)      0.1029
+     24     17       (  75.000   0.000  75.000)      0.0948
+     25     18       ( 125.455  30.000   5.455)      0.0898
+     26     19       ( 157.500  90.000  67.500)      0.0856
+     28     20       ( 120.000  30.000 240.000)      0.0847
+     30     21       ( 157.500  90.000 157.500)      0.0842
+     33     22       ( 180.000  30.000 180.000)      0.0842
+     36     23       ( 258.000  60.000 138.000)      0.0839
+     37     24       ( 126.000  60.000 126.000)      0.0836
+     39     25       ( 294.000  60.000 174.000)      0.0835
+     40     26       ( 292.500  90.000 157.500)      0.0827
+     42     27       ( 135.000  90.000 225.000)      0.0820
+     45     28       (  65.455  30.000  65.455)      0.0795
+     47     29       (  36.000  60.000  36.000)      0.0791
+     49     30       ( 250.909  30.000  10.909)      0.0763
+     50     31       ( 330.000  60.000  30.000)      0.0754
+     52     32       ( 135.000  90.000  90.000)      0.0748
+     54     33       ( 144.000  60.000 144.000)      0.0746
+     56     34       ( 138.000  60.000  78.000)      0.0745
+     57     35       ( 330.000  60.000 210.000)      0.0742
+     58     36       (  66.000  60.000 186.000)      0.0731
+     59     37       ( 150.000   0.000 150.000)      0.0725
+     60     38       ( 315.000  90.000 180.000)      0.0716
+     62     39       ( 267.273  30.000  27.273)      0.0712
+     63     40       ( 135.000  90.000 315.000)      0.0711
+     66     41       (  36.000  60.000 216.000)      0.0709
+     67     42       ( 196.364  30.000 196.364)      0.0686
+     68     43       ( 157.500  90.000 247.500)      0.0685
+     70     44       ( 246.000  60.000 186.000)      0.0678
+     71     45       ( 252.000  60.000  72.000)      0.0673
+     72     46       ( 300.000  60.000  60.000)      0.0673
+     74     47       (  10.909  30.000 250.909)      0.0651
+     75     48       ( 180.000  60.000   0.000)      0.0640
+     76     49       ( 132.000  60.000  12.000)      0.0601
+     77     50       ( 289.091  30.000 169.091)      0.0599
+     78     51       (  90.000  60.000  90.000)      0.0587
+     80     52       (  78.000  60.000 318.000)      0.0584
+     81     53       ( 264.000  60.000  24.000)      0.0569
+     82     54       (   0.000  60.000   0.000)      0.0564
+     85     55       (  90.000  90.000  45.000)      0.0545
+     87     56       ( 294.000  60.000 354.000)      0.0536
+     88     57       ( 202.500  90.000 112.500)      0.0516
+     90     58       ( 212.727  30.000 212.727)      0.0507
+     91     59       ( 342.000  60.000 342.000)      0.0504
+     92     60       (  60.000  60.000 300.000)      0.0501
+     94     61       ( 300.000  30.000  60.000)      0.0497
+     96     62       (  12.000  60.000 132.000)      0.0492
+     97     63       (  66.000  60.000   6.000)      0.0487
+     98     64       ( 120.000   0.000 120.000)      0.0479
+     99     65       ( 247.500  90.000 202.500)      0.0464
+ XRAY> 
+ XRAY>   set message=norm end 
+ XRAY>   $? 
+ Current Symbol Table
+ NOTE: The scope number (#) of $<name> is shown as $_#_<name> 
+ $_1_RF_NLIST=   65.0000     (real)
+ $_1_RF_THETA3_65=   202.500     (real)
+ $_1_RF_THETA2_65=   90.0000     (real)
+ $_1_RF_THETA1_65=   247.500     (real)
+ $_1_RF_RFVALUE_65=  0.463762E-01 (real)
+ $_1_RF_THETA3_64=   120.000     (real)
+ $_1_RF_THETA2_64=   0.00000     (real)
+ $_1_RF_THETA1_64=   120.000     (real)
+ $_1_RF_RFVALUE_64=  0.479245E-01 (real)
+ $_1_RF_THETA3_63=   6.00000     (real)
+ $_1_RF_THETA2_63=   60.0000     (real)
+ $_1_RF_THETA1_63=   66.0000     (real)
+ $_1_RF_RFVALUE_63=  0.487091E-01 (real)
+ $_1_RF_THETA3_62=   132.000     (real)
+ $_1_RF_THETA2_62=   60.0000     (real)
+ $_1_RF_THETA1_62=   12.0000     (real)
+ $_1_RF_RFVALUE_62=  0.491615E-01 (real)
+ $_1_RF_THETA3_61=   60.0000     (real)
+ $_1_RF_THETA2_61=   30.0000     (real)
+ $_1_RF_THETA1_61=   300.000     (real)
+ $_1_RF_RFVALUE_61=  0.497065E-01 (real)
+ $_1_RF_THETA3_60=   300.000     (real)
+ $_1_RF_THETA2_60=   60.0000     (real)
+ $_1_RF_THETA1_60=   60.0000     (real)
+ $_1_RF_RFVALUE_60=  0.501409E-01 (real)
+ $_1_RF_THETA3_59=   342.000     (real)
+ $_1_RF_THETA2_59=   60.0000     (real)
+ $_1_RF_THETA1_59=   342.000     (real)
+ $_1_RF_RFVALUE_59=  0.504403E-01 (real)
+ $_1_RF_THETA3_58=   212.727     (real)
+ $_1_RF_THETA2_58=   30.0000     (real)
+ $_1_RF_THETA1_58=   212.727     (real)
+ $_1_RF_RFVALUE_58=  0.507434E-01 (real)
+ $_1_RF_THETA3_57=   112.500     (real)
+ $_1_RF_THETA2_57=   90.0000     (real)
+ $_1_RF_THETA1_57=   202.500     (real)
+ $_1_RF_RFVALUE_57=  0.515555E-01 (real)
+ $_1_RF_THETA3_56=   354.000     (real)
+ $_1_RF_THETA2_56=   60.0000     (real)
+ $_1_RF_THETA1_56=   294.000     (real)
+ $_1_RF_RFVALUE_56=  0.536293E-01 (real)
+ $_1_RF_THETA3_55=   45.0000     (real)
+ $_1_RF_THETA2_55=   90.0000     (real)
+ $_1_RF_THETA1_55=   90.0000     (real)
+ $_1_RF_RFVALUE_55=  0.544542E-01 (real)
+ $_1_RF_THETA3_54=  0.100000E-05 (real)
+ $_1_RF_THETA2_54=   60.0000     (real)
+ $_1_RF_THETA1_54=  0.100000E-05 (real)
+ $_1_RF_RFVALUE_54=  0.563886E-01 (real)
+ $_1_RF_THETA3_53=   24.0000     (real)
+ $_1_RF_THETA2_53=   60.0000     (real)
+ $_1_RF_THETA1_53=   264.000     (real)
+ $_1_RF_RFVALUE_53=  0.569468E-01 (real)
+ $_1_RF_THETA3_52=   318.000     (real)
+ $_1_RF_THETA2_52=   60.0000     (real)
+ $_1_RF_THETA1_52=   78.0000     (real)
+ $_1_RF_RFVALUE_52=  0.584378E-01 (real)
+ $_1_RF_THETA3_51=   90.0000     (real)
+ $_1_RF_THETA2_51=   60.0000     (real)
+ $_1_RF_THETA1_51=   90.0000     (real)
+ $_1_RF_RFVALUE_51=  0.587002E-01 (real)
+ $_1_RF_THETA3_50=   169.091     (real)
+ $_1_RF_THETA2_50=   30.0000     (real)
+ $_1_RF_THETA1_50=   289.091     (real)
+ $_1_RF_RFVALUE_50=  0.598626E-01 (real)
+ $_1_RF_THETA3_49=   12.0000     (real)
+ $_1_RF_THETA2_49=   60.0000     (real)
+ $_1_RF_THETA1_49=   132.000     (real)
+ $_1_RF_RFVALUE_49=  0.601262E-01 (real)
+ $_1_RF_THETA3_48=  0.100000E-05 (real)
+ $_1_RF_THETA2_48=   60.0000     (real)
+ $_1_RF_THETA1_48=   180.000     (real)
+ $_1_RF_RFVALUE_48=  0.640227E-01 (real)
+ $_1_RF_THETA3_47=   250.909     (real)
+ $_1_RF_THETA2_47=   30.0000     (real)
+ $_1_RF_THETA1_47=   10.9091     (real)
+ $_1_RF_RFVALUE_47=  0.651284E-01 (real)
+ $_1_RF_THETA3_46=   60.0000     (real)
+ $_1_RF_THETA2_46=   60.0000     (real)
+ $_1_RF_THETA1_46=   300.000     (real)
+ $_1_RF_RFVALUE_46=  0.672975E-01 (real)
+ $_1_RF_THETA3_45=   72.0000     (real)
+ $_1_RF_THETA2_45=   60.0000     (real)
+ $_1_RF_THETA1_45=   252.000     (real)
+ $_1_RF_RFVALUE_45=  0.673466E-01 (real)
+ $_1_RF_THETA3_44=   186.000     (real)
+ $_1_RF_THETA2_44=   60.0000     (real)
+ $_1_RF_THETA1_44=   246.000     (real)
+ $_1_RF_RFVALUE_44=  0.677837E-01 (real)
+ $_1_RF_THETA3_43=   247.500     (real)
+ $_1_RF_THETA2_43=   90.0000     (real)
+ $_1_RF_THETA1_43=   157.500     (real)
+ $_1_RF_RFVALUE_43=  0.685065E-01 (real)
+ $_1_RF_THETA3_42=   196.364     (real)
+ $_1_RF_THETA2_42=   30.0000     (real)
+ $_1_RF_THETA1_42=   196.364     (real)
+ $_1_RF_RFVALUE_42=  0.686032E-01 (real)
+ $_1_RF_THETA3_41=   216.000     (real)
+ $_1_RF_THETA2_41=   60.0000     (real)
+ $_1_RF_THETA1_41=   36.0000     (real)
+ $_1_RF_RFVALUE_41=  0.708662E-01 (real)
+ $_1_RF_THETA3_40=   315.000     (real)
+ $_1_RF_THETA2_40=   90.0000     (real)
+ $_1_RF_THETA1_40=   135.000     (real)
+ $_1_RF_RFVALUE_40=  0.711429E-01 (real)
+ $_1_RF_THETA3_39=   27.2727     (real)
+ $_1_RF_THETA2_39=   30.0000     (real)
+ $_1_RF_THETA1_39=   267.273     (real)
+ $_1_RF_RFVALUE_39=  0.711636E-01 (real)
+ $_1_RF_THETA3_38=   180.000     (real)
+ $_1_RF_THETA2_38=   90.0000     (real)
+ $_1_RF_THETA1_38=   315.000     (real)
+ $_1_RF_RFVALUE_38=  0.716290E-01 (real)
+ $_1_RF_THETA3_37=   150.000     (real)
+ $_1_RF_THETA2_37=   0.00000     (real)
+ $_1_RF_THETA1_37=   150.000     (real)
+ $_1_RF_RFVALUE_37=  0.724873E-01 (real)
+ $_1_RF_THETA3_36=   186.000     (real)
+ $_1_RF_THETA2_36=   60.0000     (real)
+ $_1_RF_THETA1_36=   66.0000     (real)
+ $_1_RF_RFVALUE_36=  0.730677E-01 (real)
+ $_1_RF_THETA3_35=   210.000     (real)
+ $_1_RF_THETA2_35=   60.0000     (real)
+ $_1_RF_THETA1_35=   330.000     (real)
+ $_1_RF_RFVALUE_35=  0.742060E-01 (real)
+ $_1_RF_THETA3_34=   78.0000     (real)
+ $_1_RF_THETA2_34=   60.0000     (real)
+ $_1_RF_THETA1_34=   138.000     (real)
+ $_1_RF_RFVALUE_34=  0.744635E-01 (real)
+ $_1_RF_THETA3_33=   144.000     (real)
+ $_1_RF_THETA2_33=   60.0000     (real)
+ $_1_RF_THETA1_33=   144.000     (real)
+ $_1_RF_RFVALUE_33=  0.745912E-01 (real)
+ $_1_RF_THETA3_32=   90.0000     (real)
+ $_1_RF_THETA2_32=   90.0000     (real)
+ $_1_RF_THETA1_32=   135.000     (real)
+ $_1_RF_RFVALUE_32=  0.748124E-01 (real)
+ $_1_RF_THETA3_31=   30.0000     (real)
+ $_1_RF_THETA2_31=   60.0000     (real)
+ $_1_RF_THETA1_31=   330.000     (real)
+ $_1_RF_RFVALUE_31=  0.754331E-01 (real)
+ $_1_RF_THETA3_30=   10.9091     (real)
+ $_1_RF_THETA2_30=   30.0000     (real)
+ $_1_RF_THETA1_30=   250.909     (real)
+ $_1_RF_RFVALUE_30=  0.762782E-01 (real)
+ $_1_RF_THETA3_29=   36.0000     (real)
+ $_1_RF_THETA2_29=   60.0000     (real)
+ $_1_RF_THETA1_29=   36.0000     (real)
+ $_1_RF_RFVALUE_29=  0.791188E-01 (real)
+ $_1_RF_THETA3_28=   65.4545     (real)
+ $_1_RF_THETA2_28=   30.0000     (real)
+ $_1_RF_THETA1_28=   65.4545     (real)
+ $_1_RF_RFVALUE_28=  0.795423E-01 (real)
+ $_1_RF_THETA3_27=   225.000     (real)
+ $_1_RF_THETA2_27=   90.0000     (real)
+ $_1_RF_THETA1_27=   135.000     (real)
+ $_1_RF_RFVALUE_27=  0.820382E-01 (real)
+ $_1_RF_THETA3_26=   157.500     (real)
+ $_1_RF_THETA2_26=   90.0000     (real)
+ $_1_RF_THETA1_26=   292.500     (real)
+ $_1_RF_RFVALUE_26=  0.826532E-01 (real)
+ $_1_RF_THETA3_25=   174.000     (real)
+ $_1_RF_THETA2_25=   60.0000     (real)
+ $_1_RF_THETA1_25=   294.000     (real)
+ $_1_RF_RFVALUE_25=  0.834874E-01 (real)
+ $_1_RF_THETA3_24=   126.000     (real)
+ $_1_RF_THETA2_24=   60.0000     (real)
+ $_1_RF_THETA1_24=   126.000     (real)
+ $_1_RF_RFVALUE_24=  0.836436E-01 (real)
+ $_1_RF_THETA3_23=   138.000     (real)
+ $_1_RF_THETA2_23=   60.0000     (real)
+ $_1_RF_THETA1_23=   258.000     (real)
+ $_1_RF_RFVALUE_23=  0.838957E-01 (real)
+ $_1_RF_THETA3_22=   180.000     (real)
+ $_1_RF_THETA2_22=   30.0000     (real)
+ $_1_RF_THETA1_22=   180.000     (real)
+ $_1_RF_RFVALUE_22=  0.842294E-01 (real)
+ $_1_RF_THETA3_21=   157.500     (real)
+ $_1_RF_THETA2_21=   90.0000     (real)
+ $_1_RF_THETA1_21=   157.500     (real)
+ $_1_RF_RFVALUE_21=  0.842444E-01 (real)
+ $_1_RF_THETA3_20=   240.000     (real)
+ $_1_RF_THETA2_20=   30.0000     (real)
+ $_1_RF_THETA1_20=   120.000     (real)
+ $_1_RF_RFVALUE_20=  0.846663E-01 (real)
+ $_1_RF_THETA3_19=   67.5000     (real)
+ $_1_RF_THETA2_19=   90.0000     (real)
+ $_1_RF_THETA1_19=   157.500     (real)
+ $_1_RF_RFVALUE_19=  0.856185E-01 (real)
+ $_1_RF_THETA3_18=   5.45455     (real)
+ $_1_RF_THETA2_18=   30.0000     (real)
+ $_1_RF_THETA1_18=   125.455     (real)
+ $_1_RF_RFVALUE_18=  0.898091E-01 (real)
+ $_1_RF_THETA3_17=   75.0000     (real)
+ $_1_RF_THETA2_17=   0.00000     (real)
+ $_1_RF_THETA1_17=   75.0000     (real)
+ $_1_RF_RFVALUE_17=  0.947740E-01 (real)
+ $_1_RF_THETA3_16=   210.000     (real)
+ $_1_RF_THETA2_16=   60.0000     (real)
+ $_1_RF_THETA1_16=   150.000     (real)
+ $_1_RF_RFVALUE_16=  0.102927     (real)
+ $_1_RF_THETA3_15=   300.000     (real)
+ $_1_RF_THETA2_15=   60.0000     (real)
+ $_1_RF_THETA1_15=   240.000     (real)
+ $_1_RF_RFVALUE_15=  0.103949     (real)
+ $_1_RF_THETA3_14=   165.000     (real)
+ $_1_RF_THETA2_14=   0.00000     (real)
+ $_1_RF_THETA1_14=   165.000     (real)
+ $_1_RF_RFVALUE_14=  0.107059     (real)
+ $_1_RF_THETA3_13=   312.000     (real)
+ $_1_RF_THETA2_13=   60.0000     (real)
+ $_1_RF_THETA1_13=   192.000     (real)
+ $_1_RF_RFVALUE_13=  0.107484     (real)
+ $_1_RF_THETA3_12=   337.500     (real)
+ $_1_RF_THETA2_12=   90.0000     (real)
+ $_1_RF_THETA1_12=   157.500     (real)
+ $_1_RF_RFVALUE_12=  0.107942     (real)
+ $_1_RF_THETA3_11=   270.000     (real)
+ $_1_RF_THETA2_11=   60.0000     (real)
+ $_1_RF_THETA1_11=   90.0000     (real)
+ $_1_RF_RFVALUE_11=  0.114686     (real)
+ $_1_RF_THETA3_10=   152.727     (real)
+ $_1_RF_THETA2_10=   30.0000     (real)
+ $_1_RF_THETA1_10=   272.727     (real)
+ $_1_RF_RFVALUE_10=  0.114914     (real)
+ $_1_RF_THETA3_9=   180.000     (real)
+ $_1_RF_THETA2_9=   60.0000     (real)
+ $_1_RF_THETA1_9=  0.100000E-05 (real)
+ $_1_RF_RFVALUE_9=  0.120367     (real)
+ $_1_RF_THETA3_8=   141.818     (real)
+ $_1_RF_THETA2_8=   30.0000     (real)
+ $_1_RF_THETA1_8=   21.8182     (real)
+ $_1_RF_RFVALUE_8=  0.129078     (real)
+ $_1_RF_THETA3_7=   18.0000     (real)
+ $_1_RF_THETA2_7=   60.0000     (real)
+ $_1_RF_THETA1_7=   18.0000     (real)
+ $_1_RF_RFVALUE_7=  0.130716     (real)
+ $_1_RF_THETA3_6=   112.500     (real)
+ $_1_RF_THETA2_6=   90.0000     (real)
+ $_1_RF_THETA1_6=   157.500     (real)
+ $_1_RF_RFVALUE_6=  0.135806     (real)
+ $_1_RF_THETA3_5=   162.000     (real)
+ $_1_RF_THETA2_5=   60.0000     (real)
+ $_1_RF_THETA1_5=   342.000     (real)
+ $_1_RF_RFVALUE_5=  0.137874     (real)
+ $_1_RF_THETA3_4=   270.000     (real)
+ $_1_RF_THETA2_4=   90.0000     (real)
+ $_1_RF_THETA1_4=   135.000     (real)
+ $_1_RF_RFVALUE_4=  0.157097     (real)
+ $_1_RF_THETA3_3=   338.182     (real)
+ $_1_RF_THETA2_3=   30.0000     (real)
+ $_1_RF_THETA1_3=   218.182     (real)
+ $_1_RF_RFVALUE_3=  0.163648     (real)
+ $_1_RF_THETA3_2=   192.000     (real)
+ $_1_RF_THETA2_2=   60.0000     (real)
+ $_1_RF_THETA1_2=   132.000     (real)
+ $_1_RF_RFVALUE_2=  0.190737     (real)
+ $_1_RF_THETA3_1=   198.000     (real)
+ $_1_RF_THETA2_1=   60.0000     (real)
+ $_1_RF_THETA1_1=   18.0000     (real)
+ $_1_RF_RFVALUE_1=  0.201403     (real)
+ $_1_RESULT=  0.201403     (real)
+ $_1_TSELECT=   250.000     (real)
+ $_1_BIN_RESOLUTION_HIGH=   5.00010     (real)
+ $_1_BIN_RESOLUTION_LOW=   10.0001     (real)
+ $_1_HR=   5.00010     (real)
+ $_1_LR=   10.0001     (real)
+ $_1_SELECT=   396.000     (real)
+ $_1_SYMMETRY_OP_1="(X,Y,Z)" (string) 
+ $_1_CENTRIC_SPACEGROUP="FALSE" (logical) 
+ $_1_SYMMETRY_OP_2="(-X,Y+1/2,-Z)" (string) 
+ $_1_NCS=   1.00000     (real)
+ $_1_EFLAG.VEAN="FALSE" (logical) 
+ $_1_EFLAG.DANI="FALSE" (logical) 
+ $_1_EFLAG.SANI="FALSE" (logical) 
+ $_1_EFLAG.RAMA="FALSE" (logical) 
+ $_1_EFLAG.ONEB="FALSE" (logical) 
+ $_1_EFLAG.PROT="FALSE" (logical) 
+ $_1_EFLAG.CARB="FALSE" (logical) 
+ $_1_EFLAG.COUP="FALSE" (logical) 
+ $_1_EFLAG.ANDB="FALSE" (logical) 
+ $_1_EFLAG.DG="FALSE" (logical) 
+ $_1_EFLAG.PLAN="FALSE" (logical) 
+ $_1_EFLAG.XREF="FALSE" (logical) 
+ $_1_EFLAG.NOE="FALSE" (logical) 
+ $_1_EFLAG.NCS="FALSE" (logical) 
+ $_1_EFLAG.CDIH="FALSE" (logical) 
+ $_1_EFLAG.HARM="FALSE" (logical) 
+ $_1_EFLAG.PELE="FALSE" (logical) 
+ $_1_EFLAG.PVDW="FALSE" (logical) 
+ $_1_EFLAG.ELEC="TRUE" (logical) 
+ $_1_EFLAG.VDW="TRUE" (logical) 
+ $_1_EFLAG.IMPR="TRUE" (logical) 
+ $_1_EFLAG.DIHE="TRUE" (logical) 
+ $_1_EFLAG.ANGL="TRUE" (logical) 
+ $_1_EFLAG.BOND="TRUE" (logical) 
+ $_1_EFLAG.GRAD="FALSE" (logical) 
+ $_1_EFLAG.TEMP="FALSE" (logical) 
+ $_1_EFLAG.ENER="FALSE" (logical) 
+ $_1_EFLAG.TOTK="FALSE" (logical) 
+ $_1_EFLAG.TOTE="FALSE" (logical) 
+ $_1_BIN_NUMBER=   20.0000     (real)
+ $_1_SYMMETRY=   1.00000     (real)
+ $_1_CSTAR=  0.444090E-01 (real)
+ $_1_BSTAR=  0.536193E-01 (real)
+ $_1_ASTAR=  0.244163E-01 (real)
+ $_1_XRINTR_3_3=   22.5180     (real)
+ $_1_XRINTR_3_2=   0.00000     (real)
+ $_1_XRINTR_3_1=   0.00000     (real)
+ $_1_XRINTR_2_3= -0.796848E-13 (real)
+ $_1_XRINTR_2_2=   18.6500     (real)
+ $_1_XRINTR_2_1=   0.00000     (real)
+ $_1_XRINTR_1_3= -0.302638     (real)
+ $_1_XRINTR_1_2= -0.651161E-13 (real)
+ $_1_XRINTR_1_1=   40.9600     (real)
+ $_1_XRTR_3_3=  0.444090E-01 (real)
+ $_1_XRTR_3_2=   0.00000     (real)
+ $_1_XRTR_3_1=   0.00000     (real)
+ $_1_XRTR_2_3=  0.189744E-15 (real)
+ $_1_XRTR_2_2=  0.536193E-01 (real)
+ $_1_XRTR_2_1=   0.00000     (real)
+ $_1_XRTR_1_3=  0.328121E-03 (real)
+ $_1_XRTR_1_2=  0.852412E-16 (real)
+ $_1_XRTR_1_1=  0.244141E-01 (real)
+ $_1_XRCELL_6=   90.0000     (real)
+ $_1_XRCELL_5=   90.7700     (real)
+ $_1_XRCELL_4=   90.0000     (real)
+ $_1_XRCELL_3=   22.5200     (real)
+ $_1_XRCELL_2=   18.6500     (real)
+ $_1_XRCELL_1=   40.9600     (real)
+ $_1_VOLUME=   17201.6     (real)
+ $_1_FP_EPSILON=  0.222045E-15 (real)
+ $_1_CNS_PATCH="0" (string) 
+ $_1_CNS_VERSION="1.3" (string) 
+ $_1_LOG_LEVEL="QUIET" (string) 
+ $_1_SYSTEM="x86_64/Linux" (string) 
+ $_1_NAME="oeow39" (string) 
+ $_1_TIMFAC=  0.488882E-01 (real)
+ $_1_PI=   3.14159     (real)
+ $_1_KBOLTZ=  0.198719E-02 (real)
+ XRAY> 
+ XRAY>{* do another search with equidistant sampling *} 
+ XRAY> 
+ XRAY>   search direct 
+ DRSEARCH>      t1min=0.0 t1max=360. 
+ DRSEARCH>      t2min=10.0 t2max=90. 
+ DRSEARCH>      t3min=0.0 t3max=360. 
+ DRSEARCH>      delta=30.0 
+ DRSEARCH>      nlist=100 
+ DRSEARCH>      epsilon=0.5 
+ DRSEARCH>      output=OUTPUT 
+ DRSEARCH>      symmetry=(x,y,z)        ! unit cell and 
+ DRSEARCH>      symmetry=(-x,y+1/2,-z)  ! symmetry ops for peak redundancy check 
+ DRSEARCH>      ? 
+ -----------rotation search-parameters---------------------------------------
+ | The equidistant Eulerian angle sampling method is used
+ | T1MIn=     0.00000 T1MAx=   360.00000
+ | T2MIn=    10.00000 T2MAx=    90.00000
+ | T3MIn=     0.00000 T3MAx=   360.00000
+ | DELTa=    30.00000
+ | NLISt=     100
+ | EPSIlon= 0.50
+ | Symmetry operators for cluster analysis
+ | SYMMetry=(X,Y,Z)
+ | SYMMetry=(-X,Y+1/2,-Z)
+ -------------------------------------------------------------------------------
+ DRSEARCH>      set message=off end 
+ DRSEARCH>   end 
+ DRSEAR: Number of rotations to be searched:      507
+ (* Rotation Function *)
+   rnumber=    507;
+   rave= -0.0017;
+   rsigma=  0.0715;
+   rmax=  0.2758;
+   rmin= -0.2113;
+ var={ "theta2", "theta3", "theta1" };
+ min={   10.00000 ,    0.00000 ,    0.00000 };
+ max={   90.00000 ,  360.00000 ,  360.00000 };
+ rf={
+ {
+ {
+    -0.0482,    -0.0466,    -0.1000,     0.0790,    -0.0795,     0.0068,
+     0.0562,    -0.1020,     0.0773,    -0.0713,     0.1405,    -0.0006,
+    -0.0482
+ },
+ {
+    -0.0239,    -0.0977,     0.0992,    -0.1046,    -0.0721,     0.0413,
+    -0.1013,     0.1140,    -0.0430,     0.1326,     0.0028,    -0.0752,
+    -0.0239
+ },
+ {
+    -0.0403,     0.1121,    -0.0695,    -0.1021,    -0.0225,    -0.0850,
+     0.0958,    -0.0438,     0.0540,     0.0147,    -0.0543,    -0.0300,
+    -0.0403
+ },
+ {
+    -0.0363,     0.0007,    -0.0974,    -0.0812,    -0.0333,     0.0359,
+     0.0001,     0.0019,     0.0539,    -0.0271,    -0.0400,    -0.0249,
+    -0.0363
+ },
+ {
+     0.0541,    -0.0569,    -0.0991,    -0.0029,    -0.0288,     0.0495,
+    -0.0032,     0.1142,     0.0439,    -0.0179,    -0.0337,    -0.1308,
+     0.0541
+ },
+ {
+     0.0351,    -0.0886,    -0.0223,    -0.0048,     0.0201,    -0.0063,
+     0.0975,     0.1085,    -0.0694,    -0.0390,    -0.2113,     0.0647,
+     0.0351
+ },
+ {
+    -0.0889,     0.0127,    -0.0231,    -0.0184,     0.0336,     0.0676,
+     0.1236,    -0.1186,    -0.0160,    -0.1875,     0.0520,     0.0535,
+    -0.0889
+ },
+ {
+     0.0766,    -0.0572,    -0.0083,     0.0218,     0.0914,     0.0720,
+    -0.0585,     0.0220,    -0.1024,     0.0782,     0.0429,    -0.0845,
+     0.0766
+ },
+ {
+    -0.0005,     0.0411,     0.0013,     0.1106,    -0.0310,     0.0045,
+     0.0273,    -0.0051,     0.0606,     0.0521,    -0.0612,     0.0130,
+    -0.0005
+ },
+ {
+    -0.0023,     0.0635,     0.0701,    -0.0549,     0.0445,    -0.0126,
+     0.0468,     0.0068,     0.0574,    -0.0321,    -0.0704,     0.0359,
+    -0.0023
+ },
+ {
+     0.1222,     0.0238,    -0.0066,     0.0237,    -0.0664,     0.1137,
+    -0.0349,     0.0531,    -0.0220,    -0.0841,     0.0286,    -0.0592,
+     0.1222
+ },
+ {
+     0.0055,    -0.0038,    -0.0568,    -0.0888,     0.1411,    -0.0577,
+     0.0589,     0.0198,    -0.1101,     0.0429,    -0.0906,     0.1334,
+     0.0055
+ },
+ {
+    -0.0482,    -0.0466,    -0.1000,     0.0790,    -0.0795,     0.0068,
+     0.0562,    -0.1020,     0.0773,    -0.0713,     0.1405,    -0.0006,
+    -0.0482
+ }
+ },
+ {
+ {
+    -0.0078,     0.0802,    -0.0479,     0.1232,    -0.0217,    -0.1308,
+    -0.0221,    -0.0256,    -0.1044,    -0.0984,     0.0016,    -0.0643,
+    -0.0078
+ },
+ {
+    -0.0434,     0.2758,     0.0607,     0.0547,    -0.0683,     0.0528,
+    -0.0380,    -0.0440,    -0.0923,    -0.0500,    -0.0643,     0.0068,
+    -0.0434
+ },
+ {
+     0.0057,     0.0059,    -0.0671,     0.0022,    -0.0322,    -0.0139,
+    -0.0484,    -0.0414,    -0.0845,     0.0811,     0.1124,     0.0963,
+     0.0057
+ },
+ {
+    -0.0521,     0.1157,    -0.0358,     0.0395,    -0.0268,    -0.0108,
+    -0.1208,    -0.0172,     0.0157,     0.0214,     0.0449,    -0.0537,
+    -0.0521
+ },
+ {
+     0.0392,     0.0472,     0.0030,     0.0353,     0.0026,    -0.1002,
+    -0.0917,    -0.0781,     0.0023,     0.0151,     0.0733,    -0.0016,
+     0.0392
+ },
+ {
+     0.0030,    -0.0284,     0.0476,    -0.0055,    -0.0103,     0.0909,
+    -0.0085,     0.0007,     0.0452,    -0.0679,     0.0799,     0.1198,
+     0.0030
+ },
+ {
+     0.0457,    -0.0123,    -0.0338,     0.0231,    -0.0855,    -0.1569,
+    -0.0392,    -0.0302,    -0.0644,     0.0184,     0.0727,    -0.0495,
+     0.0457
+ },
+ {
+     0.0848,     0.1398,     0.0254,    -0.0895,     0.1057,     0.0479,
+    -0.0417,    -0.0009,    -0.1312,    -0.0515,     0.0206,     0.0403,
+     0.0848
+ },
+ {
+     0.0706,    -0.0480,    -0.0758,    -0.0513,    -0.0152,    -0.0634,
+     0.0171,     0.1399,    -0.0322,     0.1249,     0.1001,    -0.0178,
+     0.0706
+ },
+ {
+    -0.0591,     0.0713,    -0.0423,     0.0427,    -0.0213,     0.0504,
+     0.0949,    -0.0024,     0.1362,     0.0095,     0.0124,    -0.1151,
+    -0.0591
+ },
+ {
+    -0.0328,     0.1047,    -0.1363,    -0.0345,    -0.0686,    -0.1030,
+     0.1237,    -0.0476,     0.0948,     0.0270,     0.1115,    -0.0611,
+    -0.0328
+ },
+ {
+    -0.0564,    -0.0351,     0.0210,    -0.0413,     0.0200,     0.0130,
+    -0.0457,     0.0325,    -0.0020,     0.0414,     0.0671,    -0.0058,
+    -0.0564
+ },
+ {
+    -0.0078,     0.0802,    -0.0479,     0.1232,    -0.0217,    -0.1308,
+    -0.0221,    -0.0256,    -0.1044,    -0.0984,     0.0016,    -0.0643,
+    -0.0078
+ }
+ },
+ {
+ {
+    -0.0216,    -0.0506,     0.0350,    -0.0220,    -0.0582,     0.1395,
+    -0.0216,    -0.0506,     0.0350,    -0.0220,    -0.0582,     0.1395,
+    -0.0216
+ },
+ {
+    -0.0387,    -0.1074,    -0.0290,     0.0284,     0.0106,     0.0297,
+     0.1495,    -0.0480,     0.0626,    -0.0399,    -0.1130,     0.1127,
+    -0.0387
+ },
+ {
+    -0.0240,    -0.0787,    -0.1165,    -0.0105,     0.0345,     0.0813,
+     0.1275,    -0.0833,     0.1042,     0.0577,     0.0086,     0.2308,
+    -0.0240
+ },
+ {
+    -0.0993,    -0.0999,    -0.0888,     0.0109,    -0.0503,    -0.0646,
+    -0.0391,    -0.0621,    -0.0217,     0.0086,    -0.0313,    -0.0577,
+    -0.0993
+ },
+ {
+     0.0734,    -0.1314,     0.1064,    -0.0275,     0.0997,     0.1506,
+    -0.0802,     0.1138,     0.0821,    -0.1252,     0.0563,    -0.0625,
+     0.0734
+ },
+ {
+    -0.0726,    -0.0443,     0.0290,    -0.0918,     0.0198,     0.0219,
+    -0.0380,    -0.0310,     0.0450,     0.0018,     0.1417,     0.0069,
+    -0.0726
+ },
+ {
+     0.0075,    -0.0619,     0.0183,    -0.0721,     0.0168,     0.0702,
+     0.0075,    -0.0619,     0.0183,    -0.0721,     0.0168,     0.0702,
+     0.0075
+ },
+ {
+    -0.0380,    -0.0310,     0.0450,     0.0018,     0.1417,     0.0069,
+    -0.0726,    -0.0443,     0.0290,    -0.0918,     0.0198,     0.0219,
+    -0.0380
+ },
+ {
+    -0.0802,     0.1138,     0.0821,    -0.1252,     0.0563,    -0.0625,
+     0.0734,    -0.1314,     0.1064,    -0.0275,     0.0997,     0.1506,
+    -0.0802
+ },
+ {
+    -0.0391,    -0.0621,    -0.0217,     0.0086,    -0.0313,    -0.0577,
+    -0.0993,    -0.0999,    -0.0888,     0.0109,    -0.0503,    -0.0646,
+    -0.0391
+ },
+ {
+     0.1275,    -0.0833,     0.1042,     0.0577,     0.0086,     0.2308,
+    -0.0240,    -0.0787,    -0.1165,    -0.0105,     0.0345,     0.0813,
+     0.1275
+ },
+ {
+     0.1495,    -0.0480,     0.0626,    -0.0399,    -0.1130,     0.1127,
+    -0.0387,    -0.1074,    -0.0290,     0.0284,     0.0106,     0.0297,
+     0.1495
+ },
+ {
+    -0.0216,    -0.0506,     0.0350,    -0.0220,    -0.0582,     0.1395,
+    -0.0216,    -0.0506,     0.0350,    -0.0220,    -0.0582,     0.1395,
+    -0.0216
+ }
+ }
+ };
+ Summary of rotation search:
+   number of grid points=   507
+   mean of R-function= -0.002
+   sigma of R-function=  0.071
+   maximum of R-function=  0.276
+   minimum of R-function= -0.211
+ Clustered list (EPSIlon= 0.50) of first    100 highest peaks
+ (the [] indicate a symmetry operation)
+     no.  priority     theta1, theta2, theta3          RF
+ ===========================================================
+      1      1           (  30.000  50.000  30.000)      0.2758
+ 
+      2      2           ( 330.000  90.000  60.000)      0.2308
+      3      2 [  1,  2] ( 150.000  90.000 300.000)      0.2308
+ 
+      4      3           ( 150.000  90.000 120.000)      0.1506
+      5      3 [  1,  2] ( 330.000  90.000 240.000)      0.1506
+ 
+      6      4           ( 180.000  90.000  30.000)      0.1495
+      7      4 [  1,  2] (   0.000  90.000 330.000)      0.1495
+      8      4 [  1,  2] ( 360.000  90.000 330.000)      0.1495
+ 
+      9      5           ( 300.000  90.000 150.000)      0.1417
+     10      5 [  1,  2] ( 120.000  90.000 210.000)      0.1417
+ 
+     11      6           ( 120.000  10.000 330.000)      0.1411
+     39      6           ( 150.000  10.000 300.000)      0.1137
+     43      6           (  30.000  10.000  60.000)      0.1121
+     56      6           (  60.000  10.000  30.000)      0.0992
+     74      6           (  90.000  10.000   0.000)      0.0790
+     75      6           (  90.000  10.000 360.000)      0.0790
+ 
+     12      7           ( 300.000  10.000   0.000)      0.1405
+     21      7           ( 330.000  10.000 330.000)      0.1334
+     22      7           ( 270.000  10.000  30.000)      0.1326
+     31      7           (   0.000  10.000 300.000)      0.1222
+     32      7           ( 360.000  10.000 300.000)      0.1222
+     96      7           (  30.000  10.000 270.000)      0.0635
+ 
+     14      8           ( 210.000  50.000 240.000)      0.1399
+ 
+     15      9           (  30.000  50.000 210.000)      0.1398
+ 
+     16     10           ( 150.000  90.000   0.000)      0.1395
+     17     10 [  1,  2] ( 330.000  90.000   0.000)      0.1395
+     19     10 [  1,  2] ( 330.000  90.000 360.000)      0.1395
+ 
+     20     11           ( 240.000  50.000 270.000)      0.1362
+ 
+     23     12           ( 180.000  90.000  60.000)      0.1275
+     24     12 [  1,  2] (   0.000  90.000 300.000)      0.1275
+     25     12 [  1,  2] ( 360.000  90.000 300.000)      0.1275
+ 
+     26     13           ( 270.000  50.000 240.000)      0.1249
+ 
+     27     14           ( 180.000  50.000 300.000)      0.1237
+ 
+     28     15           ( 180.000  10.000 180.000)      0.1236
+     46     15           ( 210.000  10.000 150.000)      0.1085
+     86     15           ( 150.000  10.000 210.000)      0.0720
+ 
+     29     16           (  90.000  50.000   0.000)      0.1232
+ 
+     33     17           ( 330.000  50.000 150.000)      0.1198
+ 
+     34     18           (  30.000  50.000  90.000)      0.1157
+ 
+     35     19           ( 210.000  10.000 120.000)      0.1142
+     45     19           (  90.000  10.000 240.000)      0.1106
+     57     19           ( 180.000  10.000 150.000)      0.0975
+     62     19           ( 120.000  10.000 210.000)      0.0914
+     92     19           (  60.000  10.000 270.000)      0.0701
+     93     19           ( 150.000  10.000 180.000)      0.0676
+ 
+     36     20           ( 210.000  10.000  30.000)      0.1140
+     59     20           ( 180.000  10.000  60.000)      0.0958
+     77     20           ( 240.000  10.000   0.000)      0.0773
+     78     20           ( 240.000  10.000 360.000)      0.0773
+ 
+     37     21           ( 210.000  90.000 120.000)      0.1138
+     38     21 [  1,  2] (  30.000  90.000 240.000)      0.1138
+ 
+     40     22           ( 330.000  90.000  30.000)      0.1127
+     41     22 [  1,  2] ( 150.000  90.000 330.000)      0.1127
+ 
+     42     23           ( 300.000  50.000  60.000)      0.1124
+ 
+     44     24           ( 300.000  50.000 300.000)      0.1115
+ 
+     47     25           (  60.000  90.000 120.000)      0.1064
+     48     25 [  1,  2] ( 240.000  90.000 240.000)      0.1064
+ 
+     49     26           ( 120.000  50.000 210.000)      0.1057
+ 
+     50     27           (  30.000  50.000 300.000)      0.1047
+ 
+     51     28           ( 240.000  90.000  60.000)      0.1042
+     52     28 [  1,  2] (  60.000  90.000 300.000)      0.1042
+ 
+     53     29           ( 300.000  50.000 240.000)      0.1001
+ 
+     54     30           ( 120.000  90.000 120.000)      0.0997
+     55     30 [  1,  2] ( 300.000  90.000 240.000)      0.0997
+ 
+     58     31           ( 330.000  50.000  60.000)      0.0963
+ 
+     60     32           ( 180.000  50.000 270.000)      0.0949
+ 
+     61     33           ( 240.000  50.000 300.000)      0.0948
+ 
+     63     34           ( 150.000  50.000 150.000)      0.0909
+ 
+     64     35           (   0.000  50.000 210.000)      0.0848
+ 
+     66     36           ( 240.000  90.000 120.000)      0.0821
+     67     36 [  1,  2] (  60.000  90.000 240.000)      0.0821
+ 
+     68     37           ( 150.000  90.000  60.000)      0.0813
+     69     37 [  1,  2] ( 330.000  90.000 300.000)      0.0813
+ 
+     70     38           ( 270.000  50.000  60.000)      0.0811
+ 
+     71     39           (  30.000  50.000   0.000)      0.0802
+ 
+     73     40           ( 300.000  50.000 150.000)      0.0799
+ 
+     76     41           ( 270.000  10.000 210.000)      0.0782
+     95     41           ( 330.000  10.000 150.000)      0.0647
+    100     41           ( 240.000  10.000 240.000)      0.0606
+ 
+     79     42           (   0.000  10.000 210.000)      0.0766
+ 
+     81     43           (   0.000  90.000 120.000)      0.0734
+     83     43 [  1,  2] ( 180.000  90.000 240.000)      0.0734
+ 
+     84     44           ( 300.000  50.000 120.000)      0.0733
+ 
+     85     45           ( 300.000  50.000 180.000)      0.0727
+ 
+     87     46           (  30.000  50.000 270.000)      0.0713
+ 
+     88     47           (   0.000  50.000 240.000)      0.0706
+ 
+     90     48           ( 150.000  90.000 180.000)      0.0702
+     91     48 [  1,  2] ( 330.000  90.000 180.000)      0.0702
+ 
+     94     49           ( 300.000  50.000 330.000)      0.0671
+ 
+     97     50           ( 240.000  90.000  30.000)      0.0626
+     98     50 [  1,  2] (  60.000  90.000 330.000)      0.0626
+ 
+     99     51           (  60.000  50.000  30.000)      0.0607
+ List of the highest peaks of the clusters (EPSIlon= 0.50)
+     no.  priority     theta1, theta2, theta3          RF
+ ===========================================================
+      1      1       (  30.000  50.000  30.000)      0.2758
+      2      2       ( 330.000  90.000  60.000)      0.2308
+      4      3       ( 150.000  90.000 120.000)      0.1506
+      6      4       ( 180.000  90.000  30.000)      0.1495
+      9      5       ( 300.000  90.000 150.000)      0.1417
+     11      6       ( 120.000  10.000 330.000)      0.1411
+     12      7       ( 300.000  10.000   0.000)      0.1405
+     14      8       ( 210.000  50.000 240.000)      0.1399
+     15      9       (  30.000  50.000 210.000)      0.1398
+     16     10       ( 150.000  90.000   0.000)      0.1395
+     20     11       ( 240.000  50.000 270.000)      0.1362
+     23     12       ( 180.000  90.000  60.000)      0.1275
+     26     13       ( 270.000  50.000 240.000)      0.1249
+     27     14       ( 180.000  50.000 300.000)      0.1237
+     28     15       ( 180.000  10.000 180.000)      0.1236
+     29     16       (  90.000  50.000   0.000)      0.1232
+     33     17       ( 330.000  50.000 150.000)      0.1198
+     34     18       (  30.000  50.000  90.000)      0.1157
+     35     19       ( 210.000  10.000 120.000)      0.1142
+     36     20       ( 210.000  10.000  30.000)      0.1140
+     37     21       ( 210.000  90.000 120.000)      0.1138
+     40     22       ( 330.000  90.000  30.000)      0.1127
+     42     23       ( 300.000  50.000  60.000)      0.1124
+     44     24       ( 300.000  50.000 300.000)      0.1115
+     47     25       (  60.000  90.000 120.000)      0.1064
+     49     26       ( 120.000  50.000 210.000)      0.1057
+     50     27       (  30.000  50.000 300.000)      0.1047
+     51     28       ( 240.000  90.000  60.000)      0.1042
+     53     29       ( 300.000  50.000 240.000)      0.1001
+     54     30       ( 120.000  90.000 120.000)      0.0997
+     58     31       ( 330.000  50.000  60.000)      0.0963
+     60     32       ( 180.000  50.000 270.000)      0.0949
+     61     33       ( 240.000  50.000 300.000)      0.0948
+     63     34       ( 150.000  50.000 150.000)      0.0909
+     64     35       (   0.000  50.000 210.000)      0.0848
+     66     36       ( 240.000  90.000 120.000)      0.0821
+     68     37       ( 150.000  90.000  60.000)      0.0813
+     70     38       ( 270.000  50.000  60.000)      0.0811
+     71     39       (  30.000  50.000   0.000)      0.0802
+     73     40       ( 300.000  50.000 150.000)      0.0799
+     76     41       ( 270.000  10.000 210.000)      0.0782
+     79     42       (   0.000  10.000 210.000)      0.0766
+     81     43       (   0.000  90.000 120.000)      0.0734
+     84     44       ( 300.000  50.000 120.000)      0.0733
+     85     45       ( 300.000  50.000 180.000)      0.0727
+     87     46       (  30.000  50.000 270.000)      0.0713
+     88     47       (   0.000  50.000 240.000)      0.0706
+     90     48       ( 150.000  90.000 180.000)      0.0702
+     94     49       ( 300.000  50.000 330.000)      0.0671
+     97     50       ( 240.000  90.000  30.000)      0.0626
+     99     51       (  60.000  50.000  30.000)      0.0607
+ XRAY> 
+ XRAY> 
+ XRAY>   search direct 
+ DRSEARCH>      t1min=0.0 t1max=360. 
+ DRSEARCH>      t2min=10. t2max=90. 
+ DRSEARCH>      t3min=0.0 t3max=360. 
+ DRSEARCH>      delta=30.0 
+ DRSEARCH>      nlist=200 
+ DRSEARCH>      epsilon=0.1 
+ DRSEARCH>      list=dsearch.dat 
+ DRSEARCH>      symmetry=(x,y,z)        ! unit cell and 
+ DRSEARCH>      symmetry=(-x,y+1/2,-z)  ! symmetry ops for peak redundancy check 
+ DRSEARCH>      ? 
+ -----------rotation search-parameters---------------------------------------
+ | The equidistant Eulerian angle sampling method is used
+ | T1MIn=     0.00000 T1MAx=   360.00000
+ | T2MIn=    10.00000 T2MAx=    90.00000
+ | T3MIn=     0.00000 T3MAx=   360.00000
+ | DELTa=    30.00000
+ | NLISt=     200
+ | EPSIlon= 0.10
+ | Symmetry operators for cluster analysis
+ | SYMMetry=(X,Y,Z)
+ | SYMMetry=(-X,Y+1/2,-Z)
+ -------------------------------------------------------------------------------
+ DRSEARCH>      set message=off end 
+ DRSEARCH>   end 
+ DRSEAR: Number of rotations to be searched:      507
+ Summary of rotation search:
+   number of grid points=   507
+   mean of R-function= -0.002
+   sigma of R-function=  0.071
+   maximum of R-function=  0.276
+   minimum of R-function= -0.211
+ Clustered list (EPSIlon= 0.10) of first    200 highest peaks
+ (the [] indicate a symmetry operation)
+     no.  priority     theta1, theta2, theta3          RF
+ ===========================================================
+      1      1           (  30.000  50.000  30.000)      0.2758
+ 
+      2      2           ( 330.000  90.000  60.000)      0.2308
+      3      2 [  1,  2] ( 150.000  90.000 300.000)      0.2308
+ 
+      4      3           ( 150.000  90.000 120.000)      0.1506
+      5      3 [  1,  2] ( 330.000  90.000 240.000)      0.1506
+ 
+      6      4           ( 180.000  90.000  30.000)      0.1495
+      7      4 [  1,  2] (   0.000  90.000 330.000)      0.1495
+      8      4 [  1,  2] ( 360.000  90.000 330.000)      0.1495
+ 
+      9      5           ( 300.000  90.000 150.000)      0.1417
+     10      5 [  1,  2] ( 120.000  90.000 210.000)      0.1417
+ 
+     11      6           ( 120.000  10.000 330.000)      0.1411
+ 
+     12      7           ( 300.000  10.000   0.000)      0.1405
+ 
+     14      8           ( 210.000  50.000 240.000)      0.1399
+ 
+     15      9           (  30.000  50.000 210.000)      0.1398
+ 
+     16     10           ( 150.000  90.000   0.000)      0.1395
+     17     10 [  1,  2] ( 330.000  90.000   0.000)      0.1395
+     19     10 [  1,  2] ( 330.000  90.000 360.000)      0.1395
+ 
+     20     11           ( 240.000  50.000 270.000)      0.1362
+ 
+     21     12           ( 330.000  10.000 330.000)      0.1334
+ 
+     22     13           ( 270.000  10.000  30.000)      0.1326
+ 
+     23     14           ( 180.000  90.000  60.000)      0.1275
+     24     14 [  1,  2] (   0.000  90.000 300.000)      0.1275
+     25     14 [  1,  2] ( 360.000  90.000 300.000)      0.1275
+ 
+     26     15           ( 270.000  50.000 240.000)      0.1249
+ 
+     27     16           ( 180.000  50.000 300.000)      0.1237
+ 
+     28     17           ( 180.000  10.000 180.000)      0.1236
+ 
+     29     18           (  90.000  50.000   0.000)      0.1232
+ 
+     31     19           (   0.000  10.000 300.000)      0.1222
+ 
+     33     20           ( 330.000  50.000 150.000)      0.1198
+ 
+     34     21           (  30.000  50.000  90.000)      0.1157
+ 
+     35     22           ( 210.000  10.000 120.000)      0.1142
+ 
+     36     23           ( 210.000  10.000  30.000)      0.1140
+ 
+     37     24           ( 210.000  90.000 120.000)      0.1138
+     38     24 [  1,  2] (  30.000  90.000 240.000)      0.1138
+ 
+     39     25           ( 150.000  10.000 300.000)      0.1137
+ 
+     40     26           ( 330.000  90.000  30.000)      0.1127
+     41     26 [  1,  2] ( 150.000  90.000 330.000)      0.1127
+ 
+     42     27           ( 300.000  50.000  60.000)      0.1124
+ 
+     43     28           (  30.000  10.000  60.000)      0.1121
+ 
+     44     29           ( 300.000  50.000 300.000)      0.1115
+ 
+     45     30           (  90.000  10.000 240.000)      0.1106
+ 
+     46     31           ( 210.000  10.000 150.000)      0.1085
+ 
+     47     32           (  60.000  90.000 120.000)      0.1064
+     48     32 [  1,  2] ( 240.000  90.000 240.000)      0.1064
+ 
+     49     33           ( 120.000  50.000 210.000)      0.1057
+ 
+     50     34           (  30.000  50.000 300.000)      0.1047
+ 
+     51     35           ( 240.000  90.000  60.000)      0.1042
+     52     35 [  1,  2] (  60.000  90.000 300.000)      0.1042
+ 
+     53     36           ( 300.000  50.000 240.000)      0.1001
+ 
+     54     37           ( 120.000  90.000 120.000)      0.0997
+     55     37 [  1,  2] ( 300.000  90.000 240.000)      0.0997
+ 
+     56     38           (  60.000  10.000  30.000)      0.0992
+ 
+     57     39           ( 180.000  10.000 150.000)      0.0975
+ 
+     58     40           ( 330.000  50.000  60.000)      0.0963
+ 
+     59     41           ( 180.000  10.000  60.000)      0.0958
+ 
+     60     42           ( 180.000  50.000 270.000)      0.0949
+ 
+     61     43           ( 240.000  50.000 300.000)      0.0948
+ 
+     62     44           ( 120.000  10.000 210.000)      0.0914
+ 
+     63     45           ( 150.000  50.000 150.000)      0.0909
+ 
+     64     46           (   0.000  50.000 210.000)      0.0848
+ 
+     66     47           ( 240.000  90.000 120.000)      0.0821
+     67     47 [  1,  2] (  60.000  90.000 240.000)      0.0821
+ 
+     68     48           ( 150.000  90.000  60.000)      0.0813
+     69     48 [  1,  2] ( 330.000  90.000 300.000)      0.0813
+ 
+     70     49           ( 270.000  50.000  60.000)      0.0811
+ 
+     71     50           (  30.000  50.000   0.000)      0.0802
+ 
+     73     51           ( 300.000  50.000 150.000)      0.0799
+ 
+     74     52           (  90.000  10.000   0.000)      0.0790
+ 
+     76     53           ( 270.000  10.000 210.000)      0.0782
+ 
+     77     54           ( 240.000  10.000   0.000)      0.0773
+ 
+     79     55           (   0.000  10.000 210.000)      0.0766
+ 
+     81     56           (   0.000  90.000 120.000)      0.0734
+     83     56 [  1,  2] ( 180.000  90.000 240.000)      0.0734
+ 
+     84     57           ( 300.000  50.000 120.000)      0.0733
+ 
+     85     58           ( 300.000  50.000 180.000)      0.0727
+ 
+     86     59           ( 150.000  10.000 210.000)      0.0720
+ 
+     87     60           (  30.000  50.000 270.000)      0.0713
+ 
+     88     61           (   0.000  50.000 240.000)      0.0706
+ 
+     90     62           ( 150.000  90.000 180.000)      0.0702
+     91     62 [  1,  2] ( 330.000  90.000 180.000)      0.0702
+ 
+     92     63           (  60.000  10.000 270.000)      0.0701
+ 
+     93     64           ( 150.000  10.000 180.000)      0.0676
+ 
+     94     65           ( 300.000  50.000 330.000)      0.0671
+ 
+     95     66           ( 330.000  10.000 150.000)      0.0647
+ 
+     96     67           (  30.000  10.000 270.000)      0.0635
+ 
+     97     68           ( 240.000  90.000  30.000)      0.0626
+     98     68 [  1,  2] (  60.000  90.000 330.000)      0.0626
+ 
+     99     69           (  60.000  50.000  30.000)      0.0607
+ 
+    100     70           ( 240.000  10.000 240.000)      0.0606
+ 
+    101     71           ( 180.000  10.000 330.000)      0.0589
+ 
+    102     72           ( 270.000  90.000  60.000)      0.0577
+    103     72 [  1,  2] (  90.000  90.000 300.000)      0.0577
+ 
+    104     73           ( 240.000  10.000 270.000)      0.0574
+ 
+    105     74           ( 300.000  90.000 120.000)      0.0563
+    106     74 [  1,  2] ( 120.000  90.000 240.000)      0.0563
+ 
+    107     75           ( 180.000  10.000   0.000)      0.0562
+ 
+    109     76           (  90.000  50.000  30.000)      0.0547
+ 
+    110     77           (   0.000  10.000 120.000)      0.0541
+ 
+    112     78           ( 240.000  10.000  60.000)      0.0540
+ 
+    113     79           ( 240.000  10.000  90.000)      0.0539
+ 
+    114     80           ( 330.000  10.000 180.000)      0.0535
+ 
+    115     81           ( 210.000  10.000 300.000)      0.0531
+ 
+    116     82           ( 150.000  50.000  30.000)      0.0528
+ 
+    117     83           ( 270.000  10.000 240.000)      0.0521
+ 
+    118     84           ( 300.000  10.000 180.000)      0.0520
+ 
+    119     85           ( 150.000  50.000 270.000)      0.0504
+ 
+    120     86           ( 150.000  10.000 120.000)      0.0495
+ 
+    121     87           ( 150.000  50.000 210.000)      0.0479
+ 
+    122     88           (  60.000  50.000 150.000)      0.0476
+ 
+    123     89           (  30.000  50.000 120.000)      0.0472
+ 
+    124     90           ( 180.000  10.000 270.000)      0.0468
+ 
+    125     91           (   0.000  50.000 180.000)      0.0457
+ 
+    127     92           ( 240.000  50.000 150.000)      0.0452
+ 
+    128     93           ( 240.000  90.000 150.000)      0.0450
+    129     93 [  1,  2] (  60.000  90.000 210.000)      0.0450
+ 
+    130     94           ( 300.000  50.000  90.000)      0.0449
+ 
+    131     95           ( 120.000  10.000 270.000)      0.0445
+ 
+    132     96           ( 240.000  10.000 120.000)      0.0439
+ 
+    133     97           ( 270.000  10.000 330.000)      0.0429
+ 
+    134     98           ( 300.000  10.000 210.000)      0.0429
+ 
+    135     99           (  90.000  50.000 270.000)      0.0427
+ 
+    136    100           ( 270.000  50.000 330.000)      0.0414
+ 
+    137    101           ( 150.000  10.000  30.000)      0.0413
+ 
+    138    102           (  30.000  10.000 240.000)      0.0411
+ 
+    139    103           ( 330.000  50.000 210.000)      0.0403
+ 
+    140    104           (  90.000  50.000  90.000)      0.0395
+ 
+    141    105           (   0.000  50.000 120.000)      0.0392
+ 
+    143    106           ( 330.000  10.000 270.000)      0.0359
+ 
+    144    107           ( 150.000  10.000  90.000)      0.0359
+ 
+    145    108           (  90.000  50.000 120.000)      0.0353
+ 
+    146    109           (   0.000  10.000 150.000)      0.0351
+ 
+    148    110           (  60.000  90.000   0.000)      0.0350
+    149    110 [  1,  2] ( 240.000  90.000   0.000)      0.0350
+    151    110 [  1,  2] ( 240.000  90.000 360.000)      0.0350
+ 
+    152    111           ( 120.000  90.000  60.000)      0.0345
+    153    111 [  1,  2] ( 300.000  90.000 300.000)      0.0345
+ 
+    154    112           ( 120.000  10.000 180.000)      0.0336
+ 
+    155    113           ( 210.000  50.000 330.000)      0.0325
+ 
+    156    114           ( 150.000  90.000  30.000)      0.0297
+    157    114 [  1,  2] ( 330.000  90.000 330.000)      0.0297
+ 
+    158    115           (  60.000  90.000 150.000)      0.0290
+    159    115 [  1,  2] ( 240.000  90.000 210.000)      0.0290
+ 
+    160    116           ( 300.000  10.000 300.000)      0.0286
+ 
+    161    117           (  90.000  90.000  30.000)      0.0284
+    162    117 [  1,  2] ( 270.000  90.000 330.000)      0.0284
+ 
+    163    118           ( 180.000  10.000 240.000)      0.0273
+ 
+    164    119           ( 270.000  50.000 300.000)      0.0270
+ 
+    165    120           (  60.000  50.000 210.000)      0.0254
+ 
+    166    121           (  30.000  10.000 300.000)      0.0238
+ 
+    167    122           (  90.000  10.000 300.000)      0.0237
+ 
+    168    123           (  90.000  50.000 180.000)      0.0231
+ 
+    169    124           ( 210.000  10.000 210.000)      0.0220
+ 
+    170    125           ( 150.000  90.000 150.000)      0.0219
+    171    125 [  1,  2] ( 330.000  90.000 210.000)      0.0219
+ 
+    172    126           (  90.000  10.000 210.000)      0.0218
+ 
+    173    127           ( 270.000  50.000  90.000)      0.0214
+ 
+    174    128           (  60.000  50.000 330.000)      0.0210
+ 
+    175    129           ( 300.000  50.000 210.000)      0.0206
+ 
+    176    130           ( 120.000  10.000 150.000)      0.0201
+ 
+    177    131           ( 120.000  50.000 330.000)      0.0200
+ 
+    178    132           ( 120.000  90.000 150.000)      0.0198
+    179    132 [  1,  2] ( 300.000  90.000 210.000)      0.0198
+ 
+    180    133           ( 210.000  10.000 330.000)      0.0198
+ 
+    181    134           ( 270.000  50.000 180.000)      0.0184
+ 
+    182    135           (  60.000  90.000 180.000)      0.0183
+    183    135 [  1,  2] ( 240.000  90.000 180.000)      0.0183
+ 
+    184    136           ( 180.000  50.000 240.000)      0.0171
+ 
+    185    137           ( 120.000  90.000 180.000)      0.0168
+    186    137 [  1,  2] ( 300.000  90.000 180.000)      0.0168
+ 
+    187    138           ( 240.000  50.000  90.000)      0.0157
+ 
+    188    139           ( 270.000  50.000 120.000)      0.0151
+ 
+    189    140           ( 270.000  10.000  60.000)      0.0147
+ 
+    190    141           ( 150.000  50.000 330.000)      0.0130
+ 
+    191    142           ( 330.000  10.000 240.000)      0.0130
+ 
+    192    143           (  30.000  10.000 180.000)      0.0127
+ 
+    193    144           ( 300.000  50.000 270.000)      0.0124
+ 
+    194    145           (  90.000  90.000  90.000)      0.0109
+    195    145 [  1,  2] ( 270.000  90.000 270.000)      0.0109
+ 
+    196    146           ( 120.000  90.000  30.000)      0.0106
+    197    146 [  1,  2] ( 300.000  90.000 330.000)      0.0106
+ 
+    198    147           ( 270.000  50.000 270.000)      0.0095
+ 
+    199    148           ( 300.000  90.000  60.000)      0.0086
+    200    148 [  1,  2] ( 120.000  90.000 300.000)      0.0086
+ List of the highest peaks of the clusters (EPSIlon= 0.10)
+     no.  priority     theta1, theta2, theta3          RF
+ ===========================================================
+      1      1       (  30.000  50.000  30.000)      0.2758
+      2      2       ( 330.000  90.000  60.000)      0.2308
+      4      3       ( 150.000  90.000 120.000)      0.1506
+      6      4       ( 180.000  90.000  30.000)      0.1495
+      9      5       ( 300.000  90.000 150.000)      0.1417
+     11      6       ( 120.000  10.000 330.000)      0.1411
+     12      7       ( 300.000  10.000   0.000)      0.1405
+     14      8       ( 210.000  50.000 240.000)      0.1399
+     15      9       (  30.000  50.000 210.000)      0.1398
+     16     10       ( 150.000  90.000   0.000)      0.1395
+     20     11       ( 240.000  50.000 270.000)      0.1362
+     21     12       ( 330.000  10.000 330.000)      0.1334
+     22     13       ( 270.000  10.000  30.000)      0.1326
+     23     14       ( 180.000  90.000  60.000)      0.1275
+     26     15       ( 270.000  50.000 240.000)      0.1249
+     27     16       ( 180.000  50.000 300.000)      0.1237
+     28     17       ( 180.000  10.000 180.000)      0.1236
+     29     18       (  90.000  50.000   0.000)      0.1232
+     31     19       (   0.000  10.000 300.000)      0.1222
+     33     20       ( 330.000  50.000 150.000)      0.1198
+     34     21       (  30.000  50.000  90.000)      0.1157
+     35     22       ( 210.000  10.000 120.000)      0.1142
+     36     23       ( 210.000  10.000  30.000)      0.1140
+     37     24       ( 210.000  90.000 120.000)      0.1138
+     39     25       ( 150.000  10.000 300.000)      0.1137
+     40     26       ( 330.000  90.000  30.000)      0.1127
+     42     27       ( 300.000  50.000  60.000)      0.1124
+     43     28       (  30.000  10.000  60.000)      0.1121
+     44     29       ( 300.000  50.000 300.000)      0.1115
+     45     30       (  90.000  10.000 240.000)      0.1106
+     46     31       ( 210.000  10.000 150.000)      0.1085
+     47     32       (  60.000  90.000 120.000)      0.1064
+     49     33       ( 120.000  50.000 210.000)      0.1057
+     50     34       (  30.000  50.000 300.000)      0.1047
+     51     35       ( 240.000  90.000  60.000)      0.1042
+     53     36       ( 300.000  50.000 240.000)      0.1001
+     54     37       ( 120.000  90.000 120.000)      0.0997
+     56     38       (  60.000  10.000  30.000)      0.0992
+     57     39       ( 180.000  10.000 150.000)      0.0975
+     58     40       ( 330.000  50.000  60.000)      0.0963
+     59     41       ( 180.000  10.000  60.000)      0.0958
+     60     42       ( 180.000  50.000 270.000)      0.0949
+     61     43       ( 240.000  50.000 300.000)      0.0948
+     62     44       ( 120.000  10.000 210.000)      0.0914
+     63     45       ( 150.000  50.000 150.000)      0.0909
+     64     46       (   0.000  50.000 210.000)      0.0848
+     66     47       ( 240.000  90.000 120.000)      0.0821
+     68     48       ( 150.000  90.000  60.000)      0.0813
+     70     49       ( 270.000  50.000  60.000)      0.0811
+     71     50       (  30.000  50.000   0.000)      0.0802
+     73     51       ( 300.000  50.000 150.000)      0.0799
+     74     52       (  90.000  10.000   0.000)      0.0790
+     76     53       ( 270.000  10.000 210.000)      0.0782
+     77     54       ( 240.000  10.000   0.000)      0.0773
+     79     55       (   0.000  10.000 210.000)      0.0766
+     81     56       (   0.000  90.000 120.000)      0.0734
+     84     57       ( 300.000  50.000 120.000)      0.0733
+     85     58       ( 300.000  50.000 180.000)      0.0727
+     86     59       ( 150.000  10.000 210.000)      0.0720
+     87     60       (  30.000  50.000 270.000)      0.0713
+     88     61       (   0.000  50.000 240.000)      0.0706
+     90     62       ( 150.000  90.000 180.000)      0.0702
+     92     63       (  60.000  10.000 270.000)      0.0701
+     93     64       ( 150.000  10.000 180.000)      0.0676
+     94     65       ( 300.000  50.000 330.000)      0.0671
+     95     66       ( 330.000  10.000 150.000)      0.0647
+     96     67       (  30.000  10.000 270.000)      0.0635
+     97     68       ( 240.000  90.000  30.000)      0.0626
+     99     69       (  60.000  50.000  30.000)      0.0607
+    100     70       ( 240.000  10.000 240.000)      0.0606
+    101     71       ( 180.000  10.000 330.000)      0.0589
+    102     72       ( 270.000  90.000  60.000)      0.0577
+    104     73       ( 240.000  10.000 270.000)      0.0574
+    105     74       ( 300.000  90.000 120.000)      0.0563
+    107     75       ( 180.000  10.000   0.000)      0.0562
+    109     76       (  90.000  50.000  30.000)      0.0547
+    110     77       (   0.000  10.000 120.000)      0.0541
+    112     78       ( 240.000  10.000  60.000)      0.0540
+    113     79       ( 240.000  10.000  90.000)      0.0539
+    114     80       ( 330.000  10.000 180.000)      0.0535
+    115     81       ( 210.000  10.000 300.000)      0.0531
+    116     82       ( 150.000  50.000  30.000)      0.0528
+    117     83       ( 270.000  10.000 240.000)      0.0521
+    118     84       ( 300.000  10.000 180.000)      0.0520
+    119     85       ( 150.000  50.000 270.000)      0.0504
+    120     86       ( 150.000  10.000 120.000)      0.0495
+    121     87       ( 150.000  50.000 210.000)      0.0479
+    122     88       (  60.000  50.000 150.000)      0.0476
+    123     89       (  30.000  50.000 120.000)      0.0472
+    124     90       ( 180.000  10.000 270.000)      0.0468
+    125     91       (   0.000  50.000 180.000)      0.0457
+    127     92       ( 240.000  50.000 150.000)      0.0452
+    128     93       ( 240.000  90.000 150.000)      0.0450
+    130     94       ( 300.000  50.000  90.000)      0.0449
+    131     95       ( 120.000  10.000 270.000)      0.0445
+    132     96       ( 240.000  10.000 120.000)      0.0439
+    133     97       ( 270.000  10.000 330.000)      0.0429
+    134     98       ( 300.000  10.000 210.000)      0.0429
+    135     99       (  90.000  50.000 270.000)      0.0427
+    136    100       ( 270.000  50.000 330.000)      0.0414
+    137    101       ( 150.000  10.000  30.000)      0.0413
+    138    102       (  30.000  10.000 240.000)      0.0411
+    139    103       ( 330.000  50.000 210.000)      0.0403
+    140    104       (  90.000  50.000  90.000)      0.0395
+    141    105       (   0.000  50.000 120.000)      0.0392
+    143    106       ( 330.000  10.000 270.000)      0.0359
+    144    107       ( 150.000  10.000  90.000)      0.0359
+    145    108       (  90.000  50.000 120.000)      0.0353
+    146    109       (   0.000  10.000 150.000)      0.0351
+    148    110       (  60.000  90.000   0.000)      0.0350
+    152    111       ( 120.000  90.000  60.000)      0.0345
+    154    112       ( 120.000  10.000 180.000)      0.0336
+    155    113       ( 210.000  50.000 330.000)      0.0325
+    156    114       ( 150.000  90.000  30.000)      0.0297
+    158    115       (  60.000  90.000 150.000)      0.0290
+    160    116       ( 300.000  10.000 300.000)      0.0286
+    161    117       (  90.000  90.000  30.000)      0.0284
+    163    118       ( 180.000  10.000 240.000)      0.0273
+    164    119       ( 270.000  50.000 300.000)      0.0270
+    165    120       (  60.000  50.000 210.000)      0.0254
+    166    121       (  30.000  10.000 300.000)      0.0238
+    167    122       (  90.000  10.000 300.000)      0.0237
+    168    123       (  90.000  50.000 180.000)      0.0231
+    169    124       ( 210.000  10.000 210.000)      0.0220
+    170    125       ( 150.000  90.000 150.000)      0.0219
+    172    126       (  90.000  10.000 210.000)      0.0218
+    173    127       ( 270.000  50.000  90.000)      0.0214
+    174    128       (  60.000  50.000 330.000)      0.0210
+    175    129       ( 300.000  50.000 210.000)      0.0206
+    176    130       ( 120.000  10.000 150.000)      0.0201
+    177    131       ( 120.000  50.000 330.000)      0.0200
+    178    132       ( 120.000  90.000 150.000)      0.0198
+    180    133       ( 210.000  10.000 330.000)      0.0198
+    181    134       ( 270.000  50.000 180.000)      0.0184
+    182    135       (  60.000  90.000 180.000)      0.0183
+    184    136       ( 180.000  50.000 240.000)      0.0171
+    185    137       ( 120.000  90.000 180.000)      0.0168
+    187    138       ( 240.000  50.000  90.000)      0.0157
+    188    139       ( 270.000  50.000 120.000)      0.0151
+    189    140       ( 270.000  10.000  60.000)      0.0147
+    190    141       ( 150.000  50.000 330.000)      0.0130
+    191    142       ( 330.000  10.000 240.000)      0.0130
+    192    143       (  30.000  10.000 180.000)      0.0127
+    193    144       ( 300.000  50.000 270.000)      0.0124
+    194    145       (  90.000  90.000  90.000)      0.0109
+    196    146       ( 120.000  90.000  30.000)      0.0106
+    198    147       ( 270.000  50.000 270.000)      0.0095
+    199    148       ( 300.000  90.000  60.000)      0.0086
+ XRAY> 
+ XRAY> 
+ XRAY>   close dsearch.dat end 
+ XRAY> 
+ XRAY>    search cluster 
+ CLUSter> 
+ CLUSter>     ! index, theta1, theta2, theta3, RF-function (EPSIlon= 0.10) 
+ CLUSter>peak   180.000  50.000 300.000    0.1328 
+ CLUSter>peak   270.000  10.000  30.000    0.1299 
+ CLUSter>peak   330.000  10.000 330.000    0.1293 
+ CLUSter>peak   300.000  90.000 150.000    0.1280 
+ CLUSter>peak	90.000  50.000   0.000    0.1268 
+ CLUSter>peak    30.000  50.000  30.000    0.2776 
+ CLUSter>peak   180.000  90.000  30.000    0.1569 
+ CLUSter>peak   150.000  90.000 120.000    0.1560 
+ CLUSter>peak   240.000  50.000 270.000    0.1445 
+ CLUSter>peak   120.000  10.000 330.000    0.1437 
+ CLUSter>peak   150.000  90.000   0.000    0.1415 
+ CLUSter>peak   210.000  50.000 240.000    0.1409 
+ CLUSter>peak   180.000  90.000  60.000    0.1398 
+ CLUSter>peak   330.000  90.000  60.000    0.2372 
+ CLUSter>peak	30.000  50.000 210.000    0.1373 
+ CLUSter>peak   300.000  10.000   0.000    0.1334 
+ CLUSter>peak   330.000  50.000 150.000    0.1249 
+ CLUSter>peak   180.000  10.000 180.000    0.1243 
+ CLUSter>peak   210.000  10.000  30.000    0.1209 
+ CLUSter>peak   150.000  10.000 300.000    0.1191 
+ CLUSter>peak	30.000  10.000  60.000    0.1170 
+ CLUSter>peak   210.000  90.000 120.000    0.1168 
+ CLUSter>peak   270.000  50.000 240.000    0.1164 
+ CLUSter>peak	 0.000  10.000 300.000    0.1159 
+ CLUSter>peak	30.000  50.000  90.000    0.1158 
+ CLUSter>peak   330.000  90.000  30.000    0.1153 
+ CLUSter>peak   210.000  10.000 120.000    0.1110 
+ CLUSter>peak   300.000  50.000 300.000    0.1102 
+ CLUSter>peak   300.000  50.000  60.000    0.1084 
+ CLUSter>peak   240.000  90.000  60.000    0.1076 
+ CLUSter>peak	60.000  90.000 120.000    0.1062 
+ CLUSter>peak   210.000  10.000 150.000    0.1056 
+ CLUSter>peak	90.000  10.000 240.000    0.1040 
+ CLUSter>peak   300.000  50.000 240.000    0.1015 
+ CLUSter>peak   240.000  50.000 300.000    0.1006 
+ CLUSter>peak   120.000  90.000 120.000    0.0986 
+ CLUSter>peak	60.000  10.000  30.000    0.0975 
+ CLUSter>peak   120.000  50.000 210.000    0.0958 
+ CLUSter>peak   180.000  10.000 150.000    0.0956 
+ CLUSter>peak	30.000  50.000 300.000    0.0953 
+ CLUSter>peak   180.000  10.000  60.000    0.0925 
+ CLUSter>peak   150.000  50.000 150.000    0.0891 
+ CLUSter>peak   150.000  90.000  60.000    0.0867 
+ CLUSter>peak   180.000  50.000 270.000    0.0866 
+ CLUSter>peak	 0.000  10.000 210.000    0.0849 
+ CLUSter>peak   270.000  50.000  60.000    0.0840 
+ CLUSter>peak	 0.000  50.000 210.000    0.0836 
+ CLUSter>peak   120.000  10.000 210.000    0.0836 
+ CLUSter>peak   240.000  90.000 120.000    0.0816 
+ CLUSter>peak   150.000  10.000 210.000    0.0788 
+ CLUSter>peak   240.000  10.000   0.000    0.0784 
+ CLUSter>peak	30.000  50.000   0.000    0.0767 
+ CLUSter>peak   300.000  50.000 120.000    0.0767 
+ CLUSter>peak   330.000  50.000  60.000    0.0765 
+ CLUSter>peak	90.000  10.000   0.000    0.0746 
+ CLUSter>peak   150.000  10.000 180.000    0.0743 
+ CLUSter>peak   300.000  50.000 150.000    0.0743 
+ CLUSter>peak	60.000  10.000 270.000    0.0740 
+ CLUSter>peak	 0.000  90.000 120.000    0.0731 
+ CLUSter>peak   150.000  90.000 180.000    0.0727 
+ CLUSter>peak   270.000  10.000 210.000    0.0701 
+ CLUSter>peak	30.000  10.000 270.000    0.0682 
+ CLUSter>peak   300.000  50.000 330.000    0.0673 
+ CLUSter>peak   240.000  10.000 270.000    0.0659 
+ CLUSter>peak   240.000  90.000  30.000    0.0645 
+ CLUSter>peak   180.000  10.000 330.000    0.0637 
+ CLUSter>peak   300.000  50.000 180.000    0.0636 
+ CLUSter>peak	 0.000  50.000 240.000    0.0631 
+ CLUSter>peak	30.000  50.000 270.000    0.0625 
+ CLUSter>peak   330.000  10.000 150.000    0.0623 
+ CLUSter>peak   240.000  10.000  90.000    0.0615 
+ CLUSter>peak	60.000  50.000  30.000    0.0587 
+ CLUSter>peak   240.000  10.000 240.000    0.0576 
+ CLUSter>peak	60.000  50.000 150.000    0.0567 
+ CLUSter>peak	90.000  50.000  30.000    0.0566 
+ CLUSter>peak   270.000  10.000 240.000    0.0559 
+ CLUSter>peak	 0.000  10.000 120.000    0.0541 
+ CLUSter>peak   270.000  90.000  60.000    0.0531 
+ CLUSter>peak   330.000  10.000 180.000    0.0531 
+ CLUSter>peak   150.000  10.000  30.000    0.0525 
+ CLUSter>peak   180.000  10.000   0.000    0.0520 
+ CLUSter>peak   210.000  10.000 300.000    0.0517 
+ CLUSter>peak   120.000  10.000 270.000    0.0508 
+ CLUSter>peak	30.000  50.000 120.000    0.0499 
+ CLUSter>peak   240.000  10.000  60.000    0.0490 
+ CLUSter>peak   300.000  10.000 180.000    0.0478 
+ CLUSter>peak	 0.000  50.000 180.000    0.0478 
+ CLUSter>peak   270.000  10.000 330.000    0.0469 
+ CLUSter>peak   150.000  50.000 210.000    0.0463 
+ CLUSter>peak   150.000  10.000 120.000    0.0457 
+ CLUSter>peak   300.000  50.000  90.000    0.0456 
+ CLUSter>peak   150.000  50.000  30.000    0.0451 
+ CLUSter>peak   180.000  10.000 270.000    0.0444 
+ CLUSter>peak	30.000  10.000 240.000    0.0441 
+ CLUSter>peak   240.000  90.000 150.000    0.0427 
+ CLUSter>peak   240.000  50.000 150.000    0.0422 
+ CLUSter>peak   150.000  50.000 270.000    0.0417 
+ CLUSter>peak   270.000  50.000 330.000    0.0414 
+ CLUSter>peak	90.000  50.000 120.000    0.0402 
+ CLUSter>peak   330.000  50.000 210.000    0.0399 
+ CLUSter>peak	60.000  90.000   0.000    0.0396 
+ CLUSter>peak   300.000  10.000 210.000    0.0396 
+ CLUSter>peak   240.000  10.000 120.000    0.0393 
+ CLUSter>peak   300.000  90.000 120.000    0.0392 
+ CLUSter>peak   330.000  10.000 270.000    0.0376 
+ CLUSter>peak	90.000  50.000 270.000    0.0371 
+ CLUSter>peak   180.000  10.000 240.000    0.0364 
+ CLUSter>peak	90.000  50.000  90.000    0.0363 
+ CLUSter>peak	 0.000  50.000 120.000    0.0360 
+ CLUSter>peak   150.000  90.000  30.000    0.0354 
+ CLUSter>peak	60.000  90.000 150.000    0.0351 
+ CLUSter>peak   120.000  10.000 180.000    0.0339 
+ CLUSter>peak   210.000  50.000 330.000    0.0335 
+ CLUSter>peak   210.000  10.000 330.000    0.0322 
+ CLUSter>peak   300.000  10.000 300.000    0.0309 
+ CLUSter>peak   150.000  10.000  90.000    0.0308 
+ CLUSter>peak	 0.000  10.000 150.000    0.0292 
+ CLUSter>peak   270.000  50.000 300.000    0.0291 
+ CLUSter>peak	90.000  90.000  30.000    0.0274 
+ CLUSter>peak   120.000  90.000  60.000    0.0267 
+ CLUSter>peak   120.000  10.000 150.000    0.0256 
+ CLUSter>peak	60.000  50.000 210.000    0.0255 
+ CLUSter>peak   150.000  90.000 150.000    0.0251 
+ CLUSter>peak	30.000  10.000 300.000    0.0250 
+ CLUSter>peak	90.000  10.000 300.000    0.0247 
+ CLUSter>peak   300.000  50.000 210.000    0.0246 
+ CLUSter>peak	90.000  50.000 180.000    0.0242 
+ CLUSter>peak	60.000  90.000 180.000    0.0236 
+ CLUSter>peak	60.000  50.000 330.000    0.0210 
+ CLUSter>peak   270.000  50.000 180.000    0.0204 
+ CLUSter>peak   120.000  50.000 330.000    0.0197 
+ CLUSter>peak   270.000  50.000  90.000    0.0177 
+ CLUSter>peak   210.000  10.000 210.000    0.0176 
+ CLUSter>peak   240.000  50.000  90.000    0.0170 
+ CLUSter>peak   180.000  50.000 240.000    0.0164 
+ CLUSter>peak   270.000  50.000 120.000    0.0156 
+ CLUSter>peak	30.000  10.000 180.000    0.0154 
+ CLUSter>peak   120.000  90.000 150.000    0.0150 
+ CLUSter>peak   300.000  50.000 270.000    0.0148 
+ CLUSter>peak   120.000  90.000 180.000    0.0145 
+ CLUSter>peak   150.000  50.000 330.000    0.0139 
+ CLUSter>peak   120.000  90.000  30.000    0.0128 
+ CLUSter>peak	 0.000  50.000  60.000    0.0127 
+ CLUSter>peak	90.000  90.000  90.000    0.0095 
+ CLUSter>peak   150.000  10.000   0.000    0.0087 
+ CLUSter>peak	60.000  50.000 120.000    0.0087 
+ CLUSter>peak   270.000  10.000  60.000    0.0083 
+ CLUSter> 
+ CLUSter>       nlist=40 
+ CLUSter>       epsilon=0.5 
+ CLUSter>       cluster=true 
+ CLUSter>       mode=euler 
+ CLUSter>       symbol=cluster 
+ CLUSter>      symmetry=(x,y,z)        ! unit cell and 
+ CLUSter>      symmetry=(-x,y+1/2,-z)  ! symmetry ops for peak redundancy check 
+ CLUSter>    end 
+ Clustered list (EPSIlon= 0.50) of first     40 highest peaks
+ (the [] indicate a symmetry operation)
+     no.  priority     theta1, theta2, theta3          RF
+ ===========================================================
+      1      1           (  30.000  50.000  30.000)      0.2776
+ 
+      2      2           ( 330.000  90.000  60.000)      0.2372
+ 
+      3      3           ( 180.000  90.000  30.000)      0.1569
+ 
+      4      4           ( 150.000  90.000 120.000)      0.1560
+ 
+      5      5           ( 240.000  50.000 270.000)      0.1445
+ 
+      6      6           ( 120.000  10.000 330.000)      0.1437
+     20      6           ( 150.000  10.000 300.000)      0.1191
+     21      6           (  30.000  10.000  60.000)      0.1170
+     37      6           (  60.000  10.000  30.000)      0.0975
+ 
+      7      7           ( 150.000  90.000   0.000)      0.1415
+ 
+      8      8           ( 210.000  50.000 240.000)      0.1409
+ 
+      9      9           ( 180.000  90.000  60.000)      0.1398
+ 
+     10     10           (  30.000  50.000 210.000)      0.1373
+ 
+     11     11           ( 300.000  10.000   0.000)      0.1334
+     13     11           ( 270.000  10.000  30.000)      0.1299
+     14     11           ( 330.000  10.000 330.000)      0.1293
+     24     11           (   0.000  10.000 300.000)      0.1159
+ 
+     12     12           ( 180.000  50.000 300.000)      0.1328
+ 
+     15     13           ( 300.000  90.000 150.000)      0.1280
+ 
+     16     14           (  90.000  50.000   0.000)      0.1268
+ 
+     17     15           ( 330.000  50.000 150.000)      0.1249
+ 
+     18     16           ( 180.000  10.000 180.000)      0.1243
+     32     16           ( 210.000  10.000 150.000)      0.1056
+ 
+     19     17           ( 210.000  10.000  30.000)      0.1209
+ 
+     22     18           ( 210.000  90.000 120.000)      0.1168
+ 
+     23     19           ( 270.000  50.000 240.000)      0.1164
+ 
+     25     20           (  30.000  50.000  90.000)      0.1158
+ 
+     26     21           ( 330.000  90.000  30.000)      0.1153
+ 
+     27     22           ( 210.000  10.000 120.000)      0.1110
+     33     22           (  90.000  10.000 240.000)      0.1040
+     39     22           ( 180.000  10.000 150.000)      0.0956
+ 
+     28     23           ( 300.000  50.000 300.000)      0.1102
+ 
+     29     24           ( 300.000  50.000  60.000)      0.1084
+ 
+     30     25           ( 240.000  90.000  60.000)      0.1076
+ 
+     31     26           (  60.000  90.000 120.000)      0.1062
+ 
+     34     27           ( 300.000  50.000 240.000)      0.1015
+ 
+     35     28           ( 240.000  50.000 300.000)      0.1006
+ 
+     36     29           ( 120.000  90.000 120.000)      0.0986
+ 
+     38     30           ( 120.000  50.000 210.000)      0.0958
+ 
+     40     31           (  30.000  50.000 300.000)      0.0953
+ List of the highest peaks of the clusters (EPSIlon= 0.50)
+     no.  priority     theta1, theta2, theta3          RF
+ ===========================================================
+      1      1       (  30.000  50.000  30.000)      0.2776
+      2      2       ( 330.000  90.000  60.000)      0.2372
+      3      3       ( 180.000  90.000  30.000)      0.1569
+      4      4       ( 150.000  90.000 120.000)      0.1560
+      5      5       ( 240.000  50.000 270.000)      0.1445
+      6      6       ( 120.000  10.000 330.000)      0.1437
+      7      7       ( 150.000  90.000   0.000)      0.1415
+      8      8       ( 210.000  50.000 240.000)      0.1409
+      9      9       ( 180.000  90.000  60.000)      0.1398
+     10     10       (  30.000  50.000 210.000)      0.1373
+     11     11       ( 300.000  10.000   0.000)      0.1334
+     12     12       ( 180.000  50.000 300.000)      0.1328
+     15     13       ( 300.000  90.000 150.000)      0.1280
+     16     14       (  90.000  50.000   0.000)      0.1268
+     17     15       ( 330.000  50.000 150.000)      0.1249
+     18     16       ( 180.000  10.000 180.000)      0.1243
+     19     17       ( 210.000  10.000  30.000)      0.1209
+     22     18       ( 210.000  90.000 120.000)      0.1168
+     23     19       ( 270.000  50.000 240.000)      0.1164
+     25     20       (  30.000  50.000  90.000)      0.1158
+     26     21       ( 330.000  90.000  30.000)      0.1153
+     27     22       ( 210.000  10.000 120.000)      0.1110
+     28     23       ( 300.000  50.000 300.000)      0.1102
+     29     24       ( 300.000  50.000  60.000)      0.1084
+     30     25       ( 240.000  90.000  60.000)      0.1076
+     31     26       (  60.000  90.000 120.000)      0.1062
+     34     27       ( 300.000  50.000 240.000)      0.1015
+     35     28       ( 240.000  50.000 300.000)      0.1006
+     36     29       ( 120.000  90.000 120.000)      0.0986
+     38     30       ( 120.000  50.000 210.000)      0.0958
+     40     31       (  30.000  50.000 300.000)      0.0953
+ XRAY> 
+ XRAY>    display  $cluster_nlist 
+ 31
+ XRAY>    display  $cluster_theta1_1 
+ 30
+ XRAY>    display  $cluster_theta2_1 
+ 50
+ XRAY>    display  $cluster_theta3_1 
+ 30
+ XRAY>    display  $cluster_theta1_5 
+ 240
+ XRAY>    display  $cluster_theta2_5 
+ 50
+ XRAY>    display  $cluster_theta3_5 
+ 270
+ XRAY> 
+ XRAY> 
+ XRAY>   set message=norm end 
+ XRAY>end 
+ CNSsolve> 
+ CNSsolve>stop 
+          ============================================================
+           Maximum dynamic memory allocation:    10859088 bytes
+           Maximum dynamic memory overhead:          1360 bytes
+           Program started at: 16:07:59 on 05-Jul-2018
+           Program stopped at: 16:08:00 on 05-Jul-2018
+           CPU time used:      17.6220 seconds
+          ============================================================

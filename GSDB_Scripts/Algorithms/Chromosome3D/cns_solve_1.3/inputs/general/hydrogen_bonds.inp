@@ -1,0 +1,330 @@
+{+ file: hydrogen_bonds.inp +}
+{+ directory: general +}
+{+ description: Identify possible hydrogen bonds in a protein structure +}
+{+ comment: 
+           can generate a NOE distance restraints file +}
+{+ authors: Axel T. Brunger, and Paul D. Adams +}
+{+ copyright: Yale University +}
+
+{- Guidelines for using this file:
+   - all strings must be quoted by double-quotes
+   - logical variables (true/false) are not quoted
+   - do not remove any evaluate statements from the file -}
+
+{- begin block parameter definition -} define(
+
+{============================ coordinates ============================}
+
+{* coordinate file *}
+{===>} coordinate_infile="pen.pdb";
+
+{==================== molecular information ==========================}
+
+{* topology files *}
+{===>} topology_infile_1="CNS_TOPPAR:protein.top";
+{===>} topology_infile_2="CNS_TOPPAR:dna-rna.top";
+{===>} topology_infile_3="CNS_TOPPAR:water.top";
+{===>} topology_infile_4="CNS_TOPPAR:ion.top";
+{===>} topology_infile_5="CNS_TOPPAR:carbohydrate.top";
+{===>} topology_infile_6="";
+{===>} topology_infile_7="";
+{===>} topology_infile_8="";
+
+{* linkage files for linear, continuous polymers (protein, DNA, RNA) *}
+{===>} link_infile_1="CNS_TOPPAR:protein.link";
+{===>} link_infile_2="CNS_TOPPAR:dna-rna-pho.link";
+{===>} link_infile_3="";
+
+{* parameter files *}
+{===>} parameter_infile_1="CNS_TOPPAR:protein_rep.param";
+{===>} parameter_infile_2="CNS_TOPPAR:dna-rna_rep.param";
+{===>} parameter_infile_3="CNS_TOPPAR:water_rep.param";
+{===>} parameter_infile_4="CNS_TOPPAR:ion.param";
+{===>} parameter_infile_5="CNS_TOPPAR:carbohydrate.param";
+{===>} parameter_infile_6="";
+{===>} parameter_infile_7="";
+{===>} parameter_infile_8="";
+
+{* molecular topology file: optional (leave blank for auto generation) *}
+{* 
+   Auto generation of the molecular topology from the coordinates should only 
+   be used if:
+   (1) Each distinct protein, DNA, or RNA chain must have a separate segid 
+       (or chainid if the chainid is non-blank). 
+   (2) Each contiguous protein, RNA, or RNA chain must not be disrupted by 
+       other types of residues or ligands.  Rather, these other residues 
+       should be listed after protein, RNA/DNA chains. 
+   (3) Disulphides are automatically detected based on distances between the sulfur atoms
+      (must be less than 3 A apart).
+   (4) Broken protein/RNA/DNA chains without terminii must be more than 2.5 A apart to be recognized as such.
+   (5) N-linked glycan links are automatically recognized if the bonded atoms are less than 2.5 A apart.
+   (6) Automatic generation cannot be used with alternate conformations. 
+   For ligands, the user must make suitable topology and parameter files.
+   For non-standard covalent linkages, the custom patch file should be used.
+   Alternatively, the generate.inp or generate_easy.inp task files
+   can be used to generated the mtf prior to running this task file.
+    *}
+{===>} structure_infile="pen.mtf";
+
+{* for auto generation: extra linkages and modifications by custom patches *}
+{===>} patch_infile="";
+
+{========================== atom selection ===========================}
+
+{* select atoms to be included in calculation *}
+{===>} atom_select=(known and not hydrogen);
+
+{==================== hydrogen bonding parameters ====================}
+
+{* maximum distance in Angstrom between acceptor oxygen and donor nitrogen *}
+{===>} max_on_bond=3.2;
+
+{* minimum angle in degrees between acceptor carbon, acceptor oxygen and
+   donor nitrogen *}
+{===>} min_con_angle=120.0;
+
+{* class name for output distance restraints *}
+{===>} class="hbond";
+
+{=========================== output files ============================}
+
+{* output listing file *}
+{===>} list_outfile="hydrogen_bonds.list";
+
+{* output distance restraint file *}
+{* the restraint file will not be written if this is blank *}
+{===>} rest_outfile="hbond_restraint.def";
+
+{===========================================================================}
+{        things below this line do not normally need to be changed          }
+{===========================================================================}
+
+ ) {- end block parameter definition -}
+
+ checkversion 1.3
+
+ evaluate ($log_level=quiet)
+
+ if ( $log_level = verbose ) then
+   set message=normal echo=on end
+ else
+   set message=off echo=off end
+ end if
+
+ if ( &BLANK%structure_infile = true ) then
+ 
+    {- read topology files -}
+    topology
+     evaluate ($counter=1)
+     evaluate ($done=false)
+     while ( $done = false ) loop read
+      if ( &exist_topology_infile_$counter = true ) then
+         if ( &BLANK%topology_infile_$counter = false ) then
+            @@&topology_infile_$counter
+         end if
+      else
+        evaluate ($done=true)
+      end if
+      evaluate ($counter=$counter+1)
+     end loop read
+    end
+    
+    @CNS_XTALMODULE:mtfautogenerate (
+                                  coordinate_infile=&coordinate_infile;
+                                  convert=true;
+                                  separate=true;
+                                  atom_delete=(not known);
+                                  hydrogen_flag=true;
+                                  break_cutoff=2.5;
+                                  disulphide_dist=3.0;
+                                  carbo_dist=2.5;
+                                  patch_infile=&patch_infile;
+                                  O5_becomes="O";
+                                 )
+
+ else
+
+   structure @&structure_infile end
+   coordinates @&coordinate_infile
+
+ end if
+
+ {- read parameter files -}
+ parameter
+  evaluate ($counter=1)
+  evaluate ($done=false)
+  while ( $done = false ) loop read
+   if ( &exist_parameter_infile_$counter = true ) then
+      if ( &BLANK%parameter_infile_$counter = false ) then
+         @@&parameter_infile_$counter
+      end if
+   else
+     evaluate ($done=true)
+   end if
+   evaluate ($counter=$counter+1)
+  end loop read
+ end
+
+ set message=normal echo=on end
+
+ if ( $log_level = verbose ) then
+   set message=normal echo=on end
+ else
+   set message=off echo=off end
+ end if
+
+ evaluate ($equil="$equil")
+ evaluate ($lower="$lower")
+ evaluate ($upper="$upper")
+
+ evaluate ($first=true)
+ evaluate ($written=false)
+
+ set display=&list_outfile end
+
+ display ===========================================================
+ display >>>> mainchain hydrogen bonds with:
+ display >>>>      O--N distance <= &max_on_bond Angstrom
+ display >>>>   C--O--N angle    >= &min_con_angle degrees 
+ display >>>> input coordinate file: &STRIP%coordinate_infile
+ display >>>> CNS version: $cns_version  date: $date  user: $name
+ display ===========================================================
+ display
+
+ set display=OUTPUT end
+
+ for $id_acc in id ( &atom_select and 
+                     byresidue (name CA) and name O ) loop main
+
+   show (segid) (id $id_acc)
+   evaluate ($segid_acc=$result)
+   show (resid) (id $id_acc)
+   evaluate ($resid_acc=$result)
+   show (resname) (id $id_acc)
+   evaluate ($resname_acc=$result)
+
+   igroup interaction
+     ( id $id_acc )
+     ( &atom_select and name N and 
+       not ( resname PRO ) and
+       not ( byresidue ( id $id_acc ) ) )
+   end
+
+   distance
+     from=( &atom_select and name N and
+      not ( resname PRO ) and
+      not ( byresidue ( id $id_acc ) ) )
+     to=( id $id_acc )
+     cuton=0
+     cutoff=&max_on_bond
+     disp=rmsd
+   end           
+
+   identity (store2) ( &atom_select and 
+                     ( attribute rmsd > 0 ) and 
+                 not ( id $id_acc ) )
+
+   for $id_don in id ( store2 ) loop donor 
+
+     pick bond
+       ( id $id_acc )
+       ( id $id_don )
+       geometry
+
+     evaluate ($on_dist=$result)
+         
+     if ( $result <= &max_on_bond ) then
+
+       pick angle
+         ( name C and bondedto ( id $id_acc ) )
+         ( id $id_acc )
+         ( id $id_don )
+         geometry
+
+       evaluate ($con_angle=$result)
+         
+       if ( $result >= &min_con_angle ) then
+
+         show (segid) (id $id_don)
+         evaluate ($segid_don=$result)
+         show (resid) (id $id_don)
+         evaluate ($resid_don=$result)
+         show (resname) (id $id_don)
+         evaluate ($resname_don=$result)
+
+         set display=&list_outfile end
+
+         display acceptor (O): $segid_acc $resid_acc $resname_acc
+         display    donor (N): $segid_don $resid_don $resname_don 
+         display     geometry: O-N distance= $on_dist[f5.2] C-O-N angle= $con_angle[f6.2]
+         display
+
+         set display=OUTPUT end
+
+         if ( &BLANK%rest_outfile = false ) then
+
+           set display=&rest_outfile end
+
+           if ( $first = true ) then
+             display {===========================================================}
+             display ! mainchain hydrogen bond distance restraints 
+             display ! automatically generated by script hydrogen_bonds.inp
+             display !      O--N distance <= &max_on_bond Angstrom
+             display !   C--O--N angle    >= &min_con_angle degrees 
+             display ! input coordinate file: &STRIP%coordinate_infile
+             display ! CNS version: $cns_version  date: $date  user: $name
+             display {===========================================================}
+             display 
+             display set echo=off message=off end
+             display
+             display evaluate ($equil=2.8) {- centre of square-well -}
+             display evaluate ($lower=0.2) {- lower bound of square-well = $equil - $lower -}
+             display evaluate ($upper=0.2) {- upper bound of square-well = $equil + $upper -}
+             display 
+             display noe
+             display   nrestraints=5000
+             display   classification=&STRIP%class
+             display   potential &STRIP%class square-well
+             display   average   &STRIP%class center
+             display   scale     &STRIP%class 1.0
+             display   sqexp     &STRIP%class 2
+             display   sqconst   &STRIP%class 50.0
+             display   ceiling        1000.0
+             display
+             evaluate ($first=false)
+             evaluate ($written=true)
+           end if
+
+           {- add double quotes to segid in order to allow blank segids -}
+           evaluate ($segid_don_q="""+$segid_don+""") 
+           evaluate ($segid_acc_q="""+$segid_acc+""")
+
+           display   assign ( segid $segid_acc_q and resid $resid_acc and name O )
+           display          ( segid $segid_don_q and resid $resid_don and name N ) \
+$equil $lower $upper
+           display
+
+           set display=OUTPUT end
+
+         end if
+
+       end if
+
+     end if
+
+   end loop donor
+
+ end loop main
+
+ if ( $written = true ) then
+   set display=&rest_outfile end
+   display end
+   display
+   display flags include noe end
+   display 
+   display set echo=on message=on end
+   display
+   set display=OUTPUT end
+ end if
+
+ stop

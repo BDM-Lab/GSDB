@@ -1,0 +1,100 @@
+<HTML>
+<HEAD>
+   <TITLE>Crystallography & NMR System</TITLE>
+</HEAD>
+<BODY BGCOLOR=#8ebf8e>
+
+<HR WIDTH="100%">
+
+<h2>Completion of the heavy-atom model</h2>
+
+<HR WIDTH="100%">
+
+The MAD phases can be used in combination with the anomalous difference
+structure factors for the wavelength with the strongest anomalous
+signal to compute an anomalous difference Fourier map.  This map is
+useful in the search for additional heavy-atoms sites. However, a more
+powerful method for the location of missing sites is the computation of
+a double-difference or log-likelihood gradient map. To this end, the
+structure factors in <tt>mad_phase_flip_grad.hkl</tt> can be used.
+
+<PRE>
+      cns_solve &lt; <A HREF="fourier_map_anom_flip.inp">fourier_map_anom_flip.inp</A> &gt; fourier_map_anom_flip.out
+      cns_solve &lt; <A HREF="fourier_map_grad_flip.inp">fourier_map_grad_flip.inp</A> &gt; fourier_map_grad_flip.out
+</PRE>
+Each job produces three output files.
+<PRE>
+      fourier_map_anom_flip.map             fourier_map_grad_flip.map
+      fourier_map_anom_flip_negative.peaks  fourier_map_grad_flip_negative.peaks
+      fourier_map_anom_flip_positive.peaks  fourier_map_grad_flip_positive.peaks
+</PRE>
+
+<p>The 30 highest positive and smallest negative peaks in both maps are
+written in PDB format to the <tt>*.peaks</tt> files. Here are the maps:</p>
+<p>&nbsp;</p>
+<TABLE ALIGN=CENTER>
+  <TR>
+<TD><IMG SRC="anom_grad.jpeg"
+         ALIGN=ABSCENTER></TD>
+<tr>
+<td>
+Anomalous difference map (red) and
+gradient map (green)
+</TABLE>
+<HR WIDTH="67%">
+
+<p>
+
+Additional heavy-atom sites are usually characterized by peaks in both
+the anomalous difference and the gradient map. In the image above, the
+two highest peaks in the gradient map are at locations with high
+densities in the anomalous difference map. However, inspection of
+<tt>fourier_map_grad_flip_positive.peaks</tt> reveals that only the
+first peak is outstanding. If the solution was not known, one should
+just use this peak as an additional site, start a new MAD phasing run,
+and then look for more sites again.  Knowing that that the first two
+peaks in the gradient map actually are at the locations of the missing
+sites, for the purpose of this tutorial, we will add them in one step.
+
+<p>
+
+<tt>sdb_manipulate.inp</tt> is used to add two more entries to the
+<tt>mad_phase_flip.sdb</tt> site database file.
+
+<PRE>
+      cns_solve &lt; <A HREF="sdb_manipulate.inp">sdb_manipulate.inp</A> &gt; sdb_manipulate.out</PRE>
+
+The name of the expanded file is <tt>more_sites.sdb</tt>.
+Use <tt>cns_edit</tt> and copy-and-paste the coordinates from
+<code>fourier_map_grad_flip_positive.peaks</code>:
+
+<PRE>
+      cns_edit more_sites.sdb
+</PRE>
+
+Save the changed site database file under the name
+<tt>mad_eight_sites.sdb</tt>.
+This file is used in a new MAD phasing job.
+
+<PRE>
+      cns_solve &lt; <A HREF="mad_phase2.inp">mad_phase2.inp</A> &gt; mad_phase2.out
+</PRE>
+
+The new MAD phases can then be used to compute a new electron density map
+(see previous tutorial), or as starting phases for density modification
+(see next tutorial).
+
+<p>
+
+<A HREF="tutorial.csh">Script to run this tutorial</A>
+
+<HR WIDTH="100%">
+
+<A HREF="../../text.html">Back to tutorials</A>&nbsp;&nbsp;
+<A HREF="../enantiomorph/text.html">Previous section</A>&nbsp;&nbsp;
+<A HREF="../density_modify/text.html">Next section</A>
+
+<HR WIDTH="100%"></P>
+
+</BODY>
+</HTML>

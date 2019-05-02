@@ -1,0 +1,120 @@
+! Module file: refinementtarget_twin
+!
+! CNS module
+! **********
+!
+! Authors: Axel Brunger and Paul Adams
+!
+! copyright Yale University
+!
+! Function:
+!    Defines the crystallographic refinement targets for 
+!    hemihedrally twinned data
+!
+! Requirements:
+!    Needs to be called within xray
+
+module {refinementtarget_twin}
+
+(
+  &target="twin_lsq";    {string}
+  &sig_sigacv=0.07;      {real}
+  &mbins=10;             {real}
+  &fobs=fobs;            {reciprocal space array}
+  &sigma=sigma;          {reciprocal space array}
+  &weight=weight;        {reciprocal space array}
+  &iobs=iobs;            {reciprocal space array}
+  &sigi=sigi;            {reciprocal space array}
+  &test=test;            {reciprocal space array}
+  &fcalc=fcalc;          {reciprocal space array}
+  &fpart=fpart;          {reciprocal space array}
+  &twin_oper=h,k,l;      {string}
+  &twin_frac=0.0;        {real}
+  &pa=pa;                {reciprocal space array}
+  &pb=pb;                {reciprocal space array}
+  &pc=pc;                {reciprocal space array}
+  &pd=pd;                {reciprocal space array}
+  &phase=phase;          {reciprocal space array}
+  &fom=fom;              {reciprocal space array}
+  &sel=all;              {selection}
+  &sel_test=none;        {selection}
+  &statistics=false;     {logical}
+)
+
+set message ? end
+evaluate ($message_old=$result)
+set echo ? end
+evaluate ($echo_old=$result)
+if ( $log_level = verbose ) then
+  set echo=on message=normal end
+else
+  set echo=off message=off end
+end if
+
+checkversion 1.3
+
+if ( &target = "twin_lsq" ) then
+
+  query name=twin_total domain=reciprocal end
+  if ( $object_exist = false ) then
+    declare name=twin_total domain=reciprocal type=real end
+  end if
+
+  do (twin_total=sqrt((1-&twin_frac)*abs(                  &fcalc+&fpart )^2+
+                         &twin_frac *abs(remap[&twin_oper](&fcalc+&fpart))^2)) (all)
+  multiscale
+    bfmin=-40 bfmax=40
+    set1=&fobs       k1=-1 b1=0
+    set2=twin_total        b2=0
+    selection=(ref_active=1)
+  end
+  evaluate ($twin_scale=$k2)
+
+  target=( 1/(sum[overall](abs(&fobs)^2)) * ( abs(&fobs) - $twin_scale * 
+             sqrt((1-&twin_frac)*abs(                  &fcalc+&fpart )^2 +
+                     &twin_frac *abs(remap[&twin_oper](&fcalc+&fpart))^2) )^2 )
+
+  dtarget=( -2/(sum[overall](abs(&fobs)^2)) * $twin_scale * ( 
+                                 ( ( abs(&fobs) - $twin_scale * 
+            sqrt((1-&twin_frac)*abs(                  &fcalc+&fpart )^2 +
+                    &twin_frac *abs(remap[&twin_oper](&fcalc+&fpart))^2))
+                                   * ((1-&twin_frac)*(&fcalc+&fpart))/
+           (sqrt((1-&twin_frac)*abs(                  &fcalc+&fpart )^2 +
+                    &twin_frac *abs(remap[&twin_oper](&fcalc+&fpart))^2) ) ) +
+
+                remap[&twin_oper]( ( abs(&fobs) - $twin_scale * 
+            sqrt((1-&twin_frac)*abs(                  &fcalc+&fpart )^2 +
+                    &twin_frac *abs(remap[&twin_oper](&fcalc+&fpart))^2))
+                    * ((&twin_frac)*remap[&twin_oper](&fcalc+&fpart))/
+           (sqrt((1-&twin_frac)*abs(                  &fcalc+&fpart )^2 +
+                    &twin_frac *abs(remap[&twin_oper](&fcalc+&fpart))^2) ) )
+                  ) )
+
+  undeclare name=twin_total domain=reciprocal end
+
+else
+  
+  display Target-error: unknown target definition -> abort
+  abort
+  
+end if
+
+if ( &statistics = true ) then
+  statistics
+    (rvalue(&fobs,sqrt((1-&twin_frac)*abs(                  &fcalc+&fpart )^2 +
+                          &twin_frac *abs(remap[&twin_oper](&fcalc+&fpart))^2)))
+    selection=(&sel and &sel_test)
+  end
+  statistics
+    (rvalue(&fobs,sqrt((1-&twin_frac)*abs(                  &fcalc+&fpart )^2 +
+                          &twin_frac *abs(remap[&twin_oper](&fcalc+&fpart))^2)))
+    selection=(&sel and not &sel_test)
+  end
+end if
+
+{- define refinement monitor -}
+{- the twinned R-value -}
+monitor=(rvalue[overall](&fobs,(sqrt((1-&twin_frac)*abs(                  &fcalc+&fpart )^2 +
+                                        &twin_frac *abs(remap[&twin_oper](&fcalc+&fpart))^2))))
+
+set message=$message_old echo=$echo_old end

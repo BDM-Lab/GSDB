@@ -1,0 +1,229 @@
+###############################################################################
+#                                                                             #
+#       Source directory proto Makefile for CNSsolve                          #
+#       Paul Adams 20-10-98                                                   #
+#       copyright Yale University                                             #
+#                                                                             #
+###############################################################################
+
+.SUFFIXES:
+.SUFFIXES: .o
+
+SHELL=/bin/sh
+
+# commands
+RM = /bin/rm
+
+# dependencies
+DEPENDS = $(OBJS) dmemory.o machine_c.o
+
+# the default is to make the cns executable
+cns_solve:
+	@ make -k printflags       F77BUG="$(debug)" DEBUG="$(debug)"
+	@ make -k ../bin/cns_solve F77BUG="$(debug)" DEBUG="$(debug)"
+	@ make -k exepurge
+
+# rule for the fortran routines
+$(OBJS): 
+	@ echo "compiling: $(@:.o=.f)"; \
+	  $(F77) -c $(F77FLAGS) $(@:.o=.f)
+
+# rule for the dynamic memory allocation C routines
+dmemory.o: dmemory.c
+	@ echo ; echo "compiling: $?"
+	@ $(CC) -c $(CCFLAGS) $?
+
+# rule for the machine specific C routines
+machine_c.o: machine_c.c
+	@ echo ; echo "compiling: $?"
+	@ $(CC) -c $(CCFLAGS) $?
+
+# rule for the executable itself
+../bin/cns_solve: $(DEPENDS) 
+	@ echo ; echo "linking: cns_solve"; echo
+	@ cns_string=`date "+%y%m%d%H%M"`; \
+	  $(LD) -o cns_solve-$$cns_string.exe $(OBJS) dmemory.o machine_c.o \
+	                                      $(LDFLAGS) \
+	                                      $(CNS_FFTDIR) $(CNS_FFTLIB); \
+	  if [ -x cns_solve-$$cns_string.exe ]; \
+	    then echo "created executable file cns_solve-$$cns_string.exe"; \
+	         echo ""; cd ../bin; $(RM) -f cns_solve; $(RM) -f cns; \
+	                ln -s ../source/cns_solve-$$cns_string.exe cns_solve; \
+	                ln -s ../source/cns_solve-$$cns_string.exe cns; \
+	  else \
+	    echo "problems with new executable - old version retained"; \
+	  fi
+
+# display the compilation flags
+printflags:
+	@ echo; echo "flags:"; \
+	  echo " fortran -> [$(F77)] $(F77FLAGS)"; \
+	  echo "       c -> [$(CC)] $(CCFLAGS)"; \
+	  echo "    link -> [$(LD)] $(LDFLAGS) $(CNS_FFTDIR) $(CNS_FFTLIB)"; \
+	  echo
+
+# regenerate makefiles
+makefiles: relink
+	@ if [ -f Makefile ]; \
+	    then mv Makefile Makefile.bak; \
+	  fi; \
+	  echo 'making Makefile in source directory'; \
+	  cat $(CNS_INST)/Makefile.header > Makefile; \
+	  echo '    ' >> Makefile; \
+	  echo '# Makefile - autobuild '`date` >> Makefile; \
+	  echo '    ' >> Makefile; \
+	  echo 'OBJS = '`../../bin/objects` >> Makefile; \
+	  echo '    ' >> Makefile; \
+	  cat $(CNS_SOLVE)/instlib/source/Makefile.proto >> Makefile; \
+	  ../../bin/depend *.f >> Makefile
+
+# relink the source files to the compilation directory
+relink:
+	@ cd $(CNS_SOLVE)/source; \
+	  for file in `/bin/ls *.*`; \
+	    do if ( /bin/ls $(CNS_SOURCE)/$$file > /dev/null 2>&1 ); \
+	         then if [ ! -s $(CNS_SOURCE)/$$file ]; \
+	           then echo "removing link for $(CNS_SOURCE)/$$file"; \
+	                     $(RM) -f $(CNS_SOURCE)/$$file; \
+	         fi; \
+	       fi; \
+	       if [ ! -f $(CNS_SOURCE)/$$file ]; \
+	         then cd $(CNS_SOURCE); \
+	         echo "linking ../../source/$$file to source directory"; \
+	         ln -s ../../source/$$file .; \
+	         cd $(CNS_SOLVE)/source; \
+	       fi; \
+	  done
+	@ cd $(CNS_SOURCE); \
+	  for file in `/bin/ls *.*`; \
+	    do if [ ! -s $$file ]; \
+	      then ofile=`echo $$file | sed -e 's/\.f/\.o/g;s/\.c/\.o/g'`; \
+	           echo "removing link for $$file"; \
+	           /bin/rm -f $$file; \
+	           if [ -f $$ofile ]; \
+	             then echo "removing object file $$ofile"; \
+	                  /bin/rm -f $$ofile; \
+	           fi; \
+	      fi; \
+	  done
+
+# link machine specific fortran file
+machinefile:
+	@ echo "linking machine_f.f to source directory"; \
+	  cd $(CNS_SOURCE); $(RM) -f machine_f.f; ln -s ../machine_f.f .; \
+	  echo "linking machine_c.c to source directory"; \
+	  cd $(CNS_SOURCE); $(RM) -f machine_c.c; ln -s ../machine_c.c .
+
+# link fft file to source directory
+fftfile:
+	@ cd $(CNS_SOURCE); \
+	  if [ ! -s fft.f ]; \
+	  then \
+	    $(RM) -f fft.f; $(RM) -f fft.o; \
+	    if [ -n "$(CNS_FFTLIB)" ]; \
+	    then echo "linking optimized fft file to source directory"; \
+	         ln -s ../fft/fft.f .; \
+	    else echo "linking generic fft file to source directory"; \
+	         ln -s ../../source/fft.f .; \
+	    fi; \
+	  else \
+	    fftold=`ls -l fft.f | awk '{print $$NF}'`; \
+	    if [ -n "$(CNS_FFTLIB)" ]; \
+	    then echo "linking optimized fft file to source directory"; \
+	         $(RM) -f fft.f; ln -s ../fft/fft.f .; \
+	    else echo "linking generic fft file to source directory"; \
+	         $(RM) -f fft.f; ln -s ../../source/fft.f .; \
+	    fi; \
+	    fftnew=`ls -l fft.f | awk '{print $$NF}'`; \
+	    if [ $$fftold != $$fftnew ]; then $(RM) -f fft.o; fi; \
+	  fi
+
+# remove out of date executables
+exepurge:
+	@ list=`(ls cns_solve-??????????.exe | sort -r) 2>/dev/null`; \
+	  counter=1; \
+	  for file in $$list; \
+	    do if [ $$counter -gt $${CNS_EXE_LIMIT:=1} ]; \
+	      then echo "removing out-of-date executable file $$file"; \
+	           rm -f $$file; \
+	    fi; \
+	    counter=`echo $$counter | awk '{print $$1+1}'`; \
+	  done
+
+# remove the most recent executable
+remove-exe:
+	@ list=`(ls cns_solve-??????????.exe | sort -r ) 2>/dev/null`; \
+	  counter=1; \
+	  for file in $$list; \
+	    do if [ $$counter -eq 1 ]; \
+	      then echo "removing most recent executable file $$file"; \
+	           rm -f $$file; \
+	    fi; \
+	    counter=`echo $$counter | awk '{print $$1+1}'`; \
+	  done
+
+# test the compilers
+compiler-test:
+	@ if [ ! -d $(CNS_INST)/compiler-test ]; \
+	  then echo "making compiler-test directory in $(CNS_ARCH)"; \
+	       mkdir $(CNS_INST)/compiler-test; \
+	  fi
+	@ cd $(CNS_INST)/compiler-test; \
+	  /bin/rm -f $(CNS_INST)/compiler-test/*; \
+	  ln -s ../../instlib/compiler-test/* .
+	@ echo "testing Fortran and C compilers"; \
+	  cd $(CNS_INST)/compiler-test; \
+	  make c-test CC="$(CC)" CCFLAGS="$(CCFLAGS)"; \
+	  cd $(CNS_INST)/compiler-test; \
+	  make fortran-test F77="$(F77)" F77FLAGS="$(F77FLAGS)" \
+	                    LD="$(LD)" LDFLAGS="$(LDFLAGS)"
+
+utils:
+	@ if [ ! -d $(CNS_INST)/utils ]; \
+	  then echo "making utils directory in $(CNS_ARCH)"; \
+	       mkdir $(CNS_INST)/utils; \
+	  fi
+	@ if [ -d $(CNS_SOLVE)/utils ]; \
+	  then cd $(CNS_SOLVE)/utils; \
+	    for file in `/bin/ls *`; \
+	      do if [ ! -f $(CNS_INST)/utils/$$file ]; \
+	        then cd $(CNS_INST)/utils; \
+	             ln -s ../../utils/$$file .; \
+	        fi; \
+	    done; \
+	    cd $(CNS_INST)/utils; \
+	    for file in `/bin/ls *`; \
+	      do if [ \( ! -f $(CNS_SOLVE)/utils/$$file   \) -a \
+	              \( ! -f $(CNS_SOLVE)/utils/$$file.c \) -a \
+	              \( ! -f $(CNS_SOLVE)/utils/$$file.f \) -a \
+	              \( ! -f $(CNS_SOLVE)/utils/$$file.l \) ]; \
+	        then rm -f $(CNS_INST)/utils/$$file; \
+	        fi; \
+	    done; \
+	    cd $(CNS_SOURCE); make -k utilbin OBJS=none; \
+	  fi
+
+# tidy up any stray files
+tidy:
+	@ $(RM) -f Makefile*bak
+	-@ for file in `/bin/ls *.o`; \
+	     do sfile=`echo $$file | sed -e 's/\.o/\.f/'`; \
+	       cfile=`echo $$file | sed -e 's/\.o/\.c/'`; \
+	       if [ \( ! -f $(CNS_SOURCE)/$$sfile \) -a \
+	            \( ! -f $(CNS_SOURCE)/$$cfile \) -a \
+	            \( ! -f $(CNS_INST)/$$cfile \) ]; \
+	         then echo "removing object file $$file"; \
+	              /bin/rm -f $$file; \
+	       fi; \
+	   done
+
+# make space by deleting object files
+space:
+	@ echo 'removing object files'; /bin/rm -f *.o
+
+# clean up - remove all objects and executables
+clean:
+	@ echo 'removing object files'; /bin/rm -f *.o; \
+	  echo 'removing executable'; /bin/rm -f *.exe
+
+#==============================================================================

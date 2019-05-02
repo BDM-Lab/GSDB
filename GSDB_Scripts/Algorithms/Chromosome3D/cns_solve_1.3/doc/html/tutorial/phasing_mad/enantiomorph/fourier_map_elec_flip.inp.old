@@ -1,0 +1,1286 @@
+{+ file: fourier_map.inp +}
+{+ directory: xtal_util +}
+{+ description: Computes fom-weighted Fourier-synthesis and 
+                difference-Fourier maps. +}
+{+ comment:
+            Differences can be isomorphous, dispersive, or anomalous. 
+            Phases and foms can be directly read or obtained from
+            Hendrickson-Lattman coefficients.  
+            Weighted average of up to 4 different Fourier maps can be computed.
+            Weights are given by 1/ < df ^2 > for difference maps
+            and 1 / < f^2 > for native Patterson maps. When adding
+            isomorphous/dispersive and anomalous maps this weighting
+            scheme is approximately equal to a weighting by f' : 2f'' +}
+{+ authors: Axel T. Brunger +}
+{+ copyright: Yale University +}
+
+{- Guidelines for using this file:
+   - all strings must be quoted by double-quotes
+   - logical variables (true/false) are not quoted
+   - do not remove any evaluate statements from the file -}
+
+{- begin block parameter definition -} define(
+
+{====================== crystallographic data ========================}
+
+{* space group *}
+{* use International Table conventions with subscripts substituted
+   by parenthesis *}
+{===>} sg="P6";
+
+{* unit cell parameters in Angstroms and degrees *}
+{+ table: rows=1 "cell" cols=6 "a" "b" "c" "alpha" "beta" "gamma" +}
+{===>} a=116.097;
+{===>} b=116.097;
+{===>} c=44.175;
+{===>} alpha=90;
+{===>} beta=90;
+{===>} gamma=120;
+
+{* reflection file(s) *}
+{* specify non-anomalous reflection file(s) (if any)
+   before anomalous reflection file(s) *}
+{===>} reflection_infile_1="mad_scale.hkl";
+{===>} reflection_infile_2="mad_phase_flip.hkl";
+{===>} reflection_infile_3="";
+{===>} reflection_infile_4="";
+
+{========================= general map options =======================}
+
+{* resolution range for scaling and map calculation *}
+{+ table: rows=1 "resolution" cols=2 "lowest" "highest" +}
+{===>} low_res=500.;
+{===>} high_res=2.4;
+
+{* number of maps for averaging *}
+{===>} number_of_maps=1;
+
+{* use diffraction ratios to weight Fourier maps *}
+{* if false weights are set to 1 *}
+{+ choice: true false +}
+{===>} weight_flag=true;
+
+{* number of bins for empirical averaging weight calculation *}
+{===>} bins=10;
+
+{============================== map 1 ================================}
+
+{* map type *}
+{+ list:  "synthesis" : map = FT ( fom * |f_a| exp(i phase) )
+         "dispersive" : map = FT(fom (|f_a|-|f_b|) exp(i phase))
+        "isomorphous" : map = FT(fom (|f_a|-|f_b|) exp(i phase))
+          "anomalous" : map = FT(fom (|f_a+|-|f_a-|) exp(i [phase-90])) +}
+{+ choice: "synthesis" "dispersive" "isomorphous" "anomalous" +}
+{===>} mode_1="synthesis";
+
+{* Hendrickson-Lattman coefficient arrays for phase and fom calculation *}
+{* leave these blank if centroid phases and foms are directly read *}
+{+ table: rows=1 "HL coefficients" cols=4 "A" "B" "C" "D" +}
+{===>} pa_1="pa";
+{===>} pb_1="pb";
+{===>} pc_1="pc";
+{===>} pd_1="pd";
+     
+{* optional: name of complex structure factor array with centroid phases *}
+{* you must specify this array if no Hendrickson-Lattman coefficients are 
+   specified, leave blank otherwise. *}
+{===>} phase_array_1="";
+
+{* optional: name of corresponding figure of merit array *}
+{* leave this blank if no fom weighting is desired *}
+{===>} fom_name_1="";
+
+{* amplitude array f_a (for all map types) *}
+{===>} f_a_1="f_w1";
+
+{* corresponding sigma array *}
+{* leave blank if unavailable *}
+{===>} s_a_1="s_w1";
+
+{* amplitude array f_b (for "dispersive" or "isomorphous" maps only) *}
+{===>} f_b_1="";
+
+{* corresponding sigma array (for "dispersive" or "isomorphous" maps only) *}
+{* leave blank if unavailable *}
+{===>} s_b_1="";
+
+{* |F|/sigma{F} amplitude cutoff *}
+{* reflections with |F|/Sigma{F} < cutoff will be rejected 
+   both Freidel mates are rejected if either one has |F|/Sigma{F} < cutoff *}
+{===>} cut_f_1=0.0;
+
+{* Rms outlier cutoff *}
+{+ list: synthesis maps: refl. with |F| > cutoff*rms(|F|) will be rejected
+        difference maps: refl. with |delta F| > cutoff*rms(|delta F|) will 
+                         be rejected +}
+{===>} max_df_1=100;
+
+{* overall k-scaling for all difference maps *}
+{* if "yes": f_b will be scaled to f_a *}
+{+ choice: "yes" "no" +}
+{===>} kscale_1="yes";
+
+{* B-scaling for all difference maps *}
+{* if other than "no": f_b will be scaled to f_a *}
+{+ choice: "no" "isotropic" "anisotropic" +}
+{===>} bscale_1="anisotropic";
+
+{* scaling iterations for all difference maps *}
+{* number of iterations using rejection criteria *}
+{===>} nscale_iter_1=4;
+
+{* delta |F| cutoff for all difference maps *}
+{* reflections with |delta F|/Sigma{delta F} < cutoff will be rejected *}
+{===>} cut_df_1=0.;
+
+{============================== map 2 ================================}
+
+{* map type *}
+{+ list:  "synthesis" : map = FT ( fom * |f_a| exp(i phase) )
+         "dispersive" : map = FT(fom (|f_a|-|f_b|) exp(i phase))
+        "isomorphous" : map = FT(fom (|f_a|-|f_b|) exp(i phase))
+          "anomalous" : map = FT(fom (|f_a+|-|f_a-|) exp(i [phase-90])) +}
+{+ choice: "synthesis" "dispersive" "isomorphous" "anomalous" +}
+{===>} mode_2="synthesis";
+
+{* Hendrickson-Lattman coefficient arrays for phase and fom calculation *}
+{* leave these blank if centroid phases and foms are directly read *}
+{+ table: rows=1 "HL coefficients" cols=4 "A" "B" "C" "D" +}
+{===>} pa_2="";
+{===>} pb_2="";
+{===>} pc_2="";
+{===>} pd_2="";
+     
+{* optional: name of complex structure factor array with centroid phases *}
+{* you must specify this array if no Hendrickson-Lattman coefficients are
+   specified, leave blank otherwise. *}
+{===>} phase_array_2="";
+
+{* optional: name of corresponding figure of merit array *}
+{* leave this blank if no fom weighting is desired *}
+{===>} fom_name_2="";
+     
+{* amplitude array f_a (for all map types) *}
+{===>} f_a_2="";
+
+{* corresponding sigma array *}
+{* leave blank if unavailable *}
+{===>} s_a_2="";
+
+{* amplitude array f_b (for "dispersive" or "isomorphous" maps only) *}
+{===>} f_b_2="";
+
+{* corresponding sigma array (for "dispersive" or "isomorphous" maps only) *}
+{* leave blank if unavailable *}
+{===>} s_b_2="";
+
+{* |F|/sigma{F} amplitude cutoff *}
+{* reflections with |F|/Sigma{F} < cutoff will be rejected 
+   both Freidel mates are rejected if either one has |F|/Sigma{F} < cutoff *}
+{===>} cut_f_2=0.0;
+
+{* Rms outlier cutoff *}
+{+ list: synthesis maps: refl. with |F| > cutoff*rms(|F|) will be rejected
+        difference maps: refl. with |delta F| > cutoff*rms(|delta F|) will 
+                         be rejected +}
+{===>} max_df_2=100;
+
+{* overall k-scaling for all difference maps *}
+{* if "yes": f_b will be scaled to f_a *}
+{+ choice: "yes" "no" +}
+{===>} kscale_2="yes";
+
+{* B-scaling for all difference maps *}
+{* if other than "no": f_b will be scaled to f_a *}
+{+ choice: "no" "isotropic" "anisotropic" +}
+{===>} bscale_2="anisotropic";
+
+{* scaling iterations for all difference maps *}
+{* number of iterations using rejection criteria *}
+{===>} nscale_iter_2=4;
+
+{* delta |F| cutoff for all difference maps *}
+{* reflections with |delta F|/Sigma{delta F} < cutoff will be rejected *}
+{===>} cut_df_2=0.;
+
+{============================== map 3 ================================}
+
+{* map type *}
+{+ list:  "synthesis" : map = FT ( fom * |f_a| exp(i phase) )
+         "dispersive" : map = FT(fom (|f_a|-|f_b|) exp(i phase))
+        "isomorphous" : map = FT(fom (|f_a|-|f_b|) exp(i phase))
+          "anomalous" : map = FT(fom (|f_a+|-|f_a-|) exp(i [phase-90])) +}
+{+ choice: "synthesis" "dispersive" "isomorphous" "anomalous" +}
+{===>} mode_3="synthesis";
+
+{* Hendrickson-Lattman coefficient arrays for phase and fom calculation *}
+{* leave these blank if centroid phases and foms are directly read *}
+{+ table: rows=1 "HL coefficients" cols=4 "A" "B" "C" "D" +}
+{===>} pa_3="";
+{===>} pb_3="";
+{===>} pc_3="";
+{===>} pd_3="";
+     
+{* optional: name of complex structure factor array with centroid phases *}
+{* you must specify this array if no Hendrickson-Lattman coefficients are
+   specified, leave blank otherwise. *}
+{===>} phase_array_3="";
+
+{* optional: name of corresponding figure of merit array *}
+{* leave this blank if no fom weighting is desired *}
+{===>} fom_name_3="";
+     
+{* amplitude array f_a (for all map types) *}
+{===>} f_a_3="";
+
+{* corresponding sigma array *}
+{* leave blank if unavailable *}
+{===>} s_a_3="";
+
+{* amplitude array f_b (for "dispersive" or "isomorphous" maps only) *}
+{===>} f_b_3="";
+
+{* corresponding sigma array (for "dispersive" or "isomorphous" maps only) *}
+{* leave blank if unavailable *}
+{===>} s_b_3="";
+
+{* |F|/sigma{F} amplitude cutoff *}
+{* reflections with |F|/Sigma{F} < cutoff will be rejected 
+   both Freidel mates are rejected if either one has |F|/Sigma{F} < cutoff *}
+{===>} cut_f_3=0.0;
+
+{* Rms outlier cutoff *}
+{+ list: synthesis maps: refl. with |F| > cutoff*rms(|F|) will be rejected
+        difference maps: refl. with |delta F| > cutoff*rms(|delta F|) will 
+                         be rejected +}
+{===>} max_df_3=100;
+
+{* overall k-scaling for all difference maps *}
+{* if "yes": f_b will be scaled to f_a *}
+{+ choice: "yes" "no" +}
+{===>} kscale_3="yes";
+
+{* B-scaling for all difference maps *}
+{* if other than "no": f_b will be scaled to f_a *}
+{+ choice: "no" "isotropic" "anisotropic" +}
+{===>} bscale_3="anisotropic";
+
+{* scaling iterations for all difference maps *}
+{* number of iterations using rejection criteria *}
+{===>} nscale_iter_3=4;
+
+{* delta |F| cutoff for all difference maps *}
+{* reflections with |delta F|/Sigma{delta F} < cutoff will be rejected *}
+{===>} cut_df_3=0.;
+
+{============================== map 4 ================================}
+
+{* map type *}
+{+ list:  "synthesis" : map = FT ( fom * |f_a| exp(i phase) )
+         "dispersive" : map = FT(fom (|f_a|-|f_b|) exp(i phase))
+        "isomorphous" : map = FT(fom (|f_a|-|f_b|) exp(i phase))
+          "anomalous" : map = FT(fom (|f_a+|-|f_a-|) exp(i [phase-90])) +}
+{+ choice: "synthesis" "dispersive" "isomorphous" "anomalous" +}
+{===>} mode_4="synthesis";
+
+{* Hendrickson-Lattman coefficient arrays for phase and fom calculation *}
+{* leave these blank if centroid phases and foms are directly read *}
+{+ table: rows=1 "HL coefficients" cols=4 "A" "B" "C" "D" +}
+{===>} pa_4="";
+{===>} pb_4="";
+{===>} pc_4="";
+{===>} pd_4="";
+     
+{* optional: name of complex structure factor array with centroid phases *}
+{* you must specify this array if no Hendrickson-Lattman coefficients are 
+   specified, leave blank otherwise. *}
+{===>} phase_array_4="";
+
+{* optional: name of corresponding figure of merit array *}
+{* leave this blank if no fom weighting is desired *}
+{===>} fom_name_4="";
+     
+{* amplitude array f_a (for all map types) *}
+{===>} f_a_4="";
+
+{* corresponding sigma array *}
+{* leave blank if unavailable *}
+{===>} s_a_4="";
+
+{* amplitude array f_b (for "dispersive" or "isomorphous" maps only) *}
+{===>} f_b_4="";
+
+{* corresponding sigma array (for "dispersive" or "isomorphous" maps only) *}
+{* leave blank if unavailable *}
+{===>} s_b_4="";
+
+{* |F|/sigma{F} amplitude cutoff *}
+{* reflections with |F|/Sigma{F} < cutoff will be rejected 
+   both Freidel mates are rejected if either one has |F|/Sigma{F} < cutoff *}
+{===>} cut_f_4=0.0;
+
+{* Rms outlier cutoff *}
+{+ list: synthesis maps: refl. with |F| > cutoff*rms(|F|) will be rejected
+        difference maps: refl. with |delta F| > cutoff*rms(|delta F|) will 
+                         be rejected +}
+{===>} max_df_4=100;
+
+{* overall k-scaling for all difference maps *}
+{* if "yes": f_b will be scaled to f_a *}
+{+ choice: "yes" "no" +}
+{===>} kscale_4="yes";
+
+{* B-scaling for all difference maps *}
+{* if other than "no": f_b will be scaled to f_a *}
+{+ choice: "no" "isotropic" "anisotropic" +}
+{===>} bscale_4="anisotropic";
+
+{* scaling iterations for all difference maps *}
+{* number of iterations using rejection criteria *}
+{===>} nscale_iter_4=4;
+
+{* delta |F| cutoff for all difference maps *}
+{* reflections with |delta F|/Sigma{delta F} < cutoff will be rejected *}
+{===>} cut_df_4=0.;
+
+{============================ map output options ======================}
+
+{* write map file *}
+{+ choice: true false +}
+{===>} write_map=true;
+
+{* scale map by dividing by the rms sigma of the map *}
+{* otherwise map will be on the scale of the first data set *}
+{+ choice: true false +}
+{===>} map_scale=true;
+
+{* map format *}
+{+ choice: "cns" "ezd" +}
+{===>} map_format="cns";
+
+{* b-factor sharpening (A^2), for example, -100 *}
+{===>} bsharp=0;
+
+{* map grid size: dmin*grid *}
+{* use grid=0.25 for better map appearance *}
+{===>} grid=0.333;
+
+{* memory allocation for FFT calculation *}
+{* this will be determined automatically if a negative value is given
+   otherwise the specified number of words of space will be allocated *}
+{===>} fft_memory=-1;
+
+{* extent of map *}
+{+ choice: "asymmetric" "box" "unit" "molecule" "fract" +}
+{===>} map_mode="asymmetric";
+
+{* limits in orthogonal angstroms for box mode or
+   fractional coordinates for fract mode *}
+{+ table: rows=3 "x" "y" "z" cols=2 "minimum" "maximum" +}
+{===>} xmin=0.;
+{===>} xmax=0.;
+{===>} ymin=0.;
+{===>} ymax=0.;
+{===>} zmin=0.;
+{===>} zmax=0.;
+
+{================ options for molecule extent of map ==================}
+
+{* coordinate file for writing map around molecule *}
+{===>} coordinate_infile="";
+
+{* atom selection for writing map around molecule *}
+{* the map will cover the selected atoms *}
+{===>} atom_map=(known and not hydrogen);
+
+{* cushion (in Angstroms) around selected atoms *}
+{===>} map_cushion=3.0;
+
+{* topology files *}
+{===>} topology_infile_1="CNS_TOPPAR:protein.top";
+{===>} topology_infile_2="CNS_TOPPAR:dna-rna.top";
+{===>} topology_infile_3="CNS_TOPPAR:water.top";
+{===>} topology_infile_4="CNS_TOPPAR:ion.top";
+{===>} topology_infile_5="CNS_TOPPAR:carbohydrate.top";
+{===>} topology_infile_6="";
+{===>} topology_infile_7="";
+{===>} topology_infile_8="";
+
+{* linkage files for linear, continuous polymers (protein, DNA, RNA) *}
+{===>} link_infile_1="CNS_TOPPAR:protein.link";
+{===>} link_infile_2="CNS_TOPPAR:dna-rna-pho.link";
+{===>} link_infile_3="";
+
+{* parameter files *}
+{===>} parameter_infile_1="CNS_TOPPAR:protein_rep.param";
+{===>} parameter_infile_2="CNS_TOPPAR:dna-rna_rep.param";
+{===>} parameter_infile_3="CNS_TOPPAR:water_rep.param";
+{===>} parameter_infile_4="CNS_TOPPAR:ion.param";
+{===>} parameter_infile_5="CNS_TOPPAR:carbohydrate.param";
+{===>} parameter_infile_6="";
+{===>} parameter_infile_7="";
+{===>} parameter_infile_8="";
+
+{* molecular topology file: optional (leave blank for auto generation) *}
+{* 
+   Auto generation of the molecular topology from the coordinates should only 
+   be used if:
+   (1) Each distinct protein, DNA, or RNA chain must have a separate segid 
+       (or chainid if the chainid is non-blank). 
+   (2) Each contiguous protein, RNA, or RNA chain must not be disrupted by 
+       other types of residues or ligands.  Rather, these other residues 
+       should be listed after protein, RNA/DNA chains. 
+   (3) Disulphides are automatically detected based on distances between the sulfur atoms
+      (must be less than 3 A apart).
+   (4) Broken protein/RNA/DNA chains without terminii must be more than 2.5 A apart to be recognized as such.
+   (5) N-linked glycan links are automatically recognized if the bonded atoms are less than 2.5 A apart.
+   (6) Automatic generation cannot be used with alternate conformations. 
+   For ligands, the user must make suitable topology and parameter files.
+   For non-standard covalent linkages, the custom patch file should be used.
+   Alternatively, the generate.inp or generate_easy.inp task files
+   can be used to generated the mtf prior to running this task file.
+    *}
+{===>} structure_infile="";
+
+{* for auto generation: extra linkages and modifications by custom patches *}
+{===>} patch_infile="";
+
+{============================ peak picking ===========================}
+
+{* do peak picking on map *}
+{+ choice: true false +}
+{===>} peak_search=false;
+
+{* number of highest peaks *}
+{===>} peak_number=30;
+
+{* optional O-mask for restricting peak picking *}
+{===>} mask_infile="";
+
+{* set electron density in map to zero outside of mask *}
+{+ choice: true false +}
+{===>} zero_map=false;
+
+{============================ output filenames =======================}
+
+{* root for output files *}
+{+ list: 
+        map file will be in: <output_root>.map
+        positive peaks in: <output_root>_positive.peaks
+        negative peaks in: <output_root>_negative.peaks +}
+{===>} output_root="fourier_map_elec_flip";
+
+{===========================================================================}
+{         things below this line do not normally need to be changed         }
+{===========================================================================}
+
+ ) {- end block parameter definition -}
+
+checkversion 1.3
+
+evaluate ($log_level=quiet)
+
+if ( $log_level = verbose ) then
+   set message=normal echo=on end
+else
+   set message=off echo=off end
+end if
+
+if ( &map_mode = "molecule" ) then
+ if ( &BLANK%structure_infile = true ) then
+ 
+    {- read topology files -}
+    topology
+     evaluate ($counter=1)
+     evaluate ($done=false)
+     while ( $done = false ) loop read
+      if ( &exist_topology_infile_$counter = true ) then
+         if ( &BLANK%topology_infile_$counter = false ) then
+            @@&topology_infile_$counter
+         end if
+      else
+        evaluate ($done=true)
+      end if
+      evaluate ($counter=$counter+1)
+     end loop read
+    end
+    
+    @CNS_XTALMODULE:mtfautogenerate (
+                                  coordinate_infile=&coordinate_infile;
+                                  convert=true;
+                                  separate=true;
+                                  atom_delete=(not known);
+                                  hydrogen_flag=true;
+                                  break_cutoff=2.5;
+                                  disulphide_dist=3.0;
+                                  carbo_dist=2.5;
+                                  patch_infile=&patch_infile;
+                                  O5_becomes="O";
+                                 )
+
+ else
+
+   structure @&structure_infile end
+   coordinates @&coordinate_infile
+
+ end if
+
+ {- read parameter files -}
+ parameter
+  evaluate ($counter=1)
+  evaluate ($done=false)
+  while ( $done = false ) loop read
+   if ( &exist_parameter_infile_$counter = true ) then
+      if ( &BLANK%parameter_infile_$counter = false ) then
+         @@&parameter_infile_$counter
+      end if
+   else
+     evaluate ($done=true)
+   end if
+   evaluate ($counter=$counter+1)
+  end loop read
+ end
+
+end if
+
+xray
+
+   @CNS_XTALLIB:spacegroup.lib (sg=&sg;) 
+
+   a=&a b=&b c=&c  alpha=&alpha beta=&beta gamma=&gamma
+
+   evaluate ($counter=1)
+   evaluate ($done=false)
+   while ( $done = false ) loop read
+    if ( &exist_reflection_infile_$counter = true ) then
+      if ( &BLANK%reflection_infile_$counter = false ) then
+       reflection
+         @@&reflection_infile_$counter
+       end
+      end if
+   else
+     evaluate ($done=true)
+   end if
+   evaluate ($counter=$counter+1)
+  end loop read
+
+   binresolution &low_res &high_res
+   mapresolution &high_res
+
+   fft
+     grid=&grid
+     if ( &fft_memory < 0 ) then
+       automemory=true
+     else
+       memory=&fft_memory
+     end if
+   end
+
+   statistics overall
+     completeness
+     selection=( &low_res >= d >= &high_res )
+   end
+   evaluate ($total_compl=$expression1)
+
+   show sum(1) ( &low_res >= d >= &high_res )
+   evaluate ($total_read=$select)
+   evaluate ($total=int(1./$total_compl * $total_read))
+
+end
+
+xray
+   declare name=df_sel domain=reciprocal  type=complex end
+   declare name=df     domain=reciprocal  type=real end
+   declare name=df_accum     domain=reciprocal  type=complex end
+   declare name=s_df   domain=reciprocal  type=real end
+   declare name=weight domain=reciprocal type=real end
+
+   do (df_accum=0) ( all )
+
+   if (&number_of_maps > 1) then
+      buffer harvest
+         display Average over &number_of_maps Fourier maps computed.  Weight=&weight_flag
+      end
+   end if
+   
+   buffer harvest
+     display resolution: &low_res - &high_res  
+     display sg= &STRIP%sg 
+     display a= &a b= &b c= &c alpha= &alpha beta= &beta gamma= &gamma
+     display map is scaled to sigma units : &map_scale
+   end
+
+   eval ($nm=1) 
+   while ($nm <= &number_of_maps) loop main
+   
+      if ( &BLANK%pa_$nm = false ) then
+         {- Hendrickson-Lattman coefficients are specified -> compute
+            phases and figure of merit arrays -}
+            
+         @@CNS_XTALMODULE:check_abcd (pa=&pa_$nm;
+                                     pb=&pb_$nm;
+                                     pc=&pc_$nm;
+                                     pd=&pd_$nm;)
+         if ( &BLANK%fom_name_$nm = false ) then
+            display
+            display *********************************************************
+            display map=$nm : error, both Hendrickson-Lattman and fom
+            display           specified.  Use either one or the other. 
+            display *********************************************************
+            display 
+            abort
+         elseif ( &BLANK%phase_array_$nm = false ) then
+            display
+            display *********************************************************
+            display map=$nm : error, both Hendrickson-Lattman and centroid
+            display           phases specified.  Use either one or the other. 
+            display *********************************************************
+            display 
+            abort
+         end if
+
+         evaluate ($phase_array_$nm="phase_tem"+encode($nm))
+         declare name=$STRIP%phase_array_$nm type=complex domain=reciprocal end
+         
+         @CNS_XTALMODULE:getfom (pa=&STRIP%pa_$nm;
+                                 pb=&STRIP%pb_$nm;
+                                 pc=&STRIP%pc_$nm;
+                                 pd=&STRIP%pd_$nm;
+                                 m=$STRIP%phase_array_$nm;
+                                 phistep=5; )
+                                 
+         evaluate ($fom_name_$nm="fom_tem"+encode($nm))  
+         declare name=$STRIP%fom_name_$nm type=real domain=reciprocal end
+         do ($STRIP%fom_name_$nm=amplitude($STRIP%phase_array_$nm)) ( all )
+                                 
+        
+      else
+
+         evaluate ($fom_name_$nm=&fom_name_$nm) 
+         if ( &BLANK%fom_name_$nm = true ) then
+            evaluate ($fom_name_$nm="fom_tem"+encode($nm))
+            declare name=$STRIP%fom_name_$nm type=real domain=reciprocal end
+            do ($STRIP%fom_name_$nm=1) ( all )
+            display
+            display *********************************************************
+            display map=$nm : figure of merit array not specified -> set to 1
+            display *********************************************************
+            display 
+         end if
+ 
+         query name=$STRIP%fom_name_$nm domain=reciprocal end
+         if ( $object_exist=false ) then
+            display
+            display ********************************************************************
+            display map=$nm : error, figure of merit array $STRIP%fom_name_$nm does not exist
+            display ********************************************************************
+            display 
+            abort
+         end if
+         if ( $object_type # "REAL" ) then
+            display 
+            display *****************************************************************************
+            display map=$nm : error, figure of merit array $STRIP%fom_name_$nm has the wrong data type
+            display *****************************************************************************
+            display
+            abort
+         end if
+      
+         if ( &BLANK%phase_array_$nm = true ) then
+           display 
+           display  ***********************************************************
+           display  map=$nm : error, complex array with phases is not specified
+           display  ***********************************************************
+           display
+           abort
+         else
+            evaluate ($phase_array_$nm=&phase_array_$nm) 
+            query name=&STRIP%phase_array_$nm domain=reciprocal end
+            if ( $object_exist=false ) then
+               display
+               display *************************************************************************
+               display map=$nm : error, complex array with phases &phase_array_$nm does not exist
+               display *************************************************************************
+               display 
+               abort
+            end if
+            if ( $object_type # "COMPLEX" ) then
+               display 
+               display **********************************************************************************
+               display map=$nm : error, complex array with phases &phase_array_$nm has the wrong data type
+               display **********************************************************************************
+               display
+               abort
+            end if
+         end if
+      end if
+      
+      if ( &BLANK%f_a_$nm = true ) then
+        display 
+        display  *****************************************************
+        display  map=$nm : error, f_a amplitude array is not specified
+        display  *****************************************************
+        display
+        abort
+      else
+         query name=&STRIP%f_a_$nm domain=reciprocal end
+         if ( $object_exist=false ) then
+            display 
+            display *************************************************************
+            display map=$nm : error, f_a amplitude array &f_a_$nm does not exist
+            display *************************************************************
+            display 
+            abort
+         end if
+         {- note: this array can be of any type -}
+      end if
+      
+      evaluate ($s_a_$nm=&s_a_$nm)    
+      if ( &BLANK%s_a_$nm = true ) then
+         evaluate ($s_a_$nm="s_tema"+encode($nm)) 
+         declare name=$STRIP%s_a_$nm type=real domain=reciprocal end
+         do ($STRIP%s_a_$nm=0.001) ( all ) 
+         display 
+         display *************************************************
+         display map=$nm : f_a sigma array missing -> set to 0.001
+         display *************************************************
+         display 
+      else
+         query name=$STRIP%s_a_$nm domain=reciprocal end
+         if ( $object_exist=false ) then
+            display
+            display *********************************************************
+            display map=$nm : error, f_a sigma array &s_a_$nm does not exist
+            display *********************************************************
+            display
+            abort
+         end if
+         if ( $object_type # "REAL" ) then
+            display 
+            display **********************************************************************
+            display map=$nm : error, f_a set sigma array &s_a_$nm has the wrong data type
+            display **********************************************************************
+            display
+            abort
+         end if
+      end if
+     
+      if (&mode_$nm="synthesis") then
+      
+         do (df=amplitude(&STRIP%f_a_$nm)) ( all ) 
+                                                     
+         show rms (df) ( df > 0 and &low_res >= d >= &high_res ) 
+         evaluate ($rms_df=$result)
+
+         do (df_sel=$STRIP%fom_name_$nm * combine( amplitude(&STRIP%f_a_$nm),phase($STRIP%phase_array_$nm)) )
+            ( amplitude($STRIP%phase_array_$nm)>0 and amplitude(&STRIP%f_a_$nm)> &cut_f_$nm * $STRIP%s_a_$nm
+              and df < &max_df_$nm * $rms_df and  &low_res >= d >= &high_res)
+
+ 
+         eval ($total_used=$select) 
+         eval ($per_used=100*$total_used/$total) 
+         show sum ( 1 ) ( &low_res >= d >= &high_res and amplitude(&STRIP%f_a_$nm)>0  ) 
+         eval ($total_rejected=$select-$total_used) 
+         eval ($per_rejected=100*($total_rejected)/$total) 
+         eval ($total_unobserved=$total-$select)
+         eval ($per_unobserved=100*($total_unobserved)/$total)
+
+
+         buffer harvest
+            display map $nm : &STRIP%mode_$nm map: 
+         end
+         evaluate ($remark="fom *" + &f_a_$nm + " * exp(i phase)")  
+          
+         buffer harvest     
+            display $remark
+         end
+         
+         if ( &BLANK%fom_name_$nm = false ) then
+            buffer harvest
+               display fom= &STRIP%fom_name_$nm  phase= &STRIP%phase_array_$nm
+            end
+         elseif ( &BLANK%phase_array_$nm = false ) then
+            buffer harvest
+               display fom=1 phase= &STRIP%phase_array_$nm
+            end
+         else
+            buffer harvest
+               display fom and phase obtained from HL coefficients &STRIP%pa_$nm, &STRIP%pb_$nm, &STRIP%pc_$nm, &STRIP%pd_$nm
+            end
+         end if
+        
+         buffer harvest 
+            display reflections with &STRIP%f_a_$nm / $STRIP%s_a_$nm < &cut_f_$nm rejected
+            display reflections with &STRIP%f_a_$nm > &max_df_$nm * rms( &STRIP%f_a_$nm ) rejected
+         end
+
+     elseif (&mode_$nm="anomalous") then
+
+         declare name=f_a_fried domain=reciprocal type=real end
+         declare name=s_a_fried domain=reciprocal type=real end
+         
+         do (f_a_fried=friedel(amplitude(&STRIP%f_a_$nm))) 
+                                     ( friedel_pair(amplitude(&STRIP%f_a_$nm)>0))
+         do (s_a_fried=friedel(amplitude(&STRIP%s_a_$nm))) 
+                                     ( friedel_pair(amplitude(&STRIP%f_a_$nm)>0))
+                                     
+
+         buffer harvest
+            display map $nm : &STRIP%mode_$nm difference map: 
+         end
+         evaluate ($remark=" fom * " + "[ " + &f_a_$nm + "+  -  " + &f_a_$nm )
+         evaluate ($remark=$remark + "- ] * exp(i [ phase -90 ] )" )
+         
+         buffer harvest
+            display $remark
+         end
+         if ( &BLANK%fom_name_$nm = false ) then
+            buffer harvest 
+               display fom= &STRIP%fom_name_$nm  phase= &STRIP%phase_array_$nm
+            end
+         elseif ( &BLANK%phase_array_$nm = false ) then
+            buffer harvest 
+               display fom=1 phase= &STRIP%phase_array_$nm
+            end
+         else
+            buffer harvest
+               display fom and phase obtained from HL coefficients &STRIP%pa_$nm, &STRIP%pb_$nm, &STRIP%pc_$nm, &STRIP%pd_$nm
+            end
+         end if
+         
+         buffer harvest
+            display scaling applied to Friedel mates of &STRIP%f_a_$nm : k-scaling = &kscale_$nm   b-scaling = &bscale_$nm
+         end
+         
+          {- intial scale factor: Friedel to wa -}
+         @CNS_XTALMODULE:scalef (	
+            kscale=&kscale_$nm;	       
+            bscale=&bscale_$nm;	
+            sel=( friedel_pair(&low_res >= d >= &high_res 
+               and amplitude(&STRIP%f_a_$nm)> &cut_f_$nm * $STRIP%s_a_$nm));  
+            apply="all"; 
+            fref=&STRIP%f_a_$nm;
+            f=f_a_fried;
+            s=s_a_fried;
+            buffer_name=harvest;
+            )
+
+         buffer harvest
+            concatenate  (iteration no. 0)
+         end
+                                     
+         do (df=amplitude(&STRIP%f_a_$nm)-f_a_fried)
+                                     ( friedel_pair(amplitude(&STRIP%f_a_$nm)>0)) 
+                                                    
+                                                     
+         do (s_df=sqrt($STRIP%s_a_$nm^2 + s_a_fried^2) ) 
+                                     ( friedel_pair( amplitude(&STRIP%f_a_$nm)>0))
+
+         show rms (df) ( abs(df)>0 and  &low_res >= d >= &high_res ) 
+         evaluate ($rms_df=$result)
+
+         evaluate ($iter=0)
+         
+         {- iterate scale factor using rejection criteria -}
+         while ($iter < &nscale_iter_$nm) loop sitr
+
+            evaluate ($iter=$iter+1)
+            
+            @CNS_XTALMODULE:scalef (	
+               kscale=&kscale_$nm;	       
+               bscale=&bscale_$nm;	
+               sel=(friedel_pair( amplitude(&STRIP%f_a_$nm) > &cut_f_$nm * $STRIP%s_a_$nm 
+                         and abs(df) > &cut_df_$nm * s_df 
+                         and abs(df) < &max_df_$nm * $rms_df 
+                         and &low_res >= d >= &high_res ) ) ;
+               apply="all"; 
+               fref=&STRIP%f_a_$nm;
+               f=f_a_fried;
+               s=s_a_fried;
+               buffer_name=harvest;
+               )
+
+            buffer harvest
+               concatenate  (iteration no. $iter)
+            end
+               
+            do (df=amplitude(&STRIP%f_a_$nm)-f_a_fried)
+                                     ( friedel_pair(amplitude(&STRIP%f_a_$nm)>0)) 
+                                                    
+                                                     
+            do (s_df=sqrt($STRIP%s_a_$nm^2 + s_a_fried^2) ) 
+                                     ( friedel_pair( amplitude(&STRIP%f_a_$nm)>0))
+  
+            show rms (df) ( abs(df)>0 and &low_res >= d >= &high_res) 
+            evaluate ($rms_df=$result)
+
+         end loop sitr
+      
+         do (df_sel= $STRIP%fom_name_$nm * combine( df , phase($STRIP%phase_array_$nm)- 90.))
+            (friedel_pair( 
+               amplitude($STRIP%phase_array_$nm)>0 and amplitude(&STRIP%f_a_$nm)> &cut_f_$nm * $STRIP%s_a_$nm   
+               and  abs(df) > &cut_df_$nm * s_df and abs(df) < &max_df_$nm * $rms_df) 
+                                        and &low_res >= d >= &high_res)
+
+
+         eval ($total_used=$select) 
+         eval ($per_used=100*$total_used/$total) 
+         show sum ( 1 ) ( &low_res >= d >= &high_res and amplitude(&STRIP%f_a_$nm)>0  ) 
+         eval ($total_rejected=$select-$total_used) 
+         eval ($per_rejected=100*($total_rejected)/$total) 
+         eval ($total_unobserved=$total-$select)
+         eval ($per_unobserved=100*($total_unobserved)/$total) 
+
+         buffer harvest
+            display reflections with  &STRIP%f_a_$nm / $STRIP%s_a_$nm < &cut_f_$nm rejected
+            display reflections with | delta &STRIP%f_a_$nm | / sigma(| delta &STRIP%f_a_$nm |) \
+< &cut_df_$nm rejected
+            display reflections with | delta &STRIP%f_a_$nm | > &max_df_$nm * rms(| delta \
+&STRIP%f_a_$nm |) rejected
+            display all centric reflections rejected
+         end
+
+         undeclare name=f_a_fried domain=reciprocal end
+         undeclare name=s_a_fried domain=reciprocal end
+   
+       else  { dispersive or isomorphous }
+       
+         if ( &mode_$nm # "isomorphous" ) then
+            if ( &mode_$nm # "dispersive" ) then
+               display 
+               display  ********************************************
+               display  map=$nm : error, unknown map mode: &mode_$nm
+               display  ********************************************
+               display
+               abort
+            end if
+         end if
+
+         if ( &BLANK%f_b_$nm = true ) then
+           display 
+           display  *****************************************************
+           display  map=$nm : error, f_b amplitude array is not specified
+           display  *****************************************************
+           display
+           abort
+         else
+            query name=&STRIP%f_b_$nm domain=reciprocal end
+            if ( $object_exist=false ) then
+               display 
+               display ************************************************************
+               display map=$nm : error, f_b amplitude array &f_b_$nm does not exist
+               display ************************************************************
+               display
+               abort
+            end if
+           {- note: this array can be of any type -}
+         end if
+         
+         evaluate ($s_b_$nm=&s_b_$nm) 
+         
+         if ( &BLANK%s_b_$nm = true ) then
+            evaluate ($s_b_$nm="s_temb"+encode($nm)) 
+            declare name=$STRIP%s_b_$nm type=real domain=reciprocal end
+            do ($STRIP%s_b_$nm=0.001) ( all ) 
+            display 
+            display *************************************************
+            display map=$nm : f_b sigma array missing -> set to 0.001
+            display *************************************************
+            display 
+         else
+            query name=&STRIP%s_b_$nm domain=reciprocal end
+            if ( $object_exist=false ) then
+               display 
+               display ********************************************************
+               display map=$nm : error, f_b sigma array &s_b_$nm does not exist
+               display ********************************************************
+               display 
+               abort
+            end if
+            if ( $object_type # "REAL" ) then
+               display  							
+               display *****************************************************************
+               display map=$nm : error, f_b sigma array &s_b_$nm has the wrong data type
+               display *****************************************************************
+               display
+               abort
+            end if
+         end if
+
+         buffer harvest
+            display map $nm : &STRIP%mode_$nm difference map:
+         end
+         evaluate ($remark=" fom * " + "[ " + &f_a_$nm + " - " + &f_b_$nm )
+         evaluate ($remark=$remark + " ] * exp(i phase )" )
+         buffer harvest
+            display $remark
+         end
+         if ( &BLANK%fom_name_$nm = false ) then
+            buffer harvest
+               display fom= &STRIP%fom_name_$nm  phase= &STRIP%phase_array_$nm
+            end
+         elseif ( &BLANK%phase_array_$nm = false ) then
+            buffer harvest
+               display fom=1 phase= &STRIP%phase_array_$nm
+            end
+         else
+            buffer harvest
+               display fom and phase obtained from HL coefficients &STRIP%pa_$nm, &STRIP%pb_$nm, &STRIP%pc_$nm, &STRIP%pd_$nm
+            end
+         end if
+
+         buffer harvest
+            display scaling applied to &STRIP%f_b_$nm : k-scaling = &kscale_$nm   b-scaling = &bscale_$nm
+         end
+         
+         {- Scale wb to wa -}
+         @CNS_XTALMODULE:scalef (	
+            kscale=&kscale_$nm;	       
+            bscale=&bscale_$nm;	
+            sel=( &low_res >= d >= &high_res 
+               and amplitude(&STRIP%f_a_$nm)> &cut_f_$nm * $STRIP%s_a_$nm 
+               and amplitude(&STRIP%f_b_$nm)> &cut_f_$nm * $STRIP%s_b_$nm);  
+            apply="all";
+            fref=&STRIP%f_a_$nm;
+            f=&STRIP%f_b_$nm;
+            s=$STRIP%s_b_$nm;
+            buffer_name=harvest;
+            )
+
+         buffer harvest
+            concatenate  (iteration no. 0)
+         end
+
+         do (df=amplitude(&STRIP%f_a_$nm)-amplitude(&STRIP%f_b_$nm)) 
+                  ( amplitude(&STRIP%f_a_$nm)>0 and amplitude(&STRIP%f_b_$nm)>0) 
+
+         do (s_df=sqrt($STRIP%s_a_$nm^2 + $STRIP%s_b_$nm^2) ) 
+                  ( amplitude(&STRIP%f_a_$nm)>0 and amplitude(&STRIP%f_b_$nm)>0)
+  
+         show rms (df) ( abs(df)>0 and &low_res >= d >= &high_res) 
+         evaluate ($rms_df=$result)
+
+         evaluate ($iter=0)
+         
+         {- iterate scale factor using rejection criteria -}
+         while ($iter < &nscale_iter_$nm) loop sitr
+
+            evaluate ($iter=$iter+1)
+            
+            @CNS_XTALMODULE:scalef (	
+               kscale=&kscale_$nm;	       
+               bscale=&bscale_$nm;	
+               sel=(  amplitude(&STRIP%f_a_$nm) > &cut_f_$nm * $STRIP%s_a_$nm 
+                  and amplitude(&STRIP%f_b_$nm) > &cut_f_$nm * $STRIP%s_b_$nm 
+                  and abs(df) > &cut_df_$nm * s_df 
+                  and abs(df) < &max_df_$nm * $rms_df 
+                  and &low_res >= d >= &high_res ) ;
+               apply="all"; 
+               fref=&STRIP%f_a_$nm;
+               f=&STRIP%f_b_$nm;
+               s=$STRIP%s_b_$nm;
+               buffer_name=harvest;
+               )
+
+            buffer harvest
+               concatenate  (iteration no. $iter)
+            end
+               
+            do (df=amplitude(&STRIP%f_a_$nm) - amplitude(&STRIP%f_b_$nm) )  
+                      ( amplitude(&STRIP%f_a_$nm)>0 and amplitude(&STRIP%f_b_$nm)>0) 
+
+            do (s_df=sqrt($STRIP%s_a_$nm^2 + $STRIP%s_b_$nm^2) )  
+                      ( amplitude(&STRIP%f_a_$nm)>0 and amplitude(&STRIP%f_b_$nm)>0) 
+
+            show rms (df) ( abs(df)>0 and &low_res >= d >= &high_res ) 
+            evaluate ($rms_df=$result)
+
+         end loop sitr
+         
+         do (df_sel=$STRIP%fom_name_$nm * combine( df , phase($STRIP%phase_array_$nm) )  )
+            ( amplitude($STRIP%phase_array_$nm)>0 and amplitude(&STRIP%f_a_$nm)> &cut_f_$nm * $STRIP%s_a_$nm
+               and amplitude(&STRIP%f_b_$nm)> &cut_f_$nm * $STRIP%s_b_$nm
+               and  abs(df) > &cut_df_$nm * s_df and abs(df) < &max_df_$nm * $rms_df             
+               and  &low_res >= d >= &high_res)
+
+         eval ($total_used=$select) 
+         eval ($per_used=100*$total_used/$total) 
+         show sum ( 1 ) ( &low_res >= d >= &high_res 
+                          and ( amplitude(&STRIP%f_a_$nm)>0 and amplitude(&STRIP%f_b_$nm)>0 ) )
+         eval ($total_rejected=$select-$total_used) 
+         eval ($per_rejected=100*($total_rejected)/$total) 
+         eval ($total_unobserved=$total-$select)
+         eval ($per_unobserved=100*($total_unobserved)/$total)
+         
+         buffer harvest 
+            display reflections with  &STRIP%f_a_$nm / $STRIP%s_a_$nm < &cut_f_$nm \
+and/or  &STRIP%f_b_$nm / $STRIP%s_b_$nm < &cut_f_$nm rejected
+            display reflections with | &STRIP%f_a_$nm-&STRIP%f_b_$nm | / \
+sigma(| &STRIP%f_a_$nm-&STRIP%f_b_$nm |) < &cut_df_$nm rejected
+            display reflections with | &STRIP%f_a_$nm-&STRIP%f_b_$nm | > \
+&max_df_$nm * rms(| &STRIP%f_a_$nm-&STRIP%f_b_$nm |) rejected
+         end 
+     
+      end if
+
+      evaluate ($weight_flag=&weight_flag) 
+      if (&number_of_maps=1) then
+          evaluate ($weight_flag=false)  
+      end if
+
+      if ($weight_flag=true) then
+         if ( &bins > 0 ) then
+           bins=&bins
+         end if
+         do (weight=max(0.001,save(amplitude(df_sel)^2)))  ( amplitude(df_sel)>0 ) 
+         do (df_accum=df_accum+ df_sel/ sqrt(weight) )     ( amplitude(df_sel)>0 ) 
+      else
+         do (df_accum=df_sel)                              ( amplitude(df_sel)>0 ) 
+      end if
+
+      buffer harvest
+         display theoretical total number of refl. in resol. range: \
+$total[I7] ( 100.0  % )
+         display number of unobserved reflections (no entry or f=0):\
+$total_unobserved[I7] ( $per_unobserved[F5.1]  % )
+         display number of reflections rejected:                    \
+$total_rejected[I7] ( $per_rejected[F5.1]  % )
+         display total number of reflections used:                  \
+$total_used[I7] ( $per_used[F5.1]  % )
+      end
+
+      evaluate ($nm=$nm+1)
+   end loop main  
+      
+   if (&bsharp # 0) then
+   
+      {- b-factor sharpening -} 
+      evaluate ($bsharp= (-1) * &bsharp) 
+ 
+      do (df_accum=exp( $bsharp * s^2/4) * df_accum) ( all )
+
+
+      buffer harvest
+        display B-factor sharpening applied to map: exp( Bsharp * S^2/4 ) where Bsharp = &bsharp
+      end
+   end if
+
+   buffer harvest
+      to=remarks
+      dump
+   end
+   
+   declare name=map1 domain=real end
+
+   do (map1=ft( df_accum )) ( amplitude(df_accum)>0) 
+   
+   {- put map on a sigma (rms) scale -}   
+   if (&map_scale=true) then                                            
+      show rms (real(map1)) ( all )
+      do (map1=map1/$result) ( all )
+      remarks map has been scaled by 1/rms (rms= $result[F9.3] )
+   end if
+   
+   if ( &BLANK%mask_infile = false ) then
+     declare name=mask domain=real end
+     read mask
+       to=mask
+       input=&mask_infile
+       type=omask
+     end
+   end if
+
+   if ( &zero_map = true ) then
+     if ( &BLANK%mask_infile = false ) then
+       do (map1=0) ( mask > 0 )
+     end if
+   end if
+
+   if ( &map_mode="box" ) then
+      eval ($map_mode_string=BOX) 
+   elseif ( &map_mode="molecule" ) then
+      eval ($map_mode_string=MOLE)
+   elseif ( &map_mode="unit" ) then
+      eval ($map_mode_string=UNIT)
+   elseif ( &map_mode = "fract" ) then
+     evaluate ($map_mode_string=FRAC)
+   else
+      eval ($map_mode_string=ASYM)
+   end if
+
+   remark a= &a b= &b c= &c alpha= &alpha beta= &beta gamma= &gamma sg= &STRIP%sg
+
+   if ( &write_map = true ) then
+     evaluate ($filename=&output_root + ".map") 
+     write map 
+       if ( &map_format = "ezd" ) then
+         type=ezd
+       else
+         type=cns
+       end if
+       automatic=false
+       from=map1
+       extend=$map_mode_string
+       if ( &map_mode = "molecule" ) then
+         selection=&atom_map
+         cushion=&map_cushion
+       end if
+       output=$filename
+       if ( &map_mode = "box" ) then
+         xmin=&xmin xmax=&xmax
+         ymin=&ymin ymax=&ymax
+         zmin=&zmin zmax=&zmax
+       end if
+       if ( &map_mode = "fract" ) then
+         xmin=&xmin xmax=&xmax
+         ymin=&ymin ymax=&ymax
+         zmin=&zmin zmax=&zmax
+       end if
+     end  
+   end if                                       
+ end
+
+ if ( &peak_search = true ) then
+
+    evaluate ($filename=&output_root + "_positive.peaks") 
+    xray  
+      peakpik
+         from=map1
+         mpeak=&peak_number
+         if ( &BLANK%mask_infile = false ) then
+           selection=( mask <= 0 ) 
+         else
+           selection=( all )
+         end if
+         atom=true
+         if ( &map_mode = "molecule" ) then
+           proximity=(&atom_map)
+         end if
+      end
+    end 
+    write coor output=$filename selection=(segid PEAK) end
+    
+    delete selection=(segid PEAK) end
+
+    evaluate ($filename=&output_root + "_negative.peaks") 
+    xray  
+      do (map1=-map1) ( all ) 
+      peakpik
+         from=map1
+         mpeak=&peak_number
+         if ( &BLANK%mask_infile = false ) then
+           selection=( mask <= 0 ) 
+         else
+           selection=( all )
+         end if
+         atom=true
+         if ( &map_mode = "molecule" ) then
+           proximity=(&atom_map)
+         end if
+      end
+    end
+    write coor output=$filename selection=(segid PEAK) end
+
+ end if
+                                              
+stop

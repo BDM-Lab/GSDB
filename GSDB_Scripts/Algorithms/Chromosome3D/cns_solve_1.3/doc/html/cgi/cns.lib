@@ -1,0 +1,490 @@
+#!/usr/bin/perl
+#
+# cns.lib 
+#
+# Common globals and cgi subroutines for CNSsolve HTML interface
+#
+# Jesse Reklaw and Paul Adams 98 may 26 
+#
+# copyright Yale University
+#
+
+check_version();
+
+############################## Pathnames ###############################
+# ****** NOTE the site-dependent information will need to be modified  #
+########################################################################
+
+# Site and version dependent information
+$serv_name  =  'cns-online.org';
+$www_root   =  '/Users/cns/Web/html';
+$cgi_bindir =  'cgi-bin';
+$cns_version = 'cns_solve_1.3';
+
+# Pathnames (URLs)
+$http_inpdir  = "/$cns_version/inputs";
+$http_moddir  = "/$cns_version/modules";
+$http_libdir  = "/$cns_version/libraries";
+$http_utildir = "/$cns_version/utils";
+$icon_dir     = "/$cns_version/doc/html/icons";
+
+# CGI path and CGI names (via HTTP)
+$cgi_dir =     'http://' . $serv_name . '/' . $cgi_bindir . '/' . $cns_version;
+
+$cns_input   = $cgi_dir . '/cns_inputs.cgi';
+$cns_default = $cgi_dir . '/cns_default.cgi';
+$cns_form    = $cgi_dir . '/cns_form.cgi';
+$cns_menu    = $cgi_dir . '/cns_menu.cgi';
+$cns_info    = $cgi_dir . '/cns_info.cgi';
+$cns_view    = $cgi_dir . '/cns_view.cgi';
+$cns_save    = $cgi_dir . '/cns_save.cgi';
+$cns_jsedit  = $cgi_dir . '/cns_jsedit.cgi';
+
+# Real unix pathnames  - ATB changed default tmp_dir to /var/tmp 6/15/08
+$input_dir   = $www_root . $http_inpdir;
+$module_dir  = $www_root . $http_moddir;
+$library_dir = $www_root . $http_libdir;
+$util_dir    = $www_root . $http_utildir;
+$info_dir    = $input_dir . '/info';
+$desc_file   = $input_dir . '/Description';
+$tmp_dir     = "/var/tmp/$cns_version/inputs";
+$tmplog      = $tmp_dir . '/access.log';
+
+### CLIENT, TIME AND ACCESS INFORMATION ###
+
+# CGI ENVIRONMENT VARIABLES
+$remote_host = $ENV{'REMOTE_HOST'};
+if (!$remote_host) { $remote_host = $ENV{'REMOTE_ADDR'}; }
+$http_ref = $ENV{'HTTP_REFERER'};
+$req_method = $ENV{'REQUEST_METHOD'};
+
+# DATE STUFF
+@shortmonth = ('',jan,feb,mar,apr,may,jun,jul,aug,sep,'oct',nov,dec);
+@d = localtime(time);
+($SEC, $MIN, $HR, $DY, $MO, $YR) = (0..5);
+$d[$MO] ++;		# CONVERT TO 1..12 INSTEAD OF 0..11
+$d[$YR] += 1900;
+foreach $i (0..4) { if ($d[$i] < 10) { $d[$i] = '0' . $d[$i]; }}
+  #2000 conversion: if($d[$YR]>95){$c=19;}else{$c=20;};$d[$YR]=$c . $d[$YR]; 
+$full_date = "$d[$YR]$shortmonth[$d[$MO]]$d[$DY]:$d[$HR]:$d[$MIN]:$d[$SEC]";
+undef( @d );
+undef( $SEC );
+undef( $MIN );
+undef( $HR );
+undef( $DY );
+undef( $MO ); 
+undef( $YR );
+undef( $i );
+
+# HANDY UNIQUE ACCESS VARIABLE 
+$unique_client = $remote_host . $full_date; 
+
+# NOSCRIPT WARNING
+$noscript_warning = 
+    '<NOSCRIPT> <P> <TABLE> <TR><TD BGCOLOR=#AF7F9F> <FONT SIZE=+1>
+      <I>Warning:</I> JavaScript is currently disabled in your browser.
+      It must be enabled for full use of the task file editing features.
+      Please check your browser options in order to enable JavaScript.
+      </FONT> </TD></TR> </TABLE> </P> </NOSCRIPT>';
+
+
+### GLOBAL VARIABLES ###
+
+  $CNS_BGCOLOR = '#8ebf8e';
+
+# PARSING FLAGS:
+# process_var (below) ensures there are no variables with the form 
+#   var_quote, var_paren, etc.
+
+  $QUOTEFLAG = '_quote';
+  $PARENFLAG = '_paren';
+  $OTHERFLAG = '_OTHERFLAG';
+  $OTHERVAL = '_OTHERVAL';
+  $OTHER= 'user_file';
+  $NONE = '_NONE_';
+  $TEXTAREAROOT = 'textarea';
+  $INP_FILE = 'inp_file';
+  $TRUE_FNAME = 'true_filename';
+
+# PARSING VARIABLES
+
+$current_line_number = 0;       # initialize line counter for debugging
+$textarea_count = 1;
+
+# INTERNAL FLAG(S)
+  $html_page_is_initialized = 0;
+
+
+### SUBROUTINES ###
+
+### GET_VARS
+  # THERE ARE THREE FORMATS FOR VARIABLES IN '.inp' FILES:
+  #  1. {===>}
+  #      this will go
+  #      in a textarea
+  #     {<===}
+  #  2. {===>} var1=1; var2=2; var3=3; ...
+  #     There can be arbitrarily many variables on the lines, as long as
+  #     the line ends in ';' . There can also be only one variable.
+  #  3. {===>} var1="a long line
+  #                  of data";
+  #     This type of variable can extend across multiple lines. Note however
+  #     that types 1. and 2. cannot be mixed. The following is NOT allowed:
+  #     INCORRECT {===>} var1="a"; var2="
+  #                                      b"; var3="c";
+  #
+  # Any values enclosed in parentheses will also be placed in a textarea.
+  #   Newlines will be respected for multi-line values, but blank lines
+  #   and leading/trailing spaces will be eliminated (see process_var()).
+  #   Post-processing of the textareas will insert spaces for indentation.
+  # 
+  # get_vars() will return the name-value pairs separated by an equals
+  #   sign in a list--NOT in an association list!
+
+sub get_vars { local( $stream, $first_line ) = @_;
+  local( $lhs, $rhs, $rem, @varpairs, $varpair, %vars );
+
+  @vars = ();
+  if ($first_line =~ m/^\s*$/) {		# CASE 1.
+    ($rhs,$rem) = &append_text_until($stream,'\{<===\}', '');
+    # THIS IS A BIT KLUDGEY, BUT TO KEEP process_var FROM COMPLAINING
+    #   ABOUT THE VARIABLE NAME, LET'S PREPEND A ZERO AND SUBSTRING IT
+    #   OUT AFTER PROCESSING.
+    $lhs = '0' . $TEXTAREAROOT . $textarea_count++;
+    ($lhs,$rhs) = &process_var($lhs,$rhs);
+    $lhs = substr($lhs,1);
+    @vars = ("$lhs.cns_var_is_set_to.$rhs");
+  } elsif ($first_line =~ m/^(.*)\;\s*$/) {	# CASE 2.
+    @varpairs = split(';',$1);
+    foreach $varpair (@varpairs) {
+      ($lhs,$rhs) = split('=', $varpair, 2);
+      ($lhs,$rhs) = &process_var($lhs,$rhs);
+      push(@vars, "$lhs.cns_var_is_set_to.$rhs");
+    }
+  } else {					# CASE 3.
+    ($varpair,$rem) = &append_text_until($stream,'\;', $first_line);
+    ($lhs,$rhs) = split('=', $varpair, 2);
+    ($lhs,$rhs) = &process_var($lhs,$rhs);
+    @vars = ("$lhs.cns_var_is_set_to.$rhs");
+  }
+  return @vars;
+}
+
+
+### PROCESS_VAR
+
+sub process_var { local($lhs,$rhs) = @_;
+  local( @lines, $line, @newlines );
+  $lhs =~ s/\s+//g;				# compress spaces in l.h.s.
+  if ($lhs =~ m/$PARENFLAG$/ ||
+      $lhs =~ m/$QUOTEFLAG$/ ||
+      $lhs =~ m/$OTHERFLAG$/ ||
+      $lhs =~ m/$OTHERVAL$/ ||
+      $lhs =~ m/^$TEXTAREAROOT\d+$/ ||
+      $lhs eq $INP_FILE || $lhs eq $TRUE_FNAME) {
+        &die_html( "Name of variable '$lhs' conflicts with parser.
+                    Please change it.");
+  }
+  # KLUDGE - match (.)(.)(.) ie. a matrix, but do not mark as parenthesis
+  #          this covers the case where matrices are defined as single var PDA
+  if ($rhs =~ m/^\s*(\([^()]*\)\s*\([^()]*\)\s*\([^()]*\))\s*$/) {
+    $rhs = $1;
+  }
+  # KLUDGE - match (.*) does not work, the following is safe, PDA 
+  elsif ($rhs =~ m/^\s*\(([^\;]*)\)\s*$/) {	# if the r.h.s. is in parens
+    $rhs = $1;
+    $lhs .= $PARENFLAG;
+  }
+  if ($rhs =~ m/^"([^"]*)"\s*$/) {		# if the r.h.s. has quotes...
+    $rhs = $1;
+    $lhs .= $QUOTEFLAG;
+  }
+  @lines = split(/\n/,$rhs);
+  foreach $line (@lines) {
+    if ($line =~ m/^\s*(\S.*)$/) { $line = $1; } # clear beginning spaces
+    if ($line =~ m/^(.*\S)\s*$/) { $line = $1; } # clear ending spaces
+    if ($line !~ m/^\s*$/) {push(@newlines,$line);} # keep non-blank lines
+  }
+  $rhs = join("\n",@newlines);
+  return($lhs,$rhs);
+}
+
+
+### APPEND_TEXT_UNTIL
+  # Pre:  $stream is a filestream open for reading
+  #       $delim is a non-null string.
+  #       $tmp is a line of input, potentially containing $delim.
+  # Post: $buffer, the first return value, is a concatenated string of
+  #       all chars from $stream in all lines (including $tmp) preceeding 
+  #       $delim.  $rem, the other return value is the remaining text 
+  #       (not including $delim) which requires processing (it may be 
+  #       empty).  Lines from $stream may be consumed, global variables
+  #       $textarea_count and $current_line_number may be incremented.
+
+sub append_text_until{ local( $stream, $delim, $tmp ) = @_;
+    local( $buffer='', $continue, $start_line_num, $rem, $d );
+    $start_line_num = $current_line_number;
+    $continue = 1;
+    $tmp .= "\n";
+    while ($continue) {
+      if ($tmp =~ /^(.*)$delim(.*)$/) { # If $tmp contains $delim ...
+        $buffer .= $1;                  # ...append desired text to buffer
+        $rem = $2;
+        $continue = 0;
+      } else {
+        $buffer .= $tmp;                # ... Otherwise append all of $tmp
+        $tmp = <$stream>;                   # ... and get a new line.
+        $current_line_number++;         # global counter for debugging
+      }
+      if ( eof && $continue ) {
+          $d = $delim; $d =~ tr/\\//d;
+          &die_html( "EOF detected while trying to parse input.<BR>
+                      Please check the input file -- it may be corrupted.<BR>
+                      <SMALL>Cannot find ' $d ' after line $line_num:<BR>
+                      $line</SMALL>");
+      }
+    }
+    return($buffer,$rem)
+}
+
+  
+### MULTIPART DATA PARSER ###
+
+### GET_FILE
+  # READS FILE FROM STDIN, STOPS AT 'FILE_ID'
+  # WRITES FILE NAMED $new_fname.
+  # RETURNS $old_fname -- the name the client gave the file.
+  # IF $old_fname BEGINS WITH 'ERR: ' THEN THE TRANSMISSION FAILED.
+  #   LOOK AT THE REST OF THE STRING FOR A DIAGNOSTIC.
+
+sub get_file {
+  local( $file_id, $head, $new_fname ) = @_;
+  local( $fname, $line, @file, $empty, $content );
+
+  $empty = 1;
+  ($old_fname) = ($head =~ /filename="(.*)"/);
+#  if ($fname =~ /([^A-Za-z0-9_\.\,\-])([A-Za-z0-9_\.\,\-]*)$/) { $fname = $2; }
+  <STDIN>;			# SKIP FIRST BLANK LINE
+  while (($line = <STDIN>) !~ /$file_id/) {
+    if ($line !~ /^\s*$/) { $empty=0; }
+    $line =~ s/\r\n$/\n/;	# DELETE EXTRA RETURNS PUT ON BY NETSCAPE???
+    push( @file, $line );
+  }
+  if ($empty) { return 'ERR: no file received'; }
+  open( OUT, "> $new_fname" ) || 
+    (return "ERR: cannot write file $new_fname: $!");
+  print OUT @file;
+  close OUT;
+  return $old_fname;       # RETURN FNAME IF SUCCESSFUL
+}
+
+
+########## GENERAL CGI SUBROUTINES ##########
+
+# $query		= &init_cgi;
+#			  &init_html( $title, $jscode, $desc, $keyw );
+#   $jscode		= &jscode_assertReal();
+#   $jscode		= &jscode_confirmedReset();
+#   $jscode		= &jscode_editWindow();
+# $encode		= &escape( $toencode );
+# $decode		= &unescape( $todecode );
+# %nv                   = &parse_args( $argstr );
+#			  &switch_to( $url, $note, $time );
+#			  &log( $logfile, $note );
+#                         &die_html( $err_str );
+
+sub init_cgi {
+  $| = 1;
+  return($ENV{'QUERY_STRING'});	
+}
+
+sub init_html { local( $title, $jscode, $desc, $keyw ) = @_;
+  print "Content-type: text/html\n\n<HTML>";
+  $html_page_is_initialized = 1;
+  if ($title || $jscode || $desc || $keyw) { print "<HEAD>\n"; }
+  if ($title) { print "  <TITLE>$title</TITLE>\n"; }
+  if ($desc)  { print "  <META NAME=description CONTENT=\"$desc\">\n"; }
+  if ($keyw)  { print "  <META NAME=keywords CONTENT=\"$keyw\">\n"; }
+  if ($jscode) { print "
+    <SCRIPT LANGUAGE=\"JavaScript\"> 
+    <!--- hide script from old browsers\n$jscode
+    // end hiding from old browsers --> </SCRIPT>\n\n";
+  }
+  if ($title || $jscode || $desc || $keyw) { print "</HEAD>\n"; }
+}
+
+# JAVASCRIPT CODE BELOW IS DESIGNED FOR DOCUMENTS WITH ONLY ONE FORM! (KLUDGE)
+sub jscode_assertReal {
+# example: A number: <INPUT TYPE=TEXT SIZE=10 NAME=num VALUE=10.0
+#           onChange="assertReal( this, 10 )"><BR>
+  return("    function assertReal(inputObj, defaultVal) {
+        var realVal = parseFloat(inputObj.value);
+        if (realVal < 0 || realVal >= 0) {
+          inputObj.value = realVal; 
+        }
+        else {
+          if ( inputObj.value == '') {
+            inputObj.value = '';
+          }
+          else {
+            alert(\"Value must be a real number.\");
+            inputObj.value = defaultVal;
+          }
+        }
+      }\n");
+}
+
+sub jscode_confirmedReset {
+# example: <INPUT TYPE=BUTTON VALUE="Reset" onClick="confirmedReset('form1')">
+  return("    function confirmedReset(formName) {
+        if (confirm(\"Reset all fields to original values?\"))
+          { document.forms[formName].reset(); }
+      }\n");
+}
+
+sub jscode_editWindow {
+# example: Comments:<BR><TEXTAREA NAME="text1" ROWS=4 COLS=60></TEXTAREA>
+#          <INPUT TYPE=BUTTON VALUE="More Lines"
+#           onClick="editWindow('text1','Comments',40,60)"><BR>
+# THE CALCULATION OF HEIGHT AND WIDTH FOR THE EDIT WINDOW MAY NEED TO
+#   BE FINE-TUNED. THIS IS A LITTLE KLUDGEY.
+  return("    function editWindow(textarea, fieldname, rows, cols) {
+      r = parseInt(rows); if (r < 3) r = 3;
+      c = parseInt(cols); if (c < 3) c = 3;
+      wid = c * 10 + 25; hei = r * 20 + 100;
+      optionStr = 'resizable=no,width=' + wid + ',height=' + hei;
+      cgiStr = '${cns_jsedit}?field=' + textarea + '&heading=' + fieldname;
+      cgiStr = cgiStr + '&rows=' + r + '&cols=' + c;
+      eWin = window.open( cgiStr, 'EditWindow', optionStr );
+      eWin.focus();
+      }\n");
+}
+
+sub jscode_cnsInfo {
+  return("    function cnsInfo( varName, familyName ) {
+        iWin = window.open(
+          '${cns_info}?var=' + varName + '&type=' + familyName,
+          'cnsInfo',
+          'scrollbars=yes,width=800,height=200,resizable=yes');
+        iWin.focus();
+      }\n"); 
+}
+
+sub jscode_cnsView {
+  return("    function cnsView( fileName ) {
+        vWin = window.open(
+          '${cns_view}&file=' + fileName,
+          '_blank',
+          'scrollbars=yes,width=850,height=650,resizable=yes');
+        vWin.focus();
+      }\n"); 
+}
+
+sub jscode_cnsSave {
+  return("    function cnsSave( fileName ) {
+        parent.text.location.href = '${cns_save}&file=' + fileName
+      }\n"); 
+}
+
+sub jscode_cnsForm {
+  return("    function cnsForm( fileName, cnsHelp ) {
+        fWin = window.open(
+          '${cns_form}&file=' + fileName + '&cns_help=' + cnsHelp,
+          '_blank',
+          'scrollbars=yes,menubar=yes,width=1000,height=700,resizable=yes');
+        fWin.focus();
+      }\n"); 
+}
+
+sub jscode_cns_userForm {
+  return("    function cns_userForm( form_name, action, cnsHelp ) {
+        uWin = window.open('',form_name,
+          'scrollbars=yes,menubar=yes,width=1000,height=700,resizable=yes');
+        uWin.focus();
+        document[form_name].action=action + '&cns_help=' + cnsHelp;
+        document[form_name].submit();
+      }\n"); 
+}
+
+sub switch_to { local( $url, $note, $time ) = @_;
+  if ($time eq '' || $time < 0) { $time = 0; }
+  if ($note eq 'direct') {
+    print "Location: $url\n\n";
+  } else {
+    print "Content-type: text/html\n\n";
+    if (!$note) { $note = "Switching to $url"; }
+    print "<HTML><HEAD><TITLE>$note</TITLE>\n";
+    print '<META HTTP-EQUIV="Refresh" CONTENT= "';
+    print "${time};URL=${url}\"></META></HEAD>\n";
+    print "<BODY><H1>$note</H1></BODY></HTML>\n";
+    print "
+      If this page does not automatically reload, you must be using an
+      older WWW Browser that doesn't support 'page refresh.' Click
+      <A HREF=\"$url\">here</A> to go on.</BODY></HTML>\n";
+  }
+}
+
+#
+sub parse_args { local( $argstr ) = @_;
+  local( @pairs, $pair, $name, $value, %nv );
+  @pairs = split(/\&/, $argstr);
+  foreach $pair (@pairs) {
+    ($name, $value) = split(/=/, $pair, 2);
+    $name  =~ tr/+/ /;
+    $value =~ tr/+/ /;
+    $name  =~ s/%([a-fA-F0-9][a-fA-F0-9])/pack("C", hex($1))/eg;
+    $value =~ s/%([a-fA-F0-9][a-fA-F0-9])/pack("C", hex($1))/eg;
+    $nv{$name} .= "\0" if (defined($nv{$name})); # \0 is the multiple separator
+    $nv{$name} .= $value;
+  }
+  %nv;	# RETURN NAME-VALUE PAIRS IN ASSOCIATION LIST.
+}
+
+sub log { local( $logfile, $note ) = @_;
+  local( $buffer );
+# make temporary directory if not present. assumes /usr/tmp is open acccess
+  if ( ! opendir TMPDIR, "$tmp_dir" ) {
+      if ( system ("mkdir -p $tmp_dir") != 0 ) { 
+	  &die_html("could not make temporary directory ($tmp_dir)"); 
+      }
+  }
+  open(LOG, ">> $logfile") || &die_html("cannot write to logfile ($logfile)");
+  print LOG "$full_date $note\n";
+  close LOG
+}
+
+#
+# Translates all non-alphanumeric chars to cgi-friendly hex
+sub escape { local($toencode) = @_;
+    $toencode=~s/([^a-zA-Z0-9_])/sprintf("%%%x",ord($1))/eg;
+    return $toencode;
+}
+
+sub unescape { local($todecode) = @_;
+  $todecode =~ tr/+/ /;
+  $todecode =~ s/\%([a-fA-F0-9][a-fA-F0-9])/pack("C", hex($1))/eg;
+  return $todecode;
+}
+
+sub die_html { local($err) = @_;
+  local($subj = "subject=${fname},${full_date},${remote_host}");
+  if (!$html_page_is_initialized) {
+    print "Content-type:text/html\n\n"; 
+    print "<HEAD><TITLE>ERROR</TITLE></HEAD><BODY>\n"; 
+  }
+  print "<CENTER><H2>-- Error --<BR>
+         <FONT COLOR=PURPLE>$err</FONT></H2>
+         </CENTER></BODY></HTML>\n";
+  exit;
+}
+
+sub check_version {
+
+    if ( $] < 5.000 ) {
+	die_html "current PERL version is: $]<BR>
+                  PERL version 5 or higher is required";
+    }
+
+}
+
+1; # RETURN TRUE.

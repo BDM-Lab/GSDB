@@ -1,0 +1,143 @@
+<HTML>
+<HEAD>
+   <TITLE>Crystallography & NMR System</TITLE>
+</HEAD>
+<BODY BGCOLOR=#8ebf8e>
+
+<HR WIDTH="100%"></P>
+
+<H2>NCS restraints in refinement</H2>
+
+<HR WIDTH="100%"></P>
+
+<P>Non-crystallographic symmetry (NCS) can (and in many cases should) be
+included in refinement. In CNS two models for NCS are available:</P>
+
+<UL>
+<LI>Strict (constraints) - the model consists of a protomer. Matrices
+explicitly define the relationship between protomers. These matrices
+are used to generate the complete asymmetric unit. The relationships
+between protomers are fixed because the matrices do not change during
+refinement. </LI>
+
+<LI>Restrained (restraints) - the model consists of all protomers. The
+relationship between protomers is defined by selections of equivalent
+atoms. These relationships are used to superimpose all related
+molecules and calculate deviations from the average structure. The
+relationships between protomers are not fixed because the matrices
+used to superimpose protomers are constantly changing during
+refinement. </LI>
+</UL>
+
+<P>Non-crystallographic symmetry is defined with the CNS auxiliary
+file <TT>ncs.def</TT>. This has sections for strict NCS and NCS
+restraints (either one or the other can be used at a given
+moment). Here we will perform refinement (simulated annealing, positional minimization, and B-factor refinement) for a model with
+NCS restraints with two molecules in the asymmetric unit. The model
+consists of a dimer and the definition of NCS related atoms that is
+used internally to superimpose the protomers and generate restraints
+that maintain similarity between the two protomers. The NCS restraints
+are defined with the CNS task file <A
+HREF="ncs_restrain.def">ncs_restrain.def</A>.  To use NCS restraints
+requires that coordinates are known for all the protomers. In this
+case the two molecules in the dimer were located by molecular
+replacement. The relationship between protomers is defined by the use
+of atom selections:</P>
+
+<FORM ACTION="" NAME=f1 METHOD=POST>
+<TABLE BGCOLOR=WHITE BORDER=1 WIDTH="100%">
+  <TR><TD COLSPAN=3 BGCOLOR=#698B69><CENTER>
+    <FONT FACE=helvetica COLOR=white><BIG><B>NCS restraint group 1
+    </B></BIG></FONT></CENTER></TD></TR>
+  <TR><TD COLSPAN=2 ALIGN=RIGHT>
+    <B> NCS-restraint weight </B><BR>
+    </TD><TD >
+    <INPUT NAME=group.1.weight VALUE=300 SIZE=8>
+    </TD></TR>
+  <TR><TD COLSPAN=2 ALIGN=RIGHT>
+    <B> target sigma for NCS related B-values </B><BR>
+    </TD><TD >
+    <INPUT NAME=group.1.sigb VALUE=2 SIZE=8>
+    </TD></TR>
+  <TR><TD COLSPAN=3>
+    <B> equivalence selection 1 </B><BR>
+
+    </TD></TR>
+  <TR><TD COLSPAN=3><TEXTAREA NAME=group.1.equiv.1_paren ROWS=2 COLS=60>
+segid A and resid 120:220</TEXTAREA>
+    <INPUT TYPE=BUTTON VALUE='More Lines'>
+    </TD></TR>
+  <TR><TD COLSPAN=3>
+    <B> equivalence selection 2 </B><BR>
+
+    </TD></TR>
+  <TR><TD COLSPAN=3><TEXTAREA NAME=group.1.equiv.2_paren ROWS=2 COLS=60>
+segid B and resid 120:220</TEXTAREA>
+    <INPUT TYPE=BUTTON VALUE='More Lines'>
+    </TD></TR>
+  <TR><TD COLSPAN=3>
+    <B> equivalence selection 3 </B><BR>
+
+    </TD></TR>
+  <TR><TD COLSPAN=3><TEXTAREA NAME=group.1.equiv.3_paren ROWS=2 COLS=60>
+none</TEXTAREA>
+    <INPUT TYPE=BUTTON VALUE='More Lines'>
+    </TD></TR>
+  <TR><TD COLSPAN=3>
+    <B> equivalence selection 4 </B><BR>
+
+</TABLE>
+</FORM>
+
+<P>The NCS restraint weight determines how strongly the protomers are
+restrained to be similar. A value of 300 to 500 results in protomers
+that are close to identical after superposition. A value of 10 puts
+very little weight on the NCS restraints and large deviations between
+related molecules are allowed. It is best to begin refinement with a
+high weight (300) and use the free R-value the determine if a lower
+weight is appropriate. After the NCS restraints have been defined a
+round of simulated annealing is performed:</P>
+   
+<PRE>
+      cns_solve &lt; <A HREF="refine.inp">refine.inp</A> &gt; refine.out
+</PRE>
+
+<P>Note that the model consists of residues 109 through 220 in each
+protomer. However, it is clear from the electron density map that the
+first 10 residues are in very different conformations in the two
+protomers. Therefore these residues are excluded from the NCS
+restraints.</P>
+<P>The header of the resulting refine.pdb file starts with:</P>
+<pre>REMARK coordinates from positional and B-factor refinement
+REMARK cycles= 1
+REMARK refinement resolution: 500 - 1.8 A
+REMARK starting r= 0.4340 free_r= 0.4436
+REMARK final    r= 0.3690 free_r= 0.4079
+REMARK</pre>
+<P>It also contains useful information about the NCS relationships for the refined model:</P>
+<pre>REMARK ncs= restrain  ncs file= ncs_restrain.def
+REMARK number of restrained NCS groups= 1
+REMARK NCS group 1: number of NCS protomers= 2
+REMARK    NCS operator 2 ( 2 -&gt; 1 ):
+REMARK      matrix=  0.22453  0.25156 -0.94144
+REMARK               0.32652 -0.92968 -0.17054
+REMARK              -0.91813 -0.26911 -0.29088
+REMARK      translation=   35.37103   31.80531   55.37670
+REMARK      rms for xyz restraints=  0.03834
+REMARK      rms for B restraints for this group= 1.59018
+</pre>
+<p><br>
+  Both the coordinates and the B-factors are tightly restrained with the particular choice of NCS restraint weight and target sigma for NCS-related B values.</p>
+<p>&nbsp;</p>
+
+<BR><A HREF="tutorial.csh">Script to run this tutorial</A>
+
+<HR WIDTH="100%"></P>
+
+<A HREF="../../text.html">Back to tutorials</A>&nbsp;&nbsp;
+<A HREF="../strict/text.html">Previous section</A>&nbsp;&nbsp;
+
+<HR WIDTH="100%"></P>
+   
+</BODY>
+</HTML>

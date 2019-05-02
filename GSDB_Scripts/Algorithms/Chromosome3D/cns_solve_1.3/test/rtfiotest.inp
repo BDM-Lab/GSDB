@@ -1,0 +1,195 @@
+remark   topologyIOTEST.INP
+remark   test the TOPOLOGY I/O
+remark   by Axel Brunger, 16-AUG-84
+
+topology 
+
+MASS   H      1.00800! hydrogen which can h-bond to neutral atom
+MASS   HC     1.00800!    ="=     ="=     ="=    to charged atom
+MASS   HT     1.00800! TIPS3P water hydrogen
+MASS   C     12.01100! carbonyl carbon
+MASS   CH1E  13.01900! extended atom carbon with one hydrogen
+MASS   CH2E  14.02700!    ="=      ="=     ="=   two hydrogens
+MASS   CH3E  15.03500!    ="=      ="=     ="=   three hydrogens
+MASS   CR1E  13.01900!    ="=      ="=      in an aromatic ring with one H
+MASS   N     14.00670! peptide nitrogen with no hydrogens attached
+MASS   NR    14.00670! nitrogen in an aromatic ring with no hydrogens
+MASS   NP    14.00670! pyrole nitrogen
+MASS   NH1   14.00670! peptide nitrogen bound to one hydrogen
+MASS   NH2   14.00670!    ="=       ="=      ="= two hydrogens
+MASS   NH3   14.00670! nitrogen bound to three hydrogens
+MASS   NC2   14.00670! charged guandinium nitrogen bound to two hydrogens
+MASS   O     15.99940! carbonyl oxygen
+MASS   OC    15.99940! carboxy oxygen
+MASS   OH1   15.99940! hydroxy oxygen
+MASS   OT    15.99940 ! TIPS3P water oxygen
+MASS   S     32.06000! sulphur
+MASS   SH1E  33.06800! extended atom sulfur with one hydrogen
+
+RESIdue ARG
+ GROUp
+  ATOM N     TYPE NH1   CHARGE -0.35   END
+  ATOM H     TYPE H     CHARGE  0.25   END
+  ATOM CA    TYPE CH1E  CHARGE  0.10   END
+ GROUp 
+  ATOM CB    TYPE CH2E  CHARGE  0.00   END
+  ATOM CG    TYPE CH2E  CHARGE  0.00   END
+ GROUp
+  ATOM CD    TYPE CH2E  CHARGE  0.14   END
+  ATOM NE    TYPE NH1   CHARGE -0.35   END
+  ATOM HE    TYPE H     CHARGE  0.25   END
+  ATOM CZ    TYPE C     CHARGE  0.46   END
+ GROUp
+  ATOM NH1   TYPE NC2   CHARGE  -0.25  END
+  ATOM HH11  TYPE HC    CHARGE   0.25  END
+  ATOM HH12  TYPE HC    CHARGE   0.25  END
+ GROUp
+  ATOM NH2   TYPE NC2   CHARGE  -0.25  END
+  ATOM HH21  TYPE HC    CHARGE   0.25  END
+  ATOM HH22  TYPE HC    CHARGE   0.25  END
+ GROUp
+  ATOM C     TYPE C     CHARGE   0.45  END
+  ATOM O     TYPE O     CHARGE  -0.45  END
+
+ BOND N    CA
+ BOND CA   C
+ BOND C    O
+ BOND N    H
+ BOND CA   CB
+ BOND CB   CG
+ BOND CG   CD
+ BOND CD   NE
+ BOND NE   HE
+ BOND NE   CZ
+ BOND CZ   NH1
+ BOND CZ   NH2
+ BOND NH1  HH11
+ BOND NH1  HH12
+ BOND NH2  HH21
+ BOND NH2  HH22
+
+ ANGLe N    CA   C
+ ANGLe CA   C    O
+ ANGLe H    N    CA
+ ANGLe N    CA   CB
+ ANGLe C    CA   CB
+ ANGLe CA   CB   CG
+ ANGLe CB   CG   CD
+ ANGLe CG   CD   NE
+ ANGLe CD   NE   HE
+ ANGLe CD   NE   CZ
+ ANGLe HE   NE   CZ
+ ANGLe NE   CZ   NH1
+ ANGLe NE   CZ   NH2
+ ANGLe NH1  CZ   NH2
+ ANGLe CZ   NH1  HH11
+ ANGLe CZ   NH1  HH12
+ ANGLe HH11 NH1  HH12
+ ANGLe CZ   NH2  HH21
+ ANGLe CZ   NH2  HH22
+ ANGLe HH21 NH2  HH22
+
+ DIHEdral N    CA   CB   CG
+ DIHEdral CA   CB   CG   CD
+ DIHEdral CB   CG   CD   NE
+ DIHEdral CG   CD   NE   CZ
+ DIHEdral CD   NE   CZ   NH1
+ DIHEdral NE   CZ   NH1  HH11 !note: one dehidral for each hydrogen
+ DIHEdral NE   CZ   NH2  HH21 !
+ DIHEdral NE   CZ   NH1  HH12 !
+ DIHEdral NE   CZ   NH2  HH22 !
+
+ IMPRoper CA   N    C    CB !tetrahedral CA
+ IMPRoper NE   CD   CZ   HE !planar NE
+ IMPRoper CZ   NH1  NH2  NE !planar CZ
+
+ DONOr H    N
+ DONOr HE   NE
+ DONOr HH11 NH1
+ DONOr HH12 NH1
+ DONOr HH21 NH2
+ DONOr HH22 NH2
+ ACCEptor O C
+
+END {ARG}
+
+END !TOPOLOGY
+
+
+{* now append another residue *}
+TOPOLOGY
+
+AUTOGEN
+   ANGLE=TRUE
+   DIHEDRAL=TRUE
+END
+
+RESIdue ARG2
+ GROUp
+  ATOM N     TYPE NH1   CHARGE -0.35   END
+  ATOM H     TYPE H     CHARGE  0.25   END
+  ATOM CA    TYPE CH1E  CHARGE  0.10   END
+ GROUp 
+  ATOM CB    TYPE CH2E  CHARGE  0.00   END
+  ATOM CG    TYPE CH2E  CHARGE  0.00   END
+ GROUp
+  ATOM CD    TYPE CH2E  CHARGE  0.14   END
+  ATOM NE    TYPE NH1   CHARGE -0.35   END
+  ATOM HE    TYPE H     CHARGE  0.25   END
+  ATOM CZ    TYPE C     CHARGE  0.46   END
+ GROUp
+  ATOM NH1   TYPE NC2   CHARGE  -0.25  END
+  ATOM HH11  TYPE HC    CHARGE   0.25  END
+  ATOM HH12  TYPE HC    CHARGE   0.25  END
+ GROUp
+  ATOM NH2   TYPE NC2   CHARGE  -0.25  END
+  ATOM HH21  TYPE HC    CHARGE   0.25  END
+  ATOM HH22  TYPE HC    CHARGE   0.25  END
+ GROUp
+  ATOM C     TYPE C     CHARGE   0.45  END
+  ATOM O     TYPE O     CHARGE  -0.45  END
+
+ OMIT ANGLE CZ NH2 HH22
+ ANGLE T X Z
+
+ DIHEDRAL C CA N H
+ DIHEDRAL C CA N H 
+ OMIT DIHEDRAL H N CA CB
+
+ BOND N    CA
+ BOND CA   C
+ BOND C    O
+ BOND N    H
+ BOND CA   CB
+ BOND CB   CG
+ BOND CG   CD
+ BOND CD   NE
+ BOND NE   HE
+ BOND NE   CZ
+ BOND CZ   NH1
+ BOND CZ   NH2
+ BOND NH1  HH11
+ BOND NH1  HH12
+ BOND NH2  HH21
+ BOND NH2  HH22
+
+ IMPRoper CA   N    C    CB !tetrahedral CA
+ IMPRoper NE   CD   CZ   HE !planar NE
+ IMPRoper CZ   NH1  NH2  NE !planar CZ
+
+ DONOr H    N
+ DONOr HE   NE
+ DONOr HH11 NH1
+ DONOr HH12 NH1
+ DONOr HH21 NH2
+ DONOr HH22 NH2
+ ACCEptor O C
+
+END {ARG}
+
+END !TOPOLOGY
+
+
+topology ? end
+
+STOP

@@ -1,0 +1,39 @@
+remarks file toppar/pseudo.top  
+remarks   topology for pseudo atoms. Use in conjunction with toppar/pseudo.param
+remarks   Note: contains a residue that defines pseudo atoms and a patch file for connections with CA atoms
+remarks         Only a bond between the pseudo atom and CA is created, no angle terms are created.
+remarks         Thus, it is recommended to only use this pseudo atom residue if it is part of a rigid body
+remarks         or if torsion angle dynamics is used.  If this pseudo atom residue is used in conjunction with 
+remarks         Cartesian minimization or molecular dynamics, the angles between pseudo-atom, CA, and atoms bonded
+remarks         to CA will be distorted. 
+
+set message ? end eval ($old_message=$result) set echo ? end eval ($old_echo=$result)
+set message=off echo=off end
+
+checkversion 1.3
+
+!------------------------------------------------------------------------
+
+mass PSDO 1. 
+ 
+!------------------------------------------------------------------------
+ 
+RESIdue PSO 
+GROUp
+    ATOM PSDO TYPE=PSDO CHARge=0. END
+END
+
+!------------------------------------------------------------------------
+
+PRESidue PSCA
+
+ADD BOND -CA +PSDO 
+
+END
+
+!------------------------------------------------------------------------
+
+set message=$old_message echo=$old_echo end
+
+
+

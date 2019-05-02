@@ -1,0 +1,125 @@
+! Module file: acceptsubave
+!
+! CNS MODULE
+! **********
+!
+! Authors: Gregory L. Warren and Axel T. Brunger
+!
+! copyright Yale University
+!
+! version 03/04/98
+!
+! Function:
+!          Sum energy values for average value determination
+!
+! Requirements:
+!       The macro initave contains the symbol definitions    
+!       required for average structure calculation and for
+!       cross-validation.    
+!
+
+module {acceptsubave}
+(
+   &ave=ave;               {INPUT/OUTPUT: average energy values}
+   &ave2=ave2;             {INPUT/OUTPUT: squared average energy values}
+   &nmr=nmr;               {INPUT: nmr restraints parameters}
+   &prt=prt;               {INPUT: restraint violation and rms values}
+)
+
+checkversion 1.3
+
+set message ? end
+evaluate ($message_old=$result)
+set echo ? end
+evaluate ($echo_old=$result)
+if ( $log_level = verbose ) then
+  set echo=on message=normal end
+else
+  set echo=off message=off end
+end if
+
+         evaluate (&ave.rms.bond=&ave.rms.bond + &prt.bond.rms)
+         evaluate (&ave.rms.angl=&ave.rms.angl + &prt.angl.rms)
+         evaluate (&ave.rms.impr=&ave.rms.impr + &prt.impr.rms)
+         evaluate (&ave.rms.dihe=&ave.rms.dihe + &prt.dihe.rms)
+         evaluate (&ave.rms.noe=&ave.rms.noe + &prt.noe.rms)
+         evaluate (&ave.rms.jcoup=&ave.rms.jcoup + &prt.coup.rms) 
+         evaluate (&ave.rms.oneb=&ave.rms.oneb + &prt.oneb.rms) 
+         evaluate (&ave.rms.carb.a=&ave.rms.carb.a + &prt.carb.a.rms)
+         evaluate (&ave.rms.carb.b=&ave.rms.carb.b + &prt.carb.b.rms)
+         evaluate (&ave.rms.prot.all=&ave.rms.prot.all + &prt.prot.all.rms)
+         evaluate (&ave.rms.dani=&ave.rms.dani + &prt.dani.rms)
+         evaluate (&ave.rms.sani=&ave.rms.sani + &prt.sani.rms)
+         evaluate (&ave.rms.cdih=&ave.rms.cdih + &prt.cdih.rms) 
+         evaluate (&ave.viol.bond=&ave.viol.bond + &prt.bond.viol)
+         evaluate (&ave.viol.angl=&ave.viol.angl + &prt.angl.viol)
+         evaluate (&ave.viol.impr=&ave.viol.impr + &prt.impr.viol)
+         evaluate (&ave.viol.dihe=&ave.viol.dihe + &prt.dihe.viol)
+         evaluate (&ave.viol.vdw=&ave.viol.vdw + &prt.vdw.viol)
+         evaluate (&ave.viol.noe=&ave.viol.noe + &prt.noe.viol)
+         evaluate (&ave.viol.jcoup=&ave.viol.jcoup + &prt.coup.viol) 
+         evaluate (&ave.viol.oneb=&ave.viol.oneb + &prt.oneb.viol) 
+         evaluate (&ave.viol.carb=&ave.viol.carb + &prt.carb.viol)
+         evaluate (&ave.viol.prot.all=&ave.viol.prot.all + &prt.prot.all.viol)
+         evaluate (&ave.viol.dani=&ave.viol.dani + &prt.dani.viol)
+         evaluate (&ave.viol.sani=&ave.viol.sani + &prt.sani.viol)
+         evaluate (&ave.viol.cdih=&ave.viol.cdih + &prt.cdih.viol) 
+         evaluate (&ave.rotx.plan=&ave.rotx.plan + &prt.planx)
+         evaluate (&ave.roty.plan=&ave.roty.plan + &prt.plany)
+         evaluate (&ave.rotz.plan=&ave.rotz.plan + &prt.planz)
+
+         evaluate ($count = 1)
+         while (&exist%nmr.prot.file.$count=true) loop nloop
+            evaluate ($clsname = "P"+encode($count))
+            if (&nmr.prot.file.$count # "") then
+               evaluate (&ave.rms.prot.$clsname=&ave.rms.prot.$clsname+
+                                                &prt.prot.$clsname.rms)
+               evaluate (&ave.viol.prot.$clsname=&ave.viol.prot.$clsname+
+                                                 &prt.prot.$clsname.viol)
+            end if
+            evaluate ($count = $count + 1)
+         end loop nloop					    
+
+         evaluate (&ave2.rms.bond=&ave2.rms.bond + &prt.bond.rms^2)
+         evaluate (&ave2.rms.angl=&ave2.rms.angl + &prt.angl.rms^2)
+         evaluate (&ave2.rms.impr=&ave2.rms.impr + &prt.impr.rms^2)
+         evaluate (&ave2.rms.dihe=&ave2.rms.dihe + &prt.dihe.rms^2)
+         evaluate (&ave2.rms.noe=&ave2.rms.noe + &prt.noe.rms^2)
+         evaluate (&ave2.rms.jcoup=&ave2.rms.jcoup + &prt.coup.rms^2) 
+         evaluate (&ave2.rms.oneb=&ave2.rms.oneb + &prt.oneb.rms^2) 
+         evaluate (&ave2.rms.carb.a=&ave2.rms.carb.a + &prt.carb.a.rms^2)
+         evaluate (&ave2.rms.carb.b=&ave2.rms.carb.b + &prt.carb.b.rms^2)
+         evaluate (&ave2.rms.prot.all=&ave2.rms.prot.all + &prt.prot.all.rms^2)
+         evaluate (&ave2.rms.dani=&ave2.rms.dani + &prt.dani.rms^2)
+         evaluate (&ave2.rms.sani=&ave2.rms.sani + &prt.sani.rms^2)
+         evaluate (&ave2.rms.cdih=&ave2.rms.cdih + &prt.cdih.rms^2) 
+         evaluate (&ave2.viol.bond=&ave2.viol.bond + &prt.bond.viol^2)
+         evaluate (&ave2.viol.angl=&ave2.viol.angl + &prt.angl.viol^2)
+         evaluate (&ave2.viol.impr=&ave2.viol.impr + &prt.impr.viol^2)
+         evaluate (&ave2.viol.dihe=&ave2.viol.dihe + &prt.dihe.viol^2)
+         evaluate (&ave2.viol.vdw=&ave2.viol.vdw + &prt.vdw.viol^2)
+         evaluate (&ave2.viol.noe=&ave2.viol.noe + &prt.noe.viol^2)
+         evaluate (&ave2.viol.jcoup=&ave2.viol.jcoup + &prt.coup.viol^2) 
+         evaluate (&ave2.viol.oneb=&ave2.viol.oneb + &prt.oneb.viol^2) 
+         evaluate (&ave2.viol.carb=&ave2.viol.carb + &prt.carb.viol^2)
+         evaluate (&ave2.viol.prot.all=&ave2.viol.prot.all + &prt.prot.all.viol^2)
+         evaluate (&ave2.viol.dani=&ave2.viol.dani + &prt.dani.viol^2)
+         evaluate (&ave2.viol.sani=&ave2.viol.sani + &prt.sani.viol^2)
+         evaluate (&ave2.viol.cdih=&ave2.viol.cdih + &prt.cdih.viol^2) 
+         evaluate (&ave2.rotx.plan=&ave2.rotx.plan + &prt.planx^2)
+         evaluate (&ave2.roty.plan=&ave2.roty.plan + &prt.plany^2)
+         evaluate (&ave2.rotz.plan=&ave2.rotz.plan + &prt.planz^2)
+
+         evaluate ($count = 1)
+         while (&exist%nmr.prot.file.$count=true) loop nloop
+            evaluate ($clsname = "P"+encode($count))
+            if (&nmr.prot.file.$count # "") then
+               evaluate (&ave2.rms.prot.$clsname=&ave2.rms.prot.$clsname+
+                                                 &prt.prot.$clsname.rms^2)
+               evaluate (&ave2.viol.prot.$clsname=&ave2.viol.prot.$clsname+
+                                                  &prt.prot.$clsname.viol^2)
+            end if
+            evaluate ($count = $count + 1)
+         end loop nloop
+
+set message=$message_old echo=$echo_old end

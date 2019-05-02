@@ -1,0 +1,86 @@
+<HTML>
+<HEAD>
+   <TITLE>Crystallography & NMR System</TITLE>
+</HEAD>
+<BODY BGCOLOR=#8ebf8e>
+
+<HR WIDTH="100%"></P>
+
+<H2>Rebuilding followed by refinement</H2>
+
+<HR WIDTH="100%"></P>
+
+<P>The free R-value of the model has now dropped to 31% (the
+ytterbiums contribute significantly to the scattering). Inspection of
+the electron density map followed by manual rebuilding is now
+performed to improve the model. A cross-validated, sigma-A weighted
+2Fo-Fc map is calculated by the<TT> refine_yb.inp</TT> task in the previous section. Inspection of this map will help locate
+areas of the model which are in error. It would also be helpful to
+look at a difference map (at both positive and negative contour) at
+the same time.The map is in general very good - the density clearly matches the
+  model. However, there is a region where there is an obvious difference
+between the model and the electron density:</P>
+
+<TABLE ALIGN=CENTER>
+  <TR>
+<TD ALIGN=CENTER><IMG SRC="2fofc.jpeg"
+    HEIGHT=381 WIDTH=425></TD>
+</TR>
+<TR>
+<TD ALIGN=CENTER>Sigma-A weighted 2Fo-Fc map (at 1.5 sigma).<BR>
+                 A discrepancy is seen between the model and density around residue B117.</TD>
+</TR>
+</TABLE>
+
+<P>In order to obtain less biased density for this region a simulated
+annealing omit map is calculated. We will omit the first 10 residues
+from molecule B (residues B109 to B118). Residues immediately
+surrounding these will also be omitted (this is done by selecting a 3.5 A neighborhood around these atoms). Furthermore, we apply harmonic positional restraints to atoms surrounding the omitted region. This is done with the <TT>sa_omit_map.inp</TT> task file starting from the refine_yb.pdb of the previous section, and specifying the following atom selections (note that we use Cartesian dynamics to avoid potential problems with the torsion angle topology generator if the omitted atoms break certain bonds):</P>
+<P>A single round of simulated annealing refinement is
+  performed to attempt to remove model bias to the missing region. </P>
+
+<PRE>
+      cns_solve &lt; <A HREF="sa_omit_map.inp">sa_omit_map.inp</A> &gt; sa_omit_map.out
+</PRE>
+
+<P>The
+  result is an electron density map.The map shows improved density for the correct placement of the
+N-terminal residues. There is a register shift of one residue
+resulting in a more open loop:</P>
+      
+<TABLE ALIGN=CENTER>
+<TR>
+<TD ALIGN=CENTER><IMG SRC="omit.jpeg"
+    HEIGHT=381 WIDTH=425></TD>
+</TR>
+<TR>
+<TD ALIGN=CENTER>Sigma-A weighted 2Fo-Fc simulated annealing omit map (at 1.25 sigma).<BR>
+                 The correct trace for the N-terminal residues in molecule B are clearer.</TD>
+</TR>
+</TABLE>
+
+<P>The model is manually rebuilt in this region resulting in a new set
+of coordinates, called &quot;mbp_o.pdb&quot;. These coordinates are then used for another refinement round using the <TT>refine.inp</TT> task file. We will use two cycles of simulated annealing, minimization, and B-factor refinement which will
+correct any errors introduced by the manual rebuilding and optimize
+the fit of the retraced region. As before a start temperature of 3000K
+is used. The <tt>refine_reb.inp</tt> file is taken from the <tt>refine.inp</tt> input file, i.e., the only differences are the particular input parameter settings.</P>
+<PRE>
+      cns_solve &lt; <A HREF="refine_reb.inp">refine_reb.inp</A> &gt; refine_reb.out 
+</PRE>
+
+<P>At this point the free R-value is around 30.4% (and the R-value
+is around 27%). The model still might have some misplaced atoms
+(side chain atoms or small loops) but inspection of the maps suggest
+that the majority of the structure is correct. The resulting coordinates are in <tt>refine_reb.inp</tt>, the electron density maps are in <tt>refine_reb_2fofc.map</tt>, <tt>refine_reb_fofc.map</tt>, <tt>refine_reb.hkl</tt>. Real space R values and correlation coefficients are in <tt>refine_reb_rsr.list</tt> and <tt>refine_reb_rsr.pdb</tt>.</P>
+<BR><A HREF="tutorial.csh">Script to run this tutorial</A>
+
+<HR WIDTH="100%"></P>
+
+<A HREF="../../text.html">Back to tutorials</A>&nbsp;&nbsp;
+<A HREF="../model_complete/text.html">Previous section</A>&nbsp;&nbsp;
+<A HREF="../water_pick/text.html">Next section</A>
+
+<HR WIDTH="100%"></P>
+   
+</BODY>
+</HTML>

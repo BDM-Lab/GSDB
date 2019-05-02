@@ -1,0 +1,391 @@
+{+ file: detect_twinning.inp +}
+{+ directory: xtal_twin +}
+{+ description: Detection of perfect or partial hemihedral twinning +}
+{+ authors: Axel T. Brunger, and Paul D. Adams +}
+{+ copyright: Yale University +}
+
+{+ reference: T.O. Yeates, Detecting and Overcoming Crystal Twinning,
+              Methods in Enzymology 276, 344-358 (1997) +}
+
+{- Guidelines for using this file:
+   - all strings must be quoted by double-quotes
+   - logical variables (true/false) are not quoted
+   - do not remove any evaluate statements from the file -}
+
+{- begin block parameter definition -} define(
+
+{====================== crystallographic data ========================}
+
+{* space group *}
+{* use International Table conventions with subscripts substituted
+   by parenthesis *}
+{===>} sg="R3";
+
+{* unit cell parameters in Angstroms and degrees *}
+{+ table: rows=1 "cell" cols=6 "a" "b" "c" "alpha" "beta" "gamma" +}
+{===>} a=104.400;
+{===>} b=104.400;
+{===>} c=124.250;
+{===>} alpha=90;
+{===>} beta=90;
+{===>} gamma=120;
+
+{* reflection files *}
+{* specify non-anomalous reflection files before anomalous reflection files. *}
+{* files must contain unique array names otherwise errors will occur *}
+{===>} reflection_infile_1="porin.hkl";
+{===>} reflection_infile_2="";
+{===>} reflection_infile_3="";
+{===>} reflection_infile_4="";
+
+{* reciprocal space array containing observed amplitudes: required *}
+{===>} obs_f="fobs";
+
+{* reciprocal space array containing sigma values for amplitudes: required *}
+{===>} obs_sigf="sigma";
+
+{* resolution limits to be used *}
+{+ table: rows=1 "resolution" cols=2 "lowest" "highest" +}
+{===>} low_res=500.0;
+{===>} high_res=2.25;
+
+{* apply rejection criteria to amplitudes or intensities *}
+{+ choice: "amplitude" "intensity" +}
+{===>} obs_type="amplitude";
+
+{* Observed data cutoff criteria: applied to amplitudes or intensities *}
+{* reflections with magnitude(Obs)/sigma < cutoff are rejected. *}
+{===>} sigma_cut=0.0;
+
+{* rms outlier cutoff: applied to amplitudes or intensities *}
+{* reflections with magnitude(Obs) > cutoff*rms(Obs) will be rejected *}
+{===>} obs_rms=10000;
+
+{=========================== output files ============================}
+
+{* output listing file *}
+{===>} list_outfile="detect_twinning.list";
+
+{===========================================================================}
+{         things below this line do not normally need to be changed         }
+{===========================================================================}
+
+ ) {- end block parameter definition -}
+
+ checkversion 1.3
+
+ evaluate ($log_level=quiet)
+
+ xray
+
+   @CNS_XTALLIB:spacegroup.lib (sg=&sg;
+                                sgparam=$sgparam;)
+
+   a=&a b=&b c=&c  alpha=&alpha beta=&beta gamma=&gamma
+
+   @CNS_XRAYLIB:scatter.lib
+
+   evaluate ($counter=1)
+   evaluate ($done=false)
+   while ( $done = false ) loop read
+    if ( &exist_reflection_infile_$counter = true ) then
+      if ( &BLANK%reflection_infile_$counter = false ) then
+       reflection
+         @@&reflection_infile_$counter
+       end
+      end if
+   else
+     evaluate ($done=true)
+   end if
+   evaluate ($counter=$counter+1)
+  end loop read
+
+ end
+
+ xray
+
+   set echo=off end
+   if ( &BLANK%obs_f = true ) then
+      display
+      display  *********************************************************
+      display  Error: required observed amplitude array is not specified
+      display  *********************************************************
+      display
+      abort
+   else
+      query name=&STRIP%obs_f domain=reciprocal end
+      if ( $object_exist = false ) then
+         display
+         display  **************************************************************
+         display  Error: required observed amplitude array &obs_f does not exist
+         display  **************************************************************
+         display
+         abort
+      end if
+      {- note: this array can be of any type -}
+    end if
+
+   if ( &BLANK%obs_sigf = true ) then
+      display
+      display  *****************************************************
+      display  Error: required observed sigma array is not specified
+      display  *****************************************************
+      display
+      abort
+   else
+      query name=&STRIP%obs_sigf domain=reciprocal end
+      if ( $object_exist = false ) then
+         display
+         display  *************************************************************
+         display  Error: required observed sigma array &obs_sigf does not exist
+         display  *************************************************************
+         display
+         abort
+      end if
+      if ( $object_type # "REAL" ) then
+         display
+         display  **********************************************************************
+         display  Error: required observed sigma array &obs_sigf has the wrong data type
+         display  **********************************************************************
+         display
+         abort
+      end if
+   end if
+   set echo=on end
+
+   binresolution &low_res &high_res
+   mapresolution &high_res
+
+   evaluate ($reject_obs=&obs_f)
+   evaluate ($reject_sig=&obs_sigf)
+
+   declare name=ref_active domain=reciprocal type=integer end
+
+   do (ref_active=0) ( all )
+   do (ref_active=1) ( ( $STRIP%reject_sig # 0 ) and
+                      ( &low_res >= d >= &high_res ) )
+
+   statistics overall
+     completeness
+     selection=( ref_active=1 )
+   end
+   evaluate ($total_compl=$expression1)
+
+   show sum(1) ( ref_active=1 )
+   evaluate ($total_read=$select)
+   evaluate ($total_theor=int(1./$total_compl * $total_read))
+
+   show rms (amplitude($STRIP%reject_obs)) ( ref_active=1 )
+   evaluate ($obs_high=$result*&obs_rms)
+   show min (amplitude($STRIP%reject_obs)) ( ref_active=1 )
+   evaluate ($obs_low=$result)
+
+   do (ref_active=0) ( all )
+   do (ref_active=1)
+                  ( ( amplitude($STRIP%reject_obs) > &sigma_cut*$STRIP%reject_sig ) and
+                    ( $STRIP%reject_sig # 0 ) and
+                    ( $obs_low <= amplitude($STRIP%reject_obs) <= $obs_high ) and
+                    ( &low_res >= d >= &high_res ) )
+
+   show sum(1) ( ref_active=1 )
+   evaluate ($total_work=$select)
+   evaluate ($total_used=$total_work)
+
+   evaluate ($unobserved=$total_theor-$total_read)
+   evaluate ($rejected=$total_read-$total_used)
+   evaluate ($per_unobs=100*($unobserved/$total_theor))
+   evaluate ($per_reject=100*($rejected/$total_theor))
+   evaluate ($per_used=100*($total_used/$total_theor))
+   evaluate ($per_work=100*($total_work/$total_theor))
+
+   tselection=( ref_active=1 )
+
+ end                  
+
+ set display=&list_outfile end
+
+ display >>>> results of twinning detection
+ display >>>> resolution: &low_res - &high_res A
+ display >>>> sg= &STRIP%sg a= &a b= &b c= &c alpha= &alpha beta= &beta gamma= &gamma
+
+ evaluate ($counter=1)
+ evaluate ($done=false)
+ while ( $done = false ) loop read
+    if ( &exist_reflection_infile_$counter = true ) then
+      if ( &BLANK%reflection_infile_$counter = false ) then
+         display >>>> reflection file $counter : &STRIP%reflection_infile_$counter       
+      end if
+   else
+     evaluate ($done=true)
+   end if
+   evaluate ($counter=$counter+1)
+ end loop read
+ 
+ display >>>> reflections with |Fobs|/sigma_F < &sigma_cut rejected
+ display >>>> reflections with |Fobs| > &obs_rms * rms(Fobs) rejected
+ xray anomalous=? end
+ if ( $result = true ) then
+   display >>>> anomalous diffraction data was input
+ end if
+ display >>>> theoretical total number of refl. in resol. range:    $total_theor[I6] ( 100.0 % )
+ display >>>> number of unobserved reflections (no entry or |F|=0): $unobserved[I6] ( $per_unobs[f5.1] % )
+ display >>>> number of reflections rejected:                       $rejected[I6] ( $per_reject[f5.1] % )
+ display >>>> total number of reflections used:                     $total_used[I6] ( $per_used[f5.1] % )
+ display >>>> number of reflections in working set:                 $total_work[I6] ( $per_work[f5.1] % )
+
+ display 
+ display ==============================================================================
+ display
+ display                         testing for perfect twinning
+ display
+ display  column  1:     bin number
+ display  columns 2:     upper resolution limit
+ display  columns 3:     lower resolution limit
+ display  column  4:     number of reflections in bin
+ display  column  5:     average resolution in bin
+ display  column  6:      <|I|^2>/(<|I|>)^2
+ display  column  7:     (<|F|>)^2/<|F|^2>
+ display  column  8:     fraction of theoretically complete data
+ display
+ display   <|I|^2>/(<|I|>)^2 is 2.0 for untwinned data, 1.5 for twinned data
+ display  (<|F|>)^2/<|F|^2> is 0.785 for untwinned data, 0.865 for twinned data
+ display
+
+ xray
+   show sum(1) ( ref_active=1 )
+   evaluate ($nref_all=$result)
+   evaluate ($bins=max(5,min(50,int($nref_all/500))))
+   bins=$bins
+
+   statistics
+     output=&list_outfile
+     (d)
+     (save(amplitude(&STRIP%obs_f)^4)/max(0.0001,(save(amplitude(&STRIP%obs_f)^2))^2))
+     (save(amplitude(&STRIP%obs_f))^2/max(0.0001,(save(amplitude(&STRIP%obs_f)^2))))
+     completeness
+     selection=(ref_active=1 and acentric)
+   end
+
+   display
+   display ---------------------------averages-over-all-bins-----------------------------
+   show ave  (save(amplitude(&STRIP%obs_f)^4)/
+  max(0.0001,(save(amplitude(&STRIP%obs_f)^2))^2))
+          (ref_active=1 and acentric)
+   evaluate ($column6_ave=$result)
+   show ave  (save(amplitude(&STRIP%obs_f))^2/
+  max(0.0001,(save(amplitude(&STRIP%obs_f)^2))))
+          (ref_active=1 and acentric)
+   evaluate ($column7_ave=$result)
+   display    <|I|^2>/(<|I|>)^2 = $column6_ave[F9.4] (2.0   for untwinned, 1.5   for twinned)
+   display   (<|F|>)^2/<|F|^2>  = $column7_ave[F9.4] (0.785 for untwinned, 0.865 for twinned)
+   display ------------------------------------------------------------------------------
+
+ end
+
+ display 
+ display ==============================================================================
+ display
+ display       testing for partial twinning (using statistical method of Yeates)
+ display
+
+ if ( $sgparam.sg_number > 230 ) then
+   display Twinning laws are only available for standard settings
+   display This is a non-standard spacegroup setting: &STRIP%sg
+   abort
+ end if
+
+ evaluate ($done=false)
+ evaluate ($counter=1)
+
+ while ( $done = false ) loop oper
+
+   @@CNS_XTALMODULE:twin_operators (point_group=$STRIP%sgparam.point_group;
+                                    operator_num=$counter;
+                                    twin_oper=$twin_oper;)
+
+   if ( $twin_oper = "VOID" ) then
+
+     if ( $counter = 1 ) then
+       display There are no merohedral twin laws for point group $STRIP%sgparam.point_group
+       display
+     end if
+
+     evaluate ($done=true)
+
+   else
+
+     xray
+       do (ref_active=0) ( all )
+       do (ref_active=1)
+                    ( ( amplitude($STRIP%reject_obs) > &sigma_cut*$STRIP%reject_sig ) and
+                      ( $STRIP%reject_sig # 0 ) and
+                      ( $obs_low <= amplitude($STRIP%reject_obs) <= $obs_high ) and
+                      ( $obs_low <= amplitude(remap[$$twin_oper]($STRIP%reject_obs)) <= $obs_high ) and
+                      ( &low_res >= d >= &high_res ) )
+     end
+  
+     xray
+       declare name=Isum domain=reciprocal type=real end
+       do (Isum=amplitude(&STRIP%obs_f)^2+
+                amplitude(remap[$$twin_oper](&STRIP%obs_f))^2) (ref_active=1)
+       show rms(Isum) (ref_active=1 and acentric)
+     end
+     evaluate ($rms_Isum=$result)
+    
+     xray
+       declare name=Isum_active domain=reciprocal type=integer end
+       do (Isum_active=1) ( all )
+       do (Isum_active=0) ( ref_active # 1 )
+       do (Isum_active=0) ( Isum_active = 1 and h = remap[$$twin_oper](h) and
+                                                k = remap[$$twin_oper](k) and
+                                                l = remap[$$twin_oper](l) )
+       do (Isum_active=0) ( centric )
+       do (Isum_active=0) ( Isum_active = 1 and Isum < 0.3*$rms_Isum )
+       show sum(1) (Isum_active=1)
+       evaluate ($Isum_ref=$result)
+     end
+    
+     xray
+       show ave(abs(amplitude(&STRIP%obs_f)^2-
+                    amplitude(remap[$$twin_oper](&STRIP%obs_f)^2)) /
+                   (amplitude(&STRIP%obs_f)^2+
+                    amplitude(remap[$$twin_oper](&STRIP%obs_f)^2)))
+                   (Isum_active=1)
+     end
+     evaluate ($H=$result)
+    
+     xray
+       show ave((abs(amplitude(&STRIP%obs_f)^2-
+                     amplitude(remap[$$twin_oper](&STRIP%obs_f)^2)) /
+                    (amplitude(&STRIP%obs_f)^2+
+                     amplitude(remap[$$twin_oper](&STRIP%obs_f)^2)))^2)
+                    (Isum_active=1)
+     end
+     evaluate ($H2=$result)
+    
+     xray
+       undeclare name=Isum_active domain=reciprocal end
+       undeclare name=Isum domain=reciprocal end
+     end
+    
+     evaluate ($twin_frac_h=0.5-$H)
+    
+     evaluate ($twin_frac_h2=0.5-sqrt(3*$H2)/2)
+    
+     display 
+     display >>>> testing for twinning operator= $twin_oper
+     display   
+     display
+     display      <H> = $H[f8.5]: twinning fraction= $twin_frac_h[f5.3] ($Isum_ref reflections used)
+     display    <H^2> = $H2[f8.5]: twinning fraction= $twin_frac_h2[f5.3] ($Isum_ref reflections used)
+     display
+
+   end if
+  
+   evaluate ($counter=$counter+1)
+  
+ end loop oper
+  
+ display ==============================================================================
+
+ stop

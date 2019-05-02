@@ -1,0 +1,143 @@
+! Module file: regroup_scatters
+!
+! CNS module
+! **********
+!
+! Authors: Axel Brunger and Paul Adams
+!
+! copyright Yale University
+!
+! Function:
+!    Obtain current scattering factor assignments then
+!    reassign scattering factors such atoms in the same
+!    segid have one definition per atom type, or if group=true
+!    each residue with the same segid will have its own
+!    scatter definition
+!
+! Requirements:
+!    Molecular topology and coordinates must be well defined
+!    Scattering factor must already have been assigned to all atoms
+!
+
+module {regroup_scatters}
+
+(
+use_array;
+fix_array;
+group=false;
+)
+
+set message ? end
+evaluate ($message_old=$result)
+set echo ? end
+evaluate ($echo_old=$result)
+if ( $log_level = verbose ) then
+  set echo=on message=normal end
+else
+  set echo=off message=off end
+end if
+
+set display=? end
+evaluate ($curr_display=$result)
+
+checkversion 1.3
+
+evaluate ($nsets=0)
+
+for $id in id ( all ) loop main
+
+  show (segid) ( id $id )
+  evaluate ($segid=$result)
+  show (chemical) ( id $id )
+  evaluate ($type=$result)
+
+  if ( $EXIST%s.done.$segid.$type = false ) then
+
+    show (scatter_a1) ( id $id )
+    evaluate ($s.$segid.$type.a1=$result)
+    show (scatter_a2) ( id $id )
+    evaluate ($s.$segid.$type.a2=$result)
+    show (scatter_a3) ( id $id )
+    evaluate ($s.$segid.$type.a3=$result)
+    show (scatter_a4) ( id $id )
+    evaluate ($s.$segid.$type.a4=$result)
+    show (scatter_b1) ( id $id )
+    evaluate ($s.$segid.$type.b1=$result)
+    show (scatter_b2) ( id $id )
+    evaluate ($s.$segid.$type.b2=$result)
+    show (scatter_b3) ( id $id )
+    evaluate ($s.$segid.$type.b3=$result)
+    show (scatter_b4) ( id $id )
+    evaluate ($s.$segid.$type.b4=$result)
+    show (scatter_c) ( id $id )
+    evaluate ($s.$segid.$type.c=$result)
+    show (scatter_fp) ( id $id )
+    evaluate ($s.$segid.$type.fp=$result)
+    show (scatter_fdp) ( id $id )
+    evaluate ($s.$segid.$type.fdp=$result)
+
+    evaluate ($nsets=$nsets+1)
+
+    evaluate ($s.done.$segid.$type=true)
+    evaluate ($s.segid.$nsets=$segid)
+    evaluate ($s.type.$nsets=$type)
+
+  end if
+
+end loop main
+
+xray scatter reset end
+
+evaluate ($counter=1)
+
+while ($counter <= $nsets) loop regroup
+
+  evaluate ($d=$s.segid.$counter)
+  evaluate ($t=$s.type.$counter)
+
+  if ( &group = true ) then
+
+    for $id in id ( tag and ( segid $d ) and
+                  ( &use_array and ( not &fix_array ) ) ) loop group
+
+      show sum(1) ( &use_array and ( not &fix_array ) and
+                    byresidue ( id $id ) )
+
+      xray
+        scatter ( &use_array and ( not &fix_array ) and
+                ( segid $d and chemical $t ) and byresidue ( id $id ) )
+
+                $s.$d.$t.a1 $s.$d.$t.b1 $s.$d.$t.a2 $s.$d.$t.b2
+                $s.$d.$t.a3 $s.$d.$t.b3 $s.$d.$t.a4 $s.$d.$t.b4 $s.$d.$t.c
+                fp $s.$d.$t.fp fdp $s.$d.$t.fdp
+      end
+
+    end loop group
+
+  else
+
+    xray
+      scatter ( &use_array and not ( &fix_array ) and
+              ( segid $d and chemical $t ) )
+  
+              $s.$d.$t.a1 $s.$d.$t.b1 $s.$d.$t.a2 $s.$d.$t.b2
+              $s.$d.$t.a3 $s.$d.$t.b3 $s.$d.$t.a4 $s.$d.$t.b4 $s.$d.$t.c
+              fp $s.$d.$t.fp fdp $s.$d.$t.fdp
+    end
+
+  end if
+
+  xray
+    scatter ( ( ( not &use_array ) or &fix_array ) and
+            ( segid $d and chemical $t ) )
+  
+            $s.$d.$t.a1 $s.$d.$t.b1 $s.$d.$t.a2 $s.$d.$t.b2
+            $s.$d.$t.a3 $s.$d.$t.b3 $s.$d.$t.a4 $s.$d.$t.b4 $s.$d.$t.c
+            fp $s.$d.$t.fp fdp $s.$d.$t.fdp
+  end
+
+  evaluate ($counter=$counter+1)
+
+end loop regroup
+
+set message=$message_old echo=$echo_old end

@@ -1,0 +1,422 @@
+{+ file: shift_sites.inp +}
+{+ directory: xtal_phase +}
+{+ description: Move sites as close as possible to a reference molecule +}
+{+ authors: Axel T. Brunger, and Paul D. Adams +}
+{+ copyright: Yale University +}
+
+{- Guidelines for using this file:
+   - all strings must be quoted by double-quotes
+   - logical variables (true/false) are not quoted
+   - do not remove any evaluate statements from the file 
+   - the selections store1 through store8 are available for general use -}
+
+{- begin block parameter definition -} define(
+
+{============================ coordinates ============================}
+
+{* coordinate file *}
+{===>} coordinate_infile="amy.pdb";
+
+{==================== molecular information ==========================}
+
+{* topology files *}
+{===>} topology_infile_1="CNS_TOPPAR:protein.top";
+{===>} topology_infile_2="CNS_TOPPAR:dna-rna.top";
+{===>} topology_infile_3="CNS_TOPPAR:water.top";
+{===>} topology_infile_4="CNS_TOPPAR:ion.top";
+{===>} topology_infile_5="CNS_TOPPAR:carbohydrate.top";
+{===>} topology_infile_6="";
+{===>} topology_infile_7="";
+{===>} topology_infile_8="";
+
+{* linkage files for linear, continuous polymers (protein, DNA, RNA) *}
+{===>} link_infile_1="CNS_TOPPAR:protein.link";
+{===>} link_infile_2="CNS_TOPPAR:dna-rna-pho.link";
+{===>} link_infile_3="";
+
+{* parameter files *}
+{===>} parameter_infile_1="CNS_TOPPAR:protein_rep.param";
+{===>} parameter_infile_2="CNS_TOPPAR:dna-rna_rep.param";
+{===>} parameter_infile_3="CNS_TOPPAR:water_rep.param";
+{===>} parameter_infile_4="CNS_TOPPAR:ion.param";
+{===>} parameter_infile_5="CNS_TOPPAR:carbohydrate.param";
+{===>} parameter_infile_6="";
+{===>} parameter_infile_7="";
+{===>} parameter_infile_8="";
+
+{* molecular topology file: optional (leave blank for auto generation) *}
+{* 
+   Auto generation of the molecular topology from the coordinates should only 
+   be used if:
+   (1) Each distinct protein, DNA, or RNA chain must have a separate segid 
+       (or chainid if the chainid is non-blank). 
+   (2) Each contiguous protein, RNA, or RNA chain must not be disrupted by 
+       other types of residues or ligands.  Rather, these other residues 
+       should be listed after protein, RNA/DNA chains. 
+   (3) Disulphides are automatically detected based on distances between the sulfur atoms
+      (must be less than 3 A apart).
+   (4) Broken protein/RNA/DNA chains without terminii must be more than 2.5 A apart to be recognized as such.
+   (5) N-linked glycan links are automatically recognized if the bonded atoms are less than 2.5 A apart.
+   (6) Automatic generation cannot be used with alternate conformations. 
+   For ligands, the user must make suitable topology and parameter files.
+   For non-standard covalent linkages, the custom patch file should be used.
+   Alternatively, the generate.inp or generate_easy.inp task files
+   can be used to generated the mtf prior to running this task file.
+    *}
+{===>} structure_infile="amy.mtf";
+
+{* for auto generation: extra linkages and modifications by custom patches *}
+{===>} patch_infile="";
+
+{========================= heavy atom sites ==========================}
+
+{* heavy atom site database *}
+{===>} sitedatabase_infile.1="mbp_sites.sdb";
+
+{====================== crystallographic data ========================}
+
+{* space group *}
+{* use International Table conventions with subscripts substituted
+   by parenthesis *}
+{===>} sg="P2(1)2(1)2(1)";
+
+{* unit cell parameters in Angstroms and degrees *}
+{+ table: rows=1 "cell" cols=6 "a" "b" "c" "alpha" "beta" "gamma" +}
+{===>} a=61.76;
+{===>} b=40.73;
+{===>} c=26.74;
+{===>} alpha=90;
+{===>} beta=90;
+{===>} gamma=90;
+
+{========================== atom selection ===========================}
+
+{* select atoms in molecule to be considered *}
+{===>} atom_select=(known and not hydrogen);
+
+{=========================== output files ============================}
+
+{* output site database file *}
+{===>} sitedatabase_outfile="shift_sites.sdb";
+
+{* output listing file *}
+{===>} list_outfile="shift_sites.list";
+
+{===========================================================================}
+{        things below this line do not normally need to be changed          }
+{===========================================================================}
+
+ ) {- end block parameter definition -}
+
+ checkversion 1.3
+
+ evaluate ($log_level=quiet)
+
+ @CNS_XTALMODULE:read_multi_sdb (filegroup=&sitedatabase_infile;
+                                 use_array=store3;
+                                 fix_array=store4;
+                                 sg_expected=&sg;
+                                 sg_read=$sg_read;)
+
+ @CNS_XTALMODULE:get_subgroups (selection=(all);
+                                subgroups=$subgroups;)
+
+ do ( segid=IGNR ) ( not ( store3 ) )
+ do ( segid=REFI ) ( store3 and not ( store4 ) )
+ do ( segid=FIXD ) ( store3 and store4 )
+
+ if ( $log_level = verbose ) then
+   set message=normal echo=on end
+ else
+   set message=off echo=off end
+ end if
+
+ if ( &BLANK%structure_infile = true ) then
+ 
+    {- read topology files -}
+    topology
+     evaluate ($counter=1)
+     evaluate ($done=false)
+     while ( $done = false ) loop read
+      if ( &exist_topology_infile_$counter = true ) then
+         if ( &BLANK%topology_infile_$counter = false ) then
+            @@&topology_infile_$counter
+         end if
+      else
+        evaluate ($done=true)
+      end if
+      evaluate ($counter=$counter+1)
+     end loop read
+    end
+    
+    @CNS_XTALMODULE:mtfautogenerate (
+                                  coordinate_infile=&coordinate_infile;
+                                  convert=true;
+                                  separate=true;
+                                  atom_delete=(not known);
+                                  hydrogen_flag=true;
+                                  break_cutoff=2.5;
+                                  disulphide_dist=3.0;
+                                  carbo_dist=2.5;
+                                  patch_infile=&patch_infile;
+                                  O5_becomes="O";
+                                 )
+
+ else
+
+   structure @&structure_infile end
+   coordinates @&coordinate_infile
+
+ end if
+
+ {- read parameter files -}
+ parameter
+  evaluate ($counter=1)
+  evaluate ($done=false)
+  while ( $done = false ) loop read
+   if ( &exist_parameter_infile_$counter = true ) then
+      if ( &BLANK%parameter_infile_$counter = false ) then
+         @@&parameter_infile_$counter
+      end if
+   else
+     evaluate ($done=true)
+   end if
+   evaluate ($counter=$counter+1)
+  end loop read
+ end
+
+ set message=normal echo=on end
+
+ identity (store1) ( segid REFI or segid FIXD or segid IGNR )
+ identity (store3) ( segid REFI or segid FIXD )
+ identity (store4) ( segid FIXD )
+
+ do (segid=resname) ( store1 )
+
+ parameter
+   nbonds cutnb=1000 end
+ end
+
+ evaluate ($vdw_radius=2)
+ evaluate ($vdw_radius   = $vdw_radius / 2^(1/6))
+
+ evaluate ($counter=1)
+ while ( $counter <= $subgroups.num ) loop sub
+   parameter
+     nonbonded $subgroups.type.$counter 0.1  $vdw_radius  0.1  $vdw_radius
+   end
+   evaluate ($counter=$counter+1)
+ end loop sub
+
+ xray
+
+   @CNS_XTALLIB:spacegroup.lib (sg=&sg;
+                                sgparam=$sgparam;)
+
+   a=&a b=&b c=&c  alpha=&alpha beta=&beta gamma=&gamma
+  
+ end
+
+ coord fractionalize end
+
+ show ave(x) ( &atom_select and not (store1) )
+ evaluate ($refx=$result)
+ show ave(y) ( &atom_select and not (store1) )
+ evaluate ($refy=$result)
+ show ave(z) ( &atom_select and not (store1) )
+ evaluate ($refz=$result)
+
+ coord orthogonalize end
+
+ for $id in id ( store1 and store3 and not (store4) ) loop id
+
+   evaluate ($min.$id=9999)
+   evaluate ($min_symm.$id=1)
+   evaluate ($min_dx.$id=0)
+   evaluate ($min_dy.$id=0)
+   evaluate ($min_dz.$id=0)
+
+ end loop id
+
+ if ( $log_level = verbose ) then
+   set message=normal echo=on end
+ else
+   set message=off echo=off end
+ end if
+
+ coord copy end
+
+ evaluate ($symm=1)
+
+ while ( $symm <= $symmetry ) loop symm
+
+   coord swap end
+   coord copy end
+
+   coord symmetry $symmetry_op_$symm selection=( store1 and store3 and 
+                                                 not (store4) )
+   end
+
+   coord fractionalize end
+
+   for $id in id ( tag and store1 and store3 and not (store4) ) loop id1
+
+     show ave(x) ( byresidue ( id $id ) )
+     evaluate ($molx=$result)
+     show ave(y) ( byresidue ( id $id ) )
+     evaluate ($moly=$result)
+     show ave(z) ( byresidue ( id $id ) )
+     evaluate ($molz=$result)
+
+     for $gid in id ( byresidue ( id $id ) ) loop gid1
+       evaluate ($shift_dx.$gid=int($refx-$molx))
+       evaluate ($shift_dy.$gid=int($refy-$moly))
+       evaluate ($shift_dz.$gid=int($refz-$molz))
+     end loop gid1
+
+     do (x=x+$shift_dx.$id) ( byresidue ( id $id ) )
+     do (y=y+$shift_dy.$id) ( byresidue ( id $id ) )
+     do (z=z+$shift_dz.$id) ( byresidue ( id $id ) )
+
+   end loop id1
+
+   coord orthogonalize end
+
+   do ( store7=x ) ( store1 )
+   do ( store8=y ) ( store1 )
+   do ( store9=z ) ( store1 )
+
+   for $dx in ( -1 0 1 ) loop dx
+
+     for $dy in ( -1 0 1 ) loop dy
+
+       for $dz in ( -1 0 1 ) loop dz
+
+         do ( x=store7 ) ( store1 )
+         do ( y=store8 ) ( store1 )
+         do ( z=store9 ) ( store1 )
+
+         coord fractionalize end
+
+         coord translate 
+           vector=( $dx $dy $dz ) selection=( store1 and store3 and
+                                              not (store4) )
+         end
+
+         coord orthogonalize end
+
+         for $id in id ( tag and store1 and store3 and not (store4) ) loop id2
+
+           igroup interaction
+             ( byresidue ( id $id ) ) ( &atom_select and not (store1) )
+           end
+
+           distance
+             from=( byresidue ( id $id ) )
+             to=( &atom_select and not (store1) )
+             cuton=0
+             cutoff=1000
+             disp=rmsd
+           end           
+
+           evaluate ($gmin=9999)
+           for $gid in id ( byresidue ( id $id ) ) loop gid2
+             if ( $min.$gid < $gmin ) then
+               evaluate ($gmin=$min.$gid)
+             end if
+           end loop gid2
+
+           show min( rmsd ) ( byresidue ( id $id ) )
+
+           if ( $result < $gmin ) then
+             for $gid in id ( byresidue ( id $id ) ) loop gid3
+               show ( rmsd ) ( id $gid )
+               evaluate ($min.$gid=$result)
+               do (refx=x) ( id $gid )
+               do (refy=y) ( id $gid )
+               do (refz=z) ( id $gid )
+               evaluate ($min_symm.$gid=$symm)
+               evaluate ($min_dx.$gid=$dx+$shift_dx.$gid)
+               evaluate ($min_dy.$gid=$dy+$shift_dy.$gid)
+               evaluate ($min_dz.$gid=$dz+$shift_dz.$gid)
+             end loop gid3
+           end if
+
+         end loop id2
+
+       end loop dz
+
+     end loop dy
+
+   end loop dx
+
+   evaluate ($symm=$symm+1)
+
+ end loop symm
+
+ do (x=refx) ( store1 and store3 and not (store4) )
+ do (y=refy) ( store1 and store3 and not (store4) )
+ do (z=refz) ( store1 and store3 and not (store4) )
+
+ set display=&list_outfile end
+
+ display
+ display new position for each site is generated by:
+ display
+ display    r_new = ( R_symm * r_old ) + T_final
+ display
+
+ evaluate ($counter=1)
+
+ for $id in id ( store1 ) loop id
+
+   show (store3) ( id $id )
+   evaluate ($use=$result)
+   show (store4) ( id $id )
+   evaluate ($fix=$result)
+
+   display ================================================================
+   display
+
+   if ( $use > 0 ) then
+     if ( $fix > 0 ) then
+       display site $counter: fixed
+     else
+       display site $counter:
+       evaluate ($symm=$min_symm.$id)
+       display   minimimum after-> symmetry operator= $symmetry_op_$symm
+       display               and-> translation= ( $min_dx.$id[i2] , $min_dy.$id[i2] , $min_dz.$id[i2] )
+       display   minimum distance-> $min.$id[f8.3] Angstroms
+     end if
+   else
+     display site $counter: ignored
+   end if
+
+   display
+
+   evaluate ($counter=$counter+1)
+
+ end loop id
+
+ display ================================================================
+
+ set display=OUTPUT end
+
+ @CNS_XTALMODULE:coord_to_sdb (sitedb=$allsites;
+                               use_array=store3;
+                               fix_array=store4;
+                               selection=(store1);)
+
+ buffer comment
+   reset
+ end
+
+ @CNS_XTALMODULE:write_cns_header (output=&sitedatabase_outfile;
+                                   description="CNS heavy atom site database";
+                                   buffer=comment;)
+
+ @CNS_XTALMODULE:write_sdb (sitedb=$allsites;
+                            sg=&sg;
+                            output=&sitedatabase_outfile;)
+
+ stop

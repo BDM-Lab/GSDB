@@ -1,0 +1,1411 @@
+{+ file: model_map.inp +}
+{+ directory: xtal_refine +}
+{+ description: Make 2fofc and fofc electron density maps using phase information 
+                from a model. Allows computation of average maps over 
+                coordinate ensembles. +}
+{+ comment:
+            choice of coefficients: 
+              (u m|Fo| e^(i phi_calc)) - (v D|Fc| e^(i phi_calc))
+              (u  |Fo| e^(i phi_calc)) - (v k|Fc| e^(i phi_calc))
+              (u m|Fo| e^(i phi_comb)) - (v D|Fc| e^(i phi_calc))
+              (u m_obs|Fo| e^(i phi_obs )) - (v k m_obs|Fc| e^(i phi_calc))
+              where Fc is the calculated structure factor and
+              m and D are derived from sigmaa
+            Realspace R-value calculation optional. +}
+{+ authors: Axel T. Brunger and Paul D. Adams +}
+{+ copyright: Yale University +}
+
+{+ reference: L.M. Rice, P.D. Adams, Y. Shamoo, and A.T. Brunger, Phase
+              improvement by multi-start simulated annealing refinement
+              and structure factor averaging, J. Appl. Cryst. 31, 798-805
+              (1998) +}
+{+ reference: G.J. Kleywegt and A.T. Brunger, Checking your imagination:
+              Applications of the free R value, Structure 4,
+              897-904 (1996) +}
+{+ reference: R.J. Read, Improved Fourier coefficients for maps using 
+              phases from partial structures with errors. Acta Cryst. 
+              A42, 140-149 (1986) +}
+
+{- Guidelines for using this file:
+   - all strings must be quoted by double-quotes
+   - logical variables (true/false) must not be quoted
+   - do not remove any evaluate statements from the file -}
+
+{- begin block parameter definition -} define(
+
+{============================ coordinates ============================}
+
+{* coordinate file *}
+{* if an ensemble is read, only specify the "root" file name here,
+   i.e., "refine" if the coordinate files are called 
+   refine_1.pdb, refine_2.pdb, refine_3.pdb ... *}
+{===>} coordinate_infile="refine";
+
+{* coordinate ensemble count *}
+{* if greater than 1 a coordinate ensemble is read.  All coordinate files 
+   must have the same topology (e.g., annealing refinements repeats with
+   different random number seeds) *}
+{===>} coordinate_ensemble_count=2;
+
+{==================== molecular information ==========================}
+
+{* topology files *}
+{===>} topology_infile_1="CNS_TOPPAR:protein.top";
+{===>} topology_infile_2="CNS_TOPPAR:dna-rna.top";
+{===>} topology_infile_3="CNS_TOPPAR:water.top";
+{===>} topology_infile_4="CNS_TOPPAR:ion.top";
+{===>} topology_infile_5="CNS_TOPPAR:carbohydrate.top";
+{===>} topology_infile_6="";
+{===>} topology_infile_7="";
+{===>} topology_infile_8="";
+
+{* linkage files for linear, continuous polymers (protein, DNA, RNA) *}
+{===>} link_infile_1="CNS_TOPPAR:protein.link";
+{===>} link_infile_2="CNS_TOPPAR:dna-rna-pho.link";
+{===>} link_infile_3="";
+
+{* parameter files *}
+{===>} parameter_infile_1="CNS_TOPPAR:protein_rep.param";
+{===>} parameter_infile_2="CNS_TOPPAR:dna-rna_rep.param";
+{===>} parameter_infile_3="CNS_TOPPAR:water_rep.param";
+{===>} parameter_infile_4="CNS_TOPPAR:ion.param";
+{===>} parameter_infile_5="CNS_TOPPAR:carbohydrate.param";
+{===>} parameter_infile_6="";
+{===>} parameter_infile_7="";
+{===>} parameter_infile_8="";
+
+{* molecular topology file: optional (leave blank for auto generation) *}
+{* 
+   Auto generation of the molecular topology from the coordinates should only 
+   be used if:
+   (1) Each distinct protein, DNA, or RNA chain must have a separate segid 
+       (or chainid if the chainid is non-blank). 
+   (2) Each contiguous protein, RNA, or RNA chain must not be disrupted by 
+       other types of residues or ligands.  Rather, these other residues 
+       should be listed after protein, RNA/DNA chains. 
+   (3) Disulphides are automatically detected based on distances between the sulfur atoms
+      (must be less than 3 A apart).
+   (4) Broken protein/RNA/DNA chains without terminii must be more than 2.5 A apart to be recognized as such.
+   (5) N-linked glycan links are automatically recognized if the bonded atoms are less than 2.5 A apart.
+   (6) Automatic generation cannot be used with alternate conformations. 
+   For ligands, the user must make suitable topology and parameter files.
+   For non-standard covalent linkages, the custom patch file should be used.
+   Alternatively, the generate.inp or generate_easy.inp task files
+   can be used to generated the mtf prior to running this task file.
+    *}
+{===>} structure_infile="";
+
+{* for auto generation: extra linkages and modifications by custom patches *}
+{===>} patch_infile="";
+
+{====================== crystallographic data ========================}
+
+{* space group *}
+{* use International Table conventions with subscripts substituted
+   by parenthesis *}
+{===>} sg="P2(1)2(1)2(1)";
+
+{* unit cell parameters in Angstroms and degrees *}
+{+ table: rows=1 "cell" cols=6 "a" "b" "c" "alpha" "beta" "gamma" +}
+{===>} a=65.508;
+{===>} b=72.216;
+{===>} c=45.035;
+{===>} alpha=90;
+{===>} beta=90;
+{===>} gamma=90;
+
+{* anomalous f' f'' library file *}
+{* If a file is not specified, no anomalous contribution will be included *}
+{+ choice: "CNS_XRAYLIB:anom_cu.lib" "CNS_XRAYLIB:anom_mo.lib" "" user_file +}
+{===>} anom_library="";
+
+{* reflection files *}
+{* specify non-anomalous reflection files before anomalous reflection files. *}
+{* files must contain unique array names otherwise errors will occur *}
+{===>} reflection_infile_1="mbp.cv";
+{===>} reflection_infile_2="";
+{===>} reflection_infile_3="";
+{===>} reflection_infile_4="";
+
+{* reciprocal space array containing observed amplitudes: required *}
+{===>} obs_f="fobs";
+
+{* reciprocal space array containing sigma values for amplitudes: required *}
+{===>} obs_sigf="sigma";
+
+{* reciprocal space array containing test set for cross-validation:
+   required for calculation of cross-validated sigmaA values *}
+{===>} test_set="test";
+
+{* number for selection of test reflections: required for cross-validation *}
+{* ie. reflections with the test set array equal to this number will be
+       used for cross-validation, all other reflections form the working set *}
+{===>} test_flag=1;
+
+{* reciprocal space array containing weighting scheme for observed
+   amplitudes: optional *}
+{* only used for the "residual" and "vector" targets - this will
+   default to a constant value of 1 if array is not present *}
+{===>} obs_w="";
+
+{* reciprocal space array containing observed intensities: optional *}
+{* required for the "mli" target *}
+{===>} obs_i="";
+
+{* reciprocal space array containing sigma values for intensities: optional *}
+{* required for the "mli" target *}
+{===>} obs_sigi="";
+
+{* reciprocal space arrays with experimental phase probability
+   distribution: optional *}
+{* Hendrickson-Lattman coefficients A,B,C,D *}
+{* required for the "mlhl" target and phase combined or observed maps *}
+{+ table: rows=1 "HL coefficients" cols=4 "A" "B" "C" "D" +}
+{===>} obs_pa="";
+{===>} obs_pb="";
+{===>} obs_pc="";
+{===>} obs_pd="";
+
+{* complex reciprocal space array containing experimental phases: optional *}
+{* required for the "mixed" and "vector" targets *}
+{===>} obs_phase="";
+
+{* reciprocal space array containing experimental figures of merit: optional *}
+{* required for the "mixed" target *}
+{===>} obs_fom="";
+
+{* resolution limits for data included in map calculation *}
+{* all data available should be included in the map calculation *}
+{+ table: rows=1 "resolution" cols=2 "lowest" "highest" +}
+{===>} low_res=500.0;
+{===>} high_res=2.0;
+
+{* apply rejection criteria to amplitudes or intensities *}
+{+ choice: "amplitude" "intensity" +}
+{===>} obs_type="amplitude";
+
+{* Observed data cutoff criteria: applied to amplitudes or intensities *}
+{* reflections with magnitude(Obs)/sigma < cutoff are rejected. *}
+{===>} sigma_cut=0.0;
+
+{* rms outlier cutoff: applied to amplitudes or intensities *}
+{* reflections with magnitude(Obs) > cutoff*rms(Obs) will be rejected *}
+{===>} obs_rms=10000;
+
+{=================== non-crystallographic symmetry ===================}
+
+{* NCS-restraints/constraints file *}
+{* see auxiliary/ncs.def *}
+{===>} ncs_infile="";
+
+{============ overall B-factor and bulk solvent corrections ==========}
+
+{* overall B-factor correction *}
+{+ choice: "no" "isotropic" "anisotropic" +}
+{===>} bscale="anisotropic";
+
+{* bulk solvent correction *}
+{* a mask is required around the molecule(s). The region
+   outside this mask is the solvent region *}
+{+ choice: true false +}
+{===>} bulk_sol=true;
+
+{* bulk solvent mask file *}
+{* mask will be read from O type mask file if a name is given
+   otherwise calculated from coordinates of selected atoms *}
+{===>} bulk_mask_infile="";
+
+{* automatic bulk solvent parameter search *}
+{+ choice: true false +}
+{===>} sol_auto=true;
+
+{* fixed solvent parameters if the automatic option is not used *}
+{+ table: rows=1 "bulk solvent" cols=2 "e-density level (e/A^3)" "B-factor (A^2)" +}
+{===>} sol_k=-1;
+{===>} sol_b=-1;
+
+{* optional file with a listing of the results of the automatic bulk solvent grid 
+   search *}
+{===>} sol_output="";
+
+{* solvent mask parameters *}
+{+ table: rows=1 "bulk solvent" cols=2 "probe radius (A) (usually set to 1)" "shrink radius (A) (usually set to 1)" +}
+{===>} sol_rad=1.0;
+{===>} sol_shrink=1.0;
+
+{========================== atom selection ===========================}
+
+{* select atoms to be included in map calculation *}
+{===>} atom_select=(known and not hydrogen);
+
+{==================== map generation parameters ======================}
+
+{* calculation of fofc and 2fofc maps *}
+
+{* type of map (calculated for u=1,v=1 and u=2,v=1) *}
+{+ list:   sigmaa: (u m|Fo| - v D|Fc|)^exp(i phi_calc)
+                    m and D calculated from sigmaa
+       unweighted: (u |Fo| - v k|Fc|)^exp(i phi_calc)
+                    no figure-of-merit weighting
+         combined: (u m|Fo|^exp(i phi_comb) - v D|Fc|^exp(i phi_calc))
+                    model and experimental phases combined, m and D from sigmaa
+         observed: (u m|Fo|^exp(i phi_obs) - v k m|Fc|^exp(i phi_calc))
+                    observed phases and fom from phase probability distribution
+       NB. experimental phases must be supplied as a phase
+           probability distribution in the Hendrickson-Lattman arrays +}
+{+ choice: "sigmaa" "unweighted" "combined" "observed" +}
+{===>} map_type="sigmaa";
+
+{* number of bins for refinement target *}
+{* this will be determined automatically if a negative value is given
+   otherwise the specified number of bins will be used *}
+{===>} target_bins=-1;
+
+{* use model amplitudes for unmeasured data *}
+{* this will not be applied to difference maps *}
+{+ choice: true false +}
+{===>} fill_in=false;
+
+{* scale map by dividing by the rms sigma of the map *}
+{* otherwise map will be on an absolute fobs scale *}
+{+ choice: true false +}
+{===>} map_scale=true;
+
+{* map format *}
+{+ choice: "cns" "ezd" +}
+{===>} map_format="cns";
+
+{* B-factor sharpening (A^2), for example, -100 *}
+{===>} bsharp=0;
+
+{* map grid size: dmin*grid *}
+{* use grid=0.25 for better map appearance *}
+{===>} grid=0.33;
+
+{* memory allocation for FFT calculation *}
+{* this will be determined automatically if a negative value is given
+   otherwise the specified number of words will be allocated *}
+{===>} fft_memory=-1;
+
+{* extent of map *}
+{+ choice: "molecule" "asymmetric" "unit" "box" "fract" +}
+{===>} map_mode="molecule";
+
+{* select atoms around which map will be written *}
+{* change if different to atoms selected for map calculation *}
+{===>} atom_map=(known and not hydrogen);
+
+{* cushion (in Angstroms) around selected atoms in "molecule" mode *}
+{===>} map_cushion=3.0;
+
+{* limits in orthogonal angstroms for box mode or
+   fractional coordinates for fract mode *}
+{+ table: rows=3 "x" "y" "z" cols=2 "minimum" "maximum" +}
+{===>} xmin=0.;
+{===>} xmax=0.;
+{===>} ymin=0.;
+{===>} ymax=0.;
+{===>} zmin=0.;
+{===>} zmax=0.;
+
+{========================= realspace R-value =========================}
+
+{* calculate realspace local correlation coefficient (RSCC) and R values (RSR) from 2fofc map *}
+{* output is by residue. If an ensemble is read, the first coordinate
+   file is used to compute the model map and it is then compared to the
+   averaged map. *}
+{+ choice: true false +}
+{===>} real_r=true;
+
+{* select residues for which realspace R-values will be calculated *}
+{===>} atom_real=(known and not hydrogen);
+
+{=========================== output files ============================}
+
+{* root name for output files *}
+{+ list:
+         map files will be in: <output_root>_fofc.map
+                               <output_root>_2fofc.map
+         corresponding Fourier coefficients will be in: <output_root>.hkl  
+          (this file can be read by the Coot Auto Open MTZ file option)
+         corresponding positive and negative peaks will be in *_negative.peaks and *_positive.peaks
+         RSCC and RSR are in: <output_root>_rsr.list
+                       and in <output_root>_rsr.pdb (calculated from 2fofc map) +}
+{===>} output_root="model_map";
+
+{* write map file *}
+{+ choice: true false +}
+{===>} write_map=true;
+
+{* do peak picking on map *}
+{* optional - use water_pick.inp to pick waters *} 
+{+ choice: true false +}
+{===>} peak_search=true;
+
+{* number of peaks to pick from map *}
+{===>} peak_num=30;
+
+{* write a reflection file with the Fourier coefficients of the map *}
+{+ choice: true false +}
+{===>} write_coeff=true;
+
+{===========================================================================}
+{         things below this line do not normally need to be changed         }
+{===========================================================================}
+
+ ) {- end block parameter definition -}
+
+ checkversion 1.3
+
+ evaluate ($log_level=quiet)
+
+ if ( $log_level = verbose ) then
+   set message=normal echo=on end
+ else
+   set message=off echo=off end
+ end if
+
+ if (&coordinate_ensemble_count > 1) then
+    {- use first coordinate file to auto generate MTF if requested -}
+    evaluate ($input_coor = &coordinate_infile+"_"+encode(1)+".pdb")
+ else
+    {- use single coordinate file -}
+    evaluate ($input_coor = &coordinate_infile)
+ end if
+
+ if ( &BLANK%structure_infile = true ) then
+ 
+    {- read topology files -}
+    topology
+     evaluate ($counter=1)
+     evaluate ($done=false)
+     while ( $done = false ) loop read
+      if ( &exist_topology_infile_$counter = true ) then
+         if ( &BLANK%topology_infile_$counter = false ) then
+            @@&topology_infile_$counter
+         end if
+      else
+        evaluate ($done=true)
+      end if
+      evaluate ($counter=$counter+1)
+     end loop read
+    end
+    
+    @CNS_XTALMODULE:mtfautogenerate (
+                                  coordinate_infile=$input_coor;
+                                  convert=true;
+                                  separate=true;
+                                  atom_delete=(not known);
+                                  hydrogen_flag=true;
+                                  break_cutoff=2.5;
+                                  disulphide_dist=3.0;
+                                  carbo_dist=2.5;
+                                  patch_infile=&patch_infile;
+                                  O5_becomes="O";
+                                 )
+
+ else
+    
+   structure @&structure_infile end
+   coor @$input_coor
+
+ end if
+
+ {- read parameter files -}
+ parameter
+  evaluate ($counter=1)
+  evaluate ($done=false)
+  while ( $done = false ) loop read
+   if ( &exist_parameter_infile_$counter = true ) then
+      if ( &BLANK%parameter_infile_$counter = false ) then
+         @@&parameter_infile_$counter
+      end if
+   else
+     evaluate ($done=true)
+   end if
+   evaluate ($counter=$counter+1)
+  end loop read
+ end
+
+ xray
+
+   @CNS_XTALLIB:spacegroup.lib (sg=&sg;sgparam=$sgparam;)
+
+   a=&a b=&b c=&c  alpha=&alpha beta=&beta gamma=&gamma
+  
+   @CNS_XRAYLIB:scatter.lib
+
+   binresolution &low_res &high_res
+   mapresolution &high_res
+
+   generate &low_res &high_res
+
+   evaluate ($counter=1)
+   evaluate ($done=false)
+   while ( $done = false ) loop read
+    if ( &exist_reflection_infile_$counter = true ) then
+      if ( &BLANK%reflection_infile_$counter = false ) then
+       reflection
+         @@&reflection_infile_$counter
+       end
+      end if
+   else
+     evaluate ($done=true)
+   end if
+   evaluate ($counter=$counter+1)
+  end loop read
+
+ end
+
+ xray
+    anomalous ?
+    if ($result=true) then
+       anomalous=false
+       display
+       display  Friedel mates have been averaged 
+       display 
+    end if
+ end
+
+! if ( &BLANK%anom_library = false ) then
+!   @@&anom_library
+! else
+!   xray anomalous=? end
+!   if ( $result = true ) then
+!     display Warning: no anomalous library has been specified
+!    display          no anomalous contribution will used in refinement
+!   end if
+! end if
+
+ {- copy define parameters of optional arrays into symbols so 
+    we can redefine them -}
+    
+ evaluate ($obs_i=&obs_i)
+ evaluate ($obs_sigi=&obs_sigi)
+ evaluate ($obs_w=&obs_w)
+ xray
+   @@CNS_XTALMODULE:checkrefinput (
+                                  reftarget=&reftarget;
+                                  obs_f=&obs_f;
+                                  obs_sigf=&obs_sigf;
+                                  test_set=&test_set;
+                                  obs_pa=&obs_pa;
+                                  obs_pb=&obs_pb;
+                                  obs_pc=&obs_pc;
+                                  obs_pd=&obs_pd;
+                                  obs_phase=&obs_phase;
+                                  obs_fom=&obs_fom;
+                                  obs_w=$obs_w;
+                                  obs_i=$obs_i;
+                                  obs_sigi=$obs_sigi;
+                                  )
+
+   query name=fcalc domain=reciprocal end
+   if ( $object_exist = false ) then
+      declare name=fcalc domain=reciprocal type=complex end
+   end if
+   declare name=fbulk domain=reciprocal type=complex end
+   do (fbulk=0) ( all )
+
+   query name=&STRIP%obs_f domain=reciprocal end
+   declare name=fobs_orig domain=reciprocal type=$object_type end
+   declare name=sigma_orig domain=reciprocal type=real end
+
+   do (fobs_orig=&STRIP%obs_f) (all)
+   do (sigma_orig=&STRIP%obs_sigf) (all)
+
+   if ( &BLANK%obs_i = false ) then
+     query name=&STRIP%obs_i domain=reciprocal end
+     declare name=iobs_orig domain=reciprocal type=$object_type end
+     declare name=sigi_orig domain=reciprocal type=real end
+     do (iobs_orig=&STRIP%obs_i) (all)
+     do (sigi_orig=&STRIP%obs_sigi) (all)
+   end if
+
+   if ( &obs_type = "intensity" ) then
+     if ( &BLANK%obs_i = true ) then
+       display  Error: observed intensity array is undefined
+       display         aborting script
+       abort
+     end if
+     evaluate ($reject_obs=&obs_i)
+     evaluate ($reject_sig=&obs_sigi)
+   else
+     evaluate ($reject_obs=&obs_f)
+     evaluate ($reject_sig=&obs_sigf)
+   end if
+
+   declare name=ref_active domain=reciprocal type=integer end
+   declare name=tst_active domain=reciprocal type=integer end
+
+   do (ref_active=0) ( all )
+   do (ref_active=1) ( ( $STRIP%reject_sig # 0 ) and
+                      ( &low_res >= d >= &high_res ) )
+
+   statistics overall
+     completeness
+     selection=( ref_active=1 )
+   end
+   evaluate ($total_compl=$expression1)
+
+   show sum(1) ( ref_active=1 )
+   evaluate ($total_read=$select)
+   evaluate ($total_theor=int(1./$total_compl * $total_read))
+
+   show rms (amplitude($STRIP%reject_obs)) ( ref_active=1 )
+   evaluate ($obs_high=$result*&obs_rms)
+   show min (amplitude($STRIP%reject_obs)) ( ref_active=1 )
+   evaluate ($obs_low=$result)
+
+   do (ref_active=0) ( all )
+   do (ref_active=1)
+                  ( ( amplitude($STRIP%reject_obs) > &sigma_cut*$STRIP%reject_sig ) and
+                    ( $STRIP%reject_sig # 0 ) and
+                    ( $obs_low <= amplitude($STRIP%reject_obs) <= $obs_high ) and
+                    ( &low_res >= d >= &high_res ) )
+
+   do (tst_active=0) (all)
+   if ( &BLANK%test_set = false ) then
+     do (tst_active=1) (ref_active=1 and &STRIP%test_set=&test_flag)
+   end if
+
+   show sum(1) ( ref_active=1 and tst_active=0 )
+   evaluate ($total_work=$select)
+   show sum(1) ( ref_active=1 and tst_active=1 )
+   evaluate ($total_test=$select)
+   evaluate ($total_used=$total_work+$total_test)
+
+   evaluate ($unobserved=$total_theor-$total_read)
+   evaluate ($rejected=$total_read-$total_used)
+   evaluate ($per_unobs=100*($unobserved/$total_theor))
+   evaluate ($per_reject=100*($rejected/$total_theor))
+   evaluate ($per_used=100*($total_used/$total_theor))
+   evaluate ($per_work=100*($total_work/$total_theor))
+   evaluate ($per_test=100*($total_test/$total_theor))
+
+   associate fcalc ( &atom_select )
+
+   tselection=( ref_active=1 )
+
+   cvselection=( tst_active=1 )
+
+   method=FFT          
+   
+ end
+ 
+ xray
+ 
+   tolerance=0.0 lookup=false
+   
+ end                  
+
+ if ( &map_type = "observed" ) then
+   evalaute ($test_hl=true)
+ elseif ( &map_type = "combined" ) then
+   evalaute ($test_hl=true)
+ else
+   evalaute ($test_hl=false)
+ end if
+
+ if ( $test_hl = true ) then
+   xray
+     @@CNS_XTALMODULE:check_abcd (pa=&obs_pa;
+                                 pb=&obs_pb;
+                                 pc=&obs_pc;
+                                 pd=&obs_pd;)
+   end
+ end if
+
+ if ( &BLANK%ncs_infile = false ) then
+    inline @&ncs_infile
+ end if
+
+ xray
+   show sum (1) (tst_active=1)
+   if ( $result > 0 ) then
+     evaluate ($test_exist=true)
+   else
+     evaluate ($test_exist=false)
+   end if
+ end
+
+ evaluate ($map_coeff_1="fofc")
+ evaluate ($map_coeff_2="2fofc")
+
+ xray
+   declare name=f1 domain=reciprocal type=complex end
+   declare name=f2 domain=reciprocal type=complex end
+   declare name=f_ave_1 domain=reciprocal type=complex end
+   declare name=f_ave_2 domain=reciprocal type=complex end
+   declare name=map_scale domain=reciprocal type=real end 
+ end
+
+ xray
+    do (f_ave_1=0) (all) 
+    do (f_ave_2=0) (all) 
+ end
+ 
+ evaluate ($coordinate_counter=max(1,&coordinate_ensemble_count))
+ while ($coordinate_counter > 0) loop main
+   
+   if (&coordinate_ensemble_count > 1) then
+      coordinate init end
+      {- read multiple coordinates -}
+      evaluate ($input_coor = &coordinate_infile+"_"+encode($coordinate_counter)+".pdb")
+      set remarks=reset end 
+      coor @@$input_coor
+   end if
+
+   display 
+   display  Computing structure factors, bulk solvent correction, and B-factor scaling for coordinate file $input_coor
+   display
+   
+   {- do the fft parameter check for each coordinate set since B-factors may be different -}
+   show min ( b ) ( &atom_select )
+   evaluate ($b_min=$result)
+   @@CNS_XTALMODULE:fft_parameter_check ( 
+                             d_min=&high_res; 
+                             b_min=$b_min;
+                             grid=&grid;
+                             fft_memory=&fft_memory;
+                             fft_grid=$fft_grid;   
+                             fft_b_add=$fft_b_add; 
+                             fft_elim=$fft_elim; 
+                                      )
+   {- restore the original amplitudes, sigmas, and intensities since they may have been scaled during the previous cycle -}
+   xray
+     do (&STRIP%obs_f=fobs_orig) (all)
+     do (&STRIP%obs_sigf=sigma_orig) (all)
+     if ( &BLANK%obs_i = false ) then
+       do (&STRIP%obs_i=iobs_orig) (all)
+       do (&STRIP%obs_sigi=sigi_orig) (all)
+     end if
+   end
+ 
+   xray
+      predict
+        mode=reciprocal
+        to=fcalc
+        selection=(&low_res >= d >= &high_res)
+        atomselection=( &atom_select ) 
+      end
+   end
+
+   @CNS_XTALMODULE:scale_and_solvent_grid_search (
+                               bscale=&bscale;
+                               sel=( ref_active=1 );
+                               sel_test=( tst_active=1 );
+                               atom_select=( &atom_select );
+                               bulk_sol=&bulk_sol;
+                               bulk_mask=&bulk_mask_infile;
+                               bulk_atoms=( &atom_select );
+                               
+                               sol_auto=&sol_auto;
+                               sol_k=&sol_k;
+                               sol_b=&sol_b;
+                               sol_rad=&sol_rad;
+                               sol_shrink=&sol_shrink;
+    
+                               fcalc=fcalc;
+                               obs_f=&STRIP%obs_f;
+                               obs_sigf=&STRIP%obs_sigf;
+                               obs_i=$STRIP%obs_i;
+                               obs_sigi=$STRIP%obs_sigi;                             
+                               fpart=fbulk;
+                               
+                               Baniso_11=$Baniso_11;
+                               Baniso_22=$Baniso_22;
+                               Baniso_33=$Baniso_33;
+                               Baniso_12=$Baniso_12;
+                               Baniso_13=$Baniso_13;
+                               Baniso_23=$Baniso_23;
+                               Biso=$Biso_model;
+
+                               sol_k_best=$sol_k_ref;
+                               sol_b_best=$sol_b_ref;
+                               solrad_best=$solrad_best;
+                               shrink_best=$shrink_best;
+                               
+                               b=b;
+
+                               low_b_flag=$low_b_flag;
+                              
+                               sol_output=&sol_output;
+                               
+                               )
+   xray
+     @@CNS_XTALMODULE:calculate_r (
+                                   fobs=&STRIP%obs_f;
+                                   fcalc=fcalc;
+                                   fpart=fbulk;
+                                   sel=( ref_active=1 );
+                                   sel_test=( tst_active=1 );
+                                   print=true;
+                                   output=OUTPUT;
+                                   r=$map_r;
+                                   test_r=$map_free_r;)
+   end
+
+   {- check the gridding again since the minimum B-factor may have changed -}
+   show min ( b ) ( &atom_select )
+   evaluate ($b_min=$result)
+   @@CNS_XTALMODULE:fft_parameter_check ( 
+                               d_min=&high_res; 
+                               b_min=$b_min;
+                               grid=&grid;
+                               fft_memory=&fft_memory;
+                               fft_grid=$fft_grid;   
+                               fft_b_add=$fft_b_add; 
+                               fft_elim=$fft_elim; 
+                                        )
+   xray
+     declare name=map_phase domain=reciprocal type=real end 
+     declare name=map_fom   domain=reciprocal type=real end 
+     declare name=total domain=reciprocal type=complex end
+   end
+   
+   if ( &map_type = "unweighted" ) then
+
+     xray
+
+       do (map_phase=phase(fcalc+fbulk)) (all)
+
+       do (total=fcalc+fbulk) (all)
+       multiscale
+         bfmin=-40 bfmax=40
+         set1=&STRIP%obs_f  k1=-1 b1=0
+         set2=total          b2=0
+         selection=(ref_active=1 )
+       end
+       do (map_scale=$k2) (all)
+
+       do (map_fom=1.0) (all)
+
+     end
+
+   elseif ( &map_type = "sigmaa" ) then
+
+     xray
+
+       do (map_phase=phase(fcalc+fbulk)) (all)
+
+       declare name=m          domain=reciprocal type=complex end
+       declare name=mod_fom    domain=reciprocal type=real end
+       declare name=mod_x      domain=reciprocal type=real end
+       declare name=mod_pa     domain=reciprocal type=real end
+       declare name=mod_pb     domain=reciprocal type=real end
+       declare name=mod_pc     domain=reciprocal type=real end
+       declare name=mod_pd     domain=reciprocal type=real end
+       declare name=mod_dd     domain=reciprocal type=real end
+
+       @CNS_XTALMODULE:fomsigmaacv ( sig_sigacv=0.07;
+                                    mbins=&target_bins;
+                                    statistics=true;
+                                    fobs=&STRIP%obs_f;
+                                    fcalc=fcalc;
+                                    fpart=fbulk;
+                                    test=tst_active;
+                                    sel=(ref_active=1);
+                                    sel_test=(tst_active=1);
+                                    fom=mod_fom;
+                                    x=mod_x;
+                                    pa=mod_pa;
+                                    pb=mod_pb;
+                                    pc=mod_pc;
+                                    pd=mod_pd;
+                                    dd=mod_dd; )
+
+
+       do (map_fom=mod_fom) (all)
+       do (map_scale=distribute(mod_dd)) (&low_res >= d >= &high_res)
+
+       undeclare name=m          domain=reciprocal end
+       undeclare name=mod_fom    domain=reciprocal end
+       undeclare name=mod_x      domain=reciprocal end
+       undeclare name=mod_pa     domain=reciprocal end
+       undeclare name=mod_pb     domain=reciprocal end
+       undeclare name=mod_pc     domain=reciprocal end
+       undeclare name=mod_pd     domain=reciprocal end
+       undeclare name=mod_dd     domain=reciprocal end
+
+     end
+
+   elseif ( &map_type = "combined" ) then
+
+     xray
+       declare name=m          domain=reciprocal type=complex end
+       declare name=mod_fom    domain=reciprocal type=real end
+       declare name=mod_x      domain=reciprocal type=real end
+       declare name=mod_pa     domain=reciprocal type=real end
+       declare name=mod_pb     domain=reciprocal type=real end
+       declare name=mod_pc     domain=reciprocal type=real end
+       declare name=mod_pd     domain=reciprocal type=real end
+       declare name=mod_dd     domain=reciprocal type=real end
+
+       @CNS_XTALMODULE:fomsigmaacv ( sig_sigacv=0.07;
+                                    mbins=&target_bins;
+                                    statistics=true;
+                                    fobs=&STRIP%obs_f;
+                                    fcalc=fcalc;
+                                    fpart=fbulk;
+                                    test=tst_active;
+                                    sel=(ref_active=1);
+                                    sel_test=(tst_active=1);
+                                    fom=mod_fom;
+                                    x=mod_x;
+                                    pa=mod_pa;
+                                    pb=mod_pb;
+                                    pc=mod_pc;
+                                    pd=mod_pd;
+                                    dd=mod_dd; )
+
+       @CNS_XTALMODULE:combineprobability ( messages="off";
+                                            addname="model phases";
+                                            pa=mod_pa;
+                                            pb=mod_pb;
+                                            pc=mod_pc;
+                                            pd=mod_pd;
+                                            w=1;
+                                            addname="experimental phases";
+                                            adda=&STRIP%obs_pa;
+                                            addb=&STRIP%obs_pb;
+                                            addc=&STRIP%obs_pc;
+                                            addd=&STRIP%obs_pd;
+                                            addw=1;)
+
+       @CNS_XTALMODULE:getfom ( pa=mod_pa;
+                                pb=mod_pb;
+                                pc=mod_pc;
+                                pd=mod_pd;
+                                m=m;
+                                phistep=5; )
+
+       do (map_phase=phase(m)) (all)
+       do (map_fom=amplitude(m)) (all)
+       do (map_scale=distribute(mod_dd)) (&low_res >= d >= &high_res)
+
+       undeclare name=m          domain=reciprocal end
+       undeclare name=mod_fom    domain=reciprocal end
+       undeclare name=mod_x      domain=reciprocal end
+       undeclare name=mod_pa     domain=reciprocal end
+       undeclare name=mod_pb     domain=reciprocal end
+       undeclare name=mod_pc     domain=reciprocal end
+       undeclare name=mod_pd     domain=reciprocal end
+       undeclare name=mod_dd     domain=reciprocal end
+     end
+
+   elseif ( &map_type = "observed" ) then
+
+     xray
+
+       do (total=fcalc+fbulk) (all)
+       multiscale
+         bfmin=-40 bfmax=40
+         set1=&STRIP%obs_f  k1=-1 b1=0
+         set2=total          b2=0
+         selection=(ref_active=1)
+       end
+       do (map_scale=$k2) (all)
+
+       declare name=m          domain=reciprocal type=complex end
+
+       @CNS_XTALMODULE:getfom ( pa=&STRIP%obs_pa;
+                                pb=&STRIP%obs_pb;
+                                pc=&STRIP%obs_pc;
+                                pd=&STRIP%obs_pd;
+                                m=m;
+                                phistep=5; )
+
+       do (map_phase=phase(m)) (all)
+       do (map_fom=amplitude(m)) (all)
+       do (map_scale=map_scale*map_fom) (all)
+       undeclare name=m domain=reciprocal end
+     end
+
+   end if
+
+   for $count in ( 1 2 ) loop maps
+
+      display
+      display  computing &STRIP%map_type $STRIP%map_coeff_$count map
+      display
+
+      if ( $map_coeff_$count = "fofc" ) then
+        evaluate ($u_$count=1)
+        evaluate ($v_$count=1)
+      elseif ( $map_coeff_$count = "2fofc" ) then
+        evaluate ($u_$count=2)
+        evaluate ($v_$count=1)
+      elseif ( $map_coeff_$count = "3fo2fc" ) then
+        evaluate ($u_$count=3)
+        evaluate ($v_$count=2)
+      else
+        evaluate ($u_$count=2)
+        evaluate ($v_$count=1)
+      end if
+
+      evaluate ($f_name="F"+encode($count)) 
+      evaluate ($f_ave_name="F_AVE_"+encode($count)) 
+         
+      xray
+       do ($STRIP%f_name=0) (all)
+       if ( $u_$count = $v_$count ) then
+         do ($STRIP%f_name= 2 (($u_$count   map_fom combine(amplitude(&STRIP%obs_f),map_phase)) -
+                      ($v_$count map_scale        (fcalc+fbulk))))
+            (ref_active=1 and acentric)
+         do ($STRIP%f_name=    ($u_$count   map_fom combine(amplitude(&STRIP%obs_f),map_phase)) -
+                      ($v_$count map_scale        (fcalc+fbulk)))
+            (ref_active=1 and centric)
+       else
+         do ($STRIP%f_name=($u_$count             map_fom combine(amplitude(&STRIP%obs_f),map_phase)) - 
+                  ($v_$count           map_scale        (fcalc+fbulk)))
+            (ref_active=1 and acentric)
+         do ($STRIP%f_name=(max(($u_$count-1),0)   map_fom combine(amplitude(&STRIP%obs_f),map_phase)) -
+                  (max(($v_$count-1),0) map_scale        (fcalc+fbulk)))
+            (ref_active=1 and centric)
+
+         if ( &fill_in = true ) then
+           do ($STRIP%f_name=map_scale (fcalc+fbulk)) 
+              (&low_res >= d >= &high_res and ref_active # 1)
+         end if
+
+       end if
+
+       do ($STRIP%f_ave_name=$STRIP%f_ave_name+$STRIP%f_name) ( all )
+ 
+     end 
+  
+   end loop maps  
+   
+   evaluate ($coordinate_counter = $coordinate_counter - 1)
+
+   xray
+     undeclare name=map_phase domain=reciprocal end 
+     undeclare name=map_fom   domain=reciprocal end 
+     undeclare name=total domain=reciprocal end
+   end
+
+ end loop main
+ 
+ if (&bsharp # 0) then 
+   {- b-factor sharpening -} 
+    evaluate ($bsharp= (-1) * &bsharp) 
+    xray
+      {- modification: multiplication of map_scale array with B-factor term -}
+      {- map_scale is used in real space R calculation -}
+      do (map_scale=exp( $bsharp * s^2/4) * map_scale) ( all )
+    end
+ end if
+
+ for $count in ( 1 2 ) loop maps
+
+    evaluate ($f_name="F"+encode($count)) 
+    evaluate ($f_ave_name="F_AVE_"+encode($count)) 
+
+    if (&coordinate_ensemble_count>1) then
+       xray 
+          do ($STRIP%f_name=$STRIP%f_ave_name/&coordinate_ensemble_count) ( all )
+       end
+    end if
+
+    if (&bsharp # 0) then 
+      {- b-factor sharpening -} 
+       evaluate ($bsharp= (-1) * &bsharp) 
+       xray
+         do ($STRIP%f_name=exp( $bsharp * s^2/4) * $STRIP%f_name) ( all )
+       end
+       display  B-factor sharpening applied to $map_coeff_$count map: exp( Bsharp * S^2/4 ) where Bsharp = &bsharp
+    end if
+ 
+    xray
+      declare name=map domain=real end
+      if ( $u_$count = $v_$count ) then
+        do (map=ft($STRIP%f_name)) (ref_active=1)
+      elseif ( &fill_in = true ) then
+        do (map=ft($STRIP%f_name)) (&low_res >= d >= &high_res)
+      else
+        do (map=ft($STRIP%f_name)) (ref_active=1) 
+      end if
+    end
+
+    if (&map_scale=true) then    
+      xray                                        
+        show rms (real(map)) ( all )
+        do (map=map/$result) ( all )
+        evaluate($map_scale=$result)
+      end
+      display  $map_coeff_$count map has been scaled by 1/rms (rms= $map_scale[F11.5] )
+    else
+       display
+       display  $map_coeff_$count map is on absolute scale
+       display
+    end if
+
+    
+    if ( &real_r = true ) then
+      if ($map_coeff_$count = "2fofc") then
+
+          {- begin real space local correlation coefficient calculation -}
+          {- note: last first coordinate set that was read for the
+             calculation of the model map for the real space R calculation.  
+             Since we're counting down, this means that we're using the 
+             coordinate file with <file_name>_1.pdb. -}
+
+         display
+         display  calculating RSCC and RSR values using $STRIP%map_coeff_$count map and the coordinate file $input_coor 
+         display
+   
+         xray
+           declare name=mod_map domain=real end
+
+           {- multiplication of fcalc+fbulk with map_scale array - contains D and B-sharpening -}
+           do (mod_map=ft(map_scale*(fcalc+fbulk))) (&low_res >= d >= &high_res)     
+     
+           declare name=corr_map domain=real end
+           declare name=map11    domain=real end
+           declare name=map12    domain=real end
+           declare name=map22    domain=real end
+           declare name=map11_ave domain=real end
+           declare name=map22_ave domain=real end
+           declare name=prop     domain=real end 
+           declare name=dist     domain=real end
+           declare name=mask     domain=real end
+         end
+
+         do (store9=0) (all)
+         evaluate ($counter=1)
+         for $id in id ( tag and byresidue ( &atom_real and &atom_select)  ) loop main
+           do ( store9=$counter ) ( byres( id $id) )
+           evaluate ($counter=$counter+1)
+         end loop main
+
+         xray
+           mask
+             mode=vdw
+             solrad=0.1
+             shrink=0.1
+             nshell=1
+             to=mask
+             selection=( &atom_real and &atom_select ) 
+           end
+
+           do (prop=0) (all)
+           proximity
+             from=store9
+             distance_map=dist
+             property_map=prop
+             cutoff=3.0
+             selection=( &atom_real and &atom_select )
+           end
+
+           do (map11_ave=gave(real(map), real(prop))) 
+                                    ( real(prop) > 0 and real(mask) <= 0 )
+           do (map22_ave=gave(real(mod_map), real(prop))) 
+                                    ( real(prop) > 0 and real(mask) <= 0 )            
+                                          
+           do (map11=gave((real(map)-map11_ave )* (real(map)-map11_ave), real(prop)) ) 
+                                    ( real(prop) > 0 and real(mask) <= 0 )
+           do (map12=gave((real(map)-map11_ave )* (real(mod_map)-map22_ave ), real(prop)) ) 
+                                    ( real(prop) > 0 and real(mask) <= 0 )
+           do (map22=gave((real(mod_map)-map22_ave )* (real(mod_map)-map22_ave), real(prop)) ) 
+                                    ( real(prop) > 0 and real(mask) <= 0 )
+           {- real space correlation coefficient (RSCC) - is scale factor independent  -}
+           do (corr_map=real(map12)/ max( 0.0001, sqrt ( real(map11) * real(map22) ) ))
+                                    ( real(prop) > 0 and real(mask) <= 0 )
+                                    
+           {- calculate scale factor between map and model map for RSR -}
+           show sum (real(map)) ( real(mask) <=0 ) 
+           evaluate ($map_sum=$result)
+           show sum (real(mod_map)) ( real(mask) <=0 ) 
+           evaluate ($mod_map_sum=$result)
+                                
+           {- real space R value (RSR) -}
+           do (map11= gave(abs(real(map)-($map_sum/$mod_map_sum)*real(mod_map)), real(prop)) /
+                      gave(abs(real(map)+($map_sum/$mod_map_sum)*real(mod_map)), real(prop)))
+                                    (  real(prop) > 0 and real(mask) <=0 )
+         end
+
+         evaluate ($display=&output_root + "_rsr.list")
+         set display=$display end
+         display  RSCC and RSR=sum|r-r_calc|/sum[r+r_calc| using $STRIP%map_coeff_$count map and D*Fcalc from the coordinate file $input_coor 
+
+         display      #   resid  segid  RSCC    1-RSCC  RSR
+
+         evaluate ($realr_ave=0)
+         evaluate ($realr_ave_2=0) 
+         evaluate ($realr_num=0)
+   
+         do (store9=0) ( all )
+         evaluate ($counter=1)
+         for $id in id ( tag and byresidue (&atom_real and &atom_select) ) loop real
+            xray
+              show ave (real(corr_map)) (real(prop)=$counter and real(mask) <= 0)
+              evaluate ($corr=$result)
+              evaluate ($1corr=1-$corr)
+              show ave (real(map11)) (real(prop)=$counter and real(mask) <= 0)
+              evaluate ($realr=$result)   ! was ($realr=1-$corr)
+            end
+            evaluate ($realr_ave=$realr_ave + $realr)
+            evaluate ($realr_ave_2=$realr_ave_2 + $realr^2)
+            evaluate ($realr_num=$realr_num+1)
+            do (store9=$realr) ( byresidue ( id $id ) and &atom_real and &atom_select ) 
+            show (resid) (id $id)
+            evaluate ($resid=$result)
+            show (segid) (id $id)
+            evaluate ($segid=$result)
+            display $counter[i6]   $resid[a4]   $segid[a4]  $corr[f6.3]  $1corr[f6.3]  $realr[f6.3]
+            evaluate ($counter=$counter+1)
+         end loop real
+   
+         if ($realr_num>0) then
+            evaluate ($realr_ave=$realr_ave/$realr_num) 
+            evaluate ($realr_ave_2=$realr_ave_2/$realr_num)
+            evaluate ($realr_sigma=sqrt ( $realr_ave_2 - $realr_ave^2) ) 
+            display  average RSR value = $realr_ave  sigma = $realr_sigma
+         end if
+         set display=OUTPUT end
+
+         evaluate ($filename=&output_root + "_rsr.pdb")
+   
+         do ( b=recall9) ( all )
+         set remarks=reset end
+
+         remarks using $STRIP%map_coeff_$count map and D*Fcalc from the coordinate file $input_coor 
+         remarks average RSR=sum|r-r_calc|/sum[r+r_calc| = $realr_ave[f6.3]  sigma = $realr_sigma[f6.3]
+         remarks individual RSRs are in B-factor array
+
+         write coor 
+            output=$filename 
+            selection=( byresidue ( &atom_real and &atom_select ) ) 
+            format=PDBO
+         end
+
+         xray
+            undeclare name=mod_map  domain=real end
+            undeclare name=corr_map domain=real end
+            undeclare name=map11    domain=real end
+            undeclare name=map12    domain=real end
+            undeclare name=map22    domain=real end
+            undeclare name=map11_ave    domain=real end 
+            undeclare name=map22_ave    domain=real end 
+            undeclare name=prop     domain=real end
+            undeclare name=dist     domain=real end
+            undeclare name=mask     domain=real end
+         end
+
+         {- end real space local correlation coefficient calculation -}
+    
+      end if
+    end if
+ 
+    set remarks=reset end
+    set remarks=accumulate end
+
+    evaluate ($remark="")
+    if ( &map_type = "unweighted" ) then
+      evaluate ($remark=$remark + "(" + encode($u_$count) +  " |Fo| - " + 
+                                        encode($v_$count) + " k|Fc|)e^(i phi_calc)")
+    elseif ( &map_type = "sigmaa" ) then
+      evaluate ($remark=$remark + "(" + encode($u_$count) + " m|Fo| - " + 
+                                        encode($v_$count) + " D|Fc|)e^(i phi_calc)")
+      if ( $test_exist = true ) then
+        evaluate ($remark=$remark + " cross-val.")
+      end if
+      evaluate ($remark=$remark + " sigmaa")
+    elseif ( &map_type = "combined" ) then
+      evaluate ($remark=$remark + "(" + encode($u_$count) + " m|Fo|)e^(i phi_comb) - " +
+                                  "(" + encode($v_$count) + " D|Fc|)e^(i phi_calc)")
+      if ( $test_exist = true ) then
+        evaluate ($remark=$remark + " cross-val.")
+      end if
+      evaluate ($remark=$remark + " sigmaa")
+    elseif ( &map_type = "observed" ) then
+      evaluate ($remark=$remark + "(" + encode($u_$count) +  " m|Fo|)e^(i phi_obs) - " +
+                                    "(" + encode($v_$count) + " k m|Fc|)e^(i phi_calc))")
+    end if
+
+    evaluate ($remark=$remark + " map")
+
+    remark $remark
+    remark resolution range of map: &low_res - &high_res
+ 
+    if ( &obs_type = "intensity" ) then
+      remark reflections with Iobs/sigma_I < &sigma_cut rejected
+      remark reflections with Iobs > &obs_rms * rms(Iobs) rejected
+    else
+      remark reflections with |Fobs|/sigma_F < &sigma_cut rejected
+      remark reflections with |Fobs| > &obs_rms * rms(Fobs) rejected
+    end if
+    xray anomalous=? end
+    if ( $result = true ) then
+      remark anomalous diffraction data was input
+    end if
+ 
+    remark fft gridding factor = $fft_grid, B factor offset = $fft_b_add A^2, Elimit = $fft_elim
+ 
+    remark theoretical total number of refl. in resol. range:    $total_theor[I6] ( 100.0 % )
+    remark number of unobserved reflections (no entry):          $unobserved[I6] ( $per_unobs[f5.1] % )
+    remark number of reflections rejected:                       $rejected[I6] ( $per_reject[f5.1] % )
+    remark total number of reflections used:                     $total_used[I6] ( $per_used[f5.1] % )
+    remark number of reflections in working set:                 $total_work[I6] ( $per_work[f5.1] % )
+    remark number of reflections in test set:                    $total_test[I6] ( $per_test[f5.1] % )
+  
+    if (&bsharp # 0) then
+      remark B-factor sharpening applied: exp( Bsharp * S^2/4 ) where Bsharp = &bsharp
+    end if
+
+    if (&map_scale=true) then
+         remarks map has been scaled by 1/rms (rms= $map_scale[F11.5] )
+    end if
+
+    remark a= &a b= &b c= &c alpha= &alpha beta= &beta gamma= &gamma sg= &STRIP%sg
+ 
+    if ( &write_map = true ) then
+
+      display
+      display  writing $map_coeff_$count map 
+      display
+
+      evaluate ($filename=&output_root + "_" + $map_coeff_$count + ".map") 
+
+      if ( &map_mode = "asymmetric" ) then
+        evaluate ($map_mode_string=ASYM)
+      elseif ( &map_mode = "unit" ) then
+        evaluate ($map_mode_string=UNIT)
+      elseif ( &map_mode = "box" ) then
+        evaluate ($map_mode_string=BOX)
+      elseif ( &map_mode = "fract" ) then
+        evaluate ($map_mode_string=FRAC)
+      else
+        evaluate ($map_mode_string=MOLE)
+      end if
+
+      xray
+        write map
+          if ( &map_format = "ezd" ) then
+            type=ezd
+          else
+            type=cns
+          end if
+          automatic=false
+          from=map
+          output=$filename
+          cushion=&map_cushion
+          selection=&atom_map
+          extend=$map_mode_string
+          if ( &map_mode = "box" ) then
+            xmin=&xmin xmax=&xmax
+            ymin=&ymin ymax=&ymax
+            zmin=&zmin zmax=&zmax
+          end if
+          if ( &map_mode = "fract" ) then
+            xmin=&xmin xmax=&xmax
+            ymin=&ymin ymax=&ymax
+            zmin=&zmin zmax=&zmax
+          end if
+        end
+      end
+    end if
+
+    if ( &peak_search = true ) then
+
+       show sum ( x ) ( segid PEAK) 
+       if ($SELECT > 0) then
+          display
+          display  WARNING: there are atoms that have the reserved segid PEAK. 
+          display           They will be deleted prior to the peak search.
+          display
+       end if
+       delete sele=(segid=PEAK) end
+    
+       display
+       display  peak search for $map_coeff_$count map
+       display
+       
+       evaluate ($filename=&output_root + "_" + $map_coeff_$count + "_positive.peaks") 
+       xray
+          peakpik
+             from=map
+             mpeak=&peak_num
+             selection=( all )
+             atom=true
+             proximity=(&atom_map)
+          end
+       end
+
+       write coor output=$filename selection=(segid=PEAK) end
+       delete sele=(segid=PEAK) end
+
+       evaluate ($filename=&output_root + "_" + $map_coeff_$count + "_negative.peaks") 
+       xray
+          do (map=-map) ( all )
+          peakpik
+             from=map
+             mpeak=&peak_num
+             selection=( all )
+             atom=true
+             proximity=(&atom_map)
+          end
+       end
+
+       write coor output=$filename selection=(segid=PEAK) end
+       delete sele=(segid=PEAK) end
+    end if
+
+    xray
+      undeclare name=map domain=real end
+    end
+
+ end loop maps
+
+ display
+ display  writing Fourier coefficients for both maps
+ display
+
+ set remarks=reset end
+ set remarks=accumulate end
+
+ evaluate ($coeff_out=&output_root + ".hkl") 
+ set display=$coeff_out end
+     
+ evaluate ($remarks="Array F1 comprises Fourier coefficients for the ")
+ if ( $test_exist = true ) then
+     evaluate ($remarks=$remarks + "cross-validated ")
+ end if
+ evaluate ($remark= $remarks + &map_type + " " + $map_coeff_1 + " map")
+ display  remark $remark
+  
+ evaluate ($remarks="Array F2 comprises Fourier coefficients for the ")
+ if ( $test_exist = true ) then
+    evaluate ($remarks=$remarks + "cross-validated ")
+ end if
+ evaluate ($remark= $remarks + &map_type + " " + $map_coeff_2 + " map")
+ display  remark $remark
+   
+
+ @CNS_XTALMODULE:write_hkl_header (sg=&STRIP%sg;
+                                   sgparam=$sgparam;)
+
+ xray
+     write reflection
+       output=$coeff_out
+       if ( &fill_in = true ) then
+         sele=(&low_res >= d >= &high_res)
+       else
+         sele=(ref_active=1)
+       end if
+       F1
+       F2
+     end
+ end
+
+ xray
+   undeclare name=map_scale domain=reciprocal end 
+   undeclare name=f1  domain=reciprocal end
+   undeclare name=f2  domain=reciprocal end
+   undeclare name=f_ave_1  domain=reciprocal end
+   undeclare name=f_ave_2  domain=reciprocal end
+ end
+
+ stop
+ 

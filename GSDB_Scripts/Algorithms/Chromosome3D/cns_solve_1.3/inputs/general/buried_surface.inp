@@ -1,0 +1,250 @@
+{+ file: buried_surface.inp +}
+{+ directory: general +}
+{+ description: Lee & Richards buried surface accessibility calculation +}
+{+ comment:
+           Coordinate files will be written with:
+             - interface residues only
+             - all atoms, interface residues will have a B-factor=1
+               all other residues will have B-factor=0). +}
+{+ authors: Axel T. Brunger, and Paul D. Adams +}
+{+ copyright: Yale University +}
+
+{+ reference: B. Lee, and F.M. Richards, The Interpretation of
+              Protein Structures:  Estimation of Static Accessibility,
+              J. Mol. Biol. 55, 379-400, 1971. +}
+
+{- Guidelines for using this file:
+   - all strings must be quoted by double-quotes
+   - logical variables (true/false) are not quoted
+   - do not remove any evaluate statements from the file -}
+
+{- begin block parameter definition -} define(
+
+{============================ coordinates ============================}
+
+{* coordinate file *}
+{===>} coordinate_infile="eg1_dimer.pdb";
+
+{==================== molecular information ==========================}
+
+{* topology files *}
+{===>} topology_infile_1="CNS_TOPPAR:protein.top";
+{===>} topology_infile_2="CNS_TOPPAR:dna-rna.top";
+{===>} topology_infile_3="CNS_TOPPAR:water.top";
+{===>} topology_infile_4="CNS_TOPPAR:ion.top";
+{===>} topology_infile_5="CNS_TOPPAR:carbohydrate.top";
+{===>} topology_infile_6="";
+{===>} topology_infile_7="";
+{===>} topology_infile_8="";
+
+{* linkage files for linear, continuous polymers (protein, DNA, RNA) *}
+{===>} link_infile_1="CNS_TOPPAR:protein.link";
+{===>} link_infile_2="CNS_TOPPAR:dna-rna-pho.link";
+{===>} link_infile_3="";
+
+{* parameter files *}
+{===>} parameter_infile_1="CNS_TOPPAR:protein_rep.param";
+{===>} parameter_infile_2="CNS_TOPPAR:dna-rna_rep.param";
+{===>} parameter_infile_3="CNS_TOPPAR:water_rep.param";
+{===>} parameter_infile_4="CNS_TOPPAR:ion.param";
+{===>} parameter_infile_5="CNS_TOPPAR:carbohydrate.param";
+{===>} parameter_infile_6="";
+{===>} parameter_infile_7="";
+{===>} parameter_infile_8="";
+
+{* molecular topology file: optional (leave blank for auto generation) *}
+{* 
+   Auto generation of the molecular topology from the coordinates should only 
+   be used if:
+   (1) Each distinct protein, DNA, or RNA chain must have a separate segid 
+       (or chainid if the chainid is non-blank). 
+   (2) Each contiguous protein, RNA, or RNA chain must not be disrupted by 
+       other types of residues or ligands.  Rather, these other residues 
+       should be listed after protein, RNA/DNA chains. 
+   (3) Disulphides are automatically detected based on distances between the sulfur atoms
+      (must be less than 3 A apart).
+   (4) Broken protein/RNA/DNA chains without terminii must be more than 2.5 A apart to be recognized as such.
+   (5) N-linked glycan links are automatically recognized if the bonded atoms are less than 2.5 A apart.
+   (6) Automatic generation cannot be used with alternate conformations. 
+   For ligands, the user must make suitable topology and parameter files.
+   For non-standard covalent linkages, the custom patch file should be used.
+   Alternatively, the generate.inp or generate_easy.inp task files
+   can be used to generated the mtf prior to running this task file.
+    *}
+{===>} structure_infile="eg1_dimer.mtf";
+
+{* for auto generation: extra linkages and modifications by custom patches *}
+{===>} patch_infile="";
+
+{========================== parameters ==============================}
+
+{* probe radius in Angstroms *}
+{===>} probe=1.4;
+
+{========================== atom selection ===========================}
+
+{* select atoms of first molecule *}
+{===>} atom_select_1=(segid AAAA or segid BBBB);
+
+{* select atoms of second molecule *}
+{===>} atom_select_2=(segid CCCC or segid DDDD);
+
+{=========================== output files ============================}
+
+{* root name for output files *}
+{+ list:
+        buried area listing: <output_root>.list
+        coordinates (B=1 for interface residues): <output_root>.pdb
+        coordinates (interface residues only): <output_root>_interface.pdb +}
+{===>} output_root="buried_surface";
+
+{===========================================================================}
+{        things below this line do not normally need to be changed          }
+{===========================================================================}
+
+ ) {- end block parameter definition -}
+
+ checkversion 1.3
+
+ evaluate ($log_level=quiet)
+
+ if ( $log_level = verbose ) then
+   set message=normal echo=on end
+ else
+   set message=off echo=off end
+ end if
+
+ if ( &BLANK%structure_infile = true ) then
+ 
+    {- read topology files -}
+    topology
+     evaluate ($counter=1)
+     evaluate ($done=false)
+     while ( $done = false ) loop read
+      if ( &exist_topology_infile_$counter = true ) then
+         if ( &BLANK%topology_infile_$counter = false ) then
+            @@&topology_infile_$counter
+         end if
+      else
+        evaluate ($done=true)
+      end if
+      evaluate ($counter=$counter+1)
+     end loop read
+    end
+    
+    @CNS_XTALMODULE:mtfautogenerate (
+                                  coordinate_infile=&coordinate_infile;
+                                  convert=true;
+                                  separate=true;
+                                  atom_delete=(not known);
+                                  hydrogen_flag=true;
+                                  break_cutoff=2.5;
+                                  disulphide_dist=3.0;
+                                  carbo_dist=2.5;
+                                  patch_infile=&patch_infile;
+                                  O5_becomes="O";
+                                 )
+
+ else
+
+   structure @&structure_infile end
+   coordinates @&coordinate_infile
+
+ end if
+
+ {- read parameter files -}
+ parameter
+  evaluate ($counter=1)
+  evaluate ($done=false)
+  while ( $done = false ) loop read
+   if ( &exist_parameter_infile_$counter = true ) then
+      if ( &BLANK%parameter_infile_$counter = false ) then
+         @@&parameter_infile_$counter
+      end if
+   else
+     evaluate ($done=true)
+   end if
+   evaluate ($counter=$counter+1)
+  end loop read
+ end
+
+ set message=normal echo=on end
+
+ evaluate ($list_outfile=&output_root + ".list")
+
+ set display=$list_outfile end
+
+ do ( store1=0 ) ( all )
+
+ surface
+    mode=access
+    rh2o=&probe
+    selection=&atom_select_1
+    radius=vdw
+ end
+
+ show sum ( rmsd ) ( &atom_select_1 )
+ evaluate ($molecule_1=$result)
+
+ do ( store1=rmsd ) ( &atom_select_1 )
+
+ surface
+    mode=access
+    rh2o=&probe
+    selection=&atom_select_2
+    radius=vdw
+ end
+
+ show sum ( rmsd ) ( &atom_select_2 )
+ evaluate ($molecule_2=$result)
+
+ do ( store1=rmsd ) ( &atom_select_2 )
+
+ surface
+    mode=access
+    rh2o=&probe
+    selection=( &atom_select_1 or &atom_select_2 )
+    radius=vdw
+ end
+
+ show sum ( rmsd ) ( &atom_select_1 or &atom_select_2 )
+ evaluate ($molecule_both=$result)
+
+ do (store2=rmsd) ( &atom_select_1 or &atom_select_2 )
+
+ evaluate ($buried=$molecule_1 + $molecule_2 - $molecule_both)
+
+ do ( b=0 ) ( all )
+
+ do ( b=max(0,step(store1-store2-4) )) ( &atom_select_1 or &atom_select_2 )
+
+ do ( b=1 ) ( ( &atom_select_1 or &atom_select_2 ) and
+                byresidue ( attribute b > 0) )
+
+ display >>>> Buried surface area calculation:
+ display >>>>   coordinate set= &STRIP%coordinate_infile
+ display >>>>   molecule 1: &atom_select_1
+ display >>>>   molecule 2: &atom_select_2
+ display
+ display  surface area for molecule 1: $molecule_1  A^2
+ display  surface area for molecule 2: $molecule_2  A^2
+ display  surface area for the complex of both molecules: $molecule_both  A^2
+ display
+ display  surface area buried at interface: $buried  A^2
+
+ evaluate ($coord_outfile=&output_root + ".pdb")
+
+ write coordinates 
+   format=pdbo
+   output=$coord_outfile
+ end
+
+ evaluate ($coord_outfile=&output_root + "_interface.pdb")
+
+ write coordinates 
+   format=pdbo 
+   output=$coord_outfile 
+   selection=( attribute b > 0 )
+ end
+
+ stop

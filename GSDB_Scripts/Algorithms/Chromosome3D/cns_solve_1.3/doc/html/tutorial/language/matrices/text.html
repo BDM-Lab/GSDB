@@ -1,0 +1,106 @@
+<HTML>
+<HEAD>
+   <TITLE>Crystallography & NMR System</TITLE>
+</HEAD>
+<BODY BGCOLOR=#8ebf8e>
+
+<HR WIDTH="100%"></P>
+   
+<U>Three-dimensional Vectors</U>
+
+<P>The 3d-vector construct allows one to specify a three-dimensional
+real vector. The construct is also used to specify a 3x3 matrix by
+entering one row at a time. A 3d-vector takes the form:</P>
+
+<PRE>
+  ( real real real )
+</PRE>
+
+<P>or</P>
+
+<PRE>
+( [TAIL=atom-selection] [HEAD=atom-selection] )
+</PRE>
+
+<P>This defines the tail or the head of the vector as the center of
+mass of the specified atom selections using the mass atom property and
+the main coordinate set x,y,z. If HEAD is not specified, it defaults
+to (0,0,0); similarly for TAIL.</P>
+
+<U>3x3 Matrices</U>
+
+<P>The matrix construct allows one to specify a 3x3 real matrix. There
+are several modes available to specify rotation matrices. An arbitrary
+3x3 matrix can be specified by using the MATRix construct. Note: all
+rotations are counterclockwise.
+
+<UL>
+<LI><B>AXIS vector real</B> specifies input through the axis vector
+(see above) and the rotation angle kappa (in degrees).</LI>
+
+<LI><B>EULEr vector</B> specifies input through the Eulerian angles
+q1,q2,q3. q1 is the rotation around the z axis, q2 around the new x
+axis, and q3 around the new z axis.</LI>
+
+<LI><B>LATTman vector</B> specifies input through Lattman's angles
+(q+=q1+q3, q2, q-=q1-q3).</LI>
+
+<LI><B>MATRix vector vector vector</B> specifies direct input of the
+matrix by three 3d-vectors.</LI>
+
+<LI><B>QUATernions real real real real</B> specifies quaternions q0,
+q1, q2, q3, which are defined as:
+<UL>
+<LI>q0 = cos(q2/2)cos(q1+q3/2)</LI>
+<LI>q1 = sin(q2/2)cos(q1-q3/2)</LI>
+<LI>q2 = sin(q2/2)sin(q1-q3/2)</LI>
+<LI>q3 = cos(q2/2)sin(q1+q3/2)</LI>
+</UL>
+with the constraint that
+<UL>
+<LI>q20+q21+q22+q23=1</LI>
+</UL>
+</LI>
+<LI><B>SPHErical vector</B> specifies input through spherical polar
+angles psi, phi, and kappa. Psi and phi specify the rotation axis. Psi
+is the inclination versus the y-axis; Phi is the azimuthal angle,
+i.e., the angle between the x-axis and the projection of the axis into
+the x,z plane; and kappa is the rotation around the rotation
+axis.</LI>
+
+</UL>
+
+<U>Examples</U>
+
+<P>A rotation matrix is specified by a rotation axis (2,3,4) and a
+rotation angle (40 degrees) around the axis (counterclockwise
+rotation):</P>
+
+<PRE>
+  AXIS=( 2, 3, 4 )  40.
+</PRE>
+
+<P>Here a matrix is specified by direct input:</P>
+
+<PRE>
+  MATRix=( 1. 3. 5. ) 
+         ( 4. 2. 1. ) 
+         ( 2. 1. 8. ) 
+</PRE>
+
+<P>The last example shows how to specify a rotation matrix by using
+the Eulerian angles q1,q2,q3:</P>
+
+<PRE>
+  EULEr=( 30. 40. 120. ) 
+</PRE>
+
+<HR WIDTH="100%"></P>
+
+<A HREF="../../text.html">Back to tutorials</A>&nbsp;&nbsp;
+<A HREF="../scripting/text.html">Previous section</A>
+
+<HR WIDTH="100%"></P>
+
+</BODY>
+</HTML>

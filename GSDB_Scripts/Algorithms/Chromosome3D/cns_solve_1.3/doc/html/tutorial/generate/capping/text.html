@@ -1,0 +1,478 @@
+<HTML>
+<HEAD>
+   <TITLE>Crystallography & NMR System</TITLE>
+</HEAD>
+<BODY BGCOLOR=#8ebf8e>
+
+<HR>
+
+<h2>Creation of topology and parameter files for
+N-terminal acetyl and C-terminal amide capping groups</h2>
+
+<HR>
+
+Some proteins have capping groups at the termini. At the N-terminus,
+this can be an acetyl group, and at the C-terminus an amide group.
+
+<p>
+<center><IMG SRC="aa_capped.gif" WIDTH="212" HEIGHT="148"></center>
+<p>
+
+There are two ways of introducing capping groups in <tt>CNS</tt>.  One
+way is to apply a patch to a terminus to add the atoms of the capping
+group.  In this case the terminal residue including the capping group
+is treated as one unit. The residue name is still that of the standard
+amino acid.  This solution works well as long as all the work is done
+in <tt>CNS</tt>.  However, if the <tt>CNS</tt> <tt>PDB</tt> file is
+used in another program (for example <tt>O</tt>), the additional atoms
+can cause problems.  Alternatively, a new residue type can be defined
+for each capping group.  This approach causes less problems when using
+the <tt>CNS</tt> <tt>PDB</tt> file in other programs. In the following,
+the creation of three types of files for the definition of new residue
+types is outlined:
+
+<p>
+
+<table border=1>
+<tr><TD VALIGN=top><tt><A HREF="capping.top">capping.top</A></tt>
+    <TD VALIGN=top>This <strong>topology file</strong> defines the atoms
+        in each capping group, the bonds, angles, dihedrals and impropers,
+        and methods for linking each group to a protein chain.
+<tr><TD VALIGN=top><a href="capping.param"><tt>capping.param</tt></a>
+    <TD VALIGN=top>This <strong>parameter file</strong>
+        defines the target values
+        and weights for the bonds, angles, dihedrals and impropers
+        defined in the topology file.
+<tr><TD VALIGN=top><tt><A HREF="protein_capping.link"
+                       >protein_capping.link</A></tt>
+    <TD VALIGN=top>This <strong>linkage file</strong> defines how the
+        linkage methods defined in the topology file are used.
+</table>
+
+<HR>
+
+<h3>Important remark</h3>
+
+This tutorial outlines how to create topology and parameter files for
+two very simple chemical groups. The definition of the topology given
+here is more or less unambiguous and complete. However, the
+corresponding parameter definitions are only syntactically correct. The
+specific target values and weights are copied from corresponding
+definitions in the standard parameter file <tt>protein_rep.param</tt>
+and therefore certainly not ideal. One reason for this shortcoming is
+that it is in general very time consuming to obtain a consistent set of
+parameters.  Another reason is that the ideal set of parameters also
+depends on the context in which it is used.  Parameters used in
+refinement against X-ray data tend to be different from parameters used
+in refinement against NMR data or free Molecular Dynamics simulations.
+The parameters shown in the examples below are probably sufficient for
+use in refinement against good X-ray data, but not suitable for
+free Molecular Dynamics simulations.
+
+
+<HR>
+
+<h3>Definition of the topology for the amide capping group</h3>
+
+The topology definiton for the amide group involves just one atom:
+
+<blockquote>
+<pre>
+mass  NHHE  16.02270 ! extended atom nitrogen with two hydrogen
+
+residue NHH
+  group
+    atom N   type=NHHE  charge=0.00  end
+end
+</pre>
+</blockquote>
+
+In the standard topology file <tt>protein.top</tt> used for refinement
+against X-ray data, only some hydrogen are explicitly included.
+Following this approach, the hydrogen for the amide group are not
+specified explicitly. Instead, an <em>extended atom type</em>
+<tt>NHHE</tt> is defined with the sum of the masses of one nitrogen and
+two hydrogen. The name of the new residue type is chosen as <tt>NHH</tt>.
+When a structure is generated from a <tt>PDB</tt> file, the name of the
+nitrogen in the amide group must be <tt>N</tt>. No charge is specified,
+because charges are not normally used in crystallographic refinement.
+
+<p>
+
+The second part of the topology definition for the amide capping group
+specifies methods for linking the group to a protein chain.  Two
+methods are required, one for proline, and another for all the other
+amino acids.
+
+<blockquote>
+<pre>
+presidue NHHL { link for all amino acids except proline }
+  add bond -C +N
+
+  add angle -CA -C +N
+  add angle -O  -C +N
+
+  add improper  -C -CA +N -O  {planar -C}
+end
+
+
+presidue NHHP  { link for proline }
+ add bond -C +N
+
+ add angle -CA -C +N
+ add angle -O  -C +N
+
+ add dihedral  -N -CA -C +N
+
+ add improper  -C -CA +N -O  {planar -C}
+end
+</pre>
+</blockquote>
+
+The two <tt>presidue</tt> definitions are based on the <tt>PEPT</tt>
+and <tt>PEPP</tt> definitions in the standard topology file
+<tt>protein.top</tt>. The plus and minus signs are used to distinguish
+the atoms in the two residues to be linked. The <tt>add bond -C +N</tt>
+statement defines a bond from the atom with the name <tt>C</tt> in the
+&quot;previous&quot; residue to the atom with the name <tt>N</tt> in
+the &quot;next&quot; residue in the peptide chain. The angle, dihedral
+and improper definitions are a subset of the <tt>PEPT</tt> and
+<tt>PEPP</tt> definitions.  All statements involving atoms in the
+&quot;next&quot; residue other than <tt>N</tt> are omitted.
+
+<hr>
+
+<h3>Definition of the parameters for the amide capping group</h3>
+
+All the topology definitions for <tt>NHH</tt> involve a new atom type,
+<tt>NHHE</tt>. Therefore new parameters must be specified for
+all interactions where <tt>NHHE</tt> takes part.
+
+<blockquote>
+<pre>
+bond C    NHHE 1342.404  1.328 ! same as C    NH2
+
+angle CH1E C    NHHE  863.744  116.900 ! same as CH1E C    N
+angle CH2G C    NHHE  440.686  118.200 ! same as CH2G C    N
+angle O    C    NHHE  991.543  122.000 ! same as N    C    O
+
+evaluate ($vdw_radius_N=        3.0)                             {-0.1}
+evaluate ($vdw_radius_N   = $vdw_radius_N    / 2^(1/6))
+evaluate ($vdw_radius14_N   = $vdw_radius_N    -0.3/ 2^(1/6))
+evaluate ($vdw_eps=0.1)
+nonbonded  NHHE  $vdw_eps $vdw_radius_N  $vdw_eps $vdw_radius14_N ! same as NH2
+</pre>
+</blockquote>
+
+For each topology definition, there must be a corresponding parameter
+definition. However, in contrast to the topology definitions which are
+based on atom names, the parameter definitions are type based.
+Therefore one topology statement can require several parameter
+statements.  This is, for example, the case for the topology statement
+&quot;<tt>add angle -CA -C +N</tt>&quot;. In glycine, the <tt>CA</tt>
+is defined with type <tt>CH2G</tt>, and in all other amino-acid
+residues with type <tt>CH1E</tt>. Therefore there are two corresponding
+parameter angle statements.
+
+<p>
+
+One might notice that there are no parameter definitions for the two
+dihedral and improper definitions above (<tt>add dihedral -N -CA -C
++N</tt>, <tt>add improper -C -CA +N -O</tt>). This is because the
+matching parameter statements in <tt>protein_rep.param</tt> use wildcards,
+and therefore the type of the nitrogen is not important. The matching
+parameter statements are:
+
+<blockquote>
+<pre>
+dihe X    C    CH1E X       0.0       3       0.0 ! psi angle
+evaluate ($kimpr_strong=750.0)
+impr C    X    X    O     $kimpr_strong       0       0.0
+</pre>
+</blockquote>
+
+It would be possible to override the wildcards with specific dihedral
+and improper parameter statements. More details can be found in
+the reference section.
+
+<HR>
+
+<h3>Definition of the topology for the acetyl capping group</h3>
+
+The topology definiton for the acetyl group involves the addition
+of three atoms and two bonds.
+
+<blockquote>
+<pre>
+residue ACE
+  group
+    atom CA   type=CH3E  charge=0.00  end
+    atom C    type=C     charge=0.00  end
+    atom O    type=O     charge=0.00  end
+
+  bond C   CA
+  bond C   O
+end
+</pre>
+</blockquote>
+
+For the sake of simplicity, pre-existing atom type definitions
+from <tt>protein.top</tt> are used.
+
+<p>
+
+The second part of the topology definition for the acetyl capping group
+specifies methods for linking the group to a protein chain. As before
+for <tt>NHH</tt>, two methods are required, one for proline, and
+another for all the other amino acids.
+
+<blockquote>
+<pre>
+presidue ACEL { link for all amino acids except proline }
+  add bond -C +N
+
+  add angle -CA -C +N
+  add angle -O  -C +N
+  add angle -C  +N +CA
+  add angle -C  +N +H
+
+  add dihedral  -C +N +CA +C
+  add dihedral  -CA -C +N +CA
+
+  add improper  -C -CA +N -O  {planar -C}
+  add improper  +N -C +CA +H  {planar +N}
+end
+
+presidue ACEP { link for proline }
+ add bond -C +N
+
+ add angle -CA -C +N
+ add angle -O  -C +N
+ add angle -C  +N +CA
+ add angle -C  +N +CD
+
+ add dihedral  -C +N +CA +C
+ add dihedral  -CA -C +N +CA
+
+ add improper  -C -CA +N -O  {planar -C}
+ add improper  +N +CA +CD -C  {planar +N}
+end
+</pre>
+</blockquote>
+
+As for <tt>NHH</tt>, the two <tt>presidue</tt> definitions are based on
+the <tt>PEPT</tt> and <tt>PEPP</tt> definitions in the standard
+topology file <tt>protein.top</tt>. The only difference is that the
+dihedral statements involving the nitrogen atom in the
+&quot;previous&quot; residue are omitted.
+
+<hr>
+
+<h3>Definition of the parameters for the acetyl capping group</h3>
+
+Since standard atom types were assigned to the carbon and oxygen of the
+acetyl group, most parameters are already defined. It only remains
+to define a new bond parameter, three angle parameters, and one
+dihedral parameter.
+
+<blockquote>
+<pre>
+bond C    CH3E 1000.000  1.507 ! distance from Corina
+
+angle CH3E C    O     672.465  120.800 ! same as CH1E C    O
+angle CH3E C    NH1   485.856  116.200 ! same as CH1E C    NH1
+angle CH3E C    N     863.744  116.900 ! same as CH1E C    N
+
+evaluate ($kdih_rigid=1250.0)
+dihe CH3E C    N    CH1E  $kdih_rigid  2  180.0 ! same as H2E C    N    CH1E
+</pre>
+</blockquote>
+
+<hr>
+
+<h3>Creation of the linkage file</h3>
+
+<p>For proteins, the rules for applying the linking methods defined in the
+  topology files are listed in the standard library file <tt>protein.link</tt>. To include the new rules for the acetyl and
+amide groups, an additional link file is created for the capping groups: </p>
+<blockquote>
+<pre>&nbsp;
+</pre>
+<pre>   link aceP    head - ace   tail + pro     end
+   link aceP    head - ace   tail + cpr     end</pre>
+<pre>   link aceL    head - ace   tail + ala   end
+   link aceL    head - ace   tail + arg   end
+   link aceL    head - ace   tail + asn   end
+   link aceL    head - ace   tail + asp   end
+   link aceL    head - ace   tail + cys   end
+   link aceL    head - ace   tail + gln   end
+   link aceL    head - ace   tail + glu   end
+   link aceL    head - ace   tail + gly   end
+   link aceL    head - ace   tail + hish  end
+   link aceL    head - ace   tail + his   end
+   link aceL    head - ace   tail + ile   end
+   link aceL    head - ace   tail + leu   end
+   link aceL    head - ace   tail + lys   end
+   link aceL    head - ace   tail + met   end
+   link aceL    head - ace   tail + mse   end
+   link aceL    head - ace   tail + m3l   end
+   link aceL    head - ace   tail + phe   end
+   link aceL    head - ace   tail + ser   end
+   link aceL    head - ace   tail + thr   end
+   link aceL    head - ace   tail + trp   end
+   link aceL    head - ace   tail + tyr   end
+   link aceL    head - ace   tail + val   end</pre>
+<pre>   link nhhP    head - PRO   tail + nhh     end
+   link nhhP    head - CPR   tail + nhh     end</pre>
+<pre>   link nhhl    head - ala   tail + nhh     end 
+   link nhhl    head - arg   tail + nhh     end 
+   link nhhl    head - asn   tail + nhh     end 
+   link nhhl    head - asp   tail + nhh     end 
+   link nhhl    head - cys   tail + nhh     end 
+   link nhhl    head - gln   tail + nhh     end 
+   link nhhl    head - glu   tail + nhh     end 
+   link nhhl    head - gly   tail + nhh     end 
+   link nhhl    head - hish  tail + nhh     end 
+   link nhhl    head - his   tail + nhh     end 
+   link nhhl    head - ile   tail + nhh     end 
+   link nhhl    head - leu   tail + nhh     end 
+   link nhhl    head - lys   tail + nhh     end 
+   link nhhl    head - met   tail + nhh     end 
+   link nhhl    head - mse   tail + nhh     end 
+   link nhhl    head - m3l   tail + nhh     end 
+   link nhhl    head - phe   tail + nhh     end 
+   link nhhl    head - ser   tail + nhh     end 
+   link nhhl    head - thr   tail + nhh     end 
+   link nhhl    head - trp   tail + nhh     end 
+   link nhhl    head - tyr   tail + nhh     end 
+   link nhhl    head - val   tail + nhh     end </pre>
+<pre>&nbsp;
+</pre>
+</blockquote>
+
+The syntax for the link statements is:
+
+<blockquote>
+<pre>
+link &lt;presidue-label&gt;  head &lt;patch-character&gt; &lt;residue-name&gt;
+                       tail &lt;patch-character&gt; &lt;residue-name&gt;
+</pre>
+</blockquote>
+
+In all the examples, the &lt;patch-character&gt; for the head is a
+minus sign, the &lt;patch-character&gt; for the tail is a plus sign.
+Other characters could be used but for chains minus and plus signs are
+most intuitive.
+
+Note that starting in CNS version 1.3 wildcards are not allowed anyore in link statements. 
+<hr>
+
+<h3>Using the new topology and parameter files</h3>
+
+The use of the new topology and parameter files is demonstrated by
+generating the molecular topology based on a simple <tt>PDB</tt> file.
+The example file <tt>capping.pdb</tt> contains four &quot;chains&quot;,
+each consisting of one amino-acid residue with the two capping groups.
+To generate the molecular topology, the task file <tt>generate.inp</tt>
+is modified. The protein input file name is set to <tt><A
+HREF="capping.pdb">capping.pdb</A></tt>, the protein linkage file name
+is redefined as <tt><A
+HREF="protein_capping.link">protein_capping.link</A></tt>, and the
+prosthetic group topology and parameter files are defined as <tt><A
+HREF="capping.top">capping.top</A></tt> and <tt><A
+HREF="capping.param">capping.param</A></tt>, respectively.  All other
+parameters are unchanged.
+
+<PRE>
+      cns_solve &lt; <A HREF="generate.inp">generate.inp</A> &gt; generate.out
+</PRE>
+<p><br>
+Instead of using the generate.inp task file, molecular topology file autogeneration can be used in many CNS task files. To use capping residues in these files, just add the <tt>capping.top</tt> to the list of topology files, <tt>capping.param</tt> to the list of parameter files, and <tt>protein_capping.link</tt> to the list of linkage files. </p>
+
+<hr>
+
+<h3>(Mis)using generate.inp error messages</h3>
+
+When creating new topology and parameter files, it is often not easy to
+figure out which additional bond, angle, dihedral and improper
+parameters have to be defined. However, once the topology is defined
+correctly, the error diagnostics produced when running
+<tt>generat.inp</tt> can be (mis)used to find the missing parameter
+definitions.
+
+<p>
+
+To demonstrate this, the files <tt>capping.pdb</tt> and
+<tt>capping.param</tt> are copied to the files <tt>incomplete.pdb</tt>,
+and <tt>incomplete.param</tt>, respectively.
+<tt>incomplete.inp</tt> is a copy of the previously used file
+<tt>generate.inp</tt> with the new file names for the <tt>PDB</tt> and
+the parameter file.
+
+<p>
+
+Arbitrarily, a dihedral definition is deleted from <tt><A
+HREF="incomplete.param">incomplete.param</A></tt>, and a gamma-carbon
+from the cis-proline in <tt><A
+HREF="incomplete.pdb">incomplete.pdb</A></tt>. The generate task file
+<tt>incomplete.inp</tt> will now attempt to build this missing carbon
+atom. For this it needs all the parameter definitions, and will
+therefore produce error messages if some are missing.
+
+<PRE>
+      cns_solve &lt; <A HREF="incomplete.inp">incomplete.inp</A> &gt; incomplete.out</PRE>
+
+The error message at the end of <tt>incomplete.out</tt> is:
+
+<pre>
+ %CODDIH-ERR: missing dihedral parameters %%%%%%%%%%%%%%%%%%%%%
+  dihedral energy constant missing.
+  target dihedral value missing.
+  periodicity missing.
+  ATOM1: SEGId="C   ",  RESId="1   ",  NAME="CA  ",  CHEMical="CH3E"
+  ATOM2: SEGId="C   ",  RESId="1   ",  NAME="C   ",  CHEMical="C   "
+  ATOM3: SEGId="C   ",  RESId="2   ",  NAME="N   ",  CHEMical="N   "
+  ATOM4: SEGId="C   ",  RESId="2   ",  NAME="CA  ",  CHEMical="CH1E"
+ %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+ %CODDIH-ERR: missing dihedral parameters %%%%%%%%%%%%%%%%%%%%%
+  dihedral energy constant missing.
+  target dihedral value missing.
+  periodicity missing.
+  ATOM1: SEGId="D   ",  RESId="1   ",  NAME="CA  ",  CHEMical="CH3E"
+  ATOM2: SEGId="D   ",  RESId="1   ",  NAME="C   ",  CHEMical="C   "
+  ATOM3: SEGId="D   ",  RESId="2   ",  NAME="N   ",  CHEMical="N   "
+  ATOM4: SEGId="D   ",  RESId="2   ",  NAME="CA  ",  CHEMical="CH1E"
+ %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+ %CODDIH error encountered: program will be aborted.
+</pre>
+
+In general, there will only be error messages for one type of parameter
+definition and it can be necessary to run the generate task file
+several times before all the missing parameter definitions are found.
+For example, first, only the missing bond parameters are shown. If they
+are supplied and the generate task file is run again, the missing angle
+parameters are listed, and so on for the dihedral, improper and
+non-bonded parameter definitions.
+
+<p>
+
+It should be noted that a more elegant and rigorous way of generating
+parameter definitions is by the use of the <tt>LEARN</tt> statement.
+However, this requires well defined coordinates of several example
+molecules. More details about the <tt>LEARN</tt> statement can be found
+in <a href="../learn/text.html">another tutorial section</a>.
+
+<hr>
+
+<BR><A HREF="tutorial.csh">Script to run this tutorial</A>
+
+<HR WIDTH="100%"></P>
+
+<A HREF="../../text.html">Back to tutorials</A>&nbsp;&nbsp;
+<A HREF="../learn/text.html">Previous section</A>&nbsp;&nbsp;
+<A HREF="../tools/coord.html">Next section</A>
+
+<HR WIDTH="100%"></P>
+
+</BODY>
+</HTML>

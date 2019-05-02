@@ -1,0 +1,637 @@
+<HTML>
+<HEAD>
+   <TITLE>Crystallography & NMR System</TITLE>
+</HEAD>
+<BODY BGCOLOR=#8ebf8e>
+
+<HR WIDTH="100%"></P>
+   
+<P>In general, a statement in CNS can be a control statement or an
+application statement. A control statement allows structured control
+of the sequence of application statements, such as loops, and
+conditional tests. It also allows switching the input stream to
+another file, opening and closing files, and various other
+operations. Control statements form the basis of the CNS scripting
+language and are as follows:</P>
+
+<UL>
+
+<LI><B>@ filename</B> deals with the fact that initially the
+parser reads from standard input. The stream can be switched to
+another file by using this statement. Upon end of file, the parsing
+stream is switched back to the previous input. Nested streams are
+allowed.</LI>
+
+<LI><B>@@ filename</B> has the same effect as the "@" statement,
+except when the stream file is invoked within a structured loop
+statement. In this case, the "@" statement inserts the contents of
+file filename into the loop and removes the statement in subsequent
+loop cycles, whereas the "@@" statement reads from filename each time
+the loop hits the statement. It should be noted that filename can be a
+symbol. This allows one to loop through a set of different filenames.
+Nested "@@" statements are allowed. Most of the time the @ filename statement should be used. The only exception arises when different files (e.g. separate coordinates, parameter or topology files) are to be read within a loop. Here is an example:
+  <pre> topology
+    evaluate ($counter=1)
+    evaluate ($done=false)
+    while ( $done = false ) loop read
+       if ( &amp;exist_topology_infile_$counter = true ) then
+          if ( &amp;BLANK%topology_infile_$counter = false ) then
+             @@&amp;topology_infile_$counter
+          end if
+        else
+           evaluate ($done=true)
+        end if
+        evaluate ($counter=$counter+1)
+    end loop read
+end </pre>
+  <p><br>
+    <br>
+    One cannot use the @ filename statement here since this would read the first file over and over again. There is a drawback of using the @@ filename statement: it does not allow the use of loop statements inside the file. </p>
+</LI>
+
+<LI><B>INLIne @ filename</B> inserts the contents of the file into the
+  command stack but does not change the current scope.</LI>
+
+<LI><B>ABORt</B> stop program execution.</LI>
+
+<LI><B>BUFFer buffername {buffer-statement} END</B> writes text to or
+manipulates text in an internal buffer with the name buffername. See
+the syntax manual for further information.</LI>
+
+<LI><B>CLOSe filename DISPosition=KEEP|DELEte END</B> explicitly
+closes a specified file. Normally this operation is done automatically
+by CNS, so this statement should be used only in rare cases, such as
+closing and deleting a file.</LI>
+
+<LI><B>DEFIne ( { parameter=string[newline string]; } )</B> defines a
+parameter. The named parameter is assigned the string verbatim after
+symbol substitution. The string can extend over many lines (these
+linebreaks will be inserted into the parameter). A parameter can be
+referenced using an ampersand (eg. &parameter). Parameters cannot be
+modified, they however can be overwritten by a new define
+statement.</LI>
+
+<LI><B>DISPLAY record</B> writes the record to a file that is
+specified by the "SET DISPlay" statement. The record can be any
+sequence of characters terminated by a carriage return. It may contain
+symbols that are substituted before the record is written to the
+file. Symbols can be output with formatting, specified by the FORTRAN
+format syntax (eg. display $number[f8.3]). </LI>
+
+<LI><B>EVALuate evaluate-statement</B> manipulates symbols (see
+below).</LI>
+
+<LI><B>FILEExist filename END</B> checks to see if the specified file
+exists. The symbol $RESULT is set to logical true if the file exists,
+false otherwise.</LI>
+
+<LI><B>FOR symbol IN ( { wordlist } ) basic-loop</B> assigns
+the symbol to a word from the wordlist (one at a time) and executes
+the statements within the basic loop.</LI>
+
+<LI><B>FOR symbol IN ID atom-selection basic-loop</B>
+assigns the symbol to the internal atom identifier for all atoms in
+the selection, and executes the statements within the basic loop. Care
+should be taken not to modify the internal molecular topology within
+the scope of the basic loop. The selection for the symbol is stored
+and computed when the loop is initialized, and it is not mapped when
+atom numbers change.</LI>
+
+<LI><B>IF condition THEN CNS-statement [{ ELSEIF condition
+THEN CNS-statement }] [ ELSE CNS-statement ] END IF</B>
+depending on the conditions, sends control flow to the appropriate
+branch.</LI>
+
+<LI><B>OPEN filename FORMatted = FORMATTED | UNFORMATTED ACCESS =
+READ | WRITE | APPEND END</B> explicitly opens the specified
+file. Normally, this operation is done automatically by CNS, and so
+the statement should be used only in rare cases, such as opening a
+file with append access.</LI>
+
+<LI><B>REMARKS record</B> writes the record to an internal title
+store. The record can be any sequence of characters terminated by a
+carriage return. It can contain symbols that are substituted before
+the record is stored. The internal title store is written to the first
+lines of output files.</LI>
+
+<LI><B>REWInd filename END</B> rewinds the specified file.</LI>
+
+<LI><B>SET set-statement END</B> sets various global parameters and
+options.</LI>
+
+<LI><B>SYSTEM command</B> issues a shell command (this is not possible
+on some systems).</LI>
+
+<LI><B>WHILe condition basic-loop</B> while the condition is true,
+executes the statements within the basic loop.</LI>
+
+<LI><B>{ string [newline string] }</B> text between the braces is
+ignored as a comment.</LI>
+
+<LI><B>! string</B> text on the line after the exclamation point is
+ignored as a comment.</LI>
+
+</UL>
+
+<P>A condition takes the form:</P>
+
+<B>( word = | # | &gt; | &lt; | GE | LE word )</B>
+
+<P>A condition is true if the first word is equal to, not equal to,
+greater than, less than, greater than or equal to, or less than or
+equal to the second word, respectively.</P>
+
+<P> A basic loop takes the form:</P>
+
+<B>LOOP label { <CNS-statement> [EXIT label] } END LOOP label</B>
+
+<P>The label is a string with up to four characters. The EXIT
+statement allows jumping out of the specified loop (and should be part
+of a conditional statement). Loops may be nested.</P>
+
+<U>Example: A Conditional Test</U>
+
+<P>This example either divides or multiplies the symbol $1 by a factor
+of two, depending on the value of the NOE energy ($NOE). In the first
+case, 40 steps of minimization are carried out, whereas in the latter
+case, 100 steps of minimization are carried out. Note that the
+indentation is arbitrary but can make the input file more readable.</P>
+
+<PRE>
+if ($NOE > 10.0) then 
+   evaluate ($1=$1/2.0) 
+   minimize powell 
+     nstep=40 
+   end 
+else 
+   evaluate ($1=$1*2.0) 
+   minimize powell 
+     nstep=100 
+   end 
+end if 
+</PRE>
+
+<U>Example: A Simple Loop</U>
+
+<P>The following example writes the characters a, b, c, d, and e to
+the file called testing.dat (the case is preserved).</P>
+
+<PRE>
+set display=testing.dat end 
+for $1 in ( a b c d e ) loop main 
+   display  $1 
+end loop main 
+</PRE>
+
+<U>Example: A Double Loop with Exit Condition</U>
+
+<P>The conditional statement forces exit from both loops if the condition is satisfied.</P>
+
+<PRE>
+for $1 in ( a b c d e ) loop m1 
+  while ($2 > 10.0 ) loop m2 
+     if ($3>1000.0) then  exit  m1  end if 
+     evaluate ($2=$2-1.0) 
+  end loop m2 
+end loop m1 
+</PRE>
+
+<U>Example: Switch Control to Another File</U>
+
+<P>Suppose the file called "mini.str" contains the following
+statements:</P>
+
+<PRE>
+minimize powell 
+   nstep=40.0 
+end 
+</PRE>
+
+<P>One can then include the contents of this file in another file by
+specifying the "@" statement; e.g.,</P>
+
+<PRE>
+@mini.str 
+</PRE>
+
+<P>is equivalent to</P>
+
+<PRE>
+minimize powell 
+   nstep=40.0 
+end 
+</PRE>
+
+<U>Example: Switch Control to Another File within Loops</U>
+
+<P>When CNS executes loops, it stores all input information in
+internal buffers. This may not be desirable if one wants to loop
+through several files. To do this, one should use the "@@"
+statement. In the following example, four coordinate files are
+rms-compared to a set of reference coordinates:</P>
+
+<PRE>
+coordinate disposition=comp @reference.pdb 
+
+for $1 in ( "coor1.pdb" "coor2.pdb" "coor3.pdb" "coor4.pdb" ) loop main 
+   coordinate @@$1 
+   coordinate rms end 
+end loop main 
+</PRE>
+
+
+<U>Symbols</U>
+
+<P>A symbol is a word with a "$" as the first character. It is
+replaced by another word that has been assigned by the user or by CNS
+during program execution. Symbols can be assigned an arbitrary value
+and manipulated by the evaluate statement and several control
+statements. The data type can be real, string, logical or complex and
+is assigned automatically by the program. The name of the symbol is a
+string that qualifies as a word with fewer than 20 characters. Symbols
+can also be compound, that is sublevels are delimited by a point
+(eg. $number.1 $number.2 $number.total). CNS internally declares
+particular symbols when certain statements are executed. Here are a
+few examples:</P>
+
+<UL>
+
+<LI><B>$NAME</B> is declared during CNS start-up. It contains the
+username (string).</LI>
+
+<LI><B>$SYSTEM</B> is declared during CNS start-up. It contains the
+system identification (string).</LI>
+
+<LI><B>$TIME</B> contains the wall-clock time (string).</LI>
+
+<LI><B>$CPU</B> contains the CPU time (real).</LI>
+
+<LI><B>$DATE</B> contains the current date (string).</LI>
+
+<LI><B>$CURBYTES</B> contains the current memory usage (string).</LI>
+
+<LI><B>$MAXBYTES</B> contains the maximum memory usage (string).</LI>
+
+<LI><B>$CUROVERH</B> contains the current memory overhead (string).</LI>
+
+<LI><B>$MAXOVERH</B> contains the maximum memory overhead (string).</LI>
+
+<LI><B>$EFLAG.[energy-term]</B> which energy terms are currently active (logical).</LI>
+
+<LI><B>$ANGL, $BOND, $DG, $DIHE, $ELEC, $ENER, $HARM, $IMPR, $NCS,
+$NOE, $PELE, $PLAN, $PVDW, $VDW, $XREF</B> represent partial energy
+terms. The data type is real. These symbols are declared upon
+evaluation of the CNS energy function.</LI>
+
+<LI><B>$EXIST_symbol-name</B> is not an assignable symbol; it is a
+special symbol that returns the logical true if the symbol with name
+symbol-name has been declared previously; otherwise it returns logical
+false.</LI>
+
+<LI><B>$GRAD</B> specifies the rms value of the energy gradient. The
+data type is real. This symbol is declared upon execution of the CNS
+energy function.</LI>
+
+<LI><B>$KBOLTZ</B> is declared during CNS start-up. It contains the
+Boltzmann constant in units of the program (real).</LI>
+
+<LI><B>$PI</B> is declared during CNS start-up. It contains the value
+of pi (real).</LI>
+
+<LI><B>$RESULT</B> contains the results after execution of various
+statements. Data type is either real or string, depending on the
+application.</LI>
+
+<LI><B>$?</B> is not an assignable symbol; it produces a list of the
+currently assigned symbols.</LI>
+
+</UL>
+
+<U>Example</U>
+
+<P>In the following example, a symbol $weight is declared. Note that
+CNS automatically determines the type of the symbol. This symbol is
+used in the subsequent statements. The third statement declares a
+symbol $root_weight.</P>
+
+<PRE>
+  evaluate ($weight=3.40+433^2) 
+
+  xray wa=$weight end 
+
+  evaluate ($root_weight=sqrt($weight)) 
+</PRE>
+
+<P>In the next line, the symbol $root_weight is redeclared as a
+character string.</P>
+
+<PRE>
+  evaluate ($root_weight="testing 1 2 3") 
+</PRE>
+
+<P>As a consequence of this statement, $EXIST_root_weight is set to
+logical true.</P>
+
+<P>Here, the compound symbols $total.number, $total.1 and $total.2 are
+declared as real.</P>
+
+<PRE>
+  evaluate ($total.number=10)
+  evaluate ($total.1=230)
+  evaluate ($total.2=178)
+</PRE>
+
+<U>Parameters</U>
+
+<P>Parameters are assigned with the define statement. The named
+parameter is assigned the string verbatim after symbol
+substitution. The string can extend over many lines (these linebreaks
+will be inserted into the parameter). A parameter can be referenced
+using an ampersand (eg. &parameter). Parameters cannot be modified,
+they however can be overwritten by a new define statement. Parameter
+names can be a maximum of 80 characters.</P>
+
+<U>Examples</U>
+
+<P>A parameter named weight is assigned the value 10:</P>
+
+<PRE>
+  define ( weight=10; )
+</PRE>
+
+<P>A parameter named comment is assigned a string value:</P>
+
+<PRE>
+  define ( comment="this is a text comment
+                    that goes over more than one line"; )
+</PRE>
+
+<P>Two parameters are assigned in the same define statement:</P>
+
+<PRE>
+  define ( weight=10; 
+           comment="this is a text comment
+                    that goes over more than one line"; )
+</PRE>
+
+<P>The parameter weight is used in:</P>
+
+<PRE>
+  define ( weight=10; )
+  evaluate ( $new_weight= &weight * 30.0 )
+  xray
+    wa = &weight
+  end
+</PRE>
+
+<U>Modules and procedures</U>
+
+<P>Modules and procedures are mechanisms to isolate common tasks in a
+well defined way such they can be readily used by several task
+files. They are analogous to subroutines or functions in lower-level
+programming languages such as FORTRAN or C (although the syntax and
+specifics differ).</P>
+
+<P><B>Modules:</B> reside in separate text files and are called using
+the stream redirection facility in CNS.</P>
+
+<PRE>
+  @getweight ( selected=(residue 10:60);
+               fixed=(residue 45);
+               wa=wa_new; )
+</PRE>
+
+<P>The module file itself begins with the declaration of the expected
+parameters. The declaration may define defaults for the parameters (in
+the case that they are not passed when the module is called). The
+module is called with the appropriate parameters (see above):</P>
+
+<PRE>
+module {getweight}
+(
+  &selected=(all);
+  &fixed=(none);
+  &wa=$wa_temp;
+)
+</PRE>
+
+<P>In the body of the module an reference to a passed parameter
+(eg. &selected) will be substituted with the value of the parameter
+from the module invocation. In this case any instance of &selected
+would be substituted with (residue 10:60). Modules have scope, that
+is, when a module is called any symbols created in the module have a
+new scope.</P>
+
+<P><B>Procedures:</B> are defined within the body of a CNS task file
+(or can be kept in a separate library file which is read by the task
+file upon start up). Procedures are very similar to modules expect
+that they are defined and invoked from the level of the task file. The
+procedure declaration again defines the expected parameters:</P>
+
+<PRE>
+procedure set_target (target_label)
+  if     (&target_label="f2f2") then
+    display set_target: target defined to be f2f2
+  else
+    display set_target: fatal error: unsupported target_label.
+    abort
+  end if
+endprocedure
+</PRE>
+
+<P>The procedure is then called using the call statement:</P>
+
+<PRE>
+  call set_target (target_label=&pc_target;)
+</PRE>
+
+<P>As with modules the parameters in the body of the procedure
+definition are substituted by the passed parameter values. A new scope
+level is used for the procedure.</P>
+
+<U>Wildcards</U>
+
+<P>Another special case of a word is a wildcard which can take the
+following forms:</P>
+
+<PRE>
+* | % | # | +
+</PRE>
+
+<P>where</P>
+
+<UL>
+<LI><B>*</B> matches any string.</LI>
+<LI><B>%</B> matches a single character.</LI>
+<LI><B>#</B> matches any number.</LI>
+<LI><B>+</B> matches any digit.</LI>
+</UL>
+
+<U>Example</U>
+
+<P>The following atom selection selects all atoms that contain a "C"
+in their names at any position:</P>
+
+<PRE>
+ ( name *C* ) 
+</PRE>
+
+<U>Filenames</U>
+
+<P>A filename is any sequence of nonblank characters enclosed by
+spaces. In particular, the filename may contain one-character words,
+and it is case sensitive.</P>
+
+<U>Example</U>
+
+<P>The following statements assign the specified files to the DISPlay
+unit:</P>
+
+<PRE>
+ set display=display.list end 
+
+ set display=/home/sub/testing.test end 
+</PRE>
+
+<P>On all UNIX and Windows systems, CNS provides the feature of
+environmental variables. Suppose the user has defined a UNIX variable
+MYDIR in his/her ".cshrc" file.</P>
+
+<PRE>
+  setenv MYDIR  /home/paul/project 
+</PRE>
+
+<P>Then it is possible to access a file "coordinates.pdb" in the
+directory "/home/paul/project" in CNS by specifying the filename
+"MYDIR:coordinates.pdb", e.g., if the user wants to set the DISPLay
+file,</P>
+
+<PRE>
+  set display= MYDIR:coordinates.pdb
+</PRE>
+
+<P>The same feature can be used on Windows systems:</P>
+
+<PRE>
+  set MYDIR=C:\Paul\Project
+</PRE>
+
+<U>Set Statement</U>
+
+<P>The set statement allows one to change certain parameters that
+control CNS program execution and output.  The following is a list of
+the available statements:</P>
+
+<UL>
+
+<LI><B>ABORt=OFF|NORMal|ALL</B> determines whether program execution
+will be terminated in batch mode if an error is encountered. OFF means
+no termination in any case, NORMal means program terminates except in
+the case of minor errors, and ALL means program always terminates if
+an error is encountered. In interactive mode, i.e., if the error
+occurs due to a statement that was typed interactively, the error
+message will be printed without program termination (default:
+normal).</LI>
+
+<LI><B>DISPlay-file=filename</B> specifies an output file for DISPlay
+statement. The display output can be redirected to the standard output
+by specifying "SET DISPlay=OUTPUT END" (default: OUTPUT).</LI>
+
+<LI><B>ECHO=ON|OFF</B> determines whether the input stream will be
+echoed to standard output. ON means input stream is echoed; OFF means
+echo is turned off. In interactive mode, the echo is always turned
+off.</LI>
+
+<LI><B>INTEractive=ON|OFF</B> deals with the fact that normally CNS
+automatically determines whether the input comes from an interactive
+device. This flag overules the automatic assignment. Statements that
+are affected are ECHO and ABORt (default: depends on input
+device).</LI>
+
+<LI><B>JOURnal=filename</B> specifies a log-file for an interactive
+session. This statement allows one to specify a journal file during an
+interactive session that contains all statements that were typed
+(default: none).</LI>
+
+<LI><B>MESSage=OFF|NORMal|ALL</B> determines whether messages will be
+printed. OFF means only very important messages are printed. NORMal
+means most messages will be printed. ALL means all messages will be
+printed.</LI>
+
+<LI><B>PRECision=integer</B> specifies the number of significant
+digits for substitution of symbols representing real numbers to
+output; this does not affect the internal precision of the
+calculations (default: 6).</LI>
+
+<LI><B>PRINt-file=filename</B> specifies an output file for all PRINt
+statements (default: OUTPUT).</LI>
+
+<LI><B>SEED=real</B> is a seed for CNS's internal random-number
+generator . It can be any positive real number.</LI>
+
+<LI><B>TIMing=ON|OFF</B> determines whether timing information is
+given for benchmarking CNS. ON means timing information is given; OFF
+means no timing information is given (default: OFF).</LI>
+
+</UL>
+
+<U>Evaluate Statement</U>
+
+<P>The evaluate statement allows one to carry out manipulations of
+symbols together with literal or numerical constants:</P>
+
+<PRE>
+  evaluate ( symbol = operation )
+</PRE>
+
+<P>Where operation is:</P>
+
+<PRE>
+  function|symbol|real|integer|string [ op operation ]</B>
+</PRE>
+
+<P>and op is:</P>
+
+<UL>
+<LI><B>+</B> denotes addition or concatenation for strings.</LI>
+<LI><B>-</B> denotes subtraction or unary minus or negative concatenation for strings.</LI>
+<LI><B>*</B> denotes multiplication.</LI>
+<LI><B>/</B> denotes division.</LI>
+<LI><B>^</B> denotes exponentiation.</LI>
+<LI><B>**</B> denotes exponentiation (same as ^).</LI>
+</UL>
+
+<P>The data types of the operations and operands have to match;
+otherwise an error message is issued. The available functions, such as
+SIN, COS, and TAN, are the same as those for atomic manipulations (see
+other documentation pages).</P>
+
+<U>Example</U>
+
+<P>The statement</P>
+
+<PRE>evaluate ($1=1.0)</PRE>
+
+<P>sets the symbol $1 to 1.0, whereas</P>
+
+<PRE>evaluate ($1=$1+2.2)</PRE>
+
+<P>increases it by 2.2,</P>
+
+<PRE>evaluate ($1=$1*cos(2.*$pi$1))</PRE>
+
+<P>sets it to 3.00498, and</P>
+
+<PRE>evaluate ($2="a"+"b"+encode($1))</PRE>
+
+<P>sets the symbol $2 to the string "ab3.00498".</P>
+
+<HR WIDTH="100%"></P>
+
+<A HREF="../../text.html">Back to tutorials</A>&nbsp;&nbsp;
+<A HREF="../matrices/text.html">Next section</A>
+
+<HR WIDTH="100%"></P>
+
+</BODY>
+</HTML>

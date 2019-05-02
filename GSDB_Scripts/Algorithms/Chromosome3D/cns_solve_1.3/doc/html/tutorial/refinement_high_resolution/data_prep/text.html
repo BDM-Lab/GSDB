@@ -1,0 +1,58 @@
+<HTML>
+<HEAD>
+   <TITLE>Crystallography & NMR System</TITLE>
+</HEAD>
+<BODY BGCOLOR=#8ebf8e>
+
+<HR WIDTH="100%">
+
+<H2>Preparation of diffraction data</H2>
+
+<HR WIDTH="100%"></P>
+
+<P>We will assume that the diffraction data has been converted to CNS
+format using to_cns or CCP4. There will then be a reflection file
+containing the observed structure factor amplitudes and estimated
+errors (sigma values). Cross validation will be used to monitor the
+subsequent refinement of the model and also to reduce bias in map
+calculations. The cross validation information is added to the
+reflection file using the CNS task file <TT>make_cv.inp</TT>.</P>
+
+<PRE>
+      cns_solve &lt; <A HREF="make_cv.inp">make_cv.inp</A> &gt; make_cv.out
+</PRE>
+
+<P>A new reflection array is created, by default the name TEST is
+used. The array contains integer numbers, by default 1 signifies that
+the reflection will be used for cross-validation (i.e. excluded from
+refinement). The output of the <TT>make_cv.inp</TT> task file is a CNS
+formatted reflection file. This will contain a header which describes
+the data items in the file, followed by the data items themselves. The
+file is plain ASCII and can be viewed with any text viewer/editor.
+Example header from a CNS reflection file with cross validation
+information:</P>
+
+<PRE>
+ NREFlection=     37941
+ ANOMalous=TRUE { equiv. to HERMitian=FALSe}
+ DECLare NAME=FOBS                   DOMAin=RECIprocal   TYPE=REAL END
+ DECLare NAME=SIGMA                  DOMAin=RECIprocal   TYPE=REAL END
+ DECLare NAME=TEST                   DOMAin=RECIprocal   TYPE=INTE END
+ INDE     0    4    0 FOBS=   370.040 SIGMA=    28.370 TEST=         0
+ INDE     0    6    0 FOBS=    52.710 SIGMA=     2.210 TEST=         0
+ INDE     0    8    0 FOBS=   341.050 SIGMA=    18.230 TEST=         1
+ INDE     0   10    0 FOBS=   157.510 SIGMA=     8.560 TEST=         0
+ INDE     0   12    0 FOBS=   375.450 SIGMA=    22.210 TEST=         0
+</PRE>
+
+<A HREF="tutorial.csh">Script to run this tutorial</A>
+
+<HR WIDTH="100%">
+
+<A HREF="../../text.html">Back to tutorials</A>&nbsp;&nbsp;
+<A HREF="../model_stats/text.html">Next section</A>
+
+<HR WIDTH="100%"></P>
+
+</BODY>
+</HTML>

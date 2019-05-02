@@ -1,0 +1,66 @@
+! Module file: selectoutliers
+!
+! CNS module
+! **********
+!
+! Authors: Piet Gros and Axel T. Brunger
+!
+! copyright Yale University
+!
+! Function:
+! Flag reflections with &data > &cutoff * sigma(&data) + mean(&data)
+!
+! Requirements:
+! 1. This module can only be used from within xray.
+! 2. For anomalous differences ANOMalous must be TRUE and, thus, the
+!    arrays of domain=reciprocal (like structure factors) contain both
+!    the (+) and the (-) elements.
+! 
+
+module {selectoutliers}
+(
+   &cutoff=4;          {sigma cut-off level}
+   &anomalous="no";    {"yes" | "no", anomalous data}
+   &messages="normal"; {set verbosity "normal" | "all" | "off"}
+
+   &sel=(all);         {structure factor selection}
+
+   &data;              {data used for selection}
+
+   &outlier;           {array with flags &outlier=1 for reflection
+                        whose variance is outlying and &outlier=0 otherwise}
+)
+
+checkversion 1.3
+
+{*initialize*}
+
+declare domain=reci type=real name=selected end  {selected reflections}
+
+{*set flags for Bijvoet pairs*}
+
+if (&anomalous = "yes") then
+   do (selected=0) ( all )
+   do (selected=1) ( friedel_pair(&sel) and acentric )
+else
+   do (selected=0) (all)
+   do (selected=1) (&sel)
+end if
+
+		{*compute sigma*}
+
+show rms (&data) (selected=1)
+evaluate ($so_cut=&cutoff*$result)
+show ave (&data) (selected=1)
+evaluate ($so_cut=$so_cut+$result)
+
+		{*select outliers*}
+
+do (&outlier=0) (selected=1)
+do (&outlier=1) (selected=1 and &data > $so_cut)
+
+if (&messages # "off") then
+   display SELECTOUTLIERS: $select reflections flagged as outliers
+end if
+
+undeclare domain=reci name=selected end  {selected reflections}

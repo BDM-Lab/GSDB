@@ -1,0 +1,297 @@
+! Module file: getprobability
+!
+! CNS module
+! **********
+!
+! Authors: Piet Gros and Axel T. Brunger
+!
+! copyright Yale University
+!
+! Function:
+! Calculation of the phase probability of a LOC
+!
+! Requirements:
+! 1. This module can only be called called from xray
+! 2. An estimate of the lack-of-isomorphism is required 
+! 3. For anomalous differences ANOMalous must be TRUE and, thus, the
+!    arrays of domain=reciprocal (like structure factors) contain both
+!    the (+) and the (-) elements.
+!
+
+module {getprobability}
+(
+   &method="maxlike";       {"chisquare" | "maxlike" | 
+                             "anochisquare" | "anomaxlike" }
+   &integration="analytic"; {integration for probabilities: "numerical" | "analytic" }
+
+   &messages="normal";      {set verbosity "normal" | "all" | "off"}
+
+   &fp=fobs;                {native data}
+   &sp=null;                {native sigma}
+
+   &sel=(all);              {selection of LOC structure factors}
+
+   &nameh=derivative;       {derivative identifier used for output only}
+   &fh=null;                {name of heavy atom structure factors}
+   &fph=null;               {name of derivative data array}
+   &sph=null;               {name of derivative's sigma array}
+
+   &var;                    {variance of the lack-of-isomorphis plus measurement errors}
+
+                        {output probability:}
+   &pa=pa;              {Hendrickson and Lattman A array}
+   &pb=pb;              {Hendrickson and Lattman B array}
+   &pc=pc;              {Hendrickson and Lattman C array}
+   &pd=pd;              {Hendrickson and Lattman D array}
+
+   &phistep=20;         {size of phase steps in integration}
+
+   &cen360=FALSE; { TRUE | FALSE (type logical); if TRUE a full 0...360 phase prob. distr. }
+                  { is used for centric reflections (useful if the "native"                }
+                  { structure factor has an anomalous signal).                             }
+)
+
+checkversion 1.3
+
+declare domain=reci type=real name=selected end {selected bijvoet pairs array}
+
+				
+do (&pa=0) (all)   {initialize probability}
+do (&pb=0) (all)
+do (&pc=0) (all)
+do (&pd=0) (all)
+
+if (&messages = "all") then
+   display GETPROBABILITY: probability computed from &nameh
+end if
+
+if (&method = "chisquare") then
+   evaluate ($gp_ano="no")
+elseif (&method = "maxlike") then
+   evaluate ($gp_ano="no")
+elseif (&method = "anochisquare") then
+   evaluate ($gp_ano="yes")
+elseif (&method = "anomaxlike") then
+   evaluate ($gp_ano="yes")
+else
+   display GETPROBABILITY-ERR: method &method not defined
+end if
+
+
+    		{*compute probabilities and express in ABCD*}
+						
+if ($gp_ano = "no") then
+                          {SIR probability}
+
+   do (selected=0) (all)  {select reflections}
+   do (selected=1) (&sel)
+
+   do (&pa=
+          (
+           cos(centric_phase)*
+           (
+            -(abs(&fh+combine(abs(&fp),centric_phase))-abs(&fph))^2/(2*&var)
+            +(abs(&fh-combine(abs(&fp),centric_phase))-abs(&fph))^2/(2*&var)
+           )
+          )
+         )   (not &cen360 and centric and selected=1)
+   do (&pb=
+          (
+           sin(centric_phase)*
+           (
+            -(abs(&fh+combine(abs(&fp),centric_phase))-abs(&fph))^2/(2*&var)
+            +(abs(&fh-combine(abs(&fp),centric_phase))-abs(&fph))^2/(2*&var)
+           )
+          )
+         )   (not &cen360 and centric and selected=1)
+   do (&pc=0) (not &cen360 and centric and selected=1)
+   do (&pd=0) (not &cen360 and centric and selected=1)
+
+
+   if (&integration = "numerical") then
+
+      do (&pa=
+          2/360*
+          (integrate[_phi,0,360,&phistep]
+           (cos(_phi)*
+            (
+             -(abs(&fh+combine(abs(&fp),_phi))-abs(&fph))^2/(2*&var)
+            )
+           )
+          )      
+         )   ( (&cen360 or acentric) and selected=1)
+
+      do (&pb=
+          2/360*
+          (integrate[_phi,0,360,&phistep]
+           (sin(_phi)*
+            (
+             -(abs(&fh+combine(abs(&fp),_phi))-abs(&fph))^2/(2*&var)
+            )
+           )
+          )      
+         )   ( (&cen360 or acentric) and selected=1)
+      do (&pc=
+          2/360*
+          (integrate[_phi,0,360,&phistep]
+           (cos(2*_phi)*
+            (
+             -(abs(&fh+combine(abs(&fp),_phi))-abs(&fph))^2/(2*&var)
+            )
+           )
+          )      
+         )   ( (&cen360 or acentric) and selected=1)
+      do (&pd=
+          2/360*
+          (integrate[_phi,0,360,&phistep]
+           (sin(2*_phi)*
+            (
+             -(abs(&fh+combine(abs(&fp),_phi))-abs(&fph))^2/(2*&var)
+            )
+           )
+          )      
+         )   ( (&cen360 or acentric) and selected=1)
+
+   elseif (&integration = "analytic") then
+!
+! note: the variances (&var) refer to amplitude variances (E(F)).  
+! Hendrickson (1979), Acta Cryst. A35, 245-247 showed the relationship to intensity
+! variances:  E(I)^2 = 3 E(F)^4 + 4 (Fph^2 + sigma(Fph)^2) E(F)^2.  
+!
+! The resulting phase probability distribution (exp(- loc(I's)^2/ 2(E(I))^2)) is
+! identical to the phase probability distribution based on amplitudes 
+! (exp(-loc(F's)^2/2E(F)^2)) if one assumes a normal distribution of the errors. 
+!
+! See Blundell & Johnson, 1976, Protein Crystallography, for a derivation.  
+!
+
+      do (&pa=-2 * (amplitude(&fp)^2 + amplitude(&fh)^2 - amplitude(&fph)^2 ) * amplitude(&fp) * real(&fh)/ 
+                   (3 * &var^2 + 4 * (amplitude(&fph)^2+&sph^2) * &var) )
+          ( (&cen360 or acentric) and selected=1) 
+
+      do (&pb=-2 * (amplitude(&fp)^2 + amplitude(&fh)^2 - amplitude(&fph)^2 ) * amplitude(&fp) * imag(&fh)/
+                   (3 * &var^2 + 4 * (amplitude(&fph)^2+&sph^2) * &var) )
+          ( (&cen360 or acentric) and selected=1) 
+
+      do (&pc=-amplitude(&fp)^2 * (real(&fh)^2 - imag(&fh)^2) /
+                   (3 * &var^2 + 4 * (amplitude(&fph)^2+&sph^2) * &var) )
+          ( (&cen360 or acentric) and selected=1) 
+
+      do (&pd=-2 * amplitude(&fp)^2 * real(&fh) * imag(&fh) /
+                   (3 * &var^2 + 4 * (amplitude(&fph)^2+&sph^2) * &var) )
+          ( (&cen360 or acentric) and selected=1) 
+
+   else
+
+      display GETPROBABILITY-ERR: integration &integration not defined
+
+   end if
+         
+elseif ($gp_ano = "yes") then
+   {ANOmalous SIR probability between Friedel mates (acentrics only) }
+
+   do (selected=0) ( all )   {select bijvoet pairs}
+   do (selected=1) ( friedel_pair(&sel) and acentric )
+
+   if (&integration = "numerical") then
+
+      do (&pa=
+       2/360*
+       (integrate[_phi,0,360,&phistep]
+        (cos(_phi)*
+         (-
+          (
+           abs(&fh+combine(abs(&fp),_phi))
+           -abs(friedel(&fh)+combine(abs(friedel(&fp)),-_phi))
+           -abs(&fph)+abs(friedel(&fph))
+          )^2
+          /(2*&var)
+         )
+        )
+       )      
+      )   (selected=1)
+      do (&pb=
+       2/360*
+       (integrate[_phi,0,360,&phistep]
+        (sin(_phi)*
+         (-
+          (
+           abs(&fh+combine(abs(&fp),_phi))
+           -abs(friedel(&fh)+combine(abs(friedel(&fp)),-_phi))
+           -abs(&fph)+abs(friedel(&fph))
+          )^2
+          /(2*&var)
+         )
+        )
+       )      
+      )   (selected=1)
+      do (&pc=
+       2/360*
+       (integrate[_phi,0,360,&phistep]
+        (cos(2*_phi)*
+         (-
+          (
+           abs(&fh+combine(abs(&fp),_phi))
+           -abs(friedel(&fh)+combine(abs(friedel(&fp)),-_phi))
+           -abs(&fph)+abs(friedel(&fph))
+          )^2
+          /(2*&var)
+         )
+        )
+       )      
+      )   (selected=1)
+      do (&pd=
+       2/360*
+       (integrate[_phi,0,360,&phistep]
+        (sin(2*_phi)*
+         (-
+          (
+           abs(&fh+combine(abs(&fp),_phi))
+           -abs(friedel(&fh)+combine(abs(friedel(&fp)),-_phi))
+           -abs(&fph)+abs(friedel(&fph))
+          )^2
+          /(2*&var)
+         )
+        )
+       )      
+      )   (selected=1)
+
+
+   elseif (&integration = "analytic") then
+
+      do (&pa= -2 * amplitude(&fp) * amplitude((&fh-conjugate(friedel(&fh)))/2) 
+                  * ( amplitude(&fph) - amplitude(friedel(&fph)) ) * imag((&fh+conjugate(friedel(&fh)))/2)
+             /( amplitude((&fh+conjugate(friedel(&fh)))/2) *  ((amplitude(&fph)+amplitude(friedel(&fph)))/2)  *&var)
+         )  (selected=1)
+
+      do (&pb= 2 * amplitude(&fp) * amplitude((&fh-conjugate(friedel(&fh)))/2) 
+                  * ( amplitude(&fph) - amplitude(friedel(&fph)) ) * real((&fh+conjugate(friedel(&fh)))/2)
+             /( amplitude((&fh+conjugate(friedel(&fh)))/2) *  ((amplitude(&fph)+amplitude(friedel(&fph)))/2)  *&var)
+         )  (selected=1)
+
+      do (&pc= amplitude(&fp)^2 * amplitude((&fh-conjugate(friedel(&fh)))/2)^2
+                  * (real((&fh+conjugate(friedel(&fh)))/2)^2 - imag((&fh+conjugate(friedel(&fh)))/2)^2 )
+             /( amplitude((&fh+conjugate(friedel(&fh)))/2)^2 *  ((amplitude(&fph)+amplitude(friedel(&fph)))/2)^2  *&var)
+         )  (selected=1)
+
+      do (&pd= 2 * amplitude(&fp)^2 * amplitude((&fh-conjugate(friedel(&fh)))/2)^2
+                  * (real((&fh+conjugate(friedel(&fh)))/2) * imag((&fh+conjugate(friedel(&fh)))/2) )
+             /( amplitude((&fh+conjugate(friedel(&fh)))/2)^2 *  ((amplitude(&fph)+amplitude(friedel(&fph)))/2)^2  *&var)
+         )  (selected=1)
+
+
+   else
+
+     display GETPROBABILITY-ERR: integration &integration not defined
+
+   end if
+
+else
+
+   display GETPROBABILITY-ERR: method &method not defined
+
+end if   
+
+undeclare domain=reci name=selected end {selected bijvoet pairs array}
+
+

@@ -1,0 +1,654 @@
+%%********************************************************************
+%% PPASolversym
+%% solve: min{ 0.5*norm(AU-b)^2 + <C,U> + rho*<I,U> : U nxn positive semidefinite}
+%%
+%% [X,y,Z,runhist,W] = ...
+%%           PPASolversym(blk,At,b,numeq,C,rho_target,OPTIONS,X,y,Z)
+%%
+%%********************************************************************
+
+function [obj,X,y,Z,info,runhist] = ...
+              PPASolversym(blk,At,b,numeq,C0,rho_target,OPTIONS,X,y,Z)
+
+if (nargin < 7); OPTIONS = []; end
+
+warning off
+randnstate = randn('state');
+randn('state',0);
+
+tol = 1e-6;
+sig = 10;
+maxiter       = 100;
+maxitersub    = 10;
+precond       = 1;
+maxitpsqmr    = 200;
+stagnate_check_psqmr = 0;
+scale_data    = 2;
+continuation  = 1;
+Newton_alteroption = 0;
+CGoption    = 2;   %  CGoption =1 using Newton_matrixcg.m
+                   %  CGoption =2 using Newton_psqmr.m
+printlevel    = 1;
+plotyes       = 0;
+if isfield(OPTIONS,'tol');        tol           = OPTIONS.tol; end
+if isfield(OPTIONS,'sigma');      sig           = OPTIONS.sigma; end
+if isfield(OPTIONS,'maxiter');    maxiter       = OPTIONS.maxiter; end
+if isfield(OPTIONS,'maxitersub'); maxitersub    = OPTIONS.maxitersub; end
+if isfield(OPTIONS,'precond');    precond       = OPTIONS.precond; end
+if isfield(OPTIONS,'maxitpsqmr'); maxitpsqmr    = OPTIONS.maxitpsqmr; end
+if isfield(OPTIONS,'stagnate_check_psqmr')
+    stagnate_check_psqmr = OPTIONS.stagnate_check_psqmr;
+end
+if isfield(OPTIONS,'scale_data'); scale_data    = OPTIONS.scale_data; end
+if isfield(OPTIONS,'continuation'); continuation= OPTIONS.continuation; end
+if isfield(OPTIONS,'printlevel'); printlevel    = OPTIONS.printlevel; end
+if isfield(OPTIONS,'plotyes');    plotyes       = OPTIONS.plotyes; end
+if isfield(OPTIONS, 'Newton_alteroption')
+    Newton_alteroption = OPTIONS.Newton_alteroption;
+end
+%%
+tstart = clock;
+dim = zeros(1,2); numblk = zeros(1,2);
+sdpblkidx = [];
+for p = 1:size(blk,1)
+    pblk = blk(p,:);
+    if strcmp(pblk{1},'s')
+        dim(1) = dim(1) + sum(pblk{2});
+        numblk(1) = numblk(1) + length(pblk{2});
+        sdpblkidx = [sdpblkidx, p];
+    elseif strcmp(pblk{1},'l')
+        dim(2) = dim(2) + sum(pblk{2});
+        numblk(2) = numblk(2) + length(pblk{2});
+    end
+end
+sdpblkidx = [sdpblkidx, setdiff([1:size(blk,1)],sdpblkidx)];
+blk = blk(sdpblkidx,:); At = At(sdpblkidx);
+if (printlevel)
+    fprintf('\n num. of constraints = %2.0d',length(b));
+    if dim(1);
+        fprintf('\n dim. of sdp  var = %2.0d,',dim(1));
+        fprintf('   num. of sdp  blk = %2.0d',numblk(1));
+    end
+    if dim(2); fprintf('\n dim. of linear var = %2.0d',dim(2)); end
+end
+%%
+m  = length(b);
+b0 = b; 
+Ctmp = C0; 
+msk = [ones(m-numeq,1); zeros(numeq,1)];
+par.msk = msk;
+rho_target_0 = rho_target;
+E = ops(blk,'identity');   n = ops(E,'getM');
+if (rho_target < 0);
+    E = ops(E,'*',-1); %% for negative rho_target
+    rho_target = abs(rho_target);
+end
+if (continuation)
+    rho = 100*rho_target;
+else
+    rho = rho_target;
+end
+%%
+%% scaling
+%%
+normAorg = ops(At,'norm'); normborg = norm(b);
+if (scale_data)
+    normA0 = min(1e12, sqrt(max([1,normAorg,normborg])));
+    normb0 = 1; normA0; 
+    At = ops(At,'/',normA0);
+    b = b/normb0;
+    E = ops(E,'/',normA0*normb0); % do scaling of E, not C
+    Ctmp = ops(Ctmp,'/',normA0*normb0); 
+    objscale = normb0^2;
+else
+    normA0 = 1; normb0 = 1; objscale = 1;
+end
+C = ops(Ctmp,'+',ops(E,'*',rho));
+normb = max(1,norm(b)); normC = max(1,ops(C,'norm'));
+normA = max(1,ops(At,'norm'));
+if (nargin < 10)
+    X = ops(C,'zeros'); Z = ops(C,'zeros'); y = zeros(m,1);
+    generate_initial_point = 1;
+else
+    X = ops(X,'/',normb0/normA0); y = y/normb0;
+    Z = ops(Z,'/',normA0*normb0);
+    iter = 0;
+    generate_initial_point = 0;
+end
+
+%%  use an alternating direction method to compute initial X,y,Z
+sig0 = 10; % 1, 5
+if isfield(OPTIONS,'sig0'); sig0 = OPTIONS.sig0; end
+if (max(dim(1)) >= 300) 
+    maxiterAlt = 50; 
+elseif max(dim(1) >= 200)
+    maxiterAlt = 75; 
+else
+    maxiterAlt = 100;
+end
+if (generate_initial_point)
+    diagAAt = zeros(m,1);
+    for p = 1:size(blk,1)
+        diagAAt = diagAAt + sum(At{p}.*At{p})';
+    end
+    diagAAt = max(1e-4,full(diagAAt));
+    ADMpar.precond = 1;
+    ADMpar.msk = msk;
+    if (printlevel)
+        fprintf('\n----------------------------------------------------------');
+        fprintf('---------------------------------------------------');
+        fprintf('\n iter    pinf            dinf             ratio             psqmr       rankX      sig');
+        fprintf('\n----------------------------------------------------------');
+        fprintf('---------------------------------------------------');
+    end
+    normX = ops(X,'norm');
+    AX = AXfunsym(blk,At,X);
+    AC = AXfunsym(blk,At,C);
+    sigAZ = sig0*AXfunsym(blk,At,Z);
+    Rptmp = b - AX;
+    for iter = 1: maxiterAlt
+        ADMpar.sig = sig0;
+        Xold = X; normXold = normX;
+        yold = y;
+        sigAZold = sigAZ;
+        rhs = Rptmp + sig0*AC - sigAZ;
+        diagH = msk + sig0*diagAAt;
+        L.invdiagM = 1./diagH;
+        [y,resnrm,solve_ok] = ...
+            psqmrsym('matvecAAtsym',blk,At,rhs,ADMpar,L,1e-3*norm(rhs),100);
+        sigAty = Atyfunsym(blk,At,sig0*y);
+        XmsigC = ops(X,'-',ops(sig0,'*',C));
+        W  = ops(XmsigC,'+',sigAty);
+        [X,sigZ,eigW,rankX] = project(blk,W);
+        AX = AXfunsym(blk,At,X);
+        normX = ops(X,'norm');
+        sigAZ = AXfunsym(blk,At,sigZ);
+        Rptmp = b - AX;
+        Rp = Rptmp - msk.*y;
+        normRp = norm(Rp);
+        normRd = sqrt(normX^2 +normXold^2 - 2*blktrace(blk,Xold,X))/sig0;
+        prim_infeas = normRp/normb;
+        dual_infeas = normRd/normA; % normRd/normC;
+        ratio = prim_infeas/(eps+dual_infeas);
+        if (printlevel) & (rem(iter,5)==1) % rem(iter,3)
+            fprintf('\n %2.0d     %3.2e    %3.2e     %3.2e         %2.0d            %2.1d      %3.1e',...
+                iter,prim_infeas,dual_infeas,ratio,length(resnrm),rankX(1),sig0);
+            if (length(rankX) > 1); fprintf(' %2.1d',rankX(2)); end;
+        end
+        if (rem(iter,5)==1)
+            if (iter==1) & (ratio > 10)
+                const = 10;
+                X = Xold;  normX = normXold;
+                y = yold;   sigAZ = sigAZold;
+                Rptmp = b - AXfunsym(blk,At,Xold);
+                if (printlevel); fprintf('  ratio = %3.2e ',ratio); end
+            else
+                const = 2;
+            end
+            if (ratio < 0.1)
+                sig0 = min(1e6,const*sig0);  
+            elseif (ratio > 10)
+                sig0 = max(1e-2,sig0/const);
+            end
+        end
+        if (max(prim_infeas,dual_infeas) < 1e-2)
+            break;
+        end
+    end
+end
+%%
+%% scale data
+%%
+if (scale_data==2)
+    normX = ops(X,'norm');
+    Z = ops(sigZ,'/',sig0);
+    normZ = ops(Z,'norm');
+    if (normZ > 1e-2)
+        norm_ratio = full(normX/normZ);
+        norm_ratio = sqrt(norm_ratio);
+        % norm_ratio = sqrt(norm_ratio)/sqrt(2); % try this one later
+    else
+        Aty = Atyfunsym(blk,At,y);
+        normtmp = max(1e-2,ops(ops(C,'-',Aty),'norm'));
+        norm_ratio = full(normX/normtmp);
+        norm_ratio = sqrt(norm_ratio);
+        % norm_ratio = sqrt(norm_ratio)/sqrt(2); % try this one later
+    end
+    X = ops(X,'/',norm_ratio);
+    Z = ops(Z,'*',norm_ratio);
+    for p = 1:size(blk,1)
+        At{p} = At{p}*norm_ratio;
+    end
+    E = ops(E,'*',norm_ratio);
+    Ctmp = ops(Ctmp,'*',norm_ratio); 
+    C = ops(Ctmp,'+',ops(E,'*',rho));    
+    normA = max(1,ops(At,'norm'));
+    normA0 = normA0/norm_ratio;
+end
+%%
+if (scale_data==2)
+    sig = 1; % 10, 5, 1
+else
+    norm_ratio = 1;
+    normX = ops(X,'norm'); normZ = ops(Z,'norm');
+    sig = max(10,max(1e-2,normX)/max(1e-2,normZ));
+end
+AX   = AXfunsym(blk,At,X);
+Aty  = Atyfunsym(blk,At,y);
+Rp   = b-msk.*y-AX;
+Rd   = ops(C,'-',ops(Aty,'+',Z));
+objtmp = 0.5*norm(msk.*y)^2;
+obj  = objscale*[objtmp+blktrace(blk,C,X), -objtmp+b'*y];
+relgap   = (obj(1) - obj(2))/max(1,mean(abs(obj)));
+prim_infeas  = norm(Rp)/normb;
+dualinf  = ops(Rd,'norm')/normA;
+runhist.prim_obj(1) = obj(1);
+runhist.dual_obj(1) = obj(2);
+runhist.gap(1)     = abs(diff(obj));
+runhist.relgap(1) = relgap;
+runhist.prim_infeas(1) = prim_infeas;
+runhist.dual_infeas(1) = dual_infeas;
+runhist.cputime(1) = etime(clock,tstart);
+runhist.sigma(1)   = sig;
+runhist.itersub(1) = iter;
+runhist.rankX(1) = rankX(1);
+runhist.findstep(1) = 0;
+runhist.psqmr(1) = 0;
+%%
+fprintf('\n*****************************************************')
+fprintf('********************************')
+fprintf('\n  PPASolver For Symmetric Matrix Problems')
+fprintf('\n  rho_target = %3.2e',rho_target_0);
+fprintf('\n  continuation = %1.0f',continuation);
+fprintf('\n  Newton_alteroption = %1.0f',Newton_alteroption);
+fprintf('\n  scale_data = %1.0f,',scale_data);
+fprintf(' precond = %1.0f',precond);
+fprintf('\n  normC = %2.1e, normA = %2.1e, normb = %2.1e',...
+    ops(C,'norm'),ops(At,'norm'),norm(b));
+fprintf('\n  number of initial iterations = %2.0d',iter);
+fprintf('\n  sig0 = %3.2e,  iter = %2.1d',sig0,iter);
+fprintf('\n  norm_XZratio = %2.1e',norm_ratio);
+fprintf('\n  orig-normX = %2.1e, orig-normZ = %2.1e',normX,normZ);
+fprintf('\n  normX = %2.1e, normZ = %2.1e', normX/norm_ratio, normZ*norm_ratio);
+fprintf('\n ********************************************************');
+fprintf('********************************************************')
+fprintf('\n  it   prim_inf    dual_inf         prim_obj          dual_obj')
+fprintf('           relgap      time     sigma      rho      rankX    |AltN_iter   AltN_time')
+fprintf('\n**********************************************************')
+fprintf('*******************************************************')
+fprintf('\n %3.1d  %3.1e    %3.1e     %- 8.7e    %- 8.7e  %- 3.2e %5.1f',...
+    0,prim_infeas,dual_infeas,obj(1),obj(2),relgap,runhist.cputime(1));
+fprintf('    %3.1e  %3.2e    %2.1d',sig,rho,rankX(1));
+if (length(rankX) > 1); fprintf(' %2.1d',rankX(2)); end
+if (rho <= rho_target)&(max(prim_infeas,dual_infeas) < tol)
+    if (printlevel)
+        fprintf('\n--------------------------------------------------------')
+        fprintf('\n max(prim_infeas,dual_infeas) < %3.2e',tol);
+        fprintf('\n--------------------------------------------------------')
+    end
+    return;
+end
+%%
+%% main
+%%
+
+L = [];
+msg  = '';
+printsub = printlevel;
+diagAAt = zeros(m,1);
+for p = 1:size(blk,1); diagAAt = diagAAt + sum(At{p}.*At{p})'; end
+diagAAt = max(1e-4, full(diagAAt));
+matvecfname = 'matvecsym';
+par.project = 'project2';
+par.precond = precond;
+par.b = b;
+par.m = m;
+par.msk = msk;
+
+newtontime =0;
+newtoniterk =0;
+%%
+for iter = 1:maxiter
+    C = ops(Ctmp,'+',ops(E,'*',rho));    
+    par.sig = sig;
+    if (dual_infeas < 1e-5)
+        maxitersub = max(maxitersub,50);
+    elseif (dual_infeas < 1e-3)
+        maxitersub = max(maxitersub,40);
+    elseif (dual_infeas < 1e-1)
+        maxitersub = max(maxitersub,30);
+    end
+    %%-----------------------------------
+    %% Semismooth Newton method for inner subproblem
+    %%-----------------------------------
+    if (prim_infeas < 0.2*dual_infeas)
+        const = 0.5;
+    elseif (prim_infeas > dual_infeas)
+        const = 2*0.1;
+    else
+        const = 2*0.2;
+    end
+    tolsub = min(1,const*dual_infeas);
+    %%----------------------
+    %% new X, compute W
+    %%----------------------
+    Xold = X; normXold = ops(Xold,'norm');
+    yold = y;
+    XmsigC = ops(X,'-',ops(sig,'*',C));
+    sigAty = Atyfunsym(blk,At,sig*y);
+    W = ops(XmsigC,'+',sigAty);
+    [X,par] = feval(par.project,blk,W,par);
+    ysub = y;
+    clear subhist
+    subhist.psqmr(1)    = 0;
+    subhist.findstep(1) = 0;
+    for itersub = 1:maxitersub
+        normX  = ops(X,'norm');
+        Ly     = -0.5*norm(msk.*ysub)^2 + b'*ysub - normX^2/(2*sig);
+        Rpsub  = b - msk.*ysub - AXfunsym(blk,At,X);
+        GradLy = Rpsub;
+        normRpsub = norm(Rpsub);
+        normRdsub = sqrt(normX^2 +normXold^2 -2*blktrace(blk,Xold,X))/sig;
+        priminf_sub = normRpsub/normb;
+        dualinf_sub = normRdsub/normA; % normC
+        if (iter ==1)
+            const = 0.2; % 0.2, 0.5, 0.8 is OK
+        else
+            const = 0.2;   % const = 0.5;
+        end
+        tolsub = max(min(1,const*dualinf_sub), 1e-2*tol);
+        subhist.priminf(itersub)  = priminf_sub;
+        subhist.dualinf(itersub)  = dualinf_sub;
+        subhist.Ly(itersub)       = Ly;
+        if (printsub)
+           fprintf('\n      %2.0d  %- 11.10e %3.2e %3.2e %3.1f',...
+           itersub,Ly,priminf_sub,dualinf_sub,const);
+        end
+        %----------------------------------------------------------
+        Ly_ratio = 1;  tolLy = 1e-8;
+        if (itersub > 1)
+           Ly_ratio = (Ly-subhist.Ly(itersub-1))/(abs(Ly)+eps);
+        end
+        %%----------------------------------------------
+        %% check termination for inner problem
+        %%----------------------------------------------
+        if (priminf_sub < tolsub) & (itersub > 1)
+            msg = 'good termination:';
+            fprintf('\n       %s  ',msg);
+            fprintf(' gradLy=%3.2e, priminf_sub=%3.2e, tolsub=%3.2e',...
+                norm(GradLy), priminf_sub,tolsub);
+            break;
+        elseif (max(priminf_sub,dualinf_sub) < tol)
+            msg = sprintf('max(priminf_sub,dualinf_sub) < %3.2e',tol);
+            fprintf('\n       %s',msg);
+            break;
+        end
+        %%--------------------------------------------------
+        %% compute Newton direction
+        %% precond = 1, precondition by diag(A*diag(PI')*At)
+        %%--------------------------------------------------
+        par.tau = max(1*msk,min(1e-2,1e-3*norm(GradLy)));
+        if (precond==1)
+           diag_precond_options = 2;           
+           if (diag_precond_options == 1)
+              L.invdiagM = 1./(msk + sig*diagAAt);
+           elseif (diag_precond_options == 2)
+              dd = diagapproxsym(blk,At,par);
+              L.invdiagM = 1./full(msk + sig*sum(dd.*dd)');
+           end
+        elseif (precond == 3)
+           %% for RKE and EDM problem 
+           L = precondEDM(blk,At,OPTIONS.PrecondData,par);
+        end      
+        %------------------------------------------------------------------------------
+        if (dual_infeas > 1e-3) | (itersub <= 5)
+            maxitpsqmr = max(maxitpsqmr,200);
+        elseif (dual_infeas > 1e-4)
+            maxitpsqmr = max(maxitpsqmr,300);
+        elseif (dual_infeas > 1e-5)
+            maxitpsqmr = max(maxitpsqmr,400);
+        elseif (dual_infeas > 5e-6)
+            maxitpsqmr = max(maxitpsqmr,500);
+        end
+        par.minitpsqmr = 2;  % 2, 5;
+        if (dual_infeas > 1e-4)
+            stagnate_check_psqmr = max(stagnate_check_psqmr,100); %% 20
+        else
+            stagnate_check_psqmr = max(stagnate_check_psqmr,150); %% 50
+        end
+        if (itersub > 3 & all(subhist.solve_ok(itersub-[3:-1]) <= -1)) ...
+                & (dual_infeas < 5e-5)
+            stagnate_check_psqmr = max(stagnate_check_psqmr,100);
+        end
+        par.stagnate_check_psqmr = stagnate_check_psqmr;
+        if (itersub > 1)
+            prim_ratio = priminf_sub/subhist.priminf(itersub-1);
+            dual_ratio = dualinf_sub/subhist.dualinf(itersub-1);
+        else
+            prim_ratio = 0; dual_ratio = 0;
+        end
+        rhs = GradLy;
+        if (iter < 2) & (itersub < 5)
+            tolpsqmr = min(1,0.1*norm(rhs));
+        else
+            tolpsqmr = min(5e-2,0.1*norm(rhs)); % 1e-2
+        end
+        %
+        const2 = 1.0;
+        if (itersub>1) & (prim_ratio>0.5 | priminf_sub>0.1*subhist.priminf(1))
+            const2 = 0.5*const2;
+        end
+        if (dual_ratio > 1.1); const2 = 0.5*const2; end;
+        tolpsqmr   = const2*tolpsqmr;
+        [dy,resnrm,solve_ok] = ...
+            psqmrsym(matvecfname,blk,At,rhs,par,L,tolpsqmr,maxitpsqmr);
+        psqmriter = length(resnrm) -1;
+        if (printsub)
+            fprintf('| %3.1e %3.1e %3.0d',tolpsqmr,resnrm(end),psqmriter);
+            fprintf(' %2.1f %2.0d',const2,size(par.P1{1},2));
+        end
+        %%-----------------------------------------
+        %% line search
+        %%-----------------------------------------
+        if (itersub <= 3) & (dual_infeas > 1e-4) | (iter <= 3)
+            step_options = 1;
+        else
+            % step_options = 2; % have a test later!
+            step_options = 1;
+        end
+        steptol = 1e-5;
+        % steptol = 5e-4;
+        [par,ysub,W,X,alpha,iterstep] = ...
+             findstepsym(blk,At,par,ysub,W,X,dy,steptol,step_options);
+        subhist.solve_ok(itersub) = solve_ok;
+        subhist.psqmr(itersub)    = psqmriter;
+        subhist.findstep(itersub) = iterstep;
+        if (printsub)
+            fprintf(' %3.2e %2.0f',alpha,iterstep);
+            if (Ly_ratio < 0); fprintf('-'); end
+        end
+        if (plotyes)
+            plotfun(blk,par,resnrm);
+        end
+    end   %%----- end of inner iteration -------------------
+    
+    y   = ysub;
+    normX = ops(X,'norm');
+    rankX = length(par.posidx{1});
+    AX  = AXfunsym(blk,At,X);
+    Rp  = b - msk.*y - AX;
+    normRp = norm(Rp);
+    normRd = sqrt(normX^2 +normXold^2 -2*blktrace(blk,Xold,X))/sig;
+    prim_infeas = normRp/normb;
+    dual_infeas = normRd/normA;
+    objtmp  = 0.5*norm(msk.*y)^2;
+    obj = objscale*[objtmp+blktrace(blk,C,X), -objtmp+b'*y];
+    relgap  = (obj(1) - obj(2))/max(1,mean(abs(obj)));
+    %%
+    runhist.prim_obj(iter+1) = obj(1);
+    runhist.dual_obj(iter+1) = obj(2);
+    runhist.gap(iter+1)     = abs(diff(obj));
+    runhist.relgap(iter+1) = relgap;
+    runhist.prim_infeas(iter+1) = prim_infeas;
+    runhist.dual_infeas(iter+1) = dual_infeas;
+    runhist.cputime(iter+1) = etime(clock,tstart) + newtontime;
+    runhist.sigma(iter+1)   = sig;
+    runhist.itersub(iter+1) = itersub-1;
+    runhist.rankX(iter+1) = rankX;
+    runhist.findstep(iter+1) = sum(subhist.findstep);
+    runhist.psqmr(iter+1) = sum(subhist.psqmr);
+
+%     if sum( runhist.itersub)>300
+%         break
+%     end
+    %%
+    if (printlevel)
+        fprintf('\n %3.0d  %3.1e    %3.1e  %- 8.7e %- 8.7e   %- 3.2e',...
+            iter,prim_infeas,dual_infeas,obj(1),obj(2),relgap);
+        fprintf('   %5.1f  ',runhist.cputime(iter+1));
+        fprintf('   %3.1e  %3.2e    %2.1d',sig,rho,rankX);
+    end
+    %%
+    %% check for termination
+    %%
+    idx = [max(iter-1,1):iter];
+    prim_infeas_ratio = runhist.prim_infeas(idx+1)./runhist.prim_infeas(idx);
+    dual_infeas_ratio = runhist.dual_infeas(iter+1)/runhist.dual_infeas(iter);
+    if (rho <= rho_target)
+        if (max(prim_infeas,dual_infeas) < tol) % &&(abs(relgap)<10*tol) % relgap added!
+            msg = sprintf('max(prim_infeas,dual_infeas) < %3.2e',tol);
+            break;
+         elseif ((dual_infeas < 0.5*tol) & all(prim_infeas_ratio > 0.7)) ...
+                 | ((prim_infeas_ratio(end) > 0.7) & all(runhist.dual_infeas(iter:iter+1) < 0.5*tol))
+             msg = sprintf('lack of progress in prim_infeas');
+             %%break;
+         elseif (dual_infeas < 0.5*tol) & all(dual_infeas_ratio > 0.7)
+             msg = sprintf('dual_infeas deteriorated');
+             %%break;
+         elseif (dual_infeas < 0.8*tol) %  & (priminf_ratio > 0.9)
+             msg = sprintf('dual_infeas < %3.2e',0.8*tol);
+             %%break;
+        end
+    end
+    %%
+    %% check for alternating Newton Step
+    %%
+    if (Newton_alteroption ==1)
+        if   (max(prim_infeas,dual_infeas)<= 1e-4) % 1e-3
+            startnewton = clock;
+            % rhsB   = ops(ops(Wp,'-',Xold),'/',sig);
+            rhsB = ops(ops(X,'-',Xold),'/',sig);
+            rhsB = ops(rhsB,'sym');
+            tolcg = 1.0e-2; % 1.0e-3
+            maxitcg = 200; % 20
+            if (CGoption ==1)
+                [H,flag,relres,Newton_iterk] =...
+                    Newton_matrixcg(blk,At,rhsB{1},par,L,tolcg,maxitcg);
+            else
+                [H,Newton_resnrm,solve_ok2] =...
+                    Newton_psqmr(blk,At,rhsB{1},par,L,tolcg,maxitcg);
+                Newton_iterk = length(Newton_resnrm);
+            end
+            %%%
+            WW = ops(Xold,'+',H);
+            [X,par] = feval(par.project,blk,WW,par);
+            newtontime = etime(clock,startnewton);
+            newtoniterk = Newton_iterk;
+            if (printlevel)
+                fprintf(' | %3.1d %6.3f', newtoniterk, newtontime);
+            end
+        else
+            newtontime = 0;
+            newtoniterk = 0;
+        end
+    end
+    %%
+    %% reduce rho, modify sig
+    %%
+    if (continuation)
+        if (max(prim_infeas,dual_infeas) < 10*tol)
+            const = 0;
+        elseif (max(prim_infeas,dual_infeas) < 100*tol)
+            const = 0.2;
+        else
+            const = 0.3;
+        end
+        rho = max(rho_target,const*rho);
+    end
+    if (dual_infeas > 5*tol)
+        sigtol = 0.7;  % try 0.5 later!
+    else
+        sigtol = 0.5;
+    end
+    if (dual_infeas_ratio > sigtol)
+        const4 = 2;
+        sig = min(1e8,const4*sig);
+    end
+end   % end of outer iteration
+
+%%
+if (iter == maxiter); msg = 'maximum iteration reached'; end
+Z = ops(ops(X,'-',W),'*',1/sig);
+normXscaled = ops(X,'norm');
+normyscaled = norm(y);
+normZscaled = ops(Z,'norm');
+C = ops(C0,'+',ops(ops(blk,'identity'),'*',rho_target_0));
+AX_b = AXfunsym(blk,At,X) -b;
+
+ objratio = 0.5*norm(AX_b)^2/(-blktrace(blk,C,X))
+
+if (scale_data)
+    X  = ops(X,'*',normb0/normA0); y = y*normb0;
+    Z  = ops(Z,'*',normb0*normA0);
+    Rp   = b0-msk.*y- normA0*AXfunsym(blk,At,X);
+    Rd   = ops(C,'-',ops(Atyfunsym(blk,At,normA0*y),'+',Z));
+    prim_infeas = norm(Rp)/max(1,normborg);
+    dual_infeas = ops(Rd,'norm')/max(1,normAorg);
+end
+rel_gap = (obj(1)-obj(2))/max(1,mean(abs(obj)));
+numEigenDecomposition = runhist.itersub(1) + iter + sum(runhist.findstep(2:end));
+info.iter      = iter;
+info.itersub   = sum(runhist.itersub(2:end));
+info.ave_psqmr = sum(runhist.psqmr(2:end))/info.itersub;
+info.obj     = [obj(1),obj(2)];
+info.gap     = obj(1)-obj(2);
+info.relgap  = rel_gap;
+info.pinfeas = prim_infeas;
+info.dinfeas = dual_infeas;
+info.normX   = ops(X,'norm');
+info.normy   = norm(y);
+info.normZ   = ops(Z,'norm');
+info.msg     = msg;
+info.numEigenDecomposition = numEigenDecomposition;
+info.rankX = rankX;
+fprintf('\n--------------------------------------------------------')
+fprintf('------------------------')
+fprintf('\n %s',msg);
+fprintf('\n--------------------------------------------------------')
+fprintf('------------------------')
+fprintf('\n primal objval = %9.8e',obj(1));
+fprintf('\n dual   objval = %9.8e',obj(2));
+fprintf('\n relative gap  = %3.2e',rel_gap);
+fprintf('\n prim_infeas   = %3.2e',prim_infeas);
+fprintf('\n dual_infeas   = %3.2e',dual_infeas);
+fprintf('\n CPU time      = %3.1f',runhist.cputime(end));
+fprintf('\n number of subproblems = %3.1f',sum(runhist.itersub(2:end)));
+fprintf('\n average number of psqmr step per subproblem = %3.1f',...
+    sum(runhist.psqmr(2:end))/sum(runhist.itersub(2:end)));
+fprintf('\n average number of linesearch per subproblem = %3.1f',...
+    sum(runhist.findstep(2:end))/sum(runhist.itersub(2:end)));
+fprintf('\n total number of eigenvalue decomposition = %2.0d',numEigenDecomposition);
+fprintf('\n scaled-norm(X) = %3.1e, scaled-norm(y) = %3.1e,',...
+    normXscaled,normyscaled);
+fprintf(' scaled-norm(Z) = %3.1e',normZscaled);
+fprintf('\n norm(X) = %3.1e,        norm(y) = %3.1e,',...
+    ops(X,'norm'),norm(y));
+fprintf('        norm(Z) = %3.1e',ops(Z,'norm'));
+fprintf('\n----------------------------------------------------------------');
+fprintf('-----------------------------------------------------------');
+fprintf('\n');
+%%
+X(sdpblkidx) = X; Z(sdpblkidx) = Z;
+randn('state',randnstate);
+%%********************************************************************
+

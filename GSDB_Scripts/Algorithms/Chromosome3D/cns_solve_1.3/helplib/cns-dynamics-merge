@@ -1,0 +1,41 @@
+dynamics merge <dynamics-merge-statement> end
+
+<dynamics-merge-statement> :==
+
+  {<trajectory-statement>}
+  output=<filename>
+  --{Output trajectory file.}
+  oascii=<logical>
+  --{Write formatted trajectory file. Default=false}
+  format=<format>
+  --{Fortran format for writing trajectory. Default=12z6}
+  offset=<real>
+  --{Offset for trajectory file writing. Default=800.0d0}
+  scale=<real>
+  --{Scale factor for trajectory writing. Default=10000.0d0}
+  ensemble=<logical>
+  --{If true the mismatch checking between different trajectory files
+     is bypassed. This allows the generation of a pseudo-trajectory
+     from several otherwise unrelated trajectory files.}
+  orient <dynamics-merge-orient-statement> end
+  --{}
+
+  --{Only atoms which are able to move are output. i.e. Fixed atoms will not
+     be written.}
+
+  <trajectory-statement> :==
+
+    input=<filename>
+    --{File to read trajectory from.}
+    begin=<integer>
+    --{Start at this step in trajectory file. Default=1}
+    skip=<integer>
+    --{Skip the specified number of steps. Default=1}
+    stop=<integer>
+    --{Stop at this step. Default=999999}
+    ascii=<logical>
+    --{Input trajectory is formatted rather than binary. Default=false}
+
+    --{Several input files may be specified. Files are read in the
+       order given. Begin, skip, stop are all in integration units.}
+

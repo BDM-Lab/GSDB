@@ -1,0 +1,139 @@
+#!/bin/csh -f
+#
+# script to automate removal of the CNSsolve HTML interface on
+# a local WWW server - this script makes changes to the WWW server
+# and should be run by the WWW server adminstrator
+#
+# need to know:
+#   - location of the CNSsolve directory
+#   - path to start of WWW tree (directory from which documents are served)
+#   - full path to the cgi-bin directory
+#
+# the CNSsolve directory must be visible from the WWW server
+#
+# Written by: Paul Adams 6-2-98
+#
+# copyright Yale University
+#
+# defaults:
+#
+if ( $?CNS_SOLVE ) then
+ set cns_dir=$CNS_SOLVE
+else
+ set cns_dir=$PWD
+endif
+set www_root="/home/httpd/html"
+set cgi_dir="/home/httpd/cgi-bin"
+#
+echo -n "location of CNSsolve directory [default: $cns_dir ]-> "
+set response=$<
+if ( $response != "" ) then
+ set cns_dir=`echo $response | sed -e 's/\/$//'`
+endif
+#
+if ( ! -e $cns_dir ) then
+ echo "CNSsolve directory does not exist"
+ echo "aborting installation"
+ exit 1
+endif
+#
+set version=`grep -i 'parameter *(cnsversion' $cns_dir/source/version.inc | cut -d\' -f2`
+set patch=`grep -i 'parameter *(cnspatch' $cns_dir/source/version.inc | cut -d\' -f2`
+if ( $patch == 0 ) set patch=''
+set version=$version$patch
+#
+echo -n "path to the start of WWW tree [default: $www_root ]-> "
+set response=$<
+if ( $response != "" ) then
+ set www_root=`echo $response | sed -e 's/\/$//'`
+endif
+#
+echo -n "full path to CGI directory [default: $cgi_dir ]-> "
+set response=$<
+if ( $response != "" ) then
+ set cgi_dir=`echo $response | sed -e 's/\/$//'`
+endif
+#
+echo "=============================================================="
+echo "location of the CNSsolve directory is: $cns_dir"
+echo "version of CNSsolve is: $version"
+echo "path to the start of the WWW tree is: $www_root"
+echo "location of the CGI directory is: $cgi_dir"
+echo "=============================================================="
+#
+echo -n "continue with these parameters? [y/n]-> "
+set response=$<
+if ( $response == "y" || $response == "Y" ) then
+ echo "proceeding with CNSsolve HTML interface removal"
+else
+ exit 0
+endif
+#
+if ( ! -e $cgi_dir ) then
+ echo "directory $cgi_dir does not exist"
+ echo "aborting installation"
+ exit 1
+endif
+#
+if ( ! -e $www_root ) then
+ echo "cannot set directory to $www_root"
+ echo "aborting installation"
+ exit 1
+else
+ cd $www_root
+endif
+#
+set cns_www_root=cns_solve_$version
+#
+if ( -d $www_root/$cns_www_root ) then
+ cd $cns_www_root
+ set current_dir = $cwd
+ if ( $current_dir:t != $cns_www_root ) then
+   echo "directories don't match"
+   echo "looking for $cns_www_root, ended up in $current_dir:t"
+   echo "please remove the directory $www_root/$cns_www_root and"
+   echo "all subdirectories by hand"
+   exit 1
+ else
+   echo "current directory $www_root/$cns_www_root"
+ endif
+ echo -n "continue with removal of subdirectories? [y/n]-> "
+ set response=$<
+ if ( $response == "y" || $response == "Y" ) then
+   echo "proceeding with removal of $www_root/$cns_www_root"
+ else
+   exit 0
+ endif
+ /bin/rm -r doc inputs modules libraries utils .htaccess
+ if ( $status == 0 ) then
+   cd $www_root
+   echo "removing directory $www_root/$cns_www_root"
+   /bin/rmdir $www_root/$cns_www_root
+ else
+   echo "problems removing subdirectories, aborting"
+   exit 1
+ endif
+endif
+#
+if ( -d $cgi_dir/cns_solve_$version ) then
+ cd $cgi_dir/cns_solve_$version
+else
+ echo "CGI directory $cgi_dir/cns_solve_$version does not exist"
+ exit 1
+endif
+#
+ls *.cgi *.lib >& /dev/null
+if ( $status == 0 ) then
+ foreach file ( *.cgi *.lib )
+   echo "removing file $cgi_dir/cns_solve_$version/$file"
+   /bin/rm -f $cgi_dir/cns_solve_$version/$file
+ end
+endif
+#
+cd $www_root
+#
+echo "removing CGI subdirectory $cgi_dir/cns_solve_$version"
+/bin/rmdir $cgi_dir/cns_solve_$version
+#
+echo "Server side of CNSsolve HTML interface removal is complete"
+#

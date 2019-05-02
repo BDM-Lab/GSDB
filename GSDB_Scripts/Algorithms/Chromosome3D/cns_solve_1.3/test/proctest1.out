@@ -1,0 +1,665 @@
+          ============================================================
+          |                                                          |
+          |            Crystallography & NMR System (CNS)            |
+          |                         CNSsolve                         |
+          |                                                          |
+          ============================================================
+           Version: 1.3
+           Status: General release
+          ============================================================
+           Written by: A.T.Brunger, P.D.Adams, G.M.Clore, W.L.DeLano,
+                       P.Gros, R.W.Grosse-Kunstleve,J.-S.Jiang,J.M.Krahn,
+                       J.Kuszewski, M.Nilges, N.S.Pannu, R.J.Read,
+                       L.M.Rice, G.F.Schroeder, T.Simonson, G.L.Warren.
+           Copyright (c) 1997-2010 Yale University
+          ============================================================
+           Running on machine: lewis4-r710-login-node223 (x86_64/Linux,64-bit)
+                               with 16 threads
+           Program started by: oeow39
+           Program started at: 16:08:05 on 05-Jul-2018
+          ============================================================
+
+ FFT3C: Using FFTPACK4.1
+
+ CNSsolve> 
+ CNSsolve>! basic testing of the procedure facility 
+ CNSsolve> 
+ CNSsolve>set abort = off end 
+ CNSsolve> 
+ CNSsolve>! no parameters 
+ CNSsolve> 
+ CNSsolve>procedure test1() 
+ PROC-BODY>display in procedure test1 
+ PROC-BODY>display some text 
+ PROC-BODY>endp 
+ CNSsolve> 
+ CNSsolve>call test1() 
+ PROC-DECLARATION>() 
+ PROC-INVOCATION>() 
+ CNSsolve>display in procedure test1 
+in procedure test1
+ CNSsolve>display some text  
+some text     
+ CNSsolve>inline call test1() 
+ PROC-DECLARATION>() 
+ PROC-INVOCATION>() 
+ CNSsolve>display in procedure test1 
+in procedure test1
+ CNSsolve>display some text  
+some text     
+ CNSsolve> 
+ CNSsolve>! check redefinition 
+ CNSsolve> 
+ CNSsolve>procedure test1() 
+ PROC-BODY>display in new procedure test1 
+ PROC-BODY>display more text 
+ PROC-BODY>endp 
+ CNSsolve> 
+ CNSsolve>call test1() 
+ PROC-DECLARATION>() 
+ PROC-INVOCATION>() 
+ CNSsolve>display in new procedure test1 
+in new procedure test1
+ CNSsolve>display more text  
+more text     
+ CNSsolve> 
+ CNSsolve>! with parameters 
+ CNSsolve> 
+ CNSsolve>procedure test2 ( par1; par2 = hi ) 
+ PROC-BODY>display in procedure test2, par1: &par1 par2: &par2 
+ PROC-BODY>display even more text 
+ PROC-BODY>eval ( $hi = hi ) 
+ PROC-BODY>eval ( $ya = ya ) 
+ PROC-BODY>endp 
+ CNSsolve> 
+ CNSsolve>call test2 ( par1 = doh ) 
+ PROC-DECLARATION>(par1 ; par2 = hi) 
+ PROC-INVOCATION> ( par1 = doh ) 
+ &_2_PAR1 set to doh 
+ CNSsolve>display in procedure test2, par1: &par1 par2: &par2 
+in procedure test2, par1: doh par2: hi
+ CNSsolve>display even more text 
+even more text
+ CNSsolve>eval ( $hi = hi ) 
+ Assuming literal string "HI"
+ EVALUATE: symbol $HI set to "HI" (string)
+ CNSsolve>eval ( $ya = ya )  
+ Assuming literal string "YA"
+ EVALUATE: symbol $YA set to "YA" (string)
+ CNSsolve> 
+ CNSsolve>call test2 ( par1 = doh; par2 = you ) 
+ PROC-DECLARATION>(par1 ; par2 = hi) 
+ PROC-INVOCATION> ( par1 = doh; par2 = you ) 
+ &_2_PAR1 set to doh 
+ &_2_PAR2 set to you 
+ CNSsolve>display in procedure test2, par1: &par1 par2: &par2 
+in procedure test2, par1: doh par2: you
+ CNSsolve>display even more text 
+even more text
+ CNSsolve>eval ( $hi = hi ) 
+ Assuming literal string "HI"
+ EVALUATE: symbol $HI set to "HI" (string)
+ CNSsolve>eval ( $ya = ya )  
+ Assuming literal string "YA"
+ EVALUATE: symbol $YA set to "YA" (string)
+ CNSsolve> 
+ CNSsolve>! check inlining of functions... 
+ CNSsolve> 
+ CNSsolve>! if scope is working properly, these will be false... 
+ CNSsolve> 
+ CNSsolve>display &EXIST_par1 &EXIST_par2 $EXIST_hi $EXIST_ya 
+FALSE FALSE FALSE FALSE
+ CNSsolve> 
+ CNSsolve>! check inlining... 
+ CNSsolve> 
+ CNSsolve>inline call test2 ( par1 = loo; par2 = too ) 
+ PROC-DECLARATION>(par1 ; par2 = hi) 
+ PROC-INVOCATION> ( par1 = loo; par2 = too ) 
+ &_2_PAR1 set to loo 
+ &_2_PAR2 set to too 
+ CNSsolve>display in procedure test2, par1: &par1 par2: &par2 
+in procedure test2, par1: loo par2: too
+ CNSsolve>display even more text 
+even more text
+ CNSsolve>eval ( $hi = hi ) 
+ Assuming literal string "HI"
+ EVALUATE: symbol $HI set to "HI" (string)
+ CNSsolve>eval ( $ya = ya )  
+ Assuming literal string "YA"
+ EVALUATE: symbol $YA set to "YA" (string)
+ CNSsolve> 
+ CNSsolve>! now the last two will be true 
+ CNSsolve> 
+ CNSsolve>display &EXIST_par1 &EXIST_par2 $EXIST_hi $EXIST_ya 
+FALSE FALSE TRUE TRUE
+ CNSsolve>$?hi 
+ $_1_HI="HI" (string) 
+ CNSsolve>$?ya 
+ $_1_YA="YA" (string) 
+ CNSsolve> 
+ CNSsolve>! check print out of procedures 
+ CNSsolve> 
+ CNSsolve>proc ? 
+ Current Procedures
+ NOTE: The scope number (#) of the procedure is shown as _#_<name> 
+ PROCEDURE _1_TEST2= (par1 ; par2 = hi) 
+ display in procedure test2, par1: &par1 par2: &par2 
+ display even more text 
+ eval ( $hi = hi ) 
+ eval ( $ya = ya ) 
+ PROCEDURE _1_TEST1= () 
+ display in new procedure test1 
+ display more text 
+ CNSsolve> 
+ CNSsolve>proc ?test1 
+ PROCEDURE _1_TEST1= () 
+ display in new procedure test1 
+ display more text 
+ CNSsolve>proc ?test2 
+ PROCEDURE _1_TEST2= (par1 ; par2 = hi) 
+ display in procedure test2, par1: &par1 par2: &par2 
+ display even more text 
+ eval ( $hi = hi ) 
+ eval ( $ya = ya ) 
+ CNSsolve> 
+ CNSsolve>! check procedure calls inside loops 
+ CNSsolve> 
+ CNSsolve>procedure show_count( count=; ) 
+ PROC-BODY>display &count 
+ PROC-BODY>endp 
+ CNSsolve> 
+ CNSsolve>eval ( $count = 1 ) 
+ EVALUATE: symbol $COUNT set to    1.00000     (real)
+ CNSsolve>while ( $count lt 3 ) loop main 
+ NEXTCD: condition evaluated as true
+ CNSsolve>call show_count(count=$count) 
+ PROC-DECLARATION>(count = ;) 
+ PROC-INVOCATION>(count=$count) 
+ &_2_COUNT set to $_1_COUNT 
+ CNSsolve>display &count  
+1     
+ CNSsolve>call show_count (count=$count) 
+ PROC-DECLARATION>(count = ;) 
+ PROC-INVOCATION> (count=$count) 
+ &_2_COUNT set to $_1_COUNT 
+ CNSsolve>display &count  
+1     
+ CNSsolve>eval ( $count = $count + 1 ) 
+ EVALUATE: symbol $COUNT set to    2.00000     (real)
+ CNSsolve>end loop main 
+ CNSsolve>while ( $count lt 3 ) loop main 
+ NEXTCD: condition evaluated as true
+ CNSsolve>call show_count 
+ PROC-DECLARATION>(count = ;) 
+ PROC-INVOCATION>(count=$count) 
+ &_2_COUNT set to $_1_COUNT 
+ CNSsolve>display &count  
+2     
+ CNSsolve>call show_count 
+ PROC-DECLARATION>(count = ;) 
+ PROC-INVOCATION> (count=$count) 
+ &_2_COUNT set to $_1_COUNT 
+ CNSsolve>display &count  
+2     
+ CNSsolve>eval ( $count = $count + 1 ) 
+ EVALUATE: symbol $COUNT set to    3.00000     (real)
+ CNSsolve>end loop main 
+ CNSsolve>while ( $count lt 3 ) loop main 
+ NEXTCD: condition evaluated as false
+ CNSsolve>call show_count 
+ CNSsolve>(count = ;) 
+ CNSsolve>(count=$count) 
+ CNSsolve>display &count  
+ CNSsolve>call show_count 
+ CNSsolve>(count = ;) 
+ CNSsolve> (count=$count) 
+ CNSsolve>display &count  
+ CNSsolve>eval ( $count = $count + 1 ) 
+ CNSsolve>end loop main 
+ CNSsolve> 
+ CNSsolve>! procedure definition inside loops 
+ CNSsolve> 
+ CNSsolve>eval ( $count = 1 ) 
+ EVALUATE: symbol $COUNT set to    1.00000     (real)
+ CNSsolve>while ( $count lt 3 ) loop main 
+ NEXTCD: condition evaluated as true
+ CNSsolve>procedure show_count( count=; ) 
+ PROC-BODY>display &count 
+ PROC-BODY>endp 
+ CNSsolve>call show_count(count=$count) 
+ PROC-DECLARATION>(count = ;) 
+ PROC-INVOCATION>(count=$count) 
+ &_2_COUNT set to $_1_COUNT 
+ CNSsolve>display &count  
+1     
+ CNSsolve>eval ( $count = $count + 1 ) 
+ EVALUATE: symbol $COUNT set to    2.00000     (real)
+ CNSsolve>end loop main 
+ CNSsolve>while ( $count lt 3 ) loop main 
+ NEXTCD: condition evaluated as true
+ CNSsolve>procedure show_count( count=; ) 
+ PROC-BODY>display &count 
+ PROC-BODY>endp 
+ CNSsolve>call show_count 
+ PROC-DECLARATION>(count = ;) 
+ PROC-INVOCATION>(count=$count) 
+ &_2_COUNT set to $_1_COUNT 
+ CNSsolve>display &count  
+2     
+ CNSsolve>eval ( $count = $count + 1 ) 
+ EVALUATE: symbol $COUNT set to    3.00000     (real)
+ CNSsolve>end loop main 
+ CNSsolve>while ( $count lt 3 ) loop main 
+ NEXTCD: condition evaluated as false
+ CNSsolve>procedure show_count( count=; ) 
+ PROC-BODY>display &count 
+ PROC-BODY>endp 
+ CNSsolve>call show_count 
+ CNSsolve>(count = ;) 
+ CNSsolve>(count=$count) 
+ CNSsolve>display &count  
+ CNSsolve>eval ( $count = $count + 1 ) 
+ CNSsolve>end loop main 
+ CNSsolve> 
+ CNSsolve>! procedure definition and invocation inside @ and @@ files 
+ CNSsolve> 
+ CNSsolve>set display=procedures.dat end 
+ ASSFIL: file procedures.dat opened.
+ CNSsolve>literal procedure show_count( count=; ) 
+ CNSsolve>literal display &count 
+ CNSsolve>literal endp 
+ CNSsolve>literal call show_count(count=$count) 
+ CNSsolve>set display=OUTPUT end 
+ CNSsolve>close procedures.dat end 
+ CNSsolve> 
+ CNSsolve>eval ( $count = 1 ) 
+ EVALUATE: symbol $COUNT set to    1.00000     (real)
+ CNSsolve>while ( $count lt 3 ) loop main 
+ NEXTCD: condition evaluated as true
+ CNSsolve>@procedures.dat 
+ ASSFIL: file procedures.dat opened.
+ CNSsolve>procedure show_count( count=; ) 
+ PROC-BODY>display &count 
+ PROC-BODY>endp 
+ CNSsolve>call show_count(count=$count) 
+ PROC-DECLARATION>(count = ;) 
+ PROC-INVOCATION>(count=$count) 
+ &_3_COUNT set to $_2_COUNT 
+ CNSsolve>display &count  
+1     
+ CNSsolve>eval ( $count = $count + 1 ) 
+ EVALUATE: symbol $COUNT set to    2.00000     (real)
+ CNSsolve>end loop main 
+ CNSsolve>while ( $count lt 3 ) loop main 
+ NEXTCD: condition evaluated as true
+ CNSsolve> 
+ CNSsolve>procedure show_count( count=; ) 
+ PROC-BODY>display &count 
+ PROC-BODY>endp 
+ CNSsolve>call show_count 
+ PROC-DECLARATION>(count = ;) 
+ PROC-INVOCATION>(count=$count) 
+ &_3_COUNT set to $_2_COUNT 
+ CNSsolve>display &count  
+2     
+ CNSsolve> 
+ CNSsolve> 
+ CNSsolve>eval ( $count = $count + 1 ) 
+ EVALUATE: symbol $COUNT set to    3.00000     (real)
+ CNSsolve>end loop main 
+ CNSsolve>while ( $count lt 3 ) loop main 
+ NEXTCD: condition evaluated as false
+ CNSsolve> 
+ CNSsolve>procedure show_count( count=; ) 
+ PROC-BODY>display &count 
+ PROC-BODY>endp 
+ CNSsolve>call show_count 
+ CNSsolve>(count = ;) 
+ CNSsolve>(count=$count) 
+ CNSsolve>display &count  
+ CNSsolve> 
+ CNSsolve> 
+ CNSsolve>eval ( $count = $count + 1 ) 
+ CNSsolve>end loop main 
+ CNSsolve> 
+ CNSsolve>eval ( $count = 1 ) 
+ EVALUATE: symbol $COUNT set to    1.00000     (real)
+ CNSsolve>while ( $count lt 3 ) loop main 
+ NEXTCD: condition evaluated as true
+ CNSsolve>@@procedures.dat 
+ ASSFIL: file procedures.dat opened.
+ CNSsolve>procedure show_count( count=; ) 
+ PROC-BODY>display &count 
+ PROC-BODY>endp 
+ CNSsolve>call show_count(count=$count) 
+ PROC-DECLARATION>(count = ;) 
+ PROC-INVOCATION>(count=$count) 
+ &_3_COUNT set to $_2_COUNT 
+ CNSsolve>display &count  
+1     
+ CNSsolve>eval ( $count = $count + 1 ) 
+ EVALUATE: symbol $COUNT set to    2.00000     (real)
+ CNSsolve>end loop main 
+ CNSsolve>while ( $count lt 3 ) loop main 
+ NEXTCD: condition evaluated as true
+ CNSsolve>@@procedures.dat 
+ ASSFIL: file procedures.dat opened.
+ CNSsolve>procedure show_count( count=; ) 
+ PROC-BODY>display &count 
+ PROC-BODY>endp 
+ CNSsolve>call show_count(count=$count) 
+ PROC-DECLARATION>(count = ;) 
+ PROC-INVOCATION>(count=$count) 
+ &_3_COUNT set to $_2_COUNT 
+ CNSsolve>display &count  
+2     
+ CNSsolve>eval ( $count = $count + 1 ) 
+ EVALUATE: symbol $COUNT set to    3.00000     (real)
+ CNSsolve>end loop main 
+ CNSsolve>while ( $count lt 3 ) loop main 
+ NEXTCD: condition evaluated as false
+ CNSsolve>@@procedures.dat 
+ CNSsolve>eval ( $count = $count + 1 ) 
+ CNSsolve>end loop main 
+ CNSsolve> 
+ CNSsolve> 
+ CNSsolve>! exist function inside scopes 
+ CNSsolve> 
+ CNSsolve>procedure exist_check ( par = ; sym = ; ) 
+ PROC-BODY>display &EXIST%par.why 
+ PROC-BODY>display &EXIST%_1_par.why 
+ PROC-BODY>display &EXIST%sym.why 
+ PROC-BODY>display $EXIST%sym.why 
+ PROC-BODY>endp 
+ CNSsolve> 
+ CNSsolve>define ( &par.why = 1 ) 
+ CNSsolve>eval ( $sym.why = 1 ) 
+ EVALUATE: symbol $SYM.WHY set to    1.00000     (real)
+ CNSsolve> 
+ CNSsolve>call exist_check ( par = &par ; sym = $sym ) 
+ PROC-DECLARATION>(par = ; sym = ;) 
+ PROC-INVOCATION> ( par = &par ; sym = $sym ) 
+ &_2_PAR set to &_1_PAR 
+ &_2_SYM set to $_1_SYM 
+ CNSsolve>display &EXIST%par.why 
+TRUE
+ CNSsolve>display &EXIST%_1_par.why 
+TRUE
+ CNSsolve>display &EXIST%sym.why 
+TRUE
+ CNSsolve>display $EXIST%sym.why  
+TRUE     
+ CNSsolve> 
+ CNSsolve>! proper scoping inside nested normal and inline procedures 
+ CNSsolve> 
+ CNSsolve>procedure change_value2 ( symm=; value=;) 
+ PROC-BODY>display &symm 
+ PROC-BODY>eval ( &symm = &value ) 
+ PROC-BODY>display &symm 
+ PROC-BODY>endp 
+ CNSsolve> 
+ CNSsolve>procedure change_value1 ( symm=; value=;) 
+ PROC-BODY>inline call change_value2 ( symm=&symm; value=&value;) 
+ PROC-BODY>endp 
+ CNSsolve> 
+ CNSsolve>eval ( $symm = 1 ) 
+ EVALUATE: symbol $SYMM set to    1.00000     (real)
+ CNSsolve>call change_value1 ( symm=$symm; value=2) 
+ PROC-DECLARATION>(symm = ; value = ;) 
+ PROC-INVOCATION> ( symm=$symm; value=2) 
+ &_2_SYMM set to $_1_SYMM 
+ &_2_VALUE set to 2 
+ CNSsolve>inline call change_value2 ( symm=&symm; value=&value;)  
+ PROC-DECLARATION>(symm = ; value = ;) 
+ PROC-INVOCATION> ( symm=&symm; value=&value;)  
+ &_3_SYMM set to &_2_SYMM 
+ &_3_VALUE set to &_2_VALUE 
+ CNSsolve>display &symm 
+1
+ CNSsolve>eval ( &symm = &value ) 
+ EVALUATE: symbol $_1_SYMM set to    2.00000     (real)
+ CNSsolve>display &symm   
+2          
+ CNSsolve>display $symm ! <===== should be 2 
+2 ! <===== should be 2
+ CNSsolve>inline call change_value1 ( symm=$symm; value=3) 
+ PROC-DECLARATION>(symm = ; value = ;) 
+ PROC-INVOCATION> ( symm=$symm; value=3) 
+ &_2_SYMM set to $_1_SYMM 
+ &_2_VALUE set to 3 
+ CNSsolve>inline call change_value2 ( symm=&symm; value=&value;)  
+ PROC-DECLARATION>(symm = ; value = ;) 
+ PROC-INVOCATION> ( symm=&symm; value=&value;)  
+ &_3_SYMM set to &_2_SYMM 
+ &_3_VALUE set to &_2_VALUE 
+ CNSsolve>display &symm 
+2
+ CNSsolve>eval ( &symm = &value ) 
+ EVALUATE: symbol $_1_SYMM set to    3.00000     (real)
+ CNSsolve>display &symm   
+3          
+ CNSsolve>display $symm ! <===== should be 3 
+3 ! <===== should be 3
+ CNSsolve> 
+ CNSsolve>! global scope for internally defined symbols 
+ CNSsolve> 
+ CNSsolve>procedure change_xray2 ( symm=; value=;) 
+ PROC-BODY>xray symmetry ? end 
+ PROC-BODY>endp 
+ CNSsolve> 
+ CNSsolve>procedure change_xray1 ( symm=; value=;) 
+ PROC-BODY>eval ($centric_spacegroup=true) 
+ PROC-BODY>$?centric_spacegroup 
+ PROC-BODY>call change_xray2 ( symm=&symm; value=&value;) 
+ PROC-BODY>$?centric_spacegroup 
+ PROC-BODY>eval ($centric_spacegroup=true) 
+ PROC-BODY>$?centric_spacegroup 
+ PROC-BODY>endp 
+ CNSsolve> 
+ CNSsolve>eval ( $symm = 1 ) 
+ EVALUATE: symbol $SYMM set to    1.00000     (real)
+ CNSsolve>call change_xray1 ( symm=$symm; value=2) 
+ PROC-DECLARATION>(symm = ; value = ;) 
+ PROC-INVOCATION> ( symm=$symm; value=2) 
+ &_2_SYMM set to $_1_SYMM 
+ &_2_VALUE set to 2 
+ CNSsolve>eval ($centric_spacegroup=true) 
+ EVALUATE: symbol $CENTRIC_SPACEGROUP set to TRUE (logical)
+ CNSsolve>$?centric_spacegroup 
+ $_2_CENTRIC_SPACEGROUP="TRUE" (logical) 
+ CNSsolve>call change_xray2 ( symm=&symm; value=&value;) 
+ PROC-DECLARATION>(symm = ; value = ;) 
+ PROC-INVOCATION> ( symm=&symm; value=&value;) 
+ &_3_SYMM set to &_2_SYMM 
+ &_3_VALUE set to &_2_VALUE 
+ CNSsolve>xray symmetry ? end  
+ | Symmetry operators:
+ | -------------------
+ | SYMMetry=(X,Y,Z)
+ CNSsolve>$?centric_spacegroup 
+ $_2_CENTRIC_SPACEGROUP="FALSE" (logical) 
+ $_1_CENTRIC_SPACEGROUP="FALSE" (logical) 
+ CNSsolve>eval ($centric_spacegroup=true) 
+ EVALUATE: symbol $CENTRIC_SPACEGROUP set to TRUE (logical)
+ CNSsolve>$?centric_spacegroup  
+ $_2_CENTRIC_SPACEGROUP="TRUE" (logical) 
+ $_1_CENTRIC_SPACEGROUP="FALSE" (logical) 
+ CNSsolve>$?centric_spacegroup 
+ $_1_CENTRIC_SPACEGROUP="FALSE" (logical) 
+ CNSsolve> 
+ CNSsolve>! error conditions 
+ CNSsolve> 
+ CNSsolve>call test2() 
+ PROC-DECLARATION>(par1 ; par2 = hi) 
+ PROC-INVOCATION>() 
+ %PROCEDURE-ERR: required parameter not defined: PAR1
+ CNSsolve> 
+ CNSsolve>call test2( notaparam = 1 ) 
+ PROC-DECLARATION>(par1 ; par2 = hi) 
+ PROC-INVOCATION>( notaparam = 1 ) 
+ %PROCEDURE error encountered: undeclared procedure parameter: NOTAPARAM
+   (CNS is in mode: SET ABORT=OFF END)
+ %PROCEDURE error encountered: undeclared procedure parameter: =
+   (CNS is in mode: SET ABORT=OFF END)
+ %PROCEDURE error encountered: undeclared procedure parameter: 1
+   (CNS is in mode: SET ABORT=OFF END)
+ CNSsolve> 
+ CNSsolve>! conditionals 
+ CNSsolve> 
+ CNSsolve>procedure ctest1( cond;) 
+ PROC-BODY>  eval ( $ctsym = 1 ) 
+ PROC-BODY>  $?ctsym 
+ PROC-BODY>  display &cond $ctsym 
+ PROC-BODY>endp 
+ CNSsolve> 
+ CNSsolve>procedure ctest2() 
+ PROC-BODY> 
+ PROC-BODY>for $ix in ( 1 2 3 )  loop test2 
+ PROC-BODY> if ( $ix = 1 ) then 
+ PROC-BODY>   call ctest1(cond=True) 
+ PROC-BODY> else 
+ PROC-BODY>   call ctest1(cond=False) 
+ PROC-BODY> end if 
+ PROC-BODY> $?ix 
+ PROC-BODY> display $ix 
+ PROC-BODY> if ( $EXIST%ix ne TRUE ) then 
+ PROC-BODY>   display ERR: this should not happen 
+ PROC-BODY>   stop 
+ PROC-BODY> end if 
+ PROC-BODY>end loop test2 
+ PROC-BODY>endp 
+ CNSsolve> 
+ CNSsolve>call ctest2() 
+ PROC-DECLARATION>() 
+ PROC-INVOCATION>() 
+ CNSsolve>for $ix in ( 1 2 3 )  loop test2 
+ FOR LOOP: symbol IX set to    1.00000     (real)
+ CNSsolve> if ( $ix = 1 ) then 
+ NEXTCD: condition evaluated as true
+ CNSsolve>   call ctest1(cond=True) 
+ PROC-DECLARATION>(cond ;) 
+ PROC-INVOCATION>(cond=True) 
+ &_3_COND set to True 
+ CNSsolve>  eval ( $ctsym = 1 ) 
+ EVALUATE: symbol $CTSYM set to    1.00000     (real)
+ CNSsolve>  $?ctsym 
+ $_3_CTSYM=   1.00000     (real)
+ CNSsolve>  display &cond $ctsym  
+True 1     
+ CNSsolve> else 
+ CNSsolve>   call ctest1(cond=False) 
+ PROC-DECLARATION>(cond ;) 
+ PROC-INVOCATION>(cond=False) 
+ CNSsolve>  eval ( $ctsym = 1 ) 
+ CNSsolve>  $?ctsym 
+ CNSsolve>  display &cond $ctsym  
+ CNSsolve> end if 
+ CNSsolve> $?ix 
+ $_2_IX=   1.00000     (real)
+ CNSsolve> display $ix 
+1
+ CNSsolve> if ( $EXIST%ix ne TRUE ) then 
+ NEXTCD: condition evaluated as false
+ CNSsolve>   display ERR: this should not happen 
+ CNSsolve>   stop 
+ CNSsolve> end if 
+ CNSsolve>end loop test2  
+ CNSsolve>for $ix in ( 1 2 3 )  loop test2 
+ FOR LOOP: symbol IX set to    2.00000     (real)
+ CNSsolve> if ( $ix = 1 ) then 
+ NEXTCD: condition evaluated as false
+ CNSsolve>   call ctest1 
+ CNSsolve>(cond ;) 
+ CNSsolve>(cond=True) 
+ CNSsolve>  eval ( $ctsym = 1 ) 
+ CNSsolve>  $?ctsym 
+ CNSsolve>  display &cond $ctsym  
+ CNSsolve> else 
+ CNSsolve>   call ctest1 
+ PROC-DECLARATION>(cond ;) 
+ PROC-INVOCATION>(cond=False) 
+ &_3_COND set to False 
+ CNSsolve>  eval ( $ctsym = 1 ) 
+ EVALUATE: symbol $CTSYM set to    1.00000     (real)
+ CNSsolve>  $?ctsym 
+ $_3_CTSYM=   1.00000     (real)
+ CNSsolve>  display &cond $ctsym  
+False 1     
+ CNSsolve> end if 
+ CNSsolve> $?ix 
+ $_2_IX=   2.00000     (real)
+ CNSsolve> display $ix 
+2
+ CNSsolve> if ( $EXIST%ix ne TRUE ) then 
+ NEXTCD: condition evaluated as false
+ CNSsolve>   display ERR: this should not happen 
+ CNSsolve>   stop 
+ CNSsolve> end if 
+ CNSsolve>end loop test2  
+ CNSsolve>for $ix in ( 1 2 3 )  loop test2 
+ FOR LOOP: symbol IX set to    3.00000     (real)
+ CNSsolve> if ( $ix = 1 ) then 
+ NEXTCD: condition evaluated as false
+ CNSsolve>   call ctest1 
+ CNSsolve>(cond ;) 
+ CNSsolve>(cond=True) 
+ CNSsolve>  eval ( $ctsym = 1 ) 
+ CNSsolve>  $?ctsym 
+ CNSsolve>  display &cond $ctsym  
+ CNSsolve> else 
+ CNSsolve>   call ctest1 
+ PROC-DECLARATION>(cond ;) 
+ PROC-INVOCATION>(cond=False) 
+ &_3_COND set to False 
+ CNSsolve>  eval ( $ctsym = 1 ) 
+ EVALUATE: symbol $CTSYM set to    1.00000     (real)
+ CNSsolve>  $?ctsym 
+ $_3_CTSYM=   1.00000     (real)
+ CNSsolve>  display &cond $ctsym  
+False 1     
+ CNSsolve> end if 
+ CNSsolve> $?ix 
+ $_2_IX=   3.00000     (real)
+ CNSsolve> display $ix 
+3
+ CNSsolve> if ( $EXIST%ix ne TRUE ) then 
+ NEXTCD: condition evaluated as false
+ CNSsolve>   display ERR: this should not happen 
+ CNSsolve>   stop 
+ CNSsolve> end if 
+ CNSsolve>end loop test2  
+ CNSsolve>for $ix in ( 1 2 3 )  loop test2 
+ CNSsolve> if ( $ix = 1 ) then 
+ CNSsolve>   call ctest1 
+ CNSsolve>(cond ;) 
+ CNSsolve>(cond=True) 
+ CNSsolve>  eval ( $ctsym = 1 ) 
+ CNSsolve>  $?ctsym 
+ CNSsolve>  display &cond $ctsym  
+ CNSsolve> else 
+ CNSsolve>   call ctest1 
+ CNSsolve>(cond ;) 
+ CNSsolve>(cond=False) 
+ CNSsolve>  eval ( $ctsym = 1 ) 
+ CNSsolve>  $?ctsym 
+ CNSsolve>  display &cond $ctsym  
+ CNSsolve> end if 
+ CNSsolve> $?ix 
+ CNSsolve> display $ix 
+ CNSsolve> if ( $EXIST%ix ne TRUE ) then 
+ CNSsolve>   display ERR: this should not happen 
+ CNSsolve>   stop 
+ CNSsolve> end if 
+ CNSsolve>end loop test2  
+ CNSsolve> 
+ CNSsolve> 
+ CNSsolve> 
+ CNSsolve> 
+ CNSsolve>stop 
+          ============================================================
+           Maximum dynamic memory allocation:     8201488 bytes
+           Maximum dynamic memory overhead:           256 bytes
+           Program started at: 16:08:05 on 05-Jul-2018
+           Program stopped at: 16:08:05 on 05-Jul-2018
+           CPU time used:       0.0089 seconds
+          ============================================================

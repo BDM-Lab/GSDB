@@ -1,0 +1,60 @@
+remarks file toppar/water.top  
+remarks   water topology for crystallographic structure determination 
+remarks   based on Jorgensen Tip3p water model
+
+set message ? end eval ($old_message=$result) set echo ? end eval ($old_echo=$result)
+set message=off echo=off end
+
+checkversion 1.3
+
+
+{* default masses *}
+MASS   HT     1.00800 ! TIPS3P water hydrogen
+MASS   OT    15.99940 ! TIPS3P water oxygen
+
+autogenerate angles=true end   
+ 
+
+!------------------------------------------------------------------
+
+RESIdue TIP       { TIPS3P WATER MODEL }
+ GROUp
+  ATOM OH2  TYPE=OT   CHARge= -0.834  END
+  ATOM H1   TYPE=HT   CHARge=  0.417  END
+  ATOM H2   TYPE=HT   CHARge=  0.417  END
+
+ BOND OH2  H1
+ BOND OH2  H2
+
+END {* TIP *}
+
+!------------------------------------------------------------------
+
+RESIdue WAT       { TIPS3P WATER MODEL }
+ GROUp
+  ATOM OH2  TYPE=OT   CHARge= -0.834  END
+  ATOM H1   TYPE=HT   CHARge=  0.417  END
+  ATOM H2   TYPE=HT   CHARge=  0.417  END
+
+ BOND OH2  H1
+ BOND OH2  H2
+
+END {* WAT *}
+
+!------------------------------------------------------------------
+
+RESIdue HOH       { TIPS3P WATER MODEL }
+ GROUp
+  ATOM O    TYPE=OT   CHARge= -0.834  END
+  ATOM H1   TYPE=HT   CHARge=  0.417  END
+  ATOM H2   TYPE=HT   CHARge=  0.417  END
+
+ BOND O  H1
+ BOND O  H2
+
+END {* HOH *}
+
+!------------------------------------------------------------------
+
+set message=$old_message echo=$old_echo end
+

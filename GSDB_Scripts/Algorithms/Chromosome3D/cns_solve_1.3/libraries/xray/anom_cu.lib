@@ -1,0 +1,762 @@
+! file: libraries/xray/anom_cu.lib
+! CuKa anomalous contribution to atomic scattering factors.
+! Library for CNS
+
+! Authors: Paul Adams, Joe Jaeger, and Axel T. Brunger
+
+!BEWARE:
+!(1) element Cf (Californium) has to be referred to as Cff
+!(2) element Sm (Samarium) has to be referred to as Smm
+!(3) element Np (Neptunium) has to be referred to as Npp
+!(3) types of elements with ionic state (i.e., +/-) specifications have
+!    to be put in double quotes in selection statements.
+
+set message ? end
+evaluate ($message_old_aculib=$result)
+set echo ? end
+evaluate ($echo_old_aculib=$result)
+set echo=off message=off end
+
+ checkversion 1.3
+
+
+do (scatter_fp=0)
+   ( chemical H* and not (
+     chemical "He" or chemical "HE" or
+     chemical "Ho" or chemical "HO" or
+     chemical "Ho+3" or chemical "HO+3" or
+     chemical "Hf" or chemical "HF" or
+     chemical "Hf+4" or chemical "HF+4" or
+     chemical "Hg" or chemical "HG" or
+     chemical "Hg+1" or chemical "HG+1" or
+     chemical "Hg+2" or chemical "HG+2" ))
+do (scatter_fdp=0)
+   ( chemical H* and not (
+     chemical "He" or chemical "HE" or
+     chemical "Ho" or chemical "HO" or
+     chemical "Ho+3" or chemical "HO+3" or
+     chemical "Hf" or chemical "HF" or
+     chemical "Hf+4" or chemical "HF+4" or
+     chemical "Hg" or chemical "HG" or
+     chemical "Hg+1" or chemical "HG+1" or
+     chemical "Hg+2" or chemical "HG+2" ))
+
+do (scatter_fp=0) ( chemical "He" or chemical "HE" )
+do (scatter_fdp=0) ( chemical "He" or chemical "HE" )
+
+do (scatter_fp=0.001) ( chemical "Li" or chemical "LI" )
+do (scatter_fdp=0) ( chemical "Li" or chemical "LI" )
+
+do (scatter_fp=0.001) ( chemical "Li+1" or chemical "LI+1" )
+do (scatter_fdp=0) ( chemical "Li+1" or chemical "LI+1" )
+
+do (scatter_fp=0.003) ( chemical "Be" or chemical "BE" )
+do (scatter_fdp=0.001) ( chemical "Be" or chemical "BE" )
+
+do (scatter_fp=0.003) ( chemical "Be+2" or chemical "BE+2" )
+do (scatter_fdp=0.001) ( chemical "Be+2" or chemical "BE+2" )
+
+do (scatter_fp=0.008) ( chemical "B" )
+do (scatter_fdp=0.004) ( chemical "B" )
+
+do (scatter_fp=0.017)
+   ( chemical C* and not
+     ( chem "Ca" or chem "CA" or chem "Ca+2" or chem "CA+2" or
+     chem "Ce" or chem "CE" or chem "Ce+3" or chem "CE+3" or chem "Ce+4" or chem "CE+4" or
+     chem "Co" or chem "CO" or chem "Co+2" or chem "CO+2" or chem "Co+3" or chem "CO+3" or
+     chem "Cr" or chem "CR" or chem "Cr+2" or chem "CR+2" or chem "Cr+3" or chem "CR+3" or
+     chem "Cu" or chem "CU" or chem "Cu+1" or chem "CU+1" or chem "Cu+2" or chem "CU+2" or
+     chem "Cd" or chem "CD" or chem "Cd+2" or chem "CD+2" or
+     chem "Cs" or chem "CS" or chem "Cs+1" or chem "CS+1" or
+     chem "Cm" or chem "CM" or
+     chem "Cl" or chem "CL" or chem "Cl-1" or chem "CL-1" or
+     chem "Cff" or chem "CFF" or chem "Cval" or chem "CVAL" ))
+do (scatter_fdp=0.009)
+   ( chemical C* and not
+     ( chem "Ca" or chem "CA" or chem "Ca+2" or chem "CA+2" or
+     chem "Ce" or chem "CE" or chem "Ce+3" or chem "CE+3" or chem "Ce+4" or chem "CE+4" or
+     chem "Co" or chem "CO" or chem "Co+2" or chem "CO+2" or chem "Co+3" or chem "CO+3" or
+     chem "Cr" or chem "CR" or chem "Cr+2" or chem "CR+2" or chem "Cr+3" or chem "CR+3" or
+     chem "Cu" or chem "CU" or chem "Cu+1" or chem "CU+1" or chem "Cu+2" or chem "CU+2" or
+     chem "Cd" or chem "CD" or chem "Cd+2" or chem "CD+2" or
+     chem "Cs" or chem "CS" or chem "Cs+1" or chem "CS+1" or
+     chem "Cm" or chem "CM" or
+     chem "Cl" or chem "CL" or chem "Cl-1" or chem "CL-1" or
+     chem "Cff" or chem "CFF" or chem "Cval" or chem "CVAL" ))
+
+do (scatter_fp=0.017) ( chemical "Cval" or chemical "CVAL" )
+do (scatter_fdp=0.009) ( chemical "Cval" or chemical "CVAL" )
+
+do (scatter_fp=0.029)
+   ( chemical N* and not
+     ( chem "Ne" or chem "NE" or
+     chem "Na" or chem "NA" or chem "Na+1" or chem "NA+1" or
+     chem "Ni" or chem "NI" or chem "Ni+2" or chem "NI+2" or chem "Ni+3" or chem "NI+3" or
+     chem "Nb" or chem "NB" or chem "Nb+3" or chem "NB+3" or chem "Nb+5" or chem "NB+5" or
+     chem "Nd" or chem "ND" or chem "Nd+3" or chem "ND+3" or
+     chem "Npp" or chem "NPP" or chem "Np+3" or chem "NP+3" or chem "Np+4" or chem "NP+4" or
+     chem "Np+6" or chem "NP+6" ))
+do (scatter_fdp=0.018)
+   ( chemical N* and not
+     ( chem "Ne" or chem "NE" or
+     chem "Na" or chem "NA" or chem "Na+1" or chem "NA+1" or
+     chem "Ni" or chem "NI" or chem "Ni+2" or chem "NI+2" or chem "Ni+3" or chem "NI+3" or
+     chem "Nb" or chem "NB" or chem "Nb+3" or chem "NB+3" or chem "Nb+5" or chem "NB+5" or
+     chem "Nd" or chem "ND" or chem "Nd+3" or chem "ND+3" or
+     chem "Npp" or chem "NPP" or chem "Np+3" or chem "NP+3" or chem "Np+4" or chem "NP+4" or
+     chem "Np+6" or chem "NP+6" ))
+
+do (scatter_fp=0.047)
+   ( chemical O* and not (
+     chem "O-1" or
+     chem "Os" or chem "OS" or chem "Os+4" or chem "OS+4" ) )
+do (scatter_fdp=0.032)
+   ( chemical O* and not (
+     chem "O-1" or
+     chem "Os" or chem "OS" or chem "Os+4" or chem "OS+4" ) )
+
+do (scatter_fp=0.047) ( chemical "O-1" )
+do (scatter_fdp=0.032) ( chemical "O-1" )
+
+do (scatter_fp=0.069) ( chemical "F" )
+do (scatter_fdp=0.053) ( chemical "F" )
+
+do (scatter_fp=0.069) ( chemical "F-1" )
+do (scatter_fdp=0.053) ( chemical "F-1" )
+
+do (scatter_fp=0.097) ( chemical "Ne" or chemical "NE" )
+do (scatter_fdp=0.083) ( chemical "Ne" or chemical "NE" )
+
+do (scatter_fp=0.129) ( chemical "Na" or chemical "NA" )
+do (scatter_fdp=0.124) ( chemical "Na" or chemical "NA" )
+
+do (scatter_fp=0.129) ( chemical "Na+1" or chemical "NA+1" )
+do (scatter_fdp=0.124) ( chemical "Na+1" or chemical "NA+1" )
+
+do (scatter_fp=0.165) ( chemical "Mg" or chemical "MG" )
+do (scatter_fdp=0.177) ( chemical "Mg" or chemical "MG" )
+
+do (scatter_fp=0.165) ( chemical "Mg+2" or chemical "MG+2" )
+do (scatter_fdp=0.177) ( chemical "Mg+2" or chemical "MG+2" )
+
+do (scatter_fp=0.204) ( chemical "Al" or chemical "AL" )
+do (scatter_fdp=0.246) ( chemical "Al" or chemical "AL" )
+
+do (scatter_fp=0.204) ( chemical "Al+3" or chemical "AL+3" )
+do (scatter_fdp=0.246) ( chemical "Al+3" or chemical "AL+3" )
+
+do (scatter_fp=0.244) ( chemical "Si" or chemical "SI" )
+do (scatter_fdp=0.33) ( chemical "Si" or chemical "SI" )
+
+do (scatter_fp=0.244) ( chemical "Siv" or chemical "SIV" )
+do (scatter_fdp=0.33) ( chemical "Siv" or chemical "SIV" )
+
+do (scatter_fp=0.244) ( chemical "Si+4" or chemical "SI+4" )
+do (scatter_fdp=0.33) ( chemical "Si+4" or chemical "SI+4" )
+
+do (scatter_fp=0.283)
+   ( chemical P* and not (
+     chem "Pd" or chem "Pr" or chem "Pm" or chem "Pt" or
+     chem "Pb" or chem "Po" or chem "Pa" or chem "Pu" or
+     chem "PD" or chem "PR" or chem "PM" or chem "PT" or
+     chem "PB" or chem "PO" or chem "PA" or chem "PU" or
+     chem "Pr+3" or chem "PR+3" or
+     chem "Pr+4" or chem "PR+4" or
+     chem "Pm+3" or chem "PM+3" or
+     chem "Pt+2" or chem "PT+2" or
+     chem "Pt+4" or chem "PT+4" or
+     chem "Pb+2" or chem "PB+2" or
+     chem "Pb+4" or chem "PB+4" or
+     chem "Pu+3" or chem "PU+3" or
+     chem "Pu+4" or chem "PU+4" or
+     chem "Pu+6" or chem "PU+6" ))
+do (scatter_fdp=0.434)
+   ( chemical P* and not (
+     chem "Pd" or chem "Pr" or chem "Pm" or chem "Pt" or
+     chem "Pb" or chem "Po" or chem "Pa" or chem "Pu" or
+     chem "PD" or chem "PR" or chem "PM" or chem "PT" or
+     chem "PB" or chem "PO" or chem "PA" or chem "PU" or
+     chem "Pr+3" or chem "PR+3" or
+     chem "Pr+4" or chem "PR+4" or
+     chem "Pm+3" or chem "PM+3" or
+     chem "Pt+2" or chem "PT+2" or
+     chem "Pt+4" or chem "PT+4" or
+     chem "Pb+2" or chem "PB+2" or
+     chem "Pb+4" or chem "PB+4" or
+     chem "Pu+3" or chem "PU+3" or
+     chem "Pu+4" or chem "PU+4" or
+     chem "Pu+6" or chem "PU+6" ))
+
+do (scatter_fp=0.319)
+   ( chemical S* and not (
+     chem "Sc" or chem "SC" or chem "Sc+3" or chem "SC+3" or
+     chem "Se" or chem "SE" or
+     chem "Sr" or chem "SR" or chem "Sr+2" or chem "SR+2" or
+     chem "Sn" or chem "SN" or chem "Sn+2" or chem "SN+2" or chem "Sn+4" or chem "SN+4" or
+     chem "Sb" or chem "SB" or chem "Sb+3" or chem "SB+3" or chem "Sb+5" or chem "SB+5" or
+     chem "Smm" or chem "SMM" or chem "Sm+3" or chem "SM+3" or
+     chem "Si" or chem "SI" or chem "Si+4" or chem "SI+4"  ))
+do (scatter_fdp=0.557)
+   ( chemical S* and not (
+     chem "Sc" or chem "SC" or chem "Sc+3" or chem "SC+3" or
+     chem "Se" or chem "SE" or
+     chem "Sr" or chem "SR" or chem "Sr+2" or chem "SR+2" or
+     chem "Sn" or chem "SN" or chem "Sn+2" or chem "SN+2" or chem "Sn+4" or chem "SN+4" or
+     chem "Sb" or chem "SB" or chem "Sb+3" or chem "SB+3" or chem "Sb+5" or chem "SB+5" or
+     chem "Smm" or chem "SMM" or chem "Sm+3" or chem "SM+3" or
+     chem "Si" or chem "SI" or chem "Si+4" or chem "SI+4"  ))
+
+do (scatter_fp=0.348) ( chemical "Cl" or chemical "CL" )
+do (scatter_fdp=0.702) ( chemical "Cl" or chemical "CL" )
+
+do (scatter_fp=0.348) ( chemical "Cl-1" or chemical "CL-1" )
+do (scatter_fdp=0.702) ( chemical "Cl-1" or chemical "CL-1" )
+
+do (scatter_fp=0.366) ( chemical "Ar" or chemical "AR" )
+do (scatter_fdp=0.872) ( chemical "Ar" or chemical "AR" )
+
+do (scatter_fp=0.365) ( chemical "K" )
+do (scatter_fdp=1.066) ( chemical "K" )
+
+do (scatter_fp=0.365) ( chemical "K+1" )
+do (scatter_fdp=1.066) ( chemical "K+1" )
+
+do (scatter_fp=0.341) ( chemical "Ca" or chemical "CA" )
+do (scatter_fdp=1.286) ( chemical "Ca" or chemical "CA" )
+
+do (scatter_fp=0.341) ( chemical "Ca+2" or chemical "CA+2" )
+do (scatter_fdp=1.286) ( chemical "Ca+2" or chemical "CA+2" )
+
+do (scatter_fp=0.285) ( chemical "Sc" or chemical "SC" )
+do (scatter_fdp=1.533) ( chemical "Sc" or chemical "SC" )
+
+do (scatter_fp=0.285) ( chemical "Sc+3" or chemical "SC+3" )
+do (scatter_fdp=1.533) ( chemical "Sc+3" or chemical "SC+3" )
+
+do (scatter_fp=0.189) ( chemical "Ti" or chemical "TI" )
+do (scatter_fdp=1.807) ( chemical "Ti" or chemical "TI" )
+
+do (scatter_fp=0.189) ( chemical "Ti+2" or chemical "TI+2" )
+do (scatter_fdp=1.807) ( chemical "Ti+2" or chemical "TI+2" )
+
+do (scatter_fp=0.189) ( chemical "Ti+3" or chemical "TI+3" )
+do (scatter_fdp=1.807) ( chemical "Ti+3" or chemical "TI+3" )
+
+do (scatter_fp=0.189) ( chemical "Ti+4" or chemical "TI+4" )
+do (scatter_fdp=1.807) ( chemical "Ti+4" or chemical "TI+4" )
+
+do (scatter_fp=0.035) ( chemical "V" )
+do (scatter_fdp=2.11) ( chemical "V" )
+
+do (scatter_fp=0.035) ( chemical "V+2" )
+do (scatter_fdp=2.11) ( chemical "V+2" )
+
+do (scatter_fp=0.035) ( chemical "V+3" )
+do (scatter_fdp=2.11) ( chemical "V+3" )
+
+do (scatter_fp=0.035) ( chemical "V+5" )
+do (scatter_fdp=2.11) ( chemical "V+5" )
+
+do (scatter_fp=-0.198) ( chemical "Cr" or chemical "CR" )
+do (scatter_fdp=2.443) ( chemical "Cr" or chemical "CR" )
+
+do (scatter_fp=-0.198) ( chemical "Cr+2" or chemical "CR+2" )
+do (scatter_fdp=2.443) ( chemical "Cr+2" or chemical "CR+2" )
+
+do (scatter_fp=-0.198) ( chemical "Cr+3" or chemical "CR+3" )
+do (scatter_fdp=2.443) ( chemical "Cr+3" or chemical "CR+3" )
+
+do (scatter_fp=-0.568) ( chemical "Mn" or chemical "MN" )
+do (scatter_fdp=2.808) ( chemical "Mn" or chemical "MN" )
+
+do (scatter_fp=-0.568) ( chemical "Mn+2" or chemical "MN+2" )
+do (scatter_fdp=2.808) ( chemical "Mn+2" or chemical "MN+2" )
+
+do (scatter_fp=-0.568) ( chemical "Mn+3" or chemical "MN+3" )
+do (scatter_fdp=2.808) ( chemical "Mn+3" or chemical "MN+3" )
+
+do (scatter_fp=-0.568) ( chemical "Mn+4" or chemical "MN+4" )
+do (scatter_fdp=2.808) ( chemical "Mn+4" or chemical "MN+4" )
+
+do (scatter_fp=-1.179) ( chemical "Fe" or chemical "FE" )
+do (scatter_fdp=3.204) ( chemical "Fe" or chemical "FE" )
+
+do (scatter_fp=-1.179) ( chemical "Fe+2" or chemical "FE+2" )
+do (scatter_fdp=3.204) ( chemical "Fe+2" or chemical "FE+2" )
+
+do (scatter_fp=-1.179) ( chemical "Fe+3" or chemical "FE+3" )
+do (scatter_fdp=3.204) ( chemical "Fe+3" or chemical "FE+3" )
+
+do (scatter_fp=-2.464) ( chemical "Co" or chemical "CO" )
+do (scatter_fdp=3.608) ( chemical "Co" or chemical "CO" )
+
+do (scatter_fp=-2.464) ( chemical "Co+2" or chemical "CO+2" )
+do (scatter_fdp=3.608) ( chemical "Co+2" or chemical "CO+2" )
+
+do (scatter_fp=-2.464) ( chemical "Co+3" or chemical "CO+3" )
+do (scatter_fdp=3.608) ( chemical "Co+3" or chemical "CO+3" )
+
+do (scatter_fp=-2.956) ( chemical "Ni" or chemical "NI" )
+do (scatter_fdp=0.509) ( chemical "Ni" or chemical "NI" )
+
+do (scatter_fp=-2.956) ( chemical "Ni+2" or chemical "NI+2" )
+do (scatter_fdp=0.509) ( chemical "Ni+2" or chemical "NI+2" )
+
+do (scatter_fp=-2.956) ( chemical "Ni+3" or chemical "NI+3" )
+do (scatter_fdp=0.509) ( chemical "Ni+3" or chemical "NI+3" )
+
+do (scatter_fp=-2.019) ( chemical "Cu" or chemical "CU" )
+do (scatter_fdp=0.589) ( chemical "Cu" or chemical "CU" )
+
+do (scatter_fp=-2.019) ( chemical "Cu+1" or chemical "CU+1" )
+do (scatter_fdp=0.589) ( chemical "Cu+1" or chemical "CU+1" )
+
+do (scatter_fp=-2.019) ( chemical "Cu+2" or chemical "CU+2" )
+do (scatter_fdp=0.589) ( chemical "Cu+2" or chemical "CU+2" )
+
+do (scatter_fp=-1.612) ( chemical "Zn" or chemical "ZN" )
+do (scatter_fdp=0.678) ( chemical "Zn" or chemical "ZN" )
+
+do (scatter_fp=-1.612) ( chemical "Zn+2" or chemical "ZN+2" )
+do (scatter_fdp=0.678) ( chemical "Zn+2" or chemical "ZN+2" )
+
+do (scatter_fp=-1.354) ( chemical "Ga" or chemical "GA" )
+do (scatter_fdp=0.777) ( chemical "Ga" or chemical "GA" )
+
+do (scatter_fp=-1.354) ( chemical "Ga+3" or chemical "GA+3" )
+do (scatter_fdp=0.777) ( chemical "Ga+3" or chemical "GA+3" )
+
+do (scatter_fp=-1.163) ( chemical "Ge" or chemical "GE" )
+do (scatter_fdp=0.886) ( chemical "Ge" or chemical "GE" )
+
+do (scatter_fp=-1.163) ( chemical "Ge+4" or chemical "GE+4" )
+do (scatter_fdp=0.886) ( chemical "Ge+4" or chemical "GE+4" )
+
+do (scatter_fp=-1.011) ( chemical "As" or chemical "AS" )
+do (scatter_fdp=1.006) ( chemical "As" or chemical "AS" )
+
+do (scatter_fp=-0.879) ( chemical "Se" or chemical "SE" )
+do (scatter_fdp=1.139) ( chemical "Se" or chemical "SE" )
+
+do (scatter_fp=-0.767) ( chemical "Br" or chemical "BR" )
+do (scatter_fdp=1.283) ( chemical "Br" or chemical "BR" )
+
+do (scatter_fp=-0.767) ( chemical "Br-1" or chemical "BR-1" )
+do (scatter_fdp=1.283) ( chemical "Br-1" or chemical "BR-1" )
+
+do (scatter_fp=-0.665) ( chemical "Kr" or chemical "KR" )
+do (scatter_fdp=1.439) ( chemical "Kr" or chemical "KR" )
+
+do (scatter_fp=-0.574) ( chemical "Rb" or chemical "RB" )
+do (scatter_fdp=1.608) ( chemical "Rb" or chemical "RB" )
+
+do (scatter_fp=-0.574) ( chemical "Rb+1" or chemical "RB+1" )
+do (scatter_fdp=1.608) ( chemical "Rb+1" or chemical "RB+1" )
+
+do (scatter_fp=-0.465) ( chemical "Sr" or chemical "SR" )
+do (scatter_fdp=1.82) ( chemical "Sr" or chemical "SR" )
+
+do (scatter_fp=-0.465) ( chemical "Sr+2" or chemical "SR+2" )
+do (scatter_fdp=1.82) ( chemical "Sr+2" or chemical "SR+2" )
+
+do (scatter_fp=-0.386) ( chemical "Y" )
+do (scatter_fdp=2.025) ( chemical "Y" )
+
+do (scatter_fp=-0.386) ( chemical "Y+3" )
+do (scatter_fdp=2.025) ( chemical "Y+3" )
+
+do (scatter_fp=-0.314) ( chemical "Zr" or chemical "ZR" )
+do (scatter_fdp=2.245) ( chemical "Zr" or chemical "ZR" )
+
+do (scatter_fp=-0.314) ( chemical "Zr+4" or chemical "ZR+4" )
+do (scatter_fdp=2.245) ( chemical "Zr+4" or chemical "ZR+4" )
+
+do (scatter_fp=-0.248) ( chemical "Nb" or chemical "NB" )
+do (scatter_fdp=2.482) ( chemical "Nb" or chemical "NB" )
+
+do (scatter_fp=-0.248) ( chemical "Nb+3" or chemical "NB+3" )
+do (scatter_fdp=2.482) ( chemical "Nb+3" or chemical "NB+3" )
+
+do (scatter_fp=-0.248) ( chemical "Nb+5" or chemical "NB+5" )
+do (scatter_fdp=2.482) ( chemical "Nb+5" or chemical "NB+5" )
+
+do (scatter_fp=-0.191) ( chemical "Mo" or chemical "MO" )
+do (scatter_fdp=2.735) ( chemical "Mo" or chemical "MO" )
+
+do (scatter_fp=-0.191) ( chemical "Mo+3" or chemical "MO+3" )
+do (scatter_fdp=2.735) ( chemical "Mo+3" or chemical "MO+3" )
+
+do (scatter_fp=-0.191) ( chemical "Mo+5" or chemical "MO+5" )
+do (scatter_fdp=2.735) ( chemical "Mo+5" or chemical "MO+5" )
+
+do (scatter_fp=-0.191) ( chemical "Mo+6" or chemical "MO+6" )
+do (scatter_fdp=2.735) ( chemical "Mo+6" or chemical "MO+6" )
+
+do (scatter_fp=-0.145) ( chemical "Tc" or chemical "TC" )
+do (scatter_fdp=3.005) ( chemical "Tc" or chemical "TC" )
+
+do (scatter_fp=-0.105) ( chemical "Ru" or chemical "RU" )
+do (scatter_fdp=3.296) ( chemical "Ru" or chemical "RU" )
+
+do (scatter_fp=-0.105) ( chemical "Ru+3" or chemical "RU+3" )
+do (scatter_fdp=3.296) ( chemical "Ru+3" or chemical "RU+3" )
+
+do (scatter_fp=-0.105) ( chemical "Ru+4" or chemical "RU+4" )
+do (scatter_fdp=3.296) ( chemical "Ru+4" or chemical "RU+4" )
+
+do (scatter_fp=-0.077) ( chemical "Rh" or chemical "RH" )
+do (scatter_fdp=3.605) ( chemical "Rh" or chemical "RH" )
+
+do (scatter_fp=-0.077) ( chemical "Rh+3" or chemical "RH+3" )
+do (scatter_fdp=3.605) ( chemical "Rh+3" or chemical "RH+3" )
+
+do (scatter_fp=-0.077) ( chemical "Rh+4" or chemical "RH+4" )
+do (scatter_fdp=3.605) ( chemical "Rh+4" or chemical "RH+4" )
+
+do (scatter_fp=-0.059) ( chemical "Pd" or chemical "PD" )
+do (scatter_fdp=3.934) ( chemical "Pd" or chemical "PD" )
+
+do (scatter_fp=-0.059) ( chemical "Pd+2" or chemical "PD+2" )
+do (scatter_fdp=3.934) ( chemical "Pd+2" or chemical "PD+2" )
+
+do (scatter_fp=-0.059) ( chemical "Pd+4" or chemical "PD+4" )
+do (scatter_fdp=3.934) ( chemical "Pd+4" or chemical "PD+4" )
+
+do (scatter_fp=-0.06) ( chemical "Ag" or chemical "AG" )
+do (scatter_fdp=4.282) ( chemical "Ag" or chemical "AG" )
+
+do (scatter_fp=-0.06) ( chemical "Ag+1" or chemical "AG+1" )
+do (scatter_fdp=4.282) ( chemical "Ag+1" or chemical "AG+1" )
+
+do (scatter_fp=-0.06) ( chemical "Ag+2" or chemical "AG+2" )
+do (scatter_fdp=4.282) ( chemical "Ag+2" or chemical "AG+2" )
+
+do (scatter_fp=-0.079) ( chemical "Cd" or chemical "CD" )
+do (scatter_fdp=4.653) ( chemical "Cd" or chemical "CD" )
+
+do (scatter_fp=-0.079) ( chemical "Cd+2" or chemical "CD+2" )
+do (scatter_fdp=4.653) ( chemical "Cd+2" or chemical "CD+2" )
+
+do (scatter_fp=-0.126) ( chemical "In" or chemical "IN" )
+do (scatter_fdp=5.045) ( chemical "In" or chemical "IN" )
+
+do (scatter_fp=-0.126) ( chemical "In+3" or chemical "IN+3" )
+do (scatter_fdp=5.045) ( chemical "In+3" or chemical "IN+3" )
+
+do (scatter_fp=-0.194) ( chemical "Sn" or chemical "SN" )
+do (scatter_fdp=5.459) ( chemical "Sn" or chemical "SN" )
+
+do (scatter_fp=-0.194) ( chemical "Sn+2" or chemical "SN+2" )
+do (scatter_fdp=5.459) ( chemical "Sn+2" or chemical "SN+2" )
+
+do (scatter_fp=-0.194) ( chemical "Sn+4" or chemical "SN+4" )
+do (scatter_fdp=5.459) ( chemical "Sn+4" or chemical "SN+4" )
+
+do (scatter_fp=-0.287) ( chemical "Sb" or chemical "SB" )
+do (scatter_fdp=5.894) ( chemical "Sb" or chemical "SB" )
+
+do (scatter_fp=-0.287) ( chemical "Sb+3" or chemical "SB+3" )
+do (scatter_fdp=5.894) ( chemical "Sb+3" or chemical "SB+3" )
+
+do (scatter_fp=-0.287) ( chemical "Sb+5" or chemical "SB+5" )
+do (scatter_fdp=5.894) ( chemical "Sb+5" or chemical "SB+5" )
+
+do (scatter_fp=-0.418) ( chemical "Te" or chemical "TE" )
+do (scatter_fdp=6.352) ( chemical "Te" or chemical "TE" )
+
+do (scatter_fp=-0.579) ( chemical "I" or chemical "I5U" )
+do (scatter_fdp=6.835) ( chemical "I" or chemical "I5U" )
+
+do (scatter_fp=-0.579) ( chemical "I-1" )
+do (scatter_fdp=6.835) ( chemical "I-1" )
+
+do (scatter_fp=-0.783) ( chemical "Xe" or chemical "XE" )
+do (scatter_fdp=7.348) ( chemical "Xe" or chemical "XE" )
+
+do (scatter_fp=-1.022) ( chemical "Cs" or chemical "CS" )
+do (scatter_fdp=7.904) ( chemical "Cs" or chemical "CS" )
+
+do (scatter_fp=-1.022) ( chemical "Cs+1" or chemical "CS+1" )
+do (scatter_fdp=7.904) ( chemical "Cs+1" or chemical "CS+1" )
+
+do (scatter_fp=-1.334) ( chemical "Ba" or chemical "BA" )
+do (scatter_fdp=8.46) ( chemical "Ba" or chemical "BA" )
+
+do (scatter_fp=-1.334) ( chemical "Ba+2" or chemical "BA+2" )
+do (scatter_fdp=8.46) ( chemical "Ba+2" or chemical "BA+2" )
+
+do (scatter_fp=-1.716) ( chemical "La" or chemical "LA" )
+do (scatter_fdp=9.036) ( chemical "La" or chemical "LA" )
+
+do (scatter_fp=-1.716) ( chemical "La+3" or chemical "LA+3" )
+do (scatter_fdp=9.036) ( chemical "La+3" or chemical "LA+3" )
+
+do (scatter_fp=-2.17) ( chemical "Ce" or chemical "CE" )
+do (scatter_fdp=9.648) ( chemical "Ce" or chemical "CE" )
+
+do (scatter_fp=-2.17) ( chemical "Ce+3" or chemical "CE+3" )
+do (scatter_fdp=9.648) ( chemical "Ce+3" or chemical "CE+3" )
+
+do (scatter_fp=-2.17) ( chemical "Ce+4" or chemical "CE+4" )
+do (scatter_fdp=9.648) ( chemical "Ce+4" or chemical "CE+4" )
+
+do (scatter_fp=-2.939) ( chemical "Pr" or chemical "PR" )
+do (scatter_fdp=10.535) ( chemical "Pr" or chemical "PR" )
+
+do (scatter_fp=-2.939) ( chemical "Pr+3" or chemical "PR+3" )
+do (scatter_fdp=10.535) ( chemical "Pr+3" or chemical "PR+3" )
+
+do (scatter_fp=-2.939) ( chemical "Pr+4" or chemical "PR+4" )
+do (scatter_fdp=10.535) ( chemical "Pr+4" or chemical "PR+4" )
+
+do (scatter_fp=-3.431) ( chemical "Nd" or chemical "ND" )
+do (scatter_fdp=10.933) ( chemical "Nd" or chemical "ND" )
+
+do (scatter_fp=-3.431) ( chemical "Nd+3" or chemical "ND+3" )
+do (scatter_fdp=10.933) ( chemical "Nd+3" or chemical "ND+3" )
+
+do (scatter_fp=-4.357) ( chemical "Pm" or chemical "PM" )
+do (scatter_fdp=11.614) ( chemical "Pm" or chemical "PM" )
+
+do (scatter_fp=-4.357) ( chemical "Pm+3" or chemical "PM+3" )
+do (scatter_fdp=11.614) ( chemical "Pm+3" or chemical "PM+3" )
+
+do (scatter_fp=-5.696) ( chemical "Smm" or chemical "SMM" )
+do (scatter_fdp=12.32) ( chemical "Smm" or chemical "SMM" )
+
+do (scatter_fp=-5.696) ( chemical "Sm+3" or chemical "SM+3" )
+do (scatter_fdp=12.32) ( chemical "Sm+3" or chemical "SM+3" )
+
+do (scatter_fp=-7.718) ( chemical "Eu" or chemical "EU" )
+do (scatter_fdp=11.276) ( chemical "Eu" or chemical "EU" )
+
+do (scatter_fp=-7.718) ( chemical "Eu+2" or chemical "EU+2" )
+do (scatter_fdp=11.276) ( chemical "Eu+2" or chemical "EU+2" )
+
+do (scatter_fp=-7.718) ( chemical "Eu+3" or chemical "EU+3" )
+do (scatter_fdp=11.276) ( chemical "Eu+3" or chemical "EU+3" )
+
+do (scatter_fp=-9.242) ( chemical "Gd" or chemical "GD" )
+do (scatter_fdp=11.946) ( chemical "Gd" or chemical "GD" )
+
+do (scatter_fp=-9.242) ( chemical "Gd+3" or chemical "GD+3" )
+do (scatter_fdp=11.946) ( chemical "Gd+3" or chemical "GD+3" )
+
+do (scatter_fp=-9.499) ( chemical "Tb" or chemical "TB" )
+do (scatter_fdp=9.242) ( chemical "Tb" or chemical "TB" )
+
+do (scatter_fp=-9.498) ( chemical "Tb+3" or chemical "TB+3" )
+do (scatter_fdp=9.242) ( chemical "Tb+3" or chemical "TB+3" )
+
+do (scatter_fp=-10.423) ( chemical "Dy" or chemical "DY" )
+do (scatter_fdp=9.748) ( chemical "Dy" or chemical "DY" )
+
+do (scatter_fp=-10.423) ( chemical "Dy+3" or chemical "DY+3" )
+do (scatter_fdp=9.748) ( chemical "Dy+3" or chemical "DY+3" )
+
+do (scatter_fp=-12.255) ( chemical "Ho" or chemical "HO" )
+do (scatter_fdp=3.704) ( chemical "Ho" or chemical "HO" )
+
+do (scatter_fp=-12.255) ( chemical "Ho+3" or chemical "HO+3" )
+do (scatter_fdp=3.704) ( chemical "Ho+3" or chemical "HO+3" )
+
+do (scatter_fp=-9.733) ( chemical "Er" or chemical "ER" )
+do (scatter_fdp=3.937) ( chemical "Er" or chemical "ER" )
+
+do (scatter_fp=-9.733) ( chemical "Er+3" or chemical "ER+3" )
+do (scatter_fdp=3.937) ( chemical "Er+3" or chemical "ER+3" )
+
+do (scatter_fp=-8.488) ( chemical "Tm" or chemical "TM" )
+do (scatter_fdp=4.181) ( chemical "Tm" or chemical "TM" )
+
+do (scatter_fp=-8.488) ( chemical "Tm+3" or chemical "TM+3" )
+do (scatter_fdp=4.181) ( chemical "Tm+3" or chemical "TM+3" )
+
+do (scatter_fp=-7.701) ( chemical "Yb" or chemical "YB" )
+do (scatter_fdp=4.432) ( chemical "Yb" or chemical "YB" )
+
+do (scatter_fp=-7.701) ( chemical "Yb+2" or chemical "YB+2" )
+do (scatter_fdp=4.432) ( chemical "Yb+2" or chemical "YB+2" )
+
+do (scatter_fp=-7.701) ( chemical "Yb+3" or chemical "YB+3" )
+do (scatter_fdp=4.432) ( chemical "Yb+3" or chemical "YB+3" )
+
+do (scatter_fp=-7.133) ( chemical "Lu" or chemical "LU" )
+do (scatter_fdp=4.693) ( chemical "Lu" or chemical "LU" )
+
+do (scatter_fp=-7.133) ( chemical "Lu+3" or chemical "LU+3" )
+do (scatter_fdp=4.693) ( chemical "Lu+3" or chemical "LU+3" )
+
+do (scatter_fp=-6.715) ( chemical "Hf" or chemical "HF" )
+do (scatter_fdp=4.977) ( chemical "Hf" or chemical "HF" )
+
+do (scatter_fp=-6.715) ( chemical "Hf+4" or chemical "HF+4" )
+do (scatter_fdp=4.977) ( chemical "Hf+4" or chemical "HF+4" )
+
+do (scatter_fp=-6.351) ( chemical "Ta" or chemical "TA" )
+do (scatter_fdp=5.271) ( chemical "Ta" or chemical "TA" )
+
+do (scatter_fp=-6.351) ( chemical "Ta+5" or chemical "TA+5" )
+do (scatter_fdp=5.271) ( chemical "Ta+5" or chemical "TA+5" )
+
+do (scatter_fp=-6.048) ( chemical "W" )
+do (scatter_fdp=5.577) ( chemical "W" )
+
+do (scatter_fp=-6.048) ( chemical "W+6" )
+do (scatter_fdp=5.577) ( chemical "W+6" )
+
+do (scatter_fp=-5.79) ( chemical "Re" or chemical "RE" )
+do (scatter_fdp=5.891) ( chemical "Re" or chemical "RE" )
+
+do (scatter_fp=-5.581) ( chemical "Os" or chemical "OS" )
+do (scatter_fdp=6.221) ( chemical "Os" or chemical "OS" )
+
+do (scatter_fp=-5.581) ( chemical "Os+4" or chemical "OS+4" )
+do (scatter_fdp=6.221) ( chemical "Os+4" or chemical "OS+4" )
+
+do (scatter_fp=-5.391) ( chemical "Ir" or chemical "IR" )
+do (scatter_fdp=6.566) ( chemical "Ir" or chemical "IR" )
+
+do (scatter_fp=-5.391) ( chemical "Ir+3" or chemical "IR+3" )
+do (scatter_fdp=6.566) ( chemical "Ir+3" or chemical "IR+3" )
+
+do (scatter_fp=-5.391) ( chemical "Ir+4" or chemical "IR+4" )
+do (scatter_fdp=6.566) ( chemical "Ir+4" or chemical "IR+4" )
+
+do (scatter_fp=-5.233) ( chemical "Pt" or chemical "PT" )
+do (scatter_fdp=6.925) ( chemical "Pt" or chemical "PT" )
+
+do (scatter_fp=-5.233) ( chemical "Pt+2" or chemical "PT+2" )
+do (scatter_fdp=6.925) ( chemical "Pt+2" or chemical "PT+2" )
+
+do (scatter_fp=-5.233) ( chemical "Pt+4" or chemical "PT+4" )
+do (scatter_fdp=6.925) ( chemical "Pt+4" or chemical "PT+4" )
+
+do (scatter_fp=-5.096) ( chemical "Au" or chemical "AU" )
+do (scatter_fdp=7.297) ( chemical "Au" or chemical "AU" )
+
+do (scatter_fp=-5.096) ( chemical "Au+1" or chemical "AU+1" )
+do (scatter_fdp=7.297) ( chemical "Au+1" or chemical "AU+1" )
+
+do (scatter_fp=-5.096) ( chemical "Au+3" or chemical "AU+3" )
+do (scatter_fdp=7.297) ( chemical "Au+3" or chemical "AU+3" )
+
+do (scatter_fp=-4.99) ( chemical "Hg" or chemical "HG" )
+do (scatter_fdp=7.686) ( chemical "Hg" or chemical "HG" )
+
+do (scatter_fp=-4.99) ( chemical "Hg+1" or chemical "HG+1" )
+do (scatter_fdp=7.686) ( chemical "Hg+1" or chemical "HG+1" )
+
+do (scatter_fp=-4.99) ( chemical "Hg+2" or chemical "HG+2" )
+do (scatter_fdp=7.686) ( chemical "Hg+2" or chemical "HG+2" )
+
+do (scatter_fp=-4.883) ( chemical "Tl" or chemical "TL" )
+do (scatter_fdp=8.089) ( chemical "Tl" or chemical "TL" )
+
+do (scatter_fp=-4.883) ( chemical "Tl+1" or chemical "TL+1" )
+do (scatter_fdp=8.089) ( chemical "Tl+1" or chemical "TL+1" )
+
+do (scatter_fp=-4.883) ( chemical "Tl+3" or chemical "TL+3" )
+do (scatter_fdp=8.089) ( chemical "Tl+3" or chemical "TL+3" )
+
+do (scatter_fp=-4.818) ( chemical "Pb" or chemical "PB" )
+do (scatter_fdp=8.505) ( chemical "Pb" or chemical "PB" )
+
+do (scatter_fp=-4.818) ( chemical "Pb+2" or chemical "PB+2" )
+do (scatter_fdp=8.505) ( chemical "Pb+2" or chemical "PB+2" )
+
+do (scatter_fp=-4.818) ( chemical "Pb+4" or chemical "PB+4" )
+do (scatter_fdp=8.505) ( chemical "Pb+4" or chemical "PB+4" )
+
+do (scatter_fp=-4.776) ( chemical "Bi" or chemical "BI" )
+do (scatter_fdp=8.93) ( chemical "Bi" or chemical "BI" )
+
+do (scatter_fp=-4.776) ( chemical "Bi+3" or chemical "BI+3" )
+do (scatter_fdp=8.93) ( chemical "Bi+3" or chemical "BI+3" )
+
+do (scatter_fp=-4.776) ( chemical "Bi+5" or chemical "BI+5" )
+do (scatter_fdp=8.93) ( chemical "Bi+5" or chemical "BI+5" )
+
+do (scatter_fp=-4.756) ( chemical "Po" or chemical "PO" )
+do (scatter_fdp=9.383) ( chemical "Po" or chemical "PO" )
+
+do (scatter_fp=-4.772) ( chemical "At" or chemical "AT" )
+do (scatter_fdp=9.843) ( chemical "At" or chemical "AT" )
+
+do (scatter_fp=-4.787) ( chemical "Rn" or chemical "RN" )
+do (scatter_fdp=10.317) ( chemical "Rn" or chemical "RN" )
+
+do (scatter_fp=-4.833) ( chemical "Fr" or chemical "FR" )
+do (scatter_fdp=10.803) ( chemical "Fr" or chemical "FR" )
+
+do (scatter_fp=-4.898) ( chemical "Ra" or chemical "RA" )
+do (scatter_fdp=11.296) ( chemical "Ra" or chemical "RA" )
+
+do (scatter_fp=-4.898) ( chemical "Ra+2" or chemical "RA+2" )
+do (scatter_fdp=11.296) ( chemical "Ra+2" or chemical "RA+2" )
+
+do (scatter_fp=-4.994) ( chemical "Ac" or chemical "AC" )
+do (scatter_fdp=11.799) ( chemical "Ac" or chemical "AC" )
+
+do (scatter_fp=-4.994) ( chemical "Ac+3" or chemical "AC+3" )
+do (scatter_fdp=11.799) ( chemical "Ac+3" or chemical "AC+3" )
+
+do (scatter_fp=-5.091) ( chemical "Th" or chemical "TH" )
+do (scatter_fdp=12.33) ( chemical "Th" or chemical "TH" )
+
+do (scatter_fp=-5.091) ( chemical "Th+4" or chemical "TH+4" )
+do (scatter_fdp=12.33) ( chemical "Th+4" or chemical "TH+4" )
+
+do (scatter_fp=-5.216) ( chemical "Pa" or chemical "PA" )
+do (scatter_fdp=12.868) ( chemical "Pa" or chemical "PA" )
+
+do (scatter_fp=-5.359) ( chemical "U" )
+do (scatter_fdp=13.409) ( chemical "U" )
+
+do (scatter_fp=-5.359) ( chemical "U+3" )
+do (scatter_fdp=13.409) ( chemical "U+3" )
+
+do (scatter_fp=-5.359) ( chemical "U+4" )
+do (scatter_fdp=13.409) ( chemical "U+4" )
+
+do (scatter_fp=-5.359) ( chemical "U+6" )
+do (scatter_fdp=13.409) ( chemical "U+6" )
+
+do (scatter_fp=-5.529) ( chemical "Npp" or chemical "NPP" )
+do (scatter_fdp=13.967) ( chemical "Npp" or chemical "NPP" )
+
+do (scatter_fp=-5.529) ( chemical "Np+3" or chemical "NP+3" )
+do (scatter_fdp=13.967) ( chemical "Np+3" or chemical "NP+3" )
+
+do (scatter_fp=-5.529) ( chemical "Np+4" or chemical "NP+4" )
+do (scatter_fdp=13.967) ( chemical "Np+4" or chemical "NP+4" )
+
+do (scatter_fp=-5.529) ( chemical "Np+6" or chemical "NP+6" )
+do (scatter_fdp=13.967) ( chemical "Np+6" or chemical "NP+6" )
+
+do (scatter_fp=-5.712) ( chemical "Pu" or chemical "PU" )
+do (scatter_fdp=14.536) ( chemical "Pu" or chemical "PU" )
+
+do (scatter_fp=-5.712) ( chemical "Pu+3" or chemical "PU+3" )
+do (scatter_fdp=14.536) ( chemical "Pu+3" or chemical "PU+3" )
+
+do (scatter_fp=-5.712) ( chemical "Pu+4" or chemical "PU+4" )
+do (scatter_fdp=14.536) ( chemical "Pu+4" or chemical "PU+4" )
+
+do (scatter_fp=-5.712) ( chemical "Pu+6" or chemical "PU+6" )
+do (scatter_fdp=14.536) ( chemical "Pu+6" or chemical "PU+6" )
+
+do (scatter_fp=-5.93) ( chemical "Am" or chemical "AM" )
+do (scatter_fdp=15.087) ( chemical "Am" or chemical "AM" )
+
+do (scatter_fp=-6.176) ( chemical "Cm" or chemical "CM" )
+do (scatter_fdp=15.634) ( chemical "Cm" or chemical "CM" )
+
+do (scatter_fp=-6.498) ( chemical "Bk" or chemical "BK" )
+do (scatter_fdp=16.317) ( chemical "Bk" or chemical "BK" )
+
+do (scatter_fp=-6.798) ( chemical "Cff" or chemical "CFF" )
+do (scatter_fdp=16.93) ( chemical "Cff" or chemical "CFF" )
+
+
+set message=$message_old_aculib echo=$echo_old_aculib end

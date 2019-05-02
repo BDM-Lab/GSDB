@@ -1,0 +1,57 @@
+! Module file: definemonitor_twin
+!
+! CNS module
+! **********
+!
+! Authors: Axel Brunger and Paul Adams
+!
+! copyright Yale University
+!
+! Function:
+!    Defines the monitor expression for hemihedrally twinned data
+!
+! Requirements:
+!    Needs to be called within xray
+
+module {definemonitor}
+(
+  &monitor="twin_lsq";    {string}
+  &fobs=fobs;             {reciprocal space array}
+  &fcalc=fcalc;           {reciprocal space array}
+  &fpart=fpart;           {reciprocal space array}
+  &phase=phase;           {reciprocal space array}
+  &twin_oper=h,k,l;       {string}
+  &twin_frac=0.0;         {real}
+  &monitortype;           {string}
+)
+
+set message ? end
+evaluate ($message_old=$result)
+set echo ? end
+evaluate ($echo_old=$result)
+if ( $log_level = verbose ) then
+  set echo=on message=normal end
+else
+  set echo=off message=off end
+end if
+
+checkversion 1.3
+
+{- Twin residual -}
+if ( &monitor = "twin_lsq" ) then
+
+  monitor=(rvalue[overall](&fobs,(sqrt((1-&twin_frac)*abs(                  &fcalc+&fpart )^2 +
+                                          &twin_frac *abs(remap[&twin_oper](&fcalc+&fpart))^2))))
+  evaluate (&monitortype="R-value")
+
+else
+  
+  display Monitor-error: unknown monitor definition, defaulting to residual
+
+  monitor=(rvalue[overall](&fobs,(sqrt((1-&twin_frac)*abs(                  &fcalc+&fpart )^2 +
+                                          &twin_frac *abs(remap[&twin_oper](&fcalc+&fpart))^2))))
+  evaluate (&monitortype="R-value")
+
+end if
+
+set message=$message_old echo=$echo_old end

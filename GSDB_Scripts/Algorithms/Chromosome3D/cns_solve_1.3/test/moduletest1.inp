@@ -1,0 +1,241 @@
+set abort = off end
+
+!======================================================================
+! module with no parameters
+
+set display=moduletest.dat end
+display module ()
+display display it works!
+set display=OUTPUT end
+close moduletest.dat end
+
+@moduletest.dat ()
+
+!======================================================================
+! parameter name with or without &
+
+set display=moduletest.dat end
+literal module ( &p1 = (default) )
+literal display p1: &p1
+set display=OUTPUT end
+close moduletest.dat end
+
+@moduletest.dat ( &p1 = "module parameter"  )
+@moduletest.dat ( p1 = "module parameter" )
+
+!======================================================================
+! recursive parameter
+
+@moduletest.dat ( &p1 = &p1 )
+
+!======================================================================
+! message level 
+
+set message = off end
+@moduletest.dat ( p1 = "module parameter" )
+
+set message = all end
+@moduletest.dat ( p1 = "module parameter" )
+
+set message = norm end
+@moduletest.dat ( p1 = "module parameter" )
+
+
+!======================================================================
+! undeclared module parameter
+
+@moduletest.dat ( &not_a_parameter = blah )
+
+!======================================================================
+! syntactic errors
+
+@moduletest.dat ( & p1 = blah )
+
+@moduletest.dat p1 = blah
+
+@moduletest.dat ( &p1 = ;; )
+
+
+!======================================================================
+! loops - both types
+
+eval ( $count = 1 )
+while ( $count le 3 ) loop main
+	@moduletest.dat( 
+		&p1 = $count 
+		)
+	@@moduletest.dat( 
+		&p1 = $count 
+		)
+	eval ( $count = $count + 1 )
+end loop main
+
+!======================================================================
+! module with required parameter
+
+set display=moduletest.dat end
+literal module ( &p1 )
+literal display &p1
+set display=OUTPUT end
+close moduletest.dat end
+
+@moduletest.dat ( &p1 = "this is parameter 1" )
+
+!======================================================================
+! multiple parameters, parameters referenced within parameters
+
+set display=moduletest.dat end
+literal module ( &p1; p2 = 2.0; &p3 = "three"; &p4 = four; &p5 ; ?)
+literal display 1: &p1
+literal display 2: &p2
+literal display 3: &p3
+literal display 4: &p4
+literal display 5: &p5
+set display=OUTPUT end
+close moduletest.dat end
+
+@moduletest.dat ( &p1 = 1; &p5 = "FIVE")
+
+!======================================================================
+! symbol list and abort
+
+@moduletest.dat (? *)
+
+!======================================================================
+! required parameter(s) not provided
+@moduletest.dat ()
+
+!======================================================================
+! nested modules
+
+set display=moduletest2.dat end
+literal module ( &p1="param1"; &p2 = "param5";)
+literal @moduletest.dat ( p1 = &p1; &p5 = &p2 ; ? )
+literal @@moduletest.dat ( p1 = &p1; &p5= &p2 ; ? )
+set display=OUTPUT end
+close moduletest2.dat end
+
+@moduletest2.dat ( )
+@@moduletest2.dat ( )
+
+@@moduletest2.dat ( &p1 = param1;)
+
+!======================================================================
+! embedded commands, multiple line parameters
+
+set display=moduletest.dat end
+literal module ( &p1 )
+literal &p1 ! embedded
+set display=OUTPUT end
+close moduletest.dat end
+
+@moduletest.dat ( &p1 = energy end
+eval ( $test = 10.0 )
+display I want my MTV.
+$?
+display this should be 10: $test;
+) 
+
+!======================================================================
+! nested calls with multiple line parameters and embedded commands
+
+set display=moduletest2.dat end
+literal module (&p2) 
+literal @moduletest.dat ( p1=&p2; )
+set display=OUTPUT end
+close moduletest2.dat end
+
+@moduletest2.dat ( &p2 = energy end
+eval ( $test = 10.0 )
+display I want my MTV.
+$?
+display this should be 10: $test;
+) 
+
+!======================================================================
+! no-longer-a-bug with define and with multiple line parameters
+define (
+&pp2 = energy end 
+eval ( $test = 10.0 )
+display I want my MTV.
+
+display this should be 10: $test;
+) 
+
+@moduletest.dat ( p1 = &pp2 ; )
+
+!======================================================================
+! parameter name too long
+
+set display=moduletest.dat end
+literal module ( &abcdefghijklmnopqrstuvwxyz = default;)
+literal display &abcdefghijklmnopqrstuvwxyz;
+set display=OUTPUT end
+close moduletest.dat end
+
+@moduletest.dat ()
+
+!======================================================================
+! passing of define variables to module streams
+
+set display=moduletest.dat end
+literal  module (
+literal     abcd ;
+literal        )
+literal    display  from module: &abcd  
+close moduletest.dat end
+set display=OUTPUT end
+
+define (
+   a_1="test_1";
+   a_2="test_2";
+   a_3="test_3"; 
+   a_4="test_4"; ?
+       )
+       
+eval ($1=1) 
+while ($1 < 4 ) loop uiop
+   @moduletest.dat ( 
+                   abcd=&a_$1; 
+                  ) 
+   evaluate ($1=$1+1)
+end loop uiop
+
+! ====================================================================
+! indexed module parameters
+
+set display=moduletest.dat end
+literal module ( 
+literal     test_1=1;
+literal     test_2=2;
+literal     test_3=3;
+literal     test_4=4; ?
+literal      )
+literal  
+literal  display  &test_$yyyy     !!2 
+literal  display  &test_$hhhh     !!3
+ 
+close moduletest.dat end
+set display=OUTPUT end
+
+evaluate ($yyyy=2)
+evaluate ($hhhh=3) 
+@moduletest.dat (
+   test_1=1; 
+   test_2=2;
+   test_3=3;
+   test_4=4;
+     )
+
+evaluate ($yyyy=1)
+evaluate ($hhhh=4) 
+@moduletest.dat (
+   test_1=1; 
+   test_2=2;
+   test_3=3;
+   test_4=4;
+     )
+
+
+
+stop

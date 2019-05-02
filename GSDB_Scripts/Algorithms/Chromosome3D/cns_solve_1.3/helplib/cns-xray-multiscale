@@ -1,0 +1,112 @@
+multiscale {<xray-multiscale-statement>} end
+
+<xray-multiscale-statement> :==
+
+  ffk=<real>
+  --{Adjust overall scale. Default=0}
+  selection=<xray-selection>
+  --{Which structure factors to use in scaling. Default=(all)}
+  set1=<reciprocal-space-object>
+  --{Reference set for scaling. Default=none}
+  k1=<real>
+  --{Scale factor for the reference set. Default=-1}
+  b1=<real>
+  --{Isotropic B-factor for the reference set (if anisotropic=false). Default=0}
+  b1_11=<real> b1_22=<real> b1_33=<real>
+  b1_12=<real> b1_13=<real> b1_23=<real>
+  --{Anisotropic B-factor for the reference set (if anisotropic=true). Default=0}
+  set2=<reciprocal-space-object>
+  --{Set to be scaled. Default=none}
+  k2=<real>
+  --{Scale factor for this set. Default=none}
+  b2=<real>
+  --{Isotropic B-factor for this set (if anisotropic=false). Default=none}
+  b2_11=<real> b2_22=<real> b2_33=<real>
+  b2_12=<real> b2_13=<real> b2_23=<real>
+  --{Anisotropic B-factor for this set (if anisotropic=true). Default=none}
+  set<3..20>=<reciprocal-space-object>
+  --{Set to be scaled. Default=none}
+  k<3..20>=<real>
+  --{Scale factor for this set. Default=none}
+  b<3..20>=<real>
+  --{Isotropic B-factor for this set (if anisotropic=false). Default=none}
+  b<3..20>_11=<real> b<3..20>_22=<real> b<3..20>_33=<real>
+  b<3..20>_12=<real> b<3..20>_13=<real> b<3..20>_23=<real>
+  --{Anisotropic B-factor for this set (if anisotropic=true). Default=none}
+  mode=target|tlow
+  --{default=target}
+
+  --{Least-squares optimize parameters for the target}
+  --{================================================}
+  update=<logical>
+  --{Update parameters and multiply by overall scale factor. Default=true}
+  anisotropic=<logical>
+  --{If true then the anisotropic components are refined, and isotropic
+     parameters are ignored. Default=false}
+  isotropic=<logical>
+  --{If true then the isotropic thermal factor or anisotropic components are
+     refined. If false then the trace is restricted to zero. Default=true}
+  restriction=all|offd|none
+  --{Restrictions due to symmetry for anisotropic B-factor refinement
+     (use with caution - this option is not accurate.  Rather do the refinement in P1):
+     - all: all parameters (default)
+     - offd: off-diagonal only
+     - none: no restrictions}
+
+  --{The isotropic target to be minimized is:
+       Target = sum(hkl) ( k1 exp(-b1 s^2/4) operand(set1) +
+                           k2 exp(-b2 s^2/4) operand(set2) +
+                                         ...
+                           k20 exp(-b20 s^2/4) operand(set20) )
+
+     The anisotropic target to be minimized is:
+       Target = sum(hkl) (
+          k1 exp( -(b1_11 h^2 a*^2 + b1_22 k^2 b*^2 + b1_33 l^2 c*^2
+                + 2 b1_12 h k a* b* + 2 b1_13 h l a* c*
+                + 2 b1_23 k l b* c*)/4) operand(set1) +
+                           ...
+          k20 exp( -(b20_11 h^2 a*^2 + b20_22 k^2 b*^2 + b20_33 l^2 c*^2
+                + 2 b20_12 h k a* b* + 2 b20_13 h l a* c*
+                + 2 b20_23 k l b* c*)/4) operand(set20) )
+
+     The sum is performed over selected reflections.
+     Optimization is performed by the method of least-squares.
+     Scale and B-factor parameters are fixed for the reference set, and
+     for any value that is defined and not -9999.
+     The reference set is the first set with k<i>=-1.
+     The results of optimization are returned in symbols:
+       $k1, $k2, $k3 .... $k20
+       $b1, $b2, $b3 .... $b20 for isotropic B-factors
+       $b2_11, $b2_12 ... $b_33 for anisotropic B-factors}
+
+  --{Least squares minimization options:}
+  --{===================================}
+  ncyc=<integer>
+  --{Number of least-squares minimization cycles. Default=30}
+  diag=<integer>
+  --{Diagonal approximation for least-squares matrix. Default=0}
+  eps=<real>
+  --{Epsilon for convergence test. Default: 0.001}
+  ksmin=<real>
+  --{The minimum kscale restraint allowed. Default=0.0}
+  bmin=<real>
+  --{The minimum bscale restraint allowed. Default=-500.0}
+  bmax=<real>
+  --{The maximum bscale restraint allowed. Default=500.0}
+  uniform=k|b
+  --{Uniform=k: refine one uniform scale factor.
+     Uniform=b: refine one uniform B-factor.
+     Default=none}
+  kinitial=<real>
+  --{The initial scale factor for all non-fixed scale factors. Default=1.0}
+  binitial=<real>
+  --{The initial B-factor for all non-fixed B-factors. Default=0.0}
+
+  --{Options for overall scale factors}
+  --{=================================}
+  resk=<real>
+  --{The resolution boundary for two overall scale factors. Default=0.0A}
+  ffk1=<real>
+  --{Fixed overall scale factor for low resolution range. Default=0.0A}
+  ffk2=<real>
+  --{Fixed overall scale factor for high resolution range. Default=0.0A}

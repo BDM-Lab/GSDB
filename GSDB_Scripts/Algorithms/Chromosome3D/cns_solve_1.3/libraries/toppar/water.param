@@ -1,0 +1,38 @@
+remarks file toppar/water.param 
+remarks   water parameters for structure determination 
+remarks
+remarks   available: Jorgensen TIPS3P model
+
+set message ? end eval ($old_message=$result) set echo ? end eval ($old_echo=$result)
+set message=off echo=off end
+
+checkversion 1.3
+
+
+
+{* TIP3P model *}
+{* =========== *}
+bond ht   ot     450.0       0.9572    ! from TIPS3P geometry 
+bond ht   ht       0.0       1.5139    ! from TIPS3P geometry 
+angle ht   ot   ht      55.0     104.52    ! FROM TIPS3P geometry
+
+
+{* for solute-water interactions *}
+nonbonded ot        0.1591   2.8509     0.1591   2.8509  !TIP3P water oxygen
+nonbonded ht        0.0498   1.4254     0.0498   1.4254  !TIP3P water hydrogen
+
+
+{* for water-water interactions *}
+!!-------------------EPS-------SIGMA---------EPS14---SIGMA14-----------------
+!! nonbonded ot      0.1521   3.1506       0.1521  3.1506 !TIP3P water oxygen
+!! nonbonded ht      0.04598  0.4000       0.04598 0.4000 !TIP3P water hydr.
+
+!! this should be the last nbfix !! any new atom type will use 
+!! these parameters for mixing rules !!
+!---------------A--------------B--------------A14-----------B14-----
+nbfix ot  ot  581980.4948  595.0436396     581980.4948  595.0436396
+nbfix ht  ht  3.085665E-06 7.533363E-04    3.085665E-06 7.533363E-04
+nbfix ht  ot  327.8404792  10.47230620     327.8404792  10.47230620 
+
+set message=$old_message echo=$old_echo end
+

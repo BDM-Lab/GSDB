@@ -1,0 +1,459 @@
+! Module file: getlocandprob
+!
+! CNS module
+! **********
+!
+! Author: Axel T. Brunger
+!
+! copyright Yale University
+!
+! Function:
+! Generation of phase prob. distribution for lack-of-closure expression
+!
+! Requirements:
+! 1. This module can only be called from the main level.
+! 2. Data must be scaled prior to invoking this module
+! 3. In case &cutoff > 0, selection of outliers discarded from refinement 
+! 4. Automatically initializes the probability distribution if prior distribution
+!    is zero. 
+!
+module {getlocandprob}
+(
+   &text;         {identifying text}
+   &nameh;        {name of lack-of-closure expression to be computed}
+   &table;        {identifying text for tabulation}
+   &messages;     {"normal" | "all" | "off"}
+   &method;       {"maxlike" "chisquare"  "anomaxlike "anochisquare" }
+   &integration;  {integration for probabilities: "numerical" | "analytic" }
+   &epsilon;      {"yes" | "no", use epsilon weighting in summing variances}
+   &tolerance;    {lack-of-closure tolerance (relative)}   
+   &phistep;      {integration step size}
+   &iteration;    {number of iterations for initial probablity generation}
+   &cen360;       { TRUE | FALSE ; if TRUE: full 0...360 phase prob. distr. cor centrics}
+   &cutoff;       {sigma cutoff level for discarding outliers. }
+
+   &fp;           {native data (|F| and phase if present)}
+   &sp;           {native sigma on F}
+   &hp;           {selection of heavy atoms of native}
+   &h;            {selection of heavy atoms of derivative}
+   &hfix;         {heavy atoms whose parameters are not refined.}
+   &fph;          {name of derivative data array (|F| and dummy phase)} 
+   &sph;          {name of derivative's sigma on F }
+   &target_set;   {selection for refinement and scaling target (must be subset of phase_set)}
+   &free_set;     {selection for cross-validation (must be subset of phase_set)}
+   &phase_set;    {selection for all phased reflections}
+
+   &ppa;          {prior prob: Hendrickson and Lattman A array}
+   &ppb;          {prior prob: Hendrickson and Lattman B array}
+   &ppc;          {prior prob: Hendrickson and Lattman C array}
+   &ppd;          {prior prob: Hendrickson and Lattman D array}
+
+   &pppa;         {input/output: parent prob: Hendrickson and Lattman A array}
+   &pppb;         {input/output: parent prob: Hendrickson and Lattman B array}
+   &pppc;         {input/output: parent prob: Hendrickson and Lattman C array}
+   &pppd;         {input/output: parent prob: Hendrickson and Lattman D array}
+   m;             {output: corresponding parent (protein) centroid phase and fom }
+
+   &pa;           {output: LOC prob: Hendrickson and Lattman A array}
+   &pb;           {output: LOC prob: Hendrickson and Lattman B array}
+   &pc;           {output: LOC prob: Hendrickson and Lattman C array}
+   &pd;           {output: LOC prob: Hendrickson and Lattman D array}
+
+   &vloc;         {lack-of-closure variance}
+   &bad;          {outlier selection}
+   &summary;      {make summary if non-blank}
+
+)
+
+
+checkversion 1.3
+
+{*initialize*}
+
+evaluate ($ref_text="phasing statistics of "+&nameh)
+evaluate ($tableid=&table)
+
+xray
+
+   declare name=mder      domain=reciprocal type=complex end
+   declare name=vloi      domain=reciprocal type=real    end
+   declare name=fcalc_nat domain=reciprocal type=complex end
+
+   if (&messages # "off") then
+      if (&text # "") then
+         display GETLOCANDPROB: &text
+      end if
+   end if
+
+   do (&vloc=0) (all)  {initialize loc variance to 0}
+   do (vloi=0) (all)  {initialize loi variance to 0}
+   do (m=0) (all)      {initialize complex fom}
+
+   if (&method = "chisquare") then 
+      evaluate ($rd_ano = "no")
+   elseif (&method ="maxlike") then
+      evaluate ($rd_ano = "no") 
+   elseif (&method ="anochisquare") then
+      evaluate ($rd_ano = "yes") 
+   elseif (&method ="anomaxlike") then
+      evaluate ($rd_ano = "yes")
+   else 
+      display GETLOCANDPROB: method &method not defined
+      stop
+   end if
+
+end
+
+ 
+xray
+   { Get current parent (protein) probability to compute phases for scaling and loi calculation }
+   { ------------------------------------------------------------------------------------------ }
+   
+   do (m=0) ( all )
+   @@CNS_XTALMODULE:getfom 
+   (                   {set initial protein phases}
+      m=&m;
+      sel=(amplitude(&pppa)>0 or amplitude(&pppb)>0 or amplitude(&pppc)>0 or amplitude(&pppd)>0);
+      pa=&pppa;pb=&pppb;pc=&pppc;pd=&pppd;
+      phistep=&phistep;
+      cen360=&cen360;
+   )
+   
+   do (&fp=combine(abs(&fp),phase(&m))) (amplitude(&m)>0) 
+
+end
+
+{* check if cross-validation is turned on *}
+xray
+   show sum (1) (&free_set) 
+   if ($select>0) then
+      evaluate ($rd_cross_val=true)
+   else
+      evaluate ($rd_cross_val=false)
+   end if
+end
+
+evaluate ($rd_tolerance=max(0.0000001,&tolerance))
+			
+xray
+   do (&bad=0) ( all ) {initial outlier selection (none)}
+end
+
+xray
+   predict { compute fcalcs for derivative heavy atoms }
+      to=fcalc mode=reciprocal 
+      selection=( &phase_set ) 
+      atomselection=( &h ) 
+   end
+end
+
+show sum ( &hp ) ( &hp )
+if ($select>0) then
+   xray
+      predict { compute fcalcs for native heavy atoms }
+         to=fcalc_nat mode=reciprocal 
+         selection=( &phase_set ) 
+         atomselection=( &hp ) 
+      end
+      do (fcalc=fcalc-fcalc_nat) ( &phase_set ) 
+   end
+end if
+
+xray
+   show ave (&sp) (&phase_set)
+   evaluate ($ip_tol=$result*&tolerance)
+   {*iterate probability*}
+   {---------------------}
+
+   evaluate ($ip=0)
+   while ($ip < &iteration) loop itpb
+      evaluate ($ip=$ip+1)
+
+      @@CNS_XTALMODULE:getlackofclosure ( {compute individual loc's}
+	 method=&method;
+	 messages=&messages;
+	 loc=&vloc;
+	 sel=&phase_set;
+	 fp=&fp;fh=fcalc;fph=&fph;
+	 pa=&pppa;pb=&pppb;pc=&pppc;pd=&pppd;
+	 phistep=&phistep;
+	 cen360=&cen360;)
+
+      if (&cutoff > 0) then
+
+	 @@CNS_XTALMODULE:selectoutliers ( {flag outliers reflections}
+	    cutoff=&cutoff;
+	    anomalous=$rd_ano;
+	    messages=&messages;
+	    sel=&phase_set;
+	    data=&vloc;
+	    outlier=&bad;)
+
+      end if
+	 
+      do (vloi=&vloc) (&phase_set) {copy individual loc's}
+      
+      @@CNS_XTALMODULE:substractmeasurementerror ( {compute individual loi's}
+	 anomalous=$rd_ano;
+	 messages=&messages;
+	 sel=&phase_set;
+	 var=vloi;
+	 sp=&sp;sph=&sph;)
+
+      if ($rd_cross_val=false) then  
+	 @@CNS_XTALMODULE:averagebin ( {compute variance loi from target set}
+	    anomalous=$rd_ano;
+	    epsilon=&epsilon;
+	    sel=&phase_set;
+	    subsel=(&target_set and &bad=0);
+	    data=vloi;)
+      else
+	 @@CNS_XTALMODULE:averagebin (  {compute variance loi from free set}
+	    anomalous=$rd_ano;
+	    epsilon=&epsilon;
+	    sel=&phase_set;
+	    subsel=(&free_set and &bad=0);
+	    data=vloi;)
+      end if
+
+      @@CNS_XTALMODULE:addmeasurementerror (	{compute total variance}
+	 anomalous=$rd_ano;  
+	 messages=&messages; 
+	 epsilon=&epsilon;   
+	 var=vloi;	     
+	 sp=&sp;sph=&sph;
+	 sel=&phase_set;)
+
+      @@CNS_XTALMODULE:resetvariances ( {reset zero variances	}
+	 zerovar=0.001;
+	 resetzero=0.001;
+	 var=vloi;
+	 sel=&phase_set;)
+   
+      do (&pppa=0) ( all )    
+      do (&pppb=0) ( all )    
+      do (&pppc=0) ( all )    
+      do (&pppd=0) ( all )  
+   
+      @@CNS_XTALMODULE:getprobability (   {compute probability}
+	 method=&method;
+	 integration=&integration;
+	 messages=&messages;
+	 fp=&fp;sp=&sp; 	    
+	 sel=&phase_set;
+	 nameh=&nameh;
+	 fh=fcalc;fph=&fph;sph=&sph;
+	 var=vloi;
+	 pa=&pppa;pb=&pppb;pc=&pppc;pd=&pppd;
+	 phistep=&phistep;
+	 cen360=&cen360;)
+
+      do (&pa=&pppa) ( all )
+      do (&pb=&pppb) ( all )
+      do (&pc=&pppc) ( all )
+      do (&pd=&pppd) ( all )
+
+      @@CNS_XTALMODULE:getfom ( 			 
+	 pa=&pa;pb=&pb;pc=&pc;pd=&pd;	
+	 m=mder;
+	 sel=&phase_set;
+	 phistep=&phistep;
+	 cen360=&cen360;)
+
+      {combine with prior prob} 
+      @@CNS_XTALMODULE:combineprobability (	  
+     	 messages=&messages;
+     	 sel=(all);
+         name=&nameh;addname="prior";
+         pa=&pppa;pb=&pppb;pc=&pppc;pd=&pppd;  
+         adda=&ppa;addb=&ppb;addc=&ppc;addd=&ppd;)
+
+      @@CNS_XTALMODULE:getfom (      {compute fom and centroid}
+	 m=&m;
+	 sel=&phase_set;
+	 pa=&pppa;pb=&pppb;pc=&pppc;pd=&pppd;
+	 phistep=&phistep;
+	 cen360=&cen360;)
+      
+      do (&fp=combine(abs(&fp),phase(&m))) (&phase_set) 
+
+      show ave (sqrt(vloi)) (&phase_set)    {check tolerance level}
+      if ($ip>1) then 
+	 evaluate ($dummy=abs($result-$ip_oldvar))
+	 display TAB: $tableid phase prob. iter. no. $ip, vloi: previous= $ip_oldvar[F8.2], \
+current= $result[F8.2], abs-diff= $dummy[F10.4]
+	 if ($dummy <= $ip_tol) then
+
+	    { tolerance satisfied -> termination }
+	    evaluate ($ip=&iteration)
+	    display TAB: $tableid phase prob. iter.: tolerance satisfied. 
+
+	 end if
+      else
+	 display TAB: $tableid phase prob. iter. no. $ip, vloi: current= $result[F8.2]
+      end if
+      evaluate ($ip_oldvar=$result) {store average variance}
+
+   end loop itpb
+
+   @@CNS_XTALMODULE:getlackofclosure ( {compute individual loc's}
+      method=&method;
+      messages=&messages;
+      loc=&vloc;
+      sel=&phase_set;
+      fp=&fp;&fh=fcalc;fph=&fph;
+      pa=&pppa;pb=&pppb;pc=&pppc;pd=&pppd;
+      phistep=&phistep;
+      cen360=&cen360;)
+
+   if (&cutoff > 0) then
+
+      @@CNS_XTALMODULE:selectoutliers ( {flag outliers}
+	 cutoff=&cutoff;
+	 anomalous=$rd_ano;
+	 messages=&messages;
+	 sel=&phase_set;
+	 data=&vloc;
+	 outlier=&bad;)
+
+   end if
+
+   do (vloi=&vloc) (&phase_set) {copy individual loc's}
+
+   @@CNS_XTALMODULE:substractmeasurementerror ( {compute individual loi's}
+      anomalous=$rd_ano;	      
+      messages=&messages;
+      sel=&phase_set;
+      var=vloi;
+      sp=&sp;sph=&sph;)
+
+   if ($rd_cross_val=false) then  
+      @@CNS_XTALMODULE:averagebin ( {compute variance loc from target set}
+   	 anomalous=$rd_ano;
+   	 epsilon=&epsilon;
+   	 subsel=(&target_set and &bad=0);
+   	 sel=&phase_set;
+   	 data=&vloc;)
+   else
+      @@CNS_XTALMODULE:averagebin ( {compute variance loc from free set}
+   	 anomalous=$rd_ano;
+   	 epsilon=&epsilon;
+   	 subsel=(&free_set and &bad=0);
+   	 sel=&phase_set;
+   	 data=&vloc;)
+   end if
+
+   @@CNS_XTALMODULE:resetvariances ( {reset zero loc variances}
+      zerovar=&zerovar; 
+      resetzero=&resetzero;
+      var=&vloc;
+      sel=&phase_set;)
+
+   if (&blank%summary=false) then
+      
+      set display=&summary end
+      
+      display
+      display
+      display
+      display  ======================================================================
+      display  ==================== lack-of-closure expression:  &&nameh
+      display  ======================================================================
+      
+      show sum (1) (&target_set ) 
+      evaluate ($prl_nwork=$result)
+      show sum (1) (&free_set ) 
+      evaluate ($prl_nfree=$result)
+      show sum (1) (&phase_set) 
+      evaluate ($prl_ntest=$result)
+      show sum (1) ( &bad=1 and &target_set )
+      evaluate ($prl_wbad=$result)
+      show sum (1) ( &bad=1 and &free_set)
+      evaluate ($prl_tbad=$result)
+      show sum (1) ( &bad=1 and &phase_set)
+      evaluate ($prl_bad=$result)
+
+      show sum (1) (&target_set and acentric ) 
+      evaluate ($prl_nwork_a=$result)
+      show sum (1) (&free_set and acentric ) 
+      evaluate ($prl_nfree_a=$result)
+      show sum (1) (&phase_set and acentric) 
+      evaluate ($prl_ntest_a=$result)
+      show sum (1) ( &bad=1 and &target_set and acentric )
+      evaluate ($prl_wbad_a=$result)
+      show sum (1) ( &bad=1 and &free_set and acentric )
+      evaluate ($prl_tbad_a=$result)
+      show sum (1) ( &bad=1 and &phase_set and acentric )
+      evaluate ($prl_bad_a=$result)
+
+      show sum (1) (&target_set and centric ) 
+      evaluate ($prl_nwork_c=$result)
+      show sum (1) (&free_set and centric ) 
+      evaluate ($prl_nfree_c=$result)
+      show sum (1) (&phase_set and centric) 
+      evaluate ($prl_ntest_c=$result)
+      show sum (1) ( &bad=1 and &target_set and centric )
+      evaluate ($prl_wbad_c=$result)
+      show sum (1) ( &bad=1 and &free_set and centric )
+      evaluate ($prl_tbad_c=$result)
+      show sum (1) ( &bad=1 and &phase_set and centric )
+      evaluate ($prl_bad_c=$result)
+
+      display
+      display Summary of reflection usage for this LOC 
+      display                                                   (#centr.,   #acentr.,     #all) 
+      display LOC working set (used for scaling and refinement)=( $prl_nwork_c[I7] , $prl_nwork_a[I7] , $prl_nwork[I7] )  
+      display     outliers (among refl. in working set)=        ( $prl_wbad_c[I7] , $prl_wbad_a[I7] , $prl_wbad[I7] )    
+      show sum (1) (&free_set) 
+      if ($select > 0) then
+         display LOC test set (used for cross-validation)=         ( $prl_nfree_c[I7] , $prl_nfree_a[I7] , $prl_nfree[I7] )  
+         display     outliers (among refl. in test set)=           ( $prl_tbad_c[I7] , $prl_tbad_a[I7] , $prl_tbad[I7] )    
+      end if
+      display LOC phase set (all phased reflections)=           ( $prl_ntest_c[I7] , $prl_ntest_a[I7] , $prl_ntest[I7] )
+      display     outliers (among refl. in phase set)=          ( $prl_bad_c[I7] , $prl_bad_a[I7] , $prl_bad[I7] )
+      display 
+      
+   end if 
+
+   if (&blank%summary=false) then
+      evaluate ($output=&summary)
+      evalaute ($tableid="") 
+   else
+      evaluate ($output="OUTPUT") 
+   end if   
+      
+   @@CNS_XTALMODULE:printstatistics (
+      epsilon=&epsilon;
+      anomalous=$rd_ano;
+      text=$ref_text;
+      table=$tableid;
+      target_set=(&target_set and &bad=0);
+      free_set=(&free_set and &bad=0);
+      phase_set=(&phase_set and &bad=0);
+      m=mder;
+      fp=&fp;fph=&fph;fh=fcalc;
+      sp=&sp;sph=&sph;
+      varloc=&vloc;varloi=vloi;
+      output=$output;)
+
+   if (&blank%summary=false) then
+      set display=OUTPUT end
+   end if
+
+end
+
+
+if (&messages # "off") then
+   if (&text # "") then
+      display GETLOCANDPROB: &text
+   end if
+   display GETLOCANDPROB: normal end
+end if
+
+xray
+   undeclare name=mder      domain=reciprocal end
+   undeclare name=vloi      domain=reciprocal end
+   undeclare name=fcalc_nat domain=reciprocal end
+end
+
+

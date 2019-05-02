@@ -1,0 +1,101 @@
+<HTML>
+<HEAD>
+   <TITLE>Crystallography & NMR System</TITLE>
+</HEAD>
+<BODY BGCOLOR=#8ebf8e>
+
+<HR WIDTH="100%"></P>
+
+<H2>Locating missing parts of the model</H2>
+
+<HR WIDTH="100%"></P>
+
+<P>The <TT>refine.inp</TT> task file that was run in the previous section produced sigma-A weighted 2Fo-Fc and Fo-Fc maps:</P>
+<PRE>
+      refine_fofc.map
+      refine_2fofc.map</PRE>
+<P>These maps can be directly displayed with Coot. They can also be displayed with PyMOL when renaming the &quot;.map&quot; extension to &quot;.xplor&quot;. Alternatively, they can be converted for to &quot;omap&quot; files for display with <tt>O</tt>, by using the command</P>
+<PRE>
+      map_to_omap *.map
+</PRE>
+<p>to convert the CNS maps to a format which can be read into <tt>O (you must hav</tt>e <tt>mapman</tt> installed<tt>)</tt>. </p>
+<p>Finally, the <TT>refine.inp</TT> task file produced a file with the extension &quot;.hkl&quot;:</p>
+<PRE>      refine.hkl
+</PRE>
+<p>This is a CNS structure factor file that contains the Fourier coefficients of both the 2Fo-Fc and Fo-Fc maps. It can be read directly with Coot, by going to -&gt; File -&gt; Auto OpenMTZ (even though it is not an MTZ file). In addition to these map files, the <TT>refine.inp</TT> task file also produces files with the extension &quot;.peals&quot;. These contain sorted lists of the positive and negative peaks in the respective electron density maps. Finally, the real space R (RSR) values and real space correlation coefficients (RSCC) are provide in <tt>refine_rsr.list</tt> and <tt>refine_rsr.pdb</tt>. The latter coordinate file contains the refined coordinates, but with the B-factor array set to the RSR values. This enables coloring of atoms by RSR, for example in PyMOL using the spectrum B option.</p>
+<P>The Fo-Fc map shows 4 outstanding peaks (all above 20 sigma). These are
+  clearly separated from the other difference density peaks in the
+  map. This can be seen both by visual inspection of the map but also in
+  the positive density peak list generated
+  (model_map_fofc_positive.peaks). This peak list (which is in PDB
+format) is used to add the ytterbiums to the model.</P>
+
+<P>The positive peak list:</P>
+
+<PRE>
+ATOM   1749 PEAK PEAK    1      17.500  36.623  50.081  1.00 34.92      PEAK
+ATOM   1750 PEAK PEAK    2      22.779  35.855  43.625  1.00 27.05      PEAK
+ATOM   1751 PEAK PEAK    3       1.517  -5.112  15.074  1.00 26.79      PEAK
+ATOM   1752 PEAK PEAK    4       8.480  -1.465  12.066  1.00 22.59      PEAK
+ATOM   1753 PEAK PEAK    5      -8.159   1.721  16.915  1.00  8.15      PEAK
+ATOM   1754 PEAK PEAK    6      30.682  23.858  35.465  1.00  6.56      PEAK
+</PRE>
+
+<P>The electron density map:</P>
+
+<TABLE ALIGN=CENTER>
+<TR>
+<TD ALIGN=CENTER><IMG SRC="1fofc.jpeg"
+    HEIGHT=381 WIDTH=425></TD>
+</TR>
+<TR>
+<TD ALIGN=CENTER>Sigma-A weighted difference map (at 7 sigma).<BR>
+                 Four large positive peaks are clearly seen.</TD>
+</TR>
+</TABLE>
+
+<P>In order to generate a new model with the ytterbium ions included
+we can merge the coordinates for the current model and the outstanding
+peaks from the peaks list. The atoms name, residue name and chain id
+for the ytterbium ions must be changed manually in order to give them unique resids and/or segids. In this case the end of the new
+coordinate file looks like this:</P>
+
+<PRE>
+ATOM   1745  CG  PRO B 220      -4.556  16.898  32.163  1.00 48.84      B
+ATOM   1746  C   PRO B 220      -3.260  19.366  30.884  1.00 58.22      B
+ATOM   1747  O   PRO B 220      -3.209  19.542  32.133  1.00 58.22      B
+ATOM   1748  OXT PRO B 220      -3.115  20.288  30.036  1.00 48.84      B
+ATOM   1749 YB+3 YB3 Y   1      17.491  36.603  50.078  1.00 33.53
+ATOM   1750 YB+3 YB3 Y   2      22.797  35.840  43.602  1.00 27.01
+ATOM   1751 YB+3 YB3 Y   3       1.547  -5.134  15.074  1.00 25.92
+ATOM   1752 YB+3 YB3 Y   4       8.461  -1.406  12.071  1.00 22.13
+END
+</PRE>
+
+<P>Note that the atom name has been changed to YB+3 and the residue
+name to YB3, these are the appropriate names for a ytterbium 3+
+ion. This information can be obtained from the CNS topology file
+CNS_TOPPAR:ion.top. The chain identifier has been changed to Y. It is
+not necessary to include a segid because the program will take any specified chainid and use it as the segid. This coordinate file (mbp+yb) is then
+used for further refinement using the <TT>refine.inp</TT> task file.. It is especially important to
+first obtain reasonable estimates for the ytterbium ion
+B-factors. Compared to the previous section, we do not perform annealing  since the model has not undergone a major change (apart from adding the ytterbiums). The <tt>refine_yb.inp</tt> file is taken from the <tt>refine.inp</tt> input file, i.e., the only differences are the particular input parameter settings.</P>
+<PRE>
+      cns_solve &lt; <A HREF="refine_yb.inp">refine_yb.inp</A> &gt; refine_yb.out
+</PRE>
+
+<p>The resulting coordinates are in <tt>refine_yb.inp</tt>, the electron density maps are in <tt>refine_yb_2fofc.map</tt>, <tt>refine_yb_fofc.map</tt>, <tt>refine_yb.hkl</tt>. Real space R values and correlation coefficients are in <tt>refine_yb_rsr.list</tt> and <tt>refine_yb_rsr.pdb</tt>.</p>
+<p><BR>
+  <A HREF="tutorial.csh">Script to run this tutorial</A>
+  
+</p>
+<HR WIDTH="100%"></P>
+
+<A HREF="../../text.html">Back to tutorials</A>&nbsp;&nbsp;
+<A HREF="../refine_start/text.html">Previous section</A>&nbsp;&nbsp;
+<A HREF="../rebuild/text.html">Next section</A>
+
+<HR WIDTH="100%"></P>
+   
+</BODY>
+</HTML>

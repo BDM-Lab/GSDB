@@ -1,0 +1,82 @@
+! Module file: getfom
+!
+! CNS module
+! **********
+!
+! Authors: Piet Gros and Axel T. Brunger
+!
+! copyright Yale University
+!
+! Function:
+! Compute M: complex structure factor, amplitude: figure of merit and
+! phase: centroid phase. 
+!
+! Requirements:
+! 1. This module can only be called from xray
+! 2. Probability must be precomputed, supplied in Hendrickson & Lattman 
+!    coefficients
+!
+
+module {getfom}
+(
+   &pa=pa;              {Hendrickson and Lattman A array}
+   &pb=pb;              {Hendrickson and Lattman B array}
+   &pc=pc;              {Hendrickson and Lattman C array}
+   &pd=pd;              {Hendrickson and Lattman D array}
+
+   &m=m;                {complex: amplitude: figure-of-merit, phase: centroid phase}
+
+   &sel=(all);          {structure factor selection}
+
+   &phistep=20;         {size of phase steps in integration}
+   &cen360=FALSE; { TRUE | FALSE (type logical); if TRUE a full 0...360 phase prob. distr. }
+                  { is used for centric reflections (useful if the "native"                }
+                  { structure factor has an anomalous signal).                             }
+)
+
+checkversion 1.3
+
+do (&m=get_fom[phistep=&phistep,CEN360=&cen360](&pa,&pb,&pc,&pd) ) ( &sel )
+
+!
+!                {*normalize probability*}
+!
+!@@normalizeprobability
+!           (
+!            sel=sel;
+!            pk=pk;
+!            pa=pa;pb=pb;pc=pc;pd=pd;
+!            phistep=phistep;
+!            cen360=&cen360;
+!           )
+! 
+!                {*compute complex fom*}
+!
+!do (m=
+!    (combine(1,centric_phase)*
+!     (
+!      exp
+!      (
+!       pk+pa*cos(centric_phase)+pb*sin(centric_phase)
+!      )
+!      -exp
+!      (
+!       pk-pa*cos(centric_phase)-pb*sin(centric_phase)
+!      )
+!     )
+!    )
+!   )   ( (not &cen360) and centric and sel)
+!
+!do (m=
+!    (integrate[_phi,0,360,phistep]
+!     (combine(1,_phi)*
+!      exp
+!      (
+!       pk+pa*cos(_phi)+pb*sin(_phi)+pc*cos(2*_phi)+pd*sin(2*_phi) 
+!      )
+!     )
+!    )
+!   )   (( &cen360 or acentric) and sel)
+!
+!
+!

@@ -1,0 +1,95 @@
+<HTML>
+<HEAD>
+   <TITLE>Crystallography & NMR System</TITLE>
+</HEAD>
+<BODY BGCOLOR=#8ebf8e>
+
+<HR WIDTH="100%">
+
+<h2>Completion of the heavy-atom model</h2>
+
+<HR WIDTH="100%">
+
+The SAD phases can be used in combination with the anomalous difference
+structure factors to compute an anomalous difference Fourier map.  This
+map is useful in the search for additional heavy-atoms sites. However,
+a more powerful method for the location of missing sites is the
+computation of a double-difference or log-likelihood gradient map. To
+this end, the structure factors in <tt>sad_phase_grad.hkl</tt> can
+be used.
+
+<PRE>
+      cns_solve &lt; <A HREF="fourier_map_anom.inp">fourier_map_anom.inp</A> &gt; fourier_map_anom.out
+      cns_solve &lt; <A HREF="fourier_map_grad.inp">fourier_map_grad.inp</A> &gt; fourier_map_grad.out
+</PRE>
+Each job produces three output files.
+<PRE>
+      fourier_map_anom.map             fourier_map_grad.map
+      fourier_map_anom_negative.peaks  fourier_map_grad_negative.peaks
+      fourier_map_anom_positive.peaks  fourier_map_grad_positive.peaks
+</PRE>
+
+The 30 highest positive and smallest negative peaks in both maps are
+written in PDB format to the <tt>*.peaks</tt> files.
+<p>
+Here are the resulting maps:
+
+<HR WIDTH="67%">
+<TABLE ALIGN=CENTER>
+<TR>
+<TD><IMG SRC="anom_grad.jpeg"
+         ALIGN=ABSCENTER></TD>
+<tr>
+<td>
+Anomalous difference map (red) and
+gradient map (green)
+</TABLE>
+<HR WIDTH="67%">
+
+<p>
+
+Additional heavy-atom sites are usually characterized by peaks in both
+the anomalous difference and the gradient map. In the image above, the
+first and the fifth highest peaks in the gradient map are at locations
+with high densities in the anomalous difference map. The second, third
+and fourth peaks are satellite peaks close to existing sites.  If the
+solution was not known, one should just use the first peak as an
+additional site, start a new SAD phasing run, and then look for more
+sites again.  Knowing that that the first and the fifth peaks in the
+gradient map actually are at the locations of the missing sites, for
+the purpose of this tutorial, we will add them in one step.
+
+<p>
+
+<tt>sdb_manipulate.inp</tt> is used to add two more entries to the
+<tt>sad_phase.sdb</tt> site database file.
+
+<PRE>
+      cns_solve &lt; <A HREF="sdb_manipulate.inp">sdb_manipulate.inp</A> &gt; sdb_manipulate.out</PRE>
+
+The name of the expanded file is <tt>more_sites.sdb</tt>.
+Use <tt>cns_edit</tt> and copy-and-paste the coordinates from
+<code>fourier_map_grad_positive.peaks</code>:
+
+<PRE>
+      cns_edit more_sites.sdb
+</PRE>
+
+Save the changed site database file under the name
+<tt>sad_eight_sites.sdb</tt>. This file is used in two new SAD phasing
+jobs (see next tutorial).
+
+<p>
+
+<A HREF="tutorial.csh">Script to run this tutorial</A>
+
+<HR WIDTH="100%">
+
+<A HREF="../../text.html">Back to tutorials</A>&nbsp;&nbsp;
+<A HREF="../heavy_refine/text.html">Previous section</A>&nbsp;&nbsp;
+<A HREF="../sad_dm_selection/text.html">Next section</A>
+
+<HR WIDTH="100%"></P>
+
+</BODY>
+</HTML>

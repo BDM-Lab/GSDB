@@ -1,0 +1,2450 @@
+          ============================================================
+          |                                                          |
+          |            Crystallography & NMR System (CNS)            |
+          |                         CNSsolve                         |
+          |                                                          |
+          ============================================================
+           Version: 1.3
+           Status: General release
+          ============================================================
+           Written by: A.T.Brunger, P.D.Adams, G.M.Clore, W.L.DeLano,
+                       P.Gros, R.W.Grosse-Kunstleve,J.-S.Jiang,J.M.Krahn,
+                       J.Kuszewski, M.Nilges, N.S.Pannu, R.J.Read,
+                       L.M.Rice, G.F.Schroeder, T.Simonson, G.L.Warren.
+           Copyright (c) 1997-2010 Yale University
+          ============================================================
+           Running on machine: lewis4-r710-login-node223 (x86_64/Linux,64-bit)
+                               with 16 threads
+           Program started by: oeow39
+           Program started at: 16:08:22 on 05-Jul-2018
+          ============================================================
+
+ FFT3C: Using FFTPACK4.1
+
+ CNSsolve>REMARKS  XANOM.INP 
+ CNSsolve>remarks  test anomalous scattering features, test special positions 
+ CNSsolve> 
+ CNSsolve>parameter @CNS_TOPPAR:protein.param end 
+ ASSFIL: file protein.param opened.
+ PARRDR>remarks file toppar/protein.param 
+ PARRDR>remarks   protein parameters with Lennard-Jones van der Waals parameters 
+ PARRDR>remarks   for crystallographic structure determination 
+ PARRDR> 
+ PARRDR>! 
+ PARRDR>! Please cite the following reference when using these parameters: 
+ PARRDR>! Engh, R.A. and  Huber, R. (1991). Accurate Bond and 
+ PARRDR>!  Angle Parameters for X-ray Protein-Structure Refinement, 
+ PARRDR>!  Acta Cryst. A47, 392-400. 
+ PARRDR>! 
+ PARRDR>! 
+ PARRDR> 
+ PARRDR>set message ? end eval ($old_message=$result) set echo ? end eval ($old_echo=$result) 
+ MESSage=NORM
+ EVALUATE: symbol $OLD_MESSAGE set to "NORM" (string)
+ ECHO=TRUE {ON}
+ EVALUATE: symbol $OLD_ECHO set to TRUE (logical)
+ PARRDR>set message=off echo=off end 
+ PARRDR> 
+ PARRDR> end 
+ CNSsolve> 
+ CNSsolve>{* read a ca trace *} 
+ CNSsolve>struc 
+ STRUcture>data_cns_mtf 
+ REMARKS FILENAME="/data/rwgk/test/tmp.mtf"
+ REMARKS DATE:18-Nov-98  14:17:49       created by user: rwgk
+ REMARKS VERSION:0.4a
+ Status of internal molecular topology database:
+ -> NATOM=          3(MAXA=     1000000)  NBOND=          0(MAXB=     1000000)
+ -> NTHETA=         0(MAXT=     2000000)  NGRP=           2(MAXGRP=   1000000)
+ -> NPHI=           0(MAXP=     2000000)  NIMPHI=         0(MAXIMP=   1000000)
+ -> NNB=            0(MAXNB=    1000000) 
+ STRUcture> 
+ STRUcture>end 
+ CNSsolve> 
+ CNSsolve>coor 
+ COOR>ATOM      1  CA  LYS     1       8.000   8.000   8.000  1.00 15.00 
+ COOR>ATOM      2  CA  LYS     2       1.400   6.200  18.000  1.00 15.00 
+ CNSsolve> 
+ CNSsolve> 
+ CNSsolve> 
+ CNSsolve>{* atom 1 is anomalous *} 
+ CNSsolve>do ( chemical="FE") ( resid 1 ) 
+ SELRPN:      1 atoms have been selected out of      3
+ CNSsolve> 
+ CNSsolve>{* do  a few tests in P1 *} 
+ CNSsolve>xray 
+ XRAY>  reset 
+ XRAY: whole xray database erased and reset
+ XRAY> 
+ XRAY>   declare name=fobs type=complex domain=reciprocal end 
+ XDECLARE: Object FOBS has been declared.
+ XRAY>   declare name=fpart domain=reciprocal type=complex end 
+ XDECLARE: Object FPART has been declared.
+ XRAY>   declare name=fcalc domain=reciprocal type=complex end 
+ XDECLARE: Object FCALC has been declared.
+ XRAY> 
+ XRAY>  evaluate ($lr=10.) 
+ EVALUATE: symbol $LR set to    10.0000     (real)
+ XRAY>  evaluate ($hr=6) 
+ EVALUATE: symbol $HR set to    6.00000     (real)
+ XRAY>  binresolution $lr $hr 
+ XRAY>  mapresolution $hr 
+ XRAY>  tselection=( $hr <= d <= $lr  ) 
+ XRAY> 
+ XRAY>  a=16.00 b=16.00 c=8.00 alpha=90.0 beta=90.00 gamma=120.0 
+ XRAY> 
+ XRAY>  hermitian=false 
+ XRAY>  symmetry=(x,y,z) 
+ XRAY> 
+ XRAY>  SCATter ( chemical FE ) 0. 0. 0. 0. 0. 0. 0. 0. 0. IMAG 0.1 
+ SELRPN:      1 atoms have been selected out of      3
+ XRAY>  associate fcalc ( chemical FE ) 
+ SELRPN:      1 atoms have been selected out of      3
+ XRAY>  asele=( chemical FE ) 
+ SELRPN:      1 atoms have been selected out of      3
+ XRAY> 
+ XRAY>  associate fcalc ( resid 1 ) 
+ SELRPN:      1 atoms have been selected out of      3
+ XRAY>  method=fft lookup=false 
+ XRAY>  fft 
+ XFFT>     prime=5 avoid=2 
+ XFFT>  end 
+ XRAY>  nreflections=1000 
+ XRAY: allocating space for    1000 reflections.
+ XRAY>  generate  10. 6. 
+ XGENER: generating reflections to produce a full set
+         for the specified resolution range.
+ XGENE2:       26 new reflections have been generated.
+ XRAY>  do (fpart=0) ( all ) 
+ XSFAL: allocating space for complex reciprocal space object.
+ Total of        26 structure factor elements were selected.
+ XRAY> 
+ XRAY>  predict 
+ PREDict>      mode=reciprocal 
+ PREDict>      to=fcalc 
+ PREDict>      selection=( all ) 
+ Total of        26 structure factor elements were selected.
+ PREDict>      atomselection=( chemical FE  ) 
+ SELRPN:      1 atoms have been selected out of      3
+ PREDict>  end 
+ FCALC: #scatt.=      1 #anomalous=   1 #special pos.=  0 occupancies=1
+ XSFAL: allocating space for complex reciprocal space object.
+ XFFT: using grid [   8,   8,   4] and sublattice [   8(   9),   8(   9),   2]
+ XRAY>  write reflection  fcalc  sele=( all ) end 
+ Total of        26 structure factor elements were selected.
+ NREFlection=        26
+ ANOMalous=TRUE { equiv. to HERMitian=FALSe}
+ DECLare NAME=FCALC                  DOMAin=RECIprocal   TYPE=COMP END
+ INDE    -2    0    0 FCALC=     0.092   242.154
+ INDE    -2    1    0 FCALC=     0.094    90.000
+ INDE    -2    2    0 FCALC=     0.092   297.846
+ INDE    -1   -1    0 FCALC=     0.094   318.231
+ INDE    -1    0   -1 FCALC=     0.092   166.077
+ INDE    -1    0    1 FCALC=     0.092   166.077
+ INDE    -1    1   -1 FCALC=     0.092    13.923
+ INDE    -1    1    1 FCALC=     0.092    13.923
+ INDE    -1    2    0 FCALC=     0.094   221.769
+ INDE     0   -2    0 FCALC=     0.092    34.308
+ INDE     0   -1   -1 FCALC=     0.092   242.154
+ INDE     0   -1    1 FCALC=     0.092   242.154
+ INDE     0    0   -1 FCALC=     0.094    90.000
+ INDE     0    0    1 FCALC=     0.094    90.000
+ INDE     0    1   -1 FCALC=     0.092   297.846
+ INDE     0    1    1 FCALC=     0.092   297.846
+ INDE     0    2    0 FCALC=     0.092   145.692
+ INDE     1   -2    0 FCALC=     0.094   318.231
+ INDE     1   -1   -1 FCALC=     0.092   166.077
+ INDE     1   -1    1 FCALC=     0.092   166.077
+ INDE     1    0   -1 FCALC=     0.092    13.923
+ INDE     1    0    1 FCALC=     0.092    13.923
+ INDE     1    1    0 FCALC=     0.094   221.769
+ INDE     2   -2    0 FCALC=     0.092   242.154
+ INDE     2   -1    0 FCALC=     0.094    90.000
+ INDE     2    0    0 FCALC=     0.092   297.846
+ XRAY>  SCATter reset 
+ XRAY>  SCATter ( chemical FE ) 
+ SELRPN:      1 atoms have been selected out of      3
+ SCATTER_A1=   2.31000 20.8439 1.02 10.2075 1.58860 .568700 .865000 51.651 .2156 
+ XRAY>          IMAG 5.0 
+ XRAY>  associate fcalc ( chemical FE ) 
+ SELRPN:      1 atoms have been selected out of      3
+ XRAY>  asele=( chemical FE  ) 
+ SELRPN:      1 atoms have been selected out of      3
+ XRAY>  predict 
+ PREDict>      mode=reciprocal 
+ PREDict>      to=fcalc 
+ PREDict>      selection=( all ) 
+ Total of        26 structure factor elements were selected.
+ PREDict>      atomselection=( chemical FE  ) 
+ SELRPN:      1 atoms have been selected out of      3
+ PREDict>  end 
+ FCALC: #scatt.=      1 #anomalous=   1 #special pos.=  0 occupancies=1
+ XFFT: using grid [   8,   8,   4] and sublattice [   8(   9),   8(   9),   2]
+ XRAY>  write reflection  fcalc  sele=( all ) end 
+ Total of        26 structure factor elements were selected.
+ NREFlection=        26
+ ANOMalous=TRUE { equiv. to HERMitian=FALSe}
+ DECLare NAME=FCALC                  DOMAin=RECIprocal   TYPE=COMP END
+ INDE    -2    0    0 FCALC=     6.951   197.079
+ INDE    -2    1    0 FCALC=     7.047    42.001
+ INDE    -2    2    0 FCALC=     6.562   249.255
+ INDE    -1   -1    0 FCALC=     7.046   271.486
+ INDE    -1    0   -1 FCALC=     7.392   115.356
+ INDE    -1    0    1 FCALC=     7.392   115.356
+ INDE    -1    1   -1 FCALC=     7.322   322.528
+ INDE    -1    1    1 FCALC=     7.322   322.528
+ INDE    -1    2    0 FCALC=     6.893   173.655
+ INDE     0   -2    0 FCALC=     6.609   348.280
+ INDE     0   -1   -1 FCALC=     7.361   191.547
+ INDE     0   -1    1 FCALC=     7.361   191.547
+ INDE     0    0   -1 FCALC=     7.646    38.075
+ INDE     0    0    1 FCALC=     7.646    38.075
+ INDE     0    1   -1 FCALC=     7.301   246.666
+ INDE     0    1    1 FCALC=     7.301   246.666
+ INDE     0    2    0 FCALC=     6.659   100.107
+ INDE     1   -2    0 FCALC=     7.046   271.486
+ INDE     1   -1   -1 FCALC=     7.392   115.356
+ INDE     1   -1    1 FCALC=     7.392   115.356
+ INDE     1    0   -1 FCALC=     7.322   322.528
+ INDE     1    0    1 FCALC=     7.322   322.528
+ INDE     1    1    0 FCALC=     6.893   173.655
+ INDE     2   -2    0 FCALC=     6.951   197.079
+ INDE     2   -1    0 FCALC=     7.047    42.001
+ INDE     2    0    0 FCALC=     6.562   249.255
+ XRAY> 
+ XRAY>end 
+ CNSsolve> 
+ CNSsolve>{* now use symmetry and make a finite-difference test *} 
+ CNSsolve>xray 
+ XRAY>  reset 
+ XRAY: whole xray database erased and reset
+ XRAY>    declare name=fobs type=complex domain=reciprocal end 
+ XDECLARE: Object FOBS has been declared.
+ XRAY>   declare name=fpart domain=reciprocal type=complex end 
+ XDECLARE: Object FPART has been declared.
+ XRAY>   declare name=fcalc domain=reciprocal type=complex end 
+ XDECLARE: Object FCALC has been declared.
+ XRAY> 
+ XRAY>  evaluate ($lr=10.) 
+ EVALUATE: symbol $LR set to    10.0000     (real)
+ XRAY>  evaluate ($hr=3) 
+ EVALUATE: symbol $HR set to    3.00000     (real)
+ XRAY>  binresolution $lr $hr 
+ XRAY>  mapresolution $hr 
+ XRAY>  tselection=( $hr <= d <= $lr  ) 
+ XRAY> 
+ XRAY>  a=16.00 b=16.00 c=8.00 alpha=90.0 beta=90.00 gamma=120.0 
+ XRAY> 
+ XRAY>  hermitian=false 
+ XRAY>  symmetry=(x,y,z) 
+ XRAY>  symmetry=(-y,x-y,z) 
+ XRAY>  symmetry=(y-x,-x,z) 
+ XRAY>  symmetry=(y,x,1/2+z) 
+ XRAY>  symmetry=(-x,y-x,1/2+z) 
+ XRAY>  symmetry=(x-y,-y,1/2+z) 
+ XRAY> 
+ XRAY>  SCATter ( chemical C* ) 
+ SELRPN:      2 atoms have been selected out of      3
+ SCATTER_A1= 2.31000 20.8439 1.02 10.2075 1.58860 .568700 .865000 51.651 .2156 
+ XRAY> 
+ XRAY>  SCATter ( chemical FE ) 
+ SELRPN:      1 atoms have been selected out of      3
+ SCATTER_A1=   2.31000 20.8439 1.02 10.2075 1.58860 .568700 .865000 51.651 .2156 
+ XRAY>   IMAG 5.0 
+ XRAY>  associate fcalc (chemical FE ) 
+ SELRPN:      1 atoms have been selected out of      3
+ XRAY>  asele=( chemical FE ) 
+ SELRPN:      1 atoms have been selected out of      3
+ XRAY> 
+ XRAY>  tolerance=0. 
+ XRAY>  associate fcalc ( all ) 
+ SELRPN:      3 atoms have been selected out of      3
+ XRAY>  method=fft lookup=false 
+ XRAY>  fft 
+ XFFT>     prime=5 avoid=2 
+ XFFT>  end 
+ XRAY>  nreflections=1000 
+ XRAY: allocating space for    1000 reflections.
+ XRAY>  generate  10. 3. 
+ XGENER: generating reflections to produce a full set
+         for the specified resolution range.
+ XGENE2:       47 new reflections have been generated.
+ XRAY>  do (fpart=0) ( all ) 
+ XSFAL: allocating space for complex reciprocal space object.
+ Total of        47 structure factor elements were selected.
+ XRAY> 
+ XRAY>  predict 
+ PREDict>      mode=reciprocal 
+ PREDict>      to=fcalc 
+ PREDict>      selection=( all ) 
+ Total of        47 structure factor elements were selected.
+ PREDict>      atomselection=( all  ) 
+ SELRPN:      3 atoms have been selected out of      3
+ PREDict>  end 
+ FCALC: #scatt.=      3 #anomalous=   1 #special pos.=  0 occupancies=1
+ XSFAL: allocating space for complex reciprocal space object.
+ XFFT: using grid [  16,  16,   8] and sublattice [  16(  17),  16(  17),   2]
+ XRAY>  do (fobs=fcalc ) ( all ) 
+ XSFAL: allocating space for complex reciprocal space object.
+ Total of        47 structure factor elements were selected.
+ XRAY>end 
+ CNSsolve> 
+ CNSsolve>coor translate vector=( 1.1  0.8 1.4 ) sele=( resid 1 ) end 
+ SELRPN:      1 atoms have been selected out of      3
+ COOR: using atom subset.
+ COOR: translation vector =(     1.100000    0.800000    1.400000 )
+ COOR: selected coordinates translated
+ CNSsolve>coor translate vector=( 1.5  0.2 1.1 ) sele=( resid 2 ) end 
+ SELRPN:      1 atoms have been selected out of      3
+ COOR: using atom subset.
+ COOR: translation vector =(     1.500000    0.200000    1.100000 )
+ COOR: selected coordinates translated
+ CNSsolve>coor translate vector=( 0.5  0.5 1.7 ) sele=( resid 3 ) end 
+ SELRPN:      1 atoms have been selected out of      3
+ COOR: using atom subset.
+ COOR: translation vector =(     0.500000    0.500000    1.700000 )
+ COOR: selected coordinates translated
+ CNSsolve> 
+ CNSsolve>flags exclu * inclu xref end 
+ CNSsolve> 
+ CNSsolve>xray 
+ XRAY>   method=fft lookup=false 
+ XRAY>end 
+ CNSsolve>test first sele=( all ) step=0.000004 tolerance=0.0 end 
+ SELRPN:      3 atoms have been selected out of      3
+ XRTSELSET: number of selected reflections      47
+ FCALC: #scatt.=      3 #anomalous=   1 #special pos.=  0 occupancies=1
+ XFFT: using grid [  16,  16,   8] and sublattice [  16(  17),  16(  17),   2]
+ XTAREXPR:                 monitor=  0.493
+ FCALC: #scatt.=      3 #anomalous=   1 #special pos.=  0 occupancies=1
+ XFFT: using grid [  16,  16,   8] and sublattice [  16(  17),  16(  17),   2]
+ XTAREXPR:                 monitor=  0.493
+ FCALC: #scatt.=      3 #anomalous=   1 #special pos.=  0 occupancies=1
+ XFFT: using grid [  16,  16,   8] and sublattice [  16(  17),  16(  17),   2]
+ XTAREXPR:                 monitor=  0.493
+ FCALC: #scatt.=      3 #anomalous=   1 #special pos.=  0 occupancies=1
+ XFFT: using grid [  16,  16,   8] and sublattice [  16(  17),  16(  17),   2]
+ XTAREXPR:                 monitor=  0.493
+ FCALC: #scatt.=      3 #anomalous=   1 #special pos.=  0 occupancies=1
+ XFFT: using grid [  16,  16,   8] and sublattice [  16(  17),  16(  17),   2]
+ XTAREXPR:                 monitor=  0.493
+ FCALC: #scatt.=      3 #anomalous=   1 #special pos.=  0 occupancies=1
+ XFFT: using grid [  16,  16,   8] and sublattice [  16(  17),  16(  17),   2]
+ XTAREXPR:                 monitor=  0.493
+ FCALC: #scatt.=      3 #anomalous=   1 #special pos.=  0 occupancies=1
+ XFFT: using grid [  16,  16,   8] and sublattice [  16(  17),  16(  17),   2]
+ XTAREXPR:                 monitor=  0.493
+ FCALC: #scatt.=      3 #anomalous=   1 #special pos.=  0 occupancies=1
+ XFFT: using grid [  16,  16,   8] and sublattice [  16(  17),  16(  17),   2]
+ XTAREXPR:                 monitor=  0.493
+ FCALC: #scatt.=      3 #anomalous=   1 #special pos.=  0 occupancies=1
+ XFFT: using grid [  16,  16,   8] and sublattice [  16(  17),  16(  17),   2]
+ XTAREXPR:                 monitor=  0.493
+ FCALC: #scatt.=      3 #anomalous=   1 #special pos.=  0 occupancies=1
+ XFFT: using grid [  16,  16,   8] and sublattice [  16(  17),  16(  17),   2]
+ XTAREXPR:                 monitor=  0.493
+ FCALC: #scatt.=      3 #anomalous=   1 #special pos.=  0 occupancies=1
+ XFFT: using grid [  16,  16,   8] and sublattice [  16(  17),  16(  17),   2]
+ XTAREXPR:                 monitor=  0.493
+ FCALC: #scatt.=      3 #anomalous=   1 #special pos.=  0 occupancies=1
+ XFFT: using grid [  16,  16,   8] and sublattice [  16(  17),  16(  17),   2]
+ XTAREXPR:                 monitor=  0.493
+ FCALC: #scatt.=      3 #anomalous=   1 #special pos.=  0 occupancies=1
+ XFFT: using grid [  16,  16,   8] and sublattice [  16(  17),  16(  17),   2]
+ XTAREXPR:                 monitor=  0.493
+ FCALC: #scatt.=      3 #anomalous=   1 #special pos.=  0 occupancies=1
+ XFFT: using grid [  16,  16,   8] and sublattice [  16(  17),  16(  17),   2]
+ XTAREXPR:                 monitor=  0.493
+ FCALC: #scatt.=      3 #anomalous=   1 #special pos.=  0 occupancies=1
+ XFFT: using grid [  16,  16,   8] and sublattice [  16(  17),  16(  17),   2]
+ XTAREXPR:                 monitor=  0.493
+ FCALC: #scatt.=      3 #anomalous=   1 #special pos.=  0 occupancies=1
+ XFFT: using grid [  16,  16,   8] and sublattice [  16(  17),  16(  17),   2]
+ XTAREXPR:                 monitor=  0.493
+ FCALC: #scatt.=      3 #anomalous=   1 #special pos.=  0 occupancies=1
+ XFFT: using grid [  16,  16,   8] and sublattice [  16(  17),  16(  17),   2]
+ XTAREXPR:                 monitor=  0.493
+ FCALC: #scatt.=      3 #anomalous=   1 #special pos.=  0 occupancies=1
+ XFFT: using grid [  16,  16,   8] and sublattice [  16(  17),  16(  17),   2]
+ XTAREXPR:                 monitor=  0.493
+ FCALC: #scatt.=      3 #anomalous=   1 #special pos.=  0 occupancies=1
+ XFFT: using grid [  16,  16,   8] and sublattice [  16(  17),  16(  17),   2]
+ XTAREXPR:                 monitor=  0.493
+ TESTFD: Parameters: STEP=   0.00000  MASSweighting=F
+ TESTFD: The following first derivatives differ by more than TOL=    0.000000
+
+  DIM.         ATOM                 ANALYTIC        FINITE-DIFF     DEVIATION
+    1 X (      1    LYS  CA  )       0.125515       0.125515       0.000000
+    1 Y (      1    LYS  CA  )       0.078553       0.078553       0.000000
+    1 Z (      1    LYS  CA  )      -0.007500      -0.007500       0.000000
+    2 X (      2    LYS  CA  )       0.053111       0.053111       0.000000
+    2 Y (      2    LYS  CA  )      -0.056048      -0.056048       0.000000
+    2 Z (      2    LYS  CA  )      -0.023807      -0.023807       0.000000
+    3 X (      3    LYS  CA  )       0.014438       0.014438       0.000000
+    3 Y (      3    LYS  CA  )      -0.030464      -0.030464       0.000000
+    3 Z (      3    LYS  CA  )       0.030657       0.030657       0.000000
+ TESTFD: A total of     0 elements were within the tolerance
+ CNSsolve> 
+ CNSsolve>xray 
+ XRAY>  method=direct lookup=false 
+ XRAY>end 
+ CNSsolve> 
+ CNSsolve>test first sele=( all ) step=0.000004 tolerance=0.0 end 
+ SELRPN:      3 atoms have been selected out of      3
+ FCALC: #scatt.=      3 #anomalous=   1 #special pos.=  0 occupancies=1
+ XTAREXPR:                 monitor=  0.493
+ FCALC: #scatt.=      3 #anomalous=   1 #special pos.=  0 occupancies=1
+ XTAREXPR:                 monitor=  0.493
+ FCALC: #scatt.=      3 #anomalous=   1 #special pos.=  0 occupancies=1
+ XTAREXPR:                 monitor=  0.493
+ FCALC: #scatt.=      3 #anomalous=   1 #special pos.=  0 occupancies=1
+ XTAREXPR:                 monitor=  0.493
+ FCALC: #scatt.=      3 #anomalous=   1 #special pos.=  0 occupancies=1
+ XTAREXPR:                 monitor=  0.493
+ FCALC: #scatt.=      3 #anomalous=   1 #special pos.=  0 occupancies=1
+ XTAREXPR:                 monitor=  0.493
+ FCALC: #scatt.=      3 #anomalous=   1 #special pos.=  0 occupancies=1
+ XTAREXPR:                 monitor=  0.493
+ FCALC: #scatt.=      3 #anomalous=   1 #special pos.=  0 occupancies=1
+ XTAREXPR:                 monitor=  0.493
+ FCALC: #scatt.=      3 #anomalous=   1 #special pos.=  0 occupancies=1
+ XTAREXPR:                 monitor=  0.493
+ FCALC: #scatt.=      3 #anomalous=   1 #special pos.=  0 occupancies=1
+ XTAREXPR:                 monitor=  0.493
+ FCALC: #scatt.=      3 #anomalous=   1 #special pos.=  0 occupancies=1
+ XTAREXPR:                 monitor=  0.493
+ FCALC: #scatt.=      3 #anomalous=   1 #special pos.=  0 occupancies=1
+ XTAREXPR:                 monitor=  0.493
+ FCALC: #scatt.=      3 #anomalous=   1 #special pos.=  0 occupancies=1
+ XTAREXPR:                 monitor=  0.493
+ FCALC: #scatt.=      3 #anomalous=   1 #special pos.=  0 occupancies=1
+ XTAREXPR:                 monitor=  0.493
+ FCALC: #scatt.=      3 #anomalous=   1 #special pos.=  0 occupancies=1
+ XTAREXPR:                 monitor=  0.493
+ FCALC: #scatt.=      3 #anomalous=   1 #special pos.=  0 occupancies=1
+ XTAREXPR:                 monitor=  0.493
+ FCALC: #scatt.=      3 #anomalous=   1 #special pos.=  0 occupancies=1
+ XTAREXPR:                 monitor=  0.493
+ FCALC: #scatt.=      3 #anomalous=   1 #special pos.=  0 occupancies=1
+ XTAREXPR:                 monitor=  0.493
+ FCALC: #scatt.=      3 #anomalous=   1 #special pos.=  0 occupancies=1
+ XTAREXPR:                 monitor=  0.493
+ TESTFD: Parameters: STEP=   0.00000  MASSweighting=F
+ TESTFD: The following first derivatives differ by more than TOL=    0.000000
+
+  DIM.         ATOM                 ANALYTIC        FINITE-DIFF     DEVIATION
+    1 X (      1    LYS  CA  )       0.126798       0.126798       0.000000
+    1 Y (      1    LYS  CA  )       0.079805       0.079805       0.000000
+    1 Z (      1    LYS  CA  )      -0.006986      -0.006986       0.000000
+    2 X (      2    LYS  CA  )       0.052775       0.052775       0.000000
+    2 Y (      2    LYS  CA  )      -0.056597      -0.056597       0.000000
+    2 Z (      2    LYS  CA  )      -0.023618      -0.023618       0.000000
+    3 X (      3    LYS  CA  )       0.014881       0.014881       0.000000
+    3 Y (      3    LYS  CA  )      -0.030728      -0.030728       0.000000
+    3 Z (      3    LYS  CA  )       0.030604       0.030604       0.000000
+ TESTFD: A total of     0 elements were within the tolerance
+ CNSsolve> 
+ CNSsolve>{* test density map calculation without hermitian symmetry *} 
+ CNSsolve>{* ======================================================= *} 
+ CNSsolve>{* first without anomalous scatterers *} 
+ CNSsolve>xray 
+ XRAY>  reset 
+ XRAY: whole xray database erased and reset
+ XRAY>   declare name=fobs type=complex domain=reciprocal end 
+ XDECLARE: Object FOBS has been declared.
+ XRAY>   declare name=fpart domain=reciprocal type=complex end 
+ XDECLARE: Object FPART has been declared.
+ XRAY>   declare name=fcalc domain=reciprocal type=complex end 
+ XDECLARE: Object FCALC has been declared.
+ XRAY> 
+ XRAY>  evaluate ($lr=10.) 
+ EVALUATE: symbol $LR set to    10.0000     (real)
+ XRAY>  evaluate ($hr=6) 
+ EVALUATE: symbol $HR set to    6.00000     (real)
+ XRAY>  binresolution $lr $hr 
+ XRAY>  mapresolution $hr 
+ XRAY>  tselection=( $hr <= d <= $lr ) 
+ XRAY> 
+ XRAY>  a=16.00 b=16.00 c=8.00 alpha=90.0 beta=90.00 gamma=120.0 
+ XRAY> 
+ XRAY>  hermitian=false 
+ XRAY>  symmetry=(x,y,z) 
+ XRAY>  symmetry=(-y,x-y,z) 
+ XRAY>  symmetry=(y-x,-x,z) 
+ XRAY>  symmetry=(y,x,1/2+z) 
+ XRAY>  symmetry=(-x,y-x,1/2+z) 
+ XRAY>  symmetry=(x-y,-y,1/2+z) 
+ XRAY> 
+ XRAY>  SCATter ( chemical C* ) 
+ SELRPN:      2 atoms have been selected out of      3
+ SCATTER_A1= 2.31000 20.8439 1.02 10.2075 1.58860 .568700 .865000 51.651 .2156 
+ XRAY> 
+ XRAY>  SCATter ( chemical FE ) 
+ SELRPN:      1 atoms have been selected out of      3
+ SCATTER_A1=   2.31000 20.8439 1.02 10.2075 1.58860 .568700 .865000 51.651 .2156 
+ XRAY> 
+ XRAY> 
+ XRAY>  tolerance=0. 
+ XRAY>  associate fcalc ( all ) 
+ SELRPN:      3 atoms have been selected out of      3
+ XRAY>  aselection=( not all ) 
+ SELRPN:      0 atoms have been selected out of      3
+ XRAY>  method=fft lookup=false 
+ XRAY>  fft 
+ XFFT>     prime=5 avoid=2 
+ XFFT>  end 
+ XRAY>  nreflections=1000 
+ XRAY: allocating space for    1000 reflections.
+ XRAY>  generate  10. 6. 
+ XGENER: generating reflections to produce a full set
+         for the specified resolution range.
+ XGENE2:        5 new reflections have been generated.
+ XRAY>  do (fpart=0) ( all ) 
+ XSFAL: allocating space for complex reciprocal space object.
+ Total of         5 structure factor elements were selected.
+ XRAY> 
+ XRAY>  predict 
+ PREDict>      mode=reciprocal 
+ PREDict>      to=fcalc 
+ PREDict>      selection=( all ) 
+ Total of         5 structure factor elements were selected.
+ PREDict>      atomselection=( all ) 
+ SELRPN:      3 atoms have been selected out of      3
+ PREDict>  end 
+ FCALC: #scatt.=      3 #anomalous=   0 #special pos.=  0 occupancies=1
+ XSFAL: allocating space for complex reciprocal space object.
+ XFFT: using grid [   8,   8,   4] and sublattice [   8(   9),   8(   9),   2]
+ XRAY> 
+ XRAY>  declare name=map1 domain=real end 
+ XRAY>  do (map1=ft(fcalc)) ( all ) 
+ XSFAL: allocating space for complex reciprocal space object.
+ Total of         5 structure factor elements were selected.
+ XMAPASU: using grid [   8,   8,   4] and sublattice [   8,   8,   4]
+ %XASUDEF-warning: no asymmetric unit for maps specified.
+ %XASUDEF-warning: excessive memory and CPU usage may occur.
+ Maps will be stored in P1:
+   A=     0,...,     7  B=     0,...,     7  C=     0,...,     3
+ XMAPAL: allocating space for real space object.
+ XRAY> 
+ XRAY>  write map 
+ WRITe MAP>     from=map1 
+ WRITe MAP>     extend=unit 
+ WRITe MAP>     output=OUTPUT 
+ WRITe MAP>  end 
+ XMAPX: map will be scaled.
+ XMAPX: extend NA=(   8   0   8) NB=(   8   0   8) NC=(   4   0   4) 
+ XMAPX: ave. density (real) in unit cell=       0.00000 sigma=       0.04318 e/A^3
+
+       3 !NTITLE
+ REMARKS FILENAME="OUTPUT"                                                                                                                                                                                                                                              
+ REMARKS DATE:05-Jul-2018  16:08:22       created by user: oeow39                                                                                                                                                                                                       
+ REMARKS VERSION:1.3                                                                                                                                                                                                                                                    
+       8       0       8       8       0       8       4       0       4
+ 0.16000E+02 0.16000E+02 0.80000E+01 0.90000E+02 0.90000E+02 0.12000E+03
+ZYX
+ XMAPX: real part of section #   0 ave. dens.=      -0.00031 sigma=       0.04297 e/A^3
+       0
+-0.13395E+01-0.87523E+00-0.63650E+00-0.56218E+00 0.63483E+00 0.20524E+01
+ 0.15295E+01-0.42664E+00-0.13395E+01-0.87523E+00-0.42664E+00 0.25944E+00
+-0.72861E-01-0.14589E+00 0.93710E+00 0.14587E+01 0.25944E+00-0.87523E+00
+-0.63650E+00 0.55278E-01 0.15295E+01 0.14587E+01-0.47773E-01-0.64371E+00
+-0.47773E-01-0.72861E-01-0.63650E+00-0.56218E+00-0.56575E+00 0.96583E+00
+ 0.20524E+01 0.93710E+00-0.64371E+00-0.64371E+00-0.14589E+00-0.56218E+00
+ 0.63483E+00-0.84293E+00-0.10335E+01 0.24006E+00 0.63483E+00-0.14589E+00
+-0.47773E-01 0.93710E+00 0.63483E+00 0.20524E+01 0.24006E+00-0.18336E+01
+-0.18336E+01-0.84293E+00-0.56218E+00-0.72861E-01 0.14587E+01 0.20524E+01
+ 0.15295E+01 0.96583E+00-0.10335E+01-0.18336E+01-0.10335E+01-0.56575E+00
+-0.63650E+00 0.25944E+00 0.15295E+01-0.42664E+00 0.55278E-01-0.56575E+00
+-0.84293E+00 0.24006E+00 0.96583E+00 0.55278E-01-0.87523E+00-0.42664E+00
+-0.13395E+01-0.87523E+00-0.63650E+00-0.56218E+00 0.63483E+00 0.20524E+01
+ 0.15295E+01-0.42664E+00-0.13395E+01
+ XMAPX: real part of section #   1 ave. dens.=      -0.00031 sigma=       0.04784 e/A^3
+       1
+-0.13395E+01-0.87523E+00-0.63650E+00-0.56218E+00 0.63483E+00 0.20524E+01
+ 0.15295E+01-0.42664E+00-0.13395E+01-0.87523E+00-0.42664E+00-0.54292E-01
+-0.83027E+00-0.12170E+01-0.13404E+00 0.70131E+00-0.54292E-01-0.87523E+00
+-0.63650E+00 0.36901E+00 0.15295E+01 0.70131E+00-0.15626E+01-0.24723E+01
+-0.15626E+01-0.83027E+00-0.63650E+00-0.56218E+00 0.19166E+00 0.17232E+01
+ 0.20524E+01-0.13404E+00-0.24723E+01-0.24723E+01-0.12170E+01-0.56218E+00
+ 0.63483E+00 0.22821E+00 0.48128E+00 0.13112E+01 0.63483E+00-0.12170E+01
+-0.15626E+01-0.13404E+00 0.63483E+00 0.20524E+01 0.13112E+01-0.50905E-02
+-0.50905E-02 0.22821E+00-0.56218E+00-0.83027E+00 0.70131E+00 0.20524E+01
+ 0.15295E+01 0.17232E+01 0.48128E+00-0.50905E-02 0.48128E+00 0.19166E+00
+-0.63650E+00-0.54292E-01 0.15295E+01-0.42664E+00 0.36901E+00 0.19166E+00
+ 0.22821E+00 0.13112E+01 0.17232E+01 0.36901E+00-0.87523E+00-0.42664E+00
+-0.13395E+01-0.87523E+00-0.63650E+00-0.56218E+00 0.63483E+00 0.20524E+01
+ 0.15295E+01-0.42664E+00-0.13395E+01
+ XMAPX: real part of section #   2 ave. dens.=      -0.00031 sigma=       0.04297 e/A^3
+       2
+-0.13395E+01-0.87523E+00-0.63650E+00-0.56218E+00 0.63483E+00 0.20524E+01
+ 0.15295E+01-0.42664E+00-0.13395E+01-0.87523E+00-0.42664E+00 0.55278E-01
+-0.56575E+00-0.84293E+00 0.24006E+00 0.96583E+00 0.55278E-01-0.87523E+00
+-0.63650E+00 0.25944E+00 0.15295E+01 0.96583E+00-0.10335E+01-0.18336E+01
+-0.10335E+01-0.56575E+00-0.63650E+00-0.56218E+00-0.72861E-01 0.14587E+01
+ 0.20524E+01 0.24006E+00-0.18336E+01-0.18336E+01-0.84293E+00-0.56218E+00
+ 0.63483E+00-0.14589E+00-0.47773E-01 0.93710E+00 0.63483E+00-0.84293E+00
+-0.10335E+01 0.24006E+00 0.63483E+00 0.20524E+01 0.93710E+00-0.64371E+00
+-0.64371E+00-0.14589E+00-0.56218E+00-0.56575E+00 0.96583E+00 0.20524E+01
+ 0.15295E+01 0.14587E+01-0.47773E-01-0.64371E+00-0.47773E-01-0.72861E-01
+-0.63650E+00 0.55278E-01 0.15295E+01-0.42664E+00 0.25944E+00-0.72861E-01
+-0.14589E+00 0.93710E+00 0.14587E+01 0.25944E+00-0.87523E+00-0.42664E+00
+-0.13395E+01-0.87523E+00-0.63650E+00-0.56218E+00 0.63483E+00 0.20524E+01
+ 0.15295E+01-0.42664E+00-0.13395E+01
+ XMAPX: real part of section #   3 ave. dens.=      -0.00031 sigma=       0.04784 e/A^3
+       3
+-0.13395E+01-0.87523E+00-0.63650E+00-0.56218E+00 0.63483E+00 0.20524E+01
+ 0.15295E+01-0.42664E+00-0.13395E+01-0.87523E+00-0.42664E+00 0.36901E+00
+ 0.19166E+00 0.22821E+00 0.13112E+01 0.17232E+01 0.36901E+00-0.87523E+00
+-0.63650E+00-0.54292E-01 0.15295E+01 0.17232E+01 0.48128E+00-0.50905E-02
+ 0.48128E+00 0.19166E+00-0.63650E+00-0.56218E+00-0.83027E+00 0.70131E+00
+ 0.20524E+01 0.13112E+01-0.50905E-02-0.50905E-02 0.22821E+00-0.56218E+00
+ 0.63483E+00-0.12170E+01-0.15626E+01-0.13404E+00 0.63483E+00 0.22821E+00
+ 0.48128E+00 0.13112E+01 0.63483E+00 0.20524E+01-0.13404E+00-0.24723E+01
+-0.24723E+01-0.12170E+01-0.56218E+00 0.19166E+00 0.17232E+01 0.20524E+01
+ 0.15295E+01 0.70131E+00-0.15626E+01-0.24723E+01-0.15626E+01-0.83027E+00
+-0.63650E+00 0.36901E+00 0.15295E+01-0.42664E+00-0.54292E-01-0.83027E+00
+-0.12170E+01-0.13404E+00 0.70131E+00-0.54292E-01-0.87523E+00-0.42664E+00
+-0.13395E+01-0.87523E+00-0.63650E+00-0.56218E+00 0.63483E+00 0.20524E+01
+ 0.15295E+01-0.42664E+00-0.13395E+01
+ XMAPX: real part of section #   4 ave. dens.=      -0.00031 sigma=       0.04297 e/A^3
+       4
+-0.13395E+01-0.87523E+00-0.63650E+00-0.56218E+00 0.63483E+00 0.20524E+01
+ 0.15295E+01-0.42664E+00-0.13395E+01-0.87523E+00-0.42664E+00 0.25944E+00
+-0.72861E-01-0.14589E+00 0.93710E+00 0.14587E+01 0.25944E+00-0.87523E+00
+-0.63650E+00 0.55278E-01 0.15295E+01 0.14587E+01-0.47773E-01-0.64371E+00
+-0.47773E-01-0.72861E-01-0.63650E+00-0.56218E+00-0.56575E+00 0.96583E+00
+ 0.20524E+01 0.93710E+00-0.64371E+00-0.64371E+00-0.14589E+00-0.56218E+00
+ 0.63483E+00-0.84293E+00-0.10335E+01 0.24006E+00 0.63483E+00-0.14589E+00
+-0.47773E-01 0.93710E+00 0.63483E+00 0.20524E+01 0.24006E+00-0.18336E+01
+-0.18336E+01-0.84293E+00-0.56218E+00-0.72861E-01 0.14587E+01 0.20524E+01
+ 0.15295E+01 0.96583E+00-0.10335E+01-0.18336E+01-0.10335E+01-0.56575E+00
+-0.63650E+00 0.25944E+00 0.15295E+01-0.42664E+00 0.55278E-01-0.56575E+00
+-0.84293E+00 0.24006E+00 0.96583E+00 0.55278E-01-0.87523E+00-0.42664E+00
+-0.13395E+01-0.87523E+00-0.63650E+00-0.56218E+00 0.63483E+00 0.20524E+01
+ 0.15295E+01-0.42664E+00-0.13395E+01
+   -9999
+  0.1131E-09   0.4318E-01
+ XRAY> 
+ XRAY>  undeclare name=map1 domain=real end 
+ Object MAP1                 has been undeclared.
+ XRAY> 
+ XRAY>  hermitian=true 
+ XPARSE: data will be reduced to hemisphere.          Anomalous signal will be lost.
+ XAVEFRIED: Friedel mates of all recipr. space obj. will be averaged.
+    (also operates on phases and HL coefficients)
+ XREDUC: some reflection(s) converted to CNS standard asymm. unit.
+ XREDU2: multiple instances found for some reflections.
+ XREDU2: deleting redundant reflections.
+ XREDU2:        2 reflections have been deleted.
+ XREDU2: sorting all reflections.
+ XRMAPR: symmetry or unitcell changed. Real space obj. deleted.
+ XRAY>  declare name=map1 domain=real end 
+ XRAY>  do (map1=ft(fcalc)) ( all ) 
+ XSFAL: allocating space for complex reciprocal space object.
+ Total of         3 structure factor elements were selected.
+ XMAPASU: using grid [   8,   8,   4] and sublattice [   8,   8,   4]
+ %XASUDEF-warning: no asymmetric unit for maps specified.
+ %XASUDEF-warning: excessive memory and CPU usage may occur.
+ Maps will be stored in P1:
+   A=     0,...,     7  B=     0,...,     7  C=     0,...,     3
+ XMAPAL: allocating space for real space object.
+ XRAY> 
+ XRAY>  write map 
+ WRITe MAP>     from=map1 
+ WRITe MAP>     extend=unit 
+ WRITe MAP>     output=OUTPUT 
+ WRITe MAP>  end 
+ XMAPX: map will be scaled.
+ XMAPX: extend NA=(   8   0   8) NB=(   8   0   8) NC=(   4   0   4) 
+ XMAPX: ave. density (real) in unit cell=       0.00000 sigma=       0.04318 e/A^3
+
+       3 !NTITLE
+ REMARKS FILENAME="OUTPUT"                                                                                                                                                                                                                                              
+ REMARKS DATE:05-Jul-2018  16:08:22       created by user: oeow39                                                                                                                                                                                                       
+ REMARKS VERSION:1.3                                                                                                                                                                                                                                                    
+       8       0       8       8       0       8       4       0       4
+ 0.16000E+02 0.16000E+02 0.80000E+01 0.90000E+02 0.90000E+02 0.12000E+03
+ZYX
+ XMAPX: real part of section #   0 ave. dens.=      -0.00031 sigma=       0.04297 e/A^3
+       0
+-0.13395E+01-0.87523E+00-0.63650E+00-0.56218E+00 0.63483E+00 0.20524E+01
+ 0.15295E+01-0.42664E+00-0.13395E+01-0.87523E+00-0.42664E+00 0.25944E+00
+-0.72861E-01-0.14589E+00 0.93710E+00 0.14587E+01 0.25944E+00-0.87523E+00
+-0.63650E+00 0.55278E-01 0.15295E+01 0.14587E+01-0.47773E-01-0.64371E+00
+-0.47773E-01-0.72861E-01-0.63650E+00-0.56218E+00-0.56575E+00 0.96583E+00
+ 0.20524E+01 0.93710E+00-0.64371E+00-0.64371E+00-0.14589E+00-0.56218E+00
+ 0.63483E+00-0.84293E+00-0.10335E+01 0.24006E+00 0.63483E+00-0.14589E+00
+-0.47773E-01 0.93710E+00 0.63483E+00 0.20524E+01 0.24006E+00-0.18336E+01
+-0.18336E+01-0.84293E+00-0.56218E+00-0.72861E-01 0.14587E+01 0.20524E+01
+ 0.15295E+01 0.96583E+00-0.10335E+01-0.18336E+01-0.10335E+01-0.56575E+00
+-0.63650E+00 0.25944E+00 0.15295E+01-0.42664E+00 0.55278E-01-0.56575E+00
+-0.84293E+00 0.24006E+00 0.96583E+00 0.55278E-01-0.87523E+00-0.42664E+00
+-0.13395E+01-0.87523E+00-0.63650E+00-0.56218E+00 0.63483E+00 0.20524E+01
+ 0.15295E+01-0.42664E+00-0.13395E+01
+ XMAPX: real part of section #   1 ave. dens.=      -0.00031 sigma=       0.04784 e/A^3
+       1
+-0.13395E+01-0.87523E+00-0.63650E+00-0.56218E+00 0.63483E+00 0.20524E+01
+ 0.15295E+01-0.42664E+00-0.13395E+01-0.87523E+00-0.42664E+00-0.54292E-01
+-0.83027E+00-0.12170E+01-0.13404E+00 0.70131E+00-0.54292E-01-0.87523E+00
+-0.63650E+00 0.36901E+00 0.15295E+01 0.70131E+00-0.15626E+01-0.24723E+01
+-0.15626E+01-0.83027E+00-0.63650E+00-0.56218E+00 0.19166E+00 0.17232E+01
+ 0.20524E+01-0.13404E+00-0.24723E+01-0.24723E+01-0.12170E+01-0.56218E+00
+ 0.63483E+00 0.22821E+00 0.48128E+00 0.13112E+01 0.63483E+00-0.12170E+01
+-0.15626E+01-0.13404E+00 0.63483E+00 0.20524E+01 0.13112E+01-0.50905E-02
+-0.50905E-02 0.22821E+00-0.56218E+00-0.83027E+00 0.70131E+00 0.20524E+01
+ 0.15295E+01 0.17232E+01 0.48128E+00-0.50905E-02 0.48128E+00 0.19166E+00
+-0.63650E+00-0.54292E-01 0.15295E+01-0.42664E+00 0.36901E+00 0.19166E+00
+ 0.22821E+00 0.13112E+01 0.17232E+01 0.36901E+00-0.87523E+00-0.42664E+00
+-0.13395E+01-0.87523E+00-0.63650E+00-0.56218E+00 0.63483E+00 0.20524E+01
+ 0.15295E+01-0.42664E+00-0.13395E+01
+ XMAPX: real part of section #   2 ave. dens.=      -0.00031 sigma=       0.04297 e/A^3
+       2
+-0.13395E+01-0.87523E+00-0.63650E+00-0.56218E+00 0.63483E+00 0.20524E+01
+ 0.15295E+01-0.42664E+00-0.13395E+01-0.87523E+00-0.42664E+00 0.55278E-01
+-0.56575E+00-0.84293E+00 0.24006E+00 0.96583E+00 0.55278E-01-0.87523E+00
+-0.63650E+00 0.25944E+00 0.15295E+01 0.96583E+00-0.10335E+01-0.18336E+01
+-0.10335E+01-0.56575E+00-0.63650E+00-0.56218E+00-0.72861E-01 0.14587E+01
+ 0.20524E+01 0.24006E+00-0.18336E+01-0.18336E+01-0.84293E+00-0.56218E+00
+ 0.63483E+00-0.14589E+00-0.47773E-01 0.93710E+00 0.63483E+00-0.84293E+00
+-0.10335E+01 0.24006E+00 0.63483E+00 0.20524E+01 0.93710E+00-0.64371E+00
+-0.64371E+00-0.14589E+00-0.56218E+00-0.56575E+00 0.96583E+00 0.20524E+01
+ 0.15295E+01 0.14587E+01-0.47773E-01-0.64371E+00-0.47773E-01-0.72861E-01
+-0.63650E+00 0.55278E-01 0.15295E+01-0.42664E+00 0.25944E+00-0.72861E-01
+-0.14589E+00 0.93710E+00 0.14587E+01 0.25944E+00-0.87523E+00-0.42664E+00
+-0.13395E+01-0.87523E+00-0.63650E+00-0.56218E+00 0.63483E+00 0.20524E+01
+ 0.15295E+01-0.42664E+00-0.13395E+01
+ XMAPX: real part of section #   3 ave. dens.=      -0.00031 sigma=       0.04784 e/A^3
+       3
+-0.13395E+01-0.87523E+00-0.63650E+00-0.56218E+00 0.63483E+00 0.20524E+01
+ 0.15295E+01-0.42664E+00-0.13395E+01-0.87523E+00-0.42664E+00 0.36901E+00
+ 0.19166E+00 0.22821E+00 0.13112E+01 0.17232E+01 0.36901E+00-0.87523E+00
+-0.63650E+00-0.54292E-01 0.15295E+01 0.17232E+01 0.48128E+00-0.50905E-02
+ 0.48128E+00 0.19166E+00-0.63650E+00-0.56218E+00-0.83027E+00 0.70131E+00
+ 0.20524E+01 0.13112E+01-0.50905E-02-0.50905E-02 0.22821E+00-0.56218E+00
+ 0.63483E+00-0.12170E+01-0.15626E+01-0.13404E+00 0.63483E+00 0.22821E+00
+ 0.48128E+00 0.13112E+01 0.63483E+00 0.20524E+01-0.13404E+00-0.24723E+01
+-0.24723E+01-0.12170E+01-0.56218E+00 0.19166E+00 0.17232E+01 0.20524E+01
+ 0.15295E+01 0.70131E+00-0.15626E+01-0.24723E+01-0.15626E+01-0.83027E+00
+-0.63650E+00 0.36901E+00 0.15295E+01-0.42664E+00-0.54292E-01-0.83027E+00
+-0.12170E+01-0.13404E+00 0.70131E+00-0.54292E-01-0.87523E+00-0.42664E+00
+-0.13395E+01-0.87523E+00-0.63650E+00-0.56218E+00 0.63483E+00 0.20524E+01
+ 0.15295E+01-0.42664E+00-0.13395E+01
+ XMAPX: real part of section #   4 ave. dens.=      -0.00031 sigma=       0.04297 e/A^3
+       4
+-0.13395E+01-0.87523E+00-0.63650E+00-0.56218E+00 0.63483E+00 0.20524E+01
+ 0.15295E+01-0.42664E+00-0.13395E+01-0.87523E+00-0.42664E+00 0.25944E+00
+-0.72861E-01-0.14589E+00 0.93710E+00 0.14587E+01 0.25944E+00-0.87523E+00
+-0.63650E+00 0.55278E-01 0.15295E+01 0.14587E+01-0.47773E-01-0.64371E+00
+-0.47773E-01-0.72861E-01-0.63650E+00-0.56218E+00-0.56575E+00 0.96583E+00
+ 0.20524E+01 0.93710E+00-0.64371E+00-0.64371E+00-0.14589E+00-0.56218E+00
+ 0.63483E+00-0.84293E+00-0.10335E+01 0.24006E+00 0.63483E+00-0.14589E+00
+-0.47773E-01 0.93710E+00 0.63483E+00 0.20524E+01 0.24006E+00-0.18336E+01
+-0.18336E+01-0.84293E+00-0.56218E+00-0.72861E-01 0.14587E+01 0.20524E+01
+ 0.15295E+01 0.96583E+00-0.10335E+01-0.18336E+01-0.10335E+01-0.56575E+00
+-0.63650E+00 0.25944E+00 0.15295E+01-0.42664E+00 0.55278E-01-0.56575E+00
+-0.84293E+00 0.24006E+00 0.96583E+00 0.55278E-01-0.87523E+00-0.42664E+00
+-0.13395E+01-0.87523E+00-0.63650E+00-0.56218E+00 0.63483E+00 0.20524E+01
+ 0.15295E+01-0.42664E+00-0.13395E+01
+   -9999
+  0.1131E-09   0.4318E-01
+ XRAY> 
+ XRAY>end 
+ CNSsolve> 
+ CNSsolve> 
+ CNSsolve>{* now with anomalous scatterers *} 
+ CNSsolve>xray 
+ XRAY>  reset 
+ XRAY: whole xray database erased and reset
+ XRAY>   declare name=fobs type=complex domain=reciprocal end 
+ XDECLARE: Object FOBS has been declared.
+ XRAY>   declare name=fpart domain=reciprocal type=complex end 
+ XDECLARE: Object FPART has been declared.
+ XRAY>   declare name=fcalc domain=reciprocal type=complex end 
+ XDECLARE: Object FCALC has been declared.
+ XRAY> 
+ XRAY>  evaluate ($lr=10.) 
+ EVALUATE: symbol $LR set to    10.0000     (real)
+ XRAY>  evaluate ($hr=6.) 
+ EVALUATE: symbol $HR set to    6.00000     (real)
+ XRAY>  binresolution $lr $hr 
+ XRAY>  mapresolution $hr 
+ XRAY>  tselection=( $hr <= d <= $lr  ) 
+ XRAY> 
+ XRAY>  a=16.00 b=16.00 c=8.00 alpha=90.0 beta=90.00 gamma=120.0 
+ XRAY> 
+ XRAY>  hermitian=false 
+ XRAY>  symmetry=( x, y, z) 
+ XRAY> 
+ XRAY>  SCATter ( chemical C* ) 
+ SELRPN:      2 atoms have been selected out of      3
+ SCATTER_A1= 2.31000 20.8439 1.02 10.2075 1.58860 .568700 .865000 51.651 .2156 
+ XRAY>    IMAG 2.0 
+ XRAY>  SCATter ( chemical FE ) 
+ SELRPN:      1 atoms have been selected out of      3
+ SCATTER_A1=   2.31000 20.8439 1.02 10.2075 1.58860 .568700 .865000 51.651 .2156 
+ XRAY>    IMAG 5.0 
+ XRAY>  associate fcalc ( chemical FE or chemical C*) 
+ SELRPN:      3 atoms have been selected out of      3
+ XRAY>  asele=( chemical FE or chemical C*) 
+ SELRPN:      3 atoms have been selected out of      3
+ XRAY> 
+ XRAY>  tolerance=0. 
+ XRAY>  associate fcalc ( all ) 
+ SELRPN:      3 atoms have been selected out of      3
+ XRAY>  method=fft lookup=false 
+ XRAY>  fft 
+ XFFT>     prime=5 avoid=2 
+ XFFT>  end 
+ XRAY>  nreflections=1000 
+ XRAY: allocating space for    1000 reflections.
+ XRAY>  generate  10. 6. 
+ XGENER: generating reflections to produce a full set
+         for the specified resolution range.
+ XGENE2:       26 new reflections have been generated.
+ XRAY>  do (fpart=0) ( all ) 
+ XSFAL: allocating space for complex reciprocal space object.
+ Total of        26 structure factor elements were selected.
+ XRAY> 
+ XRAY>  predict 
+ PREDict>      mode=reciprocal 
+ PREDict>      to=fcalc 
+ PREDict>      selection=( all ) 
+ Total of        26 structure factor elements were selected.
+ PREDict>      atomselection=( chemical FE or chemical C* ) 
+ SELRPN:      3 atoms have been selected out of      3
+ PREDict>  end 
+ FCALC: #scatt.=      3 #anomalous=   3 #special pos.=  0 occupancies=1
+ XSFAL: allocating space for complex reciprocal space object.
+ XFFT: using grid [   8,   8,   4] and sublattice [   8(   9),   8(   9),   2]
+ XRAY>  declare name=map1 domain=real end 
+ XRAY>  do (map1=ft(fcalc) ) ( all ) 
+ XSFAL: allocating space for complex reciprocal space object.
+ Total of        26 structure factor elements were selected.
+ XMAPASU: using grid [   8,   8,   4] and sublattice [   8,   8,   4]
+ Maps will be stored in P1:
+   A=     0,...,     7  B=     0,...,     7  C=     0,...,     3
+ XMAPAL: allocating space for real space object.
+ XRAY> 
+ XRAY>  write map 
+ WRITe MAP>     from=map1 
+ WRITe MAP>     extend=unit 
+ WRITe MAP>     output=OUTPUT 
+ WRITe MAP>     ioutput=OUTPUT 
+ WRITe MAP>  end 
+ XMAPX: map will be scaled.
+ XMAPX: extend NA=(   8   0   8) NB=(   8   0   8) NC=(   4   0   4) 
+ XMAPX: ave. density (real) in unit cell=       0.00000 sigma=       0.02522 e/A^3
+ XMAPX: ave. density (imaginary) in unit cell=       0.00000 sigma=       0.01527 e/A^3
+
+       3 !NTITLE
+ REMARKS FILENAME="OUTPUT"                                                                                                                                                                                                                                              
+ REMARKS DATE:05-Jul-2018  16:08:22       created by user: oeow39                                                                                                                                                                                                       
+ REMARKS VERSION:1.3                                                                                                                                                                                                                                                    
+       8       0       8       8       0       8       4       0       4
+ 0.16000E+02 0.16000E+02 0.80000E+01 0.90000E+02 0.90000E+02 0.12000E+03
+ZYX
+
+       3 !NTITLE
+ REMARKS FILENAME="OUTPUT"                                                                                                                                                                                                                                              
+ REMARKS DATE:05-Jul-2018  16:08:22       created by user: oeow39                                                                                                                                                                                                       
+ REMARKS VERSION:1.3                                                                                                                                                                                                                                                    
+       8       0       8       8       0       8       4       0       4
+ 0.16000E+02 0.16000E+02 0.80000E+01 0.90000E+02 0.90000E+02 0.12000E+03
+ZYX
+ XMAPX: real part of section #   0 ave. dens.=       0.00043 sigma=       0.01845 e/A^3
+       0
+-0.23110E+00-0.25873E+00 0.10287E+00 0.43409E+00 0.37686E+00 0.17250E+00
+ 0.10474E+00 0.55151E-02-0.23110E+00 0.37800E+00-0.33961E+00-0.30399E+00
+ 0.28018E+00 0.43325E+00 0.24935E+00 0.47367E+00 0.79101E+00 0.37800E+00
+ 0.19698E+00-0.33582E+00-0.58322E+00-0.60478E+00-0.62750E+00-0.43360E+00
+ 0.10298E+00 0.46343E+00 0.19698E+00-0.50048E+00-0.10435E+01-0.55823E+00
+-0.54488E+00-0.13567E+01-0.13020E+01-0.67548E-01 0.40749E+00-0.50048E+00
+ 0.27171E+00-0.14855E+01-0.83579E+00 0.35603E+00-0.45919E+00-0.13197E+01
+ 0.12956E+00 0.15555E+01 0.27171E+00 0.18935E+01-0.60883E+00-0.12663E+01
+ 0.41267E+00 0.71180E+00-0.65070E+00-0.14381E+00 0.20420E+01 0.18935E+01
+ 0.18375E+01 0.51020E+00-0.10055E+01-0.33935E+00 0.60247E+00-0.21427E+00
+-0.79509E+00 0.68273E+00 0.18375E+01 0.30398E+00 0.42214E+00-0.19311E+00
+-0.30199E+00 0.10425E+00-0.91746E-01-0.72012E+00-0.53341E+00 0.30398E+00
+-0.23110E+00-0.25873E+00 0.10287E+00 0.43409E+00 0.37686E+00 0.17250E+00
+ 0.10474E+00 0.55151E-02-0.23110E+00
+ XMAPX: imaginary part of section #   0 ave. dens.=       0.00201 sigma=       0.01267 e/A^3
+       0
+-0.34633E+00-0.44843E+00-0.83206E-01 0.31860E+00 0.36356E+00 0.24214E+00
+ 0.18351E+00 0.52227E-02-0.34633E+00 0.27018E+00-0.44772E+00-0.31486E+00
+ 0.29649E+00 0.35920E+00 0.13098E+00 0.41451E+00 0.74928E+00 0.27018E+00
+ 0.16285E+00-0.25615E+00-0.42954E+00-0.39650E+00-0.49082E+00-0.51651E+00
+-0.14406E+00 0.26759E+00 0.16285E+00-0.55052E+00-0.84806E+00-0.35948E+00
+-0.42454E+00-0.11129E+01-0.96783E+00 0.33550E-01 0.25105E+00-0.55052E+00
+ 0.40810E+00-0.12301E+01-0.56868E+00 0.31255E+00-0.48052E+00-0.79091E+00
+ 0.94108E+00 0.20085E+01 0.40810E+00 0.24222E+01-0.31643E+00-0.93518E+00
+ 0.45314E+00 0.46031E+00-0.44258E+00 0.84835E+00 0.31016E+01 0.24222E+01
+ 0.24519E+01 0.71121E+00-0.82133E+00-0.16891E+00 0.49624E+00-0.29459E+00
+-0.28809E+00 0.15910E+01 0.24519E+01 0.53462E+00 0.38871E+00-0.29323E+00
+-0.25934E+00 0.18188E+00-0.80443E-01-0.60398E+00-0.22964E+00 0.53462E+00
+-0.34633E+00-0.44843E+00-0.83206E-01 0.31860E+00 0.36356E+00 0.24214E+00
+ 0.18351E+00 0.52227E-02-0.34633E+00
+ XMAPX: real part of section #   1 ave. dens.=       0.01310 sigma=       0.02566 e/A^3
+       1
+-0.32082E+00-0.54375E+00-0.31382E+00 0.26493E-01 0.11380E+00 0.10473E+00
+ 0.16865E+00 0.60323E-01-0.32082E+00 0.58830E-01-0.47929E+00-0.37770E+00
+ 0.12029E+00 0.85505E-01-0.27788E+00-0.11954E+00 0.28398E+00 0.58830E-01
+-0.10940E+00-0.13033E+00 0.63035E-01 0.15294E+00-0.15292E+00-0.47089E+00
+-0.37507E+00-0.12608E+00-0.10940E+00-0.55930E+00-0.49521E+00 0.76324E+00
+ 0.12628E+01 0.36557E+00-0.18691E+00 0.27438E+00 0.26318E+00-0.55930E+00
+ 0.55018E+00-0.79752E+00 0.72060E+00 0.27310E+01 0.22051E+01 0.93510E+00
+ 0.15159E+01 0.21232E+01 0.55018E+00 0.24015E+01-0.66201E-01-0.52934E-01
+ 0.25400E+01 0.34608E+01 0.20636E+01 0.18997E+01 0.31716E+01 0.24015E+01
+ 0.23326E+01 0.70765E+00-0.51209E+00 0.87037E+00 0.25291E+01 0.20101E+01
+ 0.11332E+01 0.18948E+01 0.23326E+01 0.55154E+00 0.27676E+00-0.37488E+00
+-0.14228E+00 0.78328E+00 0.98023E+00 0.38824E+00 0.23347E+00 0.55154E+00
+-0.32082E+00-0.54375E+00-0.31382E+00 0.26493E-01 0.11380E+00 0.10473E+00
+ 0.16865E+00 0.60323E-01-0.32082E+00
+ XMAPX: imaginary part of section #   1 ave. dens.=       0.00741 sigma=       0.01563 e/A^3
+       1
+-0.36623E+00-0.53642E+00-0.29449E+00 0.10342E-02 0.18993E-01-0.34338E-01
+ 0.30333E-01-0.41674E-01-0.36623E+00 0.67997E-01-0.44691E+00-0.24401E+00
+ 0.26342E+00 0.10911E+00-0.32210E+00-0.10861E+00 0.33008E+00 0.67997E-01
+-0.14765E-01-0.40763E-01 0.12698E+00 0.24944E+00-0.59558E-01-0.47825E+00
+-0.44693E+00-0.12470E+00-0.14765E-01-0.51112E+00-0.41800E+00 0.60172E+00
+ 0.89716E+00 0.18744E+00-0.58111E-01 0.41213E+00 0.26913E+00-0.51112E+00
+ 0.72985E+00-0.71106E+00 0.47918E+00 0.19109E+01 0.13676E+01 0.85991E+00
+ 0.20631E+01 0.25800E+01 0.72985E+00 0.29263E+01 0.11384E+00-0.16946E+00
+ 0.17670E+01 0.22140E+01 0.13849E+01 0.23403E+01 0.40454E+01 0.29263E+01
+ 0.29314E+01 0.92690E+00-0.54127E+00 0.46597E+00 0.15685E+01 0.10415E+01
+ 0.98363E+00 0.25079E+01 0.29314E+01 0.79708E+00 0.38973E+00-0.41787E+00
+-0.30023E+00 0.38507E+00 0.38418E+00-0.13701E-01 0.27689E+00 0.79708E+00
+-0.36623E+00-0.53642E+00-0.29449E+00 0.10342E-02 0.18993E-01-0.34338E-01
+ 0.30333E-01-0.41674E-01-0.36623E+00
+ XMAPX: real part of section #   2 ave. dens.=       0.00073 sigma=       0.01748 e/A^3
+       2
+-0.53334E+00-0.44744E+00 0.15043E-01 0.37540E+00 0.25851E+00-0.59383E-01
+-0.22802E+00-0.35640E+00-0.53334E+00 0.55111E+00 0.21278E+00 0.39490E+00
+ 0.80701E+00 0.57022E+00 0.70463E-02 0.84849E-01 0.57425E+00 0.55111E+00
+ 0.48387E+00 0.66054E+00 0.82540E+00 0.67739E+00 0.63595E-01-0.45197E+00
+-0.32765E+00 0.15924E+00 0.48387E+00-0.52802E+00-0.16040E+00 0.10674E+01
+ 0.12200E+01-0.13721E+00-0.99322E+00-0.50124E+00-0.16550E+00-0.52802E+00
+-0.31430E+00-0.12064E+01 0.38692E+00 0.20482E+01 0.95331E+00-0.77226E+00
+-0.26666E+00 0.68974E+00-0.31430E+00 0.83218E+00-0.10709E+01-0.83036E+00
+ 0.15194E+01 0.18690E+01-0.92825E-01-0.48397E+00 0.10312E+01 0.83218E+00
+ 0.66232E+00-0.39583E+00-0.12793E+01 0.12001E-01 0.12055E+01 0.11967E+00
+-0.10934E+01-0.24071E+00 0.66232E+00-0.55673E+00-0.37066E+00-0.68382E+00
+-0.43336E+00 0.17895E+00-0.84938E-01-0.10154E+01-0.11880E+01-0.55673E+00
+-0.53334E+00-0.44744E+00 0.15043E-01 0.37540E+00 0.25851E+00-0.59383E-01
+-0.22802E+00-0.35640E+00-0.53334E+00
+ XMAPX: imaginary part of section #   2 ave. dens.=      -0.00162 sigma=       0.01193 e/A^3
+       2
+-0.82938E+00-0.81737E+00-0.19439E+00 0.45783E+00 0.59917E+00 0.36363E+00
+ 0.47248E-01-0.38145E+00-0.82938E+00 0.60918E+00 0.20322E+00 0.47016E+00
+ 0.95920E+00 0.71488E+00 0.17473E+00 0.32418E+00 0.78125E+00 0.60918E+00
+ 0.61784E+00 0.91418E+00 0.10727E+01 0.85976E+00 0.85675E-01-0.65535E+00
+-0.61480E+00 0.42816E-01 0.61784E+00-0.75358E+00 0.36938E-01 0.12608E+01
+ 0.11476E+01-0.34421E+00-0.12872E+01-0.10211E+01-0.75543E+00-0.75358E+00
+-0.84155E+00-0.12680E+01 0.50143E+00 0.17379E+01 0.33924E+00-0.11829E+01
+-0.55892E+00 0.15320E+00-0.84155E+00 0.35054E+00-0.13742E+01-0.76127E+00
+ 0.13550E+01 0.11600E+01-0.75680E+00-0.69757E+00 0.82769E+00 0.35054E+00
+ 0.26422E+00-0.86597E+00-0.13646E+01 0.13944E+00 0.97511E+00-0.42622E+00
+-0.14536E+01-0.42615E+00 0.26422E+00-0.99502E+00-0.90314E+00-0.95462E+00
+-0.26689E+00 0.46852E+00-0.31590E-01-0.11856E+01-0.14651E+01-0.99502E+00
+-0.82938E+00-0.81737E+00-0.19439E+00 0.45783E+00 0.59917E+00 0.36363E+00
+ 0.47248E-01-0.38145E+00-0.82938E+00
+ XMAPX: real part of section #   3 ave. dens.=      -0.01194 sigma=       0.02496 e/A^3
+       3
+-0.44362E+00-0.16241E+00 0.43173E+00 0.78300E+00 0.52157E+00 0.83789E-02
+-0.29193E+00-0.41120E+00-0.44362E+00 0.87028E+00 0.35246E+00 0.46862E+00
+ 0.96690E+00 0.91797E+00 0.53428E+00 0.67806E+00 0.10813E+01 0.87028E+00
+ 0.79024E+00 0.45504E+00 0.17914E+00-0.80321E-01-0.41099E+00-0.41468E+00
+ 0.15040E+00 0.74875E+00 0.79024E+00-0.46920E+00-0.70872E+00-0.25411E+00
+-0.58770E+00-0.18594E+01-0.21083E+01-0.84317E+00-0.21185E-01-0.46920E+00
+-0.59276E+00-0.18944E+01-0.11695E+01-0.32679E+00-0.17110E+01-0.30271E+01
+-0.16530E+01 0.12199E+00-0.59276E+00 0.32427E+00-0.16135E+01-0.20438E+01
+-0.60795E+00-0.88002E+00-0.28071E+01-0.25275E+01-0.98416E-01 0.32427E+00
+ 0.16720E+00-0.59328E+00-0.17727E+01-0.11977E+01-0.72114E+00-0.21047E+01
+-0.30218E+01-0.14528E+01 0.16720E+00-0.80429E+00-0.22529E+00-0.50205E+00
+-0.59308E+00-0.50008E+00-0.11569E+01-0.21238E+01-0.19549E+01-0.80429E+00
+-0.44362E+00-0.16241E+00 0.43173E+00 0.78300E+00 0.52157E+00 0.83789E-02
+-0.29193E+00-0.41120E+00-0.44362E+00
+ XMAPX: imaginary part of section #   3 ave. dens.=      -0.00701 sigma=       0.01488 e/A^3
+       3
+-0.80949E+00-0.72938E+00 0.16899E-01 0.77539E+00 0.94373E+00 0.64011E+00
+ 0.20042E+00-0.33455E+00-0.80949E+00 0.81136E+00 0.20241E+00 0.39930E+00
+ 0.99228E+00 0.96497E+00 0.62781E+00 0.84731E+00 0.12004E+01 0.81136E+00
+ 0.79546E+00 0.69879E+00 0.51617E+00 0.21382E+00-0.34559E+00-0.69361E+00
+-0.31193E+00 0.43510E+00 0.79546E+00-0.79298E+00-0.39312E+00 0.29963E+00
+-0.17409E+00-0.16446E+01-0.21969E+01-0.13997E+01-0.77351E+00-0.79298E+00
+-0.11633E+01-0.17871E+01-0.54643E+00 0.13955E+00-0.15089E+01-0.28337E+01
+-0.16809E+01-0.41831E+00-0.11633E+01-0.15350E+00-0.18045E+01-0.15270E+01
+ 0.41147E-01-0.59366E+00-0.25842E+01-0.21896E+01-0.11612E+00-0.15350E+00
+-0.21525E+00-0.10817E+01-0.16447E+01-0.49543E+00-0.97194E-01-0.17623E+01
+-0.27253E+01-0.13430E+01-0.21525E+00-0.12575E+01-0.90416E+00-0.82999E+00
+-0.22600E+00 0.26533E+00-0.49622E+00-0.17759E+01-0.19716E+01-0.12575E+01
+-0.80949E+00-0.72938E+00 0.16899E-01 0.77539E+00 0.94373E+00 0.64011E+00
+ 0.20042E+00-0.33455E+00-0.80949E+00
+ XMAPX: real part of section #   4 ave. dens.=       0.00043 sigma=       0.01845 e/A^3
+       4
+-0.23110E+00-0.25873E+00 0.10287E+00 0.43409E+00 0.37686E+00 0.17250E+00
+ 0.10474E+00 0.55151E-02-0.23110E+00 0.37800E+00-0.33961E+00-0.30399E+00
+ 0.28018E+00 0.43325E+00 0.24935E+00 0.47367E+00 0.79101E+00 0.37800E+00
+ 0.19698E+00-0.33582E+00-0.58322E+00-0.60478E+00-0.62750E+00-0.43360E+00
+ 0.10298E+00 0.46343E+00 0.19698E+00-0.50048E+00-0.10435E+01-0.55823E+00
+-0.54488E+00-0.13567E+01-0.13020E+01-0.67548E-01 0.40749E+00-0.50048E+00
+ 0.27171E+00-0.14855E+01-0.83579E+00 0.35603E+00-0.45919E+00-0.13197E+01
+ 0.12956E+00 0.15555E+01 0.27171E+00 0.18935E+01-0.60883E+00-0.12663E+01
+ 0.41267E+00 0.71180E+00-0.65070E+00-0.14381E+00 0.20420E+01 0.18935E+01
+ 0.18375E+01 0.51020E+00-0.10055E+01-0.33935E+00 0.60247E+00-0.21427E+00
+-0.79509E+00 0.68273E+00 0.18375E+01 0.30398E+00 0.42214E+00-0.19311E+00
+-0.30199E+00 0.10425E+00-0.91746E-01-0.72012E+00-0.53341E+00 0.30398E+00
+-0.23110E+00-0.25873E+00 0.10287E+00 0.43409E+00 0.37686E+00 0.17250E+00
+ 0.10474E+00 0.55151E-02-0.23110E+00
+ XMAPX: imaginary part of section #   4 ave. dens.=       0.00201 sigma=       0.01267 e/A^3
+       4
+-0.34633E+00-0.44843E+00-0.83206E-01 0.31860E+00 0.36356E+00 0.24214E+00
+ 0.18351E+00 0.52227E-02-0.34633E+00 0.27018E+00-0.44772E+00-0.31486E+00
+ 0.29649E+00 0.35920E+00 0.13098E+00 0.41451E+00 0.74928E+00 0.27018E+00
+ 0.16285E+00-0.25615E+00-0.42954E+00-0.39650E+00-0.49082E+00-0.51651E+00
+-0.14406E+00 0.26759E+00 0.16285E+00-0.55052E+00-0.84806E+00-0.35948E+00
+-0.42454E+00-0.11129E+01-0.96783E+00 0.33550E-01 0.25105E+00-0.55052E+00
+ 0.40810E+00-0.12301E+01-0.56868E+00 0.31255E+00-0.48052E+00-0.79091E+00
+ 0.94108E+00 0.20085E+01 0.40810E+00 0.24222E+01-0.31643E+00-0.93518E+00
+ 0.45314E+00 0.46031E+00-0.44258E+00 0.84835E+00 0.31016E+01 0.24222E+01
+ 0.24519E+01 0.71121E+00-0.82133E+00-0.16891E+00 0.49624E+00-0.29459E+00
+-0.28809E+00 0.15910E+01 0.24519E+01 0.53462E+00 0.38871E+00-0.29323E+00
+-0.25934E+00 0.18188E+00-0.80443E-01-0.60398E+00-0.22964E+00 0.53462E+00
+-0.34633E+00-0.44843E+00-0.83206E-01 0.31860E+00 0.36356E+00 0.24214E+00
+ 0.18351E+00 0.52227E-02-0.34633E+00
+   -9999
+ -0.2228E-10   0.2522E-01
+   -9999
+  0.1938E-10   0.1527E-01
+ XRAY> 
+ XRAY>  do (fobs=combine(40.+3.*amplitude(fcalc),0))   ( all ) 
+ XSFAL: allocating space for complex reciprocal space object.
+ Total of        26 structure factor elements were selected.
+ XRAY>  optimize bfactor 
+ XROPTI>      debug=true 
+ XROPTI>      step=0.0001 
+ XROPTI>  end 
+ XBREF:        3 individual B-factors will be refined.
+ XBSET: There are     0 bond restraints on B-factors
+        Initial sum (bi-bj)/bsigma^2:    0.00000
+ XBSET: There are     0 angle restraints on B-factors
+        Initial sum (bi-bj)/asigma^2:    0.00000
+ XBRMS: total number of bond B restraints =        0 ( $BN_BOND   )
+ XBRMS: overall rmsd for bond B restraints =    0.000 ( $BRMS_BOND )
+ XBRMS: total number of angle B restraints =        0 ( $BN_ANGL   )
+ XBRMS: overall rmsd for angle B restraints =    0.000 ( $BRMS_ANGL )
+ XRTSELSET: number of selected reflections      26
+ FCALC: #scatt.=      3 #anomalous=   3 #special pos.=  0 occupancies=1
+ XFFT: using grid [   8,   8,   4] and sublattice [   8(   9),   8(   9),   2]
+ XTAREXPR:                 monitor=  0.199
+ XBFUNC: restraint weight has been set to         0.00000
+ FCALC: #scatt.=      3 #anomalous=   3 #special pos.=  0 occupancies=1
+ XFFT: using grid [   8,   8,   4] and sublattice [   8(   9),   8(   9),   2]
+ XTAREXPR:                 monitor=  0.199
+ FCALC: #scatt.=      3 #anomalous=   3 #special pos.=  0 occupancies=1
+ XFFT: using grid [   8,   8,   4] and sublattice [   8(   9),   8(   9),   2]
+ XTAREXPR:                 monitor=  0.199
+ XBDEBUG: index #      1 analyt.=     0.00005 finite=     0.00005
+ FCALC: #scatt.=      3 #anomalous=   3 #special pos.=  0 occupancies=1
+ XFFT: using grid [   8,   8,   4] and sublattice [   8(   9),   8(   9),   2]
+ XTAREXPR:                 monitor=  0.199
+ FCALC: #scatt.=      3 #anomalous=   3 #special pos.=  0 occupancies=1
+ XFFT: using grid [   8,   8,   4] and sublattice [   8(   9),   8(   9),   2]
+ XTAREXPR:                 monitor=  0.199
+ FCALC: #scatt.=      3 #anomalous=   3 #special pos.=  0 occupancies=1
+ XFFT: using grid [   8,   8,   4] and sublattice [   8(   9),   8(   9),   2]
+ XTAREXPR:                 monitor=  0.199
+ XBDEBUG: index #      2 analyt.=    -0.00004 finite=    -0.00004
+ FCALC: #scatt.=      3 #anomalous=   3 #special pos.=  0 occupancies=1
+ XFFT: using grid [   8,   8,   4] and sublattice [   8(   9),   8(   9),   2]
+ XTAREXPR:                 monitor=  0.199
+ FCALC: #scatt.=      3 #anomalous=   3 #special pos.=  0 occupancies=1
+ XFFT: using grid [   8,   8,   4] and sublattice [   8(   9),   8(   9),   2]
+ XTAREXPR:                 monitor=  0.199
+ FCALC: #scatt.=      3 #anomalous=   3 #special pos.=  0 occupancies=1
+ XFFT: using grid [   8,   8,   4] and sublattice [   8(   9),   8(   9),   2]
+ XTAREXPR:                 monitor=  0.199
+ XBDEBUG: index #      3 analyt.=     0.00019 finite=     0.00019
+ XBRMS: total number of bond B restraints =        0 ( $BN_BOND   )
+ XBRMS: overall rmsd for bond B restraints =    0.000 ( $BRMS_BOND )
+ XBRMS: total number of angle B restraints =        0 ( $BN_ANGL   )
+ XBRMS: overall rmsd for angle B restraints =    0.000 ( $BRMS_ANGL )
+ XRAY>end 
+ CNSsolve> 
+ CNSsolve> 
+ CNSsolve> 
+ CNSsolve> 
+ CNSsolve>{* test special positions, first no special positions *} 
+ CNSsolve>{* ================================================== *} 
+ CNSsolve>do (chemical=C) ( all ) 
+ Assuming literal string "C"
+ SELRPN:      3 atoms have been selected out of      3
+ CNSsolve>xray 
+ XRAY>  reset 
+ XRAY: whole xray database erased and reset
+ XRAY>   declare name=fobs type=complex domain=reciprocal end 
+ XDECLARE: Object FOBS has been declared.
+ XRAY>   declare name=fpart domain=reciprocal type=complex end 
+ XDECLARE: Object FPART has been declared.
+ XRAY>   declare name=fcalc domain=reciprocal type=complex end 
+ XDECLARE: Object FCALC has been declared.
+ XRAY> 
+ XRAY>  a=16.00 b=16.00 c=8.00 alpha=90.0 beta=90.00 gamma=120.0 
+ XRAY>  SCATter ( chemical C* ) 
+ SELRPN:      3 atoms have been selected out of      3
+ SCATTER_A1= 2.31000 20.8439 1.02 10.2075 1.58860 .568700 .865000 51.651 .2156 
+ XRAY> 
+ XRAY>  SCATter ( chemical FE ) 
+ SELRPN:      0 atoms have been selected out of      3
+ SCATTER_A1=   2.31000 20.8439 1.02 10.2075 1.58860 .568700 .865000 51.651 .2156 
+ XRAY>          IMAG 5.0 
+ XRAY>  associate fcalc ( chemical FE or chemical C* ) 
+ SELRPN:      3 atoms have been selected out of      3
+ XRAY>  asele=( chemical FE ) 
+ SELRPN:      0 atoms have been selected out of      3
+ XRAY> 
+ XRAY>  hermitian=true lookup=false 
+ XRAY>  symmetry=(x,y,z) 
+ XRAY>  symmetry=(-y,x-y,z) 
+ XRAY>  symmetry=(y-x,-x,z) 
+ XRAY>  symmetry=(y,x,1/2+z) 
+ XRAY>  symmetry=(-x,y-x,1/2+z) 
+ XRAY>  symmetry=(x-y,-y,1/2+z) 
+ XRAY> 
+ XRAY>  evaluate ($lr=10.) 
+ EVALUATE: symbol $LR set to    10.0000     (real)
+ XRAY>  evaluate ($hr=3) 
+ EVALUATE: symbol $HR set to    3.00000     (real)
+ XRAY>  binresolution $lr $hr 
+ XRAY>  mapresolution $hr 
+ XRAY>  tselection=( $hr <= d <= $lr ) 
+ XRAY> 
+ XRAY> 
+ XRAY>   generate 10. 3. 
+ XGENER: generating reflections to produce a full set
+         for the specified resolution range.
+ XGENE2:       25 new reflections have been generated.
+ XRAY>   do (fpart=0) ( all ) 
+ XSFAL: allocating space for complex reciprocal space object.
+ Total of        25 structure factor elements were selected.
+ XRAY> 
+ XRAY> 
+ XRAY>   associate fcalc ( all ) 
+ SELRPN:      3 atoms have been selected out of      3
+ XRAY> 
+ XRAY>   predict 
+ PREDict>      mode=reciprocal 
+ PREDict>      to=fcalc 
+ PREDict>      selection=( all ) 
+ Total of        25 structure factor elements were selected.
+ PREDict>      atomselection=( chemical FE or chemical C* ) 
+ SELRPN:      3 atoms have been selected out of      3
+ PREDict>   end 
+ FCALC: #scatt.=      3 #anomalous=   0 #special pos.=  0 occupancies=1
+ XSFAL: allocating space for complex reciprocal space object.
+ XFFT: using grid [  16,  16,   8] and sublattice [  16(  17),  16(  17),   2]
+ XRAY>   do (fobs=combine(amplitude(fcalc),0) )  ( all ) 
+ XSFAL: allocating space for complex reciprocal space object.
+ Total of        25 structure factor elements were selected.
+ XRAY> 
+ XRAY> 
+ XRAY>end 
+ CNSsolve> 
+ CNSsolve>flags excl * incl pvdw pele xref end 
+ CNSsolve>energy end 
+ NBONDS: found       19 symmetry-atom interactions
+ XRTSELSET: number of selected reflections      25
+ FCALC: #scatt.=      3 #anomalous=   0 #special pos.=  0 occupancies=1
+ XFFT: using grid [  16,  16,   8] and sublattice [  16(  17),  16(  17),   2]
+ XTAREXPR:                 monitor=  0.000
+ --------------- cycle=     1 --------------------------------------------------
+ | Etotal =13.909     grad(E)=6.137      E(PVDW)=1.583      E(PELE)=12.326     |
+ | E(XREF)=0.000                                                               |
+ -------------------------------------------------------------------------------
+ CNSsolve> 
+ CNSsolve>{* move atom one to a special position *} 
+ CNSsolve>coor fractionalize end 
+ FRACT: transformation matrix =
+     0.062500     0.036084     0.000000
+     0.000000     0.072169     0.000000
+     0.000000     0.000000     0.125000
+ CNSsolve>do ( x=0. ) ( resid 1 ) 
+ SELRPN:      1 atoms have been selected out of      3
+ CNSsolve>do ( y=0. ) ( resid 1 ) 
+ SELRPN:      1 atoms have been selected out of      3
+ CNSsolve>coor orthogonalize end 
+ ORTHO: transformation matrix =
+    16.000000    -8.000000     0.000000
+     0.000000    13.856406     0.000000
+     0.000000     0.000000     8.000000
+ CNSsolve>energy end 
+ NBONDS: found       16 symmetry-atom interactions
+ FCALC: #scatt.=      3 #anomalous=   0 #special pos.=  1 occupancies=1
+ XFFT: using grid [  16,  16,   8] and sublattice [  16(  17),  16(  17),   2]
+ XTAREXPR:                 monitor=  0.580
+ --------------- cycle=     2 --------------------------------------------------
+ | Etotal =6.914      grad(E)=0.678      E(PVDW)=-0.519     E(PELE)=7.064      |
+ | E(XREF)=0.370                                                               |
+ -------------------------------------------------------------------------------
+ CNSsolve> 
+ CNSsolve>xray 
+ XRAY>   associate fcalc ( resid 1 ) 
+ SELRPN:      1 atoms have been selected out of      3
+ XRAY>   method=direct 
+ XRAY>   predict 
+ PREDict>      mode=reciprocal 
+ PREDict>      to=fcalc 
+ PREDict>      selection=( all ) 
+ Total of        25 structure factor elements were selected.
+ PREDict>      atomselection=( resid 1 ) 
+ SELRPN:      1 atoms have been selected out of      3
+ PREDict>   end 
+ FCALC: #scatt.=      1 #anomalous=   0 #special pos.=  1 occupancies=1
+ XRAY>   write reflection fcalc  sele=( all ) end 
+ Total of        25 structure factor elements were selected.
+ NREFlection=        25
+ ANOMalous=FALSe { equiv. to HERMitian=TRUE}
+ DECLare NAME=FCALC                  DOMAin=RECIprocal   TYPE=COMP END
+ INDE     4    1    0 FCALC=     5.399     0.000
+ INDE     3    2    0 FCALC=     5.789     0.000
+ INDE     4    0    1 FCALC=     0.000     0.000
+ INDE     4    0    0 FCALC=     6.440     0.000
+ INDE    -1    4    1 FCALC=     0.000     0.000
+ INDE     3    1    0 FCALC=     7.185     0.000
+ INDE     3    1    1 FCALC=     0.000     0.000
+ INDE     2    2    0 FCALC=     7.458     0.000
+ INDE     3    0    2 FCALC=     5.399   126.000
+ INDE     3    0    1 FCALC=     0.000     0.000
+ INDE     3    0    0 FCALC=     8.355     0.000
+ INDE    -1    3    2 FCALC=     5.789   126.000
+ INDE    -1    3    1 FCALC=     0.000     0.000
+ INDE     2    1    0 FCALC=     9.029     0.000
+ INDE     2    1    1 FCALC=     0.000     0.000
+ INDE     2    1    2 FCALC=     5.789   126.000
+ INDE     2    0    2 FCALC=     6.440   126.000
+ INDE     2    0    1 FCALC=     0.000     0.000
+ INDE     2    0    0 FCALC=    10.173     0.000
+ INDE    -1    2    2 FCALC=     6.677   126.000
+ INDE     1    1    0 FCALC=    10.595     0.000
+ INDE     1    1    2 FCALC=     6.677   126.000
+ INDE     1    0    2 FCALC=     7.185   126.000
+ INDE     1    0    1 FCALC=     0.000     0.000
+ INDE     0    0    2 FCALC=     7.458   126.000
+ XRAY>   symmetry reset 
+ XRAY>   symmetry (x,y,z) 
+ XRAY>   symmetry (x,y,z+1/2) 
+ XRAY>   method=direct 
+ XRAY>   predict 
+ XREDU2: multiple instances found for some reflections.
+ XREDU2: deleting redundant reflections.
+ XREDU2:        8 reflections have been deleted.
+ XREDU2: sorting all reflections.
+ PREDict>      mode=reciprocal 
+ PREDict>      to=fcalc 
+ PREDict>      selection=( all ) 
+ Total of        17 structure factor elements were selected.
+ PREDict>      atomselection=( resid 1 ) 
+ SELRPN:      1 atoms have been selected out of      3
+ PREDict>   end 
+ FCALC: #scatt.=      1 #anomalous=   0 #special pos.=  0 occupancies=1
+ XRAY>   write reflection fcalc  sele=( all ) end 
+ Total of        17 structure factor elements were selected.
+ NREFlection=        17
+ ANOMalous=FALSe { equiv. to HERMitian=TRUE}
+ DECLare NAME=FCALC                  DOMAin=RECIprocal   TYPE=COMP END
+ INDE     2    0    0 FCALC=    10.173     0.000
+ INDE     3    0    0 FCALC=     8.355     0.000
+ INDE     4    0    0 FCALC=     6.440     0.000
+ INDE     1    1    0 FCALC=    10.595     0.000
+ INDE     2    1    0 FCALC=     9.029     0.000
+ INDE     3    1    0 FCALC=     7.185     0.000
+ INDE     4    1    0 FCALC=     5.399     0.000
+ INDE     2    2    0 FCALC=     7.458     0.000
+ INDE     3    2    0 FCALC=     5.789     0.000
+ INDE     0    0    2 FCALC=     7.458   126.000
+ INDE     1    0    2 FCALC=     7.185   126.000
+ INDE     2    0    2 FCALC=     6.440   126.000
+ INDE     3    0    2 FCALC=     5.399   126.000
+ INDE     1    1    2 FCALC=     6.677   126.000
+ INDE     2    1    2 FCALC=     5.789   126.000
+ INDE    -1    2    2 FCALC=     6.677   126.000
+ INDE    -1    3    2 FCALC=     5.789   126.000
+ XRAY>   method=fft 
+ XRAY>   predict 
+ PREDict>      mode=reciprocal 
+ PREDict>      to=fcalc 
+ PREDict>      selection=( all ) 
+ Total of        17 structure factor elements were selected.
+ PREDict>      atomselection=( resid 1 ) 
+ SELRPN:      1 atoms have been selected out of      3
+ PREDict>   end 
+ FCALC: #scatt.=      1 #anomalous=   0 #special pos.=  0 occupancies=1
+ XFFT: using grid [  16,  16,   8] and sublattice [  16(  17),  16(  17),   2]
+ XRAY>   write reflection fcalc  sele=( all ) end 
+ Total of        17 structure factor elements were selected.
+ NREFlection=        17
+ ANOMalous=FALSe { equiv. to HERMitian=TRUE}
+ DECLare NAME=FCALC                  DOMAin=RECIprocal   TYPE=COMP END
+ INDE     2    0    0 FCALC=    10.162     0.000
+ INDE     3    0    0 FCALC=     8.400     0.000
+ INDE     4    0    0 FCALC=     6.474     0.000
+ INDE     1    1    0 FCALC=    10.560     0.000
+ INDE     2    1    0 FCALC=     9.063     0.000
+ INDE     3    1    0 FCALC=     7.234     0.000
+ INDE     4    1    0 FCALC=     5.417     0.000
+ INDE     2    2    0 FCALC=     7.511     0.000
+ INDE     3    2    0 FCALC=     5.822     0.000
+ INDE     0    0    2 FCALC=     7.486   125.872
+ INDE     1    0    2 FCALC=     7.204   125.843
+ INDE     2    0    2 FCALC=     6.429   125.770
+ INDE     3    0    2 FCALC=     5.351   125.698
+ INDE     1    1    2 FCALC=     6.676   125.792
+ INDE     2    1    2 FCALC=     5.755   125.723
+ INDE    -1    2    2 FCALC=     6.676   125.792
+ INDE    -1    3    2 FCALC=     5.755   125.723
+ XRAY>end 
+ CNSsolve> 
+ CNSsolve> 
+ CNSsolve>{* test anomalous differences *} 
+ CNSsolve>coor translate vector=( 1.1  0.8 1.4 ) sele=( resid 1 ) end 
+ SELRPN:      1 atoms have been selected out of      3
+ COOR: using atom subset.
+ COOR: translation vector =(     1.100000    0.800000    1.400000 )
+ COOR: selected coordinates translated
+ CNSsolve>coor translate vector=( 1.5  0.2 1.1 ) sele=( resid 2 ) end 
+ SELRPN:      1 atoms have been selected out of      3
+ COOR: using atom subset.
+ COOR: translation vector =(     1.500000    0.200000    1.100000 )
+ COOR: selected coordinates translated
+ CNSsolve>coor translate vector=( 0.5  0.5 1.7 ) sele=( resid 3 ) end 
+ SELRPN:      1 atoms have been selected out of      3
+ COOR: using atom subset.
+ COOR: translation vector =(     0.500000    0.500000    1.700000 )
+ COOR: selected coordinates translated
+ CNSsolve>do ( chemical="FE") ( resid 1 ) 
+ SELRPN:      1 atoms have been selected out of      3
+ CNSsolve>xray 
+ XRAY>  reset 
+ XRAY: whole xray database erased and reset
+ XRAY>   declare name=fobs type=complex domain=reciprocal end 
+ XDECLARE: Object FOBS has been declared.
+ XRAY>   declare name=fpart domain=reciprocal type=complex end 
+ XDECLARE: Object FPART has been declared.
+ XRAY>   declare name=fcalc domain=reciprocal type=complex end 
+ XDECLARE: Object FCALC has been declared.
+ XRAY> 
+ XRAY>  evaluate ($lr=10.) 
+ EVALUATE: symbol $LR set to    10.0000     (real)
+ XRAY>  evaluate ($hr=6) 
+ EVALUATE: symbol $HR set to    6.00000     (real)
+ XRAY>  binresolution $lr $hr 
+ XRAY>  mapresolution $hr 
+ XRAY>  tselection=( $hr <= d <= $lr ) 
+ XRAY> 
+ XRAY>  a=16.00 b=16.00 c=8.00 alpha=90.0 beta=90.00 gamma=120.0 
+ XRAY> 
+ XRAY>  hermitian=false 
+ XRAY>  symmetry=(x,y,z) 
+ XRAY>  symmetry=(-y,x-y,z) 
+ XRAY>  symmetry=(y-x,-x,z) 
+ XRAY>  symmetry=(y,x,1/2+z) 
+ XRAY>  symmetry=(-x,y-x,1/2+z) 
+ XRAY>  symmetry=(x-y,-y,1/2+z) 
+ XRAY> 
+ XRAY>  SCATter ( chemical C* ) 
+ SELRPN:      2 atoms have been selected out of      3
+ SCATTER_A1=   2.31000 20.8439 1.02 10.2075 1.58860 .568700 .865000 51.651 .2156 
+ XRAY> 
+ XRAY>  SCATter ( chemical FE ) 
+ SELRPN:      1 atoms have been selected out of      3
+ SCATTER_A1=   2.31000 20.8439 1.02 10.2075 1.58860 .568700 .865000 51.651 .2156 
+ XRAY>    {IMAG 5.0 } 
+ XRAY> 
+ XRAY>  tolerance=0. 
+ XRAY>  associate fcalc ( all ) 
+ SELRPN:      3 atoms have been selected out of      3
+ XRAY>  aselection=( not all ) 
+ SELRPN:      0 atoms have been selected out of      3
+ XRAY>  lookup=false 
+ XRAY>  method=direct 
+ XRAY>  fft 
+ XFFT>     prime=5 avoid=2 
+ XFFT>  end 
+ XRAY>  nreflections=1000 
+ XRAY: allocating space for    1000 reflections.
+ XRAY> 
+ XRAY> 
+ XRAY>  generate  10. 6. 
+ XGENER: generating reflections to produce a full set
+         for the specified resolution range.
+ XGENE2:        5 new reflections have been generated.
+ XRAY>  do (fpart=0) ( all ) 
+ XSFAL: allocating space for complex reciprocal space object.
+ Total of         5 structure factor elements were selected.
+ XRAY> 
+ XRAY>  associate fcalc ( all ) 
+ SELRPN:      3 atoms have been selected out of      3
+ XRAY>  predict 
+ PREDict>      mode=reciprocal 
+ PREDict>      to=fcalc 
+ PREDict>      selection=( all ) 
+ Total of         5 structure factor elements were selected.
+ PREDict>      atomselection=( all ) 
+ SELRPN:      3 atoms have been selected out of      3
+ PREDict>  end 
+ FCALC: #scatt.=      3 #anomalous=   0 #special pos.=  0 occupancies=1
+ XSFAL: allocating space for complex reciprocal space object.
+ XRAY>  show elem (fcalc) ( centric ) 
+ [H=    2 K=    0 L=    0]  Amplitude=      40.3883  Phase=       0.0000
+ Total of         1 elements were selected.
+ XRAY>  show elem ( centric_phase ) ( centric ) 
+ [H=    2 K=    0 L=    0]        0.0000
+ Total of         1 elements were selected.
+ XRAY>  show elem (fcalc) ( acentric ) 
+ [H=    1 K=    1 L=    0]  Amplitude=      12.8956  Phase=      48.8454
+ [H=   -1 K=    2 L=    0]  Amplitude=      12.8956  Phase=     311.1546
+ [H=    1 K=    0 L=   -1]  Amplitude=       9.9543  Phase=     312.2997
+ [H=    1 K=    0 L=    1]  Amplitude=       9.9543  Phase=     227.7003
+ Total of         4 elements were selected.
+ XRAY>  show elem ( amplitude(fcalc)-amplitude(friedel(fcalc)) ) ( centric ) 
+ [H=    2 K=    0 L=    0]        0.0000
+ Total of         1 elements were selected.
+ XRAY>  show elem ( amplitude(fcalc)-amplitude(friedel(fcalc)) ) ( acentric ) 
+ [H=    1 K=    1 L=    0]        0.0000
+ [H=   -1 K=    2 L=    0]        0.0000
+ [H=    1 K=    0 L=   -1]        0.0000
+ [H=    1 K=    0 L=    1]        0.0000
+ Total of         4 elements were selected.
+ XRAY> 
+ XRAY>  show elem ( fcalc-conjugate(friedel(fcalc)) ) ( all ) 
+ [H=    2 K=    0 L=    0]  Amplitude=       0.0000  Phase=       0.0000
+ [H=    1 K=    1 L=    0]  Amplitude=       0.0000  Phase=       0.0000
+ [H=   -1 K=    2 L=    0]  Amplitude=       0.0000  Phase=       0.0000
+ [H=    1 K=    0 L=   -1]  Amplitude=       0.0000  Phase=       0.0000
+ [H=    1 K=    0 L=    1]  Amplitude=       0.0000  Phase=       0.0000
+ Total of         5 elements were selected.
+ XRAY>end 
+ CNSsolve> 
+ CNSsolve> 
+ CNSsolve>xray 
+ XRAY>  reset 
+ XRAY: whole xray database erased and reset
+ XRAY>   declare name=fobs type=complex domain=reciprocal end 
+ XDECLARE: Object FOBS has been declared.
+ XRAY>   declare name=fpart domain=reciprocal type=complex end 
+ XDECLARE: Object FPART has been declared.
+ XRAY>   declare name=fcalc domain=reciprocal type=complex end 
+ XDECLARE: Object FCALC has been declared.
+ XRAY> 
+ XRAY>  evaluate ($lr=10.) 
+ EVALUATE: symbol $LR set to    10.0000     (real)
+ XRAY>  evaluate ($hr=6) 
+ EVALUATE: symbol $HR set to    6.00000     (real)
+ XRAY>  binresolution $lr $hr 
+ XRAY>  mapresolution $hr 
+ XRAY>  tselection=( $hr <= d <= $lr ) 
+ XRAY> 
+ XRAY>  a=16.00 b=16.00 c=8.00 alpha=90.0 beta=90.00 gamma=120.0 
+ XRAY> 
+ XRAY>  hermitian=false 
+ XRAY>  symmetry=(x,y,z) 
+ XRAY>  symmetry=(-y,x-y,z) 
+ XRAY>  symmetry=(y-x,-x,z) 
+ XRAY>  symmetry=(y,x,1/2+z) 
+ XRAY>  symmetry=(-x,y-x,1/2+z) 
+ XRAY>  symmetry=(x-y,-y,1/2+z) 
+ XRAY> 
+ XRAY>  SCATter ( chemical C* ) 
+ SELRPN:      2 atoms have been selected out of      3
+ SCATTER_A1=   2.31000 20.8439 1.02 10.2075 1.58860 .568700 .865000 51.651 .2156 
+ XRAY> 
+ XRAY>  SCATter ( chemical FE ) 
+ SELRPN:      1 atoms have been selected out of      3
+ SCATTER_A1=   2.31000 20.8439 1.02 10.2075 1.58860 .568700 .865000 51.651 .2156 
+ XRAY>    IMAG 5.0 
+ XRAY>  associate fcalc ( all ) 
+ SELRPN:      3 atoms have been selected out of      3
+ XRAY>  asele=( chemical FE ) 
+ SELRPN:      1 atoms have been selected out of      3
+ XRAY> 
+ XRAY>  tolerance=0. 
+ XRAY>  associate fcalc ( all ) 
+ SELRPN:      3 atoms have been selected out of      3
+ XRAY>  lookup=false 
+ XRAY>  method=direct 
+ XRAY>  fft 
+ XFFT>     prime=5 avoid=2 
+ XFFT>  end 
+ XRAY>  nreflections=1000 
+ XRAY: allocating space for    1000 reflections.
+ XRAY> 
+ XRAY> 
+ XRAY>  generate  10. 6. 
+ XGENER: generating reflections to produce a full set
+         for the specified resolution range.
+ XGENE2:        5 new reflections have been generated.
+ XRAY>  do (fpart=0) ( all ) 
+ XSFAL: allocating space for complex reciprocal space object.
+ Total of         5 structure factor elements were selected.
+ XRAY> 
+ XRAY>  associate fcalc ( all ) 
+ SELRPN:      3 atoms have been selected out of      3
+ XRAY>  predict 
+ PREDict>      mode=reciprocal 
+ PREDict>      to=fcalc 
+ PREDict>      selection=( all ) 
+ Total of         5 structure factor elements were selected.
+ PREDict>      atomselection=( all ) 
+ SELRPN:      3 atoms have been selected out of      3
+ PREDict>  end 
+ FCALC: #scatt.=      3 #anomalous=   1 #special pos.=  0 occupancies=1
+ XSFAL: allocating space for complex reciprocal space object.
+ XRAY>  show elem (fcalc) ( centric ) 
+ [H=    2 K=    0 L=    0]  Amplitude=      44.2792  Phase=      24.1990
+ Total of         1 elements were selected.
+ XRAY>  show elem ( centric_phase ) ( centric ) 
+ [H=    2 K=    0 L=    0]        0.0000
+ Total of         1 elements were selected.
+ XRAY>  show elem (fcalc) ( acentric ) 
+ [H=    1 K=    1 L=    0]  Amplitude=      31.7626  Phase=      73.7246
+ [H=   -1 K=    2 L=    0]  Amplitude=      13.7005  Phase=      53.9049
+ [H=    1 K=    0 L=   -1]  Amplitude=      10.0084  Phase=     310.8882
+ [H=    1 K=    0 L=    1]  Amplitude=       9.9063  Phase=     226.2743
+ Total of         4 elements were selected.
+ XRAY>  show elem ( amplitude(fcalc)-amplitude(friedel(fcalc)) ) ( centric ) 
+ [H=    2 K=    0 L=    0]        0.0000
+ Total of         1 elements were selected.
+ XRAY>  show elem ( amplitude(fcalc)-amplitude(friedel(fcalc)) ) ( acentric ) 
+ [H=    1 K=    1 L=    0]       18.0621
+ [H=   -1 K=    2 L=    0]      -18.0621
+ [H=    1 K=    0 L=   -1]        0.1021
+ [H=    1 K=    0 L=    1]       -0.1021
+ Total of         4 elements were selected.
+ XRAY>end 
+ CNSsolve> 
+ CNSsolve>xray 
+ XRAY>  reset 
+ XRAY: whole xray database erased and reset
+ XRAY>   declare name=fobs type=complex domain=reciprocal end 
+ XDECLARE: Object FOBS has been declared.
+ XRAY>   declare name=fpart domain=reciprocal type=complex end 
+ XDECLARE: Object FPART has been declared.
+ XRAY>   declare name=fcalc domain=reciprocal type=complex end 
+ XDECLARE: Object FCALC has been declared.
+ XRAY> 
+ XRAY>  evaluate ($lr=10.) 
+ EVALUATE: symbol $LR set to    10.0000     (real)
+ XRAY>  evaluate ($hr=6) 
+ EVALUATE: symbol $HR set to    6.00000     (real)
+ XRAY>  binresolution $lr $hr 
+ XRAY>  mapresolution $hr 
+ XRAY>  tselection=( $hr <= d <= $lr ) 
+ XRAY> 
+ XRAY>  a=16.00 b=16.00 c=8.00 alpha=90.0 beta=90.00 gamma=120.0 
+ XRAY> 
+ XRAY>  hermitian=false 
+ XRAY>  symmetry=(x,y,z) 
+ XRAY>  symmetry=(-y,x-y,z) 
+ XRAY>  symmetry=(y-x,-x,z) 
+ XRAY>  symmetry=(y,x,1/2+z) 
+ XRAY>  symmetry=(-x,y-x,1/2+z) 
+ XRAY>  symmetry=(x-y,-y,1/2+z) 
+ XRAY> 
+ XRAY>  SCATter ( chemical C* ) 
+ SELRPN:      2 atoms have been selected out of      3
+ SCATTER_A1=   2.31000 20.8439 1.02 10.2075 1.58860 .568700 .865000 51.651 .2156 
+ XRAY>    IMAG 2.0 
+ XRAY> 
+ XRAY>  SCATter ( chemical FE ) 
+ SELRPN:      1 atoms have been selected out of      3
+ SCATTER_A1=   2.31000 20.8439 1.02 10.2075 1.58860 .568700 .865000 51.651 .2156 
+ XRAY>    IMAG 5.0 
+ XRAY>  associate fcalc ( chemical FE or chemical C* ) 
+ SELRPN:      3 atoms have been selected out of      3
+ XRAY>  asele=( chemical FE or chemical C* ) 
+ SELRPN:      3 atoms have been selected out of      3
+ XRAY> 
+ XRAY>  tolerance=0. 
+ XRAY>  associate fcalc ( all ) 
+ SELRPN:      3 atoms have been selected out of      3
+ XRAY> 
+ XRAY>  lookup=false 
+ XRAY>  method=direct 
+ XRAY>  fft 
+ XFFT>     prime=5 avoid=2 
+ XFFT>  end 
+ XRAY>  nreflections=1000 
+ XRAY: allocating space for    1000 reflections.
+ XRAY> 
+ XRAY> 
+ XRAY>  generate  10. 6. 
+ XGENER: generating reflections to produce a full set
+         for the specified resolution range.
+ XGENE2:        5 new reflections have been generated.
+ XRAY>  do (fpart=0) ( all ) 
+ XSFAL: allocating space for complex reciprocal space object.
+ Total of         5 structure factor elements were selected.
+ XRAY> 
+ XRAY>  associate fcalc ( all ) 
+ SELRPN:      3 atoms have been selected out of      3
+ XRAY>  predict 
+ PREDict>      mode=reciprocal 
+ PREDict>      to=fcalc 
+ PREDict>      selection=( all ) 
+ Total of         5 structure factor elements were selected.
+ PREDict>      atomselection=( chemical FE or chemical C* ) 
+ SELRPN:      3 atoms have been selected out of      3
+ PREDict>  end 
+ FCALC: #scatt.=      3 #anomalous=   3 #special pos.=  0 occupancies=1
+ XSFAL: allocating space for complex reciprocal space object.
+ XRAY>  show elem (fcalc) ( centric ) 
+ [H=    2 K=    0 L=    0]  Amplitude=      47.8057  Phase=      32.3450
+ Total of         1 elements were selected.
+ XRAY>  show elem ( centric_phase ) ( centric ) 
+ [H=    2 K=    0 L=    0]        0.0000
+ Total of         1 elements were selected.
+ XRAY>  show elem (fcalc) ( acentric ) 
+ [H=    1 K=    1 L=    0]  Amplitude=      25.7462  Phase=      78.1694
+ [H=   -1 K=    2 L=    0]  Amplitude=      13.0450  Phase=      26.3015
+ [H=    1 K=    0 L=   -1]  Amplitude=      10.5713  Phase=     331.4725
+ [H=    1 K=    0 L=    1]  Amplitude=      10.5135  Phase=     246.9828
+ Total of         4 elements were selected.
+ XRAY>  show elem ( amplitude(fcalc)-amplitude(friedel(fcalc)) ) ( centric ) 
+ [H=    2 K=    0 L=    0]        0.0000
+ Total of         1 elements were selected.
+ XRAY>  show elem ( amplitude(fcalc)-amplitude(friedel(fcalc)) ) ( acentric ) 
+ [H=    1 K=    1 L=    0]       12.7012
+ [H=   -1 K=    2 L=    0]      -12.7012
+ [H=    1 K=    0 L=   -1]        0.0578
+ [H=    1 K=    0 L=    1]       -0.0578
+ Total of         4 elements were selected.
+ XRAY>end 
+ CNSsolve> 
+ CNSsolve> 
+ CNSsolve> 
+ CNSsolve>xray 
+ XRAY>  ! 
+ XRAY>  reset 
+ XRAY: whole xray database erased and reset
+ XRAY>   declare name=fobs type=complex domain=reciprocal end 
+ XDECLARE: Object FOBS has been declared.
+ XRAY>   declare name=fpart domain=reciprocal type=complex end 
+ XDECLARE: Object FPART has been declared.
+ XRAY>   declare name=fcalc domain=reciprocal type=complex end 
+ XDECLARE: Object FCALC has been declared.
+ XRAY> 
+ XRAY>  evaluate ($lr=10.) 
+ EVALUATE: symbol $LR set to    10.0000     (real)
+ XRAY>  evaluate ($hr=6) 
+ EVALUATE: symbol $HR set to    6.00000     (real)
+ XRAY>  binresolution $lr $hr 
+ XRAY>  mapresolution $hr 
+ XRAY>  tselection=( $hr <= d <= $lr ) 
+ XRAY> 
+ XRAY>  a=20. b=20. c=20. alpha=90.0 beta=90.00 gamma=90.0 
+ XRAY> 
+ XRAY>  hermitian=false 
+ XRAY>  symmetry=( X,Y,Z )      {* test with orthorhombic space group Fddd *} 
+ XRAY>  symmetry=( -X,-Y,Z ) 
+ XRAY>  symmetry=( -X,Y,-Z ) 
+ XRAY>  symmetry=( X,-Y,-Z ) 
+ XRAY>  symmetry=( 1/4-X,1/4-Y,1/4-Z ) 
+ XRAY>  symmetry=( 1/4+X,1/4+Y,1/4-Z ) 
+ XRAY>  symmetry=( 1/4+X,1/4-Y,1/4+Z ) 
+ XRAY>  symmetry=( 1/4-X,1/4+Y,1/4+Z ) 
+ XRAY>  symmetry=( X,1/2+Y,1/2+Z ) 
+ XRAY>  symmetry=( -X,1/2-Y,1/2+Z ) 
+ XRAY>  symmetry=( -X,1/2+Y,1/2-Z ) 
+ XRAY>  symmetry=( X,1/2-Y,1/2-Z ) 
+ XRAY>  symmetry=( 1/4-X,3/4-Y,3/4-Z ) 
+ XRAY>  symmetry=( 1/4+X,3/4+Y,3/4-Z ) 
+ XRAY>  symmetry=( 1/4+X,3/4-Y,3/4+Z ) 
+ XRAY>  symmetry=( 1/4-X,3/4+Y,3/4+Z ) 
+ XRAY>  symmetry=( 1/2+X,Y,1/2+Z ) 
+ XRAY>  symmetry=( 1/2-X,-Y,1/2+Z ) 
+ XRAY>  symmetry=( 1/2-X,Y,1/2-Z ) 
+ XRAY>  symmetry=( 1/2+X,-Y,1/2-Z ) 
+ XRAY>  symmetry=( 3/4-X,1/4-Y,3/4-Z ) 
+ XRAY>  symmetry=( 3/4+X,1/4+Y,3/4-Z ) 
+ XRAY>  symmetry=( 3/4+X,1/4-Y,3/4+Z ) 
+ XRAY>  symmetry=( 3/4-X,1/4+Y,3/4+Z ) 
+ XRAY>  symmetry=( 1/2+X,1/2+Y,Z ) 
+ XRAY>  symmetry=( 1/2-X,1/2-Y,Z ) 
+ XRAY>  symmetry=( 1/2-X,1/2+Y,-Z ) 
+ XRAY>  symmetry=( 1/2+X,1/2-Y,-Z ) 
+ XRAY>  symmetry=( 3/4-X,3/4-Y,1/4-Z ) 
+ XRAY>  symmetry=( 3/4+X,3/4+Y,1/4-Z ) 
+ XRAY>  symmetry=( 3/4+X,3/4-Y,1/4+Z ) 
+ XRAY>  symmetry=( 3/4-X,3/4+Y,1/4+Z ) 
+ XRAY> 
+ XRAY>  SCATter ( chemical C* ) 
+ SELRPN:      2 atoms have been selected out of      3
+ SCATTER_A1=   2.31000 20.8439 1.02 10.2075 1.58860 .568700 .865000 51.651 .2156 
+ XRAY> 
+ XRAY>  SCATter ( chemical FE ) 
+ SELRPN:      1 atoms have been selected out of      3
+ SCATTER_A1=   2.31000 20.8439 1.02 10.2075 1.58860 .568700 .865000 51.651 .2156 
+ XRAY> 
+ XRAY>  tolerance=0. 
+ XRAY>  associate fcalc ( all ) 
+ SELRPN:      3 atoms have been selected out of      3
+ XRAY>  lookup=false 
+ XRAY>  method=direct 
+ XRAY>  fft 
+ XFFT>     prime=5 avoid=2 
+ XFFT>  end 
+ XRAY>  nreflections=1000 
+ XRAY: allocating space for    1000 reflections.
+ XRAY> 
+ XRAY> 
+ XRAY>  generate  10. 6. 
+ XGENER: generating reflections to produce a full set
+         for the specified resolution range.
+ XGENE2:        6 new reflections have been generated.
+ XRAY>  do (fpart=0) ( all ) 
+ XSFAL: allocating space for complex reciprocal space object.
+ Total of         6 structure factor elements were selected.
+ XRAY> 
+ XRAY>  associate fcalc ( all ) 
+ SELRPN:      3 atoms have been selected out of      3
+ XRAY>  predict 
+ PREDict>      mode=reciprocal 
+ PREDict>      to=fcalc 
+ PREDict>      selection=( all  ) 
+ Total of         6 structure factor elements were selected.
+ PREDict>      atomselection=(all ) 
+ SELRPN:      3 atoms have been selected out of      3
+ PREDict>  end 
+ FCALC: #scatt.=      3 #anomalous=   0 #special pos.=  0 occupancies=1
+ XSFAL: allocating space for complex reciprocal space object.
+ XRAY>  show elem (fcalc) ( centric ) 
+ [H=    3 K=    1 L=   -1]  Amplitude=      93.9104  Phase=     315.0000
+ [H=    2 K=    2 L=    0]  Amplitude=     105.1468  Phase=       0.0000
+ [H=    2 K=    0 L=   -2]  Amplitude=     122.1252  Phase=     180.0000
+ [H=    1 K=    3 L=   -1]  Amplitude=      99.6873  Phase=     135.0000
+ [H=    1 K=    1 L=   -3]  Amplitude=     141.2694  Phase=     135.0000
+ [H=    0 K=    2 L=   -2]  Amplitude=     189.8393  Phase=       0.0000
+ Total of         6 elements were selected.
+ XRAY>  show elem ( centric_phase ) ( centric ) 
+ [H=    3 K=    1 L=   -1]      135.0000
+ [H=    2 K=    2 L=    0]        0.0000
+ [H=    2 K=    0 L=   -2]        0.0000
+ [H=    1 K=    3 L=   -1]      135.0000
+ [H=    1 K=    1 L=   -3]      135.0000
+ [H=    0 K=    2 L=   -2]        0.0000
+ Total of         6 elements were selected.
+ XRAY>  show elem (fcalc) ( acentric ) 
+ Total of         0 elements were selected.
+ XRAY>  show elem ( amplitude(fcalc)-amplitude(friedel(fcalc)) ) ( centric ) 
+ [H=    3 K=    1 L=   -1]        0.0000
+ [H=    2 K=    2 L=    0]        0.0000
+ [H=    2 K=    0 L=   -2]        0.0000
+ [H=    1 K=    3 L=   -1]        0.0000
+ [H=    1 K=    1 L=   -3]        0.0000
+ [H=    0 K=    2 L=   -2]        0.0000
+ Total of         6 elements were selected.
+ XRAY>  show elem ( amplitude(fcalc)-amplitude(friedel(fcalc)) ) ( acentric ) 
+ Total of         0 elements were selected.
+ XRAY> 
+ XRAY>  show (fcalc-conjugate(friedel(fcalc))) ( all ) 
+ [H=    3 K=    1 L=   -1]  Amplitude=       0.0000  Phase=       0.0000
+ [H=    2 K=    2 L=    0]  Amplitude=       0.0000  Phase=       0.0000
+ [H=    2 K=    0 L=   -2]  Amplitude=       0.0000  Phase=       0.0000
+ [H=    1 K=    3 L=   -1]  Amplitude=       0.0000  Phase=       0.0000
+ [H=    1 K=    1 L=   -3]  Amplitude=       0.0000  Phase=       0.0000
+ [H=    0 K=    2 L=   -2]  Amplitude=       0.0000  Phase=       0.0000
+ Total of         6 elements were selected.
+ XRAY>end 
+ CNSsolve> 
+ CNSsolve> 
+ CNSsolve> 
+ CNSsolve>xray 
+ XRAY>  reset 
+ XRAY: whole xray database erased and reset
+ XRAY>   declare name=fobs type=complex domain=reciprocal end 
+ XDECLARE: Object FOBS has been declared.
+ XRAY>   declare name=fpart domain=reciprocal type=complex end 
+ XDECLARE: Object FPART has been declared.
+ XRAY>   declare name=fcalc domain=reciprocal type=complex end 
+ XDECLARE: Object FCALC has been declared.
+ XRAY> 
+ XRAY> 
+ XRAY>  evaluate ($lr=10.) 
+ EVALUATE: symbol $LR set to    10.0000     (real)
+ XRAY>  evaluate ($hr=6) 
+ EVALUATE: symbol $HR set to    6.00000     (real)
+ XRAY>  binresolution $lr $hr 
+ XRAY>  mapresolution $hr 
+ XRAY>  tselection=( $hr <= d <= $lr  ) 
+ XRAY> 
+ XRAY>  a=20. b=20. c=20. alpha=90.0 beta=90.00 gamma=90.0 
+ XRAY> 
+ XRAY>  hermitian=false 
+ XRAY>   symmetry=(x,y,z)                         {*Symmetry operators for space *} 
+ XRAY>   symmetry=(-x+1/2,-y,z+1/2)               {*group P212121; notation as in*} 
+ XRAY>   symmetry=(-x,y+1/2,-z+1/2)               {*Int. Tables.                 *} 
+ XRAY>   symmetry=(x+1/2,-y+1/2,-z) 
+ XRAY> 
+ XRAY>   scatter (all ) 
+ SELRPN:      3 atoms have been selected out of      3
+ SCATTER_A1=29.564100    1.211520   18.059999    7.056390   12.837400 
+ SCATTER_B3=              0.284738    6.899120   20.748199   10.626800 
+ XRAY> 
+ XRAY>  tolerance=0. 
+ XRAY>  associate fcalc ( all ) 
+ SELRPN:      3 atoms have been selected out of      3
+ XRAY>  lookup=false  !! test this with lookup=true 
+ XRAY>  method=direct 
+ XRAY>  fft 
+ XFFT>     prime=5 avoid=2 
+ XFFT>  end 
+ XRAY>  nreflections=1000 
+ XRAY: allocating space for    1000 reflections.
+ XRAY> 
+ XRAY> 
+ XRAY>  generate  10. 6. 
+ XGENER: generating reflections to produce a full set
+         for the specified resolution range.
+ XGENE2:       36 new reflections have been generated.
+ XRAY>  do (fpart=0) ( all ) 
+ XSFAL: allocating space for complex reciprocal space object.
+ Total of        36 structure factor elements were selected.
+ XRAY> 
+ XRAY>  associate fcalc ( all ) 
+ SELRPN:      3 atoms have been selected out of      3
+ XRAY>  predict 
+ PREDict>      mode=reciprocal 
+ PREDict>      to=fcalc 
+ PREDict>      selection=( all ) 
+ Total of        36 structure factor elements were selected.
+ PREDict>      atomselection=( all ) 
+ SELRPN:      3 atoms have been selected out of      3
+ PREDict>  end 
+ FCALC: #scatt.=      3 #anomalous=   0 #special pos.=  0 occupancies=1
+ XSFAL: allocating space for complex reciprocal space object.
+ XRAY>  show elem (fcalc) ( centric ) 
+ [H=    3 K=    1 L=    0]  Amplitude=     361.2840  Phase=      90.0000
+ [H=    3 K=    0 L=   -1]  Amplitude=       7.4227  Phase=     270.0000
+ [H=    2 K=    2 L=    0]  Amplitude=     182.1648  Phase=       0.0000
+ [H=    2 K=    1 L=    0]  Amplitude=     125.8762  Phase=     180.0000
+ [H=    2 K=    0 L=   -2]  Amplitude=     211.5797  Phase=     180.0000
+ [H=    2 K=    0 L=   -1]  Amplitude=     170.3575  Phase=      90.0000
+ [H=    2 K=    0 L=    0]  Amplitude=     206.8089  Phase=     180.0000
+ [H=    1 K=    3 L=    0]  Amplitude=     101.6082  Phase=      90.0000
+ [H=    1 K=    2 L=    0]  Amplitude=     104.5132  Phase=      90.0000
+ [H=    1 K=    0 L=   -3]  Amplitude=     240.3991  Phase=      90.0000
+ [H=    1 K=    0 L=   -2]  Amplitude=      10.6702  Phase=     180.0000
+ [H=    0 K=    3 L=   -1]  Amplitude=     252.2285  Phase=     270.0000
+ [H=    0 K=    2 L=   -2]  Amplitude=     328.8930  Phase=       0.0000
+ [H=    0 K=    2 L=   -1]  Amplitude=      57.7220  Phase=     180.0000
+ [H=    0 K=    2 L=    0]  Amplitude=     396.4845  Phase=       0.0000
+ [H=    0 K=    1 L=   -3]  Amplitude=     173.6886  Phase=      90.0000
+ [H=    0 K=    1 L=   -2]  Amplitude=     227.4786  Phase=     270.0000
+ [H=    0 K=    0 L=   -2]  Amplitude=     832.5428  Phase=       0.0000
+ Total of        18 elements were selected.
+ XRAY>  show elem ( centric_phase ) ( centric ) 
+ [H=    3 K=    1 L=    0]       90.0000
+ [H=    3 K=    0 L=   -1]       90.0000
+ [H=    2 K=    2 L=    0]        0.0000
+ [H=    2 K=    1 L=    0]        0.0000
+ [H=    2 K=    0 L=   -2]        0.0000
+ [H=    2 K=    0 L=   -1]       90.0000
+ [H=    2 K=    0 L=    0]        0.0000
+ [H=    1 K=    3 L=    0]       90.0000
+ [H=    1 K=    2 L=    0]       90.0000
+ [H=    1 K=    0 L=   -3]       90.0000
+ [H=    1 K=    0 L=   -2]        0.0000
+ [H=    0 K=    3 L=   -1]       90.0000
+ [H=    0 K=    2 L=   -2]        0.0000
+ [H=    0 K=    2 L=   -1]        0.0000
+ [H=    0 K=    2 L=    0]        0.0000
+ [H=    0 K=    1 L=   -3]       90.0000
+ [H=    0 K=    1 L=   -2]       90.0000
+ [H=    0 K=    0 L=   -2]        0.0000
+ Total of        18 elements were selected.
+ XRAY>  show elem (fcalc) ( acentric ) 
+ [H=    3 K=    1 L=   -1]  Amplitude=     209.6480  Phase=     352.4573
+ [H=    3 K=    1 L=    1]  Amplitude=     209.6480  Phase=       7.5427
+ [H=    2 K=    2 L=   -1]  Amplitude=      25.3109  Phase=     109.7138
+ [H=    2 K=    2 L=    1]  Amplitude=      25.3109  Phase=      70.2862
+ [H=    2 K=    1 L=   -2]  Amplitude=     130.2839  Phase=     208.1079
+ [H=    2 K=    1 L=   -1]  Amplitude=     280.6352  Phase=     269.5979
+ [H=    2 K=    1 L=    1]  Amplitude=     280.6352  Phase=     270.4021
+ [H=    2 K=    1 L=    2]  Amplitude=     130.2839  Phase=     151.8921
+ [H=    1 K=    3 L=   -1]  Amplitude=     258.4003  Phase=     181.8699
+ [H=    1 K=    3 L=    1]  Amplitude=     258.4003  Phase=     178.1301
+ [H=    1 K=    2 L=   -2]  Amplitude=     107.5141  Phase=     129.3492
+ [H=    1 K=    2 L=   -1]  Amplitude=     269.6841  Phase=      18.9194
+ [H=    1 K=    2 L=    1]  Amplitude=     269.6841  Phase=     341.0806
+ [H=    1 K=    2 L=    2]  Amplitude=     107.5141  Phase=      50.6508
+ [H=    1 K=    1 L=   -3]  Amplitude=     319.6557  Phase=     173.4480
+ [H=    1 K=    1 L=   -2]  Amplitude=     292.2097  Phase=     278.2586
+ [H=    1 K=    1 L=    2]  Amplitude=     292.2097  Phase=     261.7414
+ [H=    1 K=    1 L=    3]  Amplitude=     319.6557  Phase=     186.5520
+ Total of        18 elements were selected.
+ XRAY>  show elem ( amplitude(fcalc)-amplitude(friedel(fcalc)) ) ( centric ) 
+ [H=    3 K=    1 L=    0]        0.0000
+ [H=    3 K=    0 L=   -1]        0.0000
+ [H=    2 K=    2 L=    0]        0.0000
+ [H=    2 K=    1 L=    0]        0.0000
+ [H=    2 K=    0 L=   -2]        0.0000
+ [H=    2 K=    0 L=   -1]        0.0000
+ [H=    2 K=    0 L=    0]        0.0000
+ [H=    1 K=    3 L=    0]        0.0000
+ [H=    1 K=    2 L=    0]        0.0000
+ [H=    1 K=    0 L=   -3]        0.0000
+ [H=    1 K=    0 L=   -2]        0.0000
+ [H=    0 K=    3 L=   -1]        0.0000
+ [H=    0 K=    2 L=   -2]        0.0000
+ [H=    0 K=    2 L=   -1]        0.0000
+ [H=    0 K=    2 L=    0]        0.0000
+ [H=    0 K=    1 L=   -3]        0.0000
+ [H=    0 K=    1 L=   -2]        0.0000
+ [H=    0 K=    0 L=   -2]        0.0000
+ Total of        18 elements were selected.
+ XRAY>  show elem ( amplitude(fcalc)-amplitude(friedel(fcalc)) ) ( acentric ) 
+ [H=    3 K=    1 L=   -1]        0.0000
+ [H=    3 K=    1 L=    1]        0.0000
+ [H=    2 K=    2 L=   -1]        0.0000
+ [H=    2 K=    2 L=    1]        0.0000
+ [H=    2 K=    1 L=   -2]        0.0000
+ [H=    2 K=    1 L=   -1]        0.0000
+ [H=    2 K=    1 L=    1]        0.0000
+ [H=    2 K=    1 L=    2]        0.0000
+ [H=    1 K=    3 L=   -1]        0.0000
+ [H=    1 K=    3 L=    1]        0.0000
+ [H=    1 K=    2 L=   -2]        0.0000
+ [H=    1 K=    2 L=   -1]        0.0000
+ [H=    1 K=    2 L=    1]        0.0000
+ [H=    1 K=    2 L=    2]        0.0000
+ [H=    1 K=    1 L=   -3]        0.0000
+ [H=    1 K=    1 L=   -2]        0.0000
+ [H=    1 K=    1 L=    2]        0.0000
+ [H=    1 K=    1 L=    3]        0.0000
+ Total of        18 elements were selected.
+ XRAY> 
+ XRAY>  show (fcalc-conjugate(friedel(fcalc))) ( all ) 
+ [H=    3 K=    1 L=   -1]  Amplitude=       0.0000  Phase=       0.0000
+ [H=    3 K=    1 L=    0]  Amplitude=       0.0000  Phase=       0.0000
+ [H=    3 K=    1 L=    1]  Amplitude=       0.0000  Phase=       0.0000
+ [H=    3 K=    0 L=   -1]  Amplitude=       0.0000  Phase=       0.0000
+ [H=    2 K=    2 L=   -1]  Amplitude=       0.0000  Phase=       0.0000
+ [H=    2 K=    2 L=    0]  Amplitude=       0.0000  Phase=       0.0000
+ [H=    2 K=    2 L=    1]  Amplitude=       0.0000  Phase=       0.0000
+ [H=    2 K=    1 L=   -2]  Amplitude=       0.0000  Phase=       0.0000
+ [H=    2 K=    1 L=   -1]  Amplitude=       0.0000  Phase=       0.0000
+ [H=    2 K=    1 L=    0]  Amplitude=       0.0000  Phase=       0.0000
+ [H=    2 K=    1 L=    1]  Amplitude=       0.0000  Phase=       0.0000
+ [H=    2 K=    1 L=    2]  Amplitude=       0.0000  Phase=       0.0000
+ [H=    2 K=    0 L=   -2]  Amplitude=       0.0000  Phase=       0.0000
+ [H=    2 K=    0 L=   -1]  Amplitude=       0.0000  Phase=       0.0000
+ [H=    2 K=    0 L=    0]  Amplitude=       0.0000  Phase=       0.0000
+ [H=    1 K=    3 L=   -1]  Amplitude=       0.0000  Phase=       0.0000
+ [H=    1 K=    3 L=    0]  Amplitude=       0.0000  Phase=       0.0000
+ [H=    1 K=    3 L=    1]  Amplitude=       0.0000  Phase=       0.0000
+ [H=    1 K=    2 L=   -2]  Amplitude=       0.0000  Phase=       0.0000
+ [H=    1 K=    2 L=   -1]  Amplitude=       0.0000  Phase=       0.0000
+ [H=    1 K=    2 L=    0]  Amplitude=       0.0000  Phase=       0.0000
+ [H=    1 K=    2 L=    1]  Amplitude=       0.0000  Phase=       0.0000
+ [H=    1 K=    2 L=    2]  Amplitude=       0.0000  Phase=       0.0000
+ [H=    1 K=    1 L=   -3]  Amplitude=       0.0000  Phase=       0.0000
+ [H=    1 K=    1 L=   -2]  Amplitude=       0.0000  Phase=       0.0000
+ [H=    1 K=    1 L=    2]  Amplitude=       0.0000  Phase=       0.0000
+ [H=    1 K=    1 L=    3]  Amplitude=       0.0000  Phase=       0.0000
+ [H=    1 K=    0 L=   -3]  Amplitude=       0.0000  Phase=       0.0000
+ [H=    1 K=    0 L=   -2]  Amplitude=       0.0000  Phase=       0.0000
+ [H=    0 K=    3 L=   -1]  Amplitude=       0.0000  Phase=       0.0000
+ [H=    0 K=    2 L=   -2]  Amplitude=       0.0000  Phase=       0.0000
+ [H=    0 K=    2 L=   -1]  Amplitude=       0.0000  Phase=       0.0000
+ [H=    0 K=    2 L=    0]  Amplitude=       0.0000  Phase=       0.0000
+ [H=    0 K=    1 L=   -3]  Amplitude=       0.0000  Phase=       0.0000
+ [H=    0 K=    1 L=   -2]  Amplitude=       0.0000  Phase=       0.0000
+ [H=    0 K=    0 L=   -2]  Amplitude=       0.0000  Phase=       0.0000
+ Total of        36 elements were selected.
+ XRAY>  show (fcalc-conjugate(friedel(fcalc))) (( H=1 and K=1 and L=-3 ) or 
+ SHOW                                      ( H=1 and K=1 and L=+3 )) 
+ [H=    1 K=    1 L=   -3]  Amplitude=       0.0000  Phase=       0.0000
+ [H=    1 K=    1 L=    3]  Amplitude=       0.0000  Phase=       0.0000
+ Total of         2 elements were selected.
+ XRAY> 
+ XRAY>  show (fcalc) ( friedel_pair(true)) 
+ [H=    3 K=    1 L=   -1]  Amplitude=     209.6480  Phase=     352.4573
+ [H=    3 K=    1 L=    0]  Amplitude=     361.2840  Phase=      90.0000
+ [H=    3 K=    1 L=    1]  Amplitude=     209.6480  Phase=       7.5427
+ [H=    3 K=    0 L=   -1]  Amplitude=       7.4227  Phase=     270.0000
+ [H=    2 K=    2 L=   -1]  Amplitude=      25.3109  Phase=     109.7138
+ [H=    2 K=    2 L=    0]  Amplitude=     182.1648  Phase=       0.0000
+ [H=    2 K=    2 L=    1]  Amplitude=      25.3109  Phase=      70.2862
+ [H=    2 K=    1 L=   -2]  Amplitude=     130.2839  Phase=     208.1079
+ [H=    2 K=    1 L=   -1]  Amplitude=     280.6352  Phase=     269.5979
+ [H=    2 K=    1 L=    0]  Amplitude=     125.8762  Phase=     180.0000
+ [H=    2 K=    1 L=    1]  Amplitude=     280.6352  Phase=     270.4021
+ [H=    2 K=    1 L=    2]  Amplitude=     130.2839  Phase=     151.8921
+ [H=    2 K=    0 L=   -2]  Amplitude=     211.5797  Phase=     180.0000
+ [H=    2 K=    0 L=   -1]  Amplitude=     170.3575  Phase=      90.0000
+ [H=    2 K=    0 L=    0]  Amplitude=     206.8089  Phase=     180.0000
+ [H=    1 K=    3 L=   -1]  Amplitude=     258.4003  Phase=     181.8699
+ [H=    1 K=    3 L=    0]  Amplitude=     101.6082  Phase=      90.0000
+ [H=    1 K=    3 L=    1]  Amplitude=     258.4003  Phase=     178.1301
+ [H=    1 K=    2 L=   -2]  Amplitude=     107.5141  Phase=     129.3492
+ [H=    1 K=    2 L=   -1]  Amplitude=     269.6841  Phase=      18.9194
+ [H=    1 K=    2 L=    0]  Amplitude=     104.5132  Phase=      90.0000
+ [H=    1 K=    2 L=    1]  Amplitude=     269.6841  Phase=     341.0806
+ [H=    1 K=    2 L=    2]  Amplitude=     107.5141  Phase=      50.6508
+ [H=    1 K=    1 L=   -3]  Amplitude=     319.6557  Phase=     173.4480
+ [H=    1 K=    1 L=   -2]  Amplitude=     292.2097  Phase=     278.2586
+ [H=    1 K=    1 L=    2]  Amplitude=     292.2097  Phase=     261.7414
+ [H=    1 K=    1 L=    3]  Amplitude=     319.6557  Phase=     186.5520
+ [H=    1 K=    0 L=   -3]  Amplitude=     240.3991  Phase=      90.0000
+ [H=    1 K=    0 L=   -2]  Amplitude=      10.6702  Phase=     180.0000
+ [H=    0 K=    3 L=   -1]  Amplitude=     252.2285  Phase=     270.0000
+ [H=    0 K=    2 L=   -2]  Amplitude=     328.8930  Phase=       0.0000
+ [H=    0 K=    2 L=   -1]  Amplitude=      57.7220  Phase=     180.0000
+ [H=    0 K=    2 L=    0]  Amplitude=     396.4845  Phase=       0.0000
+ [H=    0 K=    1 L=   -3]  Amplitude=     173.6886  Phase=      90.0000
+ [H=    0 K=    1 L=   -2]  Amplitude=     227.4786  Phase=     270.0000
+ [H=    0 K=    0 L=   -2]  Amplitude=     832.5428  Phase=       0.0000
+ Total of        36 elements were selected.
+ XRAY> 
+ XRAY>  reflection 
+ REFLection>    index 4 5 6 fobs 50. fcalc 50. 40. 
+ REFLection: data will be merged with existing data.
+ XSFAL: allocating space for complex reciprocal space object.
+ XRRR2:        1 new h,k,l indices have been added.
+ XRAY> 
+ XRAY>  show (fcalc) ( friedel_pair(true)) 
+ [H=    3 K=    1 L=   -1]  Amplitude=     209.6480  Phase=     352.4573
+ [H=    3 K=    1 L=    0]  Amplitude=     361.2840  Phase=      90.0000
+ [H=    3 K=    1 L=    1]  Amplitude=     209.6480  Phase=       7.5427
+ [H=    3 K=    0 L=   -1]  Amplitude=       7.4227  Phase=     270.0000
+ [H=    2 K=    2 L=   -1]  Amplitude=      25.3109  Phase=     109.7138
+ [H=    2 K=    2 L=    0]  Amplitude=     182.1648  Phase=       0.0000
+ [H=    2 K=    2 L=    1]  Amplitude=      25.3109  Phase=      70.2862
+ [H=    2 K=    1 L=   -2]  Amplitude=     130.2839  Phase=     208.1079
+ [H=    2 K=    1 L=   -1]  Amplitude=     280.6352  Phase=     269.5979
+ [H=    2 K=    1 L=    0]  Amplitude=     125.8762  Phase=     180.0000
+ [H=    2 K=    1 L=    1]  Amplitude=     280.6352  Phase=     270.4021
+ [H=    2 K=    1 L=    2]  Amplitude=     130.2839  Phase=     151.8921
+ [H=    2 K=    0 L=   -2]  Amplitude=     211.5797  Phase=     180.0000
+ [H=    2 K=    0 L=   -1]  Amplitude=     170.3575  Phase=      90.0000
+ [H=    2 K=    0 L=    0]  Amplitude=     206.8089  Phase=     180.0000
+ [H=    1 K=    3 L=   -1]  Amplitude=     258.4003  Phase=     181.8699
+ [H=    1 K=    3 L=    0]  Amplitude=     101.6082  Phase=      90.0000
+ [H=    1 K=    3 L=    1]  Amplitude=     258.4003  Phase=     178.1301
+ [H=    1 K=    2 L=   -2]  Amplitude=     107.5141  Phase=     129.3492
+ [H=    1 K=    2 L=   -1]  Amplitude=     269.6841  Phase=      18.9194
+ [H=    1 K=    2 L=    0]  Amplitude=     104.5132  Phase=      90.0000
+ [H=    1 K=    2 L=    1]  Amplitude=     269.6841  Phase=     341.0806
+ [H=    1 K=    2 L=    2]  Amplitude=     107.5141  Phase=      50.6508
+ [H=    1 K=    1 L=   -3]  Amplitude=     319.6557  Phase=     173.4480
+ [H=    1 K=    1 L=   -2]  Amplitude=     292.2097  Phase=     278.2586
+ [H=    1 K=    1 L=    2]  Amplitude=     292.2097  Phase=     261.7414
+ [H=    1 K=    1 L=    3]  Amplitude=     319.6557  Phase=     186.5520
+ [H=    1 K=    0 L=   -3]  Amplitude=     240.3991  Phase=      90.0000
+ [H=    1 K=    0 L=   -2]  Amplitude=      10.6702  Phase=     180.0000
+ [H=    0 K=    3 L=   -1]  Amplitude=     252.2285  Phase=     270.0000
+ [H=    0 K=    2 L=   -2]  Amplitude=     328.8930  Phase=       0.0000
+ [H=    0 K=    2 L=   -1]  Amplitude=      57.7220  Phase=     180.0000
+ [H=    0 K=    2 L=    0]  Amplitude=     396.4845  Phase=       0.0000
+ [H=    0 K=    1 L=   -3]  Amplitude=     173.6886  Phase=      90.0000
+ [H=    0 K=    1 L=   -2]  Amplitude=     227.4786  Phase=     270.0000
+ [H=    0 K=    0 L=   -2]  Amplitude=     832.5428  Phase=       0.0000
+ Total of        36 elements were selected.
+ XRAY> 
+ XRAY>  show (fcalc-friedel(fcalc)) ( all ) 
+ XDOFRIED-warning: Friedel mate for reflection      4     5     6 not found in selected set.
+ [H=    3 K=    1 L=   -1]  Amplitude=      55.0387  Phase=     270.0000
+ [H=    3 K=    1 L=    0]  Amplitude=     722.5679  Phase=      90.0000
+ [H=    3 K=    1 L=    1]  Amplitude=      55.0387  Phase=      90.0000
+ [H=    3 K=    0 L=   -1]  Amplitude=      14.8455  Phase=     270.0000
+ [H=    2 K=    2 L=   -1]  Amplitude=      47.6548  Phase=      90.0000
+ [H=    2 K=    2 L=    0]  Amplitude=       0.0000  Phase=       0.0000
+ [H=    2 K=    2 L=    1]  Amplitude=      47.6548  Phase=      90.0000
+ [H=    2 K=    1 L=   -2]  Amplitude=     122.7620  Phase=     270.0000
+ [H=    2 K=    1 L=   -1]  Amplitude=     561.2566  Phase=     270.0000
+ [H=    2 K=    1 L=    0]  Amplitude=       0.0000  Phase=       0.0000
+ [H=    2 K=    1 L=    1]  Amplitude=     561.2566  Phase=     270.0000
+ [H=    2 K=    1 L=    2]  Amplitude=     122.7620  Phase=      90.0000
+ [H=    2 K=    0 L=   -2]  Amplitude=       0.0000  Phase=       0.0000
+ [H=    2 K=    0 L=   -1]  Amplitude=     340.7150  Phase=      90.0000
+ [H=    2 K=    0 L=    0]  Amplitude=       0.0000  Phase=       0.0000
+ [H=    1 K=    3 L=   -1]  Amplitude=      16.8632  Phase=     270.0000
+ [H=    1 K=    3 L=    0]  Amplitude=     203.2164  Phase=      90.0000
+ [H=    1 K=    3 L=    1]  Amplitude=      16.8632  Phase=      90.0000
+ [H=    1 K=    2 L=   -2]  Amplitude=     166.2805  Phase=      90.0000
+ [H=    1 K=    2 L=   -1]  Amplitude=     174.8837  Phase=      90.0000
+ [H=    1 K=    2 L=    0]  Amplitude=     209.0264  Phase=      90.0000
+ [H=    1 K=    2 L=    1]  Amplitude=     174.8837  Phase=     270.0000
+ [H=    1 K=    2 L=    2]  Amplitude=     166.2805  Phase=      90.0000
+ [H=    1 K=    1 L=   -3]  Amplitude=      72.9485  Phase=      90.0000
+ [H=    1 K=    1 L=   -2]  Amplitude=     578.3589  Phase=     270.0000
+ [H=    1 K=    1 L=    2]  Amplitude=     578.3589  Phase=     270.0000
+ [H=    1 K=    1 L=    3]  Amplitude=      72.9485  Phase=     270.0000
+ [H=    1 K=    0 L=   -3]  Amplitude=     480.7982  Phase=      90.0000
+ [H=    1 K=    0 L=   -2]  Amplitude=       0.0000  Phase=       0.0000
+ [H=    0 K=    3 L=   -1]  Amplitude=     504.4569  Phase=     270.0000
+ [H=    0 K=    2 L=   -2]  Amplitude=       0.0000  Phase=       0.0000
+ [H=    0 K=    2 L=   -1]  Amplitude=       0.0000  Phase=       0.0000
+ [H=    0 K=    2 L=    0]  Amplitude=       0.0000  Phase=       0.0000
+ [H=    0 K=    1 L=   -3]  Amplitude=     347.3771  Phase=      90.0000
+ [H=    0 K=    1 L=   -2]  Amplitude=     454.9571  Phase=     270.0000
+ [H=    0 K=    0 L=   -2]  Amplitude=       0.0000  Phase=       0.0000
+ [H=    4 K=    5 L=    6]  Amplitude=      50.0000  Phase=      40.0000
+ Total of        37 elements were selected.
+ XRAY>  show (fcalc-friedel(fcalc)) ( friedel_pair(true)) 
+ [H=    3 K=    1 L=   -1]  Amplitude=      55.0387  Phase=     270.0000
+ [H=    3 K=    1 L=    0]  Amplitude=     722.5679  Phase=      90.0000
+ [H=    3 K=    1 L=    1]  Amplitude=      55.0387  Phase=      90.0000
+ [H=    3 K=    0 L=   -1]  Amplitude=      14.8455  Phase=     270.0000
+ [H=    2 K=    2 L=   -1]  Amplitude=      47.6548  Phase=      90.0000
+ [H=    2 K=    2 L=    0]  Amplitude=       0.0000  Phase=       0.0000
+ [H=    2 K=    2 L=    1]  Amplitude=      47.6548  Phase=      90.0000
+ [H=    2 K=    1 L=   -2]  Amplitude=     122.7620  Phase=     270.0000
+ [H=    2 K=    1 L=   -1]  Amplitude=     561.2566  Phase=     270.0000
+ [H=    2 K=    1 L=    0]  Amplitude=       0.0000  Phase=       0.0000
+ [H=    2 K=    1 L=    1]  Amplitude=     561.2566  Phase=     270.0000
+ [H=    2 K=    1 L=    2]  Amplitude=     122.7620  Phase=      90.0000
+ [H=    2 K=    0 L=   -2]  Amplitude=       0.0000  Phase=       0.0000
+ [H=    2 K=    0 L=   -1]  Amplitude=     340.7150  Phase=      90.0000
+ [H=    2 K=    0 L=    0]  Amplitude=       0.0000  Phase=       0.0000
+ [H=    1 K=    3 L=   -1]  Amplitude=      16.8632  Phase=     270.0000
+ [H=    1 K=    3 L=    0]  Amplitude=     203.2164  Phase=      90.0000
+ [H=    1 K=    3 L=    1]  Amplitude=      16.8632  Phase=      90.0000
+ [H=    1 K=    2 L=   -2]  Amplitude=     166.2805  Phase=      90.0000
+ [H=    1 K=    2 L=   -1]  Amplitude=     174.8837  Phase=      90.0000
+ [H=    1 K=    2 L=    0]  Amplitude=     209.0264  Phase=      90.0000
+ [H=    1 K=    2 L=    1]  Amplitude=     174.8837  Phase=     270.0000
+ [H=    1 K=    2 L=    2]  Amplitude=     166.2805  Phase=      90.0000
+ [H=    1 K=    1 L=   -3]  Amplitude=      72.9485  Phase=      90.0000
+ [H=    1 K=    1 L=   -2]  Amplitude=     578.3589  Phase=     270.0000
+ [H=    1 K=    1 L=    2]  Amplitude=     578.3589  Phase=     270.0000
+ [H=    1 K=    1 L=    3]  Amplitude=      72.9485  Phase=     270.0000
+ [H=    1 K=    0 L=   -3]  Amplitude=     480.7982  Phase=      90.0000
+ [H=    1 K=    0 L=   -2]  Amplitude=       0.0000  Phase=       0.0000
+ [H=    0 K=    3 L=   -1]  Amplitude=     504.4569  Phase=     270.0000
+ [H=    0 K=    2 L=   -2]  Amplitude=       0.0000  Phase=       0.0000
+ [H=    0 K=    2 L=   -1]  Amplitude=       0.0000  Phase=       0.0000
+ [H=    0 K=    2 L=    0]  Amplitude=       0.0000  Phase=       0.0000
+ [H=    0 K=    1 L=   -3]  Amplitude=     347.3771  Phase=      90.0000
+ [H=    0 K=    1 L=   -2]  Amplitude=     454.9571  Phase=     270.0000
+ [H=    0 K=    0 L=   -2]  Amplitude=       0.0000  Phase=       0.0000
+ Total of        36 elements were selected.
+ XRAY> 
+ XRAY>  show (fcalc) (friedel_pair( (h=1 and k=0 and l=-3) 
+ SHOW                           or (h=0 and k=1 and l=-3) 
+ SHOW                           or (h=1 and k=1 and l=-3) 
+ SHOW                           or (h=1 and k=1 and l=3)) ) 
+ [H=    1 K=    1 L=   -3]  Amplitude=     319.6557  Phase=     173.4480
+ [H=    1 K=    1 L=    3]  Amplitude=     319.6557  Phase=     186.5520
+ [H=    1 K=    0 L=   -3]  Amplitude=     240.3991  Phase=      90.0000
+ [H=    0 K=    1 L=   -3]  Amplitude=     173.6886  Phase=      90.0000
+ Total of         4 elements were selected.
+ XRAY> 
+ XRAY>  show (fcalc) (friedel_pair( (h=1 and k=0 and l=-3) 
+ SHOW                           or (h=0 and k=1 and l=-3) 
+ SHOW                           or (h=1 and k=1 and l=-3) ) ) 
+ [H=    1 K=    0 L=   -3]  Amplitude=     240.3991  Phase=      90.0000
+ [H=    0 K=    1 L=   -3]  Amplitude=     173.6886  Phase=      90.0000
+ Total of         2 elements were selected.
+ XRAY> 
+ XRAY> 
+ XRAY>end 
+ CNSsolve> 
+ CNSsolve> 
+ CNSsolve> 
+ CNSsolve>xray 
+ XRAY>  reset 
+ XRAY: whole xray database erased and reset
+ XRAY>   declare name=fobs type=complex domain=reciprocal end 
+ XDECLARE: Object FOBS has been declared.
+ XRAY>   declare name=fpart domain=reciprocal type=complex end 
+ XDECLARE: Object FPART has been declared.
+ XRAY>   declare name=fcalc domain=reciprocal type=complex end 
+ XDECLARE: Object FCALC has been declared.
+ XRAY> 
+ XRAY>  evaluate ($lr=10.) 
+ EVALUATE: symbol $LR set to    10.0000     (real)
+ XRAY>  evaluate ($hr=6.) 
+ EVALUATE: symbol $HR set to    6.00000     (real)
+ XRAY>  binresolution $lr $hr 
+ XRAY>  mapresolution $hr 
+ XRAY>  tselection=( $hr <= d <= $lr  ) 
+ XRAY> 
+ XRAY>  a=16.00 b=16.00 c=8.00 alpha=90.0 beta=90.00 gamma=120.0 
+ XRAY> 
+ XRAY>  hermitian=false 
+ XRAY>  symmetry=(x,y,z) 
+ XRAY>  symmetry=(-y,x-y,z) 
+ XRAY>  symmetry=(y-x,-x,z) 
+ XRAY>  symmetry=(y,x,1/2+z) 
+ XRAY>  symmetry=(-x,y-x,1/2+z) 
+ XRAY>  symmetry=(x-y,-y,1/2+z) 
+ XRAY> 
+ XRAY>  SCATter ( chemical C* ) 
+ SELRPN:      2 atoms have been selected out of      3
+ SCATTER_A1=   2.31000 20.8439 1.02 10.2075 1.58860 .568700 .865000 51.651 .2156 
+ XRAY>    IMAG 2.0 
+ XRAY> 
+ XRAY>  SCATter ( chemical FE ) 
+ SELRPN:      1 atoms have been selected out of      3
+ SCATTER_A1=   2.31000 20.8439 1.02 10.2075 1.58860 .568700 .865000 51.651 .2156 
+ XRAY>    IMAG 5.0 
+ XRAY>  associate fcalc ( chemical FE or chemical C* ) 
+ SELRPN:      3 atoms have been selected out of      3
+ XRAY> 
+ XRAY>  tolerance=0. 
+ XRAY>  associate fcalc ( all ) 
+ SELRPN:      3 atoms have been selected out of      3
+ XRAY>  aselection=( not all ) 
+ SELRPN:      0 atoms have been selected out of      3
+ XRAY>  lookup=false 
+ XRAY>  method=direct 
+ XRAY>  fft 
+ XFFT>     prime=5 avoid=2 
+ XFFT>  end 
+ XRAY>  nreflections=1000 
+ XRAY: allocating space for    1000 reflections.
+ XRAY> 
+ XRAY> 
+ XRAY>  generate  10. 6. 
+ XGENER: generating reflections to produce a full set
+         for the specified resolution range.
+ XGENE2:        5 new reflections have been generated.
+ XRAY>  do (fpart=0) ( all ) 
+ XSFAL: allocating space for complex reciprocal space object.
+ Total of         5 structure factor elements were selected.
+ XRAY> 
+ XRAY>  associate fcalc ( all ) 
+ SELRPN:      3 atoms have been selected out of      3
+ XRAY>  predict 
+ PREDict>      mode=reciprocal 
+ PREDict>      to=fcalc 
+ PREDict>      selection=( all ) 
+ Total of         5 structure factor elements were selected.
+ PREDict>      atomselection=( all ) 
+ SELRPN:      3 atoms have been selected out of      3
+ PREDict>  end 
+ FCALC: #scatt.=      3 #anomalous=   0 #special pos.=  0 occupancies=1
+ XSFAL: allocating space for complex reciprocal space object.
+ XRAY>  do (fpart=fcalc) ( all ) 
+ Total of         5 structure factor elements were selected.
+ XRAY> 
+ XRAY>  scatter reset 
+ XRAY>  SCATter ( chemical C* ) 
+ SELRPN:      2 atoms have been selected out of      3
+ SCATTER_A1=   2.31000 20.8439 1.02 10.2075 1.58860 .568700 .865000 51.651 .2156 
+ XRAY> 
+ XRAY>  SCATter ( chemical FE ) 
+ SELRPN:      1 atoms have been selected out of      3
+ SCATTER_A1=   2.31000 20.8439 1.02 10.2075 1.58860 .568700 .865000 51.651 .2156 
+ XRAY>  associate fcalc ( all ) 
+ SELRPN:      3 atoms have been selected out of      3
+ XRAY>  aselection=( all ) 
+ SELRPN:      3 atoms have been selected out of      3
+ XRAY> 
+ XRAY>  predict 
+ PREDict>      mode=reciprocal 
+ PREDict>      to=fcalc 
+ PREDict>      selection=( all ) 
+ Total of         5 structure factor elements were selected.
+ PREDict>      atomselection=( all ) 
+ SELRPN:      3 atoms have been selected out of      3
+ PREDict>  end 
+ FCALC: #scatt.=      3 #anomalous=   3 #special pos.=  0 occupancies=1
+ XRAY>  show ave (fcalc-fpart) ( all ) 
+ Average of         5 elements.  Amplitude=                0.0000  Phase=                0.0000
+ XRAY> 
+ XRAY>  scatter reset 
+ XRAY>  SCATter ( chemical C* ) 
+ SELRPN:      2 atoms have been selected out of      3
+ SCATTER_A1=   2.31000 20.8439 1.02 10.2075 1.58860 .568700 .865000 51.651 .2156 
+ XRAY> 
+ XRAY>  SCATter ( chemical FE ) 
+ SELRPN:      1 atoms have been selected out of      3
+ SCATTER_A1=   2.31000 20.8439 1.02 10.2075 1.58860 .568700 .865000 51.651 .2156 
+ XRAY>    IMAG 5.0 
+ XRAY>  predict 
+ PREDict>      mode=reciprocal 
+ PREDict>      to=fcalc 
+ PREDict>      selection=( all ) 
+ Total of         5 structure factor elements were selected.
+ PREDict>      atomselection=( all ) 
+ SELRPN:      3 atoms have been selected out of      3
+ PREDict>  end 
+ FCALC: #scatt.=      3 #anomalous=   3 #special pos.=  0 occupancies=1
+ XRAY>  show ave (fcalc-fpart) ( all ) 
+ Average of         5 elements.  Amplitude=               11.9423  Phase=               90.2840
+ XRAY>  do (fpart=fcalc) ( all ) 
+ Total of         5 structure factor elements were selected.
+ XRAY> 
+ XRAY>  associate fcalc ( not all ) 
+ SELRPN:      0 atoms have been selected out of      3
+ XRAY>  associate fcalc ( all ) 
+ SELRPN:      3 atoms have been selected out of      3
+ XRAY>  predict 
+ PREDict>      mode=reciprocal 
+ PREDict>      to=fcalc 
+ PREDict>      selection=( all ) 
+ Total of         5 structure factor elements were selected.
+ PREDict>      atomselection=( all ) 
+ SELRPN:      3 atoms have been selected out of      3
+ PREDict>  end 
+ FCALC: #scatt.=      3 #anomalous=   3 #special pos.=  0 occupancies=1
+ XRAY>  show ave (fcalc-fpart) ( all ) 
+ Average of         5 elements.  Amplitude=                0.0000  Phase=                0.0000
+ XRAY>  do (fpart=fcalc) ( all ) 
+ Total of         5 structure factor elements were selected.
+ XRAY> 
+ XRAY>  scatter reset 
+ XRAY>  SCATter ( chemical C* ) 
+ SELRPN:      2 atoms have been selected out of      3
+ SCATTER_A1=   2.31000 20.8439 1.02 10.2075 1.58860 .568700 .865000 51.651 .2156 
+ XRAY>    IMAG 2.0 
+ XRAY> 
+ XRAY>  SCATter ( chemical FE ) 
+ SELRPN:      1 atoms have been selected out of      3
+ SCATTER_A1=   2.31000 20.8439 1.02 10.2075 1.58860 .568700 .865000 51.651 .2156 
+ XRAY>    IMAG 5.0 
+ XRAY>  aselection=( chemical FE) 
+ SELRPN:      1 atoms have been selected out of      3
+ XRAY>  associate fcalc ( all ) 
+ SELRPN:      3 atoms have been selected out of      3
+ XRAY>  aselection=( chemical FE) 
+ SELRPN:      1 atoms have been selected out of      3
+ XRAY>  predict 
+ PREDict>      mode=reciprocal 
+ PREDict>      to=fcalc 
+ PREDict>      selection=( all ) 
+ Total of         5 structure factor elements were selected.
+ PREDict>      atomselection=( all ) 
+ SELRPN:      3 atoms have been selected out of      3
+ PREDict>  end 
+ FCALC: #scatt.=      3 #anomalous=   1 #special pos.=  0 occupancies=1
+ XRAY>  show ave (fcalc-fpart) ( all ) 
+ Average of         5 elements.  Amplitude=                0.0000  Phase=                0.0000
+ XRAY> 
+ XRAY>  aselection=( not all ) 
+ SELRPN:      0 atoms have been selected out of      3
+ XRAY>  associate fcalc ( all ) 
+ SELRPN:      3 atoms have been selected out of      3
+ XRAY>  predict 
+ PREDict>      mode=reciprocal 
+ PREDict>      to=fcalc 
+ PREDict>      selection=( all ) 
+ Total of         5 structure factor elements were selected.
+ PREDict>      atomselection=( all ) 
+ SELRPN:      3 atoms have been selected out of      3
+ PREDict>  end 
+ FCALC: #scatt.=      3 #anomalous=   0 #special pos.=  0 occupancies=1
+ XRAY>  do (fpart=fcalc) ( all ) 
+ Total of         5 structure factor elements were selected.
+ XRAY>  scatter reset 
+ XRAY>  SCATter ( chemical C* ) 
+ SELRPN:      2 atoms have been selected out of      3
+ SCATTER_A1=   2.31000 20.8439 1.02 10.2075 1.58860 .568700 .865000 51.651 .2156 
+ XRAY> 
+ XRAY>  SCATter ( chemical FE ) 
+ SELRPN:      1 atoms have been selected out of      3
+ SCATTER_A1=   2.31000 20.8439 1.02 10.2075 1.58860 .568700 .865000 51.651 .2156 
+ XRAY> 
+ XRAY>  predict 
+ PREDict>      mode=reciprocal 
+ PREDict>      to=fcalc 
+ PREDict>      selection=( all ) 
+ Total of         5 structure factor elements were selected.
+ PREDict>      atomselection=( all ) 
+ SELRPN:      3 atoms have been selected out of      3
+ PREDict>  end 
+ FCALC: #scatt.=      3 #anomalous=   0 #special pos.=  0 occupancies=1
+ XRAY>  show ave (fcalc-fpart) ( all ) 
+ Average of         5 elements.  Amplitude=                0.0000  Phase=                0.0000
+ XRAY>end 
+ CNSsolve> 
+ CNSsolve>xray 
+ XRAY>  reset 
+ XRAY: whole xray database erased and reset
+ XRAY>   declare name=fobs type=complex domain=reciprocal end 
+ XDECLARE: Object FOBS has been declared.
+ XRAY>   declare name=fpart domain=reciprocal type=complex end 
+ XDECLARE: Object FPART has been declared.
+ XRAY>   declare name=fcalc domain=reciprocal type=complex end 
+ XDECLARE: Object FCALC has been declared.
+ XRAY> 
+ XRAY>  evaluate ($lr=10.) 
+ EVALUATE: symbol $LR set to    10.0000     (real)
+ XRAY>  evaluate ($hr=6.) 
+ EVALUATE: symbol $HR set to    6.00000     (real)
+ XRAY>  binresolution $lr $hr 
+ XRAY>  mapresolution $hr 
+ XRAY>  tselection=( $hr <= d <= $lr ) 
+ XRAY> 
+ XRAY>  a=16.00 b=16.00 c=8.00 alpha=90.0 beta=90.00 gamma=120.0 
+ XRAY> 
+ XRAY>  hermitian=false 
+ XRAY>  symmetry=(x,y,z) 
+ XRAY>  symmetry=(-y,x-y,z) 
+ XRAY>  symmetry=(y-x,-x,z) 
+ XRAY>  symmetry=(y,x,1/2+z) 
+ XRAY>  symmetry=(-x,y-x,1/2+z) 
+ XRAY>  symmetry=(x-y,-y,1/2+z) 
+ XRAY> 
+ XRAY>  anomalous=true 
+ XRAY>  generate 10. 6. 
+ XGENER: generating reflections to produce a full set
+         for the specified resolution range.
+ XGENE2:        5 new reflections have been generated.
+ XRAY>   do (fpart=0) ( all ) 
+ XSFAL: allocating space for complex reciprocal space object.
+ Total of         5 structure factor elements were selected.
+ XRAY> 
+ XRAY>  SCATter ( chemical C* ) 
+ SELRPN:      2 atoms have been selected out of      3
+ SCATTER_A1=   2.31000 20.8439 1.02 10.2075 1.58860 .568700 .865000 51.651 .2156 
+ XRAY>    IMAG 0.01 
+ XRAY> 
+ XRAY>  SCATter ( chemical FE ) 
+ SELRPN:      1 atoms have been selected out of      3
+ SCATTER_A1=   2.31000 20.8439 1.02 10.2075 1.58860 .568700 .865000 51.651 .2156 
+ XRAY>    IMAG 5.0 
+ XRAY>  associate fcalc ( all ) 
+ SELRPN:      3 atoms have been selected out of      3
+ XRAY>  predict 
+ PREDict>      mode=reciprocal 
+ PREDict>      to=fcalc 
+ PREDict>      selection=( all ) 
+ Total of         5 structure factor elements were selected.
+ PREDict>      atomselection=( all ) 
+ SELRPN:      3 atoms have been selected out of      3
+ PREDict>  end 
+ FCALC: #scatt.=      3 #anomalous=   1 #special pos.=  0 occupancies=1
+ XSFAL: allocating space for complex reciprocal space object.
+ XFFT: using grid [   8,   8,   4] and sublattice [   8(   9),   8(   9),   2]
+ XRAY>  do (fpart=fcalc) ( all ) 
+ Total of         5 structure factor elements were selected.
+ XRAY> 
+ XRAY> 
+ XRAY>  asele=( chemical FE ) 
+ SELRPN:      1 atoms have been selected out of      3
+ XRAY>  predict 
+ PREDict>      mode=reciprocal 
+ PREDict>      to=fcalc 
+ PREDict>      selection=( all ) 
+ Total of         5 structure factor elements were selected.
+ PREDict>      atomselection=( all ) 
+ SELRPN:      3 atoms have been selected out of      3
+ PREDict>  end 
+ FCALC: #scatt.=      3 #anomalous=   1 #special pos.=  0 occupancies=1
+ XFFT: using grid [   8,   8,   4] and sublattice [   8(   9),   8(   9),   2]
+ XRAY> 
+ XRAY>  show ave (fcalc-fpart) ( all ) 
+ Average of         5 elements.  Amplitude=                0.0000  Phase=                0.0000
+ XRAY> 
+ XRAY>end 
+ CNSsolve> 
+ CNSsolve>stop 
+          ============================================================
+           Maximum dynamic memory allocation:     8435304 bytes
+           Maximum dynamic memory overhead:          1360 bytes
+           Program started at: 16:08:22 on 05-Jul-2018
+           Program stopped at: 16:08:22 on 05-Jul-2018
+           CPU time used:       4.1585 seconds
+          ============================================================

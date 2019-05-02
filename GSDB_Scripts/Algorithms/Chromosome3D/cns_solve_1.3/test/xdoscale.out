@@ -1,0 +1,663 @@
+          ============================================================
+          |                                                          |
+          |            Crystallography & NMR System (CNS)            |
+          |                         CNSsolve                         |
+          |                                                          |
+          ============================================================
+           Version: 1.3
+           Status: General release
+          ============================================================
+           Written by: A.T.Brunger, P.D.Adams, G.M.Clore, W.L.DeLano,
+                       P.Gros, R.W.Grosse-Kunstleve,J.-S.Jiang,J.M.Krahn,
+                       J.Kuszewski, M.Nilges, N.S.Pannu, R.J.Read,
+                       L.M.Rice, G.F.Schroeder, T.Simonson, G.L.Warren.
+           Copyright (c) 1997-2010 Yale University
+          ============================================================
+           Running on machine: lewis4-r710-login-node223 (x86_64/Linux,64-bit)
+                               with 16 threads
+           Program started by: oeow39
+           Program started at: 16:08:26 on 05-Jul-2018
+          ============================================================
+
+ FFT3C: Using FFTPACK4.1
+
+ CNSsolve>remarks   xdoscale 
+ CNSsolve>remarks   test for xray xdoscale 
+ CNSsolve> 
+ CNSsolve> 
+ CNSsolve>topology @CNS_TOPPAR:protein.top end 
+ ASSFIL: file protein.top opened.
+ RTFRDR>remarks file toppar/protein.top 
+ RTFRDR>remarks   protein topology with polar hydrogens 
+ RTFRDR> 
+ RTFRDR>! 
+ RTFRDR>! Please cite the following reference when using these parameters: 
+ RTFRDR>! Engh, R.A. and  Huber, R. (1991). Accurate Bond and 
+ RTFRDR>!  Angle Parameters for X-ray Protein-Structure Refinement, 
+ RTFRDR>!  Acta Cryst. A47, 392-400. 
+ RTFRDR>! 
+ RTFRDR>! 
+ RTFRDR> 
+ RTFRDR>set message ? end eval ($old_message=$result) set echo ? end eval ($old_echo=$result) 
+ MESSage=NORM
+ EVALUATE: symbol $OLD_MESSAGE set to "NORM" (string)
+ ECHO=TRUE {ON}
+ EVALUATE: symbol $OLD_ECHO set to TRUE (logical)
+ RTFRDR>set message=off echo=off end 
+ RTFRDR> 
+ RTFRDR> 
+ RTFRDR> end 
+ CNSsolve>param @CNS_TOPPAR:protein.param end 
+ ASSFIL: file protein.param opened.
+ PARRDR>remarks file toppar/protein.param 
+ PARRDR>remarks   protein parameters with Lennard-Jones van der Waals parameters 
+ PARRDR>remarks   for crystallographic structure determination 
+ PARRDR> 
+ PARRDR>! 
+ PARRDR>! Please cite the following reference when using these parameters: 
+ PARRDR>! Engh, R.A. and  Huber, R. (1991). Accurate Bond and 
+ PARRDR>!  Angle Parameters for X-ray Protein-Structure Refinement, 
+ PARRDR>!  Acta Cryst. A47, 392-400. 
+ PARRDR>! 
+ PARRDR>! 
+ PARRDR> 
+ PARRDR>set message ? end eval ($old_message=$result) set echo ? end eval ($old_echo=$result) 
+ MESSage=NORM
+ EVALUATE: symbol $OLD_MESSAGE set to "NORM" (string)
+ ECHO=TRUE {ON}
+ EVALUATE: symbol $OLD_ECHO set to TRUE (logical)
+ PARRDR>set message=off echo=off end 
+ PARRDR> 
+ PARRDR> end 
+ CNSsolve> 
+ CNSsolve>segment 
+ SEGMENT>   chain 
+ CHAIN>      @CNS_TOPPAR:protein.link 
+ ASSFIL: file protein.link opened.
+ CHAIN>remarks file toppar/protein.link 
+ CHAIN>remarks 
+ CHAIN>remarks this is a macro to define standard protein peptide bonds 
+ CHAIN>remarks and termini to generate a protein sequence. 
+ CHAIN> 
+ CHAIN>set message ? end eval ($old_message=$result) set echo ? end eval ($old_echo=$result) 
+ MESSage=NORM
+ EVALUATE: symbol $OLD_MESSAGE set to "NORM" (string)
+ ECHO=TRUE {ON}
+ EVALUATE: symbol $OLD_ECHO set to TRUE (logical)
+ CHAIN>set message=off echo=off end 
+ CHAIN>      sequence 
+ SEQUENCE>       THR THR CYS CYS PRO SER ILE VAL ALA ARG SER ASN PHE ASN VAL CYS 
+ SEQUence-element (terminate with END) =       ARG LEU PRO GLY THR PRO GLU ALA ILE CYS ALA THR TYR THR GLY CYS 
+ SEQUence-element (terminate with END) =       ILE ILE ILE PRO GLY ALA THR CYS PRO GLY ASP TYR ALA ASN 
+ SEQUence-element (terminate with END) =      end 
+ SEGMNT:    46 residues were inserted into segment "    "
+ CHAIN>   end 
+ SEGMENT>end 
+ Status of internal molecular topology database:
+ -> NATOM=        396(MAXA=     1000000)  NBOND=        403(MAXB=     1000000)
+ -> NTHETA=       581(MAXT=     2000000)  NGRP=          48(MAXGRP=   1000000)
+ -> NPHI=         235(MAXP=     2000000)  NIMPHI=       190(MAXIMP=   1000000)
+ -> NNB=            0(MAXNB=    1000000) 
+ CNSsolve> 
+ CNSsolve> 
+ CNSsolve>coor 
+ COOR>ATOM      1  HT1 THR     1      16.206  14.668   3.850  0.00  0.00 
+ COOR>ATOM      2  HT2 THR     1      17.090  13.935   2.599  0.00  0.00 
+ CNSsolve> 
+ CNSsolve>set timing=on end 
+ CNSsolve> 
+ CNSsolve> 
+ CNSsolve>do (q=1) ( all ) 
+ SELRPN:    396 atoms have been selected out of    396
+ CNSsolve> 
+ CNSsolve>{* ============================================================= *} 
+ CNSsolve>{* ============================================================= *} 
+ CNSsolve> 
+ CNSsolve>xray 
+ XRAY>   declare name=fobs type=complex domain=reciprocal end 
+ XDECLARE: Object FOBS has been declared.
+ XRAY>   declare name=fpart domain=reciprocal type=complex end 
+ XDECLARE: Object FPART has been declared.
+ XRAY>   declare name=fcalc domain=reciprocal type=complex end 
+ XDECLARE: Object FCALC has been declared.
+ XRAY>   declare name=fom domain=reciprocal type=real end 
+ XDECLARE: Object FOM has been declared.
+ XRAY>   declare name=weight domain=reciprocal type=real end 
+ XDECLARE: Object WEIGHT has been declared.
+ XRAY>   declare name=sigma domain=reciprocal type=real end 
+ XDECLARE: Object SIGMA has been declared.
+ XRAY>   declare name=test domain=reciprocal type=integer end 
+ XDECLARE: Object TEST has been declared.
+ XRAY> 
+ XRAY>   a=40.96 b=18.65 c=22.52 alpha=90.0 beta=90.77 gamma=90.0 
+ XRAY>   symmetry=(x,y,z)         !! 
+ XRAY>   symmetry=(-x,y+1/2,-z)   !! this is P21, b axis unique 
+ XRAY> 
+ XRAY>   asymmetric=(0<=x<1 and 0<=y<1/2 and 0<=z<1) 
+ XRAY> 
+ XRAY>   nreflections=20000 
+ XRAY: allocating space for   20000 reflections.
+ XRAY> 
+ XRAY>   !! scattering tables, from SCATT input 
+ XRAY>   !! 
+ XRAY>   SCATter ( chemical C* ) 
+ SELRPN:    202 atoms have been selected out of    396
+ SCATTER_A1=   2.31000 20.8439 1.02000 10.2075 1.58860 .568700 .865000 51.6512 .215600 
+ XRAY> 
+ XRAY>   SCATter ( chemical N* ) 
+ SELRPN:     55 atoms have been selected out of    396
+ SCATTER_A1=   12.2126 .005700 3.13220 9.89330 2.01250 28.9975 1.16630 .582600 -11.529 
+ XRAY> 
+ XRAY>   SCATter ( chemical O* ) 
+ SELRPN:     64 atoms have been selected out of    396
+ SCATTER_A1=   3.04850 13.2771 2.28680 5.70110 1.54630 .323900 .867000 32.9089 .250800 
+ XRAY> 
+ XRAY>   SCATter ( chemical S* ) 
+ SELRPN:      6 atoms have been selected out of    396
+ SCATTER_A1=   6.90530 1.46790 5.20340 22.2151 1.43790 .253600 1.58630 56.1720 .866900 
+ XRAY> 
+ XRAY> reflections 
+ REFLection> INDEx    0   2   0  Fobs  4171.8999 
+ XSFAL: allocating space for complex reciprocal space object.
+ XRRR2:      729 new h,k,l indices have been added.
+ XRAY> 
+ XRAY> do (fpart=0) ( all ) 
+ XSFAL: allocating space for complex reciprocal space object.
+ Total of       729 structure factor elements were selected.
+ XRAY> 
+ XRAY>   method=fft   lookup=false 
+ XRAY>   fft memory=2000000  grid=0.2 end 
+ XRAY> 
+ XRAY>  evaluate ($lr=7.5) 
+ EVALUATE: symbol $LR set to    7.50000     (real)
+ XRAY>  evaluate ($hr=3) 
+ EVALUATE: symbol $HR set to    3.00000     (real)
+ XRAY>  binresolution $lr $hr 
+ XRAY>  mapresolution $hr 
+ XRAY>  tselection=( $hr <= d <= $lr and 2000. >= amplitude(fobs)>=40.) 
+ XRAY> 
+ XRAY>   ? 
+ ---------------------------diffraction-data-----------------------------------
+ | a= 40.96, b= 18.65, c= 22.52, alpha= 90.00, beta= 90.77, gamma= 90.00
+ | ANOMalous=FALSe
+ | Number or unique reflections read=   729
+ | resolution range covered by these reflections:       9.94 to       3.00
+ | Hmax=   13 Kmax=    6 Lmax=    7 Hmin=  -13 Kmin=    0 Lmin=    0
+ ------------------------------------------------------------------------------
+ XRAY> 
+ XRAY>   declare name=deri1 type=complex domain=reciprocal end 
+ XDECLARE: Object DERI1 has been declared.
+ XRAY>   declare name=deri2 type=complex domain=reciprocal end 
+ XDECLARE: Object DERI2 has been declared.
+ XRAY>   declare name=deri3 type=complex domain=reciprocal end 
+ XDECLARE: Object DERI3 has been declared.
+ XRAY>   declare name=deri4 type=complex domain=reciprocal end 
+ XDECLARE: Object DERI4 has been declared.
+ XRAY>   declare name=deri5 type=complex domain=reciprocal end 
+ XDECLARE: Object DERI5 has been declared.
+ XRAY>   declare name=deri6 type=complex domain=reciprocal end 
+ XDECLARE: Object DERI6 has been declared.
+ XRAY>   declare name=deri7 type=complex domain=reciprocal end 
+ XDECLARE: Object DERI7 has been declared.
+ XRAY>   declare name=deri8 type=complex domain=reciprocal end 
+ XDECLARE: Object DERI8 has been declared.
+ XRAY>   declare name=deri9 type=complex domain=reciprocal end 
+ XDECLARE: Object DERI9 has been declared.
+ XRAY> 
+ XRAY>   declare name=pa type=real domain=reciprocal end 
+ XDECLARE: Object PA has been declared.
+ XRAY>   declare name=pb type=real domain=reciprocal end 
+ XDECLARE: Object PB has been declared.
+ XRAY>   declare name=pc type=real domain=reciprocal end 
+ XDECLARE: Object PC has been declared.
+ XRAY>   declare name=pd type=real domain=reciprocal end 
+ XDECLARE: Object PD has been declared.
+ XRAY> 
+ XRAY>   declare name=ca type=real domain=reciprocal end 
+ XDECLARE: Object CA has been declared.
+ XRAY>   declare name=cb type=real domain=reciprocal end 
+ XDECLARE: Object CB has been declared.
+ XRAY>   declare name=cc type=real domain=reciprocal end 
+ XDECLARE: Object CC has been declared.
+ XRAY>   declare name=cd type=real domain=reciprocal end 
+ XDECLARE: Object CD has been declared.
+ XRAY> 
+ XRAY>   associate fcalc (known and not hydr) 
+ SELRPN:    327 atoms have been selected out of    396
+ XRAY>   predict 
+ PREDict>      mode=reciprocal 
+ PREDict>      to=fcalc 
+ PREDict>      selection=( all ) 
+ Total of       729 structure factor elements were selected.
+ PREDict>      atomselection=( known and not hydrogen ) 
+ SELRPN:    327 atoms have been selected out of    396
+ PREDict>   end 
+ FCALC: #scatt.=    327 #anomalous=   0 #special pos.=  0 occupancies=1
+ XSFAL: allocating space for complex reciprocal space object.
+ XFFT: using grid [  72,  32,  64] and sublattice [  72(  73),  32(  33),   4]
+ XFFT: CPU-time:  electron-density-calc=    0.0412
+ XFFT: CPU-time:  FFT of electron density=    0.0077
+ XFFT: CPU-time:  transformation into A, B=    0.0030
+ XPRED: CPU-time:  predict-calc=    0.9250
+ XRAY> 
+ XRAY>   statistics 
+ STATistics>      (rvalue(fobs,fcalc+fpart)) 
+ STATistics>      (rvalue[overall](fobs,fcalc+fpart)) 
+ STATistics>      selection=( $hr <= d <= $lr and 2000. >= amplitude(fobs)>=40.) 
+ Total of       590 structure factor elements were selected.
+ STATistics>      output=OUTPUT 
+ STATistics>   end 
+ #bin | resolution range | #refl | 
+    1   5.30    7.50         86      0.3707    0.2837
+    2   4.49    5.30         71      0.2559    0.2837
+    3   4.02    4.49         64      0.2526    0.2837
+    4   3.70    4.02         63      0.2613    0.2837
+    5   3.47    3.70         82      0.2474    0.2837
+    6   3.28    3.47         64      0.2598    0.2837
+    7   3.13    3.28         76      0.3262    0.2837
+    8   3.00    3.13         84      0.2851    0.2837
+ XRAY> 
+ XRAY>   do (deri9=fcalc) ( all ) 
+ XSFAL: allocating space for complex reciprocal space object.
+ Total of       729 structure factor elements were selected.
+ XRAY> 
+ XRAY>   do (deri1=fcalc) ( all ) 
+ XSFAL: allocating space for complex reciprocal space object.
+ Total of       729 structure factor elements were selected.
+ XRAY>{ ================================ } 
+ XRAY>   { test the SCALE function } 
+ XRAY> 
+ XRAY>   bins=1 
+ XRAY>   do (deri2=scale(fobs,fcalc)*fcalc) 
+ DO>          ( 3. <= d <= 7.5 and  40. <= amplitude(fobs) <=2000. ) 
+ XDOSCALE:  scale factors are stored in symbols $K_BIN1.             
+ XDOSCALE: the overall scale is stored in $XSCFFK
+ XSFAL: allocating space for complex reciprocal space object.
+ Total of       590 structure factor elements were selected.
+ XRAY>   do (deri1=deri2) ( all ) 
+ Total of       729 structure factor elements were selected.
+ XRAY> 
+ XRAY>   bins=8 
+ XRAY>   display $xscffk $k_bin1 
+9.79718 9.79718
+ XRAY> 
+ XRAY>   show max (abs(deri2-deri1)) 
+ SHOW>          ( 3. <= d <= 7.5 and  40. <= amplitude(fobs) <=2000. ) 
+ Maximum of       590 elements =                 0.0000
+ XRAY> 
+ XRAY>   { ======= bin-wise scaling ====== } 
+ XRAY> 
+ XRAY>   { ==== BINS=2  by SUM ==== } 
+ XRAY>   evaluate ($n=2) 
+ EVALUATE: symbol $N set to    2.00000     (real)
+ XRAY>   bins=$n 
+ XRAY>   do (deri3=fcalc*sum(amplitude(fobs)*amplitude(fcalc)) 
+ DO>                  /sum(amplitude(fcalc)^2)) 
+ DO>          ( 3. <= d <= 7.5 and  40. <= amplitude(fobs) <=2000. ) 
+ XSFAL: allocating space for complex reciprocal space object.
+ Total of       590 structure factor elements were selected.
+ XRAY>   bins=8 
+ XRAY>   {* check R values *} 
+ XRAY>   do (fcalc=deri3) ( 3. <= d <= 7.5 and  40. <= amplitude(fobs) <=2000. ) 
+ Total of       590 structure factor elements were selected.
+ XRAY> 
+ XRAY>   statistics 
+ STATistics>      (rvalue(fobs,fcalc+fpart)) 
+ STATistics>      (rvalue[overall](fobs,fcalc+fpart)) 
+ STATistics>      selection=( $hr <= d <= $lr and 2000. >= amplitude(fobs)>=40.) 
+ Total of       590 structure factor elements were selected.
+ STATistics>      output=OUTPUT 
+ STATistics>   end 
+ #bin | resolution range | #refl | 
+    1   5.30    7.50         86      0.3291    0.2686
+    2   4.49    5.30         71      0.2272    0.2686
+    3   4.02    4.49         64      0.2580    0.2686
+    4   3.70    4.02         63      0.2940    0.2686
+    5   3.47    3.70         82      0.2239    0.2686
+    6   3.28    3.47         64      0.2359    0.2686
+    7   3.13    3.28         76      0.2924    0.2686
+    8   3.00    3.13         84      0.2868    0.2686
+ XRAY> 
+ XRAY>   do (fcalc=deri9) ( all ) 
+ Total of       729 structure factor elements were selected.
+ XRAY> 
+ XRAY>   { ==== BINS=2  by SCALE ==== } 
+ XRAY>   bins=$n 
+ XRAY>   do (deri2=fcalc*scale(fobs,fcalc)) 
+ DO>          ( 3. <= d <= 7.5 and  40. <= amplitude(fobs) <=2000. ) 
+ XDOSCALE:  scale factors are stored in symbols $K_BIN1, ..., $K_BIN2
+ Total of       590 structure factor elements were selected.
+ XRAY>   bins=8 
+ XRAY>   display $xscffk $k_bin1 $k_bin2 
+9.79718 11.2055 8.89109
+ XRAY>   {* check R values *} 
+ XRAY>   do (fcalc=deri2) ( 3. <= d <= 7.5 and  40. <= amplitude(fobs) <=2000. ) 
+ Total of       590 structure factor elements were selected.
+ XRAY> 
+ XRAY>   statistics 
+ STATistics>      (rvalue(fobs,fcalc+fpart)) 
+ STATistics>      (rvalue[overall](fobs,fcalc+fpart)) 
+ STATistics>      selection=( $hr <= d <= $lr and 2000. >= amplitude(fobs)>=40.) 
+ Total of       590 structure factor elements were selected.
+ STATistics>      output=OUTPUT 
+ STATistics>   end 
+ #bin | resolution range | #refl | 
+    1   5.30    7.50         86      0.3291    0.2686
+    2   4.49    5.30         71      0.2272    0.2686
+    3   4.02    4.49         64      0.2580    0.2686
+    4   3.70    4.02         63      0.2940    0.2686
+    5   3.47    3.70         82      0.2239    0.2686
+    6   3.28    3.47         64      0.2359    0.2686
+    7   3.13    3.28         76      0.2924    0.2686
+    8   3.00    3.13         84      0.2868    0.2686
+ XRAY> 
+ XRAY>   do (fcalc=deri9) ( all ) 
+ Total of       729 structure factor elements were selected.
+ XRAY> 
+ XRAY>   { ==== any difference? ==== } 
+ XRAY>   show max (abs(deri2-deri3)) 
+ SHOW>          ( 3. <= d <= 7.5 and  40. <= amplitude(fobs) <=2000. ) 
+ Maximum of       590 elements =                 0.0000
+ XRAY> 
+ XRAY> 
+ XRAY>   { ==== BINS=10  by SUM ==== } 
+ XRAY>   bins=10 
+ XRAY>   do (deri3=fcalc*sum(amplitude(fobs)*amplitude(fcalc)) 
+ DO>                  /sum(amplitude(fcalc)^2)) 
+ DO>          ( 3. <= d <= 7.5 and  40. <= amplitude(fobs) <=2000. ) 
+ Total of       590 structure factor elements were selected.
+ XRAY>   bins=8 
+ XRAY>   {* check R values *} 
+ XRAY>   do (fcalc=deri3) ( 3. <= d <= 7.5 and  40. <= amplitude(fobs) <=2000. ) 
+ Total of       590 structure factor elements were selected.
+ XRAY> 
+ XRAY>   statistics 
+ STATistics>      (rvalue(fobs,fcalc+fpart)) 
+ STATistics>      (rvalue[overall](fobs,fcalc+fpart)) 
+ STATistics>      selection=( $hr <= d <= $lr and 2000. >= amplitude(fobs)>=40.) 
+ Total of       590 structure factor elements were selected.
+ STATistics>      output=OUTPUT 
+ STATistics>   end 
+ #bin | resolution range | #refl | 
+    1   5.30    7.50         86      0.2935    0.2575
+    2   4.49    5.30         71      0.2224    0.2575
+    3   4.02    4.49         64      0.2502    0.2575
+    4   3.70    4.02         63      0.2562    0.2575
+    5   3.47    3.70         82      0.2262    0.2575
+    6   3.28    3.47         64      0.2349    0.2575
+    7   3.13    3.28         76      0.2932    0.2575
+    8   3.00    3.13         84      0.2797    0.2575
+ XRAY> 
+ XRAY>   do (fcalc=deri9) ( all ) 
+ Total of       729 structure factor elements were selected.
+ XRAY> 
+ XRAY>   { ==== BINS=10  by SCALE ==== } 
+ XRAY>   bins=10 
+ XRAY>   do (deri2=fcalc*scale(fobs,fcalc)) 
+ DO>          ( 3. <= d <= 7.5 and  40. <= amplitude(fobs) <=2000. ) 
+ XDOSCALE:  scale factors are stored in symbols $K_BIN1, ..., $K_BIN10
+ Total of       590 structure factor elements were selected.
+ XRAY>   bins=8 
+ XRAY>   display $xscffk $k_bin1 $k_bin2 $k_bin3 $k_bin4 $k_bin5 
+9.79718 10.428 11.4226 11.0892 11.5683 11.5756
+ XRAY>   display $k_bin6 $k_bin7 $k_bin8 $k_bin9 $k_bin10 
+10.6146 10.2638 9.21355 8.61448 7.20817
+ XRAY>   {* check R values *} 
+ XRAY>   do (fcalc=deri3) ( 3. <= d <= 7.5 and  40. <= amplitude(fobs) <=2000. ) 
+ Total of       590 structure factor elements were selected.
+ XRAY> 
+ XRAY>   statistics 
+ STATistics>      (rvalue(fobs,fcalc+fpart)) 
+ STATistics>      (rvalue[overall](fobs,fcalc+fpart)) 
+ STATistics>      selection=( $hr <= d <= $lr and 2000. >= amplitude(fobs)>=40.) 
+ Total of       590 structure factor elements were selected.
+ STATistics>      output=OUTPUT 
+ STATistics>   end 
+ #bin | resolution range | #refl | 
+    1   5.30    7.50         86      0.2935    0.2575
+    2   4.49    5.30         71      0.2224    0.2575
+    3   4.02    4.49         64      0.2502    0.2575
+    4   3.70    4.02         63      0.2562    0.2575
+    5   3.47    3.70         82      0.2262    0.2575
+    6   3.28    3.47         64      0.2349    0.2575
+    7   3.13    3.28         76      0.2932    0.2575
+    8   3.00    3.13         84      0.2797    0.2575
+ XRAY> 
+ XRAY>   do (fcalc=deri9) ( all ) 
+ Total of       729 structure factor elements were selected.
+ XRAY> 
+ XRAY>   { ==== any difference? ==== } 
+ XRAY>   show max (abs(deri2-deri3)) 
+ SHOW>          ( 3. <= d <= 7.5 and  40. <= amplitude(fobs) <=2000. ) 
+ Maximum of       590 elements =                 0.0000
+ XRAY> 
+ XRAY> 
+ XRAY>   { ======= does it work in SHOW ?? } 
+ XRAY>   bins=1 
+ XRAY>   show max (abs(fcalc*scale(fobs,fcalc)-deri1)) 
+ SHOW>          ( 3. <= d <= 7.5 and  40. <= amplitude(fobs) <=2000. ) 
+ XDOSCALE:  scale factors are stored in symbols $K_BIN1.             
+ XDOSCALE: the overall scale is stored in $XSCFFK
+ Maximum of       590 elements =                 0.0000
+ XRAY> 
+ XRAY>   { ======= does it work with amplitudes as well ?? } 
+ XRAY>   do (pa=amplitude(fcalc)*scale(amplitude(fobs),amplitude(fcalc))) 
+ DO>          ( 3. <= d <= 7.5 and  40. <= amplitude(fobs) <=2000. ) 
+ XDOSCALE:  scale factors are stored in symbols $K_BIN1.             
+ XDOSCALE: the overall scale is stored in $XSCFFK
+ XSFAL: allocating space for real reciprocal space object.
+ Total of       590 structure factor elements were selected.
+ XRAY>   display $xscffk $k_bin1 
+9.79718 9.79718
+ XRAY> 
+ XRAY>   show max (abs(pa-amplitude(deri1))) 
+ SHOW>          ( 3. <= d <= 7.5 and  40. <= amplitude(fobs) <=2000. ) 
+ Maximum of       590 elements =                 0.0000
+ XRAY> 
+ XRAY> 
+ XRAY>{ ================================ } 
+ XRAY>   { test the SHAPE function } 
+ XRAY> 
+ XRAY>   evaluate ($b=30.0) 
+ EVALUATE: symbol $B set to    30.0000     (real)
+ XRAY>   do (deri1=$xscffk*exp(-$b*s*s/4.0)*fcalc) ( all ) 
+ Total of       729 structure factor elements were selected.
+ XRAY>   do (deri2=shape(deri1,fcalc)*fcalc) 
+ DO>          ( 3. <= d <= 7.5 and  40. <= amplitude(fobs) <=2000. ) 
+ XDOSCALE:  scale and B factors are stored in $K_BIN1, $B_BIN1.
+ XDOSCALE: the overall scale is stored in $XSCFFK
+ Total of       590 structure factor elements were selected.
+ XRAY>   display $xscffk $k_bin1 $b_bin1 
+6.61398 9.78931 29.939
+ XRAY>   show max (abs(deri2-deri1)) 
+ SHOW>          ( 3. <= d <= 7.5 and  40. <= amplitude(fobs) <=2000. ) 
+ Maximum of       590 elements =                 0.9756
+ XRAY> 
+ XRAY>   { ======= bin-wise scaling ====== } 
+ XRAY> 
+ XRAY>   { ==== BINS=2  by SHAPE ==== } 
+ XRAY>   bins=2 
+ XRAY>   do (deri2=shape(deri1,fcalc)*fcalc) 
+ DO>          ( 3. <= d <= 7.5 and  40. <= amplitude(fobs) <=2000. ) 
+ XDOSCALE:  scale and B factors are stored in $K_BIN1, $B_BIN1, ..., $K_BIN2, $B_BIN2
+ Total of       590 structure factor elements were selected.
+ XRAY>   display $xscffk $k_bin1 $b_bin1 $k_bin2 $b_bin2 
+6.61398 9.79074 29.971 9.78799 29.9084
+ XRAY>   show max (abs(deri2-deri1)) 
+ SHOW>          ( 3. <= d <= 7.5 and  40. <= amplitude(fobs) <=2000. ) 
+ Maximum of       590 elements =                 0.9585
+ XRAY> 
+ XRAY>   { ==== BINS=10  by SHAPE ==== } 
+ XRAY>   bins=10 
+ XRAY>   do (deri2=shape(deri1,fcalc)*fcalc) 
+ DO>          ( 3. <= d <= 7.5 and  40. <= amplitude(fobs) <=2000. ) 
+ XDOSCALE:  scale and B factors are stored in $K_BIN1, $B_BIN1, ..., $K_BIN10, $B_BIN10
+ Total of       590 structure factor elements were selected.
+ XRAY>   show max (abs(deri2-deri1)) 
+ SHOW>          ( 3. <= d <= 7.5 and  40. <= amplitude(fobs) <=2000. ) 
+ Maximum of       590 elements =                 2.4154
+ XRAY> 
+ XRAY>   { ======= complicate expresion for the arguments } 
+ XRAY>   bins=1 
+ XRAY>   do (deri2=shape($xscffk*exp(-$b*s*s/4.0)*fcalc,fcalc)*fcalc) 
+ DO>          ( 3. <= d <= 7.5 and  40. <= amplitude(fobs) <=2000. ) 
+ XDOSCALE:  scale and B factors are stored in $K_BIN1, $B_BIN1.
+ XDOSCALE: the overall scale is stored in $XSCFFK
+ Total of       590 structure factor elements were selected.
+ XRAY>   display $xscffk $k_bin1 $b_bin1 
+4.46504 6.60867 29.939
+ XRAY>   show max (abs(deri2-deri1)) 
+ SHOW>          ( 3. <= d <= 7.5 and  40. <= amplitude(fobs) <=2000. ) 
+ Maximum of       590 elements =               655.3218
+ XRAY> 
+ XRAY>   { ======= squaring shape } 
+ XRAY>   do (deri2=shape(fcalc*fcalc,fcalc)*fcalc) 
+ DO>          ( 3. <= d <= 7.5 and  40. <= amplitude(fobs) <=2000. ) 
+ XDOSCALE:  scale and B factors are stored in $K_BIN1, $B_BIN1.
+ XDOSCALE: the overall scale is stored in $XSCFFK
+ Total of       590 structure factor elements were selected.
+ XRAY>   display $xscffk $k_bin1 $b_bin1 
+150.965 192.473 17.322
+ XRAY> 
+ XRAY>   { ======= psuedo Wilson Plot correction } 
+ XRAY>   do (deri2=sqrt(fobs*fobs*shape(fcalc*fcalc,fobs*fobs))) 
+ DO>          ( 3. <= d <= 7.5 and  40. <= amplitude(fobs) <=2000. ) 
+ XDOSCALE:  scale and B factors are stored in $K_BIN1, $B_BIN1.
+ XDOSCALE: the overall scale is stored in $XSCFFK
+ Total of       590 structure factor elements were selected.
+ XRAY>   evaluate ($kw=sqrt($k_bin1)) 
+ EVALUATE: symbol $KW set to   0.130680     (real)
+ XRAY>   evaluate ($bw=$b_bin1/2.0) 
+ EVALUATE: symbol $BW set to    21.1326     (real)
+ XRAY>   display $xscffk $k_bin1 $b_bin1  $kw $bw 
+9.566236E-03 1.70773E-02 42.2653  0.13068 21.1326
+ XRAY> 
+ XRAY>   { ======= shape correction for FOBS } 
+ XRAY>   do (deri2=fobs*shape(fcalc,fobs)) 
+ DO>          ( 3. <= d <= 7.5 and  40. <= amplitude(fobs) <=2000. ) 
+ XDOSCALE:  scale and B factors are stored in $K_BIN1, $B_BIN1.
+ XDOSCALE: the overall scale is stored in $XSCFFK
+ Total of       590 structure factor elements were selected.
+ XRAY>   display $xscffk $k_bin1 $b_bin1 
+9.461483E-02 0.130132 20.9088
+ XRAY>   do (deri9=fobs) ( all ) 
+ Total of       729 structure factor elements were selected.
+ XRAY> 
+ XRAY>   do (fobs=0) ( amplitude(fobs) < 40. or amplitude (fobs) > 2000.) 
+ Total of       113 structure factor elements were selected.
+ XRAY> 
+ XRAY> 
+ XRAY>  evaluate ($lr=7.5) 
+ EVALUATE: symbol $LR set to    7.50000     (real)
+ XRAY>  evaluate ($hr=3) 
+ EVALUATE: symbol $HR set to    3.00000     (real)
+ XRAY>  binresolution $lr $hr 
+ XRAY>  mapresolution $hr 
+ XRAY>  tselection=( $hr <= d <= $lr and 10000000. >= amplitude(fobs)>=0.0001 ) 
+ XRAY> 
+ XRAY>   do (fobs=deri2) ( 3. <= d <= 7.5 and  40. <= amplitude(fobs) <=2000. ) 
+ Total of       590 structure factor elements were selected.
+ XRAY>   bins=8 
+ XRAY> 
+ XRAY>   statistics 
+ STATistics>      (rvalue(fobs,fcalc+fpart)) 
+ STATistics>      (rvalue[overall](fobs,fcalc+fpart)) 
+ STATistics>      selection=( $hr <= d <= $lr and 10000000. >= amplitude(fobs)>=0.0001 ) 
+ Total of       590 structure factor elements were selected.
+ STATistics>      output=OUTPUT 
+ STATistics>   end 
+ #bin | resolution range | #refl | 
+    1   5.30    7.50         86      0.3028    0.2632
+    2   4.49    5.30         71      0.2249    0.2632
+    3   4.02    4.49         64      0.2504    0.2632
+    4   3.70    4.02         63      0.2623    0.2632
+    5   3.47    3.70         82      0.2305    0.2632
+    6   3.28    3.47         64      0.2381    0.2632
+    7   3.13    3.28         76      0.2889    0.2632
+    8   3.00    3.13         84      0.3070    0.2632
+ XRAY> 
+ XRAY>   do (fobs=deri9) ( all ) 
+ Total of       729 structure factor elements were selected.
+ XRAY>   do (fobs=0) ( amplitude(fobs) < 40. or amplitude (fobs) > 2000.) 
+ Total of       113 structure factor elements were selected.
+ XRAY>   {* by BINS=2 *} 
+ XRAY>   bins=2 
+ XRAY>   do (deri2=fobs*shape(fcalc,fobs)) 
+ DO>          ( 3. <= d <= 7.5 and  40. <= amplitude(fobs) <=2000. ) 
+ XDOSCALE:  scale and B factors are stored in $K_BIN1, $B_BIN1, ..., $K_BIN2, $B_BIN2
+ Total of       590 structure factor elements were selected.
+ XRAY>   do (deri9=fobs) ( all ) 
+ Total of       729 structure factor elements were selected.
+ XRAY>   do (fobs=0) ( amplitude(fobs) < 40. or amplitude (fobs) > 2000.) 
+ Total of       113 structure factor elements were selected.
+ XRAY>   do (fobs=deri2) ( 3. <= d <= 7.5 and  40. <= amplitude(fobs) <=2000. ) 
+ Total of       590 structure factor elements were selected.
+ XRAY>   bins=8 
+ XRAY> 
+ XRAY>   statistics 
+ STATistics>      (rvalue(fobs,fcalc+fpart)) 
+ STATistics>      (rvalue[overall](fobs,fcalc+fpart)) 
+ STATistics>      selection=( $hr <= d <= $lr and 10000000. >= amplitude(fobs)>=0.0001 ) 
+ Total of       590 structure factor elements were selected.
+ STATistics>      output=OUTPUT 
+ STATistics>   end 
+ #bin | resolution range | #refl | 
+    1   5.30    7.50         86      0.2967    0.2596
+    2   4.49    5.30         71      0.2243    0.2596
+    3   4.02    4.49         64      0.2489    0.2596
+    4   3.70    4.02         63      0.2579    0.2596
+    5   3.47    3.70         82      0.2239    0.2596
+    6   3.28    3.47         64      0.2359    0.2596
+    7   3.13    3.28         76      0.2924    0.2596
+    8   3.00    3.13         84      0.2870    0.2596
+ XRAY> 
+ XRAY>   do (fobs=deri9) ( all ) 
+ Total of       729 structure factor elements were selected.
+ XRAY>   do (fobs=0) ( amplitude(fobs) < 40. or amplitude (fobs) > 2000.) 
+ Total of       113 structure factor elements were selected.
+ XRAY>   {* by BINS=10 *} 
+ XRAY>   bins=10 
+ XRAY>   do (deri2=fobs*shape(fcalc,fobs)) 
+ DO>          ( 3. <= d <= 7.5 and  40. <= amplitude(fobs) <=2000. ) 
+ XDOSCALE:  scale and B factors are stored in $K_BIN1, $B_BIN1, ..., $K_BIN10, $B_BIN10
+ Total of       590 structure factor elements were selected.
+ XRAY>   do (deri9=fobs) ( all ) 
+ Total of       729 structure factor elements were selected.
+ XRAY>   do (fobs=0) ( amplitude(fobs) < 40. or amplitude (fobs) > 2000.) 
+ Total of       113 structure factor elements were selected.
+ XRAY>   do (fobs=deri2) ( 3. <= d <= 7.5 and  40. <= amplitude(fobs) <=2000. ) 
+ Total of       590 structure factor elements were selected.
+ XRAY>   bins=8 
+ XRAY> 
+ XRAY>   statistics 
+ STATistics>      (rvalue(fobs,fcalc+fpart)) 
+ STATistics>      (rvalue[overall](fobs,fcalc+fpart)) 
+ STATistics>      selection=( $hr <= d <= $lr and 10000000. >= amplitude(fobs)>=0.0001 ) 
+ Total of       590 structure factor elements were selected.
+ STATistics>      output=OUTPUT 
+ STATistics>   end 
+ #bin | resolution range | #refl | 
+    1   5.30    7.50         86      0.2936    0.2562
+    2   4.49    5.30         71      0.2203    0.2562
+    3   4.02    4.49         64      0.2491    0.2562
+    4   3.70    4.02         63      0.2486    0.2562
+    5   3.47    3.70         82      0.2235    0.2562
+    6   3.28    3.47         64      0.2328    0.2562
+    7   3.13    3.28         76      0.2899    0.2562
+    8   3.00    3.13         84      0.2822    0.2562
+ XRAY> 
+ XRAY>   do (fobs=deri9) ( all ) 
+ Total of       729 structure factor elements were selected.
+ XRAY>   do (fobs=0) ( amplitude(fobs) < 40. or amplitude (fobs) > 2000.) 
+ Total of       113 structure factor elements were selected.
+ XRAY> 
+ XRAY>end 
+ CNSsolve> 
+ CNSsolve>stop 
+          ============================================================
+           Maximum dynamic memory allocation:    15067584 bytes
+           Maximum dynamic memory overhead:          1968 bytes
+           Program started at: 16:08:26 on 05-Jul-2018
+           Program stopped at: 16:08:26 on 05-Jul-2018
+           CPU time used:       1.6556 seconds
+          ============================================================

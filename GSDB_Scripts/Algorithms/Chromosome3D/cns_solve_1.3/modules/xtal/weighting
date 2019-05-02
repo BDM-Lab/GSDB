@@ -1,0 +1,211 @@
+! Module file: weighting
+!
+! CNS module
+! **********
+!
+! Authors: Jian-Sheng Jiang, Alison Roberts, Paul D. Adams and Axel T. Brunger
+!
+! copyright Yale University
+!
+! Function:
+! To calculate figure of merit (fom) between observed and calculated structure
+! factors &f1 and &f2.
+!
+! choices of weighting scheme:
+! sim, bricogne, sigmaa, sigmaa_hauptman, sigmae
+!
+! Requirements:
+! 1. This module can only be called called from xray
+
+module {weighting}
+(
+    &bins=8;                  { number of bins for averaging       }  
+    &f1=fobs;                 { observed structure factors         }
+    &f2=fcalc;                { calculated structure factors       }
+    &fom;                     { return figure of merit             }
+    &sel=(all);               { reflection selection               }
+    &w_method="bricogne";     { methods of weighing:               }
+                              {  sim | bricogne |                  }
+                              {  sigmaa | sigmaa_hauptman | sigmae }
+    &x=w_x;
+)
+
+checkversion 1.3
+
+! REFERENCES FOR SIM WEIGHTING SCHEME
+! References: Sim, G.A. (1960) Acta Cryst. 13, 511. 
+!
+!             Sim, G.A. (1959) The distribution of phase
+!             angles for structures containing heavy atoms. II.
+!             A modification of the normal heavy atom method
+!             for non-centrosymmetric structures.  Acta Cryst. 12, 
+!             813-815.
+!
+!             Blundell, T.L. & Johnson, L.N (1976).  Protein
+!             Crystallography, Academic Press, London.  pp. 417--419.
+!
+!             R.J. Read (1986).  Improved Fourier coefficients
+!             for maps using phases from partial structures with
+!             errors.  Acta Cryst. A42 (1986), 140--149.  
+!
+!
+! For two structure factor moduli &f1 and &f2 the Sim weighting 
+! function is defined as
+!
+!   w = I1(X)/I0(X) (for acentric reflections)
+!   w = tanh( X/2) (for centric reflections)
+!
+! I1, I0 are the first and zero order modified Bessel functions
+!
+! X= 2 &f1 &f2 /  < | &f1 - &f2 |^2 > 
+!
+! The < > average is taken bin-wise in equal volume resolution
+! shells.  
+!
+! R.J. Read (1986) suggested to include the statistical weight
+! epsilon into the < > average.  
+!
+! < x > = sum  ( x w/epsilon ) / sum w 
+!
+!  w=2 for acentric reflections
+!  w=1 for centric reflections
+!
+!  epsilon=2 nsym/multiplicity for acentric reflections
+!  epsilon=  nsym/multiplicity for centric reflections
+! (J.M. Stewart & J. Karle, The calculation of epsilon 
+! associated with normalized structure factors, E,  
+! Acta Cryst A32 (1976), 1005--1007). 
+!
+!
+! assume that structure factor 1 is in f1 and structure
+! factor 2 is in f2.  Sim weight will be returned in fom.
+!
+! REFERENCES FOR SIGMA WEIGHTING SCHEMES
+! References:
+!
+!             R. Srinivasan (1966).  Weighting functions for use
+!             in the early stages of structure analysis when a part
+!             of the structure is known.  Acta Cryst. 20, 143--144.
+!
+!             R. Srinivasan & S. Parthasarathy (1976).  Some
+!             statistical applications in X-ray crystallography. 
+!             International series in natural philosophy, Volume
+!             83. Pergamon Press, Oxford, pp. 172--188. 
+!
+!             R.J. Read (1986).  Improved Fourier coefficients
+!             for maps using phases from partial structures with
+!             errors.  Acta Cryst. A42 (1986), 140--149.  
+!
+!             R.J. Read (1990).  Structure-factor probabilities
+!             for related structures.  Acta Cryst. A46 (1990),
+!             900--912.
+!
+!
+! For two structure factor moduli f1 and f2 we compute 
+! the normalized structure factor moduli E1 and E2.
+! X=  2 SIGMAA(E1,E2)  E1 E2   / (1- SIGMAA(E1,E2)^2).
+!
+! The coefficient D is defined as
+!
+! D = SIGMAA(E1,E2) sqrt ( <f1^2> / <f2^2> )
+!
+! where < > are bin-wise averages over equal-volume resolution
+! shells (using statistical weights)
+! 
+! The figure of merit &fom is defined as:
+!
+!   fom = I1(X)/I0(X) (for acentric reflections)
+!   fom = tanh( X/2) (for centric reflections)
+!
+! I1, I0 are the first and zero order modified Bessel functions,
+
+{* Declare local arrays *}
+declare domain=reci type=real name=sigmaa_oa end
+declare domain=reci type=real name=sigmaa_ob end
+declare domain=reci type=real name=sigmaa_oc end
+
+evaluate ($WeightMacro_nbins=&bins)
+if ($WeightMacro_nbins < 2) then
+  display %WEIGHTING-WRN: number of bins for computing SIGMMA must be greater than 1.
+end if 
+
+bins ? evaluate ($old_bins=$result) 
+bins=$WeightMacro_nbins
+
+evaluate ($WeightMacro_method=&w_method)
+
+if ($WeightMacro_method= "sim") then
+  {* compute sim weight *}
+  do (sigmaa_OB = 2 amplitude(&f1) amplitude(&f2) / 
+      save((amplitude(&f1)-amplitude(&f2))^2)) ( &sel )
+  do (&x = sigmaa_OB)             ( &sel )
+  do (&fom = I1OVERI0(sigmaa_OB)) ( &sel and acentric )
+  do (&fom = tanh(sigmaa_OB/2))   ( &sel and centric  )
+
+elseif ($WeightMacro_method= "bricogne") then
+  {* compute sim (modified by Gerard Bricogne) weight *}
+  do (sigmaa_OB = 2 amplitude(&f1) amplitude(&f2) / 
+      save(abs((amplitude(&f1))^2 - (amplitude(&f2))^2)))
+                                  ( &sel )
+  do (&x = sigmaa_OB)             ( &sel )
+  do (&fom = I1OVERI0(sigmaa_OB)) ( &sel and acentric )
+  do (&fom = tanh(sigmaa_OB/2))   ( &sel and centric  )
+
+elseif ($WeightMacro_method= "sigmaa") then
+  {* compute sigmaa weight *}
+
+  ! compute normalized structure factor moduli
+  do (sigmaa_OA=norm(amplitude(&f1))) ( &sel )
+  do (sigmaa_OB=norm(amplitude(&f2))) ( &sel )
+
+  ! compute SIGMAA
+  do (sigmaa_OC=siga(sigmaa_OA,sigmaa_OB)) ( &sel )
+
+  ! compute &fom
+  do (&fom = 2 sigmaa_OC sigmaa_OA sigmaa_OB / ( max(0.0001,1-sigmaa_OC^2) ))
+                             ( &sel )
+  do (&x = &fom)             ( &sel )
+  do (&fom = i1overi0(&fom)) ( &sel and acentric )
+  do (&fom = tanh(&fom/2))   ( &sel and centric  )
+
+elseif ($WeightMacro_method= "sigmaa_hauptman") then
+  {* compute sigmaa_hauptman weight *}
+
+  ! compute normalized structure factor moduli
+  do (sigmaa_OA=norm(amplitude(&f1))) ( &sel )
+  do (sigmaa_OB=norm(amplitude(&f2))) ( &sel )
+
+  ! compute SIGMAA using Hauptman's estimate
+  do (sigmaa_OC = sqrt(max(0., corr(sigmaa_OA^2,sigmaa_OB^2))) ) ( &sel )
+
+  ! compute &fom
+  do (&fom = 2 sigmaa_OC sigmaa_OA sigmaa_OB / ( max(0.0001,1-sigmaa_OC^2) ))
+                             ( &sel )
+  do (&x = &fom)             ( &sel )
+  do (&fom = i1overi0(&fom)) ( &sel and acentric )
+  do (&fom = tanh(&fom/2))   ( &sel and centric  )
+
+elseif ($WeightMacro_method= "sigmae") then
+  {* compute sigmae weight *}
+
+  ! compute normalized structure factor moduli
+  do (sigmaa_OA=norm(amplitude(&f1))) ( &sel )
+  do (sigmaa_OB=norm(amplitude(&f2))) ( &sel )
+
+  ! compute SIGMAE
+  do (sigmaa_OC = max(0., corr(sigmaa_OA,sigmaa_OB)) ) ( &sel )
+
+  ! compute &fom
+  do (&fom = 2 sigmaa_OC sigmaa_OA sigmaa_OB / ( max(0.0001,1-sigmaa_OC^2) ))
+                             ( &sel )
+  do (&x = &fom)             ( &sel )
+  do (&fom = i1overi0(&fom)) ( &sel and acentric )
+  do (&fom = tanh(&fom/2))   ( &sel and centric  )
+
+end if
+
+undeclare domain=reci name=sigmaa_oa end
+undeclare domain=reci name=sigmaa_ob end
+undeclare domain=reci name=sigmaa_oc end
+
+bins=$old_bins

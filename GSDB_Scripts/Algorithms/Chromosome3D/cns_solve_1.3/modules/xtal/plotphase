@@ -1,0 +1,92 @@
+! Module file: plotphase
+!
+! Written by: Axel Brunger
+!
+! copyright Yale University
+!
+! Function: 
+! Plot probability distributions for selected phases.
+! The resolution range of the selected reflections is partitioned into
+! bins of width &delta.  For each bin, the first available reflection with
+! non-zero phase probability is plotted.  
+!
+! The distribution is centered around the phase specified in &m.  
+!
+! Requirements:
+! 1. This module can only be called from xray
+! 2. Probability must be precomputed
+!
+
+module {plotphase}
+(
+   &m;			{array with complex fom}
+   &pa;			{H-L coefficient a}
+   &pb;			{H-L coefficient b}
+   &pc;			{H-L coefficient c}
+   &pd;			{H-L coefficient d}
+   &sel=(all);		{selection of structure factors}
+   &output=OUTPUT;      {output filename}
+   &phistep=20;         {size of phase steps in integration}
+   &delta=1;            {width of resolution bin}
+)
+
+checkversion 1.3
+
+{*initialize*}
+
+set display=&output end
+
+show min (d) ( &sel ) 
+eval ($plotphase_high=$result)
+show max (d) ( &sel )
+eval ($plotphase_low=$result)
+
+                {*normalize probability*}
+declare domain=reci type=real name=pp_pk end 	{work array}
+@@CNS_XTALMODULE:normalizeprobability
+        (
+         sel=&sel;
+         pk=pp_pk;
+         pa=&pa;pb=&pb;pc=&pc;pd=&pd;
+         phistep=&phistep;
+         cen360=TRUE;
+        )
+
+                {*plot phase data*}  
+
+eval ($res=$plotphase_low )
+
+while ($res > $plotphase_high ) loop res
+
+   show max (h) ( pp_pk # 0 and &sel and $res >= d >= $res-&delta )
+   eval ($plotphase_h=$result) 
+   show max (k) ( pp_pk # 0 and &sel and $res >= d >= $res-&delta and $plotphase_h=h)
+   eval ($plotphase_k=$result) 
+   show max (l) ( pp_pk # 0 and &sel and $res >= d >= $res-&delta 
+                 and $plotphase_h=h and $plotphase_k=k )
+   eval ($plotphase_l=$result) 
+
+   if ($select > 0 ) then
+   display 0. 0. 
+
+   eval ($phi=-&phistep)
+   while ($phi < 360) loop stat
+        eval ($phi=$phi+&phistep)
+        show elem 
+        (exp
+        (
+         pp_pk+&pa*cos($phi+phase(m)+180.)+&pb*sin($phi+phase(m)+180.)
+           +&pc*cos(2*($phi+phase(m)+180.))+&pd*sin(2*($phi+phase(m)+180.)) 
+        )) ( h=$plotphase_h and k=$plotphase_k and l=$plotphase_l )
+        display $phi[F16.10] $result[F16.10]
+   end loop stat
+
+  
+   display  360. 0. 
+   end if
+
+   eval ($res=$res-&delta)
+
+end loop res
+
+

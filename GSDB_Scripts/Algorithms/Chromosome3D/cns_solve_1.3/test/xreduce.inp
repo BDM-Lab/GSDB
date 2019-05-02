@@ -1,0 +1,148 @@
+remarks  file: xreduce.inp
+remarks   test merging/reducing/expanding reflections
+
+{* test merging of reflections *}
+xray
+   reset
+   declare name=fobs type=complex domain=reciprocal end
+   declare name=fpart domain=reciprocal type=complex end
+   declare name=fcalc domain=reciprocal type=complex end
+   declare name=fom domain=reciprocal type=real end
+   declare name=weight domain=reciprocal type=real end
+   declare name=sigma domain=reciprocal type=real end
+   declare name=test domain=reciprocal type=integer end
+   
+   evaluate ($lr=30.)
+   evaluate ($hr=0.1) 
+   binresolution $lr $hr 
+   mapresolution $hr
+   tselection=( $hr <= d <= $lr and 100000. >= amplitude(fobs)>=0.0 )
+
+   hermitian=false
+   reflection
+     index 1 2 3 fobs 40.  90. fom 0.5 
+     index 2 3 4 fobs 30.  60. fom 0.4  weight 1.4
+     index 3 4 5 fobs 20.  50. fom 0.3
+     index -1 -2 -3 fobs 40.  90. fom 0.5   sigma 4.0
+     index -2 -3 -4 fobs 30.  60. fom 0.4
+     index -3 -4 -5 fobs 20.  50. fom 0.3
+   end
+   do (fcalc=0) ( all )
+   do (fpart=0) ( all )
+   
+   write reflection fobs fcalc fpart fom weight sigma  sele=( all ) end
+   reflection
+     index 1 2 3   fcalc 3. 3.5 fpart 4. 4.5 sigma 3.0
+     index -1 2 -5 fobs 20. fcalc 4. 4.5 weight 3.0   
+   end
+   write reflection fobs fcalc fpart fom weight sigma  sele=( all ) end
+end    
+
+{* test expand / reduce  *}
+
+xray
+   reset
+   declare name=fobs type=complex domain=reciprocal end
+   declare name=fpart domain=reciprocal type=complex end
+   declare name=fcalc domain=reciprocal type=complex end
+   declare name=fom domain=reciprocal type=real end
+   declare name=weight domain=reciprocal type=real end
+   declare name=sigma domain=reciprocal type=real end
+   declare name=test domain=reciprocal type=integer end
+   evaluate ($lr=30.)
+   evaluate ($hr=1.) 
+   binresolution $lr $hr 
+   mapresolution $hr
+   tselection=( $hr <= d <= $lr and 100000. >= amplitude(fobs)>=0.0 )
+   
+   a=40. b=40. c=40. 
+   hermitian=true
+   reflection
+     index 1 2 3 fobs 40.  90. fom 0.5 
+     index 2 3 4 fobs 30.  60. fom 0.4  weight 1.4
+     index 3 4 5 fobs 20.  50. fom 0.3
+     index 1 2 3 fobs 40.  90. fom 0.5 
+     index -1 -2 -3 fobs 40.  90. fom 0.5   sigma 4.0
+     index -2 -3 -4 fobs 30.  60. fom 0.4
+     index -3 -4 -5 fobs 20.  50. fom 0.3
+     index 1 2 3 fobs 40.  90. fom 0.5 
+     index -2 -3 -4 fobs 30.  60. fom 0.4
+   end
+   do (fpart=0)  ( all )
+   do (fcalc=0) ( all ) 
+   
+   write reflection fobs fcalc fpart fom weight sigma  sele=( all ) end
+   reset
+
+   declare name=fobs type=complex domain=reciprocal end
+   declare name=fpart domain=reciprocal type=complex end
+   declare name=fcalc domain=reciprocal type=complex end
+   declare name=fom domain=reciprocal type=real end
+   declare name=weight domain=reciprocal type=real end
+   declare name=sigma domain=reciprocal type=real end
+   declare name=test domain=reciprocal type=integer end
+   
+   evaluate ($lr=30.)
+   evaluate ($hr=1.) 
+   binresolution $lr $hr 
+   mapresolution $hr
+   tselection=( $hr <= d <= $lr and 100000. >= amplitude(fobs)>=0.0 )
+
+   a=40. b=40. c=40. 
+   symmetry (-x,y+1/2,-z) 
+   reflection
+     index 1 2 3 fobs 40.  90. fom 0.5        fpart 1. 2.
+     index 2 3 4 fobs 30.  60. fom 0.4  weight 1.4
+     index 3 4 5 fobs 20.  50. fom 0.3  fcalc 2. 3.
+     index 1 2 3 fobs 40.  90. fom 0.5 
+     index -1 -2 -3 fobs 40.  90. fom 0.5   fcalc 3. 4. 
+     index 1 -2  3  fobs 40.  90. fom 0.5 
+     index -3 4 -5 fobs 20.  50. fom 0.3
+     index 2 -3 4 fobs 30.  60. fom 0.4  weight 1.4  fpart 5. 6.
+   end
+   
+   do (sigma=0) ( all  )
+   
+   write reflection fobs fcalc fpart fom weight sigma  sele=( all ) end
+
+   herm=false 
+   expand
+   hermitian=true
+
+   do (sigma=1/s) ( all ) 
+   write reflection fobs fcalc fpart fom weight sigma sele=( all ) end
+
+  
+  
+   { test fast unexpand/expand } 
+   symmetry (-x,y+1/2,-z) 
+   write reflection fobs fcalc fpart fom weight sigma sele=( all ) end
+   expand
+   symmetry ?
+   anomalous ?
+   
+   write reflection fobs fcalc fpart fom weight sigma sele=( all ) end
+   unexpand
+   symmetry ?
+   anomalous ?
+   
+   write reflection fobs fcalc fpart fom weight sigma sele=( all ) end
+   expand
+   symmetry ? 
+   anomalous ? 
+   
+   write reflection fobs fcalc fpart fom weight sigma sele=( all ) end
+
+   { test delete }
+   
+   delete selection=( d > 10 ) end
+   
+   write reflection fobs fcalc fpart fom weight sigma sele=( all ) end
+         
+      
+
+end
+
+
+stop
+

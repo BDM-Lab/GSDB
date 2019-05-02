@@ -1,0 +1,2297 @@
+#!/usr/bin/perl
+#=========================================================================
+# Import CIF (REFMAC or PHENIX) restraint library files into CNS format.
+#=========================================================================
+use strict;
+use warnings;
+use Getopt::Long qw(GetOptions);
+use Pod::Usage qw(pod2usage);
+use POSIX qw(ceil acos fmod);
+#-------------------------------------------------------------------------
+# TO DO:
+# Add extra chiral restraints only after processing all CIF definitions?
+# Support reading of data from Components.cif, including reference
+#   coordinates from either model_Cartn_[xyz] or pdbx_model_Cartn_[xyz]_ideal.
+#-------------------------------------------------------------------------
+# For debugging, make STDOUT unbuffered so Perl errors are in the right place.
+$| = 1;
+#-------------------------------------------------------------------------
+# Parse command-line options.
+# NOTE: When changing default values, update documentation at the end of this file.
+my @CIF_FILES;
+my @ENERGY_LIB_FILES;
+my $USE_ENERGY_TYPES = 0;
+my $USE_HYDROGENS = 1;
+my @NO_HYDROGEN_LIST;
+my $USE_CHIRALITY = 1;
+my $USE_EXTRA_CHIRALITY = 1;
+my $USE_PLANARITY = 1;
+my $USE_VDW = 1;
+my $USE_VDW_REPEL = 1;
+my $OUTPUT_PREFIX = "";
+my $WRITE_PDB = 0;
+my $WRITE_INP = 0;
+my $WRITE_ODB = 0;
+my $CHIRAL_CONST = 300;
+my $EXTRA_CHIRAL_CONST = 135;
+my $GUESSED_CHIRAL_CONST = 100; # Only for EXTRA chiral centers.
+my $USE_FLATWELL_CHIRAL = 1;
+my $PLANARITY_SCALE = 0.5;
+my $MAX_CONSTANT = 1000;
+my $ATOM_BUILD = 'not known';
+my $CHECK_ONLY = 0;
+my $INVOKE_CNS = 0;
+my $CHIRAL_USE_XYZ = 0;
+my $FLIP_TORSIONS = 0;
+my @FLIP_TORSION_LIST;
+my $LIST_OUTFILE = ""; # Cumulative output for CNS validation scripts.
+
+#===============================================================================
+# Currently no option flags for these parameters:
+my $VDW_RADIUS_EPSILON = 0.01; # constant for vdw parameters based on vdw-radius
+my $VDW_RADIUS_SCALE = 0.9;    # vdw-radius scale factor for radius-based parameters
+my @VDW_DEFAULT = (0.01,2.3); # epsilon,sigma for unknown atoms
+my $MAX_PLANAR_TORSION_DELTA = 3; # For defined torsions within a plane-restraint group,
+                                   # warn if planarity is exceed by this value.
+my $MAX_IMPROPER_DELTA = 8; # Warn if angle devations between reference coords and parameter
+                            # exceed this value.
+my $WRITE_LOG = 1; # If true, write conversion summary to <RESNAME>.log
+my $APPEND_LOG = 0; # If true, append the conversion summary as a comment in <RESNAME>.top
+my $REQUIRE_COORDINATES = 0; # If true, parameters without reference coords are silently skipped.
+my $SHIFT_PERIODIC_TORSIONS = 1; # CCP4 periodic torsions are shifted 180deg versus CNS.
+my $MAX_IMPROPER_ESD = 1; # Maximum torsion ESD to classify as an IMPRoper. (degrees)
+my $QUOTE_SUBST = '#'; # Character to use in place of '"' in atom names.
+                       # In PDB v3, the double-quote seems to be avoided, but it was used
+                       # in some v2 heterogens.
+my $FLATWELL_SCALE = 10; # Scale for chiral MULT=2 improper constants.
+                         # 5 gives a close match over the whole energy curve,
+                         # but 10 gives more reliable flipping of a n incorrect chirality.
+my %RENAME_RESIDUE; # options to rename the 3-letter codes.
+my %COMP_ID_OUTFILE; # options to name the output filename for the given comp_id.
+
+# NOTE: current PDB Components have atoms names with alphanumeric and the following
+# characters: * + ' " , _
+# Currently, only the alias names contain the double-quote. Maybe they are trying
+# to exclude it from standard atom names.
+#===============================================================================
+my $help=0;
+my $man=0;
+my $dump_cns_energy=0;
+my @rename_residues;
+GetOptions(
+  'help|h' => \$help,
+  'man' => \$man,
+  'energy-lib=s' => \@ENERGY_LIB_FILES,
+  'energy-types!' => \$USE_ENERGY_TYPES,
+  'no-hydrogen:s' => \@NO_HYDROGEN_LIST,
+  'flat-well-chiral!' => \$USE_FLATWELL_CHIRAL,
+  'chiral!' => \$USE_CHIRALITY,
+  'chiral-xyz!' => \$CHIRAL_USE_XYZ,
+  'extra-chiral!' => \$USE_EXTRA_CHIRALITY,
+  'flip-torsions:s' => \@FLIP_TORSION_LIST,
+  'cns-list=s', => \$LIST_OUTFILE,
+  'plane!' => \$USE_PLANARITY,
+  'vdw!' => \$USE_VDW,
+  'repulsive!' => \$USE_VDW_REPEL,
+  'output-prefix=s' => \$OUTPUT_PREFIX,
+  'write-odb!' => \$WRITE_ODB,
+  'write-pdb!' => \$WRITE_PDB,
+  'write-inp!' => \$WRITE_INP,
+  'planarity-scale=f' => \$PLANARITY_SCALE,
+  'chiral-constant=f' => \$CHIRAL_CONST,
+  'extra-chiral-constant=f' => \$EXTRA_CHIRAL_CONST,
+  'guessed-chiral-constant=f' => \$GUESSED_CHIRAL_CONST,
+  'max-constant=f' => \$MAX_CONSTANT,
+  'check!' => \$CHECK_ONLY,
+  'build=s' => \$ATOM_BUILD,
+  'invoke-cns!' => \$INVOKE_CNS,
+  'dump-cns-energy!' => \$dump_cns_energy,
+  'rename=s' => \%RENAME_RESIDUE,
+  'outfile=s' => \%COMP_ID_OUTFILE
+) or &pod2usage(-exitstatus=>2);
+&pod2usage(-exitstatus=>0) if $help;
+&pod2usage(-exitstatus=>0,-verbose=>2) if $man;
+#=========================================================================
+# Process option flags that need conversion from the GetOptions() results.
+if ($dump_cns_energy) {
+  while(<DATA>) {
+    print $_;
+  }
+  exit;
+}
+if (scalar(@ARGV) == 0 ) {
+  &pod2usage("ERROR: No CIF files given\n");
+  exit;
+}
+@CIF_FILES = @ARGV;
+if ($INVOKE_CNS) { $WRITE_PDB=1; $WRITE_INP=1; }
+if (scalar(@FLIP_TORSION_LIST)==1 and $FLIP_TORSION_LIST[0] eq "") {
+  $FLIP_TORSIONS=1;
+  undef @FLIP_TORSION_LIST;
+} elsif (@FLIP_TORSION_LIST) {
+  @FLIP_TORSION_LIST = map {split(/\s+/,$_)} @FLIP_TORSION_LIST;
+}
+if (scalar(@NO_HYDROGEN_LIST)==1 and $NO_HYDROGEN_LIST[0] eq "") {
+  $USE_HYDROGENS=0;
+  undef @NO_HYDROGEN_LIST;
+} elsif (@NO_HYDROGEN_LIST) {
+  @NO_HYDROGEN_LIST = map {split(/\s+/,$_)} @NO_HYDROGEN_LIST;
+}
+#=========================================================================
+# CIF parser
+# This is a simple but effective CIF parser. All values are stored as strings. 
+# Dictionaries are not used here; that can be done at a higher level.
+# The special tokens ? and . are stored as SCALAR references to $CIF_UNKNOWN and
+# $CIF_UNDEFINED.
+# globals:
+my $LINE;          # buffer of the complete currenet line (file is parse line-wise)
+my $LINE_COUNT;    # Current line number
+my $LINE_POS;      # position in the current line.
+my $CIF_FH;        # CIF file handle
+my $TOKEN;         # full value of the current lexer token.
+my $TOKEN_NAME;    # Name part of the lexer token, i.e for data_<name>
+my $TOKEN_TYPE;    # Type: keyword, value, undefined
+my %CIF;           # Holds CIF data as a hash of hashes of scalars/arrays
+my %CIF_GLOBAL;    # Holds any data read from a CIF 'global_' section.
+my $SAVE_SEP = "::"; # There is limited support for 'save_' frames, but
+                     # they are save as a data block prefixed with the
+                     # parent data block name and this separator.
+my $CIF_UNKNOWN="?";
+my $CIF_UNDEFINED=".";
+#-----------------------------------------------------------------------
+# Read the entire CIF file (by name) into global %CIF.
+sub cif_read_file {
+  my ($filename) = @_;
+  if (not open($CIF_FH, "<", $filename )) {
+    print "ERROR: Cannot open CIF file \"$filename\"\n";
+    exit;
+  }
+  &_cif_read();
+  my $eof = eof($CIF_FH);
+  if (not $eof) {
+    warn "CIF error: EOF not reached during read\n";
+  }
+  close($CIF_FH);
+  undef $CIF_FH;
+  return $eof;
+}
+#-----------------------------------------------------------------------
+# Read the entire CIF file (by handle) into global %CIF.
+sub cif_read_fh {
+  my ($fh,$offset) = @_;
+  $CIF_FH = $fh;
+  if (defined $offset) {
+    seek($CIF_FH,$offset,&SEEK_SET);
+  }
+  &_cif_read($offset);
+}
+#-----------------------------------------------------------------------
+# If offset is given, seek to that file position, and read
+# only a single data block.
+sub _cif_read {
+  my ($max_blocks) = @_;
+  if (not defined $max_blocks) { $max_blocks = -1; }
+  my $count=0;
+  $LINE_COUNT = 0;
+  $LINE = "";
+  $LINE_POS = 0;
+  undef $TOKEN;
+  $TOKEN_TYPE = 'undefined';
+  while (&_cif_parse_data_block) {
+    $count++;
+    last if ($count == $max_blocks);
+  }
+  return $count;
+}
+#-----------------------------------------------------------------------
+sub _cif_invalid {
+  my ($info) = @_;
+  if ( not defined $info ) { $info = ""; }
+  warn "Invalid CIF data ($LINE_COUNT.$LINE_POS): $info\n$LINE\n".( " " x $LINE_POS )."^\n";
+  undef $TOKEN;
+  $TOKEN_TYPE = 'undefined';
+  $LINE_POS = -1;
+  return 0;
+}
+#-----------------------------------------------------------------------
+sub _cif_get_token {
+  my $type = shift;
+  if ( not defined $type ) { $type = "any"; }
+  # Skip leading whitespace (including comments) and parse the next token
+  # into $TOKEN. The token type (value, keyword or undefined) is
+  # put into $TOKEN_TYPE.
+  #
+  # If 'type' is given as value or keyword, the file position will not
+  # increment unless the token type matches.
+  $TOKEN_NAME = "";
+  # Check if EOF was already reached
+  if ( $LINE_POS < 0 ) { return 0; }
+  # Skip whitespace:
+  while (1) {
+    # Read a line if this one is finished
+    if ( $LINE_POS >= length($LINE) ) {
+      if ( eof($CIF_FH) ) {
+        undef $TOKEN;
+        $TOKEN_TYPE = "undefined";
+        $LINE_POS = -1;
+        return 0;
+      }
+      $LINE = <$CIF_FH>;
+      chomp $LINE;
+      $LINE_POS = 0;
+    }
+    # Skip leading whitespace
+    if ( substr( $LINE, $LINE_POS ) =~ m/^(\s+(?:#.*)?|^#.*)/ ) {
+      $LINE_POS += length($1);
+    }
+    # If whitespace extends to the end of the line, the next line must be read.
+    last if ( $LINE_POS < length($LINE) );
+  }
+  # Multi-line value: special case; this is the only token that is
+  # context-dependent. It requires beginning-of-line (pos==0)
+  if ( $LINE_POS == 0 and $LINE =~ m/^;\s*(.*)(\\?)/ ) {
+    $TOKEN = $1;
+    if ( $2 ne "\\" ) { $TOKEN .= "\n" }
+    my $ilen = length($TOKEN);
+    while (1) {
+      if ( eof($CIF_FH) ) {
+        return &_cif_invalid("EOF in multi-line string");
+      }
+      $LINE = <$CIF_FH>;
+      chomp $LINE;
+      if ( $LINE =~ m/^;(?:\s|$)/ ) {
+        $LINE_POS = 1;
+        return 1;
+      }
+      if ( $LINE =~ m/\\$/ ) {
+        $TOKEN .= substr( $LINE, 0, -1 );
+      } else {
+        $TOKEN .= $LINE."\n";
+      }
+    }
+  }
+  # Standard in-line tokens
+  my $rest = substr( $LINE, $LINE_POS );
+  if ( $rest =~ m{^(data|)_(?![!-~])} ) {
+    return &_cif_invalid("Keyword \"$1_\" requires a name suffix");
+  } elsif ( $rest =~ m{^(global|loop|stop)_[!-~]} ) {
+    return &_cif_invalid("Keyword \"$1_\" must no thave a name suffix");
+  } elsif ( $rest =~ m{^(((?:global|loop|stop|save|data|)_)([!-~]*))} ) {
+    # keywords
+    $TOKEN_TYPE = 'keyword';
+    $TOKEN = $2;
+    $TOKEN_NAME = $3;
+  } elsif ( $rest =~ m{^(([!%&(-:<-~][!-~]*))} ) {
+    # Unquoted value
+    # First char excludes the following characters: " ' [ ] ; # $ _
+    # NOTE: Must also exclude leading [ or ] for STAR versions >= 2.0
+    $TOKEN_TYPE = 'value';
+    $TOKEN = $2;
+    if ($TOKEN eq $CIF_UNKNOWN) { $TOKEN = \$CIF_UNKNOWN; }
+    elsif ($TOKEN eq $CIF_UNDEFINED) { $TOKEN = \$CIF_UNDEFINED; }
+  } elsif ( $rest =~ m{^(\"((?:[^\"]|\"(?! ))*)\"(?![!-~]))} ) {
+    # Double-quoted value
+    $TOKEN_TYPE = 'value';
+    $TOKEN = $2;
+    # NOTE: close quotes are ignored when followed by a non-whitespace char.
+  } elsif ( $rest =~ m{^('((?:[^']|'(?! ))*)'(?![!-~]))} ) {
+    # Single-quoted value
+    $TOKEN_TYPE = 'value';
+    $TOKEN = $2;
+  } elsif ( $rest =~ m{^((\$[!-~]*))} ) {
+    # Unquoted token with a leading $.
+    # Current PDB's mmCIF files accept these as a regular unquoted string.
+    # (This is a bug, and is getting fixed.)
+    # return [_cif_invalid "STAR save-frame references are not supported"]
+    $TOKEN_TYPE = 'value';
+    $TOKEN = $2;
+  } elsif ( $rest =~ m{[\001-\010\016-\037\177-\377]} ) {
+    return &_cif_invalid("Invalid character found (binary or UTF?)");
+  } else {
+    return &_cif_invalid();
+  }
+  if ( $type ne "" and $TOKEN_TYPE ne $type ) { return 0; }
+  $LINE_POS += length($1);
+  return 1;
+}
+#-----------------------------------------------------------------------
+# This routine parses one data block. A data block ends either when the next
+# data block is reached, or at EOF. If not EOF, the next data block token will
+# have been parsed and stored in the token variables to be used on subsesuent
+# calls.
+sub _cif_parse_data_block {
+  if (eof($CIF_FH)) { return 0; }
+  my $data_name;
+  my $save_index = "";
+  if ( not defined $TOKEN ) {
+    if ( !&_cif_get_token('keyword') ) {
+      return &_cif_invalid("Keyword expected");
+    }
+  }
+  my $data_block;
+  my $data_ref;
+  if ( $TOKEN eq 'global_' ) {
+    $data_ref = \%CIF_GLOBAL;
+  } elsif ( $TOKEN =~ m/^data_/ ) {
+    $data_block = $TOKEN_NAME;
+    push @{ $CIF{''} }, $data_block;
+    $CIF{$data_block} = {'' => []};
+    $data_ref = \%{$CIF{$data_block}};
+  } else {
+    return &_cif_invalid("Expected 'data_'");
+  }
+  while ( &_cif_get_token('keyword') ) {
+    if ( $TOKEN eq '_' ) {
+      $data_name = $TOKEN_NAME;
+      if ( &_cif_get_token('value') ) {
+        push @{ $$data_ref{''} }, $data_name;
+        $$data_ref{$data_name} = $TOKEN;
+      } else {
+        return &_cif_invalid("no value for $data_name");
+      }
+    } elsif ( $TOKEN eq 'loop_' ) {
+      my $nloop = 0;
+      my @loop_items;
+      while ( &_cif_get_token('keyword') ) {
+        if ( $TOKEN ne "_" ) {
+          return &_cif_invalid("Bad token in loop_ header: \"$TOKEN\"");
+        }
+        $nloop++;
+        push @loop_items, $TOKEN_NAME;
+      }
+      if ( scalar(@loop_items) == 0 ) { return &_cif_invalid("Empty loop_"); }
+      push @{ $$data_ref{''} }, \@loop_items;
+      my $nval = 0;
+      #XXX: General STAR support requires nested loop parsing here.
+      while ( &_cif_get_token('value') ) {
+        push @{ $$data_ref{ $loop_items[ $nval % $nloop ] } }, $TOKEN;
+        $nval++;
+      }
+    } elsif ( $TOKEN eq 'save_' ) {
+      if ( not defined $data_block ) {
+        return &_cif_invalid("'save_' keyword inside of 'global_'");
+      }
+      if ( $TOKEN_NAME eq "" ) {
+        if ( $save_index eq "" ) {
+          return &_cif_invalid("'save_' keyword outside of a save-frame");
+        }
+        $save_index = "";
+        $data_ref = \%{$CIF{$data_block}};
+      } else {
+        if ( $save_index ne "" ) {
+          return &_cif_invalid( "'$TOKEN' inside of a save-frame" );
+        }
+        $save_index = $TOKEN_NAME;
+        $data_ref = \{$CIF{$data_block.$SAVE_SEP.$save_index}};
+      }
+    } else {
+      # Token is data_ or global_; successful end of this block
+      return 1;
+    }
+  }
+  # EOF or bad data; EOF is OK on the first pass.
+  return eof($CIF_FH);
+}
+#-----------------------------------------------------------------------
+# Fetch a CIF value as an array. mmCIF does not distinguish between
+# a scalar and a loop of one item. For example, a list of atom names
+# for an ion is stored as a scalar.
+sub cif_array {
+  my ($data,$item) = @_;
+  if ( not defined $CIF{$data}{$item} ) { return (); }
+  my $ref = $CIF{$data}{$item};
+  if ( ref($ref) eq 'ARRAY' ) {
+    return @$ref;
+  } else {
+    return ($ref);
+  }
+}
+#-----------------------------------------------------------------------
+sub cif_index {
+  my ($data,$item,$index) = @_;
+  if ( not defined $CIF{$data}{$item} ) { return undef; }
+  my $ref = $CIF{$data}{$item};
+  if ( ref($ref) eq 'ARRAY' ) {
+    return $$ref[$index];
+  } elsif ($index == 0) {
+    return $ref;
+  } else {
+    return undef;
+  }
+}
+#-----------------------------------------------------------------------
+sub cif_size {
+  my ($data,$item) = @_;
+  if ( not defined $CIF{$data}{$item} ) { return 0; }
+  my $ref = $CIF{$data}{$item};
+  if ( ref($ref) eq 'ARRAY' ) {
+    return scalar(@$ref);
+  } else {
+    return 1;
+  }
+}
+#-----------------------------------------------------------------------
+sub cif_delete {
+  my ($data) = @_;
+  delete $CIF{$data};
+  for (my $i=0; $i<scalar(@{$CIF{''}}); $i++) {
+    if ($CIF{''}[$i] eq $data) {
+      splice(@{$CIF{''}},$i,1);
+      last;
+    }
+  }
+}
+# END OF CIF PARSER
+#=======================================================================
+my $validate_cif_script = <<'EOF';
+set echo=off mess=off end
+topo @@&topology_infile end
+segment chain
+  if ( &BLANK%pdb_infile = false ) then
+    convert=true
+    coor @@&pdb_infile
+  else
+    sequ &resname end
+  end if
+end end
+param @@&parameter_infile end
+set echo=off mess=off end
+evaluate ($ave_x=0)
+evaluate ($ave_y=0)
+evaluate ($ave_z=0)
+if ( &BLANK%pdb_infile = false ) then
+  coor convert=true @@&pdb_infile
+  igroup interaction 
+    (known)(known)
+  end
+  energy end
+  eval($energy0=$ener)
+  Display -----------------------BONDS----------------------------------
+  print thresh=-0.1 bonds eval($bonds=$result)
+  Display -----------------------ANGLES---------------------------------
+  print thresh=-10 angles eval($angles=$result)
+  Display ----------------------DIHEDRALS-------------------------------
+  print thresh=-10 dihe eval($dihe=$result)
+  Display ----------------------IMPROPERS-------------------------------
+  print thresh=-30 impr eval($impr=$result)
+  Display --------------------------------------------------------------
+  show ave(x) (known) evaluate ($ave_x=$result)
+  show ave(y) (known) evaluate ($ave_y=$result)
+  show ave(z) (known) evaluate ($ave_z=$result)
+end if
+do (xcomp=x)(all)
+do (ycomp=y)(all)
+do (zcomp=z)(all)
+eval ($natoms=$select)
+{build procedure from generate_easy.inp, with some modifications}
+identity (store1) (&atom_build)
+eval ($nbuild=$select)
+evaluate ($nstep2=500)
+if ( $nbuild > 0 ) then
+  display ====================================================================
+  display BUILDING $select / $natoms ATOMS; select=&atom_build
+  fix selection=(not(store1)) end
+  do (x=random(20)-10+$ave_x) (store1)
+  do (y=random(20)-10+$ave_y) (store1)
+  do (z=random(20)-10+$ave_z) (store1)
+  {- start parameter for the side chain building -}
+  parameter
+    nbonds
+      rcon=20. nbxmod=-2 repel=0.9  wmin=0.1 tolerance=1.
+      rexp=2 irexp=2 inhibit=0.25
+    end
+  end
+  {- Friction coefficient, in 1/ps. INCREASED FROM 100 -}
+  do (fbeta=500) (store1)
+  evaluate ($bath=300.0)
+  evaluate ($nstep1=50)
+  evaluate ($timestep=0.0005)
+  do (refy=mass) (store1)
+  do (mass=20) (store1)
+  igroup interaction 
+    (store1) (store1 or known)
+  end
+  {- turn on initial energy terms -}
+  flags exclude * include bond angle vdw end
+
+{--- Bring impropers in slowly ---}
+  minimize powell nstep=200  nprint=$nstep1 end
+  do (vx=maxwell($bath)) (store1)
+  do (vy=maxwell($bath)) (store1)
+  do (vz=maxwell($bath)) (store1)
+  flags include impr end
+  for $impr_weight in ( 0 .001 .01 .1 .2 .3 .6 ) loop impr_weight
+  igroup interaction 
+    (store1) (store1 or known)
+    weight impr $impr_weight end
+  end
+  dynamics cartesian
+    nstep=$nstep1
+    timestep=$timestep
+    tcoupling=true temperature=$bath
+    nprint=$nstep1
+    cmremove=false
+  end
+  end loop impr_weight
+
+{--- Release, then bring back angles slowly, with VdW off ---}
+  minimize powell nstep=$nstep1  nprint=$nstep1 end
+  do (vx=maxwell($bath)) (store1)
+  do (vy=maxwell($bath)) (store1)
+  do (vz=maxwell($bath)) (store1)
+  flags exclude vdw end
+  for $angl_weight in ( .001 .01 .02 .04 .08 .16 .32 ) loop angl_weight
+  igroup interaction 
+    (store1) (store1 or known)
+    weight angl $angl_weight end
+  end
+  dynamics cartesian
+    nstep=$nstep1
+    timestep=$timestep
+    tcoupling=true temperature=$bath
+    nprint=$nstep1
+    cmremove=false
+  end
+  end loop angl_weight
+
+{--- Bring VdW back in slowly ---}
+  minimize powell nstep=$nstep1  nprint=$nstep1 end
+  do (vx=maxwell($bath)) (store1)
+  do (vy=maxwell($bath)) (store1)
+  do (vz=maxwell($bath)) (store1)
+  flags include vdw end
+  for $vdw_weight in ( .001 .01 .02 .04 .08 .16 .32 .64 ) loop vdw_weight
+  igroup interaction 
+    (store1) (store1 or known)
+    weight vdw $vdw_weight end
+  end
+  dynamics cartesian
+    nstep=$nstep1
+    timestep=$timestep
+    tcoupling=true temperature=$bath
+    nprint=$nstep1
+    cmremove=false
+  end
+  end loop vdw_weight
+
+{--- Extra dynamics before restoring full VdW ---}
+  igroup interaction 
+    (store1) (store1 or known)
+  end
+  dynamics cartesian
+    nstep=200
+    timestep=$timestep
+    tcoupling=true temperature=$bath
+    nprint=100
+    cmremove=false
+  end
+
+{--- Minimize and dynamics with increased VdW term ---}
+  parameter
+    nbonds
+      rcon=2. nbxmod=-3 repel=0.75
+    end
+  end
+  minimize powell nstep=100 nprint=100 end
+  do (vx=maxwell($bath)) (store1)
+  do (vy=maxwell($bath)) (store1)
+  do (vz=maxwell($bath)) (store1)
+  dynamics cartesian
+    nstep=$nstep2
+    timestep=$timestep
+    tcoupling=true temperature=$bath
+    nprint=$nstep2
+    cmremove=false
+  end
+
+{--- Add dihedrals and full VdW ---}
+  {- turn on all energy terms -}
+  flags include dihe ? end
+  {- set repel to ~vdw radii -}
+  parameter
+    nbonds
+      repel=0.89 nbxmod=5
+    end
+  end
+  minimize powell nstep=$nstep2 nprint=$nstep2 end
+  flags exclude * include bond angl impr dihe vdw end
+{- Keep heavy masses, or hydrogens can blow up. -}
+  !do (mass=refy) (store1)
+  do (vx=maxwell($bath)) (store1)
+  do (vy=maxwell($bath)) (store1)
+  do (vz=maxwell($bath)) (store1)
+  dynamics cartesian
+    nstep=$nstep2
+    timestep=$timestep
+    tcoupling=true temperature=$bath
+    nprint=$nstep2
+    cmremove=false
+  end
+  {- some final minimisation -}
+  minimize powell
+    nstep=$nstep2
+    drop=40.0
+    nprint=$nstep2
+  end
+end if {build}
+{- final minimisation with all atoms -}
+fix selection=(none) end
+igroup interaction
+  (known) (known)
+end
+flags exclude elec end
+minimize powell
+  nstep=$nstep2
+  drop=10.0
+  nprint=$nstep2
+end
+display ==========================================================================
+energy end
+eval($energy=$ener)
+flags exclude * include vdw end
+energy end
+do (store1=sqrt(dx*dx+dy*dy+dz*dz))(all)
+display ==========================================================================
+display Atoms with large VdW forces
+show(store1)(attr store1 > 99)
+Display -----------------------BONDS----------------------------------
+print thresh=-1 bonds eval($bond_rmsd=$result)
+Display -----------------------ANGLES---------------------------------
+print thresh=-1 angles eval($angl_rmsd=$result)
+Display ----------------------DIHEDRALS-------------------------------
+print thresh=-1 dihe eval($dihe_rmsd=$result)
+Display ----------------------IMPROPERS-------------------------------
+print thresh=-1 impr eval($impr_rmsd=$result)
+Display --------------------------------------------------------------
+eval($rmsd=0)
+{ fit to starting coordinates, if present }
+coor fit lsq=true select=(attr xcomp < 9000) end
+
+{Work-around for O, with limit of 100 atoms per residue}
+! identity(store1)(all)
+! do (resid = encode(int((store1+99)/100)))(all)
+
+write coor format=pdbo output=&pdb_outfile select=(known) end
+
+flags exclude * include bond end energy end
+do (store1=sqrt(dx*dx+dy*dy+dz*dz))(all)
+flags exclude * include angl end energy end
+do (store1=store1+sqrt(dx*dx+dy*dy+dz*dz))(all)
+flags exclude * include dihe end energy end
+do (store1=store1+sqrt(dx*dx+dy*dy+dz*dz))(all)
+flags exclude * include impr end energy end
+do (store1=store1+sqrt(dx*dx+dy*dy+dz*dz))(all)
+flags exclude * include vdw  end energy end
+do (store1=store1+sqrt(dx*dx+dy*dy+dz*dz))(all)
+show max(store1)(all)
+if ($result > 10) then
+eval($cut=$result*0.50)
+display "Sum of force vectors for highest-energy atom(s):"
+set mess=on end
+show (store1)(attr store1 > $cut)
+set mess=off end
+end if
+
+eval($resname=&resname)
+if ( &BLANK%pdb_infile = false ) then
+  eval($e0atom=$energy0/$natoms)
+else
+  eval($e0atom=9999)
+end if
+eval($eatom=$energy/$natoms)
+eval($comp_id=&comp_id)
+if (&BLANK%list_outfile = false) then
+  fileexist &list_outfile end
+  if ($result = true) then
+    open &list_outfile access=append end
+    set display=&list_outfile end
+  else
+    set display=&list_outfile end
+    display Comp.ID     E0/atom     E/atom     E(VDW); RMS:Bonds     Angles      Impr.      Dihe.    Coor.;  Built
+  end if
+  display $comp_id[A8] $e0atom[F10.3] $eatom[F10.3] $vdw[F10.3] $bond_rmsd[F10.3] $angl_rmsd[F10.3] $impr_rmsd[F10.3] $dihe_rmsd[F10.3] $rmsd[F8.3]   $nbuild/$natoms
+  set display=OUTPUT end
+end if
+display ======================================================================================================
+display E0/atom: energy per atom of the starting reference coordinates, or 9999 if not available.
+display         The initial energy should be low, but some CIF files have low-quality reference coordinates.
+display E/atom: energy per atom of the minimized coordinates. Ideally, this should be less than 1.
+display         Larger molecules may be up to 2 or 3. Higher values usually indicate a problem.
+display E(VDW): the total VdW energy. Normally less than 2, a bit higher for very large molecules.
+display Built: Number of atoms built and total number of atoms. If all atoms were built, high energies
+display         may be the result of auto-build errors.
+display RMSD(Coor): Fit of the minimized coordinates versus input coordinates. For a rigid molecule, this
+display         should be close to zero, but is not very meaningful for flexible molecules.
+display ======================================================================================================
+display Comp.ID     E0/atom     E/atom     E(VDW); RMS:Bonds     Angles      Impr.      Dihe.    Coor.;  Built
+display $comp_id[A8] $e0atom[F10.3] $eatom[F10.3] $vdw[F10.3] $bond_rmsd[F10.3] $angl_rmsd[F10.3] $impr_rmsd[F10.3] $dihe_rmsd[F10.3] $rmsd[F8.3]   $nbuild/$natoms
+display ======================================================================================================
+EOF
+#=========================================================================
+# parameter-importer globals:
+
+# Factor for conversion from degrees to radians
+my $DEG2RAD = atan2(1,1) / 45.0;
+# Factor for conversion of VdW constant from Rmin to sigma
+my $VDW_RMIN2SIGMA =  2/(2**(1/6)); # == 1.78179743628068
+
+my %element_mass;
+my %element_vdw;
+my %element_vdw_radius;
+my %type_vdw;
+my %atom_type;
+my %bonds;
+my %angles;
+my %torsions;
+my %impropers;
+my %coor;
+my $quote_chars;
+#------------------------------------------------------------------------------
+# MAIN PROGRAM PROCEDURE STARTS HERE
+#------------------------------------------------------------------------------
+foreach my $ener_lib_file (@ENERGY_LIB_FILES) {
+  if (not &cif_read_file($ener_lib_file)) {
+    print "ERROR: Cannot read energy library file: $ener_lib_file\n";
+    exit;
+  }
+}
+for (my $i=0; $i<&cif_size('energy','lib_vdw.atom_type_1'); $i++) {
+  my $type = $CIF{'energy'}{'lib_vdw.atom_type_1'}[$i];
+  my $type2 = $CIF{'energy'}{'lib_vdw.atom_type_2'}[$i];
+  if ($type2 eq \$CIF_UNDEFINED or ($type2 eq $type and not defined $type_vdw{$type})) {
+    my $Emin = $CIF{'energy'}{'lib_vdw.energy_min'}[$i];
+    my $Rmin = $CIF{'energy'}{'lib_vdw.radius_min'}[$i];
+    $type_vdw{$type} = [ -$Emin, $Rmin * $VDW_RMIN2SIGMA ];
+  }
+}
+# VdW radius is essentially the same as Rmin, but Emin (or epsilon) is not defined.
+for (my $i=0; $i<&cif_size('energy','lib_atom.type'); $i++) {
+  my $type = $CIF{'energy'}{'lib_atom.type'}[$i];
+  my $Rmin = $CIF{'energy'}{'lib_atom.vdw_radius'}[$i];
+  if ($Rmin ne \$CIF_UNDEFINED and not defined $type_vdw{$type}) {
+    $type_vdw{$type} = [ $VDW_RADIUS_EPSILON, $Rmin * $VDW_RADIUS_SCALE * 2.0 ];
+# FIXME: warnings here?
+  }
+}
+if (not defined $CIF{'cns_energy'}) {
+  #print "Using internal defaults for mass and VdW parameters. Read CIF 'cns_energy' to override.\n";
+  # Read the internal CIF file (See the __DATA__ block at the end of this file)
+  &cif_read_fh(\*DATA);
+}
+for (my $i=0; $i<&cif_size('cns_energy','lib_element.element'); $i++) {
+  my $element = $CIF{'cns_energy'}{'lib_element.element'}[$i];
+  my $epsilon = $CIF{'cns_energy'}{'lib_element.vdw_epsilon'}[$i];
+  if ($epsilon ne \$CIF_UNDEFINED) {
+    $element_vdw{$element} = [ $epsilon,
+        $CIF{'cns_energy'}{'lib_element.vdw_sigma'}[$i],
+        $CIF{'cns_energy'}{'lib_element.vdw_epsilon_14'}[$i],
+        $CIF{'cns_energy'}{'lib_element.vdw_sigma_14'}[$i] ];
+  }
+  my $radius = $CIF{'cns_energy'}{'lib_element.vdw_radius'}[$i];
+  if ($radius ne \$CIF_UNDEFINED) {
+    $element_vdw_radius{$element} = $radius;
+  }
+  my $mass = $CIF{'cns_energy'}{'lib_element.weight'}[$i];
+  if ($mass ne \$CIF_UNDEFINED) {
+    $element_mass{$element} = $mass;
+  }
+}
+#------------------------------------------------------------------------------
+foreach my $CIF_INFILE (@CIF_FILES) {
+  print "\nProcessing CIF file: $CIF_INFILE\n";
+  &cif_read_file($CIF_INFILE);
+  if ( not defined $CIF{'comp_list'} ) {
+    warn "ERROR: CIF file \"$CIF_INFILE\" has no 'comp_list' data\n";
+    next;
+  }
+  if ( not defined $CIF{'comp_list'}{'chem_comp.id'} ) {
+    warn "ERROR: CIF file \"$CIF_INFILE\" 'comp_list' data is missing '_chem_comp.id'\n";
+    next;
+  }
+  for ( my $ires = 0 ; $ires < &cif_size( 'comp_list', 'chem_comp.id' ) ; $ires++ ) {
+    my $error = 0; #Error flag; all errors are printed for a given comp_id before aborting.
+    my $comp_id = &cif_index( 'comp_list', 'chem_comp.id',                $ires );
+    my $resName = &cif_index( 'comp_list', 'chem_comp.three_letter_code', $ires );
+    my $comp_name = &cif_index( 'comp_list', 'chem_comp.name',              $ires );
+    if ((not defined $comp_name) or ref($comp_name)) { $comp_name = "UNKNOWN"; }
+    else { $comp_name =~ s/^\s+|\s+$//; }
+    if ((not defined $resName) or ref($resName)) {
+      if ($comp_id !~ m/^([A-Z0-9]{1,3})/) {
+        warn "ERROR: No resName for comp_id=\"$comp_id\"\n";
+        warn "ResName must be capital alphanumeric, 1 to 3 letters.\n";
+        warn "Define a valid name using the option flag: --rename \"$comp_id\"=XXX\n";
+        $error = 1;
+      }
+      $resName = $1;
+    } elsif (defined $RENAME_RESIDUE{$resName}) {
+      $resName = $RENAME_RESIDUE{$resName};
+    }
+    if (not $error and $resName !~ m/^[A-Z0-9]+$/) {
+      warn "ERROR: Residue name \"$resName\" contains invalid characters.\n";
+      warn "ResName must be capital alphanumeric, 1 to 3 letters.\n";
+      warn "Define a valid name using the option flag: --rename \"$resName\"=XXX\n";
+      $error = 1;
+    }
+    my $comp_outfile = $comp_id;
+    if (defined $COMP_ID_OUTFILE{$comp_id}) { $comp_outfile = $COMP_ID_OUTFILE{$comp_id}; }
+    if ($comp_outfile !~ m/^[-._A-Za-z0-9]+$/) {
+      if (defined $COMP_ID_OUTFILE{$comp_id}) {
+        warn "ERROR: comp_id outfile name \"$comp_id\" contains bad filename characters.\n";
+      } else {
+        warn "ERROR: comp_id \"$comp_id\" contains bad filename characters.\n";
+        warn "Use option \"--outfile <comp_id>=<name>\" to define a valid filename.\n";
+      }
+      $error = 1;
+    }
+    my $key = "comp_$comp_id";
+    if (not defined $CIF{$key} ) {
+      warn "ERROR: CIF file \"$CIF_INFILE\" is missing data block \'comp_$comp_id\'\n";
+      $error = 1;
+    } else {
+      foreach my $item ( 'chem_comp_atom.atom_id', 'chem_comp_atom.type_symbol') {
+        if (not defined $CIF{$key}{$item} ) {
+          warn "ERROR: CIF file \"$CIF_INFILE\" \'comp_$comp_id\' data is missing '_$item'\n";
+          $error = 1;
+        }
+      }
+    }
+    if ($error) { next; }
+    # Check for coordinates, but ignore any coordinates for single atoms.
+    my $have_coor = ( defined $CIF{$key}{'chem_comp_atom.x'}
+                            and &cif_size( $key, 'chem_comp_atom.x' ) > 1 ) ? 1 : 0;
+    if ($REQUIRE_COORDINATES and not $have_coor) {
+      print "Skipping $resName; no coordinates.\n";
+      next;
+    }
+    if (@FLIP_TORSION_LIST) {
+      $FLIP_TORSIONS = scalar(grep(/^\Q$comp_id\E$/,@FLIP_TORSION_LIST)) != 0;
+    }
+    if (@NO_HYDROGEN_LIST) {
+      $USE_HYDROGENS = scalar(grep(/^\Q$comp_id\E$/,@NO_HYDROGEN_LIST)) == 0;
+    }
+    # Reset globals used by subroutines, and declare/initialize locals.
+    undef %atom_type;
+    undef %bonds;
+    undef %angles;
+    undef %torsions;
+    undef %impropers;
+    undef %coor;
+    undef $quote_chars;
+    my @odb;
+    my %atom_elem;
+    my %atom_ordinal;
+    my $natom = 0;
+    my $nbond = 0;
+    my $nangle = 0;
+    my $ndihe = 0;
+    my $nchiral = 0;
+    my $nchiral_ext = 0;
+    my $nplane = 0;
+    my $plane_natoms = 0;
+    my $plane_impr = 0;
+    my $plane_fixed = 0;
+    my $bad_plane_atoms = 0;
+    my %unknown_element;
+    my %unknown_vdw;
+    my $ener_lib = "none";
+    if (@ENERGY_LIB_FILES) { $ener_lib = join(", ",@ENERGY_LIB_FILES); }
+    my $pdb_out = "";
+    my %exclude14;
+    my $TOPOLOGY_OUTFILE = "$comp_outfile.top";
+    my $PARAMETER_OUTFILE = "$comp_outfile.par";
+    my $topo = "";
+    my $topo_header = "REMARK File: $TOPOLOGY_OUTFILE
+REMARK   Topology derived from CIF file: $CIF_INFILE
+! Requires parameter file: $PARAMETER_OUTFILE
+set echo=off mess=off end
+AUTOgenerate ANGLes=FALSe END
+RESIdue $resName { $comp_name }
+GROUp\n";
+    my $param = "REMARK File: $PARAMETER_OUTFILE
+REMARK   Parameters derived from CIF file: $CIF_INFILE
+REMARK   Using Energy Library: $ener_lib
+! Defines parameters for topology file $TOPOLOGY_OUTFILE
+set echo=off mess=off end\n\n";
+    #-----------------------------------------------------------------------
+    # Bonds
+    if ( defined $CIF{$key}{'chem_comp_bond.atom_id_1'} ) {
+      push @odb,"residue $resName";
+      for ( my $i = 0 ; $i < &cif_size( $key, 'chem_comp_bond.atom_id_1' ) ; $i++ ) {
+        my $atom1 = &cif_atom($key,'chem_comp_bond.atom_id_1',$i);
+        my $atom2 = &cif_atom($key,'chem_comp_bond.atom_id_2',$i);
+        if (&get_bond($atom1,$atom2)) {
+          $topo .= "{ WARNING: Skipping duplicate bond: $atom1 $atom2 }\n";
+          next;
+        }
+        next if ( (not $USE_HYDROGENS) and ( $atom_elem{$atom1} eq "H" or $atom_elem{$atom2} eq "H" ) );
+        $nbond++;
+        push @odb,"connect_all $atom1 $atom2";
+        my $dist = &cif_index($key,'chem_comp_bond.value_dist',$i);
+        $bonds{"$atom1\t$atom2"} = $dist;
+        my $esd = &cif_index($key,'chem_comp_bond.value_dist_esd',$i);
+        my $k = &eterm($esd);
+        $topo .= sprintf(
+            "      BOND  %-6s  %-6s\n", $atom1, $atom2 );
+        $param .= sprintf(
+            "BOND (resn $resName and name %-6s)\n".
+            "     (resn $resName and name %-6s) %8.3f %6.3f ! esd=%5.3f\n",
+            $atom1, $atom2, $k, $dist, $esd);
+        push @odb,"bond_distance $atom1 $atom2 $dist $esd";
+      }
+      $topo  .= "\n";
+      $param .= "\n";
+    }
+    #-----------------------------------------------------------------------
+    # Angles
+    if ( defined $CIF{$key}{'chem_comp_angle.atom_id_1'} ) {
+      for ( my $i = 0 ; $i < &cif_size( $key, 'chem_comp_angle.atom_id_1' ) ; $i++ ) {
+        my $atom1 = &cif_atom($key,'chem_comp_angle.atom_id_1',$i);
+        my $atom2 = &cif_atom($key,'chem_comp_angle.atom_id_2',$i);
+        my $atom3 = &cif_atom($key,'chem_comp_angle.atom_id_3',$i);
+        if (&get_angle($atom1,$atom2,$atom3)) {
+          $topo .= "{ WARNING: Skipping duplicate angle: $atom1 $atom2 $atom3 }\n";
+          next;
+        }
+        next if ( (not $USE_HYDROGENS) and ( $atom_elem{$atom1} eq "H"
+                 or $atom_elem{$atom2} eq "H" or $atom_elem{$atom3} eq "H" ) );
+        $nangle++;
+        my $angle = &cif_index($key,'chem_comp_angle.value_angle',$i);
+        $angles{"$atom1\t$atom2\t$atom3"} = $angle;
+        my $esd = &cif_index($key,'chem_comp_angle.value_angle_esd',$i);
+        my $k = &eterm($esd * $DEG2RAD);
+        $topo .= sprintf(
+            "      ANGLe  %-6s  %-6s  %-6s\n", $atom1, $atom2, $atom3 );
+        $param .= sprintf(
+            "ANGL (resn $resName and name %-6s) (resn $resName and name %-6s)\n".
+            "     (resn $resName and name %-6s) %7.1f %7.2f ! esd=%5.3f\n",
+            $atom1, $atom2, $atom3, $k, $angle, $esd);
+        push @odb,"bond_angle $atom1 $atom2 $atom3 $angle $esd";
+      }
+      $topo  .= "\n";
+      $param .= "\n";
+    }
+    #-----------------------------------------------------------------------
+    # Dihedrals
+    if ( defined $CIF{$key}{'chem_comp_tor.atom_id_1'} ) {
+      for ( my $i = 0 ; $i < &cif_size( $key, 'chem_comp_tor.atom_id_1' ) ; $i++ ) {
+        my $id = &cif_index($key,'chem_comp_tor.id',$i);
+        my $atom1 = &cif_atom($key,'chem_comp_tor.atom_id_1',$i);
+        my $atom2 = &cif_atom($key,'chem_comp_tor.atom_id_2',$i);
+        my $atom3 = &cif_atom($key,'chem_comp_tor.atom_id_3',$i);
+        my $atom4 = &cif_atom($key,'chem_comp_tor.atom_id_4',$i);
+        if (&get_dihedral($atom1,$atom2,$atom3,$atom4)) {
+          $topo .= "{ WARNING: Skipping duplicate torsion: $atom1 $atom2 $atom3 $atom4 }\n";
+          next;
+        }
+        next if ( (not $USE_HYDROGENS) and ($atom_elem{$atom1} eq "H" or
+            $atom_elem{$atom2} eq "H" or $atom_elem{$atom3} eq "H" or $atom_elem{$atom4} eq "H"));
+        $ndihe++;
+        my $angle = &cif_index($key,'chem_comp_tor.value_angle',$i);
+        $torsions{"$atom1\t$atom2\t$atom3\t$atom4"} = $angle;
+        my $esd = &cif_index($key,'chem_comp_tor.value_angle_esd',$i);
+        my $period = &cif_index($key,'chem_comp_tor.period',$i);
+        my $k = &eterm($esd*$DEG2RAD);
+        #-----------------------------------------------------------------
+        # CNS: E(DIHE) =
+        #    Kphi * (1 + cos(n*phi + Kd))      if n>0
+        #    Kphi * (phi - Kd)**2              if n=0
+        # where:
+        #    Kphi is the energy-scale parameter
+        #                 units: n>0  ?  kcal/mole  :  kcal/(mole*rad**2)
+        #      Kd is the phase-shift angle parameter
+        #                 (defined in degrees, but computed in radians)
+        #     phi is the current angle in radians
+        #
+        # REFMAC: Same as CNS, but sign differs in 1st equation:
+        #    Kphi * (1 - cos(n*phi + Kd))
+        #
+        # The flag $SHIFT_PERIODIC_TORSIONS marks the 180 phase shift
+        # for the sign difference, and is always set.
+        #-----------------------------------------------------------------
+        if ($FLIP_TORSIONS) { $angle = -$angle; }
+        if ( $SHIFT_PERIODIC_TORSIONS and $period != 0 ) { $angle += 180.0; }
+        $angle = &std_torsion($angle);
+        my $type = ($esd>$MAX_IMPROPER_ESD or $period>0) ? "DIHEdral" : "IMPRoper";
+        my $warning="";
+        if ($esd <= $MAX_IMPROPER_ESD and $period>0) {
+          $warning=" {WARNING: Small ESD with non-zero period}";
+        }
+        $topo .= sprintf(
+            "      $type  %-6s  %-6s  %-6s  %-6s  ! %s\n",
+            $atom1, $atom2, $atom3, $atom4, $id.$warning );
+        $param .= sprintf(
+            "%4s (resn $resName and name %-6s) (resn $resName and name %-6s)\n".
+            "     (resn $resName and name %-6s) (resn $resName and name %-6s)\n".
+            "     %7.1f %d %7.2f ! esd=%4.2f %s\n",
+            substr($type,0,4), $atom1, $atom2, $atom3, $atom4, $k, $period,
+            $angle, $esd, $id);
+        if ($type eq "IMPRoper") {
+          $exclude14{$atom1}{$atom4}++;
+          $exclude14{$atom4}{$atom1}++;
+          $esd = 0.5;
+          push @odb,"torsion_fixed $atom1 $atom2 $atom3 $atom4 $angle $esd";
+        }
+      }
+      $topo  .= "\n";
+      $param .= "\n";
+    }
+    #-----------------------------------------------------------------------
+    # Chirality
+    #
+    # CNS definition:
+    #  The improper angle (ijkl) is defined by the angle between the plane
+    #  made by the atoms (ijk) and the plane made by the atoms (jkl).
+    #
+    # CIF definition:
+    # The chiral volume V(c) for atoms (ijkl) is defined by:
+    #
+    #   V(c) = vector(ij) .dot. ( vector(ik) .cross. vector(il) )
+    #
+    # The actual volume is: |V(c)| / 6
+    #
+    # Conversion to impropers is not exact because the torsion can influence
+    # the geometry even when the chirality is correct, unless a flat-well
+    # restraint is used. CIF only defines the hand, so derived torsions may
+    # not be exact. A reasonably flat well can be achieved with a multiple
+    # dihedral.
+    #
+    #------------------------------------------------------------------------
+    if ( defined $CIF{$key}{'chem_comp_chir.atom_id_1'} and $USE_CHIRALITY) {
+      my @impr_list;
+      for ( my $i = 0 ; $i < &cif_size( $key, 'chem_comp_chir.atom_id_1' ) ; $i++ ) {
+        my $id = &cif_index($key,'chem_comp_chir.id',$i);
+        my $atom0 = &cif_atom($key,'chem_comp_chir.atom_id_centre',$i);
+        my $atom1 = &cif_atom($key,'chem_comp_chir.atom_id_1',$i);
+        my $atom2 = &cif_atom($key,'chem_comp_chir.atom_id_2',$i);
+        my $atom3 = &cif_atom($key,'chem_comp_chir.atom_id_3',$i);
+        if (&get_improper($atom0, $atom1, $atom2, $atom3)) {
+          $topo .= "{ WARNING: Skipping duplicate chirality: $atom0 $atom1 $atom2 $atom3 }\n";
+          next;
+        }
+        next if ( (not $USE_HYDROGENS) and ($atom_elem{$atom0} eq "H" or
+            $atom_elem{$atom1} eq "H" or $atom_elem{$atom2} eq "H" or $atom_elem{$atom3} eq "H"));
+        my $vol_sign = &cif_index($key,'chem_comp_chir.volume_sign',$i);
+        my $sign;
+        # Positive/negative may be abbreviated.
+        if ( $vol_sign =~ m/^nega/ ) {
+          $sign = -1; 
+        } elsif ( $vol_sign =~ m/^posi/ ) {
+          $sign = 1;
+        } elsif ( $vol_sign eq 'both' or $vol_sign eq \$CIF_UNDEFINED ) {
+          $topo .= " { INFO: skipping achiral center ($atom0,$atom1,$atom2,$atom3) }\n";
+          next;
+        } else  {
+          $topo .= " { WARNING: Unknown chem_comp_chir.volume_sign: $vol_sign }\n";
+          next;
+        }
+        $nchiral++;
+        my $warning;
+        my $angle = &derive_improper( $atom0, $atom1, $atom2, $atom3, \$warning );
+        if (defined $warning) { $topo .= $warning."\n"; }
+        if ( not defined $angle ) {
+          $topo .= "{ WARNING: Unable to define chirality for ($atom0,$atom1,$atom2,$atom3) }\n";
+          next;
+        }
+        my $k = $CHIRAL_CONST;
+        if ($USE_FLATWELL_CHIRAL) {
+          my $angle1 = &std_torsion(180-$angle*$sign);
+          my $k1 = $k * $FLATWELL_SCALE;
+          my $angle2 = &std_torsion(180-$angle*$sign*2);
+          my $k2 = $k * -0.25*$FLATWELL_SCALE;
+          $topo .= sprintf(
+              "      IMPRoper  %-6s  %-6s  %-6s  %-6s  MULT 2 ! %s\n",
+              $atom0, $atom1, $atom2, $atom3, $id );
+          $param .= sprintf(
+              "IMPR (resn $resName and name %-6s) (resn $resName and name %-6s)\n".
+              "     (resn $resName and name %-6s) (resn $resName and name %-6s)\n".
+              "     MULT 2   %7.1f 1 %7.2f   %7.1f 2 %7.2f ! %s\n",
+              $atom0, $atom1, $atom2, $atom3, $k1, $angle1, $k2, $angle2, $id);
+        } else {
+          $angle = &std_torsion($angle*$sign);
+          $topo .= sprintf(
+              "      IMPRoper  %-6s  %-6s  %-6s  %-6s  ! %s\n",
+              $atom0, $atom1, $atom2, $atom3, $id );
+          $param .= sprintf(
+              "IMPR (resn $resName and name %-6s) (resn $resName and name %-6s)\n".
+              "     (resn $resName and name %-6s) (resn $resName and name %-6s)\n".
+              "     %7.1f 0 %7.2f ! %s\n",
+              $atom0, $atom1, $atom2, $atom3, $k, $angle, $id);
+        }
+        push @odb,"torsion_fixed $atom0 $atom1 $atom2 $atom3 $angle 4.0";
+        if ($USE_EXTRA_CHIRALITY) {
+          # FIXME: should do all explicit chiral restraints first to avoid duplicates.
+          # The extra chiral restraint is generated as follows:
+          # 1) Check for additional bonds to the given chiral center.
+          # 2) Substitute the 4th improper atom with the bonded atom, using the opposite chiral sign.
+          # 3) If some angle parameters are missing, permute the first 3 atoms in the
+          #    improper definition. (Sometimes occurs for hydrogen atoms.)
+          foreach my $bond ( keys %bonds ) {
+            my ( $b1, $b2 ) = split( "\t", $bond );
+            next if ( (not $USE_HYDROGENS) and ( $atom_elem{$b1} eq "H" or $atom_elem{$b2} eq "H" ) );
+            if ( $b2 eq $atom0 ) {
+              $b2 = $b1;
+              $b1 = $atom0;
+            }
+            if ( $b1 eq $atom0 and ($b2 ne $atom1 and $b2 ne $atom2 and $b2 ne $atom3) ) {
+              $warning = "";
+              $angle = &derive_improper( $atom0, $atom1, $atom2, $b2, \$warning);
+              if (not defined $angle) {
+                # Try alternate version by permuting (1,2,3) -> (3,1,2),
+                # in case the extra atom has only 2 of 3 angles defined.
+                $angle = &derive_improper( $atom0, $atom3, $atom1, $b2, \$warning);
+                if (defined $angle) {
+                  $warning .= " { Permuting chiral order due to missing parameters. }";
+                  $atom2=$atom1;
+                  $atom1=$atom3;
+                }
+              }
+              last if (&get_improper($atom0, $atom1, $atom2, $b2));
+              $nchiral_ext++;
+              $angle = -$sign*$angle;
+              $id .= "-extra";
+              if ( not defined $angle ) {
+                $warning .= " { GUESSING ANGLE }";
+                $k = $GUESSED_CHIRAL_CONST;
+                $angle = 35.26;
+              } else {
+                $k = $EXTRA_CHIRAL_CONST;
+              }
+              if ($USE_FLATWELL_CHIRAL) {
+                my $angle1 = &std_torsion(180-$angle);
+                my $k1 = $k * $FLATWELL_SCALE;
+                my $angle2 = &std_torsion(180-$angle*2);
+                my $k2 = $k * -0.25*$FLATWELL_SCALE;
+                $topo .= sprintf(
+                    "      IMPRoper  %-6s  %-6s  %-6s  %-6s  MULT 2 ! %s$warning\n",
+                    $atom0, $atom1, $atom2, $b2, $id );
+                $param .= sprintf(
+                    "IMPR (resn $resName and name %-6s) (resn $resName and name %-6s)\n".
+                    "     (resn $resName and name %-6s) (resn $resName and name %-6s)\n".
+                    "     MULT 2   %7.1f 1 %7.2f   %7.1f 2 %7.2f ! %s\n",
+                    $atom0, $atom1, $atom2, $b2, $k1, $angle1, $k2, $angle2, $id);
+              } else {
+                $topo .= sprintf(
+                    "      IMPRoper  %-6s  %-6s  %-6s  %-6s  ! %s$warning\n",
+                    $atom0, $atom1, $atom2, $b2, $id );
+                $param .= sprintf(
+                    "IMPR (resn $resName and name %-6s) (resn $resName and name %-6s)\n".
+                    "     (resn $resName and name %-6s) (resn $resName and name %-6s)\n".
+                    "     %7.1f 0 %7.2f ! %s$warning\n",
+                    $atom0, $atom1, $atom2, $b2, $k, $angle, $id);
+              }
+              push @odb,"torsion_fixed $atom0 $atom1 $atom2 $b2 $angle 5.0";
+              last;
+            }
+          }
+        }
+      }
+      $topo  .= "\n";
+      $param .= "\n";
+    }
+    #-----------------------------------------------------------------------
+    # Planarity
+    if ( defined $CIF{$key}{'chem_comp_plane_atom.atom_id'} and $USE_PLANARITY) {
+      my ( %plane_atoms, %plane_esd, @plane_list );
+      for ( my $i = 0 ; $i < &cif_size( $key, 'chem_comp_plane_atom.atom_id' ) ; $i++ ) {
+        my $atom = &cif_atom($key,'chem_comp_plane_atom.atom_id',$i);
+        next if ( (not $USE_HYDROGENS) and $atom_elem{$atom} eq "H" );
+        my $id = &cif_index($key,'chem_comp_plane_atom.plane_id',$i);
+        if ( not defined $plane_atoms{$id} ) {
+          push @plane_list, $id;
+        }
+        if (grep(/^\Q$atom\E$/,@{ $plane_atoms{$id} })) {
+          $topo .= "{ WARNING: duplicate atom: plane=$id, atom=$atom }\n";
+          next;
+        }
+        push @{ $plane_atoms{$id} }, $atom;
+        if ( not defined $plane_esd{$id} ) { $plane_esd{$id} = 0; }
+        $plane_esd{$id} += &cif_index($key,'chem_comp_plane_atom.dist_esd',$i);
+      }
+      foreach my $id (@plane_list) {
+        my @plane_atoms = @{ $plane_atoms{$id} };
+        my %dihe_angle; # angle of pre-defined and derived torsions (forced to 0 or 180)
+        my $duplicates = 0;
+        my $count = scalar( @plane_atoms );
+        # Skip planes with les than 3 atoms (common when hydrogen is excluded)
+        next if ( $count <= 3 );
+        $nplane++;
+        $plane_natoms += $count;
+        $topo .= "! plane($id) = ".$plane_atoms[0];
+        for (my $i=1;$i<=$#plane_atoms;$i++) {
+          $topo .= (($i % 10 == 9) ? ",\n!                " : ",").$plane_atoms[$i];
+        }
+        $topo .= "\n";
+        my %plane_used = map { $_ => 0 } @plane_atoms;
+        # TODO: Get a better estimate of ESD conversion from plane distance to angle.
+        my $esd = $plane_esd{$id} / $count;
+        my $konst = &eterm($esd * $PLANARITY_SCALE);
+        $topo .= sprintf("! esd=%8.4f, const=%10.2f\n",$esd,$konst);
+        #---------------------------------------------------------
+        # Auto-generate torsions for all atoms in the plane group (saved as impropers)
+        # The index of atom2 is always less than the index of atom3.
+        my @bond_list;
+        my @dihe_list;
+        my @impr_list;
+        my %bonded_atoms;
+        # First, build a list of bonds contained in the plane.
+        for ( my $i = 0 ; $i < $count - 1 ; $i++ ) {
+          my $atom1 = $plane_atoms[$i];
+          for ( my $j = $i + 1 ; $j < $count ; $j++ ) {
+            my $atom2 = $plane_atoms[$j];
+            if ( defined &get_bond( $atom1, $atom2 ) ) {
+              push @bond_list, [ $atom1, $atom2 ];
+              push @{$bonded_atoms{$atom1}}, $atom2;
+              push @{$bonded_atoms{$atom2}}, $atom1;
+            }
+          }
+        }
+        # find all torsions contained in the plane group by
+        # extending (atom2,atom3) pairs at each end:
+        for ( my $i = 0 ; $i < scalar(@bond_list) ; $i++ ) {
+          my ( $atom2, $atom3 ) = @{ $bond_list[$i] };
+          foreach my $atom1 ( @{$bonded_atoms{$atom2}} ) {
+            next if ($atom1 eq $atom3);
+            # Avoid torsions with linear or near-linear angles.
+            my $angle = &get_angle($atom1,$atom2,$atom3);
+            next if (not defined $angle or $angle > 160);
+            foreach my $atom4 ( @{$bonded_atoms{$atom3}} ) {
+              next if ($atom4 eq $atom1 or $atom4 eq $atom2);
+              $angle = &get_angle($atom2,$atom3,$atom4);
+              next if (not defined $angle or $angle > 160);
+              push @dihe_list, [$atom1,$atom2,$atom3,$atom4];
+            }
+          }
+        }
+        #---------------------------------------------------------
+        # Trigonal planar groups
+        foreach my $atom1 ( keys %bonded_atoms ) {
+          if (scalar(@{$bonded_atoms{$atom1}}) == 3) {
+            my ($atom2,$atom3,$atom4) = @{$bonded_atoms{$atom1}};
+            push @impr_list, [$atom1,$atom2,$atom3,$atom4];
+            $dihe_angle{"$atom1\t$atom2\t$atom3\t$atom4"} = 0; # angle is always zero
+          }
+        }
+        #=====================================================================================
+        # Propagate planar restraints where possible.
+        my %dihe_known; # list of pre-defined torsions
+        my %dihe_unknown; # list of planar torsions with period=2 (0 or 180)
+        foreach my $params ( @dihe_list ) {
+          my ($atom1,$atom2,$atom3,$atom4) = @{$params};
+          my $angle = &get_dihedral( $atom1, $atom2, $atom3, $atom4 );
+          my $key = "$atom1\t$atom2\t$atom3\t$atom4";
+          if ( defined $angle ) {
+            $dihe_known{$key}++;
+            $dihe_angle{$key} = $angle;
+            #$dihe_angle{$key} = abs($angle) < 90 ? 0 : 180;
+          } else {
+            $dihe_unknown{$key}++;
+          }
+        }
+        while (1) {
+          my $count = scalar(keys %dihe_unknown);
+          foreach my $key (keys %dihe_angle) {
+            my ($atom1,$atom2,$atom3,$atom4) = split("\t",$key);
+            my $angle = $dihe_angle{$key};
+            foreach my $found ( grep( m/
+                  ^\Q$atom1\t$atom2\t$atom3\t\E |
+                   \Q\t$atom2\t$atom3\t$atom4\E$
+                  /x, keys %dihe_unknown)) {
+              $dihe_angle{$found} = abs($dihe_angle{$key}) < 90 ? 180 : 0;
+              delete $dihe_unknown{$found};
+            }
+          }
+          last if ($count == scalar(keys %dihe_unknown));
+        }
+        foreach my $key (keys %dihe_angle) {
+          my ($atom1,$atom2,$atom3,$atom4) = split("\t",$key);
+          my $angle = $dihe_angle{$key};
+          foreach my $found ( grep( m/
+                ^\Q$atom1\t$atom2\t$atom3\t\E |
+                 \Q\t$atom2\t$atom3\t$atom4\E$
+                /x, keys %dihe_angle)) {
+            next if ($found eq $key);
+            if ($dihe_angle{$found} == $dihe_angle{$key}) {
+              $topo .= "{ WARNING: Planar torsion angle propagation conflict: $found, $key }\n";
+              undef %dihe_angle;
+              last;
+            }
+          }
+        }
+        #---------------------------------------------------------
+        push @dihe_list, @impr_list;
+        foreach my $params ( @dihe_list ) {
+          my ($atom1,$atom2,$atom3,$atom4) = @{$params};
+          $plane_used{$atom1}++;
+          $plane_used{$atom2}++;
+          $plane_used{$atom3}++;
+          $plane_used{$atom4}++;
+          my $key = "$atom1\t$atom2\t$atom3\t$atom4";
+          # If this dihedral was explicitly defined, print it as a comment,
+          # and check that the parameters are approximately flat.
+          if ( defined $dihe_known{$key} ) {
+            my $angle = $dihe_angle{$key};
+            my $warning = "";
+            my $delta = abs(&fmod($angle+360+90,180)-90);
+            if ($delta > $MAX_PLANAR_TORSION_DELTA) {
+              $warning = sprintf(" { WARNING: non-flat planar dihedral; d=%7.2f }",$delta);
+            }
+            $duplicates++;
+            $topo .= sprintf(
+                "! **  IMPRoper  %-6s  %-6s  %-6s  %-6s  ! %s; angle:=%s%s\n",
+                $atom1, $atom2, $atom3, $atom4, $id, $angle, $warning );
+            next;
+          }
+          $plane_impr++;
+          my $period = 2;
+          my $angle = 180;
+          my $k = $konst;
+          if (defined $dihe_angle{$key}) {
+            $period = 0;
+            $angle = $dihe_angle{$key};
+            $plane_fixed++;
+            $k *= 0.5;
+          }
+          $topo .= sprintf(
+              "      IMPRoper  %-6s  %-6s  %-6s  %-6s  ! %s\n",
+              $atom1, $atom2, $atom3, $atom4, $id );
+          $param .= sprintf(
+              "IMPR (resn $resName and name %-6s) (resn $resName and name %-6s)\n".
+              "     (resn $resName and name %-6s) (resn $resName and name %-6s)\n".
+              "     %7.1f %d %7.2f ! %s\n",
+              $atom1, $atom2, $atom3, $atom4, $k, $period, $angle, $id);
+          if ($period==2 or ($period==1 and abs($angle)<90)) {
+            $exclude14{$atom1}{$atom4}++;
+            $exclude14{$atom4}{$atom1}++;
+          }
+          if ($period==0) {
+            push @odb,"torsion_fixed $atom1 $atom2 $atom3 $atom4 $angle 2.0";
+          }
+        }
+        #---------------------------------------------------------
+        if ($duplicates) {
+          $topo .= "!(**)   some plane torsions were already defined.\n";
+        }
+        my @missing = ();
+        foreach my $atom ( @plane_atoms ) {
+          if ( $plane_used{$atom} == 0 ) {
+            push @missing, $atom;
+          }
+        }
+        if (@missing) {
+          $topo .= "! WARNING: Could not derive planarity torsion(s) for atom(s): ".join(", ",@missing)."\n";
+          $bad_plane_atoms += scalar(@missing);
+        }
+        $topo .= "\n";
+      }    # end foreach plane id
+    }
+    #-----------------------------------------------------------------------
+    if ($USE_VDW and $USE_VDW_REPEL) {
+      $param .= "
+{* nonbonding parameters for repulsive Van der Waals *}
+ NBONds
+   CUTNB=7.0   WMIN=1.5
+   REPEl = 1.0
+   REXPonent = 4
+   IREXponent = 1
+   RCONst = 16.0
+   TOLErance = 0.5      NBXMOD = 5
+   ctonnb=5.5 ctofnb=6.0 {* for consistency only, not needed for repel *}
+ END\n\n";
+    }
+    #-----------------------------------------------------------------------
+    # Atom definitions, including mass and VdW parameters.
+    my $topo_atoms = "";
+    for ( my $i = 0; $i < &cif_size( $key, 'chem_comp_atom.atom_id' ); $i++ ) {
+      my $symbol = &cif_index($key,'chem_comp_atom.type_symbol',$i);
+      my $atom = &cif_atom($key,'chem_comp_atom.atom_id',$i);
+      $atom_elem{$atom} = $symbol;
+      next if ( (not $USE_HYDROGENS) and $symbol eq "H" );
+      $natom++;
+      $atom_ordinal{$atom} = $i;
+      my $charge = &cif_index($key,'chem_comp_atom.partial_charge',$i);
+      if ((not defined $charge) or ref($charge)) { $charge=0; }
+      my $type_energy = &cif_index($key,'chem_comp_atom.type_energy',$i);
+      $atom_type{$atom} = $type_energy;
+      my $elem;
+      my $formal_charge;
+      my $warnings = "";
+      # Symbol should be the element symbol,
+      # but allow for an explicit formal charge
+      if ( $symbol =~ m{^([A-Z])([A-Z]?)((?:[-+][1-9])?)$}i ) {
+        $elem = uc($1).lc($2);
+        $formal_charge = $3;
+      } else {
+        $elem = $symbol;
+        $formal_charge = "";
+        $warnings .= " { WARNING: Malformed element symbol \"$symbol\" }";
+      }
+      if ($formal_charge eq "" and int($charge)==$charge and $charge != 0) {
+        $formal_charge = sprintf("%+1d",$charge);
+      }
+      my $chem_type = ($USE_ENERGY_TYPES and defined $type_energy) ? $type_energy : "\"$elem$formal_charge\"";
+      if ($have_coor) {
+        my $x = $CIF{$key}{'chem_comp_atom.x'}[$i];
+        my $y = $CIF{$key}{'chem_comp_atom.y'}[$i];
+        my $z = $CIF{$key}{'chem_comp_atom.z'}[$i];
+        my $name = uc(&cif_index($key,'chem_comp_atom.atom_id',$i));
+        if (length($name) < 4 and $name =~ m/^[A-Z]/ and substr($name." ",0,2) ne uc($elem)) {
+          $name = " ".$name;
+        }
+        $pdb_out .= sprintf (
+            "HETATM%5d %-4s %3s %1s%4d    %8.3f%8.3f%8.3f%6.2f%6.2f          %2s\n",
+            $i,$name,$resName,"A",1,$x,$y,$z,1,0,uc($elem));
+        $coor{$atom} = [$x,$y,$z];
+      }
+      #-----------------------------------------------------------------------
+      # Mass
+      my $mass;
+      if ( defined $element_mass{$elem} ) {
+        $mass = $element_mass{$elem};
+      } else {
+        $warnings .= " { WARNING: Unknown mass for element \"$elem\" }";
+        $unknown_element{$elem}++;
+        $mass = 9999;
+      }
+      #-----------------------------------------------------------------------
+      # VdW parameters
+      if ($USE_VDW) {
+        my ( $eps, $sigma, $eps14, $sigma14 );
+        if ( defined $element_vdw{$elem} ) {
+          ( $eps, $sigma, $eps14, $sigma14 ) = @{ $element_vdw{$elem} };
+        } elsif ( defined $type_vdw{$type_energy}) {
+          ( $eps, $sigma ) = ( $eps14, $sigma14 ) = @{ $type_vdw{$type_energy} };
+        } else {
+          $warnings .= " { WARNING: No VdW data for type=$type_energy, element=$elem }";
+          $unknown_vdw{$elem}++;
+          ( $eps, $sigma ) = ( $eps14, $sigma14 ) = @VDW_DEFAULT;
+        }
+        if ($USE_VDW_REPEL) {
+          if ( defined $element_vdw_radius{$elem} ) {
+            $sigma = $VDW_RMIN2SIGMA * $element_vdw_radius{$elem};
+          }
+          $sigma14 = $sigma - 0.3*$VDW_RMIN2SIGMA;
+          $eps = $eps14 = 0.1; # Unused in Repulsive VdW
+        }
+        $param .= sprintf(
+            "NONB (resn $resName and name %-6s)  %8.4f %8.4f    %8.4f %8.4f\n",
+            $atom, $eps, $sigma, $eps14, $sigma14 );
+      }
+      #-----------------------------------------------------------------------
+      my $exclude="";
+      if (defined $exclude14{$atom}) {
+        $exclude="exclude( ".join(" ",sort keys %{$exclude14{$atom}})." )";
+      }
+      $topo_atoms .= sprintf(
+          "       ATOM  %-6s  TYPE=%-6s CHARge=%10.4f MASS=%10.4f  $exclude END%s\n",
+          $atom, $chem_type, $charge, $mass, $warnings );
+    }
+    $topo = $topo_header.$topo_atoms." !END GROUp\n\n".$topo." END ! RESIdue $resName\n";
+    $param .= "\n";
+    #-----------------------------------------------------------------------
+    # End of residue
+    &cif_delete("comp_$comp_id");
+
+    my $info = "Residue \"$resName\":".($have_coor?" (has coordinates)":"")."\n";
+    $info .= "$natom atom(s), $nbond bond(s), $nangle angle(s), $ndihe dihedral(s),".
+             " $nchiral chiral centre(s), $nplane planar group(s)\n";
+    if ( $nplane > 0 ) {
+      $info .= "$plane_natoms atoms in $nplane plane group(s) produced $plane_impr impropers ($plane_fixed fixed).\n";
+      if ($bad_plane_atoms>0) {
+        $info .= "WARNING: unable to define torsions for $bad_plane_atoms plane atom(s).\n";
+      }
+    }
+    if ( $nchiral_ext > 0 ) {
+      $info .= "$nchiral_ext secondary chiral restraints were added.\n";
+    }
+    if (%unknown_element) {
+      $info .= "WARNING: Unidentified elements encountered: ".join(", ",sort keys %unknown_element)."\n";
+    }
+    if (%unknown_vdw) {
+      $info .= "WARNING: Unknown VdW parameters for some atoms: ".
+        join(", ",sort keys %unknown_vdw)."\n";
+    }
+    if ($quote_chars) {
+       $info .= "WARNING: Some atom names contain double-quotes.\n";
+       $info .= "        They were replaced with '$QUOTE_SUBST'.\n";
+    }
+    print $info;
+
+    next if ($CHECK_ONLY);
+
+    if ($APPEND_LOG) { $topo .= "{\n$info\n}\n"; }
+    my $topology_outfile="$OUTPUT_PREFIX$TOPOLOGY_OUTFILE";
+    if (open F, ">", $topology_outfile) {
+      print "Writing topology file \"$topology_outfile\"\n";
+      print F $topo."\n";
+      close F;
+    } else {
+      print "ERROR: Unable to open topology output file \"$topology_outfile\"\n";
+    }
+
+    my $parameter_outfile="$OUTPUT_PREFIX$PARAMETER_OUTFILE";
+    if (open F, ">", $parameter_outfile) {
+      print "Writing parameter file \"$parameter_outfile\"\n";
+      print F $param."\n";
+      close F;
+    } else {
+      print "ERROR: Unable to open parameter output file \"$parameter_outfile\"\n";
+    }
+
+    my $pdb_outfile="";
+    if ($have_coor and $WRITE_PDB) {
+      $pdb_outfile = "$OUTPUT_PREFIX$comp_outfile.pdb";
+      if (open F,">",$pdb_outfile) {
+        print "Writing PDB file \"$pdb_outfile\"\n";
+        print F $pdb_out."END\n";
+        close F;
+      } else {
+        print "ERROR: Unable to open PDB output file \"$pdb_outfile\"\n";
+      }
+    }
+    if ($WRITE_LOG) {
+      my $log_outfile = "$OUTPUT_PREFIX$comp_outfile.log";
+      if (open F, ">", $log_outfile) {
+        print "Writing import log file \"$log_outfile\"\n";
+        print F $info."\n";
+        close F;
+      } else {
+        print "ERROR: Unable to open LOG output file \"$log_outfile\"\n";
+      }
+    }
+    if (@odb and $WRITE_ODB) {
+      my $odb_outfile = "$OUTPUT_PREFIX$comp_outfile.odb";
+      if (open F, ">", $odb_outfile) {
+        print "Writing O database file \"$odb_outfile\"\n";
+        my $odb = ".bonds_angles T ".scalar(@odb)." 72\n".join("\n",@odb)."\n";
+        $odb =~ s/"//g;
+        print F $odb;
+      close F;
+      } else {
+        print "ERROR: Unable to open ODB (O database) output file \"$odb_outfile\"\n";
+      }
+    }
+    if ($WRITE_INP) {
+      my $inp_outfile = "$OUTPUT_PREFIX$comp_outfile.inp";
+      if (open F,">",$inp_outfile) {
+        print "Writing CNS validation input file \"$inp_outfile\"\n";
+        print F <<EOF;
+define(
+parameter_infile="$parameter_outfile";
+topology_infile="$topology_outfile";
+pdb_infile="$pdb_outfile";
+resname="$resName";
+pdb_outfile="$OUTPUT_PREFIX${comp_outfile}_min.pdb";
+list_outfile="$LIST_OUTFILE";
+atom_build=($ATOM_BUILD);
+comp_id="$comp_outfile";
+)
+$validate_cif_script
+stop
+EOF
+        close F;
+        if ($INVOKE_CNS) {
+          my $log_file = "$OUTPUT_PREFIX${comp_outfile}_cns.log";
+          my $cmd = "cns < $inp_outfile >& $log_file";
+          print "Running command: $cmd\n";
+          system($cmd);
+        }
+      } else {
+        print "ERROR: Unable to open CNS validation file \"$inp_outfile\"\n";
+      }
+    }
+    print "\n";
+  }
+}
+exit;
+# END OF MAIN PROGRAM
+#----------------------------------------------------------
+# Wrapper to &cif_index function for items that contain atom-name strings.
+# 1) Force names to upper case.
+# 2) Remove leading/trailing space.
+# 3) Convert double-quotes to a substitute character.
+# 4) Add quotes if it contains "unusual" characters.
+# Here, unusual characters includes wildcard characters. Those only require
+# quotes in the case of selection expressions.
+sub cif_atom {
+  my $name = &cif_index(@_);
+  if (not defined $name) { return undef; }
+  $name =~ s/^\s+|\s+$//g;
+  $name = uc($name);
+  if ($name =~ s/"/$QUOTE_SUBST/g) { $quote_chars++; }
+  if ($name =~ m/[!"\$=?\@{}*%#+ ]/) {
+    $name = '"'.$name.'"';
+  }
+  return $name;
+}
+#----------------------------------------------------------
+# This routine estimates an energy constant from the ESD
+# The constant term is Kboltz * T/2, where T=298.0
+sub eterm {
+  my $esd = shift;
+  my $result = $MAX_CONSTANT;
+  if ( $esd >= 0.01 ) {
+    $result = ( 0.296091459 / ( $esd * $esd ) );
+    if ($result > $MAX_CONSTANT) { $result = $MAX_CONSTANT; }
+  }
+  return $result;
+}
+#=======================================================================
+# Geometric functions:
+#-----------------------------------------------------------------------
+sub get_angle {
+  my ( $atom1, $atom2, $atom3 ) = @_;
+  if ( defined $angles{"$atom1\t$atom2\t$atom3"} ) {
+    return $angles{"$atom1\t$atom2\t$atom3"};
+  } elsif ( defined $angles{"$atom3\t$atom2\t$atom1"} ) {
+    return $angles{"$atom3\t$atom2\t$atom1"};
+  } else {
+    return undef;
+  }
+}
+#-----------------------------------------------------------------------
+sub get_bond {
+  my ( $atom1, $atom2 ) = @_;
+  if ( defined $bonds{"$atom1\t$atom2"} ) {
+    return $bonds{"$atom1\t$atom2"};
+  } elsif ( defined $bonds{"$atom2\t$atom1"} ) {
+    return $bonds{"$atom2\t$atom1"};
+  } else {
+    return undef;
+  }
+}
+#-----------------------------------------------------------------------
+sub get_dihedral {
+  my ( $atom1, $atom2, $atom3, $atom4 ) = @_;
+  if ( defined $torsions{"$atom1\t$atom2\t$atom3\t$atom4"} ) {
+    return $torsions{"$atom1\t$atom2\t$atom3\t$atom4"};
+  } elsif ( defined $torsions{"$atom4\t$atom3\t$atom2\t$atom1"} ) {
+    return $torsions{"$atom4\t$atom3\t$atom2\t$atom1"};
+  } else {
+    return undef;
+  }
+}
+#-----------------------------------------------------------------------
+sub get_improper {
+  my ( $atom1, $atom2, $atom3, $atom4 ) = @_;
+  if ( defined $impropers{"$atom1\t$atom2\t$atom3\t$atom4"} ) {
+    return $impropers{"$atom1\t$atom2\t$atom3\t$atom4"};
+  } elsif ( defined $torsions{"$atom4\t$atom3\t$atom2\t$atom1"} ) {
+    return $impropers{"$atom4\t$atom3\t$atom2\t$atom1"};
+  } else {
+    return undef;
+  }
+}
+#-----------------------------------------------------------------------
+# Compute an improper dihedral from coordinates and/or bond+angle parameters
+# $atom0 is normally the chiral center.
+# *** The returned value is always positive. The parameter-derivation cannot
+# provide a sign for the chirality.
+sub derive_improper {
+  my ( $atom0, $atom1, $atom2, $atom3, $warning_ref ) = @_;
+  my $MAX_DEVIATION = 8;
+  my $coor_angle = &dihe_coor( $atom0, $atom1, $atom2, $atom3);
+  if (defined $coor_angle) { $coor_angle = abs($coor_angle) }
+  my ( $warn, $param_angle );
+  # angle values
+  my $a102 = &get_angle( $atom1, $atom0, $atom2 ) or
+    $warn .= "ERROR: derive_improper($atom0,$atom1,$atom2,$atom3): missing angle ($atom1,$atom0,$atom2)\n";
+  my $a103 = &get_angle( $atom1, $atom0, $atom3 ) or
+    $warn .= "ERROR: derive_improper($atom0,$atom1,$atom2,$atom3): missing angle ($atom1,$atom0,$atom3)\n";
+  my $a203 = &get_angle( $atom2, $atom0, $atom3 ) or
+    $warn .= "ERROR: derive_improper($atom0,$atom1,$atom2,$atom3): missing angle ($atom2,$atom0,$atom3)\n";
+  # bond values
+  my $d01 = &get_bond( $atom0, $atom1 ) or
+    $warn .= "ERROR: derive_improper($atom0,$atom1,$atom2,$atom3): missing bond ($atom0,$atom1)\n";
+  my $d02 = &get_bond( $atom0, $atom2 ) or
+    $warn .= "ERROR: derive_improper($atom0,$atom1,$atom2,$atom3): missing bond ($atom0,$atom2)\n";
+  my $d03 = &get_bond( $atom0, $atom3 ) or
+    $warn .= "ERROR: derive_improper($atom0,$atom1,$atom2,$atom3): missing bond ($atom0,$atom3)\n";
+  if (not defined $warn) {
+    $a102 *= $DEG2RAD;
+    $a103 *= $DEG2RAD;
+    $a203 *= $DEG2RAD;
+    # Compute additional distances and angles, using the law of cosines, 6 times
+    my $d23 = sqrt($d03**2+$d02**2-2*$d03*$d02*cos($a203));
+    my $a032 = &acos(($d03**2+$d23**2-$d02**2)/(2*$d03*$d23));
+    my $d13 = sqrt($d03**2+$d01**2-2*$d03*$d01*cos($a103));
+    my $a031 = &acos(($d03**2+$d13**2-$d01**2)/(2*$d03*$d13));
+    my $d12 = sqrt($d01**2+$d02**2-2*$d01*$d02*cos($a102));
+    my $a132 = &acos(($d23**2+$d13**2-$d12**2)/(2*$d23*$d13));
+    # Polyhedron plane-angle equation (from http://whistleralley.com/polyhedra/derivations.htm)
+    $param_angle=&acos((cos($a031)-cos($a132)*cos($a032))/(sin($a132)*sin($a032)))/$DEG2RAD;
+  }
+  my $result = defined $param_angle ? $param_angle : $coor_angle;
+  if ($CHIRAL_USE_XYZ and defined $coor_angle) {
+    # Ignore param-derivation warnings if coordinates are present and preferred,
+    # but warn if coordinate and param values differ significantly.
+    $result = $coor_angle;
+    undef $warn;
+    if (defined $param_angle and abs($param_angle-$coor_angle) > $MAX_IMPROPER_DELTA) {
+      $warn .= sprintf(" WARNING: Large deviation in improper: param=%8.3f, coor=%8.3f; ",
+                       $param_angle,$coor_angle);
+    }
+  }
+  if (defined $result and (abs($result)<30 or abs($result)>42) ) {
+    $warn .= sprintf(" WARNING: Unusual improper angle: %7.2f",$result);
+  }
+  if (defined $warning_ref and defined $warn) {
+    $warn =~ s/\n$//;
+    $$warning_ref .= " {$warn }";
+  }
+  # FIXME: check for "unusual" values even when coordinates are not available.
+  return $result;
+}
+#-----------------------------------------------------------------------
+sub std_torsion {
+  # Map the given torsion angle to  ( -180 < angle <= 180 )
+  my $angle = shift;
+  $angle = $angle / 360.0 + 0.5;
+  return ( ( $angle - &ceil($angle) + 0.5 ) * 360.0 );
+}
+#-----------------------------------------------------------------------
+sub dihe_coor {
+  my ( $atom1, $atom2, $atom3, $atom4 ) = @_;
+  my $c1 = $coor{$atom1};
+  my $c2 = $coor{$atom2};
+  my $c3 = $coor{$atom3};
+  my $c4 = $coor{$atom4};
+  if ( not( defined $c1 and defined $c2 and defined $c3 and defined $c4 ) ) { return undef; }
+  my $x1 = &norm( &cross( &vec( $c1, $c2 ), &vec( $c2, $c3 ) ) );
+  my $x2 = &norm( &cross( &vec( $c2, $c3 ), &vec( $c3, $c4 ) ) );
+  return &acos( &dot( $x1, $x2 ) ) / $DEG2RAD;
+}
+#======================================================================-
+# Basic vector math functions:
+sub cross {
+  my ( $a, $b ) = @_;
+  return [ $$a[1] * $$b[2] - $$a[2] * $$b[1],
+           $$a[2] * $$b[0] - $$a[0] * $$b[2],
+           $$a[0] * $$b[1] - $$a[1] * $$b[0] ];
+}
+#-----------------------------------------------------------------------
+sub dot {
+  my ( $a, $b ) = @_;
+  return $$a[0] * $$b[0] + $$a[1] * $$b[1] + $$a[2] * $$b[2];
+}
+#-----------------------------------------------------------------------
+sub vec {
+  my ( $a, $b ) = @_;
+  return [ $$b[0] - $$a[0], $$b[1] - $$a[1], $$b[2] - $$a[2] ];
+}
+#-----------------------------------------------------------------------
+sub len {
+  my ($a) = @_;
+  return sqrt( $$a[0] * $$a[0] + $$a[1] * $$a[1] + $$a[2] * $$a[2] );
+}
+#-----------------------------------------------------------------------
+sub norm {
+  my ($a) = @_;
+  my $d = &len($a);
+  if ( $d == 0 ) {
+    return [ 0, 0, 0 ];
+  } else {
+    return [ $$a[0] / $d, $$a[1] / $d, $$a[2] / $d ];
+  }
+}
+#-----------------------------------------------------------------------
+#__END__
+
+=pod
+
+=head1 NAME
+
+cns_import_cif - Import CIF paramters for use in CNS
+
+=head1 SYNOPSIS
+
+cns_import_cif [OPTIONS] [--] FILE [FILE ...]
+
+ Standard Options:
+   --help                  Print a brief help message.
+   --man                   Print the man page.
+
+   --no-hydrogen[=COMP_ID] Ignore hydrogens [for CIF identifier COMP_ID].
+   --no-vdw                Do not write VdW parameters. (Default: yes)
+   --no-repulsive          Write standard VdW force-field parameters.
+                           (Default: repulsive VdW; see VAN DER WAALS)
+   --energy-lib=FILE       Use FILE for type-based VdW parameters.
+   --write-pdb             Write a PDB coordinate file, if the CIF data
+                           included coordinates. (Default: no)
+   --write-inp             Write a CNS input file to validate the result.
+   --write-odb             Write a minimal O connectivity file. (Default: no)
+   --rename OLD=NEW        Rename CIF 3-letter code OLD to NEW.
+   --outfile COMP_ID=NAME  Define the output filename base for COMP_ID.
+                           (Default is to use the CIF comp_id.)
+   --output-prefix=PREFIX  Prefix all output files with PREFIX; If it is
+                           a directory, include the path separator.
+   --no-flat-well-chiral   Use standard multiplicity-1 chiral impropers.
+                           Default: use impropers with multiplicity of 2,
+                           giving a nearly flat energy well near equilibrium.
+                           (See the man sub-heading CHIRALITY.)
+
+ Advanced Options:
+   --energy-types          Use CIF 'type_energy' for the CHEMical type.
+                           (Default: use the element name and formal charge.)
+   --chiral-xyz            Derive chiral restraint angles from reference
+                           coordinates. (Default: use bonds and angles.)
+                           reliable to derive chiral restraint angles.
+   --no-chiral             Ignore chirality restraints. (Default: define
+                           improper torsions for defined chiral centers.)
+   --no-extra-chiral       Do not add extra inferred chiralities.
+   --chiral-constant=CONST Use CONST for the chirality improper constant
+                           (default=100)
+   --extra-chiral-constant=CONST
+                           Use CONST for additional inferred chirality
+                           impropers (default=50)
+   --guessed-chiral-constant=CONST
+                           Use CONST for chirality impropers where the
+                           target angle is guessed (default=30)
+   --no-plane              Ignore planarity restraints. (Default: convert
+                           planare groups into improper dihedrals.)
+   --planarity-scale=SCALE Set planarity constants derived from:
+                           ESD(angle) = SCALE * ESD(plane)
+                           (default=2)
+   --max-constant=CONST    Maximum value for any constant. (default=1000)
+   --check                 Process files and print warnings, but do not
+                           write any output files.
+   --dump-cns-energy       Dump the internal 'cns_energy' CIF parameters.
+   --invoke-cns            Execute CNS with the generated INP file.
+                           If a PDB is not written, it will attempt to
+                           auto-build all coordinates.
+                           (Implies --write-pdb --write-pdb)
+   --build=SELECT          CNS selection string to define atoms to build. 
+                           (default='not known')
+   --flip-torsions[=ID]    A few CIF parameter files have reversed torsion
+                           angles. Try this if minimization produces severe
+                           distorsions or high energies.
+   --cns-list=FILE         If given, the generated CNS input scripts write a
+                           one-line summary to FILE. Useful for batch imports.
+
+=head1 DESCRIPTION
+
+B<cns_import_cif> will read the given CIF files, and convert monomer
+defintions into topology and parameter files for use in CNS. All
+restraints are atom-based to avoid conflicts with existing chemical-type
+names.
+
+=head1 DETAILS
+
+=head2 CIF MONOMER OVERVIEW
+
+B<Monomer> descriptions are defined in CCP4. They are not part of the formal
+mmCIF standard, but are closely related to the standard B<Component> definitions.
+(See L<http://www.wwpdb.org/ccd.html>) The terms B<Monomer> and B<Component> are
+used here to distinguish the two types of CIF data. In both types, an entry
+can be either a polymeric "residue", or a single non-polymeric molecule.
+
+CIF defines ideal values and expected standard deviations. The restraint
+target and energy constant can be estimated from these values, but the
+relationships are often inexact due to correlations among restraints.
+In crystallographic refinement, this approximation is normally sufficient.
+
+Monomer descriptions do not include mass or VdW information. These are assumed
+to be based on the element, and require additional data. These can be derived
+from a CCP4/PHENIX CIF energy library, a CNS CIF energy library, or use
+built-in defaults. When the default repulsive VdW function is used, the
+parameters are fairly generic, and this should produce good results.
+
+The monomer format stores residue description properties in the CIF data
+block C<data_comp_list>, and all other properties in the data block
+C<data_comp_I<COMP_ID>>. I<COMP_ID> is the unique identifier, which is normally the
+3-letter resName abbreviation. The component descriptions are all contained in
+the data block C<data_I<COMP_ID>>. The data summaries below only describe
+the elements used by this program.
+
+=head2 RESIDUE PROPERTIES
+
+Monomer library data:
+  data_comp_list
+  _chem_comp.id                  # Unique COMP_ID
+  _chem_comp.three_letter_code   # 1-3 letter resName, usually the COMP_ID
+  _chem_comp.name                # Full compound name (length may be truncted)
+
+Component library data:
+  data_COMP_ID
+  _chem_comp.id
+  _chem_comp.three_letter_code
+  _chem_comp.name
+
+Current monomer libraries define C<name> as a fixed-length string of 36 characters.
+
+The C<id> is normally the same as C<three_letter_code>, but sometimes differs for
+variants of the same residue name. Eventually, we will run out of 3-letter codes,
+so it is a bad choice for the unique id.
+
+Ideally, C<name> should match C<HETNAM> or C<HETSYN> names defined in the PDB file.
+
+=head2 ATOM PROPERTIES
+
+  data_comp_COMP_ID
+  _chem_comp_atom.atom_id             # Atom name
+  _chem_comp_atom.type_symbol         # Element symbol
+  _chem_comp_atom.charge              # Formal charge
+  _chem_comp_atom.partial_charge  *   # Partial charge
+  _chem_comp_atom.type_energy  *      # Force-field type
+  _chem_comp_atom.x *                 # Reference coordinates
+  _chem_comp_atom.y *
+  _chem_comp_atom.z *
+  * Only in Monomer data
+
+  data_energy
+  _lib_atom.type                      # Force-field type
+  _lib_atom.weight                    # Atomic mass (au)
+  _lib_atom.vdw_radius                # Hard-sphere VdW radius
+  _lib_atom.element                   # Element symbol
+
+Component files can supply coordinates as model_Cartn_[xyz] or 
+pdbx_model_Cartn_[xyz]_ideal. Monomer coordinates are often non-ideal,
+and cannot reliably be used to determine geometry parameters.
+
+Monomer C<type_energy> is the force-field atom type, equivalent
+to the CNS C<CHEMical> property. To avoid conflicts with standard CNS
+parameter files, this program generates atom-based parameters, and
+the CHEMical types are not used for geometric parameterization.
+However, it is used to define X-ray scatter factors. By defaut, this
+program defines the CHEMical type as the element name, with a formal-charge
+suffix for ions (i.e. "C" or "Fe+3").
+
+The B<--energy-types> may be given if you want to use the C<type_energy>
+for the CHEMical type. You should verify that these names will work correclty
+with the CNS scatter library (F<$CNS_XRAYLIB/scatter.lib>). This option
+is unlikely to be useful unless you are trying to import an entire forcefield.
+
+=head2 BONDS
+
+  data_comp_COMP_ID
+  _chem_comp_bond.atom_id_1
+  _chem_comp_bond.atom_id_2
+  _chem_comp_bond.value_dist
+  _chem_comp_bond.value_dist_esd
+
+=head2 ANGLES
+
+  data_comp_COMP_ID
+  _chem_comp_angle.atom_id_1
+  _chem_comp_angle.atom_id_2
+  _chem_comp_angle.atom_id_3
+  _chem_comp_angle.value_angle
+  _chem_comp_angle.value_angle_esd
+
+Bond and angle definitions are imported with the statistical approximation
+used by the CNS LEARn utility:
+
+  Kb = Kboltz * T / (2 * value_dist_esd**2)     where T=298.0
+
+=head2 TORSIONS
+
+  data_comp_COMP_ID
+  _chem_comp_tor.id
+  _chem_comp_tor.atom_id_1
+  _chem_comp_tor.atom_id_2
+  _chem_comp_tor.atom_id_3
+  _chem_comp_tor.atom_id_4
+  _chem_comp_tor.value_angle
+  _chem_comp_tor.value_angle_esd
+  _chem_comp_tor.period
+
+Torsions are converted to dihedral restraints, with a restraint constant based
+on the ESD, as for bonds and angles. When the period is zero, the CIF torsion
+definition is equivalent to CNS dihedrals. If period is greater than zero,
+there is a 180 degree difference, due to the opposite sign in the restraint
+equations:
+
+  CNS:  Kphi * (1 + cos(n*phi + Kd))
+  CIF:  Kphi * (1 - cos(n*phi + Kd))
+
+Currently, CIF files do not support multiple dihedrals.
+
+=head2 CHIRALITY
+
+  data_comp_COMP_ID
+  _chem_comp_chir.id
+  _chem_comp_chir.atom_id_centre
+  _chem_comp_chir.atom_id_1
+  _chem_comp_chir.atom_id_2
+  _chem_comp_chir.atom_id_3
+
+The chiral volume is defined by:
+   vector(centre,1) .dot. (vector(centre,2) .cross. vector(centre,3)) / 6
+
+CIF defines only the sign is defined, so the division by 6 is dropped.
+CNS chirality restraints for atoms I,J,K,L are defined as an improper torsion
+angle between planes (I,J,K) and (J,K,L), where atom I is
+typically the chiral atom. CNS improper atoms are assigned in the same order
+as (centre,1,2,3), resulting in the same sign as the chiral volume.
+
+The flat-well chiral restraints utilize a 2-term torsion restraint.
+This results in a nearly flat energy well for about 5 degrees on either
+side of the equilibrium. This avoids distortions due to an inexact term
+derived from the CIF input data, and also avoids artifacts due to the
+asymmetric nature of improper torsions. When impropers are printed,
+there will be two sets of statistics for the same four atoms. The second
+term has a negative energy constant, and is complimentary to the
+first term near the equilibrium.
+
+CIF Monomers define additional atom chiral classifications.
+C<cross0> through C<cross6> define bipyramidal geometries. Atoms
+(1,centre,2) define a linear bond angle. There are zero to six additional
+atoms in a plane with the centre atom, perpendicular to the (1,2)
+vector, and define a positive chiral volume. Note that cross0 and cross1
+are not actually chiral.
+
+Cross geometries are expanded to normal chiral centers as follows:
+
+For all n=(1,Ncross-1),
+ vector(centre,2) .dot. (vector(centre,n+2) .cross. vector(centre,n+3)) > 0
+
+and, if Ncross > 1:
+ vector(centre,2) .dot. (vector(centre,Ncross+2) .cross. vector(centre,3)) > 0
+
+=head2 PLANARITY
+
+  data_comp_COMP_ID
+  _chem_comp_plane_atom.plane_id        # Identifier for a given plane group.
+  _chem_comp_plane_atom.atom_id         # Name of an atom within this group.
+  _chem_comp_plane_atom.dist_esd        # ESD to the fitted plane for this atom
+
+Plane groups are converted to dihedral and improper restraints. Improper
+restraints are defined for all tringonal-planar atoms within the group.
+Dihedral restraints are defined for all proper torsions contained in the
+plane group. Planar dihedral restraints are written as impropers. Technically,
+an improper is defined as a torsion that is not along actual bonds, but it is
+a common convention to instead define an improper as any inflexible torsion.
+The flexibiltiy distinction is more meaningful in terms of RMSDs, torsion-angle
+dynamics, and atom-building procedures.
+
+=head2 VAN DER WAALS
+
+  data_energy            # REFMAC/PHENIX/etc.
+  _lib_atom.vdw_radius
+  _lib_vdw.atom_type_1
+  _lib_vdw.atom_type_2
+  _lib_vdw.energy_min    # Emin minimum of energy parameter (adjusted vdw_radius)
+  _lib_vdw.radius_min    # Rmin radius of the minimum of energy parameter
+  _lib_vdw.H_flag        # undefined or 'h'    -- if 'h', it is for the united-atom form
+
+  data_cns_energy           # CNS library, defined specifically for this program
+  _lib_element.element
+  _lib_element.vdw_radius   # VdW radius, adjusted for repulsive VdW restraints
+  _lib_element.vdw_epsilon
+  _lib_element.vdw_sigma
+  _lib_element.vdw_epsilon_14
+  _lib_element.vdw_sigma_14
+
+VdW parameters are not explicitly defined in CIF files. They are defined in
+an implementation-dependent manner. Further investigation is required to
+accurately reproduce restraints as applied by other programs. VdW parameterization
+is an inexact science, in part because they are often adjusted to account
+for implicit electrostatic effects or implicit hydrogens.
+
+You can also exclude VdW parameters from the output file, and rely on existing
+parameters for CHEMical types that match the element name in the protein,
+DNA/RNA and ion parameter files. Currently, the internal parameter files
+have essentially the same values as CNS, but using only one set of parameters
+a given element. There are no sub-types for polar hydrogens or sp2 carbons.
+(This may be fixed in the next release.)
+
+The CCP4 energy library defines pair-wise VdW parameters. CNS uses mixing
+rules, where the energy is computed using the average of parameters from each
+pair. The VdW parameters are derived as follows, taking the first result:
+
+1) If there is a C<_lib_element.element> entry matching the element name,
+epsilon and sigma values in CNS form are taken directly.
+(The C<energy_cns> block is only used by this program, and the format
+is subject to change.)
+
+2) If C<_lib_vdw.atom_type_1> matches the atom type, and C<_lib_vdw.atom_type_1> is
+undefined, the energy_min and radius_min are converted to epsilon and sigma.
+
+3) If C<_lib_vdw.atom_type_1> and C<_lib_vdw.atom_type_1> both match the atom type,
+the energy_min and radius_min are converted to epsilon and sigma.
+
+4) If C<_lib_atom.vdw_radius> is defined, sigma is set to C<vdw_radius> multiplied by
+B<VDW_RADIUS_SCALE>, and epsilon is set to B<VDW_RADIUS_EPSILON>. (These parameters are
+currently fixed in the source code at VDW_RADIUS_SCALE=0.9 and VDW_RADIUS_EPSILON=0.01.)
+
+5) A last-resort generic default is used. (Currently, this is fixed in the source code
+at epsilon=0.01 and sigma=2.3)
+
+=head1 BUGS
+
+Handling of Van der Waals parameters needs to be improved. Proper repulsive VdW needs
+separate terms for polar versus non-polar hydrogens, and for sp2 versus sp3 carbons.
+In order to reproduce restraints as applied by other programs, further investigation
+is needed into VdW implementations, and how the 1-4 terms affect torsion angles.
+
+=head1 AUTHOR
+
+Joseph M. Krahn E<lt>krahn@niehs.nih.govE<gt>
+
+=cut
+
+__DATA__
+data_cns_energy
+# VdW parameters taken from CNS ion.param, except where marked otherwise.
+loop_
+_lib_element.element
+_lib_element.weight
+_lib_element.vdw_radius  # used for repel
+_lib_element.vdw_epsilon
+_lib_element.vdw_sigma
+_lib_element.vdw_epsilon_14
+_lib_element.vdw_sigma_14
+ H       1.0079   0.800  0.0498 1.425   0.0498 1.425 # protein.param (r=polar)
+ D       2.0141   0.800  0.0498 1.425   0.0498 1.425 # copied from H
+ He      4.0026       .       .     .        .     .
+ Li      6.9410   1.562  0.0100 2.783   0.0100 2.783
+ Li+1    6.9410   0.900  0.0100 1.604   0.0100 1.604
+ Be      9.0121       .       .     .        .     .
+ B      10.8110       .       .     .        .     .
+ C      12.0107   1.700  0.1200 3.742   0.1000 3.385 # protein.param (r=sp2)
+ N      14.0067   1.550  0.2384 2.851   0.2384 2.851 # protein.param
+ O      15.9994   1.520  0.1591 2.851   0.1591 2.851 # protein.param
+ F      18.9984   1.470  0.0100 2.619   0.0100 2.619
+ F-1    18.9984   1.190  0.0100 2.120   0.0100 2.120
+ Ne     20.1797       .       .     .        .     .
+ Na     22.9897   1.911  0.0100 3.405   0.0100 3.405
+ Na+1   22.9897   1.160  0.0100 2.067   0.0100 2.067
+ Mg     24.3050   1.602  0.0100 2.854   0.0100 2.854
+ Mg+2   24.3050   0.860  0.0100 1.532   0.0100 1.532
+ Al     26.9815   1.432  0.0100 2.552   0.0100 2.552
+ Al+3   26.9815   0.675  0.0100 1.203   0.0100 1.203
+ Si     28.0855   2.500  0.3100 4.455   0.2000 3.920 # xplo2d
+ P      30.9737   1.900  0.5849 3.385   0.5849 3.385 # dna-rna.param
+ S      32.0660   1.800  0.0430 3.368   0.0430 3.368 # protein.param
+ Cl     35.4527   1.750  0.0100 3.118   0.0100 3.118
+ Cl-1   35.4527   1.670  0.0100 2.976   0.0100 2.976
+ K      39.0983   2.376  0.0100 4.234   0.0100 4.234
+ K+1    39.0983   1.520  0.0100 2.708   0.0100 2.708
+ Ar     39.9480   1.796  0.0100 3.200   0.0100 3.200
+ Ca     40.0780   1.974  0.0100 3.517   0.0100 3.517
+ Ca+2   40.0780   1.140  0.0100 2.031   0.0100 2.031
+ Sc     44.9559       .       .     .        .     .
+ Ti     47.8670       .       .     .        .     .
+ V      50.9415   1.346  0.0100 2.398   0.0100 2.398
+ V+3    50.9415   0.780  0.0100 1.390   0.0100 1.390
+ V+2    50.9415   0.930  0.0100 1.657   0.0100 1.657
+ Cr     51.9961   1.282  0.0100 2.284   0.0100 2.284
+ Cr+3   51.9961   0.755  0.0100 1.345   0.0100 1.345
+ Cr+2   51.9961   0.870  0.0100 1.550   0.0100 1.550
+ Mn     54.9380   1.264  0.0100 2.252   0.0100 2.252
+ Mn+3   54.9380   0.720  0.0100 1.283   0.0100 1.283
+ Mn+2   54.9380   0.810  0.0100 1.443   0.0100 1.443
+ Fe     55.8450   1.274  0.0100 2.270   0.0100 2.270
+ Fe+3   55.8450   0.690  0.0100 1.229   0.0100 1.229
+ Fe+2   55.8450   0.750  0.0100 1.336   0.0100 1.336
+ Ni     58.6934   1.246  0.0100 2.220   0.0100 2.220
+ Ni+2   58.6934   0.830  0.0100 1.479   0.0100 1.479
+ Co     58.9332   1.252  0.0100 2.231   0.0100 2.231
+ Co+2   58.9332   0.790  0.0100 1.408   0.0100 1.408
+ Co+3   58.9332   0.685  0.0100 1.221   0.0100 1.221
+ Cu     63.5460   1.278  0.0100 2.277   0.0100 2.277
+ Cu+2   63.5460   0.870  0.0100 1.550   0.0100 1.550
+ Cu+1   63.5460   0.910  0.0100 1.621   0.0100 1.621
+ Zn     65.3900   1.394  0.0100 2.484   0.0100 2.484
+ Zn+2   65.3900   0.880  0.0100 1.568   0.0100 1.568
+ Ga     69.7230       .       .     .        .     .
+ Ge     72.6100       .       .     .        .     .
+ As     74.9216   1.850  0.0100 3.296   0.0100 3.296
+ Se     78.9600   1.970  0.0430 3.510   0.0430 3.510 # protein.param
+ Br     79.9040   1.850  0.0100 3.296   0.0100 3.296
+ Br-1   79.9040   1.820  0.0100 3.243   0.0100 3.243
+ Kr     83.8000   1.908  0.0100 3.400   0.0100 3.400
+ Rb     85.4678   2.661  0.0065 4.741   0.0065 4.741 # xplo2d
+ Sr     87.6200   2.151  0.0100 3.833   0.0100 3.833
+ Sr+2   87.6200   1.320  0.0100 2.352   0.0100 2.352
+ Y      88.9058       .       .     .        .     .
+ Zr     91.2240   2.030  0.0100 3.617   0.0100 3.617 # xplo2d
+ Nb     92.9063       .       .     .        .     .
+ Mo     95.9400   1.400  0.0100 2.495   0.0100 2.495
+ Mo+3   95.9400   0.830  0.0100 1.479   0.0100 1.479
+ Tc     98.0000       .       .     .        .     .
+ Ru    101.0700   1.650  0.0250 2.940   0.0250 2.940 # xplo2d
+ Rh    102.9055   1.570  0.0250 2.797   0.0250 2.797 # xplo2d
+ Pd    106.4200   1.340  0.0100 2.388   0.0100 2.388 # xplo2d
+ Ag    107.8682   1.445  0.0100 2.575   0.0100 2.575
+ Ag+1  107.8682   1.290  0.0100 2.299   0.0100 2.299
+ Cd    112.4110   1.568  0.0100 2.794   0.0100 2.794
+ Cd+2  112.4110   1.090  0.0100 1.942   0.0100 1.942
+ In    114.8180       .       .     .        .     .
+ Sn    118.7100   1.900  0.0450 3.385   0.0450 3.385 # xplo2d
+ Sb    121.7600       .       .     .        .     .
+ I     126.9044   1.980  0.0100 3.528   0.0100 3.528
+ I-1   126.9044   2.060  0.0100 3.671   0.0100 3.671
+ Te    127.6000       .       .     .        .     .
+ Xe    131.2900   2.000  0.0100 3.564   0.0100 3.564
+ Cs    132.9054   2.731  0.0100 4.866   0.0100 4.866
+ Cs+1  132.9054   1.810  0.0100 3.225   0.0100 3.225
+ Ba    137.3270   1.900  0.1600 3.385   0.1600 3.385 # xplo2d
+ La    138.9055       .       .     .        .     .
+ Ce    140.1160       .       .     .        .     .
+ Pr    140.9076       .       .     .        .     .
+ Nd    144.2400       .       .     .        .     .
+ Pm    145.0000       .       .     .        .     .
+ Sm    150.3600       .       .     .        .     .
+ Eu    151.9640       .       .     .        .     .
+ Gd    157.2500       .       .     .        .     .
+ Tb    158.9253       .       .     .        .     .
+ Dy    162.5000       .       .     .        .     .
+ Ho    164.9303   1.766  0.0100 3.147   0.0100 3.147
+ Ho+3  164.9303   1.041  0.0100 1.855   0.0100 1.855
+ Er    167.2600       .       .     .        .     .
+ Tm    168.9342       .       .     .        .     .
+ Yb    173.0400   1.740  0.0100 3.100   0.0100 3.100
+ Yb+3  173.0400   1.008  0.0100 1.796   0.0100 1.796
+ Yb+2  173.0400   1.160  0.0100 2.067   0.0100 2.067
+ Lu    174.9670       .       .     .        .     .
+ Hf    178.4900       .       .     .        .     .
+ Ta    180.9479       .       .     .        .     .
+ W     183.8400       .       .     .        .     .
+ Re    186.2070       .       .     .        .     .
+ Os    190.2300   1.353  0.0100 2.411   0.0100 2.411
+ Os+4  190.2300   0.770  0.0100 1.372   0.0100 1.372
+ Ir    192.2170   1.357  0.0100 2.418   0.0100 2.418
+ Ir+3  192.2170   0.820  0.0100 1.461   0.0100 1.461
+ Pt    195.0780   1.387  0.0100 2.471   0.0100 2.471
+ Pt+2  195.0780   0.940  0.0100 1.675   0.0100 1.675
+ Au    196.9665   1.442  0.0100 2.569   0.0100 2.569
+ Au+1  196.9665   1.510  0.0100 2.691   0.0100 2.691
+ Au+3  196.9665   0.990  0.0100 1.764   0.0100 1.764
+ Hg    200.5900   1.573  0.0100 2.803   0.0100 2.803
+ Hg+1  200.5900   1.330  0.0100 2.370   0.0100 2.370
+ Hg+2  200.5900   1.160  0.0100 2.067   0.0100 2.067
+ Tl    204.3833       .       .     .        .     .
+ Pb    207.2000   1.750  0.0100 3.118   0.0100 3.118
+ Pb+2  207.2000   1.330  0.0100 2.370   0.0100 2.370
+ Bi    208.9803       .       .     .        .     .
+ Po    209.0000       .       .     .        .     .
+ At    210.0000       .       .     .        .     .
+ Rn    222.0000       .       .     .        .     .
+ Fr    223.0000       .       .     .        .     .
+ Ra    226.0000       .       .     .        .     .
+ Ac    227.0000       .       .     .        .     .
+ Pa    231.0358       .       .     .        .     .
+ Th    232.0381       .       .     .        .     .
+ Np    237.0000       .       .     .        .     .
+ U     238.0289   1.560  0.0100 2.780   0.0100 2.780
+ U+4   238.0289   1.030  0.0100 1.835   0.0100 1.835
+ U+3   238.0289   1.165  0.0100 2.076   0.0100 2.076
+ Am    243.0000       .       .     .        .     .
+ Pu    244.0000       .       .     .        .     .
+ Cm    247.0000       .       .     .        .     .
+ Bk    247.0000       .       .     .        .     .
+ Cf    251.0000       .       .     .        .     .
+ Es    252.0000       .       .     .        .     .
+ Fm    257.0000       .       .     .        .     .
+ Md    258.0000       .       .     .        .     .
+ No    259.0000       .       .     .        .     .
+ Rf    261.0000       .       .     .        .     .
+ Lr    262.0000       .       .     .        .     .
+ Db    262.0000       .       .     .        .     .
+ Bh    264.0000       .       .     .        .     .
+ Sg    266.0000       .       .     .        .     .
+ Mt    268.0000       .       .     .        .     .
+ Ds    269.0000       .       .     .        .     .
+ Hs    269.0000       .       .     .        .     .
+ Rg    272.0000       .       .     .        .     .
+#######################################################

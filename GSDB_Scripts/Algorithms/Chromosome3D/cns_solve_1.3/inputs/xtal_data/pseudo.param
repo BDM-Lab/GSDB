@@ -1,0 +1,28 @@
+remarks file toppar/pseudo.param
+remarks   parameters for pseudo atoms
+remarks
+remarks   Note: the equilibrium bond lengths for connections to CA atoms 
+remarks         are taken from the current coordinates 
+remarks         using the "learn" statement
+
+set message ? end eval ($old_message=$result) set echo ? end eval ($old_echo=$result)
+set message=off echo=off end
+
+checkversion 1.3
+
+!------------------------------------------------------------------------
+
+learn initiate selection=( name PSDO or name CA ) mode=statistics end
+learn accumulate end
+learn terminate end
+
+bond (name PSDO )  (name CA) 100.  TOKEN
+
+!------------------------------------------------------------------------
+
+nonbonded (name PSDO) 1. 1. 1. 1. 
+
+!------------------------------------------------------------------------
+
+set message=$old_message echo=$old_echo end
+

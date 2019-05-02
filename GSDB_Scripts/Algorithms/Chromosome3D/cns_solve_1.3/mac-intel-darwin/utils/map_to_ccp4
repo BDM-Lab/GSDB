@@ -1,0 +1,22 @@
+#! /bin/csh -f
+#
+# script to convert a CNS map to CCP4 format using MAPMAN 
+# MAPMAN must be installed and in your path for this script to work
+# MAPMAN can be obtained from:
+#   http://alpha2.bmc.uu.se/~gerard/manuals/gerard_manuals.html
+#
+# written by: Ralf Grosse-Kunstleve
+#
+# copyright Yale University
+#
+
+foreach f ($*)
+  set mapf = "$f:r"
+  mapman << EOT
+read map $mapf.map x-plor
+write map $mapf.ccp4 ccp4
+quit
+EOT
+end
+
+exit 0

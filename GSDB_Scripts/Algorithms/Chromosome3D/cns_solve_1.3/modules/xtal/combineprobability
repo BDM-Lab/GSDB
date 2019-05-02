@@ -1,0 +1,52 @@
+! Module file: combineprobability
+!
+! CNS module
+! ************
+!
+! Authors: Piet Gros and Axel T. Brunger
+!
+! copyright Yale University
+!
+! Function:
+! Combine phase probabilities from two different sources.
+!
+! Requirements:
+! 1. This module can only be called called from xray
+! 2. Probabilities have to be expressed in HL coefficients
+!
+
+module {combineprobability}
+(
+   &messages="normal";  {set verbosity "normal" | "all" | "off"}
+
+   &sel=(all);          {selection of reflections}
+
+   &name="1";           {identifying text for probability}
+   &w=1;                {relative weight of phase probability}
+   &pa=pa;              {Hendrickson and Lattman A array}
+   &pb=pb;              {Hendrickson and Lattman B array}
+   &pc=pc;              {Hendrickson and Lattman C array}
+   &pd=pd;              {Hendrickson and Lattman D array}
+
+                        {Phase probability that will be added:}
+   &addname="2";        {identifying text for probability that will be added}
+   &addw=1;             {relative weight of phase probability}
+   &adda=null;          {Hendrickson and Lattman A array}
+   &addb=null;          {Hendrickson and Lattman B array}
+   &addc=null;          {Hendrickson and Lattman C array}
+   &addd=null;          {Hendrickson and Lattman D array}
+)
+		
+checkversion 1.3
+
+if (&messages # "off") then
+   display COMBINEPROBABILITY: adding probability &name and &addname
+   display COMBINEPROBABILITY: P'(&name) = P(&name)^&w * P(&addname)^&addw 
+end if
+
+do (&pa=&w*&pa+&addw*&adda) (&sel)
+do (&pb=&w*&pb+&addw*&addb) (&sel)
+do (&pc=&w*&pc+&addw*&addc) (&sel)
+do (&pd=&w*&pd+&addw*&addd) (&sel)
+
+

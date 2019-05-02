@@ -1,0 +1,389 @@
+vars: a b c alpha beta gamma
+info: Unit cell dimensions. The lengths of the unit cell axes (a, b and c)
+are in Angstroms. The angles between axes (alpha, beta, gamma) are in degrees.
+#
+vars: anom_library
+info: A file which contains the f' and f'' values for anomalous scattering. 
+There are library file supplied with CNS for both copper and molybdenum
+wavelengths (CNS_XRAYLIB:anom_cu.lib CNS_XRAYLIB:anom_mo.lib).
+#
+vars: bscale
+info: Method for overall B-value correction of the data. The current
+model and the observed data will compared and used to derive an overall
+correction. 
+<UL>
+<LI>isotropic: applies an isotropic correction to the current model.
+<LI>anisotropic: applies the isotropic component of the correction to
+the model and the anisotropic component is applied to the observed data. 
+<LI>anisotropic_fixed_isotropic: applies only the anisotropic component of
+the correction to the data, the isotropic component is not applied to the 
+model.
+</UL>
+#
+vars: coordinate_infile coordinate_infile_\d+ \w+_coordinate_infile
+info: Input CNS coordinate file. This file contains atomic coordinates in
+PDB type format. 
+#
+vars: fft_memory
+info: Memory (in words) allocated for fast Fourier transform (FFT). If a 
+negative value is used the memory space will be automatically determined.
+#
+vars: high_res
+info: Highest resolution limit (ie. minimum Bragg spacing) for calculations.
+#
+vars: low_res_bscale
+info: Lowest resolution limit for data used in calculation of overall B-value
+correction.
+#
+vars: low_res
+info: Lowest resolution limit (ie. maximum Bragg spacing) for calculations.
+#
+vars: obs_f
+info: Reciprocal space array defined in the reflection file which contains
+the observed diffraction amplitudes.
+#
+vars: obs_fom
+info: Reciprocal space array defined in the reflection file which contains
+the observed figures-of-merit (FOM) from experimental phasing.
+#
+vars: obs_i
+info: Reciprocal space array defined in the reflection file which contains
+the observed diffraction intensities.
+#
+vars: obs_pa obs_pb obs_pc obs_pd p[a-d]_\d+ p[a-d]_in
+info: Reciprocal space arrays defined in the reflection file which contain
+a phase probability distribution in the form of Hendrickson-Lattman
+coefficients.
+#
+vars: p[a-d]_out
+info: Name for output reciprocal space arrays which contain a phase
+probability distribution in the form of Hendrickson-Lattman
+coefficients.
+#
+vars: obs_phase
+info: Reciprocal space array defined in the reflection file which contains
+the observed centroid phases from experimental phasing.
+#
+vars: obs_rms f_rms
+info: RMS cutoff for outlier rejection.
+#
+vars: obs_sigf f_cut
+info: Reciprocal space array defined in the reflection file which contains
+the sigma values for the observed diffraction amplitudes.
+#
+vars: obs_sigi
+info: Reciprocal space array defined in the reflection file which contains
+the sigma values for the observed diffraction intensities.
+#
+vars: obs_type
+info: Which experimental observations (amplitudes or intensities) to use
+for outlier rejection.
+#
+vars: obs_w
+info: Reciprocal space array defined in the reflection file which contains
+weights for each observation.
+#
+vars: coordinate_outfile output_coor
+info: Output coordinate file in PDB format.
+#
+vars: parameter_infile_\d+ par.\d+ par_\d+
+info: CNS parameter file. The geometric parameters for bonds, angles,
+impropers and dihedrals are defined in this file. Also defined are the
+nonbonded parameters for each atom type. 
+#
+vars: reflection_outfile_\d+ reflection_infile_\d+ reflection_infile
+info: Reflection file. This free format file contains initial definiations of
+the data object present. Entries are per reflection and are identified by the
+reciprocal lattice index (HKL). Each reflection has values for the data objects
+defined at the beginning of the file:
+<PRE>
+ NREFlection=      8721
+ ANOMalous=FALSe { equiv. to HERMitian=TRUE}
+ DECLare NAME=FOBS         DOMAin=RECIprocal   TYPE=REAL END
+ DECLare NAME=SIGMA        DOMAin=RECIprocal   TYPE=REAL END
+ DECLare NAME=TEST         DOMAin=RECIprocal   TYPE=INTE END
+ INDE     4    1    0 FOBS=    64.207 SIGMA=     3.626 TEST=    0
+ INDE     0    0    3 FOBS=  1047.380 SIGMA=    18.630 TEST=    0
+</PRE>
+<P>The header for a file with experimental phase information should
+look like this:<P>
+<PRE>
+ NREFlection=           1400
+ ANOMalous=TRUE { equiv. to HERMitian=FALSe}
+ DECLare NAME=FOBS        DOMAin=RECIprocal   TYPE=COMP END
+ DECLare NAME=SIGMA       DOMAin=RECIprocal   TYPE=REAL END
+ DECLare NAME=PA          DOMAin=RECIprocal   TYPE=REAL END
+ DECLare NAME=PB          DOMAin=RECIprocal   TYPE=REAL END
+ DECLare NAME=PC          DOMAin=RECIprocal   TYPE=REAL END
+ DECLare NAME=PD          DOMAin=RECIprocal   TYPE=REAL END
+ GROUp TYPE=HL
+   OBJEct=PA
+   OBJEct=PB
+   OBJEct=PC
+   OBJEct=PD
+ END
+ INDE     0    4    2 FOBS=     677.8       0.0 SIGMA=     19.40
+                      PA=    -0.486 PB=     0.000 PC=     0.000 PD=     0.000
+</PRE>
+#
+vars: sg
+info: Space group. This describes the symmetry of the crystal. This
+uses the the standard International Tables nomenclature, with
+subscripts denoted by parentheses. eg. P2(1)2(1)2(1). Both hexogonal
+(the default) and rhombohedral setting are available for rhombohedral
+space groups. The latter are obtained by appending R to the spacegroup
+name (for example, R3R is the rhombohedral setting for R3).
+#
+vars: sigma_cut
+info: Sigma cutoff value for rejection of weak data. This should not
+be used without a good reason, even weak data are useful in
+refinement.
+#
+vars: structure_infile structure_file \w+_structure_infile structure_infile_\d+ struct.\d+
+info: CNS molecular structure file. This contains the information describing 
+the topology of the molecule, ie. which atoms form bonds, angles, dihedrals.
+The molecular topology file should not be edited manually.
+#
+vars: psf_infile psf_outfile
+info: Molecular structure file in X-PLOR compatible PSF format. This
+contains information describing the topology of the molecule,
+ie. which atoms form bonds, angles, dihedrals. This file should not be
+edited manually.
+#
+vars: test_flag
+info: The value of the test set flag that will be used for cross-validation.
+#
+vars: test_set
+info: Reciprocal space array defined in the reflection file which contains
+the test set flag.
+#
+vars: output_root output_root_\d+
+info: Root name for the output files that are written by the task file.
+#
+vars: mask_infile \w+_mask_infile \w+_mask_infile_\d+
+info: Mask file in compressed O format.
+#
+vars: restraints_infile
+info: A file which defines additional restraints for the system. This would
+usually be restraints that maintain the geometry of DNA/RNA. See the example
+file auxiliary/dna-rna_restraints.def.
+#
+vars: ncs_infile
+info: File containing the definition of the non-crystallographic symmetry
+(NCS). See file auxiliary/ncs.def.
+#
+vars: list_outfile
+info: Listing file.
+#
+vars: atom_select atom_select_\d+ atom_select.\d+
+info: Atom selection identifying atoms which will included in the calculations.
+#
+vars: write_map
+info: Write electron density map.
+#
+vars: atom_main
+info: Atom selection identifying atoms which are to be considered as
+mainchain atoms for the purposes of individual B-value refinement.
+#
+vars: bulk_sol
+info: Should a bulk-solvent correction be applied.
+#
+vars: map_format
+info: Format of output electron density map. Choices are CNS format or
+EZD format. The CNS map files can be read into MAPMAN using the X-PLOR
+format. The EZD map files can be read into MAPMAN using the NEWEZD
+format.
+#
+vars: map_mode
+info: Determines the extent of the output electron density map.
+#
+vars: sol_b sol_k
+info: Parameters for the bulk solvent correction.
+#
+vars: target_bins
+info: Number of equal volume reciprocal space bins to use in the calculation
+of the crystallographic target function.
+#
+vars: xmax xmin ymax ymin zmax zmin
+info: Limits of electron density map in orthogonal Angstroms or
+fractional coordinates (depending on the map mode).
+#
+vars: asig_main
+info: Target sigma for distribution of B-values for mainchain atoms which
+form angles.
+#
+vars: asig_side
+info: Target sigma for distribution of B-values for sidechain atoms which
+form angles.
+#
+vars: bsig_main
+info: Target sigma for distribution of B-values for mainchain atoms which
+form bonds.
+#
+vars: bsig_side
+info: Target sigma for distribution of B-values for sidechain atoms which
+form bonds.
+#
+vars: minimize_nstep
+info: Number of steps of conjugate gradient energy minimization.
+#
+vars: num_cycles
+info: Number of cycles of optimization to be performed.
+#
+vars: pdb_o_format
+info: Write the output PDB file in a format more friendly for O (chain
+identifiers are written and the CRYST card).
+#
+vars: reftarget
+info: Crystallographic target function.
+#
+vars: structure_outfile
+info: Output molecular topology file.
+#
+vars: atom_fixed
+info: Atom selection identifying atoms which are to remain fixed during
+refinement.
+#
+vars: atom_harm
+info: Atom selection identifying atoms which are to be harmonically restrained
+during refinement.
+#
+vars: atom_map
+info: Atom selection identifying atoms around which the electron density map
+will be written out.
+#
+vars: atom_rigid
+info: Atom selection identifying atoms which will be treated as rigid bodies
+in torsion angle dynamics refinement.
+#
+vars: bfactor_nstep
+info: Number of steps of conjugate gradient B-factor minimization.
+#
+vars: bins
+info: The number of equal volume reciprocal space resolution bins.
+#
+vars: constant_steps
+info: Number of steps of molecular dynamics to be performed at constant
+temperature.
+#
+vars: cool_rate
+info: Drop in temperature (K) per cycle of dynamics. This determines the
+rate of slowcooling during simulated annealing. Values of from 25 to 50 are
+appropriate.
+#
+vars: k_harmonic
+info: Force constant (kcal/mol/A^2) for harmonically restrained atoms.
+#
+vars: low_res_wilson
+info: Low resolution limit in &Aring; for calculation of the Wilson
+B-value. This should be numerically less than 3&Aring; (at resolutions
+worse than this the Wilson B-value cannot be accurately estimated).
+#
+vars: map_cushion
+info: Cushion in Angstroms around the molecule, used when writing maps.
+#
+vars: map_scale
+info: The map will be scaled by the RMS of the map. Scaled maps will
+be written out in units of sigma.
+#
+vars: map_type
+info: What type of map to make.
+#
+vars: mask_outfile
+info: Output mask in compressed O format.
+#
+vars: md_scheme
+info: Simulated annealing strategy. Either slowcooling or constant temperature.
+#
+vars: md_type
+info: Molecular dynamics algorithm. Either Cartesian (restrained) dynamics or
+torsion angle (constrained) dynamics.
+#
+vars: num_trials
+info: Number of independent simulated annealing trials to be performed.
+#
+vars: peak_search
+info: Perform peak searching on resulting map.
+#
+vars: reflection_outfile
+info: Output reflection file.
+#
+vars: reset_b
+info: If positive reset all B-values to this value prior to calculations.
+#
+vars: rigid_nstep
+info: Number of steps of conjugate gradient rigid-body minimization.
+#
+vars: seed
+info: Starting random number seed.
+#
+vars: temperature
+info: Molecular dynamics temperature. For the slowcooing protocol this is the
+starting temperature. For the constant temperature protocol this is the
+temperature for the entire run.
+#
+vars: torsion_maxbond
+info: Maximum number of bonds to an atom.
+#
+vars: torsion_maxchain
+info: Maximum number of chains.
+#
+vars: torsion_maxlength
+info: Maximum length of an unbranched chain.
+#
+vars: torsion_maxtree
+info: Maximum number of trees.
+#
+vars: u
+info: Coefficient for observed diffraction data in map calculation.
+#
+vars: v
+info: Coefficient for calculated diffraction data in map calculation.
+#
+vars: r_group_\d+
+info: For rigid body refinement this is an atom selection identifying atoms
+which form rigid bodies. The rotation and translation of each group of atoms
+will be refined.
+#
+vars: conf_\d+
+info: Atoms selection identifying atoms in an alternate conformation.
+#
+vars: anneal
+info: Perform simulated annealing.
+#
+vars: reset_q
+info: If positive reset all occupancies to this value prior to
+calculations.
+#
+vars: grid
+info: Resolution of the grid for maps, relative to the high resolution
+limit in reciprocal space (e.g. of the diffraction data). In general,
+the resolution of the grid for maps is 1/3 to 1/4 of the high
+resolution in reciprocal space. For example, given
+<tt>grid_res=0.333</tt>, if the high resolution limit of the
+diffraction data is 3&Aring;, the grid spacing of the map is about
+1&Aring; in each dimension.
+#
+vars: sitedatabase_infile(\.\d+)? sitedatabase_outfile(\.\d+)?
+info: CNS site database (SDB) file. This file contains atomic
+coordinates, B-factors, occupancies, derivative names, and chemical
+types.  Atoms can be grouped by assigning a common group label.
+Grouped atoms are treated as rigid bodies in refinement.  Useful task
+files for the manipulation of SDB files are generate_sdb.inp,
+sdb_manipulate.inp, delete_sites.inp, sdb_split.inp, sdb_to_pdb.inp,
+sdb_to_sdb.inp, flip_sites.inp, and shift_sites.inp.
+#
+vars: map_outfile
+info: Output electron density map in the selected format.
+#
+vars: merge_inout
+info: Merge original input information with newly generated
+information prior to writing. In general it is best to not merge the
+data in order to reduce the size of data files.
+#
+vars: link_infile_\d+
+info: linkage files for linear, continuous polymers (protein, DNA, RNA)
+#
+vars: patch_infile
+info: for auto generation: extra linkages and modifications by custom patches
+#

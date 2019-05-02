@@ -1,0 +1,100 @@
+! Module file: data_detwin
+!
+! CNS module
+! ************
+!
+! Authors: Axel Brunger and Paul Adams
+!
+! copyright Yale University
+!
+! Function:
+!    Detwin hemihedrally twinned data using twin fraction, 
+!    twin operator and current model amplitudes if twinning is
+!    perfect
+!
+! Requirements:
+!    Needs to be called within xray
+
+module {data_detwin}
+
+(
+&fobs=fobs;
+&fcalc=fcalc;
+&fpart=fpart;
+&twin_oper=h,k,l;
+&twin_frac=0.0;
+&sel=all;
+&sel_test=none;
+&fobs_detwin;
+&ref_detwin;
+&tst_detwin;
+&ref_reject;
+&tst_reject;
+&total_reject;)
+
+set message ? end
+evaluate ($message_old=$result)
+set echo ? end
+evaluate ($echo_old=$result)
+if ( $log_level = verbose ) then
+  set echo=on message=normal end
+else
+  set echo=off message=off end
+end if
+
+set display=? end
+evaluate ($curr_display=$result)
+
+checkversion 1.3
+
+if ( &twin_frac < 0.5 ) then
+  do (&fobs_detwin=(         abs(&fobs)^2 -
+                 &twin_frac*(abs(&fobs)^2 +
+           abs(remap[&twin_oper](&fobs))^2))/(1-2*&twin_frac) ) (&sel)
+else
+
+  declare name=det_tmp domain=reciprocal type=real end
+
+  do (det_tmp=sqrt(abs(                  &fcalc+&fpart )^2 +
+                   abs(remap[&twin_oper](&fcalc+&fpart))^2)) (&sel)
+  multiscale
+    bfmin=-40 bfmax=40
+    set1=&fobs       k1=-1 b1=0
+    set2=det_tmp           b2=0
+    selection=(&sel and not &sel_test)
+  end
+  evaluate ($twin_scale=$k2)
+
+  undeclare name=det_tmp domain=reciprocal end
+
+  do (&fobs_detwin=(   abs(                  &fobs         )^2 + 
+     ($twin_scale)^2 * abs(                  &fcalc+&fpart )^2 -
+     ($twin_scale)^2 * abs(remap[&twin_oper](&fcalc+&fpart))^2 )/2 ) (&sel)
+
+end if
+
+do (&fobs_detwin=sqrt(&fobs_detwin)) (&sel and &fobs_detwin > 0)
+
+do (&ref_detwin=1) (&sel)
+do (&ref_detwin=0) (&sel and &fobs_detwin <= 0 )
+
+do (&tst_detwin=1) (&sel_test)
+do (&tst_detwin=0) (&sel_test and &fobs_detwin <= 0 )
+
+show sum(1) (&sel)
+evaluate ($ref_act_twin=$result)
+show sum(1) (&sel_test)
+evaluate ($tst_act_twin=$result)
+
+show sum(1) (&ref_detwin=1)
+evaluate ($ref_act_detwin=$result)
+show sum(1) (&tst_detwin=1)
+evaluate ($tst_act_detwin=$result)
+
+evaluate (&ref_reject=$ref_act_twin-$ref_act_detwin)
+evaluate (&tst_reject=$tst_act_twin-$tst_act_detwin)
+evaluate (&total_reject=&ref_reject+&tst_reject)
+
+set display=$curr_display end
+
+set message=$message_old echo=$echo_old end

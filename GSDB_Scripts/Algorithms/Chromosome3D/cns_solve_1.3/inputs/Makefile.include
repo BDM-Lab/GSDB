@@ -1,0 +1,45 @@
+###############################################################################
+#									      #
+#       Makefile for CNSsolve input directory - included in run directory     #
+#       Paul Adams 2-9-98						      #
+#	copyright Yale University					      #
+#									      #
+###############################################################################
+
+TARGETS=$(FIRSTFILES) $(FILES)
+
+default: $(TARGETS)
+
+link:
+	@ $(CNS_SOLVE)/bin/run_inputs -link $(LINKS)
+
+clean:
+	@ $(CNS_SOLVE)/bin/run_inputs -clean
+
+first: $(FIRSTFILES)
+
+$(TARGETS):
+	@ make $(@).sed
+	@- /bin/ls $(@)_[1-9].inp 1>/dev/null 2>&1; \
+	   if [ $$? -ne 0 ]; \
+	   then files=`/bin/ls $(@).inp`; \
+	   else files=`/bin/ls $(@).inp $(@)_[1-9].inp`; \
+	   fi; \
+	   if [ -n "$(action)" ]; \
+	   then \
+	     if [ "$(action)" != "create" ]; \
+	     then \
+	       $(CNS_SOLVE)/bin/run_inputs -$(action) $$files; \
+	     fi; \
+	   else \
+	       $(CNS_SOLVE)/bin/run_inputs            $$files; \
+	   fi
+
+help:
+	@ echo "options: "; \
+	  echo "   link          [link files to run directory]"; \
+	  echo "   clean         [remove files from run directory]"; \
+	  echo "   first         [run input files that need to go first]"; \
+	  echo "   file-name(s)  [run input files]"; \
+	  echo "to run diff or save: make action=diff|save"; \
+	  echo "to just create all input files: make action=create"

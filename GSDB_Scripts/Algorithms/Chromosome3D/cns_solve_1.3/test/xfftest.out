@@ -1,0 +1,1048 @@
+          ============================================================
+          |                                                          |
+          |            Crystallography & NMR System (CNS)            |
+          |                         CNSsolve                         |
+          |                                                          |
+          ============================================================
+           Version: 1.3
+           Status: General release
+          ============================================================
+           Written by: A.T.Brunger, P.D.Adams, G.M.Clore, W.L.DeLano,
+                       P.Gros, R.W.Grosse-Kunstleve,J.-S.Jiang,J.M.Krahn,
+                       J.Kuszewski, M.Nilges, N.S.Pannu, R.J.Read,
+                       L.M.Rice, G.F.Schroeder, T.Simonson, G.L.Warren.
+           Copyright (c) 1997-2010 Yale University
+          ============================================================
+           Running on machine: lewis4-r710-login-node223 (x86_64/Linux,64-bit)
+                               with 16 threads
+           Program started by: oeow39
+           Program started at: 16:08:26 on 05-Jul-2018
+          ============================================================
+
+ FFT3C: Using FFTPACK4.1
+
+ CNSsolve>REMARKS  XFFTEST.INP 
+ CNSsolve>remarks  test the FFT routines of XRAY 
+ CNSsolve> 
+ CNSsolve>parameter @CNS_TOPPAR:protein.param end 
+ ASSFIL: file protein.param opened.
+ PARRDR>remarks file toppar/protein.param 
+ PARRDR>remarks   protein parameters with Lennard-Jones van der Waals parameters 
+ PARRDR>remarks   for crystallographic structure determination 
+ PARRDR> 
+ PARRDR>! 
+ PARRDR>! Please cite the following reference when using these parameters: 
+ PARRDR>! Engh, R.A. and  Huber, R. (1991). Accurate Bond and 
+ PARRDR>!  Angle Parameters for X-ray Protein-Structure Refinement, 
+ PARRDR>!  Acta Cryst. A47, 392-400. 
+ PARRDR>! 
+ PARRDR>! 
+ PARRDR> 
+ PARRDR>set message ? end eval ($old_message=$result) set echo ? end eval ($old_echo=$result) 
+ MESSage=NORM
+ EVALUATE: symbol $OLD_MESSAGE set to "NORM" (string)
+ ECHO=TRUE {ON}
+ EVALUATE: symbol $OLD_ECHO set to TRUE (logical)
+ PARRDR>set message=off echo=off end 
+ PARRDR> 
+ PARRDR> end 
+ CNSsolve> 
+ CNSsolve>{* read a ca trace *} 
+ CNSsolve>struc 
+ STRUcture>data_cns_mtf 
+ REMARKS FILENAME="/data/rwgk/test/tmp.mtf"
+ REMARKS DATE:18-Nov-98  14:17:52       created by user: rwgk
+ REMARKS VERSION:0.4a
+ Status of internal molecular topology database:
+ -> NATOM=          3(MAXA=     1000000)  NBOND=          0(MAXB=     1000000)
+ -> NTHETA=         0(MAXT=     2000000)  NGRP=           2(MAXGRP=   1000000)
+ -> NPHI=           0(MAXP=     2000000)  NIMPHI=         0(MAXIMP=   1000000)
+ -> NNB=            0(MAXNB=    1000000) 
+ STRUcture> 
+ STRUcture>end 
+ CNSsolve> 
+ CNSsolve>coor 
+ COOR>ATOM      1  CA  LYS     1       8.000   8.000   8.000  1.00 15.00 
+ COOR>ATOM      2  CA  LYS     2       1.400   6.200  18.000  1.00 15.00 
+ CNSsolve> 
+ CNSsolve>{===================================================================} 
+ CNSsolve>{* test with arbitrary unit cell, P1 space group *} 
+ CNSsolve>{===================================================================} 
+ CNSsolve> 
+ CNSsolve>xray 
+ XRAY>   declare name=fobs type=complex domain=reciprocal end 
+ XDECLARE: Object FOBS has been declared.
+ XRAY>   declare name=fpart domain=reciprocal type=complex end 
+ XDECLARE: Object FPART has been declared.
+ XRAY>   declare name=fcalc domain=reciprocal type=complex end 
+ XDECLARE: Object FCALC has been declared.
+ XRAY>   declare name=fom domain=reciprocal type=real end 
+ XDECLARE: Object FOM has been declared.
+ XRAY>   declare name=weight domain=reciprocal type=real end 
+ XDECLARE: Object WEIGHT has been declared.
+ XRAY>   declare name=sigma domain=reciprocal type=real end 
+ XDECLARE: Object SIGMA has been declared.
+ XRAY>   declare name=test domain=reciprocal type=integer end 
+ XDECLARE: Object TEST has been declared.
+ XRAY> 
+ XRAY>  tselection=( 3 <= d <= 10 ) 
+ XRAY>  binresolution= 3. 10. 
+ XRAY>  mapresolution 3. 
+ XRAY> 
+ XRAY>  a=16.2 b=16.5 c=8.2 alpha=81.2  beta=94.5 gamma=100.3 
+ XRAY> 
+ XRAY>  symmetry=(x,y,z) 
+ XRAY>  SCATter ( chemical C* ) 
+ SELRPN:      3 atoms have been selected out of      3
+ SCATTER_A1=       2.31000 20.8439 1.02000 10.2075 1.58860 .568700 .865000 51.6512 .215600 
+ XRAY>  method=direct lookup=false 
+ XRAY>  nreflections=1000 
+ XRAY: allocating space for    1000 reflections.
+ XRAY>  generate  10. 3. 
+ XGENER: generating reflections to produce a full set
+         for the specified resolution range.
+ XGENE2:      164 new reflections have been generated.
+ XRAY>  mapresolution 3. 
+ XRAY>  do (fpart=0) ( all ) 
+ XSFAL: allocating space for complex reciprocal space object.
+ Total of       164 structure factor elements were selected.
+ XRAY>   predict 
+ PREDict>      mode=reciprocal 
+ PREDict>      to=fcalc 
+ PREDict>      selection=( all ) 
+ Total of       164 structure factor elements were selected.
+ PREDict>      atomselection=( not hydrogen ) 
+ SELRPN:      3 atoms have been selected out of      3
+ PREDict>   end 
+ FCALC: #scatt.=      3 #anomalous=   0 #special pos.=  0 occupancies=1
+ XSFAL: allocating space for complex reciprocal space object.
+ XRAY>  do (fobs=fcalc) ( all ) 
+ XSFAL: allocating space for complex reciprocal space object.
+ Total of       164 structure factor elements were selected.
+ XRAY>  TOLERANCE=0.0 
+ XRAY>  wa=200000. 
+ XRAY>  do (fom=1.) ( all ) 
+ XSFAL: allocating space for real reciprocal space object.
+ Total of       164 structure factor elements were selected.
+ XRAY>end 
+ CNSsolve>coor translate vector=( 1.1  0.8 1.4 ) sele=( resid 1 ) end 
+ SELRPN:      1 atoms have been selected out of      3
+ COOR: using atom subset.
+ COOR: translation vector =(     1.100000    0.800000    1.400000 )
+ COOR: selected coordinates translated
+ CNSsolve> 
+ CNSsolve>flags exclu * inclu xref end 
+ CNSsolve>energy end 
+ XRTSELSET: number of selected reflections     164
+ FCALC: #scatt.=      3 #anomalous=   0 #special pos.=  0 occupancies=1
+ XTAREXPR:                 monitor=  0.388
+ --------------- cycle=     1 --------------------------------------------------
+ | Etotal =39943.274  grad(E)=7619.576   E(XREF)=39943.274                     |
+ -------------------------------------------------------------------------------
+ CNSsolve>do ( xcomp = dx ) ( all ) 
+ SELRPN:      3 atoms have been selected out of      3
+ CNSsolve>do ( ycomp = dy ) ( all ) 
+ SELRPN:      3 atoms have been selected out of      3
+ CNSsolve>do ( zcomp = dz ) ( all ) 
+ SELRPN:      3 atoms have been selected out of      3
+ CNSsolve>xray 
+ XRAY>   method=fft 
+ XRAY>   fft bscale=20.0  memory=50000 prime=5 avoid=2 end 
+ XRAY>end 
+ CNSsolve>energy end 
+ FCALC: #scatt.=      3 #anomalous=   0 #special pos.=  0 occupancies=1
+ XFFT: using grid [  16,  16,   8] and sublattice [  16(  17),  16(  17),   2]
+ XTAREXPR:                 monitor=  0.387
+ --------------- cycle=     2 --------------------------------------------------
+ | Etotal =39835.754  grad(E)=7564.967   E(XREF)=39835.754                     |
+ -------------------------------------------------------------------------------
+ CNSsolve>show elem ( dx )    ( all ) 
+ SELRPN:      3 atoms have been selected out of      3
+ (      LYS  1    CA   )    8880.6    
+ (      LYS  2    CA   )   -2426.8    
+ (      LYS  3    CA   )   -6578.4    
+ CNSsolve>show elem ( xcomp ) ( all ) 
+ SELRPN:      3 atoms have been selected out of      3
+ (      LYS  1    CA   )    9021.6    
+ (      LYS  2    CA   )   -2388.0    
+ (      LYS  3    CA   )   -6633.6    
+ CNSsolve>show elem ( dy )    ( all ) 
+ SELRPN:      3 atoms have been selected out of      3
+ (      LYS  1    CA   )    7659.6    
+ (      LYS  2    CA   )   -4474.7    
+ (      LYS  3    CA   )   -3412.1    
+ CNSsolve>show elem ( ycomp ) ( all ) 
+ SELRPN:      3 atoms have been selected out of      3
+ (      LYS  1    CA   )    7788.0    
+ (      LYS  2    CA   )   -4335.5    
+ (      LYS  3    CA   )   -3452.6    
+ CNSsolve>show elem ( dz )    ( all ) 
+ SELRPN:      3 atoms have been selected out of      3
+ (      LYS  1    CA   )    13938.    
+ (      LYS  2    CA   )   -7815.9    
+ (      LYS  3    CA   )   -6429.9    
+ CNSsolve>show elem ( zcomp ) ( all ) 
+ SELRPN:      3 atoms have been selected out of      3
+ (      LYS  1    CA   )    14113.    
+ (      LYS  2    CA   )   -7857.7    
+ (      LYS  3    CA   )   -6255.5    
+ CNSsolve>xray fft memory=250 end end 
+ CNSsolve>energy end 
+ FCALC: #scatt.=      3 #anomalous=   0 #special pos.=  0 occupancies=1
+ XFFT: using grid [  16,  16,   8] and sublattice [  16(  17),  16(  17),   2]
+ XTAREXPR:                 monitor=  0.387
+ --------------- cycle=     3 --------------------------------------------------
+ | Etotal =39835.754  grad(E)=7564.967   E(XREF)=39835.754                     |
+ -------------------------------------------------------------------------------
+ CNSsolve>show elem ( dx ) ( all ) 
+ SELRPN:      3 atoms have been selected out of      3
+ (      LYS  1    CA   )    8880.6    
+ (      LYS  2    CA   )   -2426.8    
+ (      LYS  3    CA   )   -6578.4    
+ CNSsolve>show elem ( dy ) ( all ) 
+ SELRPN:      3 atoms have been selected out of      3
+ (      LYS  1    CA   )    7659.6    
+ (      LYS  2    CA   )   -4474.7    
+ (      LYS  3    CA   )   -3412.1    
+ CNSsolve>show elem ( dz ) ( all ) 
+ SELRPN:      3 atoms have been selected out of      3
+ (      LYS  1    CA   )    13938.    
+ (      LYS  2    CA   )   -7815.9    
+ (      LYS  3    CA   )   -6429.9    
+ CNSsolve>xray 
+ XRAY>    fft memory=5000 bscale=0.0 end 
+ XRAY>    predict 
+ PREDict>      mode=reciprocal 
+ PREDict>      to=fcalc 
+ PREDict>      selection=( all ) 
+ Total of       164 structure factor elements were selected.
+ PREDict>      atomselection=( not hydrogen ) 
+ SELRPN:      3 atoms have been selected out of      3
+ PREDict>    end 
+ FCALC: #scatt.=      3 #anomalous=   0 #special pos.=  0 occupancies=1
+ XFFT: using grid [  16,  16,   8] and sublattice [  16(  17),  16(  17),   2]
+ XRAY>    print target 
+ XTAREXPR:                 monitor=  0.378
+ TARGET value (working set)=    38369.51108
+ XRAY>    fft             bscale=10.0 end 
+ XRAY>    predict 
+ PREDict>      mode=reciprocal 
+ PREDict>      to=fcalc 
+ PREDict>      selection=( all ) 
+ Total of       164 structure factor elements were selected.
+ PREDict>      atomselection=( not hydrogen ) 
+ SELRPN:      3 atoms have been selected out of      3
+ PREDict>    end 
+ FCALC: #scatt.=      3 #anomalous=   0 #special pos.=  0 occupancies=1
+ XFFT: using grid [  16,  16,   8] and sublattice [  16(  17),  16(  17),   2]
+ XRAY>    print target 
+ XTAREXPR:                 monitor=  0.385
+ TARGET value (working set)=    39539.86058
+ XRAY>    fft             bscale=20.0 end 
+ XRAY>    predict 
+ PREDict>      mode=reciprocal 
+ PREDict>      to=fcalc 
+ PREDict>      selection=( all ) 
+ Total of       164 structure factor elements were selected.
+ PREDict>      atomselection=( not hydrogen ) 
+ SELRPN:      3 atoms have been selected out of      3
+ PREDict>    end 
+ FCALC: #scatt.=      3 #anomalous=   0 #special pos.=  0 occupancies=1
+ XFFT: using grid [  16,  16,   8] and sublattice [  16(  17),  16(  17),   2]
+ XRAY>    print target 
+ XTAREXPR:                 monitor=  0.387
+ TARGET value (working set)=    39835.75437
+ XRAY>    fft elim=10.0 end 
+ XRAY>    predict 
+ PREDict>      mode=reciprocal 
+ PREDict>      to=fcalc 
+ PREDict>      selection=( all ) 
+ Total of       164 structure factor elements were selected.
+ PREDict>      atomselection=( not hydrogen ) 
+ SELRPN:      3 atoms have been selected out of      3
+ PREDict>    end 
+ FCALC: #scatt.=      3 #anomalous=   0 #special pos.=  0 occupancies=1
+ XFFT: using grid [  16,  16,   8] and sublattice [  16(  17),  16(  17),   2]
+ XRAY>    print target 
+ XTAREXPR:                 monitor=  0.387
+ TARGET value (working set)=    39835.34172
+ XRAY>    fft elim=3.0 end 
+ XRAY>    predict 
+ PREDict>      mode=reciprocal 
+ PREDict>      to=fcalc 
+ PREDict>      selection=( all ) 
+ Total of       164 structure factor elements were selected.
+ PREDict>      atomselection=( not hydrogen ) 
+ SELRPN:      3 atoms have been selected out of      3
+ PREDict>    end 
+ FCALC: #scatt.=      3 #anomalous=   0 #special pos.=  0 occupancies=1
+ XFFT: using grid [  16,  16,   8] and sublattice [  16(  17),  16(  17),   2]
+ XRAY>    print target 
+ XTAREXPR:                 monitor=  0.400
+ TARGET value (working set)=    44246.29981
+ XRAY>    fft elim=10.0 grid=0.25 end 
+ XRAY>    predict 
+ PREDict>      mode=reciprocal 
+ PREDict>      to=fcalc 
+ PREDict>      selection=( all ) 
+ Total of       164 structure factor elements were selected.
+ PREDict>      atomselection=( not hydrogen ) 
+ SELRPN:      3 atoms have been selected out of      3
+ PREDict>    end 
+ FCALC: #scatt.=      3 #anomalous=   0 #special pos.=  0 occupancies=1
+ XFFT: using grid [  24,  24,  10] and sublattice [  24(  25),  24(  25),   2]
+ XRAY>    print target 
+ XTAREXPR:                 monitor=  0.388
+ TARGET value (working set)=    39942.99885
+ XRAY>    fft elim=7.00 grid=0.33333333 end 
+ XRAY>end 
+ CNSsolve> 
+ CNSsolve> 
+ CNSsolve>{===================================================================} 
+ CNSsolve>{* test with P21 space group *} 
+ CNSsolve>{===================================================================} 
+ CNSsolve> 
+ CNSsolve>xray 
+ XRAY>  reset 
+ XRAY: whole xray database erased and reset
+ XRAY>   declare name=fobs type=complex domain=reciprocal end 
+ XDECLARE: Object FOBS has been declared.
+ XRAY>   declare name=fpart domain=reciprocal type=complex end 
+ XDECLARE: Object FPART has been declared.
+ XRAY>   declare name=fcalc domain=reciprocal type=complex end 
+ XDECLARE: Object FCALC has been declared.
+ XRAY>   declare name=fom domain=reciprocal type=real end 
+ XDECLARE: Object FOM has been declared.
+ XRAY>   declare name=weight domain=reciprocal type=real end 
+ XDECLARE: Object WEIGHT has been declared.
+ XRAY>   declare name=sigma domain=reciprocal type=real end 
+ XDECLARE: Object SIGMA has been declared.
+ XRAY>   declare name=test domain=reciprocal type=integer end 
+ XDECLARE: Object TEST has been declared.
+ XRAY> 
+ XRAY>  a=16.1 b=16.1 c=8.1 alpha=90.  beta=130. gamma=90.0 
+ XRAY> 
+ XRAY>  symmetry=(x,y,z) 
+ XRAY>  symmetry=(-x,y+1/2,-z) 
+ XRAY>  SCATter ( chemical C* ) 
+ SELRPN:      3 atoms have been selected out of      3
+ SCATTER_A1=       2.31000 20.8439 1.02000 10.2075 1.58860 .568700 .865000 51.6512 .215600 
+ XRAY>  method=direct lookup=false 
+ XRAY>  generate 10. 3. 
+ XGENER: generating reflections to produce a full set
+         for the specified resolution range.
+ XGENE2:       71 new reflections have been generated.
+ XRAY>  mapresolution 3. 
+ XRAY>  do (fpart=0) ( all ) 
+ XSFAL: allocating space for complex reciprocal space object.
+ Total of        71 structure factor elements were selected.
+ XRAY> 
+ XRAY>  predict 
+ PREDict>      mode=reciprocal 
+ PREDict>      to=fcalc 
+ PREDict>      selection=( all ) 
+ Total of        71 structure factor elements were selected.
+ PREDict>      atomselection=( not hydrogen ) 
+ SELRPN:      3 atoms have been selected out of      3
+ PREDict>  end 
+ FCALC: #scatt.=      3 #anomalous=   0 #special pos.=  0 occupancies=1
+ XSFAL: allocating space for complex reciprocal space object.
+ XRAY>  do (fobs=fcalc) ( all ) 
+ XSFAL: allocating space for complex reciprocal space object.
+ Total of        71 structure factor elements were selected.
+ XRAY>  TOLERANCE=0.0 
+ XRAY>  wa=200000. 
+ XRAY>  do (fom=1.) ( all ) 
+ XSFAL: allocating space for real reciprocal space object.
+ Total of        71 structure factor elements were selected.
+ XRAY>end 
+ CNSsolve>coor translate vector=( 1.1  0.8 1.4 ) sele=( resid 1 ) end 
+ SELRPN:      1 atoms have been selected out of      3
+ COOR: using atom subset.
+ COOR: translation vector =(     1.100000    0.800000    1.400000 )
+ COOR: selected coordinates translated
+ CNSsolve> 
+ CNSsolve>flags exclu * inclu xref end 
+ CNSsolve>energy end 
+ **TSELSET-info**: no TSELection specified: using all refl.
+ XRTSELSET: number of selected reflections      71
+ FCALC: #scatt.=      3 #anomalous=   0 #special pos.=  0 occupancies=1
+ XTAREXPR:                 monitor=  0.432
+ --------------- cycle=     4 --------------------------------------------------
+ | Etotal =49039.163  grad(E)=12430.272  E(XREF)=49039.163                     |
+ -------------------------------------------------------------------------------
+ CNSsolve>do ( xcomp = dx ) ( all ) 
+ SELRPN:      3 atoms have been selected out of      3
+ CNSsolve>do ( ycomp = dy ) ( all ) 
+ SELRPN:      3 atoms have been selected out of      3
+ CNSsolve>do ( zcomp = dz ) ( all ) 
+ SELRPN:      3 atoms have been selected out of      3
+ CNSsolve>xray 
+ XRAY>   method=fft 
+ XRAY>   fft bscale=20.0  memory=50000   prime=5 avoid=2 end 
+ XRAY>end 
+ CNSsolve>energy end 
+ FCALC: #scatt.=      3 #anomalous=   0 #special pos.=  0 occupancies=1
+ XFFT: using grid [  16,  16,   8] and sublattice [  16(  17),  16(  17),   2]
+ XTAREXPR:                 monitor=  0.432
+ --------------- cycle=     5 --------------------------------------------------
+ | Etotal =48956.220  grad(E)=12349.599  E(XREF)=48956.220                     |
+ -------------------------------------------------------------------------------
+ CNSsolve>show elem ( dx )    ( all ) 
+ SELRPN:      3 atoms have been selected out of      3
+ (      LYS  1    CA   )    8450.6    
+ (      LYS  2    CA   )    15507.    
+ (      LYS  3    CA   )   -16513.    
+ CNSsolve>show elem ( xcomp ) ( all ) 
+ SELRPN:      3 atoms have been selected out of      3
+ (      LYS  1    CA   )    8601.9    
+ (      LYS  2    CA   )    15796.    
+ (      LYS  3    CA   )   -16357.    
+ CNSsolve>show elem ( dy )    ( all ) 
+ SELRPN:      3 atoms have been selected out of      3
+ (      LYS  1    CA   )    3118.1    
+ (      LYS  2    CA   )   -5267.9    
+ (      LYS  3    CA   )    2551.2    
+ CNSsolve>show elem ( ycomp ) ( all ) 
+ SELRPN:      3 atoms have been selected out of      3
+ (      LYS  1    CA   )    3052.2    
+ (      LYS  2    CA   )   -5422.4    
+ (      LYS  3    CA   )    2370.2    
+ CNSsolve>show elem ( dz )    ( all ) 
+ SELRPN:      3 atoms have been selected out of      3
+ (      LYS  1    CA   )    20373.    
+ (      LYS  2    CA   )    666.45    
+ (      LYS  3    CA   )    18127.    
+ CNSsolve>show elem ( zcomp ) ( all ) 
+ SELRPN:      3 atoms have been selected out of      3
+ (      LYS  1    CA   )    20583.    
+ (      LYS  2    CA   )    646.62    
+ (      LYS  3    CA   )    18197.    
+ CNSsolve>xray fft memory=250 end end 
+ CNSsolve>energy end 
+ FCALC: #scatt.=      3 #anomalous=   0 #special pos.=  0 occupancies=1
+ XFFT: using grid [  16,  16,   8] and sublattice [  16(  17),  16(  17),   2]
+ XTAREXPR:                 monitor=  0.432
+ --------------- cycle=     6 --------------------------------------------------
+ | Etotal =48956.220  grad(E)=12349.599  E(XREF)=48956.220                     |
+ -------------------------------------------------------------------------------
+ CNSsolve>show elem ( dx ) ( all ) 
+ SELRPN:      3 atoms have been selected out of      3
+ (      LYS  1    CA   )    8450.6    
+ (      LYS  2    CA   )    15507.    
+ (      LYS  3    CA   )   -16513.    
+ CNSsolve>show elem ( dy ) ( all ) 
+ SELRPN:      3 atoms have been selected out of      3
+ (      LYS  1    CA   )    3118.1    
+ (      LYS  2    CA   )   -5267.9    
+ (      LYS  3    CA   )    2551.2    
+ CNSsolve>show elem ( dz ) ( all ) 
+ SELRPN:      3 atoms have been selected out of      3
+ (      LYS  1    CA   )    20373.    
+ (      LYS  2    CA   )    666.45    
+ (      LYS  3    CA   )    18127.    
+ CNSsolve> 
+ CNSsolve>{===============================} 
+ CNSsolve>{*  test with P31c space group *} 
+ CNSsolve>{==============================*} 
+ CNSsolve> 
+ CNSsolve>xray 
+ XRAY>  reset 
+ XRAY: whole xray database erased and reset
+ XRAY>   declare name=fobs type=complex domain=reciprocal end 
+ XDECLARE: Object FOBS has been declared.
+ XRAY>   declare name=fpart domain=reciprocal type=complex end 
+ XDECLARE: Object FPART has been declared.
+ XRAY>   declare name=fcalc domain=reciprocal type=complex end 
+ XDECLARE: Object FCALC has been declared.
+ XRAY>   declare name=fom domain=reciprocal type=real end 
+ XDECLARE: Object FOM has been declared.
+ XRAY>   declare name=weight domain=reciprocal type=real end 
+ XDECLARE: Object WEIGHT has been declared.
+ XRAY>   declare name=sigma domain=reciprocal type=real end 
+ XDECLARE: Object SIGMA has been declared.
+ XRAY>   declare name=test domain=reciprocal type=integer end 
+ XDECLARE: Object TEST has been declared.
+ XRAY> 
+ XRAY>  a=16.00 b=16.00 c=8.00 alpha=90.0 beta=90.00 gamma=120.0 
+ XRAY>  symmetry=(x,y,z) 
+ XRAY>  symmetry=(-y,x-y,z) 
+ XRAY>  symmetry=(y-x,-x,z) 
+ XRAY>!  symmetry=(y,x,1/2+z) 
+ XRAY>!  symmetry=(-x,y-x,1/2+z) 
+ XRAY>!  symmetry=(x-y,-y,1/2+z) 
+ XRAY>  SCATter ( chemical C* ) 
+ SELRPN:      3 atoms have been selected out of      3
+ SCATTER_A1=       2.31000 20.8439 1.02000 10.2075 1.58860 .568700 .865000 51.6512 .215600 
+ XRAY>  method=direct lookup=false 
+ XRAY>  generate 10. 3. 
+ XGENER: generating reflections to produce a full set
+         for the specified resolution range.
+ XGENE2:       47 new reflections have been generated.
+ XRAY>  mapresolution 3. 
+ XRAY>  binresolution 10. 3. 
+ XRAY>  do (fpart=0) ( all ) 
+ XSFAL: allocating space for complex reciprocal space object.
+ Total of        47 structure factor elements were selected.
+ XRAY>  do (fobs=0) ( all ) 
+ XSFAL: allocating space for complex reciprocal space object.
+ Total of        47 structure factor elements were selected.
+ XRAY>  predict 
+ PREDict>      mode=reciprocal 
+ PREDict>      to=fcalc 
+ PREDict>      selection=( all ) 
+ Total of        47 structure factor elements were selected.
+ PREDict>      atomselection=( not hydrogen ) 
+ SELRPN:      3 atoms have been selected out of      3
+ PREDict>  end 
+ FCALC: #scatt.=      3 #anomalous=   0 #special pos.=  0 occupancies=1
+ XSFAL: allocating space for complex reciprocal space object.
+ XRAY>  write reflection fobs fcalc sele=( all ) end 
+ Total of        47 structure factor elements were selected.
+ NREFlection=        47
+ ANOMalous=FALSe { equiv. to HERMitian=TRUE}
+ DECLare NAME=FOBS                   DOMAin=RECIprocal   TYPE=COMP END
+ DECLare NAME=FCALC                  DOMAin=RECIprocal   TYPE=COMP END
+ INDE     1    4    0 FOBS=     0.000     0.000 FCALC=     4.727   337.576
+ INDE     2    3    0 FOBS=     0.000     0.000 FCALC=     4.766     7.203
+ INDE     3    2    0 FOBS=     0.000     0.000 FCALC=     8.599   217.109
+ INDE     4    1    0 FOBS=     0.000     0.000 FCALC=     2.030   167.352
+ INDE     4    0    1 FOBS=     0.000     0.000 FCALC=     6.369   176.337
+ INDE     4    0    0 FOBS=     0.000     0.000 FCALC=     4.406    37.393
+ INDE     0    4    1 FOBS=     0.000     0.000 FCALC=     3.708    53.510
+ INDE    -3    4    1 FOBS=     0.000     0.000 FCALC=    11.188    98.101
+ INDE     1    3    0 FOBS=     0.000     0.000 FCALC=     3.902   326.960
+ INDE     1    3    1 FOBS=     0.000     0.000 FCALC=     9.149   190.167
+ INDE    -2    4    1 FOBS=     0.000     0.000 FCALC=    11.561   256.075
+ INDE     2    2    0 FOBS=     0.000     0.000 FCALC=    17.307   143.655
+ INDE     2    2    1 FOBS=     0.000     0.000 FCALC=     3.280   234.020
+ INDE    -1    4    1 FOBS=     0.000     0.000 FCALC=    12.628   355.850
+ INDE     3    1    0 FOBS=     0.000     0.000 FCALC=     9.617    56.262
+ INDE     3    1    1 FOBS=     0.000     0.000 FCALC=     3.683   275.460
+ INDE     3    0    2 FOBS=     0.000     0.000 FCALC=     5.498   231.539
+ INDE     3    0    1 FOBS=     0.000     0.000 FCALC=     8.857   133.938
+ INDE     3    0    0 FOBS=     0.000     0.000 FCALC=     5.560   330.486
+ INDE     0    3    1 FOBS=     0.000     0.000 FCALC=    12.877   155.290
+ INDE     0    3    2 FOBS=     0.000     0.000 FCALC=     9.254   250.254
+ INDE    -2    3    2 FOBS=     0.000     0.000 FCALC=    10.757    26.769
+ INDE    -2    3    1 FOBS=     0.000     0.000 FCALC=    11.891   333.981
+ INDE     1    2    0 FOBS=     0.000     0.000 FCALC=     4.796    50.965
+ INDE     1    2    1 FOBS=     0.000     0.000 FCALC=     2.538   310.630
+ INDE     1    2    2 FOBS=     0.000     0.000 FCALC=     6.802   312.603
+ INDE    -1    3    2 FOBS=     0.000     0.000 FCALC=     9.002   149.008
+ INDE    -1    3    1 FOBS=     0.000     0.000 FCALC=    13.697   114.500
+ INDE     2    1    0 FOBS=     0.000     0.000 FCALC=    12.073   298.670
+ INDE     2    1    1 FOBS=     0.000     0.000 FCALC=     6.548    81.860
+ INDE     2    1    2 FOBS=     0.000     0.000 FCALC=    13.295   185.304
+ INDE     2    0    2 FOBS=     0.000     0.000 FCALC=     1.881   246.627
+ INDE     2    0    1 FOBS=     0.000     0.000 FCALC=     3.717   242.006
+ INDE     2    0    0 FOBS=     0.000     0.000 FCALC=     4.500   167.613
+ INDE     0    2    1 FOBS=     0.000     0.000 FCALC=     4.297   331.695
+ INDE     0    2    2 FOBS=     0.000     0.000 FCALC=     5.857    75.245
+ INDE    -1    2    2 FOBS=     0.000     0.000 FCALC=    14.233   339.853
+ INDE    -1    2    1 FOBS=     0.000     0.000 FCALC=    18.726   245.062
+ INDE     1    1    0 FOBS=     0.000     0.000 FCALC=    17.536   254.108
+ INDE     1    1    1 FOBS=     0.000     0.000 FCALC=    24.020     6.869
+ INDE     1    1    2 FOBS=     0.000     0.000 FCALC=    14.080    99.303
+ INDE     1    0    2 FOBS=     0.000     0.000 FCALC=     2.517   163.904
+ INDE     1    0    1 FOBS=     0.000     0.000 FCALC=    15.429   148.031
+ INDE     0    1    1 FOBS=     0.000     0.000 FCALC=    11.754   268.253
+ INDE     0    1    2 FOBS=     0.000     0.000 FCALC=     3.678   245.605
+ INDE     0    0    2 FOBS=     0.000     0.000 FCALC=    11.186   252.000
+ INDE     0    0    1 FOBS=     0.000     0.000 FCALC=    29.487    77.163
+ XRAY> 
+ XRAY>  statistics 
+ STATistics>    completeness 
+ STATistics>    selection=( 3 <= d <= 10 ) 
+ Total of        47 structure factor elements were selected.
+ STATistics>      output=OUTPUT 
+ STATistics>  end 
+ #bin | resolution range | #refl | 
+    1   5.66   10.00          5      1.0000
+    2   4.64    5.66          6      1.0000
+    3   4.10    4.64          5      1.0000
+    4   3.75    4.10          8      1.0000
+    5   3.49    3.75          4      1.0000
+    6   3.29    3.49          7      1.0000
+    7   3.13    3.29          8      1.0000
+    8   3.00    3.13          4      1.0000
+ XRAY> 
+ XRAY>  do (fobs=fcalc) ( all ) 
+ Total of        47 structure factor elements were selected.
+ XRAY>  TOLERANCE=0.0 
+ XRAY>  wa=200000. 
+ XRAY>  do (fom=1.) ( all ) 
+ XSFAL: allocating space for real reciprocal space object.
+ Total of        47 structure factor elements were selected.
+ XRAY>end 
+ CNSsolve>coor translate vector=( 1.1  0.8 1.4 ) sele=( resid 1 ) end 
+ SELRPN:      1 atoms have been selected out of      3
+ COOR: using atom subset.
+ COOR: translation vector =(     1.100000    0.800000    1.400000 )
+ COOR: selected coordinates translated
+ CNSsolve> 
+ CNSsolve>flags exclu * inclu xref end 
+ CNSsolve>energy end 
+ **TSELSET-info**: no TSELection specified: using all refl.
+ XRTSELSET: number of selected reflections      47
+ FCALC: #scatt.=      3 #anomalous=   0 #special pos.=  0 occupancies=1
+ XTAREXPR:                 monitor=  0.444
+ --------------- cycle=     7 --------------------------------------------------
+ | Etotal =46611.977  grad(E)=13083.777  E(XREF)=46611.977                     |
+ -------------------------------------------------------------------------------
+ CNSsolve>do ( xcomp = dx ) ( all ) 
+ SELRPN:      3 atoms have been selected out of      3
+ CNSsolve>do ( ycomp = dy ) ( all ) 
+ SELRPN:      3 atoms have been selected out of      3
+ CNSsolve>do ( zcomp = dz ) ( all ) 
+ SELRPN:      3 atoms have been selected out of      3
+ CNSsolve> 
+ CNSsolve>xray 
+ XRAY>   method=fft 
+ XRAY>   fft bscale=20.0  memory=50000  prime=5 avoid=2  end 
+ XRAY>end 
+ CNSsolve>energy end 
+ FCALC: #scatt.=      3 #anomalous=   0 #special pos.=  0 occupancies=1
+ XFFT: using grid [  16,  16,   8] and sublattice [  16(  17),  16(  17),   2]
+ XTAREXPR:                 monitor=  0.444
+ --------------- cycle=     8 --------------------------------------------------
+ | Etotal =46695.605  grad(E)=12949.912  E(XREF)=46695.605                     |
+ -------------------------------------------------------------------------------
+ CNSsolve>show elem ( dx )    ( all ) 
+ SELRPN:      3 atoms have been selected out of      3
+ (      LYS  1    CA   )    24558.    
+ (      LYS  2    CA   )   -43.476    
+ (      LYS  3    CA   )   -921.17    
+ CNSsolve>show elem ( xcomp ) ( all ) 
+ SELRPN:      3 atoms have been selected out of      3
+ (      LYS  1    CA   )    24728.    
+ (      LYS  2    CA   )   -201.51    
+ (      LYS  3    CA   )   -894.19    
+ CNSsolve>show elem ( dy )    ( all ) 
+ SELRPN:      3 atoms have been selected out of      3
+ (      LYS  1    CA   )    23405.    
+ (      LYS  2    CA   )   -8722.9    
+ (      LYS  3    CA   )    2132.7    
+ CNSsolve>show elem ( ycomp ) ( all ) 
+ SELRPN:      3 atoms have been selected out of      3
+ (      LYS  1    CA   )    23653.    
+ (      LYS  2    CA   )   -8854.2    
+ (      LYS  3    CA   )    2069.5    
+ CNSsolve>show elem ( dz )    ( all ) 
+ SELRPN:      3 atoms have been selected out of      3
+ (      LYS  1    CA   )    40.476    
+ (      LYS  2    CA   )    11667.    
+ (      LYS  3    CA   )   -11867.    
+ CNSsolve>show elem ( zcomp ) ( all ) 
+ SELRPN:      3 atoms have been selected out of      3
+ (      LYS  1    CA   )    466.33    
+ (      LYS  2    CA   )    11723.    
+ (      LYS  3    CA   )   -12189.    
+ CNSsolve>xray fft memory=2000 end end 
+ CNSsolve>energy end 
+ FCALC: #scatt.=      3 #anomalous=   0 #special pos.=  0 occupancies=1
+ XFFT: using grid [  16,  16,   8] and sublattice [  16(  17),  16(  17),   2]
+ XTAREXPR:                 monitor=  0.444
+ --------------- cycle=     9 --------------------------------------------------
+ | Etotal =46695.605  grad(E)=12949.912  E(XREF)=46695.605                     |
+ -------------------------------------------------------------------------------
+ CNSsolve>show elem ( dx ) ( all ) 
+ SELRPN:      3 atoms have been selected out of      3
+ (      LYS  1    CA   )    24558.    
+ (      LYS  2    CA   )   -43.476    
+ (      LYS  3    CA   )   -921.17    
+ CNSsolve>show elem ( dy ) ( all ) 
+ SELRPN:      3 atoms have been selected out of      3
+ (      LYS  1    CA   )    23405.    
+ (      LYS  2    CA   )   -8722.9    
+ (      LYS  3    CA   )    2132.7    
+ CNSsolve>show elem ( dz ) ( all ) 
+ SELRPN:      3 atoms have been selected out of      3
+ (      LYS  1    CA   )    40.476    
+ (      LYS  2    CA   )    11667.    
+ (      LYS  3    CA   )   -11867.    
+ CNSsolve>xray fft memory=250 end end 
+ CNSsolve>energy end 
+ FCALC: #scatt.=      3 #anomalous=   0 #special pos.=  0 occupancies=1
+ XFFT: using grid [  16,  16,   8] and sublattice [  16(  17),  16(  17),   2]
+ XTAREXPR:                 monitor=  0.444
+ --------------- cycle=    10 --------------------------------------------------
+ | Etotal =46695.605  grad(E)=12949.912  E(XREF)=46695.605                     |
+ -------------------------------------------------------------------------------
+ CNSsolve>show elem ( dx ) ( all ) 
+ SELRPN:      3 atoms have been selected out of      3
+ (      LYS  1    CA   )    24558.    
+ (      LYS  2    CA   )   -43.476    
+ (      LYS  3    CA   )   -921.17    
+ CNSsolve>show elem ( dy ) ( all ) 
+ SELRPN:      3 atoms have been selected out of      3
+ (      LYS  1    CA   )    23405.    
+ (      LYS  2    CA   )   -8722.9    
+ (      LYS  3    CA   )    2132.7    
+ CNSsolve>show elem ( dz ) ( all ) 
+ SELRPN:      3 atoms have been selected out of      3
+ (      LYS  1    CA   )    40.476    
+ (      LYS  2    CA   )    11667.    
+ (      LYS  3    CA   )   -11867.    
+ CNSsolve> 
+ CNSsolve> 
+ CNSsolve>{* ============================ *} 
+ CNSsolve>{* test with P2(1)3 space group *} 
+ CNSsolve>{* ============================ *} 
+ CNSsolve>xray 
+ XRAY>  reset 
+ XRAY: whole xray database erased and reset
+ XRAY>   declare name=fobs type=complex domain=reciprocal end 
+ XDECLARE: Object FOBS has been declared.
+ XRAY>   declare name=fpart domain=reciprocal type=complex end 
+ XDECLARE: Object FPART has been declared.
+ XRAY>   declare name=fcalc domain=reciprocal type=complex end 
+ XDECLARE: Object FCALC has been declared.
+ XRAY>   declare name=fom domain=reciprocal type=real end 
+ XDECLARE: Object FOM has been declared.
+ XRAY>   declare name=weight domain=reciprocal type=real end 
+ XDECLARE: Object WEIGHT has been declared.
+ XRAY>   declare name=sigma domain=reciprocal type=real end 
+ XDECLARE: Object SIGMA has been declared.
+ XRAY>   declare name=test domain=reciprocal type=integer end 
+ XDECLARE: Object TEST has been declared.
+ XRAY> 
+ XRAY>  a=16.00 b=16.00 c=16.00 alpha=90.0 beta=90.00 gamma=90.0 
+ XRAY>  {* space_group=P2(1)3 *} 
+ XRAY>  symmetry=(x,y,z) 
+ XRAY>  symmetry=(z,x,y) 
+ XRAY>  symmetry=(y,z,x) 
+ XRAY>  symmetry=(1/2+x,1/2-y,-z) 
+ XRAY>  symmetry=(1/2+z,1/2-x,-y) 
+ XRAY>  symmetry=(1/2+y,1/2-z,-x) 
+ XRAY>  symmetry=(-x,1/2+y,1/2-z) 
+ XRAY>  symmetry=(-z,1/2+x,1/2-y) 
+ XRAY>  symmetry=(-y,1/2+z,1/2-x) 
+ XRAY>  symmetry=(1/2-x,-y,1/2+z) 
+ XRAY>  symmetry=(1/2-z,-x,1/2+y) 
+ XRAY>  symmetry=(1/2-y,-z,1/2+x) 
+ XRAY>  SCATter ( chemical C* ) 
+ SELRPN:      3 atoms have been selected out of      3
+ SCATTER_A1=       2.31000 20.8439 1.02000 10.2075 1.58860 .568700 .865000 51.6512 .215600 
+ XRAY>  method=direct lookup=false 
+ XRAY>  generate  10. 3. 
+ XGENER: generating reflections to produce a full set
+         for the specified resolution range.
+ XGENE2:       36 new reflections have been generated.
+ XRAY>  mapresolution 3. 
+ XRAY>  binresolution 10. 3. 
+ XRAY>  do (fpart=0) ( all ) 
+ XSFAL: allocating space for complex reciprocal space object.
+ Total of        36 structure factor elements were selected.
+ XRAY>  do (fobs=0) ( all ) 
+ XSFAL: allocating space for complex reciprocal space object.
+ Total of        36 structure factor elements were selected.
+ XRAY>  predict 
+ PREDict>      mode=reciprocal 
+ PREDict>      to=fcalc 
+ PREDict>      selection=( all ) 
+ Total of        36 structure factor elements were selected.
+ PREDict>      atomselection=( not hydrogen ) 
+ SELRPN:      3 atoms have been selected out of      3
+ PREDict>  end 
+ FCALC: #scatt.=      3 #anomalous=   0 #special pos.=  0 occupancies=1
+ XSFAL: allocating space for complex reciprocal space object.
+ XRAY>  write reflection fobs fcalc sele=( all ) end 
+ Total of        36 structure factor elements were selected.
+ NREFlection=        36
+ ANOMalous=FALSe { equiv. to HERMitian=TRUE}
+ DECLare NAME=FOBS                   DOMAin=RECIprocal   TYPE=COMP END
+ DECLare NAME=FCALC                  DOMAin=RECIprocal   TYPE=COMP END
+ INDE     5    1    1 FOBS=     0.000     0.000 FCALC=    16.794     4.649
+ INDE     5    1    0 FOBS=     0.000     0.000 FCALC=     6.105   270.000
+ INDE     5    0    1 FOBS=     0.000     0.000 FCALC=     1.780    90.000
+ INDE     4    3    1 FOBS=     0.000     0.000 FCALC=    19.575   174.094
+ INDE     4    3    0 FOBS=     0.000     0.000 FCALC=    11.275   180.000
+ INDE     4    2    2 FOBS=     0.000     0.000 FCALC=    14.206   141.327
+ INDE     4    2    1 FOBS=     0.000     0.000 FCALC=    26.984     8.919
+ INDE     4    2    0 FOBS=     0.000     0.000 FCALC=    23.927   180.000
+ INDE     4    1    3 FOBS=     0.000     0.000 FCALC=     1.989   145.972
+ INDE     4    1    2 FOBS=     0.000     0.000 FCALC=    14.870    33.686
+ INDE     4    1    1 FOBS=     0.000     0.000 FCALC=     7.667   290.421
+ INDE     4    1    0 FOBS=     0.000     0.000 FCALC=    22.963   180.000
+ INDE     4    0    3 FOBS=     0.000     0.000 FCALC=    23.006   270.000
+ INDE     4    0    2 FOBS=     0.000     0.000 FCALC=    10.236   180.000
+ INDE     4    0    1 FOBS=     0.000     0.000 FCALC=     2.724    90.000
+ INDE     4    0    0 FOBS=     0.000     0.000 FCALC=    30.738   180.000
+ INDE     3    3    3 FOBS=     0.000     0.000 FCALC=    13.211   272.125
+ INDE     3    3    2 FOBS=     0.000     0.000 FCALC=    23.255   210.947
+ INDE     3    3    1 FOBS=     0.000     0.000 FCALC=    20.947   298.740
+ INDE     3    3    0 FOBS=     0.000     0.000 FCALC=     3.643    90.000
+ INDE     3    2    2 FOBS=     0.000     0.000 FCALC=    26.089   340.615
+ INDE     3    2    1 FOBS=     0.000     0.000 FCALC=    14.093    59.040
+ INDE     3    2    0 FOBS=     0.000     0.000 FCALC=     9.405    90.000
+ INDE     3    1    2 FOBS=     0.000     0.000 FCALC=    22.480   141.117
+ INDE     3    1    1 FOBS=     0.000     0.000 FCALC=    38.452   295.318
+ INDE     3    1    0 FOBS=     0.000     0.000 FCALC=    26.606   270.000
+ INDE     3    0    2 FOBS=     0.000     0.000 FCALC=    12.600   180.000
+ INDE     3    0    1 FOBS=     0.000     0.000 FCALC=    40.389   270.000
+ INDE     2    2    2 FOBS=     0.000     0.000 FCALC=    52.876   114.766
+ INDE     2    2    1 FOBS=     0.000     0.000 FCALC=    19.711   118.291
+ INDE     2    2    0 FOBS=     0.000     0.000 FCALC=    29.658     0.000
+ INDE     2    1    1 FOBS=     0.000     0.000 FCALC=    20.611   236.913
+ INDE     2    1    0 FOBS=     0.000     0.000 FCALC=    25.677     0.000
+ INDE     2    0    1 FOBS=     0.000     0.000 FCALC=     6.759    90.000
+ INDE     2    0    0 FOBS=     0.000     0.000 FCALC=     5.513   180.000
+ INDE     1    1    1 FOBS=     0.000     0.000 FCALC=    72.638   151.054
+ XRAY>  statistics 
+ STATistics>    completeness 
+ STATistics>    selection=( 3 <= d <= 10 ) 
+ Total of        36 structure factor elements were selected.
+ STATistics>      output=OUTPUT 
+ STATistics>  end 
+ #bin | resolution range | #refl | 
+    1   5.66   10.00          5      1.0000
+    2   4.64    5.66          5      1.0000
+    3   4.10    4.64          5      1.0000
+    4   3.75    4.10          6      1.0000
+    5   3.49    3.75          5      1.0000
+    6   3.29    3.49          1      1.0000
+    7   3.13    3.29          7      1.0000
+    8   3.00    3.13          2      1.0000
+ XRAY>  do (fobs=fcalc) ( all ) 
+ Total of        36 structure factor elements were selected.
+ XRAY>  TOLERANCE=0.0 
+ XRAY>  wa=200000. 
+ XRAY>  do (fom=1.) ( all ) 
+ XSFAL: allocating space for real reciprocal space object.
+ Total of        36 structure factor elements were selected.
+ XRAY>end 
+ CNSsolve>coor translate vector=( 1.1  0.8 1.4 ) sele=( resid 1 ) end 
+ SELRPN:      1 atoms have been selected out of      3
+ COOR: using atom subset.
+ COOR: translation vector =(     1.100000    0.800000    1.400000 )
+ COOR: selected coordinates translated
+ CNSsolve> 
+ CNSsolve>flags exclu * inclu xref end 
+ CNSsolve>energy end 
+ **TSELSET-info**: no TSELection specified: using all refl.
+ XRTSELSET: number of selected reflections      36
+ FCALC: #scatt.=      3 #anomalous=   0 #special pos.=  0 occupancies=1
+ XTAREXPR:                 monitor=  0.388
+ --------------- cycle=    11 --------------------------------------------------
+ | Etotal =37858.631  grad(E)=11396.573  E(XREF)=37858.631                     |
+ -------------------------------------------------------------------------------
+ CNSsolve>do ( xcomp = dx ) ( all ) 
+ SELRPN:      3 atoms have been selected out of      3
+ CNSsolve>do ( ycomp = dy ) ( all ) 
+ SELRPN:      3 atoms have been selected out of      3
+ CNSsolve>do ( zcomp = dz ) ( all ) 
+ SELRPN:      3 atoms have been selected out of      3
+ CNSsolve> 
+ CNSsolve>xray 
+ XRAY>   method=fft 
+ XRAY>   fft bscale=20.0  memory=50000   prime=5 avoid=2 end 
+ XRAY>end 
+ CNSsolve>energy end 
+ FCALC: #scatt.=      3 #anomalous=   0 #special pos.=  0 occupancies=1
+ XFFT: using grid [  16,  16,  16] and sublattice [  16(  17),  16(  17),   2]
+ XTAREXPR:                 monitor=  0.388
+ --------------- cycle=    12 --------------------------------------------------
+ | Etotal =37623.745  grad(E)=11294.802  E(XREF)=37623.745                     |
+ -------------------------------------------------------------------------------
+ CNSsolve>show elem ( dx )    ( all ) 
+ SELRPN:      3 atoms have been selected out of      3
+ (      LYS  1    CA   )    22905.    
+ (      LYS  2    CA   )    5867.2    
+ (      LYS  3    CA   )    5173.3    
+ CNSsolve>show elem ( xcomp ) ( all ) 
+ SELRPN:      3 atoms have been selected out of      3
+ (      LYS  1    CA   )    22950.    
+ (      LYS  2    CA   )    5741.3    
+ (      LYS  3    CA   )    4976.5    
+ CNSsolve>show elem ( dy )    ( all ) 
+ SELRPN:      3 atoms have been selected out of      3
+ (      LYS  1    CA   )    9007.3    
+ (      LYS  2    CA   )    12611.    
+ (      LYS  3    CA   )    5749.9    
+ CNSsolve>show elem ( ycomp ) ( all ) 
+ SELRPN:      3 atoms have been selected out of      3
+ (      LYS  1    CA   )    8988.4    
+ (      LYS  2    CA   )    12966.    
+ (      LYS  3    CA   )    5989.6    
+ CNSsolve>show elem ( dz )    ( all ) 
+ SELRPN:      3 atoms have been selected out of      3
+ (      LYS  1    CA   )   -5220.8    
+ (      LYS  2    CA   )   -13274.    
+ (      LYS  3    CA   )   -9253.5    
+ CNSsolve>show elem ( zcomp ) ( all ) 
+ SELRPN:      3 atoms have been selected out of      3
+ (      LYS  1    CA   )   -5508.5    
+ (      LYS  2    CA   )   -13580.    
+ (      LYS  3    CA   )   -9218.8    
+ CNSsolve> 
+ CNSsolve>xray fft memory=1000 end end 
+ CNSsolve>energy end 
+ FCALC: #scatt.=      3 #anomalous=   0 #special pos.=  0 occupancies=1
+ XFFT: using grid [  16,  16,  16] and sublattice [  16(  17),  16(  17),   2]
+ XTAREXPR:                 monitor=  0.388
+ --------------- cycle=    13 --------------------------------------------------
+ | Etotal =37623.745  grad(E)=11294.802  E(XREF)=37623.745                     |
+ -------------------------------------------------------------------------------
+ CNSsolve>show elem ( dx ) ( all ) 
+ SELRPN:      3 atoms have been selected out of      3
+ (      LYS  1    CA   )    22905.    
+ (      LYS  2    CA   )    5867.2    
+ (      LYS  3    CA   )    5173.3    
+ CNSsolve>show elem ( dy ) ( all ) 
+ SELRPN:      3 atoms have been selected out of      3
+ (      LYS  1    CA   )    9007.3    
+ (      LYS  2    CA   )    12611.    
+ (      LYS  3    CA   )    5749.9    
+ CNSsolve>show elem ( dz ) ( all ) 
+ SELRPN:      3 atoms have been selected out of      3
+ (      LYS  1    CA   )   -5220.8    
+ (      LYS  2    CA   )   -13274.    
+ (      LYS  3    CA   )   -9253.5    
+ CNSsolve> 
+ CNSsolve> 
+ CNSsolve>{* check sorting of reflections *} 
+ CNSsolve> 
+ CNSsolve>xray 
+ XRAY>    method=FFT 
+ XRAY> 
+ XRAY>    evaluate ($lr=7.01) 
+ EVALUATE: symbol $LR set to    7.01000     (real)
+ XRAY>    evaluate ($hr=4.01) 
+ EVALUATE: symbol $HR set to    4.01000     (real)
+ XRAY>    binresolution $lr $hr 
+ XRAY>    mapresolution $hr 
+ XRAY>    tselection=( $hr <= d <= $lr ) 
+ XRAY> 
+ XRAY>    fft grid=0.15 memory=500000 end 
+ XRAY>    do (fom=1) ( all ) 
+ Total of        36 structure factor elements were selected.
+ XRAY>end 
+ CNSsolve>energy end 
+ XRTSELSET: number of selected reflections      11
+ FCALC: #scatt.=      3 #anomalous=   0 #special pos.=  0 occupancies=1
+ XFFT: using grid [  27,  27,  26] and sublattice [  27(  27),  27(  27),   2]
+ XTAREXPR:                 monitor=  0.340
+ --------------- cycle=    14 --------------------------------------------------
+ | Etotal =36291.481  grad(E)=19038.435  E(XREF)=36291.481                     |
+ -------------------------------------------------------------------------------
+ CNSsolve>show elem ( dx ) ( all ) 
+ SELRPN:      3 atoms have been selected out of      3
+ (      LYS  1    CA   )    30608.    
+ (      LYS  2    CA   )   -21554.    
+ (      LYS  3    CA   )    555.15    
+ CNSsolve>show elem ( dy ) ( all ) 
+ SELRPN:      3 atoms have been selected out of      3
+ (      LYS  1    CA   )    26536.    
+ (      LYS  2    CA   )   -16052.    
+ (      LYS  3    CA   )    12683.    
+ CNSsolve>show elem ( dz ) ( all ) 
+ SELRPN:      3 atoms have been selected out of      3
+ (      LYS  1    CA   )   -13810.    
+ (      LYS  2    CA   )   -23322.    
+ (      LYS  3    CA   )   -1763.7    
+ CNSsolve> 
+ CNSsolve>xray 
+ XRAY>    method=direct lookup=false 
+ XRAY>end 
+ CNSsolve>energy end 
+ FCALC: #scatt.=      3 #anomalous=   0 #special pos.=  0 occupancies=1
+ XTAREXPR:                 monitor=  0.340
+ --------------- cycle=    15 --------------------------------------------------
+ | Etotal =36285.647  grad(E)=19183.492  E(XREF)=36285.647                     |
+ -------------------------------------------------------------------------------
+ CNSsolve>show elem ( dx ) ( all ) 
+ SELRPN:      3 atoms have been selected out of      3
+ (      LYS  1    CA   )    30816.    
+ (      LYS  2    CA   )   -21589.    
+ (      LYS  3    CA   )    473.13    
+ CNSsolve>show elem ( dy ) ( all ) 
+ SELRPN:      3 atoms have been selected out of      3
+ (      LYS  1    CA   )    26778.    
+ (      LYS  2    CA   )   -16188.    
+ (      LYS  3    CA   )    12721.    
+ CNSsolve>show elem ( dz ) ( all ) 
+ SELRPN:      3 atoms have been selected out of      3
+ (      LYS  1    CA   )   -14110.    
+ (      LYS  2    CA   )   -23516.    
+ (      LYS  3    CA   )   -1747.7    
+ CNSsolve> 
+ CNSsolve>{* check partial turning off phase information *} 
+ CNSsolve>xray 
+ XRAY>    evaluate ($lr=6.01) 
+ EVALUATE: symbol $LR set to    6.01000     (real)
+ XRAY>    evaluate ($hr=5.01) 
+ EVALUATE: symbol $HR set to    5.01000     (real)
+ XRAY>    binresolution $lr $hr 
+ XRAY>    mapresolution $hr 
+ XRAY>    tselection=( $hr <= d <= $lr ) 
+ XRAY> 
+ XRAY>    do (FOM = 0) ( 5.01 <= d <= 6.01 ) 
+ Total of         4 structure factor elements were selected.
+ XRAY> 
+ XRAY>    evaluate ($lr=7.01) 
+ EVALUATE: symbol $LR set to    7.01000     (real)
+ XRAY>    evaluate ($hr=4.01) 
+ EVALUATE: symbol $HR set to    4.01000     (real)
+ XRAY>    binresolution $lr $hr 
+ XRAY>    mapresolution $hr 
+ XRAY>    tselection=( $hr <= d <= $lr ) 
+ XRAY> 
+ XRAY>end 
+ CNSsolve>energy end 
+ XRTSELSET: number of selected reflections      11
+ FCALC: #scatt.=      3 #anomalous=   0 #special pos.=  0 occupancies=1
+ XTAREXPR:                 monitor=  0.340
+ --------------- cycle=    16 --------------------------------------------------
+ | Etotal =36285.647  grad(E)=19183.492  E(XREF)=36285.647                     |
+ -------------------------------------------------------------------------------
+ CNSsolve>show elem ( dx ) ( all ) 
+ SELRPN:      3 atoms have been selected out of      3
+ (      LYS  1    CA   )    30816.    
+ (      LYS  2    CA   )   -21589.    
+ (      LYS  3    CA   )    473.13    
+ CNSsolve>show elem ( dy ) ( all ) 
+ SELRPN:      3 atoms have been selected out of      3
+ (      LYS  1    CA   )    26778.    
+ (      LYS  2    CA   )   -16188.    
+ (      LYS  3    CA   )    12721.    
+ CNSsolve>show elem ( dz ) ( all ) 
+ SELRPN:      3 atoms have been selected out of      3
+ (      LYS  1    CA   )   -14110.    
+ (      LYS  2    CA   )   -23516.    
+ (      LYS  3    CA   )   -1747.7    
+ CNSsolve> 
+ CNSsolve>xray 
+ XRAY>    method=FFT 
+ XRAY>end 
+ CNSsolve>energy end 
+ FCALC: #scatt.=      3 #anomalous=   0 #special pos.=  0 occupancies=1
+ XFFT: using grid [  27,  27,  26] and sublattice [  27(  27),  27(  27),   2]
+ XTAREXPR:                 monitor=  0.340
+ --------------- cycle=    17 --------------------------------------------------
+ | Etotal =36291.481  grad(E)=19038.435  E(XREF)=36291.481                     |
+ -------------------------------------------------------------------------------
+ CNSsolve>show elem ( dx ) ( all ) 
+ SELRPN:      3 atoms have been selected out of      3
+ (      LYS  1    CA   )    30608.    
+ (      LYS  2    CA   )   -21554.    
+ (      LYS  3    CA   )    555.15    
+ CNSsolve>show elem ( dy ) ( all ) 
+ SELRPN:      3 atoms have been selected out of      3
+ (      LYS  1    CA   )    26536.    
+ (      LYS  2    CA   )   -16052.    
+ (      LYS  3    CA   )    12683.    
+ CNSsolve>show elem ( dz ) ( all ) 
+ SELRPN:      3 atoms have been selected out of      3
+ (      LYS  1    CA   )   -13810.    
+ (      LYS  2    CA   )   -23322.    
+ (      LYS  3    CA   )   -1763.7    
+ CNSsolve> 
+ CNSsolve>stop 
+          ============================================================
+           Maximum dynamic memory allocation:     8908320 bytes
+           Maximum dynamic memory overhead:          1856 bytes
+           Program started at: 16:08:26 on 05-Jul-2018
+           Program stopped at: 16:08:26 on 05-Jul-2018
+           CPU time used:       0.6927 seconds
+          ============================================================

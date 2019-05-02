@@ -1,0 +1,86 @@
+{+ file: average_friedels.inp +}
+{+ directory: xtal_util +}
+{+ description: Average Friedel mates for all input arrays +}
+{+ authors: Axel T. Brunger and Paul D. Adams +}
+{+ copyright: Yale University +}
+
+{- Guidelines for using this file:
+   - all strings must be quoted by double-quotes
+   - logical variables (true/false) are not quoted
+   - do not remove any evaluate statements from the file -}
+
+{- begin block parameter definition -} define(
+
+{====================== crystallographic data ========================}
+
+{* space group *}
+{* use International Table conventions with subscripts substituted 
+   by parenthesis *}
+{===>} sg="P2(1)2(1)2(1)";
+
+{* unit cell parameters in Angstroms and degrees *}
+{+ table: rows=1 "cell" cols=6 "a" "b" "c" "alpha" "beta" "gamma" +}
+{===>} a=65.508;
+{===>} b=72.216;
+{===>} c=45.035;
+{===>} alpha=90;
+{===>} beta=90;
+{===>} gamma=90;
+
+{========================= reflection file ===========================}
+
+{* reflection file *}
+{===>} reflection_infile="mbp_refine.hkl";
+
+{========================== output options ===========================}
+
+{* output file with averaged data *}
+{===>} reflection_outfile="average_friedels.hkl";
+
+{===========================================================================}
+{         things below this line do not normally need to be changed         }
+{===========================================================================}
+
+ ) {- end block parameter definition -}
+
+checkversion 1.3
+
+evaluate ($log_level=quiet)
+
+xray
+
+   @CNS_XTALLIB:spacegroup.lib (sg=&sg;sgparam=$sgparam;)
+
+   a=&a b=&b c=&c  alpha=&alpha beta=&beta gamma=&gamma      
+
+   reflection @@&reflection_infile end
+
+   ANOMalous=?
+   if ($result = false) then
+     display ************************************************************
+     display ERROR: NO ANOMALOUS SIGNAL IN FILE &file
+     display ************************************************************
+     display
+     abort
+   end if
+
+   anomalous=false
+
+end
+
+set display=&reflection_outfile end
+
+@CNS_XTALMODULE:write_hkl_header (sg=&STRIP%sg;
+                                  sgparam=$sgparam;)
+
+xray
+
+   write reflection
+     output=&reflection_outfile
+   end
+
+   set display=OUTPUT end
+
+end
+
+stop

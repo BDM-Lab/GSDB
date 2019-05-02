@@ -1,0 +1,182 @@
+#!/bin/csh -f
+#
+# simple installation script to setup a directory for compilation
+# on a Windows-NT machine.
+#
+# This script must be run on a Unix platform where
+# the CNSsolve source is already installed
+#
+# After running this script the directory must be 
+# accessed directly (ie. with Samba) on the Windows-NT machine.
+#
+# On the Windows-NT machine the code is compiled by: nmake
+#
+# Written by: Paul Adams and Ralf Grosse-Kunstleve
+#
+# copyright Yale University
+#
+# $CNS_SOLVE = location of CNS_SOLVE on the Unix machine
+#
+set g77=0
+#
+# to do expansions - unset noglob just in case user has it otherwise
+unset noglob
+#
+foreach arg ( $argv[*] )
+  switch ( $arg )
+  case -g77:
+    set g77=1
+    breaksw
+  case -help:
+    echo "usage: windows_install [-g77]"
+    exit 0
+  default:
+    echo "windows_install: unknown option $arg"
+    exit 1
+  endsw
+end
+#
+if ( $g77 ) then
+  set WIN32 = $CNS_SOLVE/windows-nt_g77
+  set G77DIR = machine/unsupported/g77-windows
+else
+  set WIN32 = $CNS_SOLVE/windows-nt
+  set NTDIR = machine/supported/windows-nt
+endif
+#
+if ( ! -d $WIN32 ) then
+  mkdir $WIN32
+endif
+#
+cd $WIN32
+echo "current directory $WIN32"
+#
+# remove the old (.f .c .inc .obj) files
+#
+/bin/ls *.f *.c *.inc >& /dev/null
+if ( $status == 0 ) then
+  echo "removing old source files"
+  /bin/rm -f *.f >& /dev/null
+  /bin/rm -f *.c >& /dev/null
+  /bin/rm -f *.inc >& /dev/null
+endif
+#
+/bin/ls *.obj >& /dev/null
+if ( $status == 0 ) then
+  echo "removing old object files"
+  /bin/rm -f *.obj >& /dev/null
+endif
+/bin/ls *.o >& /dev/null
+if ( $status == 0 ) then
+  echo "removing old object files"
+  /bin/rm -f *.o >& /dev/null
+endif
+#
+# link in the files from the CNSsolve source directory
+#
+echo "linking source files from $CNS_SOLVE/source"
+cd $CNS_SOLVE/source
+foreach file (*.f *.c *.inc)
+  cd $WIN32
+  if ( -e $file ) /bin/rm -f $file
+  ln -s ../source/$file .
+end
+#
+# copy the files from the machine dependent directory
+#
+if ( $g77 ) then
+  echo "copying machine dependent files from:\n  $CNS_SOLVE/instlib/$G77DIR"
+  cp $CNS_SOLVE/instlib/$G77DIR/* .
+else
+  echo "copying machine dependent files from:\n  $CNS_SOLVE/instlib/$NTDIR"
+  cp $CNS_SOLVE/instlib/$NTDIR/* .
+endif
+#
+if ( $g77 ) then
+  echo "copying compilation script from:\n  ../instlib/$G77DIR"
+  awk '{ printf "%s\r\n", $0 }' ../instlib/$G77DIR/compile.bat > ./compile.bat
+else
+#
+# remove the Makefile if it exists
+#
+  if ( -e Makefile ) then
+    /bin/rm -f Makefile
+  endif
+#
+# make a new Makefile
+#
+  echo 'making Windows-NT Makefile'
+  echo '########################################################'  > Makefile
+  echo '#       Windows-NT   '`date`'      #' >> Makefile
+  echo '########################################################' >> Makefile
+  echo '    ' >> Makefile
+#
+# OBJECT macro
+#
+  echo -n 'OBJECTS = ' >> Makefile
+  set flist=`$CNS_SOLVE/bin/objects`
+  foreach file ( $flist )
+    echo `echo $file | sed 's/\.o/.obj/'` '\' >> Makefile
+  end
+#
+  echo 'machine_c.obj \' >> Makefile
+  echo 'dmemory.obj' >> Makefile
+  echo ' ' >> Makefile
+#
+# append the default rules etc in the Makefile.header
+#
+  cat ../instlib/$NTDIR/Makefile.header >> Makefile
+endif
+#
+# create test directory if main test is present
+#
+if ( -e $CNS_SOLVE/test ) then
+  if ( -d test ) then
+    cd test
+    rm *
+  else
+    echo "making test directory $WIN32/test"
+    mkdir test
+    cd test
+  endif
+  echo "linking test files from ../../test"
+  ln -s ../../test/*.inp .
+  cd $WIN32
+endif
+#
+# copy the cns_solve_env.bat file
+#
+if ( -e cns_solve_env.bat ) then
+  /bin/rm -f cns_solve_env.bat
+endif
+if ( $g77 ) then
+  echo "copying cns_solve_env.bat from:\n  ../instlib/$G77DIR/cns_solve_env.bat"
+  awk '{ printf "%s\r\n", $0 }' ../instlib/$G77DIR/cns_solve_env.bat > ./cns_solve_env.bat
+else
+  echo "copying cns_solve_env.bat from:\n  ../instlib/$NTDIR/cns_solve_env.bat"
+  awk '{ printf "%s\r\n", $0 }' ../instlib/$NTDIR/cns_solve_env.bat    > ./cns_solve_env.bat
+endif
+#
+# copy the run_tests.bat file
+#
+if ( -e run_tests.bat ) then
+  /bin/rm -f run_tests.bat
+endif
+if ( $g77 ) then
+  echo "copying run_tests.bat from:\n  ../instlib/$G77DIR/run_tests.bat"
+  awk '{ printf "%s\r\n", $0 }' ../instlib/$G77DIR/run_tests.bat > ./run_tests.bat
+else
+  echo "copying run_tests.bat from:\n  ../instlib/$NTDIR/run_tests.bat"
+  awk '{ printf "%s\r\n", $0 }' ../instlib/$NTDIR/run_tests.bat > ./run_tests.bat
+endif
+#
+# finished
+#
+if ( $g77 ) then
+  echo 'Windows-NT g77 directory installation complete'
+  echo 'use COMPILE on the Windows-NT machine to compile the program'
+else
+  echo 'Windows-NT directory installation complete'
+  echo 'use NMAKE on the Windows-NT machine to compile the program'
+endif
+#

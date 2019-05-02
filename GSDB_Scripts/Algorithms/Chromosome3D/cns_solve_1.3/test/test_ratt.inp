@@ -1,0 +1,108 @@
+topology  
+ RESIDUE SOD  ! Sodium Ion 
+ 
+ GROUP  
+       ATOM  SOD   TYPE=SOD  CHARGE=    1.0000  END  
+ !END GROUP
+ 
+ 
+ END {SOD }
+ !-----------------------------------------------------------
+ 
+ RESIDUE CL   ! Chloride Anion 
+ 
+ GROUP  
+       ATOM  CL1   TYPE=CLA  CHARGE=   -1.0000  END  
+ !END GROUP
+ 
+ 
+ END {CL  }
+end
+
+parameter
+ NONBONDED  SOD      .1000   2.7297    .1000   2.7297 ! FROM BENOIT ROUX 
+ NONBONDED  CLA      .1500   4.2763    .1500   4.2763 ! chloride 
+end
+
+segment                                                {*Generate ions     *}
+
+   name="CL- "                              {*This name has to match the   *}
+                                            {*four characters in columns 73*}
+                                            {*through 76 in the coordinate *}
+                                            {*file; in CNS this name is  *}
+                                            {*referred to as SEGId.        *}
+   chain
+   coor
+ATOM      1  CL1 CL      1       1.000   0.000   0.000  0.00  0.00      CL- 
+   end
+   end                                       {*obtain the sequence.        *}
+end
+                                             
+coor
+ATOM      1  CL1 CL      1       1.000   0.000   0.000  0.00  0.00      CL- 
+end
+
+segment                                                {*Generate ions     *}
+
+   name="NA+ "                              {*This name has to match the   *}
+                                            {*four characters in columns 73*}
+                                            {*through 76 in the coordinate *}
+                                            {*file; in CNS this name is  *}
+                                            {*referred to as SEGId.        *}
+   chain
+   coor
+ATOM      1  SOD SOD     1       0.000   0.000   0.000  1.00  0.00      NA+ 
+   end
+   end                                       {*obtain the sequence.        *}
+end
+                                             
+coor
+ATOM      1  SOD SOD     1       0.000   0.000   0.000  1.00  0.00      NA+ 
+end
+
+flag excl * incl vdw end
+
+coor copy end
+
+parameter
+    nbonds                 
+        atom  nbxmod -3  tolerance 0.5  
+        repel 0.75  rcon 4.0  rexp 2  cutnb 4.5   
+    end
+end
+
+evaluate ($xx = 1.8)
+
+while ($xx < 4.9999) loop ANALYS
+	evaluate ($xx = $xx + 0.2)
+        do (x = $xx) (segid "CL- ")
+        energy end
+        show ave (dx) (segid "CL- ")
+        eval ($fx = $result)
+        display DIST	$xx	$vdw
+end loop ANALYS
+
+coor swap end
+
+parameter
+    nbonds                 
+        atom  nbxmod -3  tolerance 0.5  
+        repel 0.75  ratt 2.5 rcon 4.0  rexp 2  cutnb 4.5   
+    end
+end
+
+evaluate ($xx = 1.8)
+
+while ($xx < 4.9999) loop ANALYS
+	evaluate ($xx = $xx + 0.2)
+        do (x = $xx) (segid "CL- ")
+        energy end
+        show ave (dx) (segid "CL- ")
+        eval ($fx = $result)
+        display DIST	$xx	$vdw
+end loop ANALYS
+
+stop
+
+
+

@@ -1,0 +1,243 @@
+remarks  lidens.inp
+remarks  tests lidens command in XRAY
+remarks  By R.W.Grosse-Kunstleve
+
+{* Generate a two-atom dummy structure
+ *}
+topology
+  residue SI
+    atom SI mass=14 charge=0 {chemical}type="SI+4" end
+  end
+  residue O
+    atom O  mass=8  charge=0 {chemical}type="O-1"  end
+  end
+end
+
+segment
+  name = QZ
+  molecule {res}name=SI number=1 end
+  molecule {res}name=O  number=1 end
+end
+
+do (name="SI1") (resid=1)
+do (name="O1")  (resid=2)
+
+{* loop over some space groups
+ *}
+for $sg in ("P1" "C2/c" "Fddd" "I-4c2" "P3(1)21" "P6(3)/mcm" "P2(1)3") loop sg
+  do (x=0.499   ) (name=SI1)
+  do (y=0.000   ) (name=SI1)
+  do (z=0.333333) (name=SI1)
+  do (q=1.0     ) (name=SI1)
+  do (b=2.0     ) (name=SI1)
+
+  do (x=0.427   ) (name=O1)
+  do (y=0.187   ) (name=O1)
+  do (z=0.128   ) (name=O1)
+  do (q=1.0     ) (name=O1)
+  do (b=4.0     ) (name=O1)
+
+  {* reset all xray settings
+   *}
+  xray
+    reset
+  end
+
+  {* define some general xray settings
+   *}
+  xray
+    bins=1
+    method=direct
+
+    evaluate ($lr=10000.)
+    evaluate ($hr=1)
+    binresolution $lr $hr
+    mapresolution $hr
+    tselection=( $hr <= d <= $lr )
+  end
+
+  {* define scattering factors and symmetry
+   *}
+  xray
+    @@CNS_XRAYLIB:scatter.lib
+    @@CNS_XTALLIB:spacegroup.lib (sg=$sg; sgparam = $sgparam)
+  end
+
+  {* define dummy unit cell dimensions based on space group number
+   *}
+  if     ($sgparam.sg_number <=   2) then
+    evaluate ($a = 5.01)
+    evaluate ($b = 6.25)
+    evaluate ($c = 5.47)
+    evaluate ($alpha = 100)
+    evaluate ($beta  =  80)
+    evaluate ($gamma = 110)
+  elseif ($sgparam.sg_number <=  15) then
+    evaluate ($a = 5.01)
+    evaluate ($b = 6.25)
+    evaluate ($c = 5.47)
+    evaluate ($alpha =  90)
+    evaluate ($beta  =  80)
+    evaluate ($gamma =  90)
+  elseif ($sgparam.sg_number <=  74) then
+    evaluate ($a = 5.01)
+    evaluate ($b = 6.25)
+    evaluate ($c = 5.47)
+    evaluate ($alpha =  90)
+    evaluate ($beta  =  90)
+    evaluate ($gamma =  90)
+  elseif ($sgparam.sg_number <= 142) then
+    evaluate ($a = 5.01)
+    evaluate ($b = $a)
+    evaluate ($c = 5.47)
+    evaluate ($alpha =  90)
+    evaluate ($beta  =  90)
+    evaluate ($gamma =  90)
+  elseif ($sgparam.sg_number <= 194) then
+    evaluate ($a = 5.01)
+    evaluate ($b = $a)
+    evaluate ($c = 5.47)
+    evaluate ($alpha =  90)
+    evaluate ($beta  =  90)
+    evaluate ($gamma = 120)
+  else
+    evaluate ($a = 5.01)
+    evaluate ($b = $a)
+    evaluate ($c = $a)
+    evaluate ($alpha =  90)
+    evaluate ($beta  =  90)
+    evaluate ($gamma =  90)
+  end if
+
+  xray
+    a=$a b=$b c=$c alpha=$alpha beta=$beta gamma=$gamma
+  end
+
+  coordinates orthogonalize end
+
+  xray
+    {* set space-group dependent restrictions for map-grid dimensions
+     *}
+    fft
+      grid=0.4
+      xgridfactor=$sgparam.SymGrid_x
+      ygridfactor=$sgparam.SymGrid_y
+      zgridfactor=$sgparam.SymGrid_z
+    end
+
+    {* generate reflections
+     *}
+    anomalous = false
+    generate 100000. 1.0
+
+    {* compute dummy "fobs"
+     *}
+    declare name=fobs domain=reciprocal type=complex end
+    predict 
+      mode=reciprocal
+      to=fobs
+      selection=(all)
+      atomselection=(all)
+    end 
+
+    {* expand to P1
+     *}
+    expand
+  end
+
+  xray
+    declare name=edmap domain=real end
+  end
+
+  xray
+    do (edmap=FT(fobs)) (all)
+    show min (real(edmap)) (all)
+    eval($edmin=$result)
+    show max (real(edmap)) (all)
+    eval($edmax=$result)
+  end
+
+  xray
+    {* define symmetry for flagmap
+     *}
+    fmap
+      @@CNS_XTALLIB:spacegroup.lib (sg=$sg; sgparam = $sgparam)
+      if ($sgparam.ssVM_1 # "VOID") then ssVM = $sgparam.ssVM_1 end if
+      if ($sgparam.ssVM_2 # "VOID") then ssVM = $sgparam.ssVM_2 end if
+      if ($sgparam.ssVM_3 # "VOID") then ssVM = $sgparam.ssVM_3 end if
+      if ($sgparam.GenK2L # "VOID") then Addl = $sgparam.GenK2L end if
+      ?
+      Symmetry ?
+      AddlGenerators ?
+    end
+  end
+
+  set message=all end
+
+  xray
+    {* Build flagmap
+     *}
+    fmap
+      UseSym = true
+      Use_ss  = false
+      UseAddl = false
+      Action=Build
+    end
+  end
+
+  show elem (x) (resid 1) eval($site.x=$result)
+  show elem (y) (resid 1) eval($site.y=$result)
+  show elem (z) (resid 1) eval($site.z=$result)
+
+  xray
+    lidens
+      dens=edmap
+      atomselection=(all)
+      to=vx
+      site=$site.x $site.y $site.z
+    end
+    eval($lidens1=$result)
+  end
+  show elem (vx) (all)
+  show elem (vx) (resid 1)
+  eval($delta=abs($lidens1-$result))
+  if ($delta > 0.001) then
+    display $lidens1 $result
+    abort
+  end if
+  if ($lidens1 < $edmin) then
+    abort
+  end if
+  if ($lidens1 > $edmax) then
+    abort
+  end if
+  show min (vx) (all)
+  eval($minpeak=$result)
+
+  xray
+    psearch
+      From=edmap
+      level = 1
+      nList = 10
+      Fractional = true
+    end
+
+    declare name=flagmap domain=real end
+    fmap
+      RSObj=flagmap
+      Action=copy
+    end
+
+    show sum (1) (flagmap < 1)
+    eval($nasym=$result)
+    show sum (1) (flagmap < 0)
+    eval($npeaks=max(1,$result))
+    show sum (1) (flagmap < 0 and edmap < $minpeak)
+    eval($smallpeaks=$result)
+    eval($fom=$smallpeaks/$npeaks)
+  end
+
+  set message=on end
+end loop sg
+
+stop

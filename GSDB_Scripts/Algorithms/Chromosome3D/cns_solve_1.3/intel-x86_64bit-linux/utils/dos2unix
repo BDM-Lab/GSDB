@@ -1,0 +1,42 @@
+#!/bin/csh -f
+#
+# script to remove ^M from end of lines (produced if file is
+# written under Windows-NT)
+#
+# Written by: Ralf Grosse-Kunstleve and Paul Adams
+#
+# copyright Yale University
+#
+set noglob
+#
+onintr CLEAN
+#
+foreach file ( $argv )
+#
+  if ( ! -w "$file" ) then
+    echo "dos2unix: cannot overwrite file $file"
+  else
+    set tmpf="$file.tmp.$$"
+#
+    tr -s "\012\015" "\012\012" < "$file" > "$tmpf"
+#
+    set old=`wc -l < "$file"`
+    set new=`wc -l < "$tmpf"`
+#
+    if ( $old == $new ) then
+      mv "$tmpf" "$file"
+    else
+      echo "dos2unix: error converting file $file"
+      /bin/rm -f "$tmpf"
+    endif
+#
+    unset tmpf
+  endif
+end
+#
+CLEAN:
+if ($?tmpf) then
+  /bin/rm -f "$tmpf"
+endif
+#
+exit 0

@@ -1,0 +1,21 @@
+#!/bin/csh -f
+#
+# script to write out the header from a CNSsolve input file
+#
+# Written by: Paul Adams 06/05/98
+#
+# copyright Yale University
+#
+if ( $#argv < 1 ) then
+  echo "usage: cns_header 'file-name'"
+  exit 1
+endif
+#
+set input=$argv[1]
+#
+if ( -e $input ) then
+  awk '/begin block parameter/,/end block parameter/{print}' $input
+else
+  echo "cns_header: file $input does not exist"
+endif
+#

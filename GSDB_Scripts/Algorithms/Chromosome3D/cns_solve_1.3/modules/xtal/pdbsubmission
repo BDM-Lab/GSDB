@@ -1,0 +1,1446 @@
+! Module file: pdbsubmission
+!
+! CNS module
+! **********
+!
+! Authors: Jian-Sheng Jiang and Axel T. Brunger
+!
+! copyright Yale University
+!
+! Function:
+!   Produces partial list of required items for PDB submission
+!
+!
+
+module { pdbsubmission }
+(   
+ &a=1;
+ &b=1;
+ &c=1;
+ &alpha=90;
+ &beta=90;
+ &gamma=90;
+
+ &sg="P1";
+ &sgparam;
+ 
+ &par_1="CNS_TOPPAR:protein_rep.pro";
+ &par_2=" ";
+ &par_3=" ";
+ &par_4=" ";
+ &par_5=" ";
+ &par_6=" ";
+ &par_7=" ";
+ &par_8=" ";
+
+ &top_1="CNS_TOPPAR:protein.top";
+ &top_2=" ";
+ &top_3=" ";
+ &top_4=" ";
+ &top_5=" ";
+ &top_6=" ";
+ &top_7=" ";
+ &top_8=" ";
+
+ &structure_file=" ";
+ &coordinate_file=" ";
+ &coordinate_file_wo_cv=" ";
+
+ &strict_ncs_file=" ";
+
+ &fobs=fobs;
+ &sigma=sigma;
+ &test=test;
+ &test_flag=1;
+ &weight=weight;
+
+ &anom_library="";
+
+ &cv_method=THROUGHOUT; { NONE|THROUGHOUT|A POSTERIORI }
+ &cv_select=RANDOM; { RANDOM|SHELLS|SPHERES|EVERYnTH|OTHER }
+
+ &high_res=1;
+ &low_res=100;
+ &low_res_cut=5.; { for coord. err. est., must be < = low_res}
+ &low_res_wilson=3.; { for Wilson plot, must be < = low_res}
+
+ &mbins=10; { number of equal volume reciprocal space bins }
+
+ &fft_memory=-1; { memory for FFT calc. }
+
+ &sigcutf=2. ; { sigma cutoff, refl. with |Fobs|/Sigma{Fobs} < sigcutf will be rejected.  }
+
+ &f_rms=10000. ;  { outlier cutoff, refl. with |Fobs| > f_rms*rms(Fobs) will be rejected. }
+
+ &bscale="no";      { "no", "isotropic",  "anisotropic" } 
+ &bulk_sol=false;   { true or false (type: logical).  Bulk solvent correction. }
+ &bulk_mask="";     { mask for bulk solvent - from file if given, otherwise 
+                      from coords of atoms selected in xray (type: string) }
+                      
+ {- BEGIN MODIFICATION -}
+ &sol_auto=true;       {input: logical flag (true/false) specifying if grid search shall be performed }
+ &sol_k=0.3;           {for sol_auto=false: solvent density fixed at specified value}
+ &sol_b=50.;           {for sol_auto=false: solvent B factor fixed at specified value}
+ &sol_rad=1.0;         {for sol_auto=false: solvent radius fixed at specified value}
+ &sol_shrink=1.0;      {for sol_auto=false: shrink factor fixed at specified value } 
+  {- END MODIFICATION -}
+
+ &bfactor=RESTR; { RESTR or OVERALL or GROUP ! isotropic B-refinement}
+
+ &b_main_sel=( none ); { selection for main chain in B-sig calculations }
+
+ &bsig_main=1.5 ; { sigma used for restrained B refinement: bonds}
+ &asig_main=2.0;  { sigma used for restrained B refinement: angles}
+
+ &bsig_side=2.0;  { sigma used for restrained B refinement: side bonds}
+ &asig_side=2.5;  { sigma used for restrained B refinement: side angle}
+
+ &weighting=false; { true or false ! resolution-dependent weighting scheme used (stored in WEIGHT)}
+
+ &all_select=( known and not hydr );{ select all atoms used.                     } 
+                                    { this should include all conformations if   }
+                                    { multiple conformations are used.           }
+  
+ &protein_select=(  none );       { define subset of protein atoms             }
+ &water_select=(  none );         { define subset of all water atoms           }
+ &nucleic_select=(  none);        { define subset of all nucleic acid atoms    }
+ &ligand_select=(  none );        { define subset of all ligand/heterogen/ions }
+
+ &sel_alt_conf=( none );          { define selection array with alternate conformations }
+
+ &chain_a=( none );               { define "chains" for proteins and nucleic acids.}
+ &chain_b=( none );  
+ &chain_c=( none ); 
+ &chain_d=( none ); 
+ &chain_e=( none ); 
+ &chain_f=( none ); 
+ &chain_g=( none ); 
+ &chain_h=( none ); 
+ &chain_i=( none ); 
+ &chain_j=( none ); 
+ &chain_k=( none ); 
+ &chain_l=( none ); 
+ &chain_m=( none ); 
+ &chain_n=( none ); 
+ &chain_o=( none ); 
+ &chain_p=( none ); 
+ &chain_q=( none ); 
+ &chain_r=( none ); 
+ &chain_s=( none ); 
+ &chain_t=( none ); 
+ &chain_u=( none ); 
+ &chain_v=( none ); 
+ &chain_w=( none ); 
+ &chain_x=( none ); 
+ &chain_y=( none ); 
+ &chain_z=( none );
+
+ &ignore_missing= false;
+
+ &list="xtal_submit.deposit"; { output file name}
+
+)
+
+checkversion 1.3
+
+evaluate ($display=&list) 
+
+{* Auto-specify the highest resolution bin:                           *}
+{* divide reciprocal space in &mbins shells each with equal volume    *}
+evaluate ($vshell=((1.0/&low_res)^3-(1.0/&high_res)^3)/&mbins)
+evaluate ($hbin_low=1.0/((1.0/&high_res)^3+$vshell)^(1/3))
+
+xray
+
+   declare name=fbulk domain=reciprocal type=complex end
+   do (fbulk=0) ( all ) 
+
+   show rms (amplitude(&fobs)) ( &low_res >= d >= &high_res )
+
+   evaluate ($f_high=$result*&f_rms)
+   evaluate ($f_low=0.0001)
+
+   tselection=( &low_res >= d >= &high_res and $f_low <= amplitude(&fobs) <= $f_high)
+   mapresolution=&high_res 
+   binresolution &low_res &high_res
+   
+   {* data cutoffs *}
+   do (&fobs=0) (amplitude(&fobs) <= &sigcutf * &sigma) 
+   do (&fobs=0) ($f_low > amplitude(&fobs) or amplitude(&fobs) > $f_high)
+   
+   declare name=sel domain=reciprocal type=integer end
+   do (sel=0) ( all )
+   do (sel=1) ( &low_res >= d >= &high_res and amplitude(&fobs)>0) 
+
+   show max (d) (sel=1)
+   evaluate ($pdb_low_res=$result+0.001) 
+   show min (d) (sel=1)
+   evaluate ($pdb_high_res=$result-0.001) 
+     
+   binresolution $pdb_low_res $pdb_high_res
+ 
+   method=fft   
+
+   fft
+     if ( &fft_memory < 0 ) then
+       automemory=true
+     else
+       memory=&fft_memory
+     end if
+   end
+
+   query name=fcalc domain=reciprocal end
+   if ( $object_exist = false ) then
+      declare name=fcalc domain=reciprocal type=complex end
+   end if
+   
+   {* compute the structure factor (fcalc) *}
+   associate fcalc (&all_select)
+   
+   predict
+     mode=reciprocal
+     to=fcalc
+     atomselection=( &all_select ) 
+     selection=( &low_res >= d >= &high_res and $f_low <= amplitude(&fobs) <= $f_high)
+   end
+
+   { check the completeness for the highest resolution bin }
+   binresolution $hbin_low &high_res
+
+   statistics overall
+      completeness
+      selection=( $hbin_low >= d >= &high_res and $f_low <= amplitude(&fobs) <= $f_high)
+      output=OUTPUT
+   end 
+
+   evaluate ($HBIN_CPLT=$expression1*100)
+
+   { reset to the whole resolution range }
+   binresolution $pdb_low_res $pdb_high_res
+
+   {* number of resolution bins for printing *}
+   mbins=&mbins    
+
+{ compute the completeness of data }
+   statistics overall
+      completeness
+      selection=( $pdb_low_res >= d >= $pdb_high_res and $f_low <= amplitude(&fobs) <= $f_high)
+      output=OUTPUT
+   end 
+
+   evaluate ($COMPLETE=$expression1*100)
+
+
+   set echo=off end
+   set mess=off end
+
+   {- MODIFIED -}
+   if ( &low_res_wilson > &high_res ) then
+      @CNS_XTALMODULE:wilsonplot
+        (
+       bins=&mbins;          { number of bins for average    }
+       f1=&fobs;              { first data set                }
+       sel=(sel=1 and &low_res_wilson >= d );
+                              { reflections selection         }
+       disp=OUTPUT;          { display output filename       }
+       mess=LONG;           { SHORT | LONG display messages }
+    
+       KW=$KW;               { Output: Wilson scale factor   }
+       BW=$BW;               { Output: Wilson B factor       }
+       
+       atom_sel=&all_select ; 
+       )
+   end if
+
+   set echo=off end
+   set mess=off end
+end
+
+ {- BEGIN MODIFICATION -}
+ @CNS_XTALMODULE:scale_and_solvent_grid_search (
+                             bscale=&bscale;
+                             sel=( &high_res <= d <= &low_res and 
+                                    amplitude(&fobs)>0 );
+                             sel_test=( &test=&test_flag );
+                             atom_select=( &all_select );
+                             bulk_sol=&bulk_sol;
+                             bulk_mask=&bulk_mask;
+                             bulk_atoms=( &all_select );
+                             
+                             sol_auto=&sol_auto;
+
+                             sol_k=&sol_k;
+
+                             sol_b=&sol_b;
+
+                             sol_rad=&sol_rad;
+
+                             sol_shrink=&sol_shrink;
+
+ 
+                             fcalc=fcalc;
+                             obs_f=&fobs;
+                             obs_sigf=&sigma;
+                             obs_i="";
+                             obs_sigi="";                             
+                             fpart=fbulk;
+                             
+                             Baniso_11=$aniso_11;
+                             Baniso_22=$aniso_22;
+                             Baniso_33=$aniso_33;
+                             Baniso_12=$aniso_12;
+                             Baniso_13=$aniso_13;
+                             Baniso_23=$aniso_23;
+                             Biso=$Biso_model;
+                             
+                             sol_k_best=$sol_k_ref;
+                             sol_b_best=$sol_b_ref;
+			     solrad_best=$solrad_best;
+			     shrink_best=$shrink_best;
+                             
+                             b=b;
+
+                             low_b_flag=$low_b_flag;
+                            
+                             sol_output=&sol_output;
+                             
+                             )
+ xray
+   @@CNS_XTALMODULE:calculate_r (
+                                 fobs=&fobs;
+                                 fcalc=fcalc;
+                                 fpart=fbulk;
+                                 sel=( &high_res <= d <= &low_res and 
+                                        amplitude(&fobs)>0 );
+                                 sel_test=( &test=&test_flag );
+                                 print=true;
+                                 output=OUTPUT;
+                                 r=$start_r;
+                                 test_r=$start_test_r;)
+ end
+
+ {- check the gridding again since the minimum B-factor may have changed -}
+ show min ( b ) ( &atom_select )
+ evaluate ($b_min=$result)
+ @@CNS_XTALMODULE:fft_parameter_check ( 
+                             d_min=&high_res; 
+                             b_min=$b_min;
+                             grid=auto;
+                             fft_memory=&fft_memory;
+                             fft_grid=$fft_grid;   
+
+                             fft_b_add=$fft_b_add; 
+
+                             fft_elim=$fft_elim; 
+                                      )
+
+{- END MODIFICATION -}
+
+ xray
+    predict
+      mode=reciprocal
+      to=fcalc
+      atomselection=( &all_select ) 
+      selection=( &low_res >= d >= &high_res and $f_low <= amplitude(&fobs) <= $f_high)
+    end
+    statistics  { R-value }
+      (rvalue(&fobs,fcalc+fbulk))
+      (rvalue[overall](&fobs,fcalc+fbulk))
+      selection=( &low_res >= d >= &high_res and $f_low <= amplitude(&fobs) <= $f_high and &test=&test_flag)
+      output=OUTPUT
+    end
+    statistics { R-value }
+      (rvalue(&fobs,fcalc+fbulk))
+      (rvalue[overall](&fobs,fcalc+fbulk))
+      selection=( &low_res >= d >= &high_res and $f_low <= amplitude(&fobs) <= $f_high and &test # &test_flag)
+      output=OUTPUT
+    end
+ end
+
+{* ================================================ *}                                       
+{* COMPUTE R and FREE R VALUES                      *}
+
+xray
+
+{* WITH SIGMA CUTOFF *}
+
+   {* actual total number of reflections (working+test) *}
+   show sum (1) ( sel=1 )
+   evaluate ($NREFLEX=$select)
+
+   {* actual size of test set for Free R value *}
+   show sum (1) ( sel=1 and &test = &test_flag )
+   evaluate ($NREF_TEST=$result)
+   evaluate ($PERCENT=100.0*$NREF_TEST/$NREFLEX)
+
+   {* now compute the R values *}
+   statistics overall
+     (sum(amplitude(&fobs)*amplitude(fcalc+fbulk))
+     /sum(amplitude(fcalc+fbulk)^2))
+     selection=( sel=1 and &test # &test_flag )
+     output=OUTPUT
+   end 
+   evaluate ($work_scale=$expression1)
+   display working set scale= $work_scale
+
+   statistics overall
+     output=OUTPUT
+     (sum( abs(amplitude(&fobs) - ($work_scale*amplitude(fcalc+fbulk))))
+            / sum(amplitude(&fobs)) )
+     selection=( sel=1 and &test # &test_flag )
+   end
+   evaluate ($R_VALUE=$expression1)  {* the working R value *} 
+
+   if ( $PERCENT > 0 ) then
+     statistics overall
+       (sum(amplitude(&fobs)*amplitude(fcalc+fbulk))
+       /sum(amplitude(fcalc+fbulk)^2))
+        selection=( sel=1 and &test = &test_flag )
+        output=OUTPUT
+     end 
+     evaluate ($test_scale=$expression1)
+     display test set scale= $test_scale
+
+     statistics overall
+       output=OUTPUT
+       (sum( abs(amplitude(&fobs) - ($test_scale*amplitude(fcalc+fbulk))))
+              / sum(amplitude(&fobs)) )
+       selection=( sel=1 and &test = &test_flag )
+     end
+     evaluate ($R_FREE=$expression1)     {* the Free R value *}
+     evaluate ($R_FREE_ERR=$R_FREE/sqrt($NREF_TEST))  {* estimated error *}
+   else
+     evaluate ($R_FREE=0.0)
+     evaluate ($R_FREE_ERR=0.0) 
+   end if
+
+{* IN THE HIGHEST RESOLUTION BIN *}
+
+   {* actual total number of reflections (working+test) *}
+   show sum (1) ( $hbin_low >= d and sel=1) 
+   evaluate ($HBIN_NREFX=$select)
+
+   {* actual number of reflections in working set *}
+   show sum (1) ( $hbin_low >= d and sel=1 and &test # &test_flag)
+   evaluate ($HBIN_NREF=$select)
+
+   {* actual size of test set for Free R value *}
+   show sum (1) ( $hbin_low >= d and sel=1 and &test = &test_flag )
+   evaluate ($HBIN_NREF_TEST=$result)
+   evaluate ($HBIN_PERCENT=100.0*$HBIN_NREF_TEST/$HBIN_NREFX)
+
+   {* now compute the R values *}
+   mbins=1
+   statistics
+     output=OUTPUT
+     (sum( abs(amplitude(&fobs)-($work_scale*amplitude(fcalc+fbulk))))
+            / sum( amplitude(&fobs)) )
+     selection=( $hbin_low >= d and sel=1 and &test # &test_flag )
+   end
+   evaluate ($HBIN_R=$expression1)  {* the working R value *} 
+
+   if ( $HBIN_PERCENT > 0 ) then
+     statistics
+       output=OUTPUT
+       (sum( abs(amplitude(&fobs)-($test_scale*amplitude(fcalc+fbulk))))
+              / sum( amplitude(&fobs)) )
+       selection=( $hbin_low >= d and sel=1 and &test = &test_flag )
+     end
+     evaluate ($HBIN_R_FREE=$expression1)     {* the Free R value *}
+     evaluate ($HBIN_R_FREE_ERR=$HBIN_R_FREE/sqrt($HBIN_NREF_TEST))
+   else
+     evaluate ($HBIN_R_FREE=0.0)
+     evaluate ($HBIN_R_FREE_ERR=0.0) 
+   end if
+
+
+end
+
+
+
+{* ================================================ *}                                       
+{* Estimate coordinates error by using Luzzati Plot *}
+
+xray
+
+   set echo=off end
+   set mess=off end
+
+   @CNS_XTALMODULE:luzzaticoorderr
+     (
+       bins=20;          { number of bins for average    }
+       fobs=&fobs;              { first data set                }
+       fcalc=fcalc;             { second data set               }
+       fpart=fbulk;             { bulk solvent correction       }
+       low=&low_res_cut;     { low resolution limit          }
+       high=&high_res;       { high resolution limit         }
+       sel=(sel=1 and &test # &test_flag and &low_res_cut >= d );
+                              { reflections selection         }
+       disp=OUTPUT;          {   display output filename       }
+       mess=SHORT;           { SHORT | LONG display messages }
+       ESDERR_LUZ=$ESDERR_LUZ;  
+                              { Output: symbol for coord. err. }
+     )
+
+   if ( $PERCENT > 0 ) then  {* apply cross-validation *}
+
+     {* make sure there are at least 25 reflections in each test bin *}
+     evaluate ($mbins_luzzati=int(min(20,$NREF_TEST/25)))
+
+    
+     if ($mbins_luzzati >= 3) then
+    
+        @CNS_XTALMODULE:luzzaticoorderr
+        (
+          bins=$mbins_luzzati;          { number of bins for average    }
+          fobs=&fobs;              { first data set                }
+          fcalc=fcalc;             { second data set               }
+          fpart=fbulk;             { bulk solvent correction       }
+          low=&low_res_cut;     { low resolution limit          }
+          high=&high_res;       { high resolution limit         }
+          sel=(sel=1 and &test = &test_flag and &low_res_cut >= d );
+                              { reflections selection         }
+          disp=OUTPUT;          { display output filename       }
+          mess=SHORT;           { SHORT | LONG display messages }
+          ESDERR_LUZ=$ESDERR_LUZ_CV;  
+                              { Output: symbol for coord. err. }
+        )
+      else
+         evaluate ($ESDERR_LUZ_CV=-0.001)
+      end if
+     
+   else
+     evaluate ($ESDERR_LUZ_CV=-0.001)
+
+   end if
+
+   set echo=off end
+   set mess=off  end
+
+{* ================================================ *}                                       
+{* Estimate coordinates error by using  SIGMAA      *}
+
+   set echo=off end
+   set mess=off end
+
+   @CNS_XTALMODULE:sigmaacoorderr
+     (
+       bins=20;   { number of bins for output     }
+       fobs=&fobs;              { first data set                }
+       fcalc=fcalc;             { second data set               }
+       fpart=fbulk;             { bulk solvent correction       }
+       sel=(sel=1 and &test # &test_flag and &low_res_cut >= d );
+                              { reflections selection         }
+       disp=OUTPUT;          { display output filename       }
+       mess=SHORT;           { SHORT | LONG display messages }
+       ESDERR_SIGMAA=$ESDERR_SIGMAA;  
+                              { Output: symbol for coord. err. }
+     )
+
+
+   if ( $PERCENT > 0 ) then  {* apply cross-validation *}
+   
+     {* make sure there are at least 25 reflections in each test bin *}     
+     evaluate ($mbins_sigmaa=int(min(20,$NREF_TEST/25)))
+    
+     if ($mbins_sigmaa >= 3) then
+
+         @CNS_XTALMODULE:sigmaacoorderr
+         (
+         bins=$mbins_sigmaa;   { number of bins for output     }
+         fobs=&fobs;              { first data set                }
+         fcalc=fcalc;             { second data set               }
+         fpart=fbulk;             { bulk solvent correction       }
+         sel=(sel=1 and &test = &test_flag and &low_res_cut >= d );
+	          { reflections selection         }
+         disp=OUTPUT;          { display output filename       }
+         mess=SHORT;           { SHORT | LONG display messages }
+         ESDERR_SIGMAA=$ESDERR_SIG_CV;  
+	          { Output: symbol for coord. err. }
+         )
+
+     else
+       evaluate ($ESDERR_SIG_CV=-0.001)
+     end if
+
+     set echo=off end
+     set mess=off end
+     
+   else
+     evaluate ($ESDERR_SIG_CV=-0.001)
+
+   end if
+   
+end
+
+{ read coordinates after very final refinement without cross-validation }
+if (&coordinate_file_wo_cv # " " ) then
+   coor @@&coordinate_file_wo_cv
+end if    
+
+{* ======================================================== *}                                       
+{* Number of atoms used in refinement                       *}
+{* The category and selection are defined as the following  *}
+
+{* "$NATOM"         all non-hydrogen atoms      *}
+{* "$NATOM_PRO"     protein atoms                *}
+{* "$NATOM_WAT"     solvent atoms               *}
+{* "$NATOM_NUC"     nucleic acid atoms         *}
+{* "$NATOM_LIG"     ligand/heterogen/ions       *}
+
+   show sum ( 1 ) ( &all_select )
+   evaluate ( $NATOM=$result )
+
+   {* protein atoms *}
+   show sum ( 1 ) ( &protein_select )
+   evaluate ( $NATOM_PRO=$result )
+
+   {* solvent atoms *}
+   show sum ( 1 ) ( &water_select )
+   evaluate ( $NATOM_WAT=$result )
+
+   {* nucleic acid atoms *}
+   show sum ( 1 ) ( &nucleic_select )
+   evaluate ( $NATOM_NUC=$result )
+
+   {* ligand or HETEROGEN atoms or ions *}
+   show sum ( 1 ) ( &ligand_select )
+   evaluate ( $NATOM_LIG=$result )
+
+
+{* ============================================== *}     
+{* Geometrical r.m.s. deviations from ideality    *}
+
+   {* determine number of alternate conformations *}
+   show max ( &sel_alt_conf ) ( store1 )
+   evaluate ($nalt=$result)
+
+   igroup
+     interaction ( &all_select and not(attr &sel_alt_conf > 0))
+                 ( &all_select and not(attr &sel_alt_conf > 0))
+     evaluate ($alt=1)
+     while ( $alt <= $nalt ) loop alcs
+       interaction ( &all_select and ( attr &sel_alt_conf = $alt or 
+                                       attr &sel_alt_conf = 0 ))
+                 ( store1 and ( attr &sel_alt_conf = $alt ))
+       evaluate ($alt=$alt+1)
+     end loop alcs
+   end
+
+   print threshold=0.1 bonds
+   evaluate ($RMSD_BOND=$result)
+
+   print threshold=20.0 angles  
+   evaluate ($RMSD_ANGL=$result)
+
+   print threshold=30.0 impropers 
+   evaluate ($RMSD_IMPR=$result)
+
+   print threshold=60.0 dihedral 
+   evaluate ($RMSD_DIHE=$result)
+
+
+
+
+{* ============================================== *}                                       
+{* B values statistics                            *}
+
+ {* for all non-hydrogen atoms *}
+ show ave ( b ) ( &all_select )
+ evaluate ( $BMEAN_ALL=$result )
+
+
+ xray
+   optimize bfactors nstep=-1  { negative step for analysis only }
+      {* for main-chain atoms *}
+      bsigma=&b_main_sel=&BSIG_MAIN
+      asigma=&b_main_sel=&ASIG_MAIN 
+      {* for side-chain atoms *}
+      bsigma=( not &b_main_sel )=&BSIG_SIDE 
+      asigma=( not &b_main_sel )=&ASIG_SIDE 
+   end
+   evaluate ($BRMS_MAIN=$BRMS_BOND_1)                                        
+   evaluate ($ARMS_MAIN=$BRMS_ANGL_1)                                        
+   evaluate ($BRMS_SIDE=$BRMS_BOND_2)                                        
+   evaluate ($ARMS_SIDE=$BRMS_ANGL_2)     
+                                      
+ end
+
+ 
+{* ========================================== *}                                       
+{* produce REMARK 3 in the PDB deposit format *}
+!
+! NEED TO BE UPDATED ACCORDING TO PDB NEW FORMAT DESCRIPTION
+!
+! References:
+! 1. Enrique E. Abola.  October 9, 1994, A draft of
+!    "PDB File Format Description - Annotated Reference Manual"
+! 2. "Protein Data Bank Contents Guide: Atomic Coordinate Entry
+!    Format Description", Version 2.0, Februrary 21, 1996.
+!    PDB, Brookhaven National Laboratory.
+!
+
+
+set display=$display end
+
+
+display REMARK   3
+display REMARK   3 REFINEMENT.
+display REMARK   3   PROGRAM     : CNS $CNS_VERSION
+display REMARK   3   AUTHORS     : BRUNGER, ADAMS, CLORE, DELANO,
+display REMARK   3                 GROS, GROSSE-KUNSTLEVE, JIANG,
+display REMARK   3                 KUSZEWSKI, NILGES, PANNU, READ,
+display REMARK   3                 RICE, SIMONSON, WARREN
+ 
+ 
+display REMARK   3
+display REMARK   3  DATA USED IN REFINEMENT.
+
+evaluate ($high_res=&high_res)
+evaluate ($low_res=&low_res)
+display REMARK   3   RESOLUTION RANGE HIGH (ANGSTROMS) :$pdb_high_res[f5.2]
+display REMARK   3   RESOLUTION RANGE LOW  (ANGSTROMS) :$pdb_low_res[f7.2]
+
+evaluate ($sigcutf=&sigcutf) 
+evaluate ($ff_low=0.0) 
+display REMARK   3   DATA CUTOFF            (SIGMA(F)) :$SIGCUTF[f4.1]
+
+display REMARK   3   DATA CUTOFF HIGH         (ABS(F)) :$f_high[f12.2] 
+display REMARK   3   DATA CUTOFF LOW          (ABS(F)) :$ff_low[f12.6] 
+
+display REMARK   3   COMPLETENESS (WORKING+TEST)   (%) :$COMPLETE[f5.1]
+display REMARK   3   NUMBER OF REFLECTIONS             :$NREFLEX[i6]
+
+display REMARK   3
+display REMARK   3  FIT TO DATA USED IN REFINEMENT.
+
+display REMARK   3   CROSS-VALIDATION METHOD          : &CV_METHOD
+
+display REMARK   3   FREE R VALUE TEST SET SELECTION  : &CV_SELECT
+
+display REMARK   3   R VALUE            (WORKING SET) :$R_VALUE[f6.3]
+
+if ($PERCENT > 0) then
+display REMARK   3   FREE R VALUE                     :$R_FREE[f6.3]
+display REMARK   3   FREE R VALUE TEST SET SIZE   (%) :$PERCENT[f5.1]
+display REMARK   3   FREE R VALUE TEST SET COUNT      :$NREF_TEST[i6]
+display REMARK   3   ESTIMATED ERROR OF FREE R VALUE  :$R_FREE_ERR[f6.3]
+else
+display REMARK   3   FREE R VALUE                     : NONE
+display REMARK   3   FREE R VALUE TEST SET        (%) : NONE
+display REMARK   3   FREE R VALUE TEST SET COUNT      : NONE
+display REMARK   3   ESTIMATED ERROR OF FREE R VALUE  : NONE
+end if
+
+display REMARK   3
+evaluate ($mbins=&mbins)
+display REMARK   3  FIT IN THE HIGHEST RESOLUTION BIN.
+display REMARK   3   TOTAL NUMBER OF BINS USED           :$mbins[i4]
+display REMARK   3   BIN RESOLUTION RANGE HIGH       (A) :$high_res[f5.2]
+display REMARK   3   BIN RESOLUTION RANGE LOW        (A) :$hbin_low[f5.2]
+display REMARK   3   BIN COMPLETENESS (WORKING+TEST) (%) :$HBIN_CPLT[f5.1]
+display REMARK   3   REFLECTIONS IN BIN    (WORKING SET) :$HBIN_NREF[i6]
+display REMARK   3   BIN R VALUE           (WORKING SET) :$HBIN_R[f6.3]
+
+if ($HBIN_PERCENT > 0) then
+display REMARK   3   BIN FREE R VALUE                    :$HBIN_R_FREE[f6.3]
+display REMARK   3   BIN FREE R VALUE TEST SET SIZE  (%) :$HBIN_PERCENT[f5.1]
+display REMARK   3   BIN FREE R VALUE TEST SET COUNT     :$HBIN_NREF_TEST[i6]
+display REMARK   3   ESTIMATED ERROR OF BIN FREE R VALUE :$HBIN_R_FREE_ERR[f6.3]
+else
+display REMARK   3   FREE R VALUE                     : NONE
+display REMARK   3   FREE R VALUE TEST SET        (%) : NONE
+display REMARK   3   FREE R VALUE TEST SET COUNT      : NONE
+display REMARK   3   ESTIMATED ERROR OF FREE R VALUE  : NONE
+end if
+
+display REMARK   3
+display REMARK   3  NUMBER OF NON-HYDROGEN ATOMS USED IN REFINEMENT.
+display REMARK   3   PROTEIN ATOMS            :$NATOM_PRO[i5]
+display REMARK   3   NUCLEIC ACID ATOMS       :$NATOM_NUC[i5]
+display REMARK   3   HETEROGEN ATOMS          :$NATOM_LIG[i5]
+display REMARK   3   SOLVENT ATOMS            :$NATOM_WAT[i5]
+
+display REMARK   3
+display REMARK   3  B VALUES.
+{- BEGIN MODIFICATION -}
+if ( &low_res_wilson > &high_res ) then
+   display REMARK   3   FROM WILSON PLOT           (A**2) :$BW[f5.1]
+else
+   display REMARK   3   FROM WILSON PLOT           (A**2) : NONE
+end if
+{- END MODIFICATION -}
+display REMARK   3   MEAN B VALUE      (OVERALL, A**2) :$BMEAN_ALL[f5.1]
+display REMARK   3   OVERALL ANISOTROPIC B VALUE.
+display REMARK   3    B11 (A**2) :$aniso_11[f6.2]
+display REMARK   3    B22 (A**2) :$aniso_22[f6.2]
+display REMARK   3    B33 (A**2) :$aniso_33[f6.2]
+display REMARK   3    B12 (A**2) :$aniso_12[f6.2]
+display REMARK   3    B13 (A**2) :$aniso_13[f6.2]
+display REMARK   3    B23 (A**2) :$aniso_23[f6.2]
+
+if ( &bulk_sol = true ) then
+   display REMARK   3
+   display REMARK   3  BULK SOLVENT MODELING.
+   display REMARK   3   METHOD USED : FLAT MODEL
+   display REMARK   3   KSOL        : $sol_k_ref
+   display REMARK   3   BSOL        : $sol_b_ref (A**2)
+end if
+
+display REMARK   3
+display REMARK   3  ESTIMATED COORDINATE ERROR.
+display REMARK   3   ESD FROM LUZZATI PLOT        (A) :$ESDERR_LUZ[f5.2]
+display REMARK   3   ESD FROM SIGMAA              (A) :$ESDERR_SIGMAA[f5.2]
+evaluate ($low_res_cut=&low_res_cut)
+display REMARK   3   LOW RESOLUTION CUTOFF        (A) :$low_res_cut[f5.2]
+display REMARK   3
+display REMARK   3  CROSS-VALIDATED ESTIMATED COORDINATE ERROR.
+if ($ESDERR_LUZ_CV > 0.0) then
+display REMARK   3   ESD FROM C-V LUZZATI PLOT    (A) :$ESDERR_LUZ_CV[f5.2]
+else
+display REMARK   3   ESD FROM C-V LUZZATI PLOT    (A) : NONE
+end if
+if ($ESDERR_SIG_CV > 0.0) then
+display REMARK   3   ESD FROM C-V SIGMAA          (A) :$ESDERR_SIG_CV[f5.2]
+else
+display REMARK   3   ESD FROM C-V SIGMAA          (A) : NONE
+end if
+
+display REMARK   3
+display REMARK   3  RMS DEVIATIONS FROM IDEAL VALUES.
+display REMARK   3   BOND LENGTHS                 (A) :$RMSD_BOND[f6.3]
+display REMARK   3   BOND ANGLES            (DEGREES) :$RMSD_ANGL[f4.1]
+display REMARK   3   DIHEDRAL ANGLES        (DEGREES) :$RMSD_DIHE[f5.1]
+display REMARK   3   IMPROPER ANGLES        (DEGREES) :$RMSD_IMPR[f5.2]
+
+{ isotropic B factor refinement model: RESTRAINED|OVBERALL|GROUP }
+evaluate ($bfactor=&bfactor)
+display REMARK   3
+display REMARK   3  ISOTROPIC THERMAL MODEL : $bfactor
+display REMARK   3
+
+evaluate ($b_info=FALSE)
+if ($bfactor="RESTRAINED") then
+   if ($NATOM_PRO > 0) then
+      evaluate ($b_info=TRUE)
+   end if
+end if
+if ($b_info=TRUE) then
+   evaluate ($bsig_main=&bsig_main)
+   evaluate ($asig_main=&asig_main)
+   evaluate ($bsig_side=&bsig_side)
+   evaluate ($asig_side=&asig_side)
+   display REMARK   3  ISOTROPIC THERMAL FACTOR RESTRAINTS.    RMS    SIGMA
+   display REMARK   3   MAIN-CHAIN BOND              (A**2) :$BRMS_MAIN[f6.2] ;$BSIG_MAIN[f6.2]
+   display REMARK   3   MAIN-CHAIN ANGLE             (A**2) :$ARMS_MAIN[f6.2] ;$ASIG_MAIN[f6.2]
+   display REMARK   3   SIDE-CHAIN BOND              (A**2) :$BRMS_SIDE[f6.2] ;$BSIG_SIDE[f6.2]
+   display REMARK   3   SIDE-CHAIN ANGLE             (A**2) :$ARMS_SIDE[f6.2] ;$ASIG_SIDE[f6.2]
+else
+   display REMARK   3  ISOTROPIC THERMAL FACTOR RESTRAINTS.     RMS    SIGMA
+   display REMARK   3   MAIN-CHAIN BOND              (A**2) : NULL  ; NULL 
+   display REMARK   3   MAIN-CHAIN ANGLE             (A**2) : NULL  ; NULL
+   display REMARK   3   SIDE-CHAIN BOND              (A**2) : NULL  ; NULL
+   display REMARK   3   SIDE-CHAIN ANGLE             (A**2) : NULL  ; NULL
+end if
+
+display REMARK   3
+
+
+{ ncs model used in the refinement: NONE|CONSTR }                                             
+{ STRICT means CONSTR }
+if (&strict_ncs_file # " ") then
+   display REMARK   3  NCS MODEL : CONSTR
+else
+   display REMARK   3  NCS MODEL : NONE
+end if
+
+display REMARK   3
+display REMARK   3  NCS RESTRAINTS.                         RMS   SIGMA/WEIGHT
+display REMARK   3   GROUP  1  POSITIONAL            (A) : NULL  ; NULL
+display REMARK   3   GROUP  1  B-FACTOR           (A**2) : NULL  ; NULL
+
+
+display REMARK   3
+
+if (&par_1 # " " ) then
+   evaluate ($par_1=&par_1)
+   evaluate ($t=$par_1-"CNS_TOPPAR:")
+   if ($t # $par_1) then
+     evaluate ($par_1="CNS_TOPPAR/"+$t)
+   end if
+   display REMARK   3  PARAMETER FILE  1  : $par_1
+else
+   display REMARK   3  PARAMETER FILE  1  : NULL
+end if
+if (&par_2 # " " ) then
+   evaluate ($par_2=&par_2)
+   evaluate ($t=$par_2-"CNS_TOPPAR:")
+   if ($t # $par_2) then
+     evaluate ($par_2="CNS_TOPPAR/"+$t)
+   end if
+   display REMARK   3  PARAMETER FILE  2  : $par_2
+else
+   display REMARK   3  PARAMETER FILE  2  : NULL
+end if
+if (&par_3 # " " ) then
+   evaluate ($par_3=&par_3)
+   evaluate ($t=$par_3-"CNS_TOPPAR:")
+   if ($t # $par_3) then
+     evaluate ($par_3="CNS_TOPPAR/"+$t)
+   end if
+   display REMARK   3  PARAMETER FILE  3  : $par_3
+end if
+if (&par_4 # " " ) then
+   evaluate ($par_4=&par_4)
+   evaluate ($t=$par_4-"CNS_TOPPAR:")
+   if ($t # $par_4) then
+     evaluate ($par_4="CNS_TOPPAR/"+$t)
+   end if
+   display REMARK   3  PARAMETER FILE  4  : $par_4
+end if
+if (&par_5 # " " ) then
+   evaluate ($par_5=&par_5)
+   evaluate ($t=$par_5-"CNS_TOPPAR:")
+   if ($t # $par_5) then
+     evaluate ($par_5="CNS_TOPPAR/"+$t)
+   end if
+   display REMARK   3  PARAMETER FILE  5  : $par_5
+end if
+if (&par_6 # " " ) then
+   evaluate ($par_6=&par_6)
+   evaluate ($t=$par_6-"CNS_TOPPAR:")
+   if ($t # $par_5) then
+     evaluate ($par_6="CNS_TOPPAR/"+$t)
+   end if
+   display REMARK   3  PARAMETER FILE  6  : $par_6
+end if
+if (&par_7 # " " ) then
+   evaluate ($par_7=&par_7)
+   evaluate ($t=$par_7-"CNS_TOPPAR:")
+   if ($t # $par_7) then
+     evaluate ($par_7="CNS_TOPPAR/"+$t)
+   end if
+   display REMARK   3  PARAMETER FILE  7  : $par_7
+end if
+if (&par_8 # " " ) then
+   evaluate ($par_8=&par_8)
+   evaluate ($t=$par_8-"CNS_TOPPAR:")
+   if ($t # $par_8) then
+     evaluate ($par_8="CNS_TOPPAR/"+$t)
+   end if
+   display REMARK   3  PARAMETER FILE  8  : $par_8
+end if
+
+if (&top_1 # " " ) then
+   evaluate ($top_1=&top_1)
+   evaluate ($t=$top_1-"CNS_TOPPAR:")
+   if ($t # $top_1) then
+     evaluate ($top_1="CNS_TOPPAR/"+$t)
+   end if
+   display REMARK   3  TOPOLOGY FILE  1   : $top_1
+else
+   display REMARK   3  TOPOLOGY FILE  1   : NULL
+end if
+if (&top_2 # " " ) then
+   evaluate ($top_2=&top_2)
+   evaluate ($t=$top_2-"CNS_TOPPAR:")
+   if ($t # $top_2) then
+     evaluate ($top_2="CNS_TOPPAR/"+$t)
+   end if
+   display REMARK   3  TOPOLOGY FILE  2   : $top_2
+else
+   display REMARK   3  TOPOLOGY FILE  2   : NULL
+end if
+if (&top_3 # " " ) then
+   evaluate ($top_3=&top_3)
+   evaluate ($t=$top_3-"CNS_TOPPAR:")
+   if ($t # $top_3) then
+     evaluate ($top_3="CNS_TOPPAR/"+$t)
+   end if
+   display REMARK   3  TOPOLOGY FILE  3   : $top_3
+end if
+if (&top_4 # " " ) then
+   evaluate ($top_4=&top_4)
+   evaluate ($t=$top_4-"CNS_TOPPAR:")
+   if ($t # $top_4) then
+     evaluate ($top_4="CNS_TOPPAR/"+$t)
+   end if
+   display REMARK   3  TOPOLOGY FILE  4   : $top_4
+end if
+if (&top_5 # " " ) then
+   evaluate ($top_5=&top_5)
+   evaluate ($t=$top_5-"CNS_TOPPAR:")
+   if ($t # $top_5) then
+     evaluate ($top_5="CNS_TOPPAR/"+$t)
+   end if
+   display REMARK   3  TOPOLOGY FILE  5   : $top_5
+end if
+if (&top_6 # " " ) then
+   evaluate ($top_6=&top_6)
+   evaluate ($t=$top_6-"CNS_TOPPAR:")
+   if ($t # $top_6) then
+     evaluate ($top_6="CNS_TOPPAR/"+$t)
+   end if
+   display REMARK   3  TOPOLOGY FILE  6   : $top_6
+end if
+if (&top_7 # " " ) then
+   evaluate ($top_7=&top_7)
+   evaluate ($t=$top_7-"CNS_TOPPAR:")
+   if ($t # $top_7) then
+     evaluate ($top_7="CNS_TOPPAR/"+$t)
+   end if
+   display REMARK   3  TOPOLOGY FILE  7   : $top_7
+end if
+if (&top_8 # " " ) then
+   evaluate ($top_8=&top_8)
+   evaluate ($t=$top_8-"CNS_TOPPAR:")
+   if ($t # $top_8) then
+     evaluate ($top_8="CNS_TOPPAR/"+$t)
+   end if
+   display REMARK   3  TOPOLOGY FILE  8   : $top_8
+end if
+
+{- BEGIN MODIFICATION -}
+evaluate ($other_record=true)
+display REMARK   3
+if (&weighting=true) then
+   display REMARK   3  OTHER REFINEMENT REMARKS: RESOLUTION-DEPENDENT WEIGHTING SCHEME USED
+   evaluate ($other_record=false)
+end if 
+if (&bulk_sol=true) then
+   display REMARK   3  OTHER REFINEMENT REMARKS: BULK SOLVENT MODEL USED
+   evaluate ($other_record=false)
+end if 
+if ($other_record=true) then
+   display REMARK   3  OTHER REFINEMENT REMARKS: NULL
+end if
+{- END MODIFICATION -}
+
+
+
+{ define chains and store them in STORE1 }
+{ -------------------------------------- }
+
+do (store8=0) ( all )
+
+set message=off end
+set echo=off end
+
+evaluate ($ic=0)
+
+for $cid in ( A B C D E F G H I J K L M N O P Q R S T U V W X Y Z ) loop main
+ 
+    if ($cid = "A") then
+      ident (store9) ( &chain_a )
+
+    elseif ($cid = "B") then
+      ident (store9) ( &chain_b )   
+
+    elseif ($cid = "C") then
+      ident (store9) ( &chain_c )
+
+    elseif ($cid = "D") then
+      ident (store9) ( &chain_d )
+   
+    elseif ($cid = "E") then
+      ident (store9) ( &chain_e )
+   
+    elseif ($cid = "F") then
+      ident (store9) ( &chain_f )
+   
+    elseif ($cid = "G") then
+      ident (store9) ( &chain_g )
+   
+    elseif ($cid = "H") then
+      ident (store9) ( &chain_h )
+   
+    elseif ($cid = "I") then
+      ident (store9) ( &chain_i )
+   
+    elseif ($cid = "J") then
+      ident (store9) ( &chain_j )
+   
+    elseif ($cid = "K") then
+      ident (store9) ( &chain_k )
+   
+    elseif ($cid = "L") then
+      ident (store9) ( &chain_l )
+   
+    elseif ($cid = "M") then
+      ident (store9) ( &chain_m )
+   
+    elseif ($cid = "N") then
+      ident (store9) ( &chain_n )
+   
+    elseif ($cid = "O") then
+      ident (store9) ( &chain_o )
+   
+    elseif ($cid = "P") then
+      ident (store9) ( &chain_p )
+   
+    elseif ($cid = "Q") then
+      ident (store9) ( &chain_q )
+   
+    elseif ($cid = "R") then
+      ident (store9) ( &chain_r )
+   
+    elseif ($cid = "S") then
+      ident (store9) ( &chain_s )
+   
+    elseif ($cid = "T") then
+      ident (store9) ( &chain_t )
+   
+    elseif ($cid = "U") then
+      ident (store9) ( &chain_u )
+   
+    elseif ($cid = "V") then
+      ident (store9) ( &chain_v )
+   
+    elseif ($cid = "W") then
+      ident (store9) ( &chain_w )
+   
+    elseif ($cid = "X") then
+      ident (store9) ( &chain_x )
+   
+    elseif ($cid = "Y") then
+      ident (store9) ( &chain_y )
+   
+    elseif ($cid = "Z") then
+      ident (store9) ( &chain_z )
+
+    end if
+    
+    show sum ( store9 ) ( store9 ) 
+    
+    if ($select>0) then
+    
+      evaluate ($ic=$ic+1)
+      
+      evaluate ($segn_$ic=$cid) 
+ 
+      do (store8=$ic) ( store9 ) 
+      
+      { total number of residues per chain }
+      show sum ( 1 ) ( store9 and tag )
+      evaluate ($nres_$cid=$result) 
+      
+      evaluate ($k=0)
+      evaluate ($l=0)
+
+      for $atom_id in id ( store9 and tag ) loop chain
+         
+         show elem ( resname ) ( id $atom_id )
+
+         evaluate ($k=$k+1)
+         if ($k = 1) then
+            evaluate ($SEQRES=$result)
+         else
+            evaluate ($SEQRES=$SEQRES+" "+$result)
+         end if
+         if ($k = 13) then
+            evaluate ($l=$l+1)
+            display SEQRES $l[i3] $cid[a1] $nres_$cid[i4]  $SEQRES[a51]
+            evaluate ($k=0)
+         end if
+ 
+      end loop chain
+
+
+      { make sure to write the remaining residues }
+      if ($k > 0) then
+         evaluate ($l=$l+1)
+         display SEQRES $l[i3] $cid[a1] $nres_$cid[i4]  $SEQRES[a51]
+      end if
+
+
+   end if
+  
+end loop main
+
+{ store various selections before we rename the SEGIDs }
+ident (store1) ( &all_select )
+ident (store2) ( &protein_select )
+ident (store3) ( &nucleic_select )
+
+{ Rename the SEGID array to the PDB ID chain name }
+evaluate ($k=0)
+while ($k < $ic) loop che
+   evaluate ($k=$k+1)
+   if ($k=1) then
+      do (segid="A") ( attr store8 = $k ) 
+   elseif ($k=2) then
+      do (segid="B") ( attr store8 = $k ) 
+   elseif ($k=3) then
+      do (segid="C") ( attr store8 = $k ) 
+   elseif ($k=4) then
+      do (segid="D") ( attr store8 = $k ) 
+   elseif ($k=5) then
+      do (segid="E") ( attr store8 = $k ) 
+   elseif ($k=6) then
+      do (segid="F") ( attr store8 = $k ) 
+   elseif ($k=7) then
+      do (segid="G") ( attr store8 = $k ) 
+   elseif ($k=8) then
+      do (segid="H") ( attr store8 = $k ) 
+   elseif ($k=9) then
+      do (segid="I") ( attr store8 = $k ) 
+   elseif ($k=10) then
+      do (segid="J") ( attr store8 = $k ) 
+   elseif ($k=11) then
+      do (segid="K") ( attr store8 = $k ) 
+   elseif ($k=12) then
+      do (segid="L") ( attr store8 = $k ) 
+   elseif ($k=13) then
+      do (segid="M") ( attr store8 = $k ) 
+   elseif ($k=14) then
+      do (segid="N") ( attr store8 = $k ) 
+   elseif ($k=15) then
+      do (segid="O") ( attr store8 = $k ) 
+   elseif ($k=16) then
+      do (segid="P") ( attr store8 = $k ) 
+   elseif ($k=17) then
+      do (segid="Q") ( attr store8 = $k ) 
+   elseif ($k=18) then
+      do (segid="R") ( attr store8 = $k ) 
+   elseif ($k=19) then
+      do (segid="S") ( attr store8 = $k ) 
+   elseif ($k=20) then
+      do (segid="T") ( attr store8 = $k ) 
+   elseif ($k=21) then
+      do (segid="U") ( attr store8 = $k ) 
+   elseif ($k=22) then
+      do (segid="V") ( attr store8 = $k ) 
+   elseif ($k=23) then
+      do (segid="W") ( attr store8 = $k ) 
+   elseif ($k=24) then
+      do (segid="X") ( attr store8 = $k ) 
+   elseif ($k=25) then
+      do (segid="Y") ( attr store8 = $k ) 
+   elseif ($k=26) then
+      do (segid="Z") ( attr store8 = $k ) 
+   end if
+end loop che
+
+set message=off end
+set echo=off end
+
+
+
+{* ================================================ *}                                       
+{* Produce SSBOND records                           *}
+
+ ident (store9) ( name SG and resname CYS and store1 )
+
+ evaluate ($NSSBND=0)
+ for $i in id ( store9 ) loop i
+   for $j in id ( store9 ) loop j 
+ 
+     if ($i < $j) then
+
+       pick bond (id $i) (id $j) geometry
+       evaluate ($dist=$result)
+
+       if ($dist < 2.3) then
+         evaluate ($NSSBND=$NSSBND+1)
+         show elem (resid) ( id $i )
+         evaluate ($iresid=decode($result))
+         show elem (resid) ( id $j )
+         evaluate ($jresid=decode($result))
+         show elem (segid) ( id $i )
+         evaluate ($iseg=$result)
+         show elem (segid) ( id $j )
+         evaluate ($jseg=$result)
+         display SSBOND $NSSBND[i3] CYS $iseg[a1] $iresid[i4]    CYS $jseg[a1] $jresid[i4]
+       end if
+
+     end if
+
+   end loop j
+ end loop i
+
+
+
+{* ================================================ *}                                       
+{* Produce CRYST1 record                            *}
+
+  xray 
+
+    {* get the name of space group in the PDB's convention *}
+    @@CNS_XTALMODULE:pdbgetsgname
+     (   
+        sg=$sgparam.sg_number;              { space group number        }
+        sgname=$sg_pdb;             { return PDB's s.g. name    }
+     )
+
+    {* define Z (as per PDB definition) *}
+    evaluate ($z=$sgparam.nsym*$ncs*$ic)
+
+    display CRYST1 $XRCELL_1[f8.3] $XRCELL_2[f8.3] $XRCELL_3[f8.3] \
+$XRCELL_4[f6.2] $XRCELL_5[f6.2] $XRCELL_6[f6.2] $sg_pdb[a10] $z[i4] 
+
+
+  end
+
+
+{* ================================================ *}                                       
+{* Produce ORIGXn record                            *}
+
+  evaluate ($zero=0.0)
+  evaluate ($one=1.0)
+
+  display ORIGX1     $one[f9.6] $zero[f9.6] $zero[f9.6]      $zero[f9.5]
+  display ORIGX2     $zero[f9.6] $one[f9.6] $zero[f9.6]      $zero[f9.5]
+  display ORIGX3     $zero[f9.6] $zero[f9.6] $one[f9.6]      $zero[f9.5]
+
+
+
+{* ================================================ *}                                       
+{* Produce SCALEn record                            *}
+
+  xray 
+  
+    evaluate ($zero=0.0)
+
+    display SCALE1     $XRTR_1_1[f9.6] $XRTR_1_2[f9.6] $XRTR_1_3[f9.6]      $zero[f9.5]
+    display SCALE2     $XRTR_2_1[f9.6] $XRTR_2_2[f9.6] $XRTR_2_3[f9.6]      $zero[f9.5]
+    display SCALE3     $XRTR_3_1[f9.6] $XRTR_3_2[f9.6] $XRTR_3_3[f9.6]      $zero[f9.5]
+
+  end
+
+
+{* ============================================== *}
+{* Produce MTRIXn records  (if any, $ncs >1)      *}
+
+  if ($ncs > 1) then
+
+  {* produce records MTRIXn, in symbols "$MTRIX_$i_$j_$k" *}
+
+     evaluate ($k=1)
+     while ($k < $ncs) loop k
+       evaluate ($k=$k+1)
+
+       {* transfer the matrixes into MTRIX *}
+       evaluate ($i=1)
+       while ($i < 4) loop i
+         evaluate ($j=0)
+         while ($j < 4) loop j
+           evaluate ($j=$j+1)
+           evaluate ($mtrix_$i_$j_$k=$NCSOP_$k_$i_$j)
+         end loop j
+         evaluate ($i=$i+1)
+       end loop i
+     end loop k
+
+  {* WRITE OUT NCS MATRIX IN THE PDB DEPOSIT FORMAT        *}
+  {* "$mtrix_$i_$j_$k" is rotation matrix for "$j=1,2,3"   *}
+  {*                   is translation vector when "$j=4"   *}
+
+
+     evaluate ($mtrix_1_1_1=1.0)
+     evaluate ($mtrix_1_2_1=0.0)
+     evaluate ($mtrix_1_3_1=0.0)
+     evaluate ($mtrix_2_1_1=0.0)
+     evaluate ($mtrix_2_2_1=1.0)
+     evaluate ($mtrix_2_3_1=0.0)
+     evaluate ($mtrix_3_1_1=0.0)
+     evaluate ($mtrix_3_2_1=0.0)
+     evaluate ($mtrix_3_3_1=1.0)
+     evaluate ($mtrix_1_4_1=0.0)
+     evaluate ($mtrix_2_4_1=0.0)
+     evaluate ($mtrix_3_4_1=0.0)
+   
+     evaluate ($k=0)
+     while ($k < $ncs) loop kk
+       evaluate ($k=$k+1)
+
+   display MTRIX1 $k[i3] $mtrix_1_1_$k[f9.6] $mtrix_1_2_$k[f9.6] \
+$mtrix_1_3_$k[f9.6]      $mtrix_1_4_$k[f9.5] 
+   display MTRIX2 $k[i3] $mtrix_2_1_$k[f9.6] $mtrix_2_2_$k[f9.6] \
+$mtrix_2_3_$k[f9.6]      $mtrix_2_4_$k[f9.5] 
+   display MTRIX3 $k[i3] $mtrix_3_1_$k[f9.6] $mtrix_3_2_$k[f9.6] \
+$mtrix_3_3_$k[f9.6]      $mtrix_3_4_$k[f9.5]
+
+
+     end loop kk
+
+
+   end if    
+
+
+
+
+{* ================================================ *}                                       
+{* Produce ATOM records                             *}
+
+{ write all connected chains first }
+ident (store8) (  none ) 
+evaluate ($ii=0)
+while ($ii < $ic) loop atm
+   evaluate ($ii=$ii+1)
+
+   show sum (store8) (  segid $segn_$ii and ( store2 or store3 ) ) 
+   if ($select>0) then
+    write coor 
+      format=PDBAtom output=$display 
+      sele=(  segid $segn_$ii and ( store2 or store3 ) ) 
+    end
+   end if
+   
+   ! separate by TER cards
+   set display=$display end   
+   display TER
+
+   ident (store8) ( store8 or ( segid $segn_$ii and ( store2 or store3 ) ) ) 
+end loop atm
+
+{* ================================================ *}                                       
+{* Produce HETATM records                           *}
+
+evaluate ($ii=0)
+while ($ii < $ic) loop atm2
+   evaluate ($ii=$ii+1)
+ 
+   show sum (store8) (  segid $segn_$ii and not ( store2 or store3 ) ) 
+   if ($select>0) then
+    write coor 
+      format=PDBHetatm output=$display 
+      sele=(  segid $segn_$ii and not ( store2 or store3 ) ) 
+    end
+   end if  
+   ident (store8) ( store8 or ( segid $segn_$ii and not ( store2 or store3 ) ) ) 
+end loop atm2
+
+{* ================================================ *}                                       
+{* write all remaining atoms                        *}
+
+show sum (store8) (not store8 and store1 )
+if ($select>0) then
+
+   if (&ignore_missing = false) then
+      write coor 
+         format=PDBHetatm output=$display 
+         sele= (not store8 and store1 )
+      end
+   else
+      set display=OUTPUT end
+      display
+      display ******************************************************************************************
+      display WARNING: there are atoms that have not been included in the specified chain ID selections
+      display          and you specified that these atoms are to be ignored.  
+      display          Is this intended?  Re-run this job and select the remaining atoms to 
+      display          produce multiple (split) PDB submission files. 
+      display ******************************************************************************************
+      display
+      display
+   end if
+
+end if
+
+{* write END statement *}
+set display=$display end   
+display END
+
+
+
+
+

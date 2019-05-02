@@ -1,0 +1,104 @@
+<HTML>
+<HEAD>
+   <TITLE>Crystallography & NMR System</TITLE>
+</HEAD>
+<BODY BGCOLOR=#8ebf8e>
+
+<HR WIDTH="100%"></P>
+
+<H2>Generating the molecular topology</H2>
+
+<HR WIDTH="100%"></P>
+
+<P>The molecular topology information must be first generated for the
+structure - this contains the information about molecular
+connectivity. This information is then be used in the next step to
+generate starting (extended conformation) coordinates. The molecular
+topology is generated from the sequence (not coordinates). This is
+done with the CNS task file <TT>generate_seq.inp</TT>.</P>
+
+<PRE>
+      cns_solve &lt; <A HREF="generate_seq.inp">generate_seq.inp</A> &gt; generate_seq.out
+</PRE>
+
+<P>Note that this structure contains 2 separate chains, thus 2
+sequence files are made. This will result in a molecular topology with
+2 unconnected chains, in CNS there is no way to specify a break in a
+chain purely based on the sequence. The 2 sequence files have this format:</P>
+
+<PRE>
+MET VAL LYS GLN ILE GLU SER LYS THR ALA
+PHE GLN GLU ALA LEU ASP ALA ALA GLY ASP
+LYS LEU VAL VAL VAL ASP PHE SER ALA THR
+TRP CYS GLY PRO ALA LYS MET ILE LYS PRO
+PHE PHE HIS SER LEU SER GLU LYS TYR SER
+ASN VAL ILE PHE LEU GLU VAL ASP VAL ASP
+ASP ALA GLN ASP VAL ALA SER GLU ALA GLU
+VAL LYS ALA THR PRO THR PHE GLN PHE PHE
+LYS LYS GLY GLN LYS VAL GLY GLU PHE SER
+GLY ALA ASN LYS GLU LYS LEU GLU ALA THR
+ILE ASN GLU LEU VAL
+</PRE>
+
+<P>and</P>
+
+<PRE>
+PRO ALA THR LEU LYS ILE CYS SER TRP ASN
+VAL ASP GLY
+</PRE>
+
+<P>The two chains are input as 2 different sequence files and given
+different segment identifiers (for ease of analysis later on). Also,
+the numbering for the second chain is begun at 106:</P>
+
+<PRE>
+{* protein sequence file *}
+{===>} prot_sequence_infile_1="trx_a.seq";
+{* segid *}
+{===>} prot_segid_1="A";
+{* start residue numbering at *}
+{===>} renumber_1=1;
+
+{* protein sequence file *}
+{===>} prot_sequence_infile_2="trx_b.seq";
+{* segid *}
+{===>} prot_segid_2="B";
+{* start residue numbering at *}
+{===>} renumber_2=106;
+</PRE>
+
+<P>It is also important to include any disulphide bonds at this stage
+- as they require the addition of bond information to the molecular
+topology. Here there is a bond between the 2 chains (residue 32 to
+residue 112):</P>
+
+<PRE>
+{=========================== disulphide bonds ==============================}
+
+{* Select pairs of cysteine residues that form disulphide bonds *}
+{* First 2 entries are the segid and resid of the first cysteine (CYS A). *}
+{* Second 2 entries are the segid and resid of the second cysteine (CYS B). *}
+{+ table: rows=8 numbered
+   cols=5 "use" "segid CYS A" "resid CYS A" "segid CYS B" "resid CYS B" +}
+
+{+ choice: true false +}
+{===>} ss_use_1=true;
+{===>} ss_i_segid_1="A"; ss_i_resid_1=32;
+{===>} ss_j_segid_1="B"; ss_j_resid_1=112;
+</PRE>
+
+<P>There is one file generated: an MTF file (this contains the
+molecular topology information which describes to covalent topology of
+the molecule).<P>
+
+<BR><A HREF="tutorial.csh">Script to run this tutorial</A>
+
+<HR WIDTH="100%"></P>
+
+<A HREF="../../text.html">Back to tutorials</A>&nbsp;&nbsp;
+<A HREF="../extended/text.html">Next section</A>
+
+<HR WIDTH="100%"></P>
+   
+</BODY>
+</HTML>

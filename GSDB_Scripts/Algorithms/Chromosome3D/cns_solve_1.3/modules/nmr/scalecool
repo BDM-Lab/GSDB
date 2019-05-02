@@ -1,0 +1,68 @@
+! module file: scalecool
+!
+! CNS MODULE
+! **********
+!
+! Authors: Gregory L. Warren and Axel T. Brunger
+!
+! copyright Yale University
+!
+! version 2/25/98
+!
+! Function:
+!    This module sets the NMR restraint data weighting 
+!    for dani and sani in the first or second slow-cooling 
+!    dynamics sections
+!
+! Requirements:
+!    See the top level script file for the 
+!    defined parameter(s). 
+! 
+!
+
+module { scalecool }
+( 
+   &kdani=kdani;             {INPUT: dani force and class numbers}
+   &ksani=ksani;             {INPUT: sani force and class numbers}
+   &nmr=nmr;                 {INPUT: nmr restraints parameters}
+)
+
+checkversion 1.3
+
+set message ? end
+evaluate ($message_old=$result)
+set echo ? end
+evaluate ($echo_old=$result)
+if ( $log_level = verbose ) then
+  set echo=on message=normal end
+else
+  set echo=off message=off end
+end if
+
+   evaluate ($count = 1)
+   while (&exist%nmr.dani.file.$count=true) loop nloop
+      evaluate ($clsname = "D"+encode($count))
+      if (&nmr.dani.file.$count # "" ) then
+         evaluate (&kdani.$count  = min(&kdani.finish,
+                                        &kdani.$count*&kdani.fac.$count))
+         dani
+            class $$clsname force &kdani.$count
+         end
+      end if
+      evaluate ($count = $count + 1)
+   end loop nloop
+
+   evaluate ($count = 1)
+   while (&exist%nmr.sani.file.$count=true) loop nloop
+      evaluate ($clsname = "S"+encode($count))
+      if (&nmr.sani.file.$count # "" ) then
+         evaluate (&ksani.$count  = min(&ksani.finish,
+                                        &ksani.$count*&ksani.fac.$count))
+         sani
+            class $$clsname force &ksani.$count
+         end
+      end if
+      evaluate ($count = $count + 1)
+   end loop nloop
+
+set message=$message_old echo=$echo_old end

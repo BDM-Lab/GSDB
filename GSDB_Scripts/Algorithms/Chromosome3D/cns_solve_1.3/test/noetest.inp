@@ -1,0 +1,267 @@
+remarks  test NOE restraints facility
+remarks  
+
+topology @CNS_TOPPAR:protein.top end
+parameter @CNS_TOPPAR:protein.param end
+
+segment
+   name=mol1
+   molecule  name=lys number=1 end
+end
+segment
+   name=mol2
+   molecule name=lys number=1 end
+end
+
+delete selection=( not ( name nz or name hz* or name ce )) end
+
+coor
+remarks test
+ATOM      1  CE  LYS     1      -0.484   1.367   0.000  1.00  0.00      MOL1
+ATOM      2  NZ  LYS     1       0.000   0.000   0.000  1.00  0.00      MOL1
+ATOM      3  HZ1 LYS     1       1.040   0.000   0.000  1.00  0.00      MOL1
+ATOM      4  HZ2 LYS     1      -0.346  -0.491   0.849  1.00  0.00      MOL1
+ATOM      5  HZ3 LYS     1      -0.346  -0.491  -0.849  1.00  0.00      MOL1
+ATOM      6  CE  LYS     1      -0.484   1.367   0.000  1.00  0.00      MOL2
+ATOM      7  NZ  LYS     1       0.000   0.000   0.000  1.00  0.00      MOL2
+ATOM      8  HZ1 LYS     1       1.040   0.000   0.000  1.00  0.00      MOL2
+ATOM      9  HZ2 LYS     1      -0.346  -0.491   0.849  1.00  0.00      MOL2
+ATOM     10  HZ3 LYS     1      -0.346  -0.491  -0.849  1.00  0.00      MOL2
+END
+
+coor rotate   angle=180.0   selection=( segid mol2 )  vector=( 0.0 0.0 1.0) end
+
+coor translate vector=( 1.0 0.0 0.0 ) dist=3.0  selection=( segid mol2 ) end
+
+write coor end
+
+flags  exclude * include noe   end
+
+{* generate one NOE constraint among groups of hydrogens *}
+{* ===================================================== *}
+
+noe
+  reset
+  nrestraints=100
+  temperature=300.0
+  class one
+  assign ( atom mol1 1 hz* ) ( atom mol2 1 hz*)  4.0  0.08 0.17
+  ?
+end
+
+print threshold 0.5  noe
+noe scale one 0.5 end
+print threshold 0.5 noe
+noe scale one 0.8 end
+print threshold 0.5 noe
+noe scale one 1.0 end
+print threshold 0.5 noe
+
+pick bond ( atom mol1 1 hz1 ) ( atom mol2 1 hz1 ) geometry
+pick bond ( atom mol1 1 hz1 ) ( atom mol2 1 hz2 ) geometry
+pick bond ( atom mol1 1 hz1 ) ( atom mol2 1 hz3 ) geometry
+pick bond ( atom mol1 1 hz2 ) ( atom mol2 1 hz1 ) geometry
+pick bond ( atom mol1 1 hz2 ) ( atom mol2 1 hz2 ) geometry
+pick bond ( atom mol1 1 hz2 ) ( atom mol2 1 hz3 ) geometry
+pick bond ( atom mol1 1 hz3 ) ( atom mol2 1 hz1 ) geometry
+pick bond ( atom mol1 1 hz3 ) ( atom mol2 1 hz2 ) geometry
+pick bond ( atom mol1 1 hz3 ) ( atom mol2 1 hz3 ) geometry
+
+energy end
+
+test first   step=0.0001 tol=0.0 selection=( hydrogen )   end
+
+
+{* translate second molecule in order to test switch *}
+{* ================================================= *}
+                    
+coor translate vector=( 1.0 0.0 0.0 ) dist=3.0  selection=( segid mol2 ) end
+
+print threshold 0.5 noe
+                    
+energy end
+
+test first   step=0.0001 tol=0.0 selection=( hydrogen )   end
+
+
+
+
+{* add another NOE constraint *}
+{* ========================== *}
+noe
+  temperature=300.0
+  class two
+  assign ( atom mol1 1 hz1 ) ( atom mol2 1 hz2 )  4.0  0.03  0.12
+end
+
+noe scale two 3.0 end
+print threshold 0.5 noe
+noe scale two 1.0 end
+print threshold 0.5 noe
+
+energy end
+
+test first   step=0.0001 tol=0.0 selection=( hydrogen )   end
+
+display    $NOE
+
+{* test NOE PREDict facility *}
+{* ========================= *}
+noe
+   predict from=( hydrogen ) to=( hydrogen )  cuton=0.0 cutoff=10.0 end
+end
+
+
+{* now test the square-well potential *}
+noe
+   reset
+   nrestraints=100
+   class three
+      assign ( atom mol1 1 hz1 ) ( atom mol2 1 hz2 )  4.0  1.0  2.0
+      scale three 1.0
+      potential three square-well     
+      sqconstant three 20.0   
+      sqexponent three 4
+end
+
+print threshold 0.5 noe
+
+coor translate vector=( 7.0 0.0 0.0 ) sele=( segid mol1 ) end
+print threshold 0.5 noe
+test first   step=0.0001 tol=0.0 selection=( hydrogen )   end
+minimize powell nstep=30 end
+print threshold 0.5 noe
+
+coor translate vector=( -10.0 -2.0 -1.0 ) sele=( segid mol1 ) end
+print threshold 0.5 noe
+test first   step=0.0001 tol=0.0 selection=( hydrogen )   end
+minimize powell nstep=30 end
+print threshold 0.5 noe
+
+
+noe
+   class four
+   potential=four=biharmonic
+   averaging=four=center
+   assign ( atom mol1 1 hz* ) ( atom mol2 1 hz2 or atom mol2 1 hz1 )  
+            4.0  2.0  2.0
+end
+
+print threshold 0.5  noe
+pick bond ( atom mol1 1 hz* ) ( atom mol2 1 hz2 or atom mol2 1 hz1 ) geometry
+test first   step=0.0001 tol=0.0 selection=( hydrogen )   end
+
+noe 
+   scale three 0.0 
+end
+mini powell nstep=20 end
+print threshold 0.5 noe
+
+noe
+   scale thre 1.0
+   sqoffset thre 0.5
+end
+print threshold 0.5  noe
+
+noe
+   class five 
+   potential=five=square 
+   averaging=five=center
+   assign ( atom mol1 1 hz1 ) ( atom mol2 1 hz2 ) 
+            8.0  2.0  2.0
+   class six 
+   potential=six=square 
+   averaging=six=center
+   assign ( atom mol1 1 hz1 ) ( atom mol2 1 hz2 ) 
+            3.0  2.0  2.0
+   countviolations five
+   display  $result
+   countviolations six
+   display  $result
+end
+print noe
+noe                   
+   distribute five six 5.0
+end
+print noe 
+energy end
+noe
+   reset
+   nrestraints=100
+   class five 
+   potential=five=soft 
+   soexponent five 1
+   sqconstant five 2.0
+   sqexponent five 2
+   rswitch five 3.0
+   asymptote five 0.0
+   averaging=five=center
+   assign ( atom mol1 1 hz1 ) ( atom mol2 1 hz2 ) 
+            2.0  2.0  2.0
+   class six 
+   potential=six=square 
+   sqconstant six 2.0
+   sqexponent six 2
+   averaging=six=center
+   assign ( atom mol1 1 hz1 ) ( atom mol2 1 hz2 ) 
+            2.0  2.0  2.0
+end
+print noe
+energy end
+noe 
+   rswitch five 4.0
+end
+print noe
+energy end
+
+noe 
+   rswitch five 2.0
+end
+print noe
+energy end
+
+coor translate sele=( segid mol2 ) vector=( -1.0 -1.0 -1.0 ) end
+print noe
+coor translate sele=( segid mol2 ) vector=( -1.0 -1.0 -1.0 ) end
+print noe
+coor translate sele=( segid mol2 ) vector=( -1.0 -1.0 -1.0 ) end
+print noe
+coor translate sele=( segid mol2 ) vector=( -1.0 -1.0 -1.0 ) end
+print noe
+coor translate sele=( segid mol2 ) vector=( -1.0 -1.0 -1.0 ) end
+print noe
+coor translate sele=( segid mol2 ) vector=( -1.0 -1.0 -1.0 ) end
+print noe
+coor translate sele=( segid mol2 ) vector=( -1.0 -1.0 -1.0 ) end
+print noe
+
+noe
+   assign ( atom mol1 1 hz1 ) ( atom mol2 1 hz2)  4.0  0.08 0.17
+end
+energy end
+
+set seed=1234 end
+
+noe
+   partition=2
+   cv=1
+   ?
+   print thres=0.
+end
+energy end
+print noe
+display  $rms   $violations
+display  $test_rms $test_violations
+
+
+noe
+   cv=2
+   ?
+   print thres=0.
+end
+energy end
+print noe
+display  $rms   $violations
+display  $test_rms $test_violations
+
+stop

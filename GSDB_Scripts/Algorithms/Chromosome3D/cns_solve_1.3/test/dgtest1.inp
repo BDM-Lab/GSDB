@@ -1,0 +1,672 @@
+remarks dgtest1.inp
+remarks test metric matrix distrance geometry module -- 
+remarks    basic tests on a TRP amino acid 
+remarks John Kuszewski and Axel T. Brunger
+remarks ==================================
+
+topology reset @CNS_TOPPAR:protein-allhdg5-4.top end   {* this is the DG-version of this file *}
+
+segment
+   name="TRYP"
+   chain
+      @CNS_TOPPAR:protein-allhdg5-4.link
+      sequence trp
+      end
+end
+end
+
+parameter 
+        @CNS_TOPPAR:protein-allhdg5-4.param 
+        nbonds repel = 0.8 end
+end
+
+coor
+ATOM      1  CA  TRP     1       1.331   1.246   0.096  1.00  0.00      TRYP
+ATOM      2  HA  TRP     1       1.571   0.780   1.039  1.00  0.00      TRYP
+ATOM      3  CB  TRP     1       2.535   2.085  -0.418  1.00  0.00      TRYP
+ATOM      4  HB1 TRP     1       2.239   2.586  -1.319  1.00  0.00      TRYP
+ATOM      5  HB2 TRP     1       2.751   2.850   0.315  1.00  0.00      TRYP
+ATOM      6  CG  TRP     1       3.804   1.229  -0.669  1.00  0.00      TRYP
+ATOM      7  CD1 TRP     1       4.717   0.866   0.299  1.00  0.00      TRYP
+ATOM      8  HD1 TRP     1       4.659   1.099   1.355  1.00  0.00      TRYP
+ATOM      9  CD2 TRP     1       4.351   0.653  -1.938  1.00  0.00      TRYP
+ATOM     10  NE1 TRP     1       5.724   0.123  -0.275  1.00  0.00      TRYP
+ATOM     11  HE1 TRP     1       6.486  -0.256   0.211  1.00  0.00      TRYP
+ATOM     12  CE2 TRP     1       5.557  -0.035  -1.629  1.00  0.00      TRYP
+ATOM     13  CE3 TRP     1       3.937   0.642  -3.303  1.00  0.00      TRYP
+ATOM     14  HE3 TRP     1       3.030   1.139  -3.603  1.00  0.00      TRYP
+ATOM     15  CZ2 TRP     1       6.307  -0.689  -2.607  1.00  0.00      TRYP
+ATOM     16  HZ2 TRP     1       7.219  -1.201  -2.337  1.00  0.00      TRYP
+ATOM     17  CZ3 TRP     1       4.699  -0.019  -4.279  1.00  0.00      TRYP
+ATOM     18  HZ3 TRP     1       4.371  -0.014  -5.308  1.00  0.00      TRYP
+ATOM     19  CH2 TRP     1       5.879  -0.680  -3.932  1.00  0.00      TRYP
+ATOM     20  HH2 TRP     1       6.459  -1.186  -4.691  1.00  0.00      TRYP
+ATOM     21  C   TRP     1       0.137   2.181   0.303  1.00  0.00      TRYP
+ATOM     22  O   TRP     1      -0.629   2.346  -0.631  1.00  0.00      TRYP
+ATOM     23  OXT TRP     1       0.010   2.715   1.393  1.00  0.00      TRYP
+ATOM     24  N   TRP     1       0.945   0.198  -0.894  1.00  0.00      TRYP
+ATOM     25  HT1 TRP     1       1.555  -0.635  -0.775  1.00  0.00      TRYP
+ATOM     26  HT2 TRP     1       1.057   0.571  -1.858  1.00  0.00      TRYP
+ATOM     27  HT3 TRP     1      -0.048  -0.074  -0.740  1.00  0.00      TRYP
+END
+
+topology 
+
+   pres dimp
+      delete improper HB1 HB2 CA CG 
+      delete improper HT1 HT2 CA HT3
+   end
+end
+
+patch dimp  reference=nil=( all ) end
+ 
+coor copy end
+
+flags include noe cdih end
+
+{* scale the energies to reduce precision dependencies of the output *}
+igroup 
+    interaction ( all ) ( all ) 
+        weight bond 0.001
+	       angl 0.001
+	       impr 0.001
+	       dihe 0.001
+	       vdw  0.001 
+	       elec 0.001 
+	end 
+end
+ 
+energy end
+
+{* =============================================================== *}
+{*    test 1: generate all possible distances and store as NOEs    *}
+{* =============================================================== *}
+set display prenoes.dat end
+
+set message=off end
+set echo=off end
+for $hy1 in id ( all ) loop hy1
+   for $hy2 in id ( all ) loop hy2
+        if ($hy1 # $hy2 ) then 
+   
+           pick bond (id $hy1) (id $hy2) geometry
+	
+           display assign (id $hy1) (id $hy2) 
+	   display        $result 0.01 0.01
+	end if
+   end loop hy2
+end loop hy1
+                                 
+close prenoes.dat end
+
+noe 
+   nres=2000 
+   class all @prenoes.dat
+end
+set message=on end
+set echo=on end
+
+set seed=12345 end
+
+mmdg
+        verbose off
+        iacc=5. tacc=5. bacc=0.2 pacc=5. 
+        random 
+        metrize (all) 100
+end
+
+set display=OUTPUT end
+display $embedded
+display $non_met_gap
+display $dgscale
+
+do (x = x * $dgscale) (all)
+do (y = y * $dgscale) (all)
+do (z = z * $dgscale) (all) 
+
+energy end
+evaluate ($chi_ener=$impr) 
+do (z=-z) ( all )
+energy end
+if ($impr > $chi_ener) then
+   do (z=-z) ( all )
+end if
+
+set message=off end   coor fit end    set message=on end
+coor rms end
+do (b=rmsd ) ( all )
+write coords end
+
+coor swap end
+coor copy end
+
+{* =============================================================== *}
+{*    test 2: generate all non-h distances and store as NOEs       *}
+{* =============================================================== *}
+set display prenoes.dat end
+
+set message=off end
+set echo=off end
+for $hy1 in id ( not hydrogen ) loop hy1
+   for $hy2 in id ( not hydrogen ) loop hy2
+        if ($hy1 # $hy2 ) then 
+   
+           pick bond (id $hy1 ) (id $hy2 ) geometry
+	
+           display assign (id $hy1) (id $hy2) 
+	   display        $result 0.01 0.01
+	end if
+   end loop hy2
+end loop hy1
+                                 
+close prenoes.dat end
+
+noe 
+   reset
+   nres=2000 
+   class all @prenoes.dat
+end
+set message=on end
+set echo=on end
+
+set seed=12345 end
+
+mmdg
+        verbose off
+	iacc=5. tacc=5. bacc=0.2 pacc=5.
+        random 
+        metrize (all) 100
+end
+
+set display=OUTPUT end
+display $embedded
+display $non_met_gap
+display $dgscale
+
+do (x = x * $dgscale) (all)
+do (y = y * $dgscale) (all)
+do (z = z * $dgscale) (all) 
+
+energy end
+evaluate ($chi_ener=$impr) 
+do (z=-z) ( all )
+energy end
+if ($impr > $chi_ener) then
+   do (z=-z) ( all )
+end if
+
+set mess=off end   coor fit sele=( not hydro ) end  set mess=on end
+coor rms end
+do (b=rmsd ) ( all )
+write coords end
+
+coor swap end
+coor copy end
+
+{* =============================================================== *}
+{*    test 3: use "realistic" NOE data set                         *}
+{* =============================================================== *}
+set display prenoes.dat end
+
+set message=off end
+set echo=off end
+for $hy1 in ("HA" "HB1" "HB2" "HD1" "HE1" "HE3" "HZ2" "HZ3" "HH2") loop hy1
+   for $hy2 in ("HA" "HB1" "HB2" "HD1" "HE1" "HE3" "HZ2" "HZ3" "HH2") loop hy2
+        if ($hy1 # $hy2 ) then 
+           pick bond (name $hy1) (name $hy2) geometry
+           evaluate ($dnoe = $result)
+           if ($dnoe < 2.8) then
+                  evaluate ($value = 2.8)
+                  evaluate ($errpl = 0.2)
+                  evaluate ($errmn = 1.4)
+           elseif ($dnoe < 3.4) then
+                  evaluate ($value = 3.4)
+                  evaluate ($errpl = 0.3)
+                  evaluate ($errmn = 1.2)
+           elseif ($dnoe < 4.0) then
+                  evaluate ($value = 4.0)
+                  evaluate ($errpl = 0.5)
+                  evaluate ($errmn = 1.7)
+           end if
+           if ($dnoe < 4.0) then
+                display assign (resid 1 and name $hy1)
+                display (resid 1 and name $hy2) $value $errmn $errpl
+           end if
+	end if
+   end loop hy2
+end loop hy1
+                                 
+close prenoes.dat end
+
+noe 
+   reset
+   nres=2000 
+   class all @prenoes.dat
+end
+set message=on end
+set echo=on end
+
+set seed=12345 end
+
+mmdg
+        verbose off
+        iacc=5. tacc=5. bacc=0.2 pacc=5.
+        random 
+        metrize (all) 100
+end
+
+set display=OUTPUT end
+display $embedded
+display $non_met_gap
+display $dgscale
+
+do (x = x * $dgscale) (all)
+do (y = y * $dgscale) (all)
+do (z = z * $dgscale) (all) 
+
+energy end
+evaluate ($chi_ener=$impr) 
+do (z=-z) ( all )
+energy end
+if ($impr > $chi_ener) then
+   do (z=-z) ( all )
+end if
+
+set message=off end   coor fit end    set message=on end
+coor rms end
+do (b=rmsd ) ( all )
+write coords end
+
+coor swap end
+coor copy end
+
+{* =============================================================== *}
+{*    test 4: test the "rigid" group option                        *}
+{* =============================================================== *}
+
+set seed=12345 end
+
+mmdg
+        verbose off
+	iacc=5. tacc=5. bacc=0.2 pacc=5. 
+	group=( all ) 0.1 
+        random 
+        metrize (all) 100
+end
+
+set display=OUTPUT end
+display $embedded
+display $non_met_gap
+display $dgscale
+
+do (x = x * $dgscale) (all)
+do (y = y * $dgscale) (all)
+do (z = z * $dgscale) (all) 
+
+energy end
+evaluate ($chi_ener=$impr) 
+do (z=-z) ( all )
+energy end
+if ($impr > $chi_ener) then
+   do (z=-z) ( all )
+end if
+
+set message=off end   coor fit end    set message=on end
+coor rms end
+do (b=rmsd ) ( all )
+write coords end
+
+coor swap end
+coor copy end
+
+{* =============================================================== *}
+{*    test 4b: test the "rigid" group option with two groups       *}
+{* =============================================================== *}
+
+set seed=12345 end
+
+mmdg
+        verbose off
+	iacc=5. tacc=5. bacc=0.2 pacc=5. 
+	group=( not hydrogen ) 0.1 
+	group=( hydrogen ) 0.1 
+        random 
+        metrize (all) 100
+end
+
+set display=OUTPUT end
+display $embedded
+display $non_met_gap
+display $dgscale
+
+do (x = x * $dgscale) (all)
+do (y = y * $dgscale) (all)
+do (z = z * $dgscale) (all) 
+
+energy end
+evaluate ($chi_ener=$impr) 
+do (z=-z) ( all )
+energy end
+if ($impr > $chi_ener) then
+   do (z=-z) ( all )
+end if
+
+coor fit sele=( not hydro )  end
+coor rms end
+do (b=rmsd ) ( all )
+write coords end
+
+coor swap end
+coor copy end
+
+{* =============================================================== *}
+{*    test 4c: test substructures                                  *}
+{* =============================================================== *}
+
+set seed=12345 end
+
+do (refx=x) ( all )
+do (refy=y) ( all )
+do (refz=z) ( all )
+
+mmdg
+        verbose off
+	iacc=5. tacc=5. bacc=0.2 pacc=5. 
+	group=( not hydrogen ) 0.01 
+	group=( hydrogen ) 0.01 
+	substructure=( not hydrogen ) 
+        random 
+        metrize (all) 100
+end
+
+set display=OUTPUT end
+display $embedded
+display $non_met_gap
+display $dgscale
+
+do (x = x * $dgscale) (not hydrogen)
+do (y = y * $dgscale) (not hydrogen)
+do (z = z * $dgscale) (not hydrogen) 
+
+set mess=off end   coor fit sele=( not hydro ) end  set mess=on end
+
+do (z=-z) ( all )
+set mess=off end   coor fit sele=( not hydro ) end  set mess=on end
+
+coor swap end
+coor copy end
+
+{* =============================================================== *}
+{*    test 4d: test substructures with storage in memory           *}
+{* =============================================================== *}
+
+set seed=12345 end
+
+do (refx=x) ( all )
+do (refy=y) ( all )
+do (refz=z) ( all )
+
+mmdg
+        verbose off
+	iacc=5. tacc=5. bacc=0.2 pacc=5. 
+	group=( not hydrogen ) 0.01 
+	group=( hydrogen ) 0.01 
+	storebounds
+end
+
+set seed=12345 end
+
+mmdg
+        recallbounds
+	substructure=( not hydrogen ) 
+        random 
+        metrize (all) 100
+end
+
+set display=OUTPUT end
+display $embedded
+display $non_met_gap
+display $dgscale
+
+do (x = x * $dgscale) (not hydrogen)
+do (y = y * $dgscale) (not hydrogen)
+do (z = z * $dgscale) (not hydrogen) 
+
+set mess=off end   coor fit sele=( not hydro ) end  set mess=on end
+
+do (z=-z) ( all )
+set mess=off end   coor fit sele=( not hydro ) end  set mess=on end
+
+set seed=12345 end
+
+mmdg
+        recallbounds
+	substructure=( not hydrogen ) 
+        random 
+        metrize (all) 100
+end
+
+set display=OUTPUT end
+display $embedded
+display $non_met_gap
+display $dgscale
+
+do (x = x * $dgscale) (not hydrogen)
+do (y = y * $dgscale) (not hydrogen)
+do (z = z * $dgscale) (not hydrogen) 
+
+set mess=off end   coor fit sele=( not hydro ) end  set mess=on end
+
+do (z=-z) ( all )
+set mess=off end   coor fit sele=( not hydro ) end  set mess=on end
+
+coor swap end
+coor copy end
+
+
+{* =============================================================== *}
+{*    test 4e: test substructures with storage in file             *}
+{* =============================================================== *}
+
+set seed=12345 end
+
+do (refx=x) ( all )
+do (refy=y) ( all )
+do (refz=z) ( all )
+
+mmdg
+        verbose off
+	iacc=5. tacc=5. bacc=0.2 pacc=5. 
+	group=( not hydrogen ) 0.01 
+	group=( hydrogen ) 0.01 
+	writebounds=dgtest1.dat
+end
+
+set seed=12345 end
+
+mmdg
+        readbounds=dgtest1.dat
+	substructure=( not hydrogen ) 
+        random 
+        metrize (all) 100
+end
+
+set display=OUTPUT end
+display $embedded
+display $non_met_gap
+display $dgscale
+
+do (x = x * $dgscale) (not hydrogen)
+do (y = y * $dgscale) (not hydrogen)
+do (z = z * $dgscale) (not hydrogen) 
+
+set mess=off end   coor fit sele=( not hydro ) end  set mess=on end
+
+do (z=-z) ( all )
+set mess=off end   coor fit sele=( not hydro ) end  set mess=on end
+
+set seed=12345 end
+
+mmdg
+        readbounds=dgtest1.dat
+	substructure=( not hydrogen ) 
+        random 
+        metrize (all) 100
+end
+
+set display=OUTPUT end
+display $embedded
+display $non_met_gap
+display $dgscale
+
+do (x = x * $dgscale) (not hydrogen)
+do (y = y * $dgscale) (not hydrogen)
+do (z = z * $dgscale) (not hydrogen) 
+
+set mess=off end   coor fit sele=( not hydro ) end  set mess=on end
+
+do (z=-z) ( all )
+set mess=off end   coor fit sele=( not hydro ) end  set mess=on end
+
+coor swap end
+coor copy end
+
+
+{* =============================================================== *}
+{*    test 5: test partial metrization                             *}
+{* =============================================================== *}
+
+set seed=12345 end
+
+mmdg
+        verbose off
+	iacc=5. tacc=5. bacc=0.2 pacc=5. 
+        random 
+        metrize (all) 4
+end
+
+set display=OUTPUT end
+display $embedded
+display $non_met_gap
+display $dgscale
+
+do (x = x * $dgscale) (all)
+do (y = y * $dgscale) (all)
+do (z = z * $dgscale) (all) 
+
+energy end
+evaluate ($chi_ener=$impr) 
+do (z=-z) ( all )
+energy end
+if ($impr > $chi_ener) then
+   do (z=-z) ( all )
+end if
+
+set message=off end   coor fit end    set message=on end
+coor rms end
+do (b=rmsd ) ( all )
+write coords end
+
+coor swap end
+coor copy end
+
+{* =============================================================== *}
+{*    test 6: test ordered metrization                             *}
+{* =============================================================== *}
+
+set seed=12345 end
+
+mmdg
+        verbose off
+	iacc=5. tacc=5. bacc=0.2 pacc=5. 
+        ordered 
+        metrize (all) 4
+end
+
+set display=OUTPUT end
+display $embedded
+display $non_met_gap
+display $dgscale
+
+do (x = x * $dgscale) (all)
+do (y = y * $dgscale) (all)
+do (z = z * $dgscale) (all) 
+
+energy end
+evaluate ($chi_ener=$impr) 
+do (z=-z) ( all )
+energy end
+if ($impr > $chi_ener) then
+   do (z=-z) ( all )
+end if
+
+set message=off end   coor fit end    set message=on end
+coor rms end
+do (b=rmsd ) ( all )
+write coords end
+
+coor swap end
+coor copy end
+
+{* =============================================================== *}
+{*    test 7: test no metrization                                  *}
+{* =============================================================== *}
+
+set seed=12345 end
+
+mmdg
+        verbose off
+	iacc=5. tacc=5. bacc=0.2 pacc=5. 
+	?
+end
+
+set display=OUTPUT end
+display $embedded
+display $non_met_gap
+display $dgscale
+
+do (x = x * $dgscale) (all)
+do (y = y * $dgscale) (all)
+do (z = z * $dgscale) (all) 
+
+energy end
+evaluate ($chi_ener=$impr) 
+do (z=-z) ( all )
+energy end
+if ($impr > $chi_ener) then
+   do (z=-z) ( all )
+end if
+
+set message=off end   coor fit end    set message=on end
+coor rms end
+do (b=rmsd ) ( all )
+write coords end
+
+coor swap end
+coor copy end
+
+{* =============================================================== *}
+{*    test 8: test pseudoatom correction                           *}
+{* =============================================================== *}
+
+do (refx=x) ( all )
+do (refy=y) ( all )
+do (refz=z) ( all )
+
+noe
+  reset
+  nres=100
+  assign ( name hb* ) ( name ca )  4. 1. 2.
+  assign ( name ca  ) ( name hb* ) 7. 1. 2.  
+  assign ( name hb* ) ( name ht* )  8. 1. 2. 
+end
+
+flags exclude * include noe end
+
+mmdg
+   verbose=on
+   storebounds
+end
+
+stop
+

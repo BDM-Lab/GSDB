@@ -1,0 +1,152 @@
+<HTML>
+<HEAD>
+   <TITLE>Crystallography & NMR System</TITLE>
+</HEAD>
+<BODY BGCOLOR=#8ebf8e>
+
+<HR WIDTH="100%"></P>
+
+<H3><U>Selecting structure factors</U></H3>
+
+<P>Selecting structure factors in CNS is performed using a matching
+operation. This means that an expression is written which is matched
+against the properties of the structure factors currently stored in
+memory. Those structure factors which match the expression are
+selected.</P>
+
+<P>Selections may be simple, selecting structure factors on the basis
+of resolution. However, the creation of more complex expressions
+requires the combination of one or more simple expressions with the
+operators <TT>AND</TT>, <TT>OR</TT> and <TT>NOT</TT>. The meaning of
+these basic operators must be understood for construction of
+meaningful selection expressions.</P>
+
+<P><B>OR</B>: The union between the two sets of structure factors
+selected in the two enclosing expressions.</P> <P>Example:</P>
+<PRE>
+      (d < 10 <TT>or</TT> amplitude(f1) > 50)
+</PRE>
+<P>All structure factors at a resolution limit less than 10 &Aring;
+<B>OR</B> where array f1 has amplitude greater than 50 are
+selected.</P>
+   
+<P><B>AND</B>: The intersection between the two sets of structure
+factors selected in the two enclosing expressions.</P> <P>Example:</P>
+<PRE>
+      (d < 10 <TT>and</TT> amplitude(f1) > 50)
+</PRE>
+<P>All structure factors at a resolution limit less than 10 &Aring;
+<B>AND</B> where array f1 has amplitude greater than 50 are
+selected.</P>
+
+<P><B>NOT</B>: All structure factors outside the set of structure
+factors selected in the following expression.</P> <P>Example:</P>
+<PRE>
+      (<TT>not</TT> (amplitude(f1) > 50))
+</PRE>
+<P>All structure factors where array f1 does not have amplitude
+greater than 50 are selected.</P>
+
+<P>The structure factor selections may use a different set of
+structure factors for selection and operation:</P>
+<PRE>
+      do (sigma=50*sigma) (<TT>not</TT> (amplitude(f1) > 50))
+</PRE>
+<P>Here the selection of structure factors is based on the properties
+of the f1 array while the operation is performed on the sigma
+array.</P>
+
+<P>Simple expressions are grouped using parentheses to make clear the
+order of selection.</P>
+<P>Example:</P>
+<PRE>
+      ((d < 10 <TT>or</TT> amplitude(f1) > 50) <TT>and</TT> l=2)
+</PRE>
+<P>This would select any structure factors with either a resolution
+limit less than 10 or where array f1 has amplitude greater than 50,
+which also have l equal 2. This should be compared with:</P>
+<PRE>
+      (d < 10 <TT>or</TT> (amplitude(f1) > 50 <TT>and</TT> l=2))
+</PRE>
+<P>This would select all structure factors with a resolution limit
+less than 10, and also any structure factors where array f1 has
+amplitude greater than 50 and l equal 2.</P>
+
+<H4>Examples</H4>
+
+<P>Please see the syntax manual for a full description of the
+structure factor selection syntax. Below are some examples which cover
+many of the common structure factor selection concepts.</P>
+
+<LI>Selection of all structure factors:</LI>
+<UL>
+(all)
+</UL>
+   
+<LI>Selection of no structure factors:</LI>
+<UL>
+(none)
+</UL>
+   
+<LI>Selection of centric reflections:</LI>
+<UL>
+(centric)
+</UL>
+   
+<LI>Selection of acentric reflections:</LI>
+<UL>
+(acentric)
+</UL>
+   
+<LI>Selection by resolution (all structure factors between a
+resolution of 2 and 10 &Aring; are slected):</LI>
+<UL>
+(2 <= d <= 10)
+</UL>
+   
+<LI>Selection by amplitude (structures factors are selected where the
+array f1 has an amplitude greater than 10):</LI>
+<UL>
+(amplitude(f1) > 10)
+</UL>
+   
+<LI>Selection by Miller index (all structure factors with Miller
+indices greater than 4 are selected):</LI>
+<UL>
+(h > 4)
+</UL>
+   
+<LI>Selection of reflections with both Friedel mates present:</LI>
+<UL>
+(friedel_pair(f1))
+</UL>
+
+<H3><U>Complex selections</U></H3>
+
+<P>Selection expressions can be compounded to form more complex
+expressions.</P>
+<P>Example:</P>
+<PRE>
+      (amplitude(f1) > 10 and (h > 4 <TT>or</TT> l < 10))
+</PRE>
+<P>All structure factors where f1 has an amplitude greater than 10 and
+Miller indices h greater than 4 or l less than 10 are selected.</P>
+
+<H4>Examples</H4>
+
+<LI>Selection of all structure factors within a resolution and
+amplitude range:</LI>
+<UL>
+(2 <= d <= 50 and amplitude(f1) > 0)
+</UL>
+
+<HR WIDTH="100%"></P>
+
+<A HREF="../../text.html">Back to tutorials</A>&nbsp;&nbsp;
+<A HREF="../atom_sele/text.html">Previous section</A>
+
+<HR WIDTH="100%"></P>
+   
+</BODY>
+</HTML>
+

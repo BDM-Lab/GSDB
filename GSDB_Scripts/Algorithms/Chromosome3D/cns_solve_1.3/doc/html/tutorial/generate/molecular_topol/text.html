@@ -1,0 +1,525 @@
+<HTML>
+<HEAD>
+   <TITLE>Crystallography & NMR System</TITLE>
+</HEAD>
+<BODY BGCOLOR=#8ebf8e>
+
+<HR WIDTH="100%"></P>
+
+<H2>Generating and manipulating the molecular topology</H2>
+
+<HR WIDTH="100%"></P>
+
+<P>The segment statement generates the molecular structure by
+interpreting the coordinate file to obtain the residue sequence or by
+explicitly specifying the residue sequence. The residues have to be
+defined in the topology statement. Appropriate patches to are applied
+to generate covalent links between or within molecules, such as
+disulfide bridges.</P>
+
+<U>Syntax</U>
+
+<P>The segment statement is used to generate the molecular topology
+information. This is invoked from the main level of CNS:</P>
+
+<PRE>
+  SEGMent { segment-statement } END
+</PRE>
+
+<P>The possible segment statements are as follows:</P>
+
+<UL>
+
+<LI><B>CHAIn { [chain-statement] } END</B> generates a sequence of
+residues. The END statement activates the generation.</LI>
+
+<LI><B>MOLEcule NAME=residue-name NUMBer=integer END</B> generates
+individual molecules such as in liquids (default for NUMBer is 1). The
+residue numbers are assigned sequentially, starting with 1. The
+residue name has to be defined in the topology statement. The END
+statement activates the generation of the molecules.</LI>
+
+<LI><B>NAME=segment-name</B> specifies the segment name of all atoms
+to be generated using the following statements (default is " ").</LI>
+
+</UL>
+
+<P>The chain statement is most often used to generate molecular
+topology from the sequence read from a coordinate file. The possible
+chain statements are as follows:</P>
+
+<UL>
+
+<LI><B>COORdinates { pdb-record } END</B> takes a sequence from a
+coordinate file. It interprets the atom records of a PDB coordinate
+file in terms of the sequence of the molecule. The residue numbers are
+taken directly from the PDB coordinate file; they do not have to be
+sequential. Note that this statement does not actually read the x,y,z
+coordinates. One should use the coordinate statement to read the
+coordinates. The segment name has to match characters 73 through 76 in
+the PDB coordinate file if the segment name has been explicitly
+defined with the NAME statement.</LI>
+
+<LI><B>SEPArate-by-segid=logical</B> If true, linkages will not be
+applied between different segment names. A new covalent chain will be
+started when a new segid is encountered.</LI>
+
+<LI><B>CONVert-chainid-to-segid=logical</B> If true, the segid will be
+read from the PDB chain field (column 22) provided that the chain
+identifier is non-blank. If used in molecular topology generation the
+same keyword must also when reading the coordinates from the main level
+of CNS.</LI>
+
+<LI><B>FIRSt residue-name TAIL=patch-character=*residue-name* END</B>
+adds a special patch for the first residue in a sequence to the chain
+database. In the case of multiple statements, equality has priority
+before wildcard matching; i.e., the more special assignments come
+first. The chain database is reset each time the chain statement is
+invoked.</LI>
+
+<LI><B>LAST residue-name HEAD=patch-character=*residue-name* END</B>
+adds a special patch for the last residue in a sequence to the chain
+database. In the case of multiple statements, equality has priority
+before wildcard matching; i.e., the more special assignments come
+first. The chain database is reset each time the chain statement is
+invoked.</LI>
+
+<LI><B>LINK residue-name HEAD=patch-character=*residue-name*
+TAIL=patch-character=*residue-name* END</B> adds a special linkage
+patch to the chain database. The statement will automatically connect
+residue i to residue i+1; for example, it creates a peptide linkage.
+Wildcards are allowed for residue name. In the case of multiple
+statements, equality has priority before wildcard matching; i.e., the
+more special assignments come first. The chain database is reset each
+time the chain statement is invoked.</LI>
+
+<LI><B>SEQUence { residue-name } END</B> takes the sequence as
+specified between the SEQUence and the END word. The residue numbers
+are assigned sequentially, starting with 1.</LI>
+
+</UL>
+
+<U>Requirements</U>
+
+<P>The molecular topology has to be defined. Execution of the segment
+statement destroys fragile atom selections.</P>
+
+<U>Example: A Polypeptide Chain</U>
+
+<P>The following example file shows how to set up a polypeptide
+segment (Tyr, Ala, Glu, Lys, Ile, Ala), assuming that the topology and
+parameters have been previously read. For completeness, the
+definitions of the patch residues PEPT, PROP, NTER, and CTER have been
+included. Normally, these patch residues are already defined in the
+topology files.</P>
+
+<PRE>
+topology 
+
+   PRESidue PEPT 
+     ADD BOND -C +N 
+     ADD ANGLE -CA -C +N 
+     ADD ANGLE -O  -C +N 
+     ADD ANGLE -C  +N +CA 
+     ADD ANGLE -C  +N +H 
+
+     ADD DIHEdral  -C +N +CA +C 
+     ADD DIHEdral  -N -CA -C +N 
+     ADD DIHEdral  -CA -C +N +CA 
+
+     ADD IMPRoper  -C -CA +N -O  {planar -C} 
+     ADD IMPRoper  +N -C +CA +H  {planar +N} 
+
+   END 
+
+   PRESidue PEPP 
+
+     ADD BOND -C +N 
+     ADD ANGLE -CA -C +N 
+     ADD ANGLE -O  -C +N 
+     ADD ANGLE -C  +N +CA 
+     ADD ANGLE -C  +N +CD 
+
+     ADD DIHEdral  -C +N +CA +C 
+     ADD DIHEdral  -N -CA -C +N 
+     ADD DIHEdral  -CA -C +N +CA 
+
+     ADD IMPRoper  -C -CA +N -O  {planar -C} 
+     ADD IMPRoper  +N +CA +CD -C  {planar +N} 
+
+  END 
+
+  PRESidue NTER  
+
+    GROUp 
+
+    ADD    ATOM +HT1  TYPE=HC   CHARge=0.35  END 
+    ADD    ATOM +HT2  TYPE=HC   CHARge=0.35  END 
+    MODIfy ATOM +N    TYPE=NH3  CHARge=-0.30 END 
+    ADD    ATOM +HT3  TYPE=HC   CHARge=0.35  END 
+    DELETE ATOM +H                           END 
+    MODIfy ATOM +CA             CHARge=0.25  END 
+
+    ADD BOND +HT1 +N 
+    ADD BOND +HT2 +N 
+    ADD BOND +HT3 +N 
+
+    ADD ANGLe +HT1  +N    +HT2 
+    ADD ANGLe +HT2  +N    +HT3 
+    ADD ANGLe +HT2  +N    +CA 
+    ADD ANGLe +HT1  +N    +HT3 
+    ADD ANGLe +HT1  +N    +CA 
+    ADD ANGLe +HT3  +N    +CA 
+
+    ADD DIHEdral +HT2  +N    +CA   +C 
+    ADD DIHEdral +HT1  +N    +CA   +C 
+    ADD DIHEdral +HT3  +N    +CA   +C 
+
+  END 
+
+  PRESidue PROP     
+
+    GROUp 
+    ADD    ATOM +HT1  TYPE=HC   CHARge= 0.35   END 
+    ADD    ATOM +HT2  TYPE=HC   CHARge= 0.35   END 
+    MODIfy ATOM +N    TYPE=NH3  CHARge=-0.20   END 
+    MODIfy ATOM +CD             CHARge= 0.25   END 
+    MODIfy ATOM +CA             CHARge= 0.25   END 
+
+    ADD BOND +HT1  +N 
+    ADD BOND +HT2  +N 
+
+    ADD ANGLe +HT1  +N    +HT2 
+    ADD ANGLe +HT2  +N    +CA 
+    ADD ANGLe +HT1  +N    +CD 
+    ADD ANGLe +HT1  +N    +CA 
+    ADD ANGLe +CD   +N    +HT2 
+
+    ADD DIHEdral +HT2  +N    +CA   +C 
+    ADD DIHEdral +HT1  +N    +CA   +C 
+
+  END 
+
+  PRESidue CTER     
+
+    GROUp 
+    MODIfy ATOM -C             CHARge= 0.14  END 
+    ADD    ATOM -OT1  TYPE=OC  CHARge=-0.57  END 
+    ADD    ATOM -OT2  TYPE=OC  CHARge=-0.57  END 
+    DELETE ATOM -O                           END 
+
+    ADD BOND -C    -OT1 
+    ADD BOND -C    -OT2 
+
+    ADD ANGLe -CA   -C   -OT1 
+    ADD ANGLe -CA   -C   -OT2 
+    ADD ANGLe -OT1  -C   -OT2 
+
+    ADD DIHEdral -N    -CA    -C   -OT2 
+    ADD IMPRoper -C    -CA    -OT2 -OT1 
+
+  END 
+
+end 
+
+segment 
+   name="PROT" 
+   chain 
+      link pept head - * tail + * end             
+      first prop tail + pro end     ! special n-ter for PRO 
+      first nter tail + *   end 
+      last cter head - * end 
+      sequence TYR ALA GLU LYS ILE ALA end 
+   end 
+end 
+</PRE>
+
+<P>Here is an example generating the molecular topology from a
+coordinate file using the chain identifier to generate the segid and
+recognizing each chain as a separate molecule:</P>
+
+<PRE>
+segment
+  chain
+    convert=true
+    separate=true
+    @@CNS_TOPPAR:protein.link
+    coordinates @@model.pdb
+  end
+end
+
+coordinates
+  convert=true
+  @@model.pdb
+</PRE>
+
+<P>The information about the patch residues is normally included in
+the topology file. The information about the peptide linkages is also
+included in the "protein.link" file in the "libraries/toppar"
+directory. Wildcards allow one to use the same patch residues ("PEPT")
+for all combinations of amino acids. The only exception is Pro, which
+needs a special patch. The residues are numbered consecutively,
+starting with 1. To use a particular numbering for residues, one
+should use the COOR option to read the sequence from the coordinate
+file.</P>
+
+<U>Patching the Molecular Structure</U>
+
+<P>The patch statement refers to a patch residue (PRESidue), which
+consists of additions of atoms by the add statement, modifications by
+the modify statement, or deletions by the delete statement. A patch
+can establish chain linkages, such as peptide bonds, chain termini,
+disulfide bridges, and covalent links to ligands.</P>
+
+<U>Syntax</U>
+
+<P>The patch statement is invoked from the main level of CNS:</P>
+
+<PRE>
+  PATCh patch-residue
+    REFErence=NIL|patch-character=(atom-selection)
+    ....
+  END
+</PRE>
+
+<P>Patches the specified selections of atoms using the patch residue
+with name residue name. The patch character corresponds to the first
+character in the PRES specification. The specification of NIL implies
+that in the PRESidue the patch characters are omitted. Multiple
+references are used to establish links to more than one residue.</P>
+
+<U>Requirements</U>
+
+<P>The molecular structure has to be well defined. Execution of the
+patch statement destroys fragile atom selections; e.g., the atom
+properties are conserved during patching, except for the internal
+stores (STORE1, STORE2, ... ). The atom properties of additional atoms
+are set to default values. Other information, such as information for
+the xray or noe statements, is lost during patching.</P>
+
+<U>Example: Incorporation of Disulfide Bridges</U>
+
+<P>The DISU patch residue defines the covalent link between two
+cysteine residues. To make a disulfide bridge, the following patch
+statement can be used:</P>
+
+<PRE>
+topology 
+   presidue DISU     
+      group 
+      modify atom 1CB           charge= 0.19  END 
+      modify atom 1SG  type=S   charge=-0.19  END 
+      group 
+      modify atom 2CB           charge= 0.19  END 
+      modify atom 2SG  type=S   charge=-0.19  END 
+
+      add bond 1SG 2SG 
+
+      add angle  1CB 1SG 2SG 
+      add angle  1SG 2SG 2CB 
+
+      add dihedral   1CA 1CB 1SG 2SG 
+      add dihedral   1CB 1SG 2SG 2CB 
+      add dihedral   1SG 2SG 2CB 2CA 
+
+   end 
+end 
+
+patch disu
+   reference=1=( resid 15 ) reference=2=( resid 25 ) 
+end 
+</PRE>
+
+<P>This will make a disulfide bridge between residue number 15 and
+residue number 25. (For completeness, the definition of the patch
+residue DISU is listed here as well. Normally, this patch residue is
+already included in the topology files.)</P>
+
+<U>Example: Modification of the Protonation Degree of Histidines</U>
+
+<P>The protonation degree of HIS can be changed by using the patch
+residues HISE and HISD that are defined in file "protein.top", which
+is located in the "libraries/toppar" directory. The histidine patches
+can be invoked by using the patch statement:</P>
+
+<PRE>
+patch HISE 
+   reference=nil=( resid 14 ) 
+end 
+</PRE>
+
+<P>This changes the protonation degree of His-14 to that of a singly
+HE2-protonated histidine.</P>
+
+<U>Deleting Atoms</U>
+
+<P>The delete statement removes the selected atoms from the current
+molecular structure. It will also delete any connections such as
+bonds, bond angles, or dihedral angles involving an atom that is
+deleted.</P>
+
+<U>Syntax</U>
+
+<PRE>
+  DELEte 
+    SELEction=(atom-selection)
+  END
+</PRE>
+
+<U>Requirements</U>
+
+<P>The molecular structure has to be well defined. Execution of the
+delete statement destroys fragile atom selections; e.g., the atom
+properties are conserved during deletions, except for the internal
+stores (STORE1, STORE2, ... ). Other information, such as information
+for the xray or noe statements, is lost during deletions.</P>
+
+<U>Example: Delete One Atom</U>
+
+<P>To remove the hydrogen of peptide nitrogen of residue 1, one can
+specify:</P>
+
+<PRE>
+  delete 
+    selection=(resid 1 and name HN) 
+ end
+</PRE>
+
+<U>Duplicating the Molecular Structure</U>
+
+<P>The duplicate statement allows one to duplicate the molecular
+structure or selected atoms of it. The statement duplicates all atom
+properties, coordinates, connectivities, bonds, angles, etc. It has a
+renaming feature that allows one to specify a new segment or residue
+name for the duplicated atoms.</P>
+
+<U>Syntax</U>
+
+<P>The duplicate statement is invoked from the main level of CNS:</P>
+
+<PRE>
+  DUPLicate { duplicate-statement } END
+</PRE>
+
+<P>The possible duplicate statements are as follows:</P>
+
+<UL>
+
+<LI><B>RESIdue=residue-name</B> specifies the residue name of the
+duplicated atoms (default: same as original atoms).</LI>
+
+<LI><B>SEGId=segid-name</B> specifies the segment name of the
+duplicated atoms (default: same as original atoms).</LI>
+
+<LI><B>SELEction=atom-selection</B> selects the atoms that are to be
+duplicated.</LI>
+
+</UL>
+
+<U>Requirements</U>
+
+<P>The molecular structure has to be well defined. Execution of the
+duplicate statement destroys fragile atom selections.</P>
+
+<U>Example: Duplication of Side-Chain Atoms</U>
+
+<P>The following example duplicates the atoms of a side chain. The
+duplicated atoms are identical to the original ones except for the
+segment name.</P>
+
+<PRE>
+duplicate 
+   selection=( resid 40 and not 
+             ( name ca or name n or name c or name o ) ) 
+   segid="NEW" 
+end 
+</PRE>
+
+<U>Structure Statement</U>
+
+<P>The structure statement allows one to read a molecular structure
+file that has been written previously by the write structure
+statement.</P>
+
+<U>Syntax</U>
+
+<P>The structure statement is invoked from the main level of CNS:</P>
+
+<PRE>
+  STRUcture { structure-statement } END
+</PRE>
+
+<P>The possible structure statements are as follows:</P>
+
+<UL>
+
+<LI><B>mtf-records</B> adds mtf-records to the molecular structure
+database. The mtf-records contain fixed-field records written by the
+write structure statement. They are not stored in the rotating
+statement buffer during loop execution.</LI>
+
+<LI><B>RESEt</B> eliminates the current molecular structure in
+CNS.</LI>
+
+</UL>
+
+<U>Requirements</U>
+
+<P>Execution of the duplicate statement destroys fragile atom
+selections.</P>
+
+<U>Example: How to Read a Molecular Structure File</U>
+
+<P>The following example shows how to read the molecular structure
+file "molecule1.mtf":</P>
+
+<PRE>
+structure 
+   @molecule1.mtf 
+end 
+</PRE>
+
+<U>Example: Append Two Molecular Structure Files</U>
+
+<P>Molecular structure information can be appended:</P>
+
+<PRE>
+structure 
+   @molecule1.mtf 
+   @molecule2.mtf 
+end 
+</PRE>
+
+<P>but care should be taken to avoid duplicate atom definitions.</P>
+
+<U>Writing a Molecular Topology File</U>
+
+<P>The write structure statement writes the current molecular topology
+to the specified output file. The molecular topology file (MTF file)
+contains information that was generated by the segment statement and
+modified by the patch statement or the delete statement. Specifically,
+the molecular topology file contains the following information: atom
+names, types, charges, and masses; residue names and segment names;
+and a list of bond terms, angle terms, dihedral terms, improper terms,
+explicit nonbonded exclusions, and nonbonded group partitions. It does
+not contain atomic coordinates, parameters, constraints, restraints,
+or any other information that is specific to effective energy terms,
+such as diffraction data. The molecular topology file is in STAR
+format (like the mmCIF format).</P>
+
+<P>Syntax</P>
+
+<PRE>
+  WRITe STRUcture OUTPut=filename END
+</PRE>
+
+<HR WIDTH="100%"></P>
+
+<A HREF="../../text.html">Back to tutorials</A>&nbsp;&nbsp;
+<A HREF="../terminology/text.html">Previous section</A>&nbsp;&nbsp;
+<A HREF="../protein_simple/text.html">Next section</A>
+
+<HR WIDTH="100%"></P>
+
+</BODY>
+</HTML>

@@ -1,0 +1,84 @@
+<HTML>
+<HEAD>
+   <TITLE>Crystallography & NMR System</TITLE>
+</HEAD>
+<BODY BGCOLOR=#8ebf8e>
+
+<HR WIDTH="100%">
+
+<h2>Resolution of the enantiomorph ambiguity</h2>
+
+<HR WIDTH="100%">
+
+This tutorial shows how to compute electron density maps based on the
+results of MAD phasing runs, and how to use them to resolve the
+<a href="../../other/ambiguities_in_phasing.html#enantiomorph"
+>enantiomorph ambiguity</a>.
+
+<p>
+
+The enantiomorph ambiguity can be resolved by MAD phasing with the
+original heavy atom configuration and its inverse image, followed by
+inspection of the resulting electron density maps.  Only the correct
+enantiomorph will produce an interpretable map.
+
+<p>
+
+The electron density maps are computed with the observed structure
+factors measured at a remote wavelength, and MAD phases.  The input
+files are derived from the <tt>fourier_map.inp</tt> task file in the
+<tt>inputs</tt> directory.
+
+<PRE>
+      cns_solve &lt; <A HREF="fourier_map_elec.inp">fourier_map_elec.inp</A> &gt; fourier_map_elec.out
+      cns_solve &lt; <A HREF="fourier_map_elec_flip.inp">fourier_map_elec_flip.inp</A> &gt; fourier_map_elec_flip.out
+</PRE>
+
+The two resulting map files are:
+<PRE>
+      fourier_map_elec.map       fourier_map_elec_flip.map
+</PRE>
+<p>They can be visiualized with Coot or PyMol. For PyMol, you should rename the .map extension to .xplor so PyMol properly recognizes the CNS map format.</p>
+<p>
+  
+<TABLE ALIGN=CENTER>
+<TR>
+<TD><IMG SRC="elec.jpeg" WIDTH="228" HEIGHT="377"></TD>
+<TD><IMG SRC="eflip.jpeg" WIDTH="228" HEIGHT="377"></TD>
+<tr>
+<td>
+Experimental MAD phased map,<br>sites as found (incorrect)
+<td>
+Experimental MAD phased map,<br>inverted sites (correct)
+</TABLE>
+
+The electron density map based on the inverted sites
+(<tt>fourier_map_elec_flip.map</tt>) clearly shows a contrast between
+protein regions and solvent regions. The electron density in the
+map based on the original sites is much more evenly distributed
+in the asymmetric unit of the unit cell. This means, we have
+established that the inverted heavy atom configuration is
+the correct choice.
+
+<p>
+
+Sometimes, for example if there are problems with the quality of the
+data or only a small subset of the heavy atom sites is known, neither
+of the two electron density maps shows a clear contrast between protein
+regions and solvent regions. In such a case, density modification should
+be performed and the new electron density maps inspected.
+
+<p>
+
+<A HREF="tutorial.csh">Script to run this tutorial</A>
+
+<HR WIDTH="100%">
+
+<A HREF="../../text.html">Back to tutorials</A>&nbsp;&nbsp;
+<A HREF="../heavy_refine/text.html">Previous section</A>&nbsp;&nbsp;
+<A HREF="../more_sites/text.html">Next section</A>
+
+<HR WIDTH="100%"></P>
+
+</BODY>
+</HTML>

@@ -1,0 +1,29 @@
+predict <xray-predict-statement> end
+
+<xray-predict-statement> :==
+
+  mode=real|reciprocal|ff2|dtarget
+  --{Type of data to predict:
+     - real computes electron density map from selected coordinates.
+     - reciprocal computes structure factors from selected coordinates.
+     - ff2 computes the sum of squared atomic form factors from selected
+       coordinates, i.e. sum(f_i^2).
+     - dtarget(<reciprocal-space-object>)computes:
+         d target/ d<reciprocal-space-object>
+       note: target and dtarget(<reciprocal-space-object>) must be defined.
+       note: <reciprocal-space-object> will be computed from the specified
+             atom selection, the atom selection defined by associate is 
+             not used.
+     The default data type is: real}
+  to=<xray-object>
+  --{Destination for predicted data. Use:
+     - <real-space-object> for mode=real
+     - <reciprocal-space-object> for mode=reciprocal, mode=ff2 or mode=dtarget
+     If mode=reciprocal the object must be of type complex.
+     If mode=dtarget the object must be of type complex.
+     If mode=ff2 the object must be of type real.}
+  selection=<xray-selection>
+  --{Structure factor selection for mode=reciprocal or mode=dtarget. 
+     Default=(none)}
+  atomselection=<atom-selection>
+  --{Selected atoms for prediction. Default=(none)}

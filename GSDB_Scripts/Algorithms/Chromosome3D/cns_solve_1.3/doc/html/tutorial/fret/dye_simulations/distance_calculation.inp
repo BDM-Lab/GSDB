@@ -1,0 +1,226 @@
+{+ file: distance_calculation.inp +}
+{+ directory: general +}
+{+ description: Compute distance between averages of selected atoms. 
+   Allows computation of the average distance over coordinate ensembles. +}
+{+ authors: Axel T. Brunger +}
+{+ copyright: Yale University +}
+
+{- Guidelines for using this file:
+   - all strings must be quoted by double-quotes
+   - logical variables (true/false) are not quoted
+   - do not remove any evaluate statements from the file -}
+
+{- begin block parameter definition -} define(
+
+{============================ coordinates ============================}
+
+{* coordinate file *}
+{* if an ensemble is read, only specify the "root" file name here,
+   i.e., "refine" if the coordinate files are called 
+   refine_1.pdb, refine_2.pdb, refine_3.pdb ... *}
+{===>} coordinate_infile="140_350";
+
+{* coordinate ensemble count *}
+{* if greater than 1 a coordinate ensemble is read.  All coordinate files 
+   must have the same topology (e.g., annealing refinements repeats with
+   different random number seeds) *}
+{===>} coordinate_ensemble_count=10;
+
+{==================== molecular information ==========================}
+
+{* topology files *}
+{===>} topology_infile_1="CNS_TOPPAR:protein.top";
+{===>} topology_infile_2="CNS_TOPPAR:dna-rna.top";
+{===>} topology_infile_3="CNS_TOPPAR:water.top";
+{===>} topology_infile_4="CNS_TOPPAR:ion.top";
+{===>} topology_infile_5="CNS_TOPPAR:carbohydrate.top";
+{===>} topology_infile_6="CNS_TOPPAR:dyes.top";
+{===>} topology_infile_7="";
+{===>} topology_infile_8="";
+
+{* linkage files for linear, continuous polymers (protein, DNA, RNA) *}
+{===>} link_infile_1="CNS_TOPPAR:protein.link";
+{===>} link_infile_2="CNS_TOPPAR:dna-rna-pho.link";
+{===>} link_infile_3="";
+
+{* parameter files *}
+{===>} parameter_infile_1="CNS_TOPPAR:protein_rep.param";
+{===>} parameter_infile_2="CNS_TOPPAR:dna-rna_rep.param";
+{===>} parameter_infile_3="CNS_TOPPAR:water_rep.param";
+{===>} parameter_infile_4="CNS_TOPPAR:ion.param";
+{===>} parameter_infile_5="CNS_TOPPAR:carbohydrate.param";
+{===>} parameter_infile_6="CNS_TOPPAR:dyes.param";
+{===>} parameter_infile_7="";
+{===>} parameter_infile_8="";
+
+{* molecular topology file: optional (leave blank for auto generation) *}
+{* 
+   Auto generation of the molecular topology from the coordinates should only 
+   be used if:
+   (1) Each distinct protein, DNA, or RNA chain must have a separate segid 
+       (or chainid if the chainid is non-blank). 
+   (2) Each contiguous protein, RNA, or RNA chain must not be disrupted by 
+       other types of residues or ligands.  Rather, these other residues 
+       should be listed after protein, RNA/DNA chains. 
+   (3) Disulphides are automatically detected based on distances between the sulfur atoms
+      (must be less than 3 A apart).
+   (4) Broken protein/RNA/DNA chains without terminii must be more than 2.5 A apart to be recognized as such.
+   (5) N-linked glycan links are automatically recognized if the bonded atoms are less than 2.5 A apart.
+   (6) Automatic generation cannot be used with alternate conformations. 
+   For ligands, the user must make suitable topology and parameter files.
+   For non-standard covalent linkages, the custom patch file should be used.
+   Alternatively, the generate.inp or generate_easy.inp task files
+   can be used to generated the mtf prior to running this task file.
+    *}
+{===>} structure_infile="";
+
+{* for auto generation: extra linkages and modifications by custom patches *}
+{===>} patch_infile="";
+
+{========================== atom selection ===========================}
+
+{* select first atom(s) for distance calculation *}
+{* if multiple atoms are selected, the average position will be computed *}
+{===>} atom_select_1=(segid B and name CAO );
+
+{* select first atom for distance calculation *}
+{* if multiple atoms are selected, the average position will be computed *}
+{===>} atom_select_2=(segid C and name CAO );
+
+{=========================== output files ============================}
+
+{* output list file *}
+{===>} list_outfile="distance_calculation.list";
+
+{===========================================================================}
+{        things below this line do not normally need to be changed          }
+{===========================================================================}
+
+ ) {- end block parameter definition -}
+
+ checkversion 1.3
+
+ evaluate ($log_level=quiet)
+
+ if ( $log_level = verbose ) then
+   set message=normal echo=on end
+ else
+   set message=off echo=off end
+ end if
+
+ if (&coordinate_ensemble_count > 1) then
+    {- use first coordinate file to auto generate MTF if requested -}
+    evaluate ($input_coor = &coordinate_infile+"_"+encode(1)+".pdb")
+ else
+    {- use single coordinate file -}
+    evaluate ($input_coor = &coordinate_infile)
+ end if
+
+ if ( &BLANK%structure_infile = true ) then
+ 
+    {- read topology files -}
+    topology
+     evaluate ($counter=1)
+     evaluate ($done=false)
+     while ( $done = false ) loop read
+      if ( &exist_topology_infile_$counter = true ) then
+         if ( &BLANK%topology_infile_$counter = false ) then
+            @@&topology_infile_$counter
+         end if
+      else
+        evaluate ($done=true)
+      end if
+      evaluate ($counter=$counter+1)
+     end loop read
+    end
+    
+    @CNS_XTALMODULE:mtfautogenerate (
+                                  coordinate_infile=$input_coor;
+                                  convert=true;
+                                  separate=true;
+                                  atom_delete=(not known);
+                                  hydrogen_flag=true;
+                                  break_cutoff=2.5;
+                                  disulphide_dist=3.0;
+                                  carbo_dist=2.5;
+                                  patch_infile=&patch_infile;
+                                  O5_becomes="O";
+                                 )
+
+ else
+    
+   structure @&structure_infile end
+   coor @$input_coor
+
+ end if
+
+ {- read parameter files -}
+ parameter
+  evaluate ($counter=1)
+  evaluate ($done=false)
+  while ( $done = false ) loop read
+   if ( &exist_parameter_infile_$counter = true ) then
+      if ( &BLANK%parameter_infile_$counter = false ) then
+         @@&parameter_infile_$counter
+      end if
+   else
+     evaluate ($done=true)
+   end if
+   evaluate ($counter=$counter+1)
+  end loop read
+ end
+
+ set message=off echo=off end
+
+ evaluate ($ave_distance=0) 
+
+ evaluate ($coordinate_counter=max(1,&coordinate_ensemble_count))
+ while ($coordinate_counter > 0) loop main
+
+   if (&coordinate_ensemble_count > 1) then   
+      coordinate init end
+      evaluate ($input_coor = &coordinate_infile+"_"+encode($coordinate_counter)+".pdb")
+      coor @@$input_coor
+   end if
+
+   show ave (x) ( &atom_select_1 ) evaluate ($x1=$result)
+   if ($select=0) then
+      display 
+      display  no atom selected in first atom selection &atom_select_1
+      display
+      abort
+   end if
+   show ave (y) ( &atom_select_1 ) evaluate ($y1=$result)
+   show ave (z) ( &atom_select_1 ) evaluate ($z1=$result)
+
+   show ave (x) ( &atom_select_2 ) evaluate ($x2=$result)
+   if ($select=0) then
+      display 
+      display  no atom selected in second atom selection &atom_select_2
+      display
+      abort
+   end if
+   show ave (y) ( &atom_select_2 ) evaluate ($y2=$result)
+   show ave (z) ( &atom_select_2 ) evaluate ($z2=$result)
+   evaluate ($distance=sqrt( ($x1-$x2)^2 + ($y1-$y2)^2 + ($z1-$z2)^2 ))
+  
+   set display=&list_outfile end
+   display  distance between &atom_select_1 and &atom_select_2 for coordinate set $input_coor = $distance
+   set display=OUTPUT end
+
+   evaluate ($ave_distance=$ave_distance+$distance)
+
+   evaluate ($coordinate_counter = $coordinate_counter - 1)
+
+ end loop main
+
+ evaluate ($ave_distance=$ave_distance/&coordinate_ensemble_count)
+
+ set display=&list_outfile end
+
+ display
+ display  number of coordinate sets in ensemble = &coordinate_ensemble_count
+ display
+ display  average distance between &atom_select_1 and &atom_select_2 = $ave_distance
+
+ stop

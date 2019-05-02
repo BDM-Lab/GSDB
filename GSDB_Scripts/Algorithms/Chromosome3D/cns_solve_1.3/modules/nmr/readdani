@@ -1,0 +1,56 @@
+! module file: readdani
+!
+! CNS MODULE
+! **********
+!
+! Authors: Gregory L. Warren and Axel T. Brunger
+!
+! copyright Yale University
+!
+! version 2/6/98
+!
+! Function:
+!    Read in diffusion anisotropy restraint file,  
+!    class (D#), anisotropy type, potential, force value,
+!    and coefficients
+!
+! Requirements:
+! 
+!  
+! 
+!
+
+module { readdani }
+(
+     &classname=classname;       {INPUT: diffusion anis class name}
+     &classpoten=classpoten;     {INPUT: diffusion anis force potential} 
+     &filename=filename;         {INPUT: restraint file name}
+     &weight=weight;             {INPUT: force constant}
+     &dcoef1=dcoef1;		 {INPUT: tau c coefficient}
+     &dcoef2=dcoef2;		 {INPUT: anis coefficient}
+     &dcoef3=dcoef3;		 {INPUT: rhombicity coefficient}
+     &dcoef4=dcoef4;		 {INPUT: omega H coefficient} 
+     &dcoef5=dcoef5;		 {INPUT: omega N coefficient} 
+)
+
+checkversion 1.3
+
+set message ? end
+evaluate ($message_old=$result)
+set echo ? end
+evaluate ($echo_old=$result)
+if ( $log_level = verbose ) then
+  set echo=on message=normal end
+else
+  set echo=off message=off end
+end if
+
+danisotropy
+   class=&classname
+   potential=&classpoten
+      @@&filename
+   force=&weight
+   coefficients &dcoef1 &dcoef2 &dcoef3 &dcoef4 &dcoef5
+end
+
+set message=$message_old echo=$echo_old end

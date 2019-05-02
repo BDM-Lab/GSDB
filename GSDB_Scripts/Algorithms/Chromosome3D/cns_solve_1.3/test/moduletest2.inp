@@ -1,0 +1,259 @@
+set abort = off end
+
+
+!======================================================================
+! ADVANCED MODULE FUNCTIONS
+
+!======================================================================
+! inlining of non-module files
+
+eval ( $my_symbol = 0 )
+
+set display=moduletest.dat end
+literal eval ( $my_symbol = 1 )
+literal $?
+set display=OUTPUT end
+close moduletest.dat end
+
+! this should not affect $my_symbol in the current scope
+@moduletest.dat
+
+display $my_symbol ! <= should be 0 
+
+! this should change $my_symbol in the current scope
+inline @moduletest.dat
+
+display $my_symbol ! <= should be 1 
+
+! now check error handling
+
+inline xray end
+
+!======================================================================
+! now check calling of modules from within nested inline files 
+
+set display=moduletest3.dat end
+literal inline @moduletest2.dat 
+set display=OUTPUT end
+close moduletest3.dat end
+
+set display=moduletest2.dat end
+literal @moduletest.dat ( &value = 1 )
+literal display $my_symbol  ! <== should be 0
+literal @moduletest.dat ( &sym = $my_symbol; &value = 2 )
+literal display $my_symbol ! <== should be 2
+set display=OUTPUT end
+close moduletest2.dat end
+
+set display=moduletest.dat end
+literal module ( &sym = $my_symbol; value; )
+literal eval ( &sym = &value )
+literal $?
+set display=OUTPUT end
+close moduletest.dat end
+
+eval ( $my_symbol = 0 )
+
+! no side effects
+@moduletest3.dat
+$?
+display $my_symbol ! <= should be 0
+define ( ? )
+
+! inline => should have side effects
+inline @moduletest3.dat
+$?
+display $my_symbol ! <= should be 2
+define ( ? )
+
+eval ( $my_symbol = 0 )
+
+! check @@ as well
+inline @@moduletest3.dat
+$?
+display $my_symbol ! <= should be 2
+define ( ? )
+
+
+! and check out all of the terrible side effects that arise 
+! from inlining a module (legal - may actually be useful in the future)
+
+inline @moduletest.dat ( &value = 5 )
+define ( ? )
+
+!======================================================================
+! now check inline in conditional statements
+
+! this should not produce an error
+
+evaluate ($filename="junk")
+
+if ($filename="ok") then
+   inline @$filename
+end if
+
+!======================================================================
+! passage of compound parameters
+
+set display=moduletest.dat end
+display module ( &comp )
+display display &comp.b.cd
+display display &comp.b.ef
+display display &comp.a
+set display=OUTPUT end
+close moduletest.dat end
+
+
+define ( a.a    = aa; 
+         a.b.cd = abcd;
+         a.b.ef = abef; )
+
+! this will substitute
+
+@moduletest.dat ( comp = &a )
+
+! this won't
+
+@moduletest.dat ( comp = a )
+
+!======================================================================
+! using loops for initialization and readout
+
+set display=moduletest.dat end
+literal module ( &comp )
+literal for $tmp in ( 1 2 ) loop test
+literal    display &comp.$tmp.valueA
+literal    display &comp.$tmp.valueB
+literal    display &comp.$tmp.valueC
+literal end loop test
+
+set display=OUTPUT end
+close moduletest.dat end
+
+for $tmp in ( 1 2 ) loop main
+
+   define ( par.$tmp.valueA = some initial parameter ;
+            par.$tmp.valueB = another initial parameter;
+            par.$tmp.valueC = yet another intial parameter;
+          )
+
+end loop main
+
+define ( ? )
+
+@moduletest.dat ( &comp = &par ) 
+
+
+!======================================================================
+! using loops for initialization and readout
+
+set display=moduletest.dat end
+literal module ( &comp )
+literal for $tmp in ( 1 2 ) loop test
+literal $?
+literal    display &comp.$tmp.valueA
+literal    display &comp.$tmp.valueB
+literal    display &comp.$tmp.valueC
+literal end loop test
+set display=OUTPUT end
+close moduletest.dat end
+
+for $tmp in ( 1 2 ) loop main
+
+   define ( par.$tmp.valueA = some initial parameter ;
+            par.$tmp.valueB = another initial parameter;
+            par.$tmp.valueC = yet another intial parameter;
+          )
+
+end loop main
+
+define ( ? )
+
+@moduletest.dat ( &comp = &par ) 
+
+!======================================================================
+! passing variables to a function using structured symbols
+
+set display=moduletest.dat end
+literal module ( &compound.symbol )
+literal for $tmp in ( 1 2 ) loop test
+literal $?
+literal    display &comp.$tmp.valueA
+literal    display &comp.$tmp.valueB
+literal    display &comp.$tmp.valueC
+literal end loop test
+set display=OUTPUT end
+close moduletest.dat end
+
+
+!======================================================================
+! arrays, etc.
+
+! matrix multiplication example
+
+set display=moduletest.dat end
+literal module ( &m1; &m2; &p; )
+literal
+literal if ( &m1.cols ne &m2.rows ) then
+literal   display MATRIX DIMENSION MISMATCH &m1.cols != &m2.rows
+literal else
+literal eval ( $a = 1 )
+literal while ( $a le &m1.rows ) loop a
+literal    eval ( $b = 1 )
+literal    while ( $b le &m2.cols ) loop b
+literal       eval ( $z = 1 )
+literal       eval ( $sum = 0 )
+literal       while ( $z le &m1.cols ) loop z
+literal          eval ( $sum = $sum + &m1.ij.$a.$z * &m2.ij.$z.$b )
+literal          eval ( $z = $z + 1 )
+literal       end loop z
+literal       eval ( &p.ij.$a.$b = $sum )
+literal       eval ( $b = $b + 1 )
+literal    end loop b
+literal    eval ( $a = $a + 1 )
+literal end loop a
+literal eval ( &p.rows = &m1.rows )
+literal eval ( &p.cols = &m2.cols )
+literal end if
+
+set display=OUTPUT end
+close moduletest.dat end
+
+
+
+ eval ( $a = 1 )
+ while ( $a le 5 ) loop a
+    eval ( $b = 1 )
+    while ( $b le 3 ) loop b
+
+         eval ( $mat1.ij.$b.$a = 1 )
+         eval ( $mat2.ij.$a.$b = 1 )
+
+       eval ( $b = $b + 1 )
+    end loop b
+    eval ( $a = $a + 1 )
+ end loop a
+
+eval ( $mat1.rows = 3 )
+eval ( $mat1.cols = 5 )
+
+eval ( $mat2.rows = 5 )
+eval ( $mat2.cols = 3 )
+
+define ( mt = $mat1 )
+
+@moduletest.dat ( m1 = $mat1; m2 = $mat2; p = $prod; )
+
+set echo = off end
+set message = off end
+
+ eval ( $a = 1 )
+ while ( $a le 3 ) loop a
+   display $prod.ij.$a.1[I3] $prod.ij.$a.2[I3] $prod.ij.$a.3[I3] 
+   eval ( $a = $a + 1 )
+ end loop a
+
+
+stop
+
+

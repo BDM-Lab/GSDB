@@ -1,0 +1,607 @@
+{+ file: refine.def +}
+{+ directory: auxiliary +}
+{+ description: Defaults file which can be used to override input parameters
+                for xtal_refine/refine.inp +}
+{+ authors: Axel T. Brunger, and Paul D. Adams +}
+{+ copyright: Yale University +}
+
+{- begin block parameter definition -} define(
+
+{==================== molecular information ==========================}
+
+{* topology files *}
+{===>} topology_infile_1="CNS_TOPPAR:protein.top";
+{===>} topology_infile_2="CNS_TOPPAR:dna-rna.top";
+{===>} topology_infile_3="CNS_TOPPAR:water.top";
+{===>} topology_infile_4="CNS_TOPPAR:ion.top";
+{===>} topology_infile_5="CNS_TOPPAR:carbohydrate.top";
+{===>} topology_infile_6="";
+{===>} topology_infile_7="";
+{===>} topology_infile_8="";
+
+{* linkage files for linear, continuous polymers (protein, DNA, RNA) *}
+{===>} link_infile_1="CNS_TOPPAR:protein.link";
+{===>} link_infile_2="CNS_TOPPAR:dna-rna-pho.link";
+{===>} link_infile_3="";
+
+{* parameter files *}
+{===>} parameter_infile_1="CNS_TOPPAR:protein_rep.param";
+{===>} parameter_infile_2="CNS_TOPPAR:dna-rna_rep.param";
+{===>} parameter_infile_3="CNS_TOPPAR:water_rep.param";
+{===>} parameter_infile_4="CNS_TOPPAR:ion.param";
+{===>} parameter_infile_5="CNS_TOPPAR:carbohydrate.param";
+{===>} parameter_infile_6="";
+{===>} parameter_infile_7="";
+{===>} parameter_infile_8="";
+
+{* molecular topology file: optional (leave blank for auto generation) *}
+{* 
+   Auto generation of the molecular topology from the coordinates should only 
+   be used if:
+   (1) Each distinct protein, DNA, or RNA chain must have a separate segid 
+       (or chainid if the chainid is non-blank). 
+   (2) Each contiguous protein, RNA, or RNA chain must not be disrupted by 
+       other types of residues or ligands.  Rather, these other residues 
+       should be listed after protein, RNA/DNA chains. 
+   (3) Disulphides are automatically detected based on distances between the sulfur atoms
+      (must be less than 3 A apart).
+   (4) Broken protein/RNA/DNA chains without terminii must be more than 2.5 A apart to be recognized as such.
+   (5) N-linked glycan links are automatically recognized if the bonded atoms are less than 2.5 A apart.
+   (6) Automatic generation cannot be used with alternate conformations. 
+   For ligands, the user must make suitable topology and parameter files.
+   For non-standard covalent linkages, the custom patch file should be used.
+   Alternatively, the generate.inp or generate_easy.inp task files
+   can be used to generated the mtf prior to running this task file.
+    *}
+{===>} structure_infile="";
+
+{* for auto generation: extra linkages and modifications by custom patches *}
+{===>} patch_infile="";
+
+{====================== crystallographic data ========================}
+
+{* space group *}
+{* use International Table conventions with subscripts substituted
+   by parenthesis *}
+{===>} sg="P2(1)2(1)2(1)";
+
+{* unit cell parameters in Angstroms and degrees *}
+{+ table: rows=1 "cell" cols=6 "a" "b" "c" "alpha" "beta" "gamma" +}
+{===>} a=61.76;
+{===>} b=40.73;
+{===>} c=26.74;
+{===>} alpha=90;
+{===>} beta=90;
+{===>} gamma=90;
+
+{* reflection files *}
+{* specify non-anomalous reflection files before anomalous reflection files. *}
+{* files must contain unique array names otherwise errors will occur *}
+{===>} reflection_infile_1="amy.cv";
+{===>} reflection_infile_2="";
+{===>} reflection_infile_3="";
+{===>} reflection_infile_4="";
+
+{* anomalous f' f'' library file *}
+{* If a file is not specified, no anomalous contribution will be included *}
+{+ choice: "CNS_XRAYLIB:anom_cu.lib" "CNS_XRAYLIB:anom_mo.lib" "" user_file +}
+{===>} anom_library="";
+
+{* reciprocal space array containing observed amplitudes: required *}
+{===>} obs_f="fobs";
+
+{* reciprocal space array containing sigma values for amplitudes: required *}
+{===>} obs_sigf="sigma";
+
+{* reciprocal space array containing test set for cross-validation: required *}
+{* cross-validation should always be used, with the possible exception
+   of a final round of refinement including all data *}
+{* cross-validation is always required for the maximum likelihood targets *}
+{===>} test_set="test";
+
+{* number for selection of test reflections: required for cross-validation *}
+{* ie. reflections with the test set array equal to this number will be
+       used for cross-validation, all other reflections form the working set *}
+{===>} test_flag=1;
+
+{* reciprocal space array containing observed intensities: optional *}
+{* required for the "mli" target *}
+{===>} obs_i="";
+
+{* reciprocal space array containing sigma values for intensities: optional *}
+{* required for the "mli" target *}
+{===>} obs_sigi="";
+
+{* reciprocal space arrays with experimental phase probability
+   distribution: optional *}
+{* Hendrickson-Lattman coefficients A,B,C,D *}
+{* required for the "mlhl" target *}
+{+ table: rows=1 "HL coefficients" cols=4 "A" "B" "C" "D" +}
+{===>} obs_pa="";
+{===>} obs_pb="";
+{===>} obs_pc="";
+{===>} obs_pd="";
+
+{* reciprocal space array containing weighting scheme for observed
+   amplitudes: optional *}
+{* only used for the "residual" and "vector" targets - this will
+   default to a constant value of 1 if array is not present *}
+{===>} obs_w="";
+
+{* complex reciprocal space array containing experimental phases: optional *}
+{* required for the "mixed" and "vector" targets *}
+{===>} obs_phase="";
+
+{* reciprocal space array containing experimental figures of merit: optional *}
+{* required for the "mixed" target *}
+{===>} obs_fom="";
+
+{* resolution limits to be used in refinement *}
+{* the full resolution range of observed data should be used in refinement.
+   A bulk solvent correction should be applied to allow the use of low
+   resolution terms. If no bulk solvent correction is applied, data must
+   be truncated at a lower resolution limit of between 8 and 6 Angstrom. *}
+{+ table: rows=1 "resolution" cols=2 "lowest" "highest" +}
+{===>} low_res=500.0;
+{===>} high_res=2.0;
+
+{* apply rejection criteria to amplitudes or intensities *}
+{+ choice: "amplitude" "intensity" +}
+{===>} obs_type="amplitude";
+
+{* Observed data cutoff criteria: applied to amplitudes or intensities *}
+{* reflections with magnitude(Obs)/sigma < cutoff are rejected. *}
+{===>} sigma_cut=0.0;
+
+{* rms outlier cutoff: applied to amplitudes or intensities *}
+{* reflections with magnitude(Obs) > cutoff*rms(Obs) will be rejected *}
+{===>} obs_rms=10000;
+
+{=================== non-crystallographic symmetry ===================}
+
+{* NCS-restraints/constraints file *}
+{* see auxiliary/ncs.def *}
+{===>} ncs_infile="";
+
+{============ overall B-factor and bulk solvent corrections ==========}
+
+{* overall B-factor correction *}
+{+ choice: "no" "isotropic" "anisotropic" +}
+{===>} bscale="anisotropic";
+
+{* bulk solvent correction *}
+{* a mask is required around the molecule(s). The region
+   outside this mask is the solvent region *}
+{+ choice: true false +}
+{===>} bulk_sol=true;
+
+{* bulk solvent mask file *}
+{* mask will be read from O type mask file if a name is given
+   otherwise calculated from coordinates of selected atoms *}
+{===>} bulk_mask_infile="";
+
+{* automatic bulk solvent parameter search *}
+{+ choice: true false +}
+{===>} sol_auto=true;
+
+{* optional file with a listing of the results of the automatic bulk solvent grid 
+   search *}
+{===>} sol_output="";
+
+{* solvent mask parameters *}
+{+ table: rows=1 "bulk solvent" cols=2 "probe radius (A) (usually set to 1)" "shrink radius (A) (usually set to 1)" +}
+{===>} sol_rad=1.0;
+{===>} sol_shrink=1.0;
+
+{* fixed solvent parameters if the automatic option is not used *}
+{+ table: rows=1 "bulk solvent" cols=2 "e-density level (e/A^3)" "B-factor (A^2)" +}
+{===>} sol_k=-1;
+{===>} sol_b=-1;
+
+{========================== atom selection ===========================}
+
+{* select atoms to be included in refinement *}
+{* this should include all conformations if multiple conformations are used *}
+{===>} atom_select=(known and not hydrogen);
+
+{* select fixed atoms *}
+{* note: atoms at special positions are automatically fixed. So, 
+   you don't have to explicitly fix them here. *}
+{===>} atom_fixed=(none);
+
+{* select atoms to be harmonically restrained during refinement *}
+{===>} atom_harm=(none);
+
+{* harmonic restraint constant - for harmonically restrained atoms *}
+{===>} k_harmonic=10;
+
+{* atom selections for non-default rigid groups during torsion angle dynamics *}
+{* note: the selections must be non-overlapping *}
+{===>} atom_rigid_1=(none);
+{===>} atom_rigid_2=(none);
+{===>} atom_rigid_3=(none);
+{===>} atom_rigid_4=(none);
+{===>} atom_rigid_5=(none);
+{===>} atom_rigid_6=(none);
+{===>} atom_rigid_7=(none);
+{===>} atom_rigid_8=(none);
+{===>} atom_rigid_9=(none);
+{===>} atom_rigid_10=(none);
+! to add more groups add more numbered entries:
+!   {===>} atom_rigid_11=(none);
+!   {===>} atom_rigid_12=(none);
+!   {===>} atom_rigid_13=(none);
+! etc
+
+{* select atoms in alternate conformation 1 *}
+{===>} conf_1=(none);
+
+{* select atoms in alternate conformation 2 *}
+{===>} conf_2=(none);
+
+{* select atoms in alternate conformation 3 *}
+{===>} conf_3=(none);
+
+{* select atoms in alternate conformation 4 *}
+{===>} conf_4=(none);
+
+{* additional restraints file *}
+{* eg. auxiliary/dna-rna_restraints.def *}
+{===>} restraints_infile="";
+
+{* Note: to compute minimized or annealed omit maps use the following selections:*}
+{+ list:
+  exclude omitted atoms from refinement selection, e.g., ( known and not ( segid A and resid 40:50))
+  restrain atoms around the omitted region using the haromic restrain selection, e.g., ( ( segid A and resid 40:50 ) around 5 ) 
+  fix the omitted atoms using the fix atom selection, e.g., ( segid A and resid 40:50) +}
+
+{===================== DEN-assisted refinement =======================}
+
+{* specify selections and options for DEN *}
+{* to be used in conjunction with torsion-angle molecular dynamics and a slow-cooling annealing schedule *}
+
+{* Use DEN  *}
+{+ choice: true false +}
+{===>} use_den=false;
+
+{* initial DEN file; if blank, the DEN will be generated automatically from reference coordinates *}
+{===>} den_infile="den_make.den";
+
+{* reference coordinates - always required *}
+{===>} den_ref="amy.pdb";
+
+{* select groups of atoms to be included in DEN generation *}
+{* only distances within each specified group of atoms are used for DEN, i.e., no distances between groups are used *}
+{+ table: rows=20 "group 1" "group 2" "group 3"  "group 4" "group 5" "group 6" "group 7" "group 8" "group 9" "group 10" 
+                  "group 11" "group 12" "group 13"  "group 14" "group 15" "group 16" "group 17" "group 18" "group 19" "group 20" 
+                   cols=1 "atom selection"  +}
+{===>} den_atom_select_1=(known and (name C or name O or name CA or name N ) and resid 2:6);
+{===>} den_atom_select_2=(none);
+{===>} den_atom_select_3=(none);
+{===>} den_atom_select_4=(none);
+{===>} den_atom_select_5=(none);
+{===>} den_atom_select_6=(none);
+{===>} den_atom_select_7=(none);
+{===>} den_atom_select_8=(none);
+{===>} den_atom_select_9=(none);
+{===>} den_atom_select_10=(none);
+{===>} den_atom_select_11=(none);
+{===>} den_atom_select_12=(none);
+{===>} den_atom_select_13=(none);
+{===>} den_atom_select_14=(none);
+{===>} den_atom_select_15=(none);
+{===>} den_atom_select_16=(none);
+{===>} den_atom_select_17=(none);
+{===>} den_atom_select_18=(none);
+{===>} den_atom_select_19=(none);
+{===>} den_atom_select_20=(none);
+
+{* DEN selection criteria (for automatic DEN generation only, i.e., if initial DEN file is blank)  *}
+{+ list: DEN distances will be randomly picked from the following set of atom pairs: 
+   - both atoms are included in one of the DEN atom selections defined above
+   - the distance between atoms in the reference coordinates is within the lower and upper distance cutoffs 
+   - the residues are separated by less or equal the sequence separation limit within the same chain 
+   The number of randomly picked distances will be (number of atoms) x (ndistance ratio) +}
+{+ table: rows=4 "lower distance cutoff" "upper distance cutoff" "sequence separation limit" "ndistance ratio (normally 1)" cols=1 " " +}
+{===>} den_lower_distance_cutoff=3;
+{===>} den_upper_distance_cutoff=15;
+{===>} den_sequence_separation_limit=10;
+{===>} den_ndistance_ratio=1;
+
+{* gamma, should be between 0 and 1 *}
+{* note: DEN updates are only performed for slow-cooling annealing mode *}
+{===>} den_gamma=0.5;
+
+{* wden, weight for DEN energy term *}
+{===>} den_scale=150.0;
+
+{* kappa, should be between 0 and 1 (normally set to 0.1) *}
+{===>} den_kappa=0.1;
+
+{* number of initial relaxation refinement cycles (with gamma and kappa set to zero) *}
+{* must be less or equal to the total number of cycles of refinement *}
+{===>} relax_ncycle=0;
+
+{* number of final refinement cycles (with wden set to zero) *}
+{* must be less or equal to the total number of cycles of refinement plus initial relaxation cycles *}
+{===>} post_ncycle=0;
+
+{* set initial DEN minimum to starting coordinates (normally set to true) *}
+{+ choice: true false +}
+{===>} den_minimum_start=true;
+
+{* exponent for DEN distance potential *}
+{+ choice: 2 4 +}
+{===>} den_exponent=2;
+
+{====================== annealing parameters =========================}
+
+{* carry out simulated annealing *}
+{+ choice: true false +}
+{===>} anneal=true;
+
+{* type of molecular dynamics *}
+{+ choice: "torsion" "cartesian" +}
+{===>} md_type="torsion";
+
+{* number of minimization steps to regularize the geometry prior to molecular dynamics *}
+{===>} geometry_min=100;
+
+{* annealing schedule *}
+{+ choice: "slowcool" "constant" +}
+{===>} md_scheme="slowcool";
+
+{* starting temperature *}
+{* used for both constant-temperature and slowcooling schemes *}
+{===>} temperature=3000;
+
+{* drop in temperature (K) per cycle of dynamics *}
+{* only used for slowcooling annealing schedule *}
+{===>} cool_rate=50;
+
+{* number of molecular dynamics steps *}
+{* only used for constant-temperature annealing schedule *}
+{===>} constant_steps=100;
+
+{* seed for random number generator *}
+{* change to get different initial velocities *}
+{===>} seed=82364;
+
+{* number of final refinement cycles with full van der Waals radii *}
+{* initial cycles will use 75% reduced radii *}
+{===>} full_vdw_cycles=3;
+
+{* torsion-angle MD parameters (normally do not need to be changed)*}
+
+{* torsion angle topology modification file *}
+{===>} torsion_infile="CNS_TOPPAR:torsionmdmods";
+{* maximum unbranched chain length (use <= 0 for automatic) *}
+{===>} torsion_maxlength=0;
+{* maximum number of distinct bodies (use <= 0 for automatic) *}
+{===>} torsion_maxtree=0;
+{* maximum number of chains (use <= 0 for automatic) *}
+{===>} torsion_maxchain=0;
+
+{===================== minimization parameters =======================}
+
+{* number of positional (xyz) minimization steps *}
+{===>} minimize_nstep=50;
+
+{* number of B-factor minimization steps *}
+{===>} bfactor_nstep=50;
+
+{* B-factor minimization mode *}
+{+ choice: "individual" "group" "domain" +}
+{===>} bfactor_mode="individual";
+
+{* reset all atomic B factors to this number if positive *}
+{===>} reset_b=-1;
+
+{* weight for B-factor bond, angle, and NCS restraints *}
+{* if 0, no restraints are used. 
+   If -1, the weight will be automatically determined.
+   At later stages of refinement the optimal value for rweight can
+   be determined using the optimize_rweight.inp script *}
+{===>} rweight=-1;
+
+{* B-factor limits *}
+{+ table: rows=1 "B-factor" cols=2 "minimum" "maximum" +}
+{===>} bmin=1;
+{===>} bmax=900;
+
+{* select main chain atoms for target B-factor sigma assignment *}
+{* note: atoms outside this selection will be considered to be
+   side chain atoms *}
+{===>} atom_main=(name ca or name n or name c or name o or name ot+);
+
+{* target sigma values for B-factor bond and angle restraints.
+   These restraints are present in all modes unless rweight is zero.
+   For group and domain modes, these sigma values should be increased five- to ten-fold. *}
+
+{* mainchain bonds *}
+{===>} bsig_main=1.5;
+{* mainchain angles *}
+{===>} asig_main=2.0;
+
+{* sidechain bonds *}
+{===>} bsig_side=2.0;
+{* sidechain angles *}
+{===>} asig_side=2.5;
+
+{* define groups for "group" B-factor minimization mode.
+   Each residue will be broken up into the specified groups *}
+{* note: the selections must be non-overlapping *}
+
+{* select atoms in group 1 - protein mainchain example *}
+{===>} bg_group_1=((resname ALA or resname ARG or resname ASN or
+                   resname ASP or resname CYS or resname GLN or
+                   resname GLU or resname GLY or resname HIS or
+                   resname ILE or resname LEU or resname LYS or
+                   resname MET or resname MSE or resname PHE or
+                   resname PRO or resname SER or resname THR or
+                   resname TRP or resname TYR or resname VAL or
+                   resname HISH or resname HISU or resname M3L or
+                   resname CPR) and
+                   (name c or name n or name ca or name o or name ot+));
+
+{* select atoms in group 2 - protein sidechain example *}
+{===>} bg_group_2=((resname ALA or resname ARG or resname ASN or
+                   resname ASP or resname CYS or resname GLN or
+                   resname GLU or resname GLY or resname HIS or
+                   resname ILE or resname LEU or resname LYS or
+                   resname MET or resname MSE or resname PHE or
+                   resname PRO or resname SER or resname THR or
+                   resname TRP or resname TYR or resname VAL or
+                   resname HISH or resname HISU or resname M3L or
+                   resname CPR) and
+                   not(name c or name n or name ca or name o or name ot+));
+
+{* select atoms in group 3 - nucleic acid backbone example *}
+{===>} bg_group_3=((resname THY or resname CYT or resname GUA or
+                   resname ADE or resname URI) and
+                   (name c+' or name h+' or name op or name o+' or
+                   name p or name ht or name ot));
+
+{* select atoms in group 4 - nucleic acid bases example *}
+{===>} bg_group_4=((resname THY or resname CYT or resname GUA or
+                   resname ADE or resname URI) and
+                   not(name c+' or name h+' or name op or name o+' or
+                   name p or name ht or name ot));
+
+{* select atoms in group 5 - carbohydrates example *}
+{===>} bg_group_5=(resname GLC or resname GAL or resname MAN or
+                   resname NAG or resname FUC or resname SIA or
+                   resname XYL);
+
+{* select atoms in group 6 *}
+{===>} bg_group_6=(none);
+
+{* select atoms in group 7 *}
+{===>} bg_group_7=(none);
+
+{* select atoms in group 8 *}
+{===>} bg_group_8=(none);
+
+{* define atom selections of domains for "domain" B-factor minimization mode *}
+{* note: the selections must be non-overlapping *}
+{===>} bd_group_1=(none);
+{===>} bd_group_2=(none);
+{===>} bd_group_3=(none);
+{===>} bd_group_4=(none);
+{===>} bd_group_5=(none);
+{===>} bd_group_6=(none);
+{===>} bd_group_7=(none);
+{===>} bd_group_8=(none);
+{===>} bd_group_9=(none);
+{===>} bd_group_10=(none);
+! to add more groups add more numbered entries:
+!   {===>} bd_group_11=(none);
+!   {===>} bd_group_12=(none);
+!   {===>} bd_group_13=(none);
+! etc
+
+{====================== refinement parameters ========================}
+
+{* number of cycles of refinement *}
+{===>} num_cycles=3;
+
+{* refinement target *}
+{+ list: mlf: maximum likelihood target using amplitudes
+         mli: maximum likelihood target using intensities
+        mlhl: maximum likelihood target using amplitudes
+              and phase probability distribution
+    residual: standard crystallographic residual
+      vector: vector residual
+       mixed: (1-fom)*residual + fom*vector
+        e2e2: correlation coefficient using normalized E^2
+        e1e1: correlation coefficient using normalized E
+        f2f2: correlation coefficient using F^2
+        f1f1: correlation coefficient using F +}
+{+ choice: "mlf" "mli" "mlhl" "residual" "vector" "mixed"
+           "e2e2" "e1e1" "f2f2" "f1f1" +}
+{===>} reftarget="mlf";
+
+{* Wa weight for X-ray term *}
+{* this will be determined automatically if a negative value is given.
+   Note: wa can be very different depending on the target - if it is not
+         determined automatically make sure an appropriate value is used *}
+{===>} wa=-1;
+
+{* number of bins for refinement target *}
+{* this will be determined automatically if a negative value is given 
+   otherwise the specified number of bins will be used *}
+{===>} target_bins=-1;
+
+{* memory allocation for FFT calculation *}
+{* this will be determined automatically if a negative value is given
+   otherwise the specified number of words will be allocated *}
+{===>} fft_memory=-1;
+
+{==================== map generation parameters ======================}
+
+{* write fofc and 2fofc map files *}
+{+ choice: true false +}
+{===>} write_map=true;
+
+{* type of map (calculated for u=1,v=1 and u=2,v=1) *}
+{+ list:   sigmaa: (u m|Fo| - v D|Fc|)^exp(i phi_calc)
+                    m and D calculated from sigmaa
+       unweighted: (u |Fo| - v k|Fc|)^exp(i phi_calc)
+                    no figure-of-merit weighting
+         combined: (u m|Fo|^exp(i phi_comb) - v D|Fc|^exp(i phi_calc))
+                    model and experimental phases combined, m and D from sigmaa
+         observed: (u m|Fo|^exp(i phi_obs) - v k m|Fc|^exp(i phi_calc))
+                    observed phases and fom from phase probability distribution
+       NB. experimental phases must be supplied as a phase
+           probability distribution in the Hendrickson-Lattman arrays +}
+{+ choice: "sigmaa" "unweighted" "combined" "observed" +}
+{===>} map_type="sigmaa";
+
+{* map grid size: dmin*grid *}
+{* use grid=0.25 for better map appearance *}
+{===>} grid=0.33;
+
+{* use model amplitudes for unmeasured data *}
+{* this will not be applied to difference maps *}
+{+ choice: true false +}
+{===>} fill_in=false;
+
+{* scale map by dividing by the rms sigma of the map *}
+{* otherwise map will be on an absolute fobs scale *}
+{+ choice: true false +}
+{===>} map_scale=true;
+
+{* map format *}
+{+ choice: "cns" "ezd" +}
+{===>} map_format="cns";
+
+{* extent of map *}
+{+ choice: "molecule" "asymmetric" "unit" "box" "fract" +}
+{===>} map_mode="molecule";
+
+{* limits in orthogonal angstroms for box mode or
+   fractional coordinates for fract mode *}
+{+ table: rows=3 "x" "y" "z" cols=2 "minimum" "maximum" +}
+{===>} xmin=0;
+{===>} xmax=0;
+{===>} ymin=0;
+{===>} ymax=0;
+{===>} zmin=0;
+{===>} zmax=0;
+
+{* select atoms around which map will be written *}
+{* change if different to atoms selected for map calculation *}
+{===>} atom_map=(known and not hydrogen);
+
+{* cushion (in Angstroms) around selected atoms in "molecule" mode *}
+{===>} map_cushion=3.0;
+
+{* number of peaks to pick from map *}
+{===>} peak_num=30;
+
+
+{===========================================================================}
+{        things below this line do not normally need to be changed          }
+{===========================================================================}
+
+ ) {- end block parameter definition -}

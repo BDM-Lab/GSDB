@@ -1,0 +1,1601 @@
+{+ file: analyse.inp +}
+{+ directory: xtal_util +}
+{+ description: Diffraction data analysis for amplitudes,
+                intensities, and phases. +}
+{+ comment:
+            Analysis of single data sets, and isomorphous, dispersive
+            and anomalous differences.
+            Histograms and diffraction ratios distributions of intensities
+            and amplitude differences.
+            Distributions of phase differences and map correlation
+            coefficients.
+            Wilson plots and distribution of normalized structure factors.
+            For differences all pairwise combinations are computed. +}
+{+ authors: Axel T. Brunger +}
+{+ copyright: Yale University +}
+
+{- Note: before using this file for analysis of amplitude
+         differences between datasets, the data sets must be properly
+         scaled to each other. -}
+
+{+ reference: Wilson, A. J. C.  The probability distibution of X-ray
+              intensities, Acta. Cryst. (1949) vol 2, 318 +}
+
+{+ reference: Stanley, E. The identification of twins from intensity
+              statistics. J. Appl. Cryst. (1972) vol 5, p191 +}
+
+{+ reference: Rogers, D. and Wilson A. J. C. The probability distribution
+              of X-ray Intensities V. A note on some Hypersymmetric Di
+              stributions. Acta. Cryst. (1953) vol 6, 439 +}
+
+{+ reference: W.A. Hendrickson, J.L. Smith, R.P. Phizackerly, E.A. Merritt,
+              Crystallographic structure analysis of lamprey myoglobin from
+              anomalous dispersion of synchrotron radiation, Proteins 4,
+              77-88 (1988). +}
+
+{- Guidelines for using this file:
+   - all strings must be quoted by double-quotes
+   - logical variables (true/false) are not quoted
+   - do not remove any evaluate statements from the file -}
+
+{====================== IMPORTANT NOTE ===============================}
+
+{* This input file requires that the data have been relatively scaled to
+   each other prior to running this file. *}
+
+{- begin block parameter definition -} define(
+
+{====================== crystallographic data ========================}
+
+{* space group *}
+{* use International Table conventions with subscripts substituted
+   by parenthesis *}
+{===>} sg="P6";
+
+{* unit cell parameters in Angstroms and degrees *}
+{+ table: rows=1 "cell" cols=6 "a" "b" "c" "alpha" "beta" "gamma" +}
+{===>} a=116.097;
+{===>} b=116.097;
+{===>} c=44.175;
+{===>} alpha=90;
+{===>} beta=90;
+{===>} gamma=120;
+
+{* reflection file(s) *}
+{* specify non-anomalous reflection file(s) (if any)
+   before anomalous reflection file(s) *}
+{===>} reflection_infile_1="sad_scale.hkl";
+{===>} reflection_infile_2="";
+{===>} reflection_infile_3="";
+{===>} reflection_infile_4="";
+
+{* specify amplitude arrays to be analysed *}
+{===>} f_1="fobs";
+{===>} f_2="";
+{===>} f_3="";
+{===>} f_4="";
+{===>} f_5="";
+{===>} f_6="";
+{===>} f_7="";
+{===>} f_8="";
+{===>} f_9="";
+
+{* figure-of-merit array for fom-weighted phase differences and map
+   correlation coefficients *}
+{* if not specified, the figures-of-merit array defaults to 1 *}
+{===>} fom="";
+
+{========================= analysis options ==========================}
+
+{* resolution range for analysis *}
+{+ table: rows=1 "resolution" cols=2 "lowest" "highest" +}
+{===>} low_res=500;
+{===>} high_res=2.4;
+
+{* reflection selection in addition to resolution selection *}
+{===>} ref_sele=(all);
+
+{* number of resolution shells for analysis *}
+{===>} bins=8;
+
+{* histogram step value *}
+{===>} step=0.1;
+
+{* analyse intensity distributions/histograms for each amplitude array *}
+{+ choice: true false +}
+{===>} intensity=true;
+
+{* analyse E histograms for each amplitude array *}
+{+ choice: true false +}
+{===>} ehistogram=false;
+
+{* analyse all anomalous differences
+   (distributions/histograms) for each amplitude array *}
+{+ choice: true false +}
+{===>} anom_diff=true;
+
+{* analyse all isomorphous/dispersive differences
+   (distributions/histograms) between all pairs of amplitude arrays *}
+{+ choice: true false +}
+{===>} iso_diff=false;
+
+{* analyse correlation between all pairs of anomalous differences *}
+{+ choice: true false +}
+{===>} corr=true;
+
+{* analyse phase difference distributions between all pairs of amplitude
+   arrays *}
+{+ choice: true false +}
+{===>} phases=false;
+
+{* compute R-factors between all pairs of amplitude arrays *}
+{+ choice: true false +}
+{===>} rfactors=false;
+
+{* make Wilson plot for each amplitude array *}
+{+ choice: true false +}
+{===>} wilson=true;
+
+{=========================== Wilson plot =============================}
+
+{* these options only need to be specified if Wilson plots are to be made *}
+
+{* resolution range for Wilson plot linear fit *}
+{* Note: Wilson statistics are invalid below 3 A resolution for
+         macromolecules *}
+{+ table: rows=1 "Wilson resolution" cols=2 "lowest" "highest" +}
+{===>} low_res_wilson=3.0;
+{===>} high_res_wilson=2.4;
+
+{* approximate number of amino acid residues in the asymmetric unit *}
+{===>} aa_residues=280;
+
+{* give any additional atoms of the specified chemical type
+   and the number of these atoms in the asymmetric unit *}
+{+ table: rows=9 cols=2 "chemical type" "number of atoms in ASU" +}
+{===>} atom_type_1="C";
+{===>} atom_number_1=0;
+
+{===>} atom_type_2="N";
+{===>} atom_number_2=0;
+
+{===>} atom_type_3="O";
+{===>} atom_number_3=0;
+
+{===>} atom_type_4="SE";
+{===>} atom_number_4=9;
+
+{===>} atom_type_5="";
+{===>} atom_number_5=0;
+
+{===>} atom_type_6="";
+{===>} atom_number_6=0;
+
+{===>} atom_type_7="";
+{===>} atom_number_7=0;
+
+{===>} atom_type_8="";
+{===>} atom_number_8=0;
+
+{===>} atom_type_9="";
+{===>} atom_number_9=0;
+
+{=========================== output files ============================}
+
+{* root name for output files *}
+{+ list: output files will be:
+  <output_root>_intensity_<fi>.distr ! intensity distributions vs. resolution
+  <output_root>_intensity_<fi>.histo ! intensity histograms
+  <output_root>_<fi>.wilson          ! Wilson plots
+  <output_root>_e_<fi>.histo         ! E histograms
+  <output_root>_diff_<fi>_<fj>.distr ! ampl. diff. distributions vs. resolution
+  <output_root>_diff_<fi>_<fj>.histo ! ampl. diff. histograms
+  <output_root>_phase_diff_<fi>_<fj>.distr  ! phase difference distributions
+  <output_root>_anom_diff_<fi>.distr ! anom. ampl. diff. distributions vs. res
+  <output_root>_anom_diff_<fi>.histo ! anom. ampl. difference histograms
+  <output_root>_anom_phase_diff_<fi>.distr ! anom. phase diff. dist. vs. res.
+  <output_root>_corr_<fi>_<fj>.distr ! anom. diff. correlation dist. vs. res.
+  <output_root>_rfactors_<fi>_<fj>   ! R-factors between pairs of data sets
+  <output_root>.matrix  ! dispersive and anomalous overall difference matrix
+                    (only if both dispersive and anomalous diff. are turned on)
+  <output_root>.corr_matrix  ! correlation matrix (only if correlations are
+                               requested)
+  where
+    <fi> is the name of amplitude array of first data set
+    <fj> is the name of amplitude array of second data set +}
+{===>} output_root="analyse";
+
+{===========================================================================}
+{         things below this line do not normally need to be changed         }
+{===========================================================================}
+
+ ) {- end block parameter definition -}
+
+checkversion 1.3
+
+evaluate ($log_level=quiet)
+
+{- make histograms for intensities and all differences -}
+{- choice: true false -}
+evaluate ($histogram=true)
+
+{- analyse distr. vs. resolution for intensities, and all differences -}
+{- choice: true false -}
+evaluate ($distribution=true)
+
+xray
+
+   a=&a b=&b c=&c  alpha=&alpha beta=&beta gamma=&gamma
+
+   @CNS_XTALLIB:spacegroup.lib (sg=&sg;sgparam=$sgparam;)
+
+   evaluate ($counter=1)
+   evaluate ($done=false)
+   while ( $done = false ) loop read
+    if ( &exist_reflection_infile_$counter = true ) then
+      if ( &BLANK%reflection_infile_$counter = false ) then
+       reflection
+         @@&reflection_infile_$counter
+       end
+      end if
+   else
+     evaluate ($done=true)
+   end if
+   evaluate ($counter=$counter+1)
+  end loop read
+
+   set echo=off end
+   evaluate ($ii=1)
+   while (&exist_&f_$ii=true) loop ccc
+      if ( &BLANK%f_$ii = false ) then
+         query name=&STRIP%f_$ii domain=reciprocal end
+         if ( $object_exist = false ) then
+            display
+            display **********************************************************
+            display Error : data set $ii amplitude array &f_$ii does not exist
+            display **********************************************************
+            display
+            abort
+         end if
+         {- this object can be of any type -}
+       end if
+      evaluate ($ii=$ii+1)
+   end loop ccc
+
+   if ( &BLANK%fom = false ) then
+      query name=&STRIP%fom domain=reciprocal end
+      if ( $object_exist = false ) then
+          display
+          display *************************************************
+          display Error : figure of merit array &fom does not exist
+          display *************************************************
+          display
+          abort
+      end if
+      if ( $object_type # "REAL" ) then
+         display
+         display **********************************************************
+         display Error : figure of merit array &fom has the wrong data type
+         display **********************************************************
+         display
+         abort
+      end if
+   end if
+
+   set echo=on end
+
+   binresolution &low_res &high_res
+
+   bins=&bins
+
+   declare name=diff domain=reciprocal type=real end
+
+end
+
+
+if (&wilson=true) then
+
+   topology
+      {- create a dummy residue for isolated point atoms -}
+      residue scat
+         atom=scat type scat mass 10. end
+      end
+   end
+
+   if (&aa_residues>0) then
+     {- approximate number of atoms: 5 C + 3 N + 1 O -}
+
+      evaluate ($atom_number=&aa_residues * 5)
+      
+{- BEGIN MODIFICATION -}
+      if ($atom_number > 9999999 ) then
+         display ERROR: number of residues too large (resulting in more than 999,9999 atoms)
+         abort
+      else
+         evaluate ($counter=0)
+         evaluate ($atom_nn=$atom_number)
+         while ($atom_nn > 0) loop aac
+            evaluate ($atom_ii=min(9999,$atom_nn))
+            evaluate ($atom_nn=$atom_nn-$atom_ii)
+            evaluate ($counter=$counter+1)
+            evaluate ($seg="C" + encode ( $counter ))
+            segment
+               name= $seg
+               mole
+                  number=$atom_ii
+                  name=scat
+               end
+             end
+            do (chemical="C") ( segid $seg )
+         end loop aac
+      end if
+
+      evaluate ($atom_number=&aa_residues * 3)
+
+      if ($atom_number > 9999999 ) then
+         display ERROR: number of residues too large (resulting in more than 999,9999 atoms)
+         abort
+      else
+         evaluate ($counter=0)
+         evaluate ($atom_nn=$atom_number)
+         while ($atom_nn > 0) loop aan
+            evaluate ($atom_ii=min(9999,$atom_nn))
+            evaluate ($atom_nn=$atom_nn-$atom_ii)
+            evaluate ($counter=$counter+1)
+            evaluate ($seg="N" + encode ( $counter ))
+            segment
+               name=$seg
+               mole
+                  number=$atom_ii
+                  name=scat
+               end
+             end
+            do (chemical="N") ( segid $seg )
+         end loop aan
+      end if
+
+      evaluate ($atom_number=&aa_residues )
+      
+      if ($atom_number > 9999999 ) then
+         display ERROR: number of residues too large (resulting in more than 999,9999 atoms)
+         abort
+      else
+         evaluate ($counter=0)
+         evaluate ($atom_nn=$atom_number)
+         while ($atom_nn > 0) loop aao
+            evaluate ($atom_ii=min(9999,$atom_nn))
+            evaluate ($atom_nn=$atom_nn-$atom_ii)
+            evaluate ($counter=$counter+1)
+            evaluate ($seg="O" + encode ( $counter ))     
+            segment
+               name=$seg
+               mole
+                  number=$atom_ii
+                  name=scat
+               end
+             end
+             do (chemical="O") ( segid $seg )
+          end loop aao
+       end if
+   end if
+
+   evaluate ($ii=1)
+   while (&exist_&atom_type_$ii=true) loop atm
+      if ( &BLANK%atom_type_$ii = false ) then
+         if (&atom_number_$ii > 9999) then
+            display ERROR: number of atoms too large (> 9999) for &atom_type_$ii
+            abort
+         elseif (&atom_number_$ii > 0) then
+            evaluate ($atom_type_$ii=capitalize(&atom_type_$ii))
+            segment
+               name=$atom_type_$ii
+               mole
+                  number=&atom_number_$ii
+                  name=scat
+               end
+             end
+             do (chemical=$atom_type_$ii) ( segid $atom_type_$ii )
+          end if
+       end if
+       evaluate ($ii=$ii+1)
+   end loop atm
+
+{- END MODIFICATION -}
+      
+
+   {- coordinates are not required for Wilson scaling
+      but we must initialize the coordinates in order
+      to avoid warning messages -}
+   do (x=0.) ( all )
+   do (y=0.) ( all )
+   do (z=0.) ( all )
+
+   xray
+
+      @CNS_XRAYLIB:scatter.lib
+
+      evaluate ($ii=1)
+      while (&exist_&f_$ii=true) loop wils
+       if ( &BLANK%f_$ii = false ) then
+
+         show sum ( amplitude(&STRIP%f_$ii) )
+         ( amplitude(&STRIP%f_$ii)>0  and
+              &low_res >= d >= &high_res and &ref_sele
+              and &low_res_wilson >= d >= &high_res_wilson )
+
+         if ($select=0) then
+            display
+            display *************************************************
+            display Error: no reflections selected for Wilson plot fit
+            display  ( &low_res_wilson >= d >= &high_res_wilson )
+            display in overall analysis range
+            display  ( &low_res >= d >= &high_res )
+            display and overall selection ( &ref_sele )
+            display
+            display Recommendation: turn off Wilson option or change
+            display overall analysis range.
+            display **************************************************
+            abort
+         end if
+
+         evaluate ($filename=&output_root+"_"+&f_$ii+".wilson")
+         set display=$filename end
+
+display
+display Wilson plot for &STRIP%f_$ii
+display
+         @CNS_XTALMODULE:wilsonplot (
+           bins=&bins;
+           f1=&STRIP%f_$ii;
+           sel=( amplitude(&STRIP%f_$ii)>0  and
+                 &low_res >= d >= &high_res and &ref_sele);
+           wilson_low_res=&low_res_wilson;
+           wilson_high_res=&high_res_wilson;
+           disp=$filename;
+           mess=LONG;
+           KW=$absolute_scale;
+           BW=$absolute_bw;
+           atom_sel=( all ) ;
+           )
+
+         close $filename end
+
+       end if
+       evaluate ($ii=$ii+1)
+
+      end loop wils
+   end
+end if
+
+if (&intensity=true) then
+
+   if ($distribution=true) then
+
+      xray
+          evaluate ($ii=1)
+          while (&exist_&f_$ii=true) loop ints
+           if ( &BLANK%f_$ii = false ) then
+
+            evaluate ($filename=&output_root+"_intensity_"+&f_$ii+".distr")
+            set display=$filename end
+
+            display
+            display  Intensity distribution for &STRIP%f_$ii
+            display  in resolution range &low_res > d > &high_res A
+            display  reflections selected within this range: &ref_sele
+            display
+
+            declare name=fpro domain=reciprocal type=real end
+
+            do (fpro = -1) (all)
+            do (fpro = amplitude(&STRIP%f_$ii))
+              (        amplitude(&STRIP%f_$ii) > 0
+               and &low_res >= d >= &high_res
+               and &ref_sele)
+
+            eval($rms_ipro = 0)
+            show sum (mult * (fpro^4)) (fpro >= 0)
+            if ($select > 0) then
+              eval($sum = $result)
+              show sum (mult) (fpro >= 0)
+              eval($rms_ipro = sqrt($sum / $result))
+            end if
+
+            show sum (1) (fpro > 0 and acentric)
+            if ($select>0) then
+               display
+               display
+               display
+               display  ==========================================================================
+               display  ======================acentrics===========================================
+               display  column  1:     bin number
+               display  columns 2 & 3: resolution range
+               display  column  4:     number of reflections in bin
+               display  column  5:     average resolution in bin
+               display  column  6:     <|&STRIP%f_$ii |^2> / rms ( |&STRIP%f_$ii |^2 )   (overall rms= $rms_ipro )
+               display  column  7:  r4=<|&STRIP%f_$ii |^4> / (<|&STRIP%f_$ii |^2>)^2
+               display  column  8:  r1=(<|&STRIP%f_$ii |>)^2 / (<|&STRIP%f_$ii |^2>)     (Wilson ratio)
+               display  column  9:  fraction of theoretically complete data
+               display
+               display  Note: r4 should be 2 and r1 should be 0.785 for untwinned crystals
+               display        without hypersymmetries
+               bins=&bins
+               statistics
+                 output=$filename
+                 (d)
+                 (save(fpro^2)/$rms_ipro)
+                 (save(fpro^4)/max(0.0001,(save(fpro^2))^2))
+                 (save(fpro)^2/max(0.0001,(save(fpro^2))))
+                 completeness
+                 selection=(fpro > 0 and acentric)
+               end
+
+               display  --------------------averages-over-all-bins--------------------------------
+               show ave  (save(fpro^2)/$rms_ipro)
+                      (fpro > 0 and acentric)
+               evaluate ($column6_ave=$result)
+               show ave  (save(fpro^4)/max(0.0001,(save(fpro^2))^2))
+                      (fpro > 0 and acentric)
+               evaluate ($column7_ave=$result)
+               show ave  (save(fpro)^2/max(0.0001,(save(fpro^2))))
+                      (fpro > 0 and acentric)
+               evaluate ($column8_ave=$result)
+               display                                             \
+$column6_ave[F9.4] $column7_ave[F9.4] $column8_ave[F9.4]
+               display  --------------------------------------------------------------------------
+
+            end if
+
+            show sum (1) (fpro > 0 and centric)
+            if ($select>0) then
+               display
+               display
+               display
+               display  ==========================================================================
+               display  ======================centrics============================================
+               display  column  1:     bin number
+               display  columns 2 & 3: resolution range
+               display  column  4:     number of reflections in bin
+               display  column  5:     average resolution in bin
+               display  column  6:     <|&STRIP%f_$ii |^2> / rms ( |&STRIP%f_$ii |^2 )   (overall rms= $rms_ipro )
+               display  column  7:     <|&STRIP%f_$ii |^4> / (<|&STRIP%f_$ii |^2>)^2
+               display  column  8:     (<|&STRIP%f_$ii |>)^2 / (<|&STRIP%f_$ii |^2>)
+               display  column  9:     fraction of theoretically complete data
+               bins=&bins
+               statistics
+                 output=$filename
+                 (d)
+                 (save(fpro^2)/$rms_ipro)
+                 (save(fpro^4)/max(0.0001,(save(fpro^2))^2))
+                 (save(fpro)^2/max(0.0001,(save(fpro^2))))
+                 completeness
+                 selection=(fpro > 0 and centric)
+               end
+               display  --------------------averages-over-all-bins--------------------------------
+               show ave  (save(fpro^2)/$rms_ipro)
+                      (fpro > 0 and centric)
+               evaluate ($column6_ave=$result)
+               show ave  (save(fpro^4)/max(0.0001,(save(fpro^2))^2) )
+                      (fpro > 0 and centric)
+               evaluate ($column7_ave=$result)
+               show ave  (save(fpro)^2/max(0.0001,(save(fpro^2))) )
+                      (fpro > 0 and centric)
+               evaluate ($column8_ave=$result)
+               display                                             \
+$column6_ave[F9.4] $column7_ave[F9.4] $column8_ave[F9.4]
+               display  --------------------------------------------------------------------------
+            end if
+
+            close $filename end
+
+           end if
+           evaluate ($ii=$ii+1)
+
+           undeclare name=fpro domain=reciprocal end
+         end loop ints
+      end
+   end if
+
+   if ($histogram=true) then
+
+      xray
+
+         evaluate ($ii=1)
+         while (&exist_&f_$ii=true) loop inhs
+          if ( &BLANK%f_$ii = false ) then
+
+            evaluate ($filename=&output_root+"_intensity_"+&f_$ii+".histo")
+            set display=$filename end
+
+            declare name=fpro domain=reciprocal type=real end
+
+            do (fpro = -1) (all)
+            do (fpro = amplitude(&STRIP%f_$ii))
+              (    amplitude(&STRIP%f_$ii) > 0
+               and &low_res >= d >= &high_res
+               and &ref_sele)
+
+            eval($rms_ipro = 0)
+            show sum (mult * (fpro^4)) (fpro >= 0)
+            if ($select > 0) then
+              eval($sum = $result)
+              show sum (mult) (fpro >= 0)
+              eval($rms_ipro = sqrt($sum / $result))
+            end if
+
+            if ($rms_ipro>0) then
+               do (diff=-1) (all)
+               do (diff=fpro^2/$rms_ipro) (fpro > 0)
+
+               show max (diff) (fpro > 0)
+               evaluate ($stop=$result+0.01)
+               evaluate ($start=0.)
+
+               display
+               display  Histogram of I'=|&STRIP%f_$ii |^2/rms(|&STRIP%f_$ii |^2), rms= $rms_ipro
+               display  in resolution range &low_res > d > &high_res A
+               display  reflections selected within this range: &ref_sele
+               display  column 1 : lower bound of bin (I1)
+               display  column 2 : upper bound of bin (I2)
+               display  column 3 : number of reflections with I' in interval I1 <= I' <= I2
+               display  ==========================================================================
+
+               if ( $log_level = verbose ) then
+                 set message=normal echo=on end
+               else
+                 set message=off echo=off end
+               end if
+
+               evaluate ($1=$start)
+               while ($1 <= $stop ) loop mai2
+                  evaluate ($11=$1+&step)
+                  show sum (1) ($1 <= diff < $11)
+                  display  $1[F6.3]  $11[F6.3]  $result[F9.3]
+                  evaluate ($1=$1+&step)
+               end loop mai2
+
+               display  ==========================================================================
+
+            end if
+
+            close $filename end
+
+           end if
+           evaluate ($ii=$ii+1)
+
+           undeclare name=fpro domain=reciprocal end
+         end loop inhs
+
+      end
+
+   end if
+
+end if
+
+if (&ehistogram=true) then
+  xray
+
+      declare name=eobs   domain=reciprocal type=real end
+
+      evaluate ($ii=1)
+      while (&exist_&f_$ii=true) loop einh
+       if ( &BLANK%f_$ii = false ) then
+
+
+         bins=&bins
+
+         show max (d) (&low_res >= d >= &high_res and amplitude(&STRIP%f_$ii) > 0 and &ref_sele)
+         evaluate ($anal_low_res=$result+0.001)
+         show min (d) (&low_res >= d >= &high_res and amplitude(&STRIP%f_$ii) > 0 and &ref_sele)
+         evaluate ($anal_high_res=$result-0.001)
+
+         if ($select = 0 ) then
+            display
+            display =========================================================
+            display error: zero atoms selected for E histogram option
+            display        possible cause: no diffraction data in requested
+            display        resolution range &low_res &high_res A
+            display        and selection within this range: &ref_sele
+            display
+            abort
+         else
+            evaluate ($filename=&output_root+"_e_"+&f_$ii+".histo")
+            set display=$filename end
+
+            display
+            display  E histograms for &f_$ii
+            display
+
+            binresolution $anal_low_res $anal_high_res
+
+            do (eobs=norm(amplitude(&STRIP%f_$ii)))
+              (&low_res >= d >= &high_res and amplitude(&STRIP%f_$ii) > 0 and &ref_sele)
+
+            show sum (1)
+              (&low_res >= d >= &high_res and amplitude(&STRIP%f_$ii) > 0 and acentric and &ref_sele)
+            evaluate ($total_n_ac=$select)
+            show sum (1)
+              (&low_res >= d >= &high_res and amplitude(&STRIP%f_$ii) > 0 and centric and &ref_sele)
+            evaluate ($total_n_c=$select)
+
+            evaluate ($stop=5.001)
+            evaluate ($start=0.)
+
+            display
+            display  ==========================================================================
+            display  normalized histogram of E=norm(|&STRIP%f_$ii |)  (norm=E structure factor)
+            display  in resolution range &low_res > d > &high_res A
+            display  reflections selected within this range: &ref_sele
+            display  column 1 : lower bound of bin (E1)
+            display  column 2 : upper bound of bin (E2)
+            display  column 3 : probability of E in interval E1 <= E <= E2 for acentrics
+            display  column 4 : probability of E in interval E1 <= E <= E2 for centrics
+            display  column 5 : theoretical Wilson distribution of E for acentrics
+            display  column 6 : theoretical Wilson distribution of E for centrics
+
+            if ( $log_level = verbose ) then
+              set message=normal echo=on end
+            else
+              set message=off echo=off end
+            end if
+
+            evaluate ($1=$start)
+            while ($1 <= $stop ) loop mai3
+               evaluate ($11=$1+&step)
+               show sum (1) ( $1 <= eobs < $11 and acentric
+                           and amplitude(&STRIP%f_$ii)>0 and &low_res >= d >= &high_res and &ref_sele)
+               evaluate ($acentrics=$result/(max(1,$total_n_ac*&step)))
+               evaluate ($value=($1+$11)/2)
+               evaluate ($acentrics_wilson=2 * $value * exp(-($value^2)))
+               show sum (1) ( $1 <= eobs < $11 and centric
+                           and amplitude(&STRIP%f_$ii)>0 and &low_res >= d >= &high_res and &ref_sele)
+               evaluate ($centrics=$result/(max(1,$total_n_c*&step)))
+               evaluate ($centrics_wilson=sqrt(2/$pi) * exp(-($value^2)/2))
+               display  $1[F6.3]  $11[F6.3]  $acentrics[F6.3]  $centrics[F6.3]  \
+$acentrics_wilson[F6.3] $centrics_wilson[F6.3]
+               evaluate ($1=$1+&step)
+            end loop mai3
+
+            evaluate ($stop=5.001)
+            evaluate ($start=0.)
+
+            display
+            display  ==========================================================================
+            display  normalized histogram of E^2=norm(|&STRIP%f_$ii |)^2  (norm=E structure factor)
+            display  in resolution range &low_res > d > &high_res A
+            display  reflections selected within this range: &ref_sele
+            display  column 1 : lower bound of bin (E1)
+            display  column 2 : upper bound of bin (E2)
+            display  column 3 : probability of E^2 in interval E1 <= E^2 <= E2 for acentrics
+            display  column 4 : probability of E^2 in interval E1 <= E^2 <= E2 for centrics
+            display  column 5 : theoretical Wilson distribution of E^2 for acentrics
+            display  column 6 : theoretical Wilson distribution of E^2 for centrics
+
+            if ( $log_level = verbose ) then
+              set message=normal echo=on end
+            else
+              set message=off echo=off end
+            end if
+
+            evaluate ($1=$start)
+            while ($1 <= $stop ) loop mai4
+               evaluate ($11=$1+&step)
+               show sum (1) ( $1 <= eobs^2 < $11 and acentric
+                           and amplitude(&STRIP%f_$ii)>0 and &low_res >= d >= &high_res and &ref_sele)
+               evaluate ($acentrics=$result/(max(1,$total_n_ac*&step)))
+               evaluate ($value=($1+$11)/2)
+               evaluate ($acentrics_wilson=exp(-($value^2)))
+               show sum (1) ( $1 <= eobs^2 < $11 and centric
+                           and amplitude(&STRIP%f_$ii)>0 and &low_res >= d >= &high_res and &ref_sele)
+               evaluate ($centrics=$result/(max(1,$total_n_c*&step)))
+               evaluate ($centrics_wilson=(2*$pi*$value^2)^(-1/2) * exp(-($value^2)/2))
+               display  $1[F6.3]  $11[F6.3]  $acentrics[F6.3]  $centrics[F6.3]  \
+$acentrics_wilson[F6.3] $centrics_wilson[F6.3]
+               evaluate ($1=$1+&step)
+            end loop mai4
+
+            set message=on echo=on end
+
+            close $filename end
+         end if
+
+        end if
+        evaluate ($ii=$ii+1)
+
+      end loop einh
+
+      undeclare name=eobs   domain=reciprocal end
+      binresolution &low_res &high_res
+   end
+end if
+
+evaluate ($fom=&fom)
+
+if (&phases=true) then
+
+   xray
+      if ( &BLANK%fom = true ) then
+         evaluate ($fom="temp_fom")
+         declare name=$STRIP%fom domain=reciprocal type=real end
+         do ($STRIP%fom=1) ( all )
+      end if
+
+      evaluate ($ii=1)
+      while (&exist_&f_$ii=true) loop psps
+       if ( &BLANK%f_$ii = false ) then
+
+         evaluate ($jj=$ii+1)
+         while (&exist_&f_$jj=true) loop psp2
+          if ( &BLANK%f_$jj = false ) then
+
+            evaluate ($filename=&output_root+"_phase_diff_"+&f_$ii+"_"+&f_$jj+".distr")
+            set display=$filename end
+
+            display
+            display  phase differences between &STRIP%f_$ii and &STRIP%f_$jj
+            display  in resolution range &low_res > d > &high_res A
+            display  reflections selected within this range: &ref_sele
+            display
+            display  ==========================================================================
+            display  column  1:     bin number
+            display  columns 2 & 3: resolution range
+            display  column  4:     number of reflections in bin
+            display  column  5:     average resolution in bin
+            display  column  6:  <phase(&STRIP%f_$ii) - phase(&STRIP%f_$jj )>  (unweighted)
+            display  column  7:  < $STRIP%fom >
+            display  column  8:  < $STRIP%fom [phase(&STRIP%f_$ii) - phase(&STRIP%f_$jj )]>
+            display  column  9:  fraction of theoretically complete data
+            bins=&bins
+            statistics
+               output=$filename
+              (d)
+              (sum(  abs(mod(phase(&STRIP%f_$ii)-phase(&STRIP%f_$jj)+540,360) -180.)) / sum(1.))
+              ($STRIP%fom)
+              (sum( $STRIP%fom * abs(mod(phase(&STRIP%f_$ii)-phase(&STRIP%f_$jj)+540,360) -180.)) /
+                    max(0.0000001,sum($STRIP%fom)))
+              completeness
+              selection=(&low_res >= d >= &high_res and amplitude(&STRIP%f_$jj) > 0
+                         and amplitude(&STRIP%f_$ii)>0 and &ref_sele)
+            end
+            bins=1
+            display  ----------------------------------------------------------------------------------
+            statistics
+               output=$filename
+               (d)
+               (sum(  abs(mod(phase(&STRIP%f_$ii)-phase(&STRIP%f_$jj)+540,360) -180.)) / sum(1.))
+               ($STRIP%fom)
+               (sum( $STRIP%fom * abs(mod(phase(&STRIP%f_$ii)-phase(&STRIP%f_$jj)+540,360) -180.))
+                    / max(0.0000001,sum($STRIP%fom)))
+               completeness
+               selection=(&low_res >= d >= &high_res and amplitude(&STRIP%f_$jj) > 0
+                          and amplitude(&STRIP%f_$ii)>0 and &ref_sele)
+            end
+
+            display
+
+            show sum (mult  amplitude($STRIP%fom * &STRIP%f_$ii) amplitude($STRIP%fom * &STRIP%f_$jj)
+                 cos(phase(&STRIP%f_$ii)-phase(&STRIP%f_$jj)) )  
+                          ( &low_res >= d >= &high_res and amplitude(&STRIP%f_$jj) > 0
+                                                       and amplitude(&STRIP%f_$ii) > 0 and &ref_sele )
+            evaluate ($numerator=$result)
+
+            show sum (mult  (amplitude($STRIP%fom * &STRIP%f_$ii))^2 )
+                          ( &low_res >= d >= &high_res and amplitude(&STRIP%f_$jj) > 0
+                                                       and amplitude(&STRIP%f_$ii) > 0 and &ref_sele )
+            evaluate ($denominator=$result)
+            show sum (mult  (amplitude($STRIP%fom * &STRIP%f_$jj))^2 )
+                          ( &low_res >= d >= &high_res and amplitude(&STRIP%f_$jj) > 0
+                                                       and amplitude(&STRIP%f_$ii) > 0 and &ref_sele )
+
+            evaluate ($denominator=sqrt( $denominator * $result ))
+
+            if ($denominator>0 ) then
+               evaluate ($corr=$numerator/ $denominator)
+            else
+               evaluate ($corr=0)
+            end if
+
+            display  fom-weighted map correlation coefficient = $corr
+
+            close $filename end
+
+           end if
+           evaluate ($jj=$jj+1)
+         end loop psp2
+        end if
+        evaluate ($ii=$ii+1)
+      end loop psps
+
+   end
+
+end if
+
+if (&iso_diff=true) then
+
+   if ($distribution=true) then
+
+      xray
+
+         evaluate ($ii=1)
+         while (&exist_&f_$ii=true) loop dsps
+          if ( &BLANK%f_$ii = false ) then
+
+            declare name=so2f domain=reciprocal type=real end
+            declare name=so2i domain=reciprocal type=real end
+
+            evaluate ($jj=$ii+1)
+            while (&exist_&f_$jj=true) loop dsp2
+             if ( &BLANK%f_$jj = false ) then
+
+               evaluate ($filename=&output_root+"_diff_"+&f_$ii+"_"+&f_$jj+".distr")
+               set display=$filename end
+
+               do (diff =  amplitude(&STRIP%f_$ii)   - amplitude(&STRIP%f_$jj)        ) (all)
+               do (so2f = (amplitude(&STRIP%f_$ii)   + amplitude(&STRIP%f_$jj)   ) / 2) (all)
+               do (so2i = (amplitude(&STRIP%f_$ii)^2 + amplitude(&STRIP%f_$jj)^2 ) / 2) (all)
+
+               display
+               display  Dispersive/isomorphous diffraction ratios between &STRIP%f_$ii and &STRIP%f_$jj
+               display  in resolution range &low_res > d > &high_res A
+               display  reflections selected within this range: &ref_sele
+               display
+               display  ==========================================================================
+               display  column  1:     bin number
+               display  columns 2 & 3: resolution range
+               display  column  4:     number of reflections in bin
+               display  column  5:     average resolution in bin
+               display  column  6:  <|&STRIP%f_$ii | - |&STRIP%f_$jj |>/<(|&STRIP%f_$jj |+|&STRIP%f_$ii |)/2>  (signed difference)
+               display  column  7:  <||&STRIP%f_$ii | - |&STRIP%f_$jj ||>/<(|&STRIP%f_$jj |+|&STRIP%f_$ii |)/2> (absolute difference)
+               display  column  8:  sqrt(<(|&STRIP%f_$ii | - |&STRIP%f_$jj |)^2>)/sqrt(1/2(<|&STRIP%f_$jj |>^2+<|&STRIP%f_$ii |>^2))
+               display  column  9:  fraction of theoretically complete data
+               bins=&bins
+               statistics
+                  output=$filename
+                 (d)
+                 (save(diff)/max(0.0001,save(so2f)))
+                 (save(abs(diff))/max(0.0001,save(so2f)))
+                 (sqrt(save(abs(diff)^2))/max(0.0001,sqrt(save(so2i))))
+                 completeness
+                 selection=(&low_res >= d >= &high_res and amplitude(&STRIP%f_$jj) > 0 and amplitude(&STRIP%f_$ii)>0 and &ref_sele)
+               end
+               bins=1
+               display  ----------------------------------------------------------------------------------
+               statistics
+                  output=$filename
+                  (d)
+                  (save(diff)/max(0.0001,save(so2f)))
+                  (save(abs(diff))/max(0.0001,save(so2f)))
+                  (sqrt(save(abs(diff)^2))/max(0.0001,sqrt(save(so2i))))
+                  completeness
+                  selection=(&low_res >= d >= &high_res and amplitude(&STRIP%f_$jj) > 0 and amplitude(&STRIP%f_$ii)>0 and &ref_sele)
+               end
+
+               evaluate ($matrix.$ii.$jj=$expression4)
+
+               display
+
+               close $filename end
+
+              end if
+              evaluate ($jj=$jj+1)
+            end loop dsp2
+            end if
+            evaluate ($ii=$ii+1)
+            undeclare name=so2f domain=reciprocal end
+            undeclare name=so2i domain=reciprocal end
+         end loop dsps
+      end
+
+   end if
+
+   if ($histogram=true) then
+      xray
+
+         evaluate ($ii=1)
+         while (&exist_&f_$ii=true) loop dshs
+          if ( &BLANK%f_$ii = false ) then
+
+            evaluate ($jj=$ii+1)
+            while (&exist_&f_$jj=true) loop dsh2
+             if ( &BLANK%f_$jj = false ) then
+
+               evaluate ($filename=&output_root+"_diff_"+&f_$ii+"_"+&f_$jj+".histo")
+               set display=$filename end
+
+               do (diff = -1) (all)
+               do (diff = abs(amplitude(&STRIP%f_$ii)-amplitude(&STRIP%f_$jj)))
+                     (    amplitude(&STRIP%f_$ii) >= 0
+                      and amplitude(&STRIP%f_$jj) >  0
+                      and &low_res >= d >= &high_res
+                      and &ref_sele)
+
+               eval($rms_df = 0)
+               show sum (mult * (diff^2)) (diff >= 0)
+               if ($select > 0) then
+                 eval($sum = $result)
+                 show sum (mult) (diff >= 0)
+                 eval($rms_df = sqrt($sum / $result))
+               end if
+
+               if ($rms_df > 0) then
+                 do (diff = diff / $rms_df) (diff > 0)
+               end if
+
+               show max (diff) (diff >= 0)
+               evaluate ($stop=$result+0.01)
+
+               display
+               display  Histogram of delta=||&STRIP%f_$ii | - |&STRIP%f_$jj ||\
+/rms(||&STRIP%f_$ii | - |&STRIP%f_$jj ||), rms= $rms_df
+               display  in resolution range &low_res > d > &high_res A
+               display  reflections selected within this range: &ref_sele
+               display  column 1 : lower bound of bin (delta1)
+               display  column 2 : upper bound of bin (delta2)
+               display  column 3 : number of reflections with delta in interval delta1 <= delta <= delta2
+               display  ==========================================================================
+
+               if ( $log_level = verbose ) then
+                 set message=normal echo=on end
+               else
+                 set message=off echo=off end
+               end if
+
+               evaluate ($1=$start)
+               while ($1 <= $stop ) loop mai2
+                  evaluate ($11=$1+&step)
+                  show sum (1) ( $1 <= diff < $11 )
+                  display  $1[F6.3]  $11[F6.3]  $result
+                  evaluate ($1=$1+&step)
+               end loop mai2
+               display  ==========================================================================
+               display
+               display
+
+               set message=on echo=on end
+
+               display
+
+               close $filename end
+
+              end if
+              evaluate ($jj=$jj+1)
+            end loop dsh2
+           end if
+           evaluate ($ii=$ii+1)
+         end loop dshs
+      end
+   end if
+
+end if
+
+if (&corr=true) then
+
+   xray
+
+      evaluate ($ii=1)
+      while (&exist_&f_$ii=true) loop dsps
+       if ( &BLANK%f_$ii = false ) then
+
+         evaluate ($jj=$ii+1)
+         while (&exist_&f_$jj=true) loop dsp2
+          if ( &BLANK%f_$jj = false ) then
+
+            evaluate ($filename=&output_root+"_corr_"+&f_$ii+"_"+&f_$jj+".distr")
+            set display=$filename end
+
+            display
+            display  Correlation between anomalous differences for &STRIP%f_$ii and &STRIP%f_$jj
+            display  in resolution range &low_res > d > &high_res A for acentric data
+            display  reflections selected within this range: &ref_sele
+            display
+            display  ==========================================================================
+            display  column  1:     bin number
+            display  columns 2 & 3: resolution range
+            display  column  4:     number of reflections in bin
+            display  column  5:     average resolution in bin
+            display  column  6:  correlation ( | &STRIP%f_$ii + | - | &STRIP%f_$ii - | , 
+            display                            | &STRIP%f_$jj + | - | &STRIP%f_$jj - | )
+            display  column  7:  fraction of theoretically complete data (acentric)
+            display
+            display  Note: as a rule of thumb, the data ceases to be useful
+            display        once the correlation between peak and high energy
+            display        wavelengths falls below 0.3
+            display
+            bins=&bins
+            statistics
+               output=$filename
+              (d)
+              (corr( (amplitude(&STRIP%f_$ii)-amplitude(friedel(&STRIP%f_$ii))) ,
+                     (amplitude(&STRIP%f_$jj)-amplitude(friedel(&STRIP%f_$jj))) ) )
+              completeness
+              selection=(acentric and &low_res >= d >= &high_res and
+                         friedel_pair(amplitude(&STRIP%f_$ii) > 0 and &ref_sele) and
+                         friedel_pair(amplitude(&STRIP%f_$jj) > 0 and &ref_sele))
+            end
+            bins=1
+            display  ----------------------------------------------------------------------------------
+            statistics
+               output=$filename
+               (d)
+               (corr( (amplitude(&STRIP%f_$ii)-amplitude(friedel(&STRIP%f_$ii))) ,
+                      (amplitude(&STRIP%f_$jj)-amplitude(friedel(&STRIP%f_$jj))) ) )
+               completeness
+               selection=(acentric and &low_res >= d >= &high_res and
+                          friedel_pair(amplitude(&STRIP%f_$ii) > 0 and &ref_sele) and
+                          friedel_pair(amplitude(&STRIP%f_$jj) > 0 and &ref_sele))
+            end
+
+            evaluate ($corr_mat.$ii.$jj=$expression2)
+
+            display
+
+            close $filename end
+
+           end if
+           evaluate ($jj=$jj+1)
+         end loop dsp2
+         end if
+         evaluate ($ii=$ii+1)
+      end loop dsps
+   end
+
+end if
+
+if (&anom_diff=true) then
+
+   if (&phases=true) then
+
+      xray
+         if ( $BLANK%fom = true ) then
+            evaluate ($fom="temp_fom")
+            declare name=$STRIP%fom domain=reciprocal type=real end
+            do ($STRIP%fom=1) ( all )
+         end if
+
+         evaluate ($ii=1)
+         while (&exist_&f_$ii=true) loop tsps
+          if ( &BLANK%f_$ii = false ) then
+
+               evaluate ($filename=&output_root+"_anom_phase_diff_"+&f_$ii+".distr")
+               set display=$filename end
+
+               display
+               display  phase differences between &STRIP%f_$ii and the complex conj. of its Friedel mates
+               display  in resolution range &low_res > d > &high_res A
+               display  reflections selected within this range: &ref_sele
+               display
+               display  ==========================================================================
+               display  column  1:     bin number
+               display  columns 2 & 3: resolution range
+               display  column  4:     number of reflections in bin
+               display  column  5:     average resolution in bin
+               display  column  6:  <phase(&STRIP%f_$ii) - phase(Friedel(&STRIP%f_$ii ))* >  (unweighted)
+               display  column  7:  < $STRIP%fom >
+               display  column  8:  < $STRIP%fom [phase(&STRIP%f_$ii) - phase(Friedel(&STRIP%f_$ii ))*]>
+               display  column  9:  fraction of theoretically complete data
+               bins=&bins
+               statistics
+                  output=$filename
+                 (d)
+                 (sum(  abs(mod(phase(&STRIP%f_$ii)
+                    -phase(conjugate(friedel(&STRIP%f_$ii)))+540,360) -180.)) / sum(1.) )
+                 ($STRIP%fom)
+                 (sum( $STRIP%fom * abs(mod(phase(&STRIP%f_$ii)
+                    -phase(conjugate(friedel(&STRIP%f_$ii)))+540,360) -180.)) /
+                     max(0.0000001,sum($STRIP%fom) ) )
+                 completeness
+                 selection=(acentric and &low_res >= d >= &high_res
+                           and friedel_pair(amplitude(&STRIP%f_$ii) > 0 and &ref_sele))
+               end
+               bins=1
+               display  ----------------------------------------------------------------------------------
+               statistics
+                  output=$filename
+                  (d)
+                (sum(  abs(mod(phase(&STRIP%f_$ii)
+                    -phase(conjugate(friedel(&STRIP%f_$ii)))+540,360) -180.)) / sum(1.) )
+                 ($STRIP%fom)
+                 (sum( $STRIP%fom * abs(mod(phase(&STRIP%f_$ii)
+                    -phase(conjugate(friedel(&STRIP%f_$ii)))+540,360) -180.)) /
+                     max(0.0000001,sum($STRIP%fom) ) )
+                 completeness
+                 selection=(acentric and &low_res >= d >= &high_res
+                           and friedel_pair(amplitude(&STRIP%f_$ii) > 0 and &ref_sele))
+               end
+
+               display
+
+               show sum (mult  amplitude($STRIP%fom * &STRIP%f_$ii) amplitude($STRIP%fom * conjugate(friedel(&STRIP%f_$ii)))
+                    cos(phase(&STRIP%f_$ii)-phase(conjugate(friedel(&STRIP%f_$ii)))) )  
+                             ( &low_res >= d >= &high_res and friedel_pair(amplitude(&STRIP%f_$ii) > 0 and &ref_sele))
+               evaluate ($numerator=$result)
+
+               show sum (mult  (amplitude($STRIP%fom * &STRIP%f_$ii))^2 )
+                             ( &low_res >= d >= &high_res and friedel_pair(amplitude(&STRIP%f_$ii) > 0 and &ref_sele))
+
+               evaluate ($denominator=$result)
+               show sum (mult  (amplitude($STRIP%fom * conjugate(friedel(&STRIP%f_$ii))))^2 )
+                             ( &low_res >= d >= &high_res and friedel_pair(amplitude(&STRIP%f_$ii) > 0 and &ref_sele))
+
+               evaluate ($denominator=sqrt( $denominator * $result ))
+
+               if ($denominator>0) then
+                   evaluate ($corr=$numerator/ $denominator)
+               else
+                   evaluate ($corr=0)
+               end if
+
+               display  fom-weighted map correlation coefficient = $corr
+
+               close $filename end
+
+              end if
+              evaluate ($ii=$ii+1)
+         end loop tsps
+
+      end
+
+   end if
+
+   if ($distribution=true) then
+      xray
+
+         evaluate ($ii=1)
+         while (&exist_&f_$ii=true) loop anom
+          if ( &BLANK%f_$ii = false ) then
+
+            evaluate ($filename=&output_root+"_anom_diff_"+&f_$ii+".distr")
+            set display=$filename end
+
+            display
+            display  Anomalous diffraction ratios for &STRIP%f_$ii
+            display  in resolution range &low_res > d > &high_res A
+            display  reflections selected within this range: &ref_sele
+            display
+            display  ==========================================================================
+            display  column  1:     bin number
+            display  columns 2 & 3: resolution range
+            display  column  4:     number of reflections in bin
+            display  column  5:     average resolution in bin
+            display  column  6:     <||&STRIP%f_$ii + | - |&STRIP%f_$ii - ||>/<1/2 ( |&STRIP%f_$ii + | + |&STRIP%f_$ii - | )>
+            display  column  7:     sqrt(<||&STRIP%f_$ii + | - |&STRIP%f_$ii - ||^2>)/sqrt(1/2(<|&STRIP%f_$ii + |>^2+<|&STRIP%f_$ii - |>^2))
+            display  column  8:     fraction of theoretically complete data
+
+            bins=&bins
+            statistics
+               output=$filename
+               (d)
+               (save(abs(amplitude(&STRIP%f_$ii)-amplitude(friedel(&STRIP%f_$ii))))/
+                max(0.0001,save( (amplitude(&STRIP%f_$ii)+amplitude(friedel(&STRIP%f_$ii)) )/2 ) ))
+               (sqrt(save(abs(amplitude(&STRIP%f_$ii)-amplitude(friedel(&STRIP%f_$ii)))^2 ))/
+                max(0.0001,sqrt(save( ((amplitude(&STRIP%f_$ii)+amplitude(friedel(&STRIP%f_$ii)) )/2)^2)) ))
+                completeness
+                selection=(acentric and &low_res >= d >= &high_res
+                           and friedel_pair(amplitude(&STRIP%f_$ii) > 0 and &ref_sele))
+            end
+
+            display
+            display  --------------------------------------------------------------------------
+            bins=1
+            statistics
+               output=$filename
+               (d)
+               (save(abs(amplitude(&STRIP%f_$ii)-amplitude(friedel(&STRIP%f_$ii))))/
+                max(0.0001,save( (amplitude(&STRIP%f_$ii)+amplitude(friedel(&STRIP%f_$ii)) )/2 ) ))
+               (sqrt(save(abs(amplitude(&STRIP%f_$ii)-amplitude(friedel(&STRIP%f_$ii)))^2 ))/
+                max(0.0001,sqrt(save( ((amplitude(&STRIP%f_$ii)+amplitude(friedel(&STRIP%f_$ii)) )/2)^2)) ) )
+                completeness
+                selection=(acentric and &low_res >= d >= &high_res
+                           and friedel_pair(amplitude(&STRIP%f_$ii) > 0 and &ref_sele))
+            end
+
+            evaluate ($matrix.$ii.$ii=$expression3)
+
+            close $filename end
+
+           end if
+           evaluate ($ii=$ii+1)
+          end loop anom
+
+      end
+
+   end if
+
+   if ($histogram=true) then
+
+      xray
+
+         evaluate ($ii=1)
+         while (&exist_&f_$ii=true) loop anhs
+          if ( &BLANK%f_$ii = false ) then
+
+            evaluate ($filename=&output_root+"_anom_diff_"+&f_$ii+".histo")
+            set display=$filename end
+
+            do (diff = -1) (all)
+            do (diff = abs(amplitude(&STRIP%f_$ii) - amplitude(friedel(&STRIP%f_$ii))))
+                (acentric and friedel_pair(    &low_res >= d >= &high_res
+                                           and &ref_sele
+                                           and amplitude(&STRIP%f_$ii) > 0))
+
+            eval($rms_df = 0)
+            show sum (mult * (diff^2)) (diff >= 0)
+            if ($select > 0) then
+              eval($sum = $result)
+              show sum (mult) (diff >= 0)
+              eval($rms_df = sqrt($sum / $result))
+            end if
+
+            if ($rms_df > 0) then
+              do (diff = diff / $rms_df) (diff > 0)
+            end if
+
+            show max (diff) (diff >= 0)
+            evaluate ($stop=$result+0.01)
+
+            display
+            display  Histogram of delta=||&STRIP%f_$ii + | - |&STRIP%f_$ii - ||/\
+rms(||&STRIP%f_$ii + | - |&STRIP%f_$ii - ||), rms= $rms_df
+            display  in resolution range &low_res > d > &high_res A
+            display  reflections selected within this range: &ref_sele
+            display  column 1 : lower bound of bin (delta1)
+            display  column 2 : upper bound of bin (delta2)
+            display  column 3 : number of reflections with delta in interval delta1 <= delta <= delta2
+            display  ==========================================================================
+
+            if ( $log_level = verbose ) then
+              set message=normal echo=on end
+            else
+              set message=off echo=off end
+            end if
+
+            evaluate ($1=$start)
+            while ($1 <= $stop ) loop main
+               evaluate ($11=$1+&step)
+               show sum (1) ( $1 <= diff < $11 )
+               display  $1[F6.3]  $11[F6.3]  $select
+               evaluate ($1=$1+&step)
+            end loop main
+
+            display  ==========================================================================
+            display
+            display
+
+
+            set message=on echo=on end
+
+            close $filename end
+           end if
+           evaluate ($ii=$ii+1)
+         end loop anhs
+
+      end
+
+   end if
+
+end if
+
+if ( &rfactors = true ) then
+
+   xray
+      evaluate ($ii=1)
+      while (&exist_&f_$ii=true) loop ii
+       if ( &BLANK%f_$ii = false ) then
+
+         evaluate ($jj=$ii+1)
+         while (&exist_&f_$jj=true) loop jj
+          if ( &BLANK%f_$jj = false ) then
+
+            evaluate ($filename=&output_root+"_rfactors_"+&f_$ii+"_"+&f_$jj)
+            set display=$filename end
+
+            do (diff = -1) (all)
+            do (diff = abs(amplitude(&STRIP%f_$ii) - amplitude(&STRIP%f_$jj)))
+                  (    amplitude(&STRIP%f_$ii) > 0
+                   and amplitude(&STRIP%f_$jj) > 0
+                   and &low_res >= d >= &high_res
+                   and &ref_sele)
+
+            display
+            display  R-factors between &STRIP%f_$ii and &STRIP%f_$jj
+            display  in resolution range &low_res > d > &high_res A
+            display  reflections selected within this range: &ref_sele
+            display
+            display  ============================================================================================
+            display  column  1:     bin number
+            display  columns 2 & 3: resolution range
+            display  column  4:     number of reflections in bin
+            display  column  5:     average resolution in bin
+            display  column  6:     sum(abs(&STRIP%f_$ii-&STRIP%f_$jj))/sum(&STRIP%f_$ii)              (R-factor on F)
+            display  column  7:     sum(abs(&STRIP%f_$ii-&STRIP%f_$jj))/sum(&STRIP%f_$jj)              (R-factor on F)
+            display  column  8:     sum(abs((&STRIP%f_$ii)^2-(&STRIP%f_$jj)^2))/sum((&STRIP%f_$ii)^2)  (R-factor on I)
+            display  column  9:     sum(abs((&STRIP%f_$ii)^2-(&STRIP%f_$jj)^2))/sum((&STRIP%f_$jj)^2)  (R-factor on I)
+            display  column  10:  fraction of theoretically complete data
+            bins=&bins
+            statistics
+              output=$filename
+              (d)
+              (sum(diff)/sum(amplitude(&STRIP%f_$ii)))
+              (sum(diff)/sum(amplitude(&STRIP%f_$jj)))
+              (sum(abs(amplitude((&STRIP%f_$ii)^2)-amplitude((&STRIP%f_$jj)^2)))/
+                   sum(amplitude((&STRIP%f_$ii)^2)))
+              (sum(abs(amplitude((&STRIP%f_$ii)^2)-amplitude((&STRIP%f_$jj)^2)))/
+                   sum(amplitude((&STRIP%f_$jj)^2)))
+              completeness
+              selection=(diff >= 0)
+            end
+            bins=1
+            display  --------------------------------------------------------------------------------------------
+            statistics
+               output=$filename
+               (d)
+               (sum(diff)/sum(amplitude(&STRIP%f_$ii)))
+               (sum(diff)/sum(amplitude(&STRIP%f_$jj)))
+               (sum(abs(amplitude((&STRIP%f_$ii)^2)-amplitude((&STRIP%f_$jj)^2)))/
+                    sum(amplitude((&STRIP%f_$ii)^2)))
+               (sum(abs(amplitude((&STRIP%f_$ii)^2)-amplitude((&STRIP%f_$jj)^2)))/
+                    sum(amplitude((&STRIP%f_$jj)^2)))
+               completeness
+               selection=(diff >= 0)
+            end
+
+            display
+
+            close $filename end
+
+           end if
+           evaluate ($jj=$jj+1)
+         end loop jj
+        end if
+        evaluate ($ii=$ii+1)
+      end loop ii
+
+   end
+
+end if
+
+{- Make delta F matrix -}
+
+if ($distribution=true) then
+ if (&anom_diff=true) then
+   if (&iso_diff=true) then
+      xray
+
+         evaluate ($string="	")
+         buffer matrix
+           display Overall anomalous (diagonal) and dispersive/isomorphous differences
+           display in resolution range &low_res > d > &high_res A
+           display
+           display $string
+         end
+         evaluate ($ii=1)
+         while (&exist_&f_$ii=true) loop mat3
+          if ( &BLANK%f_$ii = false ) then
+             buffer matrix
+                concat  &STRIP%f_$ii     
+             end
+           end if
+           evaluate ($ii=$ii+1)
+         end loop mat3
+
+         buffer matrix
+            display             -----------------------------------------------------------
+         end
+
+         evaluate ($ii=1)
+         while (&exist_&f_$ii=true) loop matr
+          if ( &BLANK%f_$ii = false ) then
+
+          buffer matrix
+             display &STRIP%f_$ii 
+          end
+
+            evaluate ($jj=1)
+            while (&exist_&f_$jj=true) loop mat2
+             if ( &BLANK%f_$jj = false ) then
+                if ($jj>=$ii) then
+                   buffer matrix
+                      concat $matrix.$ii.$jj[F10.4]
+                   end
+                else
+                   evaluate ($string="          ")
+                   buffer matrix
+                      concat $string
+                   end
+                end if
+             end if
+             evaluate ($jj=$jj+1)
+            end loop mat2
+
+           end if
+           evaluate ($ii=$ii+1)
+          end loop matr
+
+      end
+
+      evaluate ($filename=&output_root+".matrix")
+      buffer matrix
+        to file $filename
+        dump
+      end
+      close $filename end
+
+   end if
+ end if
+end if
+
+{- Make correlation matrix -}
+
+if (&corr=true) then
+  xray
+
+     evaluate ($string="               ")
+     buffer corr_mat
+       display
+       display Overall correlations between anomalous differences
+       display in resolution range &low_res > d > &high_res A
+       display
+       display The correlation between the peak and high energy wavelengths
+       display is typically between 0.6 and 0.8 for a good dataset
+       display 
+       display $string
+     end
+     evaluate ($ii=1)
+     while (&exist_&f_$ii=true) loop mat3
+      evaluate ($f_tmp_name=&f_$ii)
+      if ( &BLANK%f_$ii = false ) then
+         buffer corr_mat
+            concat $f_tmp_name[a10]
+         end
+       end if
+       evaluate ($ii=$ii+1)
+     end loop mat3
+
+     buffer corr_mat
+        display             -----------------------------------------------------------
+     end
+
+     evaluate ($ii=1)
+     while (&exist_&f_$ii=true) loop matr
+      evaluate ($f_tmp_name=&f_$ii)
+      if ( &BLANK%f_$ii = false ) then
+        buffer corr_mat
+           display $f_tmp_name[a10]
+        end
+        evaluate ($jj=1)
+        while (&exist_&f_$jj=true) loop mat2
+         if ( &BLANK%f_$jj = false ) then
+            if ($jj > $ii) then
+               buffer corr_mat
+                  concat $corr_mat.$ii.$jj[F10.4]
+               end
+            elseif ( $jj = $ii ) then
+               buffer corr_mat
+                  concat     1.0000
+               end
+            else
+               evaluate ($string="          ")
+               buffer corr_mat
+                  concat $string
+               end
+            end if
+         end if
+         evaluate ($jj=$jj+1)
+        end loop mat2
+
+       end if
+       evaluate ($ii=$ii+1)
+      end loop matr
+
+  end
+
+  evaluate ($filename=&output_root+".corr_matrix")
+  buffer corr_mat
+    to file $filename
+    dump
+  end
+  close $filename end
+
+end if
+
+stop

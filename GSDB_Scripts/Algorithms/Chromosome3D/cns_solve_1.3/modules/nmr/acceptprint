@@ -1,0 +1,658 @@
+! Module file: acceptprint
+!
+! CNS MODULE
+! **********
+!
+! Authors: Gregory L. Warren and Axel T. Brunger
+!
+! copyright Yale University
+!
+! version 11/11/97
+!
+! Function:
+!          Determine accepted structures and print either
+!          accepted, trial or both
+!
+! Requirements:
+!       See the macro initave containing the symbol definitions    
+!       required for average structure calculation.  
+!
+!
+
+module {acceptprint}
+(
+   &ave=ave;                 {Input/Output average values}
+   &ave2=ave2;               {Input/Output squared average values}
+   &ener1=ener1;             {Input/Output average energy values}
+   &ener2=ener2;             {Input/Output squared average energy values}
+   &flag=flag;               {true false flags}
+   &md=md;                   {md parameters}
+   &nmr=nmr;                 {nmr restraints parameters}
+   &num=num;                 {number of nmr restraints}
+   &output=output;           {Input/Output nmr values}
+   &pdb=pdb;                 {coordinate parameters}
+)
+
+checkversion 1.3
+
+set message ? end
+evaluate ($message_old=$result)
+set echo ? end
+evaluate ($echo_old=$result)
+if ( $log_level = verbose ) then
+  set echo=on message=normal end
+else
+  set echo=off message=off end
+end if
+
+   evaluate ( $accept = 0 )
+	
+{- Restraints Harmonic Analysis-}
+   if (&num.dani > 0.) then
+      if (&nmr.dani.axis = "fixed" ) then
+         flags exclude harm end
+         evaluate ($harm=0.)
+      end if
+   elseif (&num.sani > 0.) then
+      if (&nmr.sani.axis = "fixed" ) then
+         flags exclude harm end
+         evaluate ($harm=0.)
+      end if
+   else
+      flags exclude harm end
+      evaluate ($harm=0.)
+   end if
+
+{- Electrostatics Analysis -}
+   if (&output.nucl.num < 1) then
+      flags exclude elec end
+      evaluate ($elec=0.)
+   end if
+
+ener end
+   
+{- VDW Data Analysis -}
+      evaluate ($prt.vdw.viol = $violations)
+   
+{- ENERGY Data Analysis -}   
+
+   if (&nmr.ener.flag=true) then
+      if ($ENER > &nmr.ener.val) then evaluate ($accept=$accept + 1 ) end if
+   end if 
+
+{- BOND Data Analysis -}
+   print thres=&nmr.bond.cut bond 
+   evaluate ($prt.bond.viol=$violations)
+   evaluate ($prt.bond.rms=$rms)
+   if (&nmr.bond.flag=true) then
+      if (&nmr.bond.rms >= 0) then
+         if ($prt.bond.rms > &nmr.bond.rms) then evaluate ($accept=$accept + 1 ) end if
+      end if
+      if (&nmr.bond.viol >= 0) then
+         if ($prt.bond.viol > &nmr.bond.viol) then evaluate ($accept=$accept + 1 ) end if
+      end if
+   end if 
+	
+{- ANGLE Data Analysis -}
+   print thres=&nmr.angl.cut angle 
+   evaluate ($prt.angl.viol=$violations)
+   evaluate ($prt.angl.rms = $rms)
+   if (&nmr.angl.flag=true) then
+      if (&nmr.angl.rms >= 0) then
+         if ($prt.angl.rms > &nmr.angl.rms) then evaluate ($accept=$accept + 1 ) end if
+      end if
+      if (&nmr.angl.viol >= 0) then
+         if ($prt.angl.viol > &nmr.angl.viol) then evaluate ($accept=$accept + 1 ) end if
+      end if
+   end if 
+	
+{- IMPROPER Data Analysis -}
+   print thres=&nmr.impr.cut improper 
+   evaluate ($prt.impr.viol=$violations)
+   evaluate ($prt.impr.rms = $rms)
+   if (&nmr.impr.flag=true) then
+      if (&nmr.impr.rms >= 0) then
+         if ($prt.impr.rms > &nmr.impr.rms) then evaluate ($accept=$accept + 1 ) end if
+      end if
+      if (&nmr.impr.viol >= 0) then
+         if ($prt.impr.viol > &nmr.impr.viol) then evaluate ($accept=$accept + 1 ) end if
+      end if
+   end if 
+	
+{- DIHEDRAL Data Analysis -}
+   print thres=&nmr.dihe.cut dihedral 
+   evaluate ($prt.dihe.viol=$violations)
+   evaluate ($prt.dihe.rms = $rms)
+   if (&nmr.dihe.flag=true) then
+      if (&nmr.dihe.rms >= 0) then
+         if ($prt.dihe.rms > &nmr.dihe.rms) then evaluate ($accept=$accept + 1 ) end if
+      end if
+      if (&nmr.dihe.viol >= 0) then
+         if ($prt.dihe.viol > &nmr.dihe.viol) then evaluate ($accept=$accept + 1 ) end if
+      end if
+   end if 
+	
+{- VDW Data Analysis -}
+   if (&nmr.vdw.flag=true) then
+      if ($VDW > &nmr.vdw.ener) then evaluate ($accept=$accept + 1 ) end if
+      if (&nmr.vdw.viol >= 0) then
+         if ($prt.vdw.viol > &nmr.vdw.viol) then evaluate ($accept=$accept + 1 ) end if
+      end if
+   end if
+
+{- NOE Data Analysis -}
+   noe print thres=&nmr.noe.cut end 
+   evaluate ($prt.noe.viol=$violations)
+   evaluate ($prt.noe.rms = $rms)
+   if (&nmr.noe.flag=true) then
+      if (&nmr.noe.rms >= 0) then
+         if ($prt.noe.rms > &nmr.noe.rms) then evaluate ($accept=$accept + 1 ) end if
+      end if
+      if (&nmr.noe.viol >= 0) then
+         if ($prt.noe.viol > &nmr.noe.viol) then evaluate ($accept=$accept + 1 ) end if
+      end if
+   end if 
+	
+{- J-coupling constant analysis -}
+   couplings print threshold &nmr.jcoup.cut all end
+   evaluate ($prt.coup.viol = $violations)
+   evaluate ($prt.coup.rms = $rms)
+   if (&nmr.jcoup.flag=true) then
+      if (&nmr.jcoup.rms >= 0) then
+         if ($prt.coup.rms > &nmr.jcoup.rms) then evaluate ($accept=$accept + 1 ) end if
+      end if
+      if (&nmr.jcoup.viol >= 0) then
+         if ($prt.coup.viol > &nmr.jcoup.viol) then evaluate ($accept=$accept + 1 ) end if
+      end if
+   end if 
+
+
+{- 1-bond heteronuclear J-coupling constant analysis -}
+   onebond print threshold &nmr.oneb.cut end
+   evaluate ($prt.oneb.viol = $violations)
+   evaluate ($prt.oneb.rms = $rms)
+   if (&nmr.oneb.flag=true) then
+      if (&nmr.oneb.rms >= 0) then
+         if ($prt.oneb.rms > &nmr.oneb.rms) then evaluate ($accept=$accept + 1 ) end if
+      end if
+      if (&nmr.oneb.viol >= 0) then
+         if ($prt.oneb.viol > &nmr.oneb.viol) then evaluate ($accept=$accept + 1 ) end if
+      end if
+   end if 
+   
+{- Carbon chemical shift analysis -}
+   carbon print thres=&nmr.carb.cut end  
+   evaluate ($prt.carb.viol = $violations)
+   evaluate ($prt.carb.a.rms = $rmsca)
+   evaluate ($prt.carb.b.rms = $rmscb)
+   if (&nmr.carb.flag=true) then
+      if (&nmr.carb.rms.a >= 0) then
+         if ($prt.carb.a.rms > &nmr.carb.rms.a) then evaluate ($accept=$accept + 1 ) end if
+      end if
+      if (&nmr.carb.rms.b >= 0) then
+         if ($prt.carb.b.rms > &nmr.carb.rms.b) then evaluate ($accept=$accept + 1 ) end if
+      end if
+      if (&nmr.carb.viol >= 0) then
+         if ($prt.carb.viol > &nmr.carb.viol) then evaluate ($accept=$accept + 1 ) end if
+      end if
+   end if 
+
+{- Proton chemical shift analysis -}
+   prot print threshold &nmr.prot.cut all normsd end
+   evaluate ($prt.prot.all.viol = $violations)
+   evaluate ($prt.prot.all.rms = $rms)
+   if (&nmr.prot.flag=true) then
+      if (&nmr.prot.rms >= 0) then
+         if ($prt.prot.all.rms > &nmr.prot.rms) then evaluate ($accept=$accept + 1 ) end if
+      end if
+      if (&nmr.prot.viol >= 0) then
+         if ($prt.prot.all.viol > &nmr.prot.viol) then evaluate ($accept=$accept + 1 ) end if
+      end if
+   end if 
+
+   evaluate ($count = 1)
+   while (&exist%nmr.prot.file.$count=true) loop nloop
+      evaluate ($clsname = "P"+encode($count))
+      if (&nmr.prot.file.$count # "") then
+         prot print threshold &nmr.prot.thresh.$count class $$clsname normsd end
+         evaluate ($prt.prot.$clsname.viol = $violations)
+         evaluate ($prt.prot.$clsname.rms = $rms)
+      else
+         evaluate ($prt.prot.$clsname.viol = 0)
+         evaluate ($prt.prot.$clsname.rms = 0)
+      end if
+      evaluate ($count = $count + 1)
+   end loop nloop
+
+{- dani Data Analysis -}
+   dani print threshold &nmr.dani.cut all end  
+   evaluate ($prt.dani.viol = $violations)
+   evaluate ($prt.dani.rms = $rms)
+   if (&nmr.dani.flag=true) then
+      if (&nmr.dani.rms >= 0) then
+         if ($prt.dani.rms > &nmr.dani.rms) then evaluate ($accept=$accept + 1 ) end if
+      end if
+      if (&nmr.dani.viol >= 0) then
+         if ($prt.dani.viol > &nmr.dani.viol) then evaluate ($accept=$accept + 1 ) end if
+      end if
+   end if 
+  
+{- SANI Data Analysis -}
+   sani print threshold &nmr.sani.cut all end  
+   evaluate ($prt.sani.viol = $violations)
+   evaluate ($prt.sani.rms = $rms)
+   if (&nmr.sani.flag=true) then
+      if (&nmr.sani.rms >= 0) then
+         if ($prt.sani.rms > &nmr.sani.rms) then evaluate ($accept=$accept + 1 ) end if
+      end if
+      if (&nmr.sani.viol >= 0) then
+         if ($prt.sani.viol > &nmr.sani.viol) then evaluate ($accept=$accept + 1 ) end if
+      end if
+   end if 
+  
+{- CDIH Data Analysis -}
+   print thres=&nmr.cdih.cut cdih 
+   evaluate ($prt.cdih.viol = $violations)
+   evaluate ($prt.cdih.rms = $rms)
+   if (&nmr.cdih.flag=true) then
+      if (&nmr.cdih.rms >= 0) then
+         if ($prt.cdih.rms > &nmr.cdih.rms) then evaluate ($accept=$accept + 1 ) end if
+      end if
+      if (&nmr.cdih.viol >= 0) then
+         if ($prt.cdih.viol > &nmr.cdih.viol) then evaluate ($accept=$accept + 1 ) end if
+      end if
+   end if 
+	
+
+{- PLANARITY Data Analysis -}
+   if (&nmr.plan.flag=true) then
+      if (&nmr.plan.ener >= 0) then
+         if ($PLAN > &nmr.plan.ener) then evaluate ($accept=$accept + 1 ) end if
+      end if
+      if (&nmr.plan.x >= 0) then
+         if ($PLANX > &nmr.plan.x) then evaluate ($accept=$accept + 1 ) end if
+      end if
+      if (&nmr.plan.y >= 0) then
+         if ($PLANY > &nmr.plan.y) then evaluate ($accept=$accept + 1 ) end if
+      end if
+      if (&nmr.plan.z >= 0) then
+         if ($PLANZ > &nmr.plan.z) then evaluate ($accept=$accept + 1 ) end if
+      end if
+   end if
+   if (&nmr.plan.file = "") then
+      evaluate ($prt.planx = 0.) 
+      evaluate ($prt.plany = 0.) 
+      evaluate ($prt.planz = 0.)
+   else
+      evaluate ($prt.planx = $planx) 
+      evaluate ($prt.plany = $plany) 
+      evaluate ($prt.planz = $planz)
+   end if 
+
+{- NCS Data Analysis -}
+   if (&nmr.ncs.flag=true) then
+      if (&nmr.ncs.ener >= 0) then
+         if ($ncs > &nmr.ncs.ener) then evaluate ($accept=$accept + 1 ) end if
+      end if
+   end if 
+
+
+if ($accept = 0) then
+   evaluate (&output.accept.count=&output.accept.count+1) 
+end if 
+  
+if (&flag.calc.ave.struct=true) then
+
+   if (&flag.calc.ave.accpt=true) then
+
+      if ($accept = 0) then
+	 @CNS_NMRMODULE:acceptsubener ( ener1=&ener1;
+	                                ener2=&ener2;
+	                                inener=$ener;
+	                                inbond=$bond;
+	                                inangl=$angl;
+	                                inimpr=$impr;
+	                                invdw=$vdw;
+	                                indihe=$dihe;
+	                                inelec=$elec;
+	                                inharm=$harm;
+	                                innoe=$noe;
+	                                incoup=$coup;
+	                                inoneb=$oneb;
+	                                incarb=$carb;
+	                                inprot=$prot;
+	                                indani=$dani;
+	                                insani=$sani;
+	                                incdih=$cdih;
+	                                inplan=$plan;
+	                                inncs=$ncs;  )
+		
+	 @CNS_NMRMODULE:acceptsubave (  ave=&ave;
+	                                ave2=&ave2;
+	                                nmr=&nmr;
+	                                prt=$prt; )
+
+         if (&pdb.in.file.1 # "") then
+	    do (xcomp = refx) ( all )
+	    do (ycomp = refy) ( all )
+	    do (zcomp = refz) ( all )
+         elseif (&output.accept.count=1) then
+	    do (xcomp = x) ( all )
+	    do (ycomp = y) ( all )
+	    do (zcomp = z) ( all )
+         end if
+
+	 coor fit sele=(&pdb.atom.select) end
+	 
+	 do (store1=store1+x) (all)
+	 do (store2=store2+y) (all)
+	 do (store3=store3+z) (all)
+	 do (store4=store4+x^2+y^2+z^2) (all)
+      end if
+   else
+      @CNS_NMRMODULE:acceptsubener ( ener1=&ener1;
+                                     ener2=&ener2;
+                                     inener=$ener;
+                                     inbond=$bond;
+                                     inangl=$angl;
+                                     inimpr=$impr;
+                                     invdw=$vdw;
+                                     indihe=$dihe;
+	                             inelec=$elec;
+                                     inharm=$harm;
+                                     innoe=$noe;
+                                     incoup=$coup;
+                                     inoneb=$oneb;
+                                     incarb=$carb;
+                                     inprot=$prot;
+                                     indani=$dani;
+                                     insani=$sani;
+                                     incdih=$cdih;
+                                     inplan=$plan;
+                                     inncs=$ncs;  )
+
+      @CNS_NMRMODULE:acceptsubave (  ave=&ave;
+                                     ave2=&ave2;
+                                     nmr=&nmr;
+                                     prt=$prt; )
+
+      if (&pdb.in.file.1 # "") then
+         do (xcomp = refx) ( all )
+         do (ycomp = refy) ( all )
+         do (zcomp = refz) ( all )
+      elseif (&output.trial.count=1) then
+         do (xcomp = x) ( all )
+         do (ycomp = y) ( all )
+         do (zcomp = z) ( all )
+      end if
+
+      coor fit sele=(&pdb.atom.select) end
+
+      do (store1=store1+x) (all)
+      do (store2=store2+y) (all)
+      do (store3=store3+z) (all)
+      do (store4=store4+x^2+y^2+z^2) (all)
+
+   end if
+end if 
+   	
+{- count the number of restraints for each restraint type -}
+
+   evaluate ($noeave="NA")
+   if (&output.noe.class.num > 0) then
+      evaluate ($noeave="")
+      evaluate ($count=1)
+      while (&exist%nmr.noe.file.$count=true) loop chk
+   	 if (&nmr.noe.file.$count # "") then
+   	    evaluate ($noeave=$noeave+&nmr.noe.ave.mode.$count+", ")
+   	 end if
+   	 evaluate ($count=$count+1)
+      end loop chk
+      if (&nmr.noe.hbnd.file # "" ) then
+   	 evaluate ($noeave=$noeave+"hbnd: "+&nmr.noe.ave.mode.hbnd)
+      end if
+   end if
+
+   evaluate ($jcoup_scale="NA")
+   if (&output.jcoup.class.num > 0) then
+      evaluate ($jcoup_scale="")
+      evaluate ($count=1)
+      while (&exist%nmr.jcoup.file.$count=true) loop chk
+   	 if (&nmr.jcoup.file.$count # "") then
+   	    if (&&nmr.jcoup.force.2.$count=0) then
+   	       evaluate ($jcoup_scale=$jcoup_scale+encode(&nmr.jcoup.force.1.$count)+", ")
+   	    else
+   	       evaluate ($jcoup_scale=$jcoup_scale+encode(&nmr.jcoup.force.1.$count)
+   	                              +" "+encode(&nmr.jcoup.force.2.$count)+", ")
+   	    end if
+   	 end if
+   	 evaluate ($count=$count+1)
+      end loop chk
+   end if
+
+   evaluate ($oneb_scale="NA")
+   if (&output.oneb.class.num > 0) then
+      evaluate ($oneb_scale="")
+      evaluate ($count=1)
+      while (&exist%nmr.oneb.file.$count=true) loop chk
+   	 if (&nmr.oneb.file.$count # "") then
+   	    evaluate ($oneb_scale=$oneb_scale+encode(&nmr.oneb.force.$count)+", ")
+   	 end if
+   	 evaluate ($count=$count+1)
+      end loop chk
+   end if
+
+   evaluate ($carb_scale="NA")
+   if (&output.carb.class.num > 0) then
+      evaluate ($carb_scale="")
+      evaluate ($count=1)
+      while (&exist%nmr.carb.file.$count=true) loop chk
+   	 if (&nmr.carb.file.$count # "") then
+   	    evaluate ($carb_scale=$carb_scale+encode(&nmr.carb.force.$count)+", ")
+   	 end if
+   	 evaluate ($count=$count+1)
+      end loop chk
+   end if
+
+   evaluate ($prot_scale="NA")
+   if (&output.prot.class.num > 0) then
+      evaluate ($prot_scale="")
+      evaluate ($count=1)
+      while (&exist%nmr.prot.file.$count=true) loop chk
+   	 if (&nmr.prot.file.$count # "") then
+   	    if (&nmr.prot.force.2.$count=0) then
+   	       evaluate ($prot_scale=$prot_scale+encode(&nmr.prot.force.1.$count)+", ")
+   	    else
+   	       evaluate ($prot_scale=$prot_scale+encode(&nmr.prot.force.1.$count)
+   	                             +" "+encode(&nmr.prot.force.2.$count)+", ")
+   	    end if
+   	 end if
+   	 evaluate ($count=$count+1)
+      end loop chk
+   end if
+
+   evaluate ($dani_scale="NA")
+   if (&output.dani.class.num > 0) then
+      evaluate ($dani_scale="")
+      evaluate ($count=1)
+      while (&exist%nmr.dani.file.$count=true) loop chk
+   	 if (&nmr.dani.file.$count # "") then
+   	    evaluate ($dani_scale=$dani_scale+encode(&nmr.dani.force.init.$count)
+   	                          +"->"+encode(&nmr.dani.force.finl.$count)+", ")
+   	 end if
+   	 evaluate ($count=$count+1)
+      end loop chk
+   end if
+
+   evaluate ($sani_scale="NA")
+   if (&output.sani.class.num > 0) then
+      evaluate ($sani_scale="")
+      evaluate ($count=1)
+      while (&exist%nmr.sani.file.$count=true) loop chk
+   	 if (&nmr.sani.file.$count # "") then
+   	    evaluate ($sani_scale=$sani_scale+encode(&nmr.sani.force.init.$count)
+   	                          +"->"+encode(&nmr.sani.force.finl.$count)+", ")
+   	 end if
+   	 evaluate ($count=$count+1)
+      end loop chk
+   end if
+
+   if (&nmr.plan.file = "") then
+      evaluate ($pscale = "NA")
+   else
+      evaluate ($pscale = &nmr.plan.scale)
+   end if
+
+   if (&nmr.ncs.file # "") then
+      evaluate ($ncs_flag = "used.")
+   else
+      evaluate ($ncs_flag = "not used.")
+   end if
+   	
+{- format header by storing in buffers acpthead, acptviol, acptener -}
+
+if ($accept = 0) then
+   buffer acpthead
+      reset
+      display The macromolecule has &output.rsn.num residues
+      display Accepted structure &output.accept.count of &pdb.end.count structures
+      display Trial structure &output.trial.count of &pdb.end.count structures
+   end
+else
+   buffer acpthead
+      reset
+      display The macromolecule has &output.rsn.num residues
+      display Trial structure &output.trial.count of &pdb.end.count structures
+   end
+end if
+
+buffer acpthead
+   display &num.noe NOEs in &output.noe.class.num class(es) 
+   display      averaging function(s): $noeave
+   display &num.coup 3-bond j-couplings in &output.jcoup.class.num class(es) with 
+   display      scale factor(s) of $jcoup_scale
+   display &num.oneb 1-bond j-couplings in &output.oneb.class.num class(es) with
+   display      scale factor(s) of $oneb_scale
+   display &num.carb carbon chemical shifts in &output.carb.class.num class(es) with
+   display      scale factor(s) of $carb_scale
+   display &num.prot.all proton chemical shifts in &output.prot.class.num class(es) with
+   display      scale factor(s) of $prot_scale
+   display &num.dani diffusion anisotropy restraints in &output.dani.class.num class(es) with
+   display      scale factor(s) of $dani_scale
+   display &num.sani susceptability anisotropy restraints in &output.sani.class.num class(es) with
+   display      scale factor(s) of $sani_scale
+   display &num.cdih dihedral restraints 
+   display &num.plan planarity restraints with a scale factor of $pscale
+   display NCS restraints $ncs_flag
+end
+
+buffer acptviol
+   reset
+   display               bond, angles, improp, vdw(<1.6),  dihed     
+   display violations : $prt.bond.viol[I5]   $prt.angl.viol[I5]   $prt.impr.viol[I5]     \
+$prt.vdw.viol[I5]   $prt.dihe.viol[I5]
+   display RMSD       : $prt.bond.rms[F6.4]  $prt.angl.rms[F6.3]  $prt.impr.rms[F6.3]            \
+$prt.dihe.rms[F6.3]  
+   display =============================================================== 
+   display                noe,   cdih,   coup,   oneb, carb-a, carb-b,   
+   display violations : $prt.noe.viol[I5]   $prt.cdih.viol[I5]   $prt.coup.viol[I5]   \
+$prt.oneb.viol[I5]   $prt.carb.viol[I5]   ----- 
+   display RMSD       : $prt.noe.rms[F6.3]  $prt.cdih.rms[F6.3]  $prt.coup.rms[F6.3]  \
+$prt.oneb.rms[F6.3]  $prt.carb.a.rms[F6.3]  $prt.carb.b.rms[F6.3]
+   display ===============================================================
+   display               dani,   sani
+   display violations : $prt.dani.viol[I5]   $prt.sani.viol[I5]
+   display RMSD       : $prt.dani.rms[F6.3]  $prt.sani.rms[F6.3]
+   display ===============================================================
+   display Protons       violations, rmsd
+   display all    :      $prt.prot.all.viol[I6]      $prt.prot.all.rms[F6.3]
+   display class 1:      $prt.prot.P1.viol[I6]      $prt.prot.P1.rms[F6.3]
+   display class 2:      $prt.prot.P2.viol[I6]      $prt.prot.P2.rms[F6.3]
+   display class 3:      $prt.prot.P3.viol[I6]      $prt.prot.P3.rms[F6.3]
+   display class 4:      $prt.prot.P4.viol[I6]      $prt.prot.P4.rms[F6.3]
+end
+   
+if (&output.nucl.num >0) then
+   buffer acptviol
+      display ===============================================================
+      display             plan_x,  plan_y,  plan_z,
+      display RMSD:       $prt.planx[F6.3]   $prt.plany[F6.3]   $prt.planz[F6.3]
+   end
+end if
+
+buffer acptener
+   reset
+   display overall = $ENER 
+   display bon     = $BOND
+   display ang     = $ANGL
+   display imp     = $IMPR
+   display vdw     = $VDW
+end
+
+if (&output.nucl.num >0) then
+   buffer acptener
+      display dihed   = $DIHE
+      display elect   = $ELEC
+      display harm    = $HARM
+      display noe     = $NOE
+      display coup    = $COUP
+      display oneb    = $ONEB
+      display carb    = $CARB
+      display prot    = $PROT
+      display dani    = $DANI
+      display sani    = $SANI
+      display cdih    = $CDIH
+      display plan    = $PLAN
+      display ncs     = $NCS
+   end
+else
+   buffer acptener
+      display harm    = $HARM
+      display noe     = $NOE
+      display coup    = $COUP
+      display oneb    = $ONEB
+      display carb    = $CARB
+      display prot    = $PROT
+      display dani    = $DANI
+      display sani    = $SANI
+      display cdih    = $CDIH
+      display ncs     = $NCS
+   end
+end if
+
+{- print remarks header and coordinates -}
+
+set remarks=reset end
+set remarks=accu end
+
+buffer acpthead
+   to remarks
+   flush
+end
+remarks =============================================================== 
+buffer acptviol
+   to remarks
+   flush
+end
+remarks =============================================================== 
+buffer acptener
+   to remarks
+   flush
+end
+remarks =============================================================== 
+
+	
+if (&flag.print.accept=true) then
+   if ($accept = 0) then
+      if (&pdb.out.name=&pdb.in.name) then
+         evaluate ($accptname= &pdb.out.name+ "a_" + encode(&output.accept.count) + ".pdb")
+      else
+         evaluate ($accptname= &pdb.out.name+ "_" + encode(&output.accept.count) + ".pdb")
+      end if
+      write coordinates output=$accptname format=PDBO end
+   end if
+end if
+
+evaluate (&output.counter=&output.trial.count)
+
+set message=$message_old echo=$echo_old end

@@ -1,0 +1,60 @@
+C dtorsion.inc
+C ============
+C
+C Stores topology and dynamics related parameters and
+C pointers for torsion angle dynamics.
+C
+C Reset flags
+      LOGICAL QRESET,QREDO
+C Group linked list
+      INTEGER HPPOINTR,HPLIST
+C
+C Old topology size variables
+      INTEGER ONATOM,ONGP,OMAXTREE,OMAXCHN,OMAXLEN
+C
+C New topology size variables
+      INTEGER NGP,NTREE
+C Automatic topology setup variables
+      INTEGER MAXBND,MAXDIHE,MAXJNT
+      INTEGER MAXTREE,MAXCHN,MAXLEN
+      DOUBLE PRECISION KDIHMAX
+C
+C Topology heap pointers and variables
+      INTEGER HPNJOINT,HPGRPSEQ,HPNIN,HPNOUT,HPSIZE,HPCHNLEN
+      INTEGER HPNCHAINS,HPCOEFFI,HPCOEFFO,HPQTIP
+C
+C Dynamics heap pointers and variables
+      INTEGER NDEGF
+      INTEGER HPXCM,HPYCM,HPZCM,HPMM,HPYY
+      INTEGER HPQ0,HPQ1,HPQ2,HPQ3,HPXB,HPYB,HPZB
+      INTEGER HPQDOT,HPHHX,HPHHY,HPHHZ,HPSSX,HPSSY,HPSSZ
+      INTEGER HPFRICT,HPQQ,HPB1,HPB2
+      INTEGER HPDD,HPKK,HPLL,HPYYDOT,HPQ0O,HPQ1O,HPQ2O
+      INTEGER HPQ3O,HPYYO,HPRKQ,HPRKQDOT,HPQDDOT,HPQDOTO
+      INTEGER HPQO,HPQ
+C
+C Pointer common block
+      COMMON /PDTORSN/ HPPOINTR,HPLIST,HPNJOINT,HPGRPSEQ,
+     @                 HPNIN,HPNOUT,HPSIZE,HPCHNLEN,HPNCHAINS,
+     @                 HPCOEFFI,HPCOEFFO,HPQTIP,HPXCM,HPYCM,HPZCM,
+     @                 HPMM,HPYY,HPQ0,HPQ1,HPQ2,HPQ3,HPXB,HPYB,HPZB,
+     @                 HPQDOT,HPHHX,HPHHY,HPHHZ,HPSSX,HPSSY,HPSSZ,
+     @                 HPFRICT,HPQQ,HPB1,HPB2,
+     @                 HPDD,HPKK,HPLL,HPYYDOT,HPQ0O,HPQ1O,HPQ2O,HPQ3O,
+     @                 HPYYO,HPRKQ,HPRKQDOT,HPQDDOT,HPQDOTO,HPQO,HPQ
+C
+C Integer common block
+      COMMON /IDTORSN/ ONATOM,ONGP,OMAXTREE,OMAXCHN,OMAXLEN,NGP,NTREE,
+     @                 MAXBND,MAXDIHE,MAXJNT,MAXTREE,
+     @                 MAXCHN,MAXLEN,NDEGF
+C
+C Double precision common block
+      COMMON /DDTORSN/ KDIHMAX
+C
+C Logical common block
+      COMMON /LDTORSN/ QRESET,QREDO
+C
+      SAVE /PDTORSN/
+      SAVE /IDTORSN/
+      SAVE /DDTORSN/
+      SAVE /LDTORSN/

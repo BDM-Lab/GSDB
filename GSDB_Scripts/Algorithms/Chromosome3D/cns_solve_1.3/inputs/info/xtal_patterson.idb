@@ -1,0 +1,361 @@
+###############################################################################
+# Parameter names matched in common.idb:
+#     a
+#     b
+#     c
+#     alpha
+#     beta
+#     gamma
+#     fft_memory
+#     grid
+#     high_res
+#     low_res
+#     reflection_infile_\d+
+#     sg
+#     output_root
+#     ncs_infile
+#     map_format
+#     reset_b
+#     reset_q
+#     grid_res
+#     sitedatabase_infile(\.\d+)? sitedatabase_outfile(\.\d+)?
+###############################################################################
+#
+vars: pc_target
+info: Target function for Patterson Correlation Refinement (Brunger
+(1990), Acta Cryst. A46, 46-57). This can be the correlation
+coefficient between the observed squared structure factors and the
+calculated squared structure factors (F2F2), or the correlation
+coefficient between the observed normalized squared structure factors
+and the calculated normalized squared structure factors (E2E2). In
+theory, correlation coefficients can be in the range between -1
+(perfectly anti-correlated) and 1 (perfectly correlated). In practice,
+correlation coefficients range from values close to zero (very poor
+correlation of observed and calculated structure factors) to about 0.6
+or 0.7 (very high correlation).
+#
+vars: nstep
+info: Number of Patterson Correlation Refinement steps for the
+refinement of atomic coordinates. The refinement will not converge if
+this value is too low, and take very long if the value is too high.
+#
+vars: bnstep
+info: Number of Patterson Correlation Refinement steps for the
+refinement of B-factors and occupancies. The refinement will not
+converge if this value is too low, and take very long if the value is
+too high.
+#
+vars: shift_dampen
+info: Flag for Patterson Correlation Refinement. Turns shift dampening
+on or off. To avoid numerical instabilities, shift dampening should
+normally be turned on.
+#
+vars: ref_occupancy
+info: Flag for Patterson Correlation Refinement. A negative value turns
+the refinement of occupancies off. Otherwise the occupancies are
+refined if the number of heavy atoms placed is greater than or equal to
+the given number.  The refinement of occupancies is useful mainly for
+isomorphous replacement data.
+#
+vars: ref_bfactor
+info: Flag for Patterson Correlation Refinement. A negative value turns
+the refinement of B-factors off. Otherwise the B-factors are refined if
+the number of heavy atoms placed is greater than or equal to the given
+number.  For structures with many heavy atoms sites (e.g. SeMet
+substituted proteins) it can be useful to set <tt>ref_bfactor</tt> to
+about 1/4 or 1/3 of the number of expected sites.
+#
+vars: new_sites
+info: Number of heavy atoms sites to be found. In most cases it is best
+to search only for about 2/3 of the number of expected sites. The
+missing sites with low occupancies or high B-factors can then be found
+with difference Fourier techniques using experimental phases obtained
+with the task files <tt>ir_phase.inp</tt> or <tt>mad_phase.inp</tt>.
+#
+vars: site_type
+info: Chemical type of the heavy atoms sites. If gaussian form
+factors are used, this type is used to determine the form
+factors from the CNS scattering library file.
+#
+vars: scatter_mode
+info: Possible values for <tt>scatter_mode</tt> are
+&quot;<tt>gaussian</tt>&quot; or &quot;<tt>constant</tt>&quot;.  The
+<tt>gaussian</tt> form factors (which depend on the diffraction angle
+of a given reflection) are taken from a CNS scattering library file.
+This is the appropriate choice for isomorphous replacement difference
+data.  In <tt>constant</tt> mode, a unit form factor is used for all
+reflections. This is the appropriate choice for anomalous difference
+data.
+#
+vars: scatter_library
+info: Path name for the CNS scattering library file containing
+atomic (gaussian) form factors (scattering factors) for all
+chemical elements and some ions.
+#
+vars: init_bfac
+info: The initial B-factor assigned to newly placed heavy atom sites.
+In most cases, an initial value of 20 is appropriate.  The B-factors
+are normally adjusted by Patterson Correlation Refinement.
+#
+vars: number_of_maps
+info: The number of Patterson maps to be averaged. Two or more sets of
+difference structure factors can be averaged and optionally weighted by
+diffraction ratios (Grosse-Kunstleve &amp; Brunger (1999), Acta Cyrst.
+D55). However, in most cases it is possible to use only the
+diffraction data for the wavelength with the largest anomalous or
+isomorphous signal to locate the heavy atom sites.
+#
+vars: weight
+info: Flag for the averaging of two or more Patterson maps. If set to
+<tt>true</tt>, a statistical weighting is carried out by grouping the
+reflections into resolution shells (Grosse-Kunstleve &amp; Brunger (1999),
+Acta Cyrst. D55).
+#
+vars: bins_w
+info: Number of resolution shells for statistical weight calculation,
+removal of Patterson origin peaks, and Patterson sharpening by
+E-normalization. All these operations are carried out for groups of
+reflections in resolution shells of equal volume.
+#
+vars: bins_w_hs
+info: Number of resolution shells for statistical weight calculation.
+Two or more Patterson maps can be averaged. A statistical weighting is
+carried out by grouping the reflections into resolution shells
+(Grosse-Kunstleve &amp; Brunger (1999), Acta Cyrst. D55).
+#
+vars: map.\d+.mode
+info: Type of Patterson map. Possible types are "native" (used with
+pre-processed FA structure factors), "isomorphous" (isomorphous
+replacement), "dispersive" (MAD), and "anomalous" (SAD or MAD).
+#
+vars: map.\d+.[fs]_[ab]
+info: Name of reciprocal space array with structure factors or
+estimated-standard-deviations. The array must be defined in a
+reflection file.
+#
+vars: map.\d+.cut_f
+info: Reflections with a structure factor smaller than <tt>cut_f</tt>
+times the estimated-standard-deviation are rejected (Grosse-Kunstleve &amp;
+Brunger (1999), Acta Cyrst. D55).
+#
+vars: map.\d+.cut_df
+info: Reflections with isomorphous, dispersive or anomalous
+differences smaller than <tt>cut_df</tt> times the
+estimated-standard-deviation are rejected (Grosse-Kunstleve &amp;
+Brunger (1999), Acta Cyrst. D55).
+#
+vars: map.\d+.max_df
+info: Root-mean-square outlier cutoff as defined by Grosse-Kunstleve
+&amp; Brunger (1999), Acta Cyrst. D55. Reflections with |delta F| &gt;
+<tt>max_df</tt> * rms(|delta F|) will be rejected.  This means,
+reflections with very large isomorphous, dispersive or anomalous
+differences are rejected. <tt>max_df</tt>is usually set to a value
+between 3.5 and 5.
+#
+vars: map.\d+.kscale map.\d+.bscale map.\d+.nscale_iter
+info: Overall k-scaling and B-scaling is used to compensate for
+systematic errors caused by differences between crystals and data
+collection conditions. The scaling and the B-factors are obtained by
+least-squares minimization (Grosse-Kunstleve &amp; Brunger (1999), Acta
+Cyrst. D55). <tt>kscale</tt> is normally set to
+&quot;<tt>yes</tt>&quot;, and <tt>bscale</tt> is set to
+&quot;<tt>anisotropic</tt>&quot;. The number of scaling iterations is
+given by <tt>nscale_iter</tt>. Four cycles are appropriate in most
+cases. A summary of the overall k-scaling and B-scaling can be found at
+the top of the summary file (e.g. <tt>heavy_search.summary</tt>).
+#
+vars: ntrials
+info: Number of trials. The heavy atom search procedure consists of
+four stages. In the first stage, the observed diffraction intensities
+are filtered by various cutoff criteria and then used to compute native
+structure factors or difference structure factors.  The second stage
+consists of a Patterson search. A given number (<tt>ntrials</tt>,
+typically 100) of highest peaks in the resulting Patterson search map
+are sorted and subsequently used as initial trial sites. The third
+stage consists of a sequence of alternating Patterson searches and
+Patterson Correlation refinements starting with each of the initial
+trial sites. This stage produces a large a number of potential
+solutions. The final stage consists of sorting these solutions ranked
+by the value of the target function of the Patterson Correlation
+refinement. If the correct solution is found, it is normally
+characterized by the highest value of the target function and a
+significant separation from incorrect solutions (Grosse-Kunstleve &amp;
+Brunger (1999), Acta Cyrst. D55).
+#
+vars: first_trial
+info: Peak number of the first Patterson search that will be used for
+the first trial. <tt>ntrials</tt> peaks will be tested after this
+peak. <tt>first_trial</tt> is useful to re-start a heavy atom search
+which crashed.
+#
+vars: search_method
+info: Selects the Patterson search method. &quot;<tt>reciprocal
+space</tt>&quot; selects the Translation Function, &quot;<tt>direct
+space</tt>&quot; selects the Symmetry Minimum Function for the first
+Patterson search and the Image Seeking Minimum Function for the
+subsequent searches. &quot;<tt>reciprocal*direct</tt>&quot; combines
+the results of both the Translation Function and the Minimum Functions.
+In general, the &quot;<tt>reciprocal*direct</tt>&quot; search method is
+the most powerful method because it finds more correct or partially
+correct solutions and they appear sooner during the search
+(Grosse-Kunstleve &amp; Brunger (1999), Acta Cyrst. D55).
+#
+vars: w_imf
+info: Dynamic weight factor for <tt>reciprocal*direct</tt> Patterson
+search method. The Image Seeking Minimum Function (IMF) can be viewed
+as a likelihood map that provides the likelihood of each grid point to
+be close to an additional heavy atom site, and ideally, Fast
+Translation Function (FTF) and IMF maps would be identical. However,
+the correlation coefficient between both maps is typically only in the
+range of 0.1 to 0.4 and decreases with the number of existing sites.
+This is not only due to noise, systematic errors resulting from the use
+of difference data, and the different methods of generating the
+likelihood maps, but also reflects a shortcoming of the IMF the FTF.
+The IMF algorithm assumes that all Patterson peaks are resolved. Peaks
+which coincidentally overlap are incorrectly weighted. Therefore a
+combination of FTF and IMF is only useful for searches for the first
+few additional sites, when Patterson peaks of previously placed sites
+are not likely to be overlapped. The decreasing accuracy of the IMF is
+empirically taken into account by the weighting factor <tt>w_imf</tt>.
+In the search for the first additional site, the IMF is normalized by
+linear scaling and shifting such that the minimum value is zero and the
+maximum value is one, and each grid point of the IMF is then used as a
+multiplicative weight for the FTF map. In the search for the second
+additional site, the IMF is scaled and shifted such that the minimum
+value is 1/<tt>w_imf</tt>, for the third site it is 2/<tt>w_imf</tt>,
+and so on. The maximum value is always one. If the minimum value is
+close to one, the IMF is no longer used. Typically, <tt>w_imf</tt> is
+set to 3 (Grosse-Kunstleve &amp; Brunger (1999), Acta Cyrst. D55).
+#
+vars: special
+info: Flag for special positions. If <tt>false</tt> (the default),
+heavy atoms are not placed on special positions (e.g. a rotation
+axis). If <tt>true</tt>, all positions are allowed.
+#
+vars: mate_low_cut
+info: Lower distance cutoff for symmetry mates. Positions with symmetry
+mates closer than the given distance are excluded. Typically, a
+distance cutoff in the range from 3.5&Aring; to 6&Aring; is used.
+#
+vars: low_cut
+info: Lower distance cutoff for atoms which are not related by
+symmetry. In the heavy atom search algorithm, positions which are
+closer than the given distance to any of the previously placed atoms
+are excluded. Typically, a distance cutoff in the range from 3.5&Aring;
+to 6&Aring; is used.
+#
+vars: expected_corr_inc max_no_corr_inc
+info: The correlation coefficient before placing a new atom is compared
+to the correlation coefficient after the addition and refinement of the
+new atom. If the correlation coefficient did not increase by the amount
+given by <tt>expected_corr_inc</tt> (typically 0.01), the search for
+that particular initial trial site is deemed to have reached a dead end
+and no additional atoms are placed. However, experience shows that for
+structures with many heavy atom sites (&gt; 20) the correlation
+coefficient sometimes does not significantly increase when adding a
+correct new atom. Therefore, the parameter <tt>max_no_corr_inc</tt> was
+introduced. It specifies the total number of times a decrease or no
+change in the correlation coefficient is tolerated upon addition of a
+new atom. The main drawback of increasing <tt>max_no_corr_inc</tt> is
+that the total run-time for the heavy atom search increases as more
+time is spent on incorrect solutions.
+#
+vars: lessmemory
+info: Flag for the selection of the implementation of Fast Translation
+Function (Grosse-Kunstleve &amp; Brunger (1999), Acta Cyrst. D55).
+Given <tt>lessmemory=false</tt>, three-dimensional arrays are used.
+Given <tt>lessmemory=true</tt> (the default), two-dimensional arrays
+are used. The latter choice does not only require significantly less
+memory, but is also faster for most structures. The exception are large
+high-symmetry (hexagonal or cubic) structures.
+#
+vars: export_f_patt
+info: File name for F_patt structure factors (Grosse-Kunstleve &amp;
+Brunger (1999), Acta Cyrst. D55) used in the heavy atom search.
+Optionally these structure factors can be exported for use in an
+external program. The structure factors are written in the standard
+<tt>CNS</tt> format. No file will be written if the file name is
+blank.
+#
+vars: sharpen
+info: Flag for sharpening of Patterson map. If <tt>true</tt>, normalized
+structure factors (E-values) are used for the computation of the
+Patterson map.
+#
+vars: origin_remove
+info: Flag for removal of the origin peak in a Patterson map. If
+<tt>true</tt>, the origin peak is removed by substracting the
+statistical average of all structure factors from each individual
+structure factor.
+#
+vars: harker_sections
+info: Flag to request a plot of the Harker sections. If <tt>true</tt>,
+a map file is written for each Harker section which is parallel to one
+of the faces of the unit cell. Due to a limitation of the program,
+Harker sections which are not parallel to one of the unit cell faces
+cannot be plotted. The <tt>plot_patterson</tt> utility program can be
+used to contour the map files with the Harker sections and generate
+Postscript files for printing.
+#
+vars: plot_unitcell
+info: Flag for extent of the Patterson map and the Harker sections. If
+<tt>false</tt>, only the grid points in a minimal box or rectangle,
+respectively (with edges parallel to the unit cell edges), containing
+an asymmetric unit are written to the map files. If <tt>true</tt>, the
+Patterson maps cover the whole unit cell, and the Harker sections cover
+the corresponding whole face of the unit cell.
+#
+vars: 3d_patterson
+info: Flag for output of 3-dimensional Patterson map. If <tt>true</tt>,
+the Patterson map is written to a map file.
+#
+vars: peak_list_sigma peak_pdb
+info: <tt>peak_list_sigma</tt> defines the sigma cutoff for the
+generation of a list of Patterson peaks. Only peaks greater than the
+specified sigma value will be listed. The peak list is written to a
+list file, for example <tt>patterson_map.list</tt>. A negative value
+disables the peak search.
+<p>
+<tt>peak_pdb</tt> is a flag for the generation of a <tt>PDB</tt> file
+with the list of Patterson peaks. If <tt>true</tt>, the peaks shown in
+the list file will also be written out in <tt>PDB</tt> format (for
+example <tt>patterson_map.pdb</tt>).
+#
+vars: show_info
+info: Select amount of information shown in Harker sections.  Choices
+are &quot;<tt>none</tt>&quot;, &quot;<tt>short</tt>&quot;, and
+&quot;<tt>all</tt>&quot;. If <tt>all</tt>&quot; is selected, the
+information shown can sometime clutter the plots of the Harker sections.
+In such a case, &quot;<tt>short</tt>&quot; or &quot;<tt>none</tt>&quot;
+should be selected.
+#
+vars: macro_cycle
+info: Number of macrocycles. One macrocycle consists of Patterson
+Correlation refinement of the atomic coordinates, followed by B-factor
+and occupancy refinement.
+#
+vars: occupancy
+info: Flag for occupancy refinement. Only if <tt>true</tt>, occupancies
+are refined by maximizing the Patterson correlation.
+#
+vars: bfactor
+info: Flag for B-factor refinement. Only if <tt>true</tt>, B-factors
+are refined by maximizing the Patterson correlation.
+#
+vars: write_fcalc
+info: Write structure factors calculated from the atomic model to a hkl
+file (for example <tt>predict_patterson.hkl</tt>). The structure
+factors are written in the standard <tt>CNS</tt> format.
+vars: sol_auto
+info: automatic bulk solvent parameter search
+#
+vars: sol_output
+info: optional file with a listing of the results of the automatic bulk solvent grid
+search
+#
+vars: sol_rad
+info: solvent mask parameter
+#
+vars: sol_shrink
+info: solvent mask parameter
+#

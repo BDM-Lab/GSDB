@@ -1,0 +1,531 @@
+!
+! Protons_setup.tbl
+!
+! Setup for proton chemical shift refinement 
+! 
+! starts by doing selections for electric field stuff,
+! then magnetic anisotropy,
+! then ring currents,
+! and finally random coil shifts.
+!
+! Random coil shifts are from Williamson's file random.dat
+!
+! by John Kuszewski Dec 1994
+!
+
+set message off echo off end
+
+checkversion 1.3
+
+!
+! select all the alpha and amide protons, the amides alone,
+! the carbons, the nitrogens, and the oxygens
+!
+
+prot
+
+     alphasandamides (name ha or name hn)
+
+     amides (name hn)
+
+     carbons (name c)
+
+     nitrogens (name n)
+
+     oxygens (name o)
+
+end
+
+!
+! set up the CaC=O bonds from the backbone
+!
+
+for $count in id (name ca and segid a) loop anis
+     identify (store1) ((byresidue id $count) and (name ca))
+     if ($select=1) then
+        identify (store2) ((byresidue id $count) and (name c))
+        if ($select=1) then
+           identify (store3) ((byresidue id $count) and (name o))
+              if ($select=1) then
+                 prot anis (store1) (store2) (store3) CO notCOOH BB end
+              end if
+        end if
+     end if
+end loop anis
+
+for $count in id (name ca and segid b) loop anis
+     identify (store1) ((byresidue id $count) and (name ca))
+     if ($select=1) then
+        identify (store2) ((byresidue id $count) and (name c))
+        if ($select=1) then
+           identify (store3) ((byresidue id $count) and (name o))
+              if ($select=1) then
+                 prot anis (store1) (store2) (store3) CO notCOOH BB end
+              end if
+        end if
+     end if
+end loop anis
+
+!
+! set up the backbone C-N bonds
+! (apparently, sidechain C-N bonds are ignored)
+! produces an error on the last time through
+!
+!
+! need a loop that goes thru all residues except the first one,
+! getting the current residue's O and C atoms and the next residue's
+! N atom into store1, 2, and 3, respectively.
+!
+
+for $count in id (name ca and segid a) loop anis
+    show elem (segid) (id $count)
+    eval ($curseg = $result)
+    show elem (resid) (id $count)
+    eval ($curres = $result)
+    eval ($nextres = decode($curres) + 1)
+    do (store9 = 1) (segid a)
+   show sum (store9)((resid $nextres) and (segid $curseg) and (name n))
+    if ($result # 0) then
+        identify (store1) ((byresidue id $count) and (name o) )
+        identify (store2) ((byresidue id $count) and (name c) )
+        identify (store3) ((resid $nextres) and (segid $curseg) 
+                                                   and (name n) )
+        prot anis (store1) (store2) (store3) CN notCOOH BB end
+    end if
+end loop anis
+
+
+for $count in id (name ca and segid b) loop anis
+    show elem (segid) (id $count)
+    eval ($curseg = $result)
+    show elem (resid) (id $count)
+    eval ($curres = $result)
+    eval ($nextres = decode($curres) + 1)
+    do (store9 = 1) (segid b)
+   show sum (store9)((resid $nextres) and (segid $curseg) and (name n))
+    if ($result # 0) then
+        identify (store1) ((byresidue id $count) and (name o) )
+        identify (store2) ((byresidue id $count) and (name c) )
+        identify (store3) ((resid $nextres) and (segid $curseg) 
+                                                   and (name n) )
+        prot anis (store1) (store2) (store3) CN notCOOH BB end
+    end if
+end loop anis
+
+!
+! set up the CC=O bonds for the sidechains
+!
+
+for $count in id (name ca and resn asp and segid a) loop anis
+     identify (store1) ((byresidue id $count) and (name cb) )
+     identify (store2) ((byresidue id $count) and (name cg) )
+     identify (store3) ((byresidue id $count) and (name od1) )
+     identify (store4) ((byresidue id $count) and (name od2) )
+     prot anis (store1) (store2) (store3) CO COOH SC end
+     prot anis (store1) (store2) (store4) CO COOH SC end
+end loop anis
+
+for $count in id (name ca and resn glu and segid a) loop anis
+     identify (store1) ((byresidue id $count) and (name cg) )
+     identify (store2) ((byresidue id $count) and (name cd) )
+     identify (store3) ((byresidue id $count) and (name oe1) )
+     identify (store4) ((byresidue id $count) and (name oe2) )
+     prot anis (store1) (store2) (store3) CO COOH SC end
+     prot anis (store1) (store2) (store4) CO COOH SC end
+end loop anis
+
+for $count in id (name ca and resn asn and segid a) loop anis
+     identify (store1) ((byresidue id $count) and (name cb) )
+     identify (store2) ((byresidue id $count) and (name cg) )
+     identify (store3) ((byresidue id $count) and (name od1) )
+     prot anis (store1) (store2) (store3) CO notCOOH SC end
+end loop anis
+
+for $count in id (name ca and resn gln and segid a) loop anis
+     identify (store1) ((byresidue id $count) and (name cg) )
+     identify (store2) ((byresidue id $count) and (name cd) )
+     identify (store3) ((byresidue id $count) and (name oe1) )
+     prot anis (store1) (store2) (store3) CO notCOOH SC end
+end loop anis
+
+
+for $count in id (name ca and resn asp and segid b) loop anis
+     identify (store1) ((byresidue id $count) and (name cb) )
+     identify (store2) ((byresidue id $count) and (name cg) )
+     identify (store3) ((byresidue id $count) and (name od1) )
+     identify (store4) ((byresidue id $count) and (name od2) )
+     prot anis (store1) (store2) (store3) CO COOH SC end
+     prot anis (store1) (store2) (store4) CO COOH SC end
+end loop anis
+
+for $count in id (name ca and resn glu and segid b) loop anis
+     identify (store1) ((byresidue id $count) and (name cg) )
+     identify (store2) ((byresidue id $count) and (name cd) )
+     identify (store3) ((byresidue id $count) and (name oe1) )
+     identify (store4) ((byresidue id $count) and (name oe2) )
+     prot anis (store1) (store2) (store3) CO COOH SC end
+     prot anis (store1) (store2) (store4) CO COOH SC end
+end loop anis
+
+for $count in id (name ca and resn asn and segid b) loop anis
+     identify (store1) ((byresidue id $count) and (name cb) )
+     identify (store2) ((byresidue id $count) and (name cg) )
+     identify (store3) ((byresidue id $count) and (name od1) )
+     prot anis (store1) (store2) (store3) CO notCOOH SC end
+end loop anis
+
+for $count in id (name ca and resn gln and segid b) loop anis
+     identify (store1) ((byresidue id $count) and (name cg) )
+     identify (store2) ((byresidue id $count) and (name cd) )
+     identify (store3) ((byresidue id $count) and (name oe1) )
+     prot anis (store1) (store2) (store3) CO notCOOH SC end
+end loop anis
+
+!
+! handle the rings
+!
+
+for $count in id (name ca and resn phe and segid a) loop ring
+     identify (store1) ((byresidue id $count) and (name cg))
+     identify (store2) ((byresidue id $count) and (name cd1))
+     identify (store3) ((byresidue id $count) and (name ce1))
+     identify (store4) ((byresidue id $count) and (name cz))
+     identify (store5) ((byresidue id $count) and (name ce2))
+     identify (store6) ((byresidue id $count) and (name cd2))
+     prot ring PHE (store1) (store2) (store3) (store4) (store5) (store6) end
+end loop ring
+
+for $count in id (name ca and resn tyr and segid a) loop ring
+     identify (store1) ((byresidue id $count) and (name cg))
+     identify (store2) ((byresidue id $count) and (name cd1))
+     identify (store3) ((byresidue id $count) and (name ce1) )
+     identify (store4) ((byresidue id $count) and (name cz))
+     identify (store5) ((byresidue id $count) and (name ce2) )
+     identify (store6) ((byresidue id $count) and (name cd2))
+     prot ring TYR (store1) (store2) (store3) (store4) (store5) (store6) end
+end loop ring
+
+for $count in id (name ca and resn trp and segid a) loop ring
+     identify (store1) ((byresidue id $count) and (name ce2))
+     identify (store2) ((byresidue id $count) and (name cd2))
+     identify (store3) ((byresidue id $count) and (name ce3))
+     identify (store4) ((byresidue id $count) and (name cz3))
+     identify (store5) ((byresidue id $count) and (name ch2))
+     identify (store6) ((byresidue id $count) and (name cz2))
+     prot ring TRP6 (store1) (store2) (store3) (store4) (store5) (store6) end
+end loop ring
+
+for $count in id (name ca and resn his and segid a) loop ring
+     identify (store1) ((byresidue id $count) and (name cg))
+     identify (store2) ((byresidue id $count) and (name cd2))
+     identify (store3) ((byresidue id $count) and (name ne2))
+     identify (store4) ((byresidue id $count) and (name ce1))
+     identify (store5) ((byresidue id $count) and (name nd1))
+     prot ring HIS (store1) (store2) (store3) (store4) (store5) end
+end loop ring
+
+for $count in id (name ca and resn trp and segid a) loop ring
+     identify (store1) ((byresidue id $count) and (name cg))
+     identify (store2) ((byresidue id $count) and (name cd1))
+     identify (store3) ((byresidue id $count) and (name ne1))
+     identify (store4) ((byresidue id $count) and (name ce2))
+     identify (store5) ((byresidue id $count) and (name cd2))
+     prot ring TRP5 (store1) (store2) (store3) (store4) (store5) end
+end loop ring
+
+
+
+
+for $count in id (name ca and resn phe and segid b) loop ring
+     identify (store1) ((byresidue id $count) and (name cg))
+     identify (store2) ((byresidue id $count) and (name cd1))
+     identify (store3) ((byresidue id $count) and (name ce1))
+     identify (store4) ((byresidue id $count) and (name cz))
+     identify (store5) ((byresidue id $count) and (name ce2))
+     identify (store6) ((byresidue id $count) and (name cd2))
+     prot ring PHE (store1) (store2) (store3) (store4) (store5) (store6) end
+end loop ring
+
+for $count in id (name ca and resn tyr and segid b) loop ring
+     identify (store1) ((byresidue id $count) and (name cg))
+     identify (store2) ((byresidue id $count) and (name cd1))
+     identify (store3) ((byresidue id $count) and (name ce1) )
+     identify (store4) ((byresidue id $count) and (name cz))
+     identify (store5) ((byresidue id $count) and (name ce2) )
+     identify (store6) ((byresidue id $count) and (name cd2))
+     prot ring TYR (store1) (store2) (store3) (store4) (store5) (store6) end
+end loop ring
+
+for $count in id (name ca and resn trp and segid b) loop ring
+     identify (store1) ((byresidue id $count) and (name ce2))
+     identify (store2) ((byresidue id $count) and (name cd2))
+     identify (store3) ((byresidue id $count) and (name ce3))
+     identify (store4) ((byresidue id $count) and (name cz3))
+     identify (store5) ((byresidue id $count) and (name ch2))
+     identify (store6) ((byresidue id $count) and (name cz2))
+     prot ring TRP6 (store1) (store2) (store3) (store4) (store5) (store6) end
+end loop ring
+
+for $count in id (name ca and resn his and segid b) loop ring
+     identify (store1) ((byresidue id $count) and (name cg))
+     identify (store2) ((byresidue id $count) and (name cd2))
+     identify (store3) ((byresidue id $count) and (name ne2))
+     identify (store4) ((byresidue id $count) and (name ce1))
+     identify (store5) ((byresidue id $count) and (name nd1))
+     prot ring HIS (store1) (store2) (store3) (store4) (store5) end
+end loop ring
+
+for $count in id (name ca and resn trp and segid b) loop ring
+     identify (store1) ((byresidue id $count) and (name cg))
+     identify (store2) ((byresidue id $count) and (name cd1))
+     identify (store3) ((byresidue id $count) and (name ne1))
+     identify (store4) ((byresidue id $count) and (name ce2))
+     identify (store5) ((byresidue id $count) and (name cd2))
+     prot ring TRP5 (store1) (store2) (store3) (store4) (store5) end
+end loop ring
+
+!
+! this holds the random coil proton chemical shifts
+! from the file random.dat provided with Williamson's
+! proton shift program, with his secondary corrections
+! of -0.65 ppm to each Ha, -0.20 ppm to each HN, +0.22 ppm
+! to each gly Ha*, and a change to 4.45 ppm for each 
+! Ha of YFWH.  Original values with the noted changes 
+! are commented out.
+!
+
+prot
+
+rcoil (hydrogen) 0.00
+
+!rcoil (resn GLY and name HN) 8.39 - 0.20
+!rcoil (resn GLY and name HA1) 3.97 - 0.65 + 0.22
+!rcoil (resn GLY and name HA2) 3.97 - 0.65 + 0.22
+
+rcoil (resn GLY and name HN) 8.19
+rcoil (resn GLY and name HA1) 3.54
+rcoil (resn GLY and name HA2) 3.54
+
+!rcoil (resn ALA and name HN) 8.25 - 0.20
+!rcoil (resn ALA and name HA) 4.35 - 0.65
+
+rcoil (resn ALA and name HN) 8.05
+rcoil (resn ALA and name HA) 3.70
+rcoil (resn ALA and name HB1) 1.40
+rcoil (resn ALA and name HB2) 1.40
+rcoil (resn ALA and name HB3) 1.40
+
+!rcoil (resn VAL and name HN) 8.44 - 0.20
+!rcoil (resn VAL and name HA) 4.18 - 0.65
+
+rcoil (resn VAL and name HN) 8.24
+rcoil (resn VAL and name HA) 3.53
+rcoil (resn VAL and name HB) 2.13
+rcoil (resn VAL and name HG11) 0.96
+rcoil (resn VAL and name HG12) 0.96
+rcoil (resn VAL and name HG13) 0.96
+rcoil (resn VAL and name HG21) 0.96
+rcoil (resn VAL and name HG22) 0.96
+rcoil (resn VAL and name HG23) 0.96
+
+!rcoil (resn ILE and name HN) 8.20 - 0.20
+!rcoil (resn ILE and name HA) 4.22 - 0.65
+
+rcoil (resn ILE and name HN) 8.00
+rcoil (resn ILE and name HA) 3.57
+rcoil (resn ILE and name HB) 1.89
+rcoil (resn ILE and name HG21) 0.94
+rcoil (resn ILE and name HG22) 0.94
+rcoil (resn ILE and name HG23) 0.94
+rcoil (resn ILE and name HG11) 1.30
+rcoil (resn ILE and name HG12) 1.30
+rcoil (resn ILE and name HD11) 0.89
+rcoil (resn ILE and name HD12) 0.89
+rcoil (resn ILE and name HD13) 0.89
+
+!rcoil (resn LEU and name HN) 8.42 - 0.20
+!rcoil (resn LEU and name HA) 4.39 - 0.65
+
+rcoil (resn LEU and name HN) 8.02
+rcoil (resn LEU and name HA) 3.74
+rcoil (resn LEU and name HB1) 1.65
+rcoil (resn LEU and name HB2) 1.65
+rcoil (resn LEU and name HG) 1.65
+rcoil (resn LEU and name HD11) 0.92
+rcoil (resn LEU and name HD12) 0.92
+rcoil (resn LEU and name HD13) 0.92
+rcoil (resn LEU and name HD21) 0.92
+rcoil (resn LEU and name HD22) 0.92
+rcoil (resn LEU and name HD23) 0.92
+
+!rcoil (resn SER and name HN) 8.38 - 0.20
+!rcoil (resn SER and name HA) 4.50 - 0.65
+
+rcoil (resn SER and name HN) 8.18
+rcoil (resn SER and name HA) 3.85
+rcoil (resn SER and name HB1) 3.89
+rcoil (resn SER and name HB2) 3.89
+! no HG?
+
+!rcoil (resn THR and name HN) 8.24 - 0.20
+!rcoil (resn THR and name HA) 4.35 - 0.65
+
+rcoil (resn THR and name HN) 8.04
+rcoil (resn THR and name HA) 3.70
+rcoil (resn THR and name HB) 4.22
+rcoil (resn THR and name HG21) 1.23
+rcoil (resn THR and name HG22) 1.23
+rcoil (resn THR and name HG23) 1.23
+
+!rcoil (resn ASP and name HN) 8.41 - 0.20
+!rcoil (resn ASP and name HA) 4.77 - 0.65
+
+rcoil (resn ASP and name HN) 8.21
+rcoil (resn ASP and name HA) 4.12
+rcoil (resn ASP and name HB1) 2.80
+rcoil (resn ASP and name HB2) 2.80
+
+!rcoil (resn GLU and name HN) 8.37 - 0.20
+!rcoil (resn GLU and name HA) 4.30 - 0.65
+
+rcoil (resn GLU and name HN) 8.17
+rcoil (resn GLU and name HA) 3.65
+rcoil (resn GLU and name HB1) 2.03
+rcoil (resn GLU and name HB2) 2.03
+rcoil (resn GLU and name HG1) 2.30
+rcoil (resn GLU and name HG2) 2.30
+
+!rcoil (resn LYS and name HN) 8.41 - 0.20
+!rcoil (resn LYS and name HA) 4.36 - 0.65
+
+rcoil (resn LYS and name HN) 8.21
+rcoil (resn LYS and name HA) 3.71
+rcoil (resn LYS and name HB1) 1.81
+rcoil (resn LYS and name HB2) 1.81
+rcoil (resn LYS and name HG1) 1.47
+rcoil (resn LYS and name HG2) 1.47
+rcoil (resn LYS and name HD1) 1.71
+rcoil (resn LYS and name HD2) 1.71
+rcoil (resn LYS and name HE1) 3.02
+rcoil (resn LYS and name HE2) 3.02
+! no HZ?
+
+!rcoil (resn ARG and name HN) 8.27 - 0.20
+!rcoil (resn ARG and name HA) 4.40 - 0.65
+
+rcoil (resn ARG and name HN) 8.07
+rcoil (resn ARG and name HA) 3.75
+rcoil (resn ARG and name HB1) 1.85
+rcoil (resn ARG and name HB2) 1.85
+rcoil (resn ARG and name HG1) 1.72
+rcoil (resn ARG and name HG2) 1.72
+rcoil (resn ARG and name HD1) 3.31
+rcoil (resn ARG and name HD2) 3.31
+! no HE, HZ?
+
+!rcoil (resn ASN and name HN) 8.75 - 0.20
+!rcoil (resn ASN and name HA) 4.76 - 0.65
+
+rcoil (resn ASN and name HN) 8.55
+rcoil (resn ASN and name HA) 4.11
+rcoil (resn ASN and name HB1) 2.80
+rcoil (resn ASN and name HB2) 2.80
+! no HD?
+
+!rcoil (resn GLN and name HN) 8.41 - 0.20
+!rcoil (resn GLN and name HA) 4.37 - 0.65
+
+rcoil (resn GLN and name HN) 8.21
+rcoil (resn GLN and name HA) 3.72
+rcoil (resn GLN and name HB1) 2.08
+rcoil (resn GLN and name HB2) 2.08
+rcoil (resn GLN and name HG1) 2.38
+rcoil (resn GLN and name HG2) 2.38
+! no HE?
+
+!rcoil (resn MET and name HN) 8.42 - 0.20
+!rcoil (resn MET and name HA) 4.51 - 0.65
+
+rcoil (resn MET and name HN) 8.22
+rcoil (resn MET and name HA) 3.86
+rcoil (resn MET and name HB1) 2.08
+rcoil (resn MET and name HB2) 2.08
+rcoil (resn MET and name HG1) 2.63
+rcoil (resn MET and name HG2) 2.63
+rcoil (resn MET and name HE1) 2.13
+rcoil (resn MET and name HE2) 2.13
+rcoil (resn MET and name HE3) 2.13
+
+!rcoil (resn CYS and name HN) 8.31 - 0.20
+!rcoil (resn CYS and name HA) 4.69 - 0.65
+
+rcoil (resn CYS and name HN) 8.11
+rcoil (resn CYS and name HA) 4.04
+rcoil (resn CYS and name HB1) 3.16
+rcoil (resn CYS and name HB2) 3.16
+! no HG?
+
+!rcoil (resn TRP and name HN) 8.09 - 0.20
+!rcoil (resn TRP and name HA) 4.70 - 0.65 4.45
+
+rcoil (resn TRP and name HN) 7.89
+rcoil (resn TRP and name HA) 4.45
+rcoil (resn TRP and name HB1) 3.26
+rcoil (resn TRP and name HB2) 3.26
+rcoil (resn TRP and name HE1) 9.99
+rcoil (resn TRP and name HD1) 7.24
+rcoil (resn TRP and name HE3) 7.65
+rcoil (resn TRP and name HZ3) 7.17
+rcoil (resn TRP and name HH2) 7.24
+rcoil (resn TRP and name HZ2) 7.50
+
+!rcoil (resn PHE and name HN) 8.23 - 0.20
+!rcoil (resn PHE and name HA) 4.66 - 0.65 4.45
+
+rcoil (resn PHE and name HN) 8.03
+rcoil (resn PHE and name HA) 4.45
+rcoil (resn PHE and name HB1) 3.11
+rcoil (resn PHE and name HB2) 3.11
+rcoil (resn PHE and name HD1) 7.34
+rcoil (resn PHE and name HD2) 7.34
+rcoil (resn PHE and name HE1) 7.34
+rcoil (resn PHE and name HE2) 7.34
+rcoil (resn PHE and name HZ) 7.34
+
+!rcoil (resn TYR and name HN) 8.18 - 0.20
+!rcoil (resn TYR and name HA) 4.60 - 0.65 4.45
+
+rcoil (resn TYR and name HN) 7.98
+rcoil (resn TYR and name HA) 4.45
+rcoil (resn TYR and name HB1) 3.02
+rcoil (resn TYR and name HB2) 3.02
+rcoil (resn TYR and name HD1) 7.15
+rcoil (resn TYR and name HD2) 7.15
+rcoil (resn TYR and name HE1) 6.86
+rcoil (resn TYR and name HE2) 6.86
+! no HH?
+
+!rcoil (resn HIS and name HN) 8.42 - 0.20
+!rcoil (resn HIS and name HA) 4.63 - 0.65 4.45
+
+rcoil (resn HIS and name HN) 8.22
+rcoil (resn HIS and name HA) 4.45
+rcoil (resn HIS and name HB1) 3.23
+rcoil (resn HIS and name HB2) 3.23
+rcoil (resn HIS and name HE1) 8.12
+rcoil (resn HIS and name HD2) 7.14
+! changed prev line to HD2 from HD1 (HD1 is exchangable) JK 1/6/95
+! no HD2?
+
+!rcoil (resn PRO and name HA) 4.47 - 0.65
+
+rcoil (resn PRO and name HA) 3.82
+rcoil (resn PRO and name HB1) 2.16
+rcoil (resn PRO and name HB2) 2.16
+rcoil (resn PRO and name HG1) 2.03
+rcoil (resn PRO and name HG2) 2.03
+rcoil (resn PRO and name HD1) 3.65
+rcoil (resn PRO and name HD2) 3.65
+
+end
+set message on echo on end

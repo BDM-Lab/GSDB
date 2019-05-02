@@ -1,0 +1,640 @@
+! Module file: calcave
+!
+! CNS MODULE
+! **********
+!
+! Authors: Gregory L. Warren and Axel T. Brunger
+!
+! copyright Yale University
+!
+! version 02/28/98
+!
+! Function:
+!          Calculate average values for accepted or trial
+!          ensembles as well as average coordinates
+!
+! Requirements:
+!       Use symbols initilized and used in the macros initave 
+!       and printaccept.             
+!
+!
+
+module {calcave}
+(
+   &ave=ave;                 {INPUT/OUTPUT: average values}
+   &ave2=ave2;               {INPUT/OUTPUT: squared average values}
+   &cv=cv;                   {INPUT: cross validation values}
+   &ener1=ener1;             {INPUT/OUTPUT: average energy values}
+   &ener2=ener2;             {INPUT/OUTPUT: squared average energy values}
+   &flag=flag;               {INPUT: true false flags}
+   &md=md;                   {INPUT: md parameters}
+   &nmr=nmr;                 {INPUT: nmr restraints parameters}
+   &num=num;                 {INPUT: number of nmr restraints}
+   &output=output;           {INPUT/OUTPUT: nmr values}
+   &pdb=pdb;                 {INPUT: coordinate parameters}
+)
+
+checkversion 1.3
+
+set message ? end
+evaluate ($message_old=$result)
+set echo ? end
+evaluate ($echo_old=$result)
+if ( $log_level = verbose ) then
+  set echo=on message=normal end
+else
+  set echo=off message=off end
+end if
+
+   if (&flag.calc.ave.accpt=true) then
+      if (&output.accept.count > 0) then
+
+         @CNS_NMRMODULE:calcsubener ( count=&output.accept.count;
+                                      ener1=&ener1;
+                                      ener2=&ener2; )
+ 
+ 
+         @CNS_NMRMODULE:calcsubave ( ave=&ave;
+                                     ave2=&ave2;
+                                     count=&output.accept.count;
+                                     cv=&cv;
+                                     flag=&flag;
+                                     nmr=&nmr; )
+
+         do (x = store1 / &output.accept.count) (all)
+         do (y = store2 / &output.accept.count) (all)
+         do (z = store3 / &output.accept.count) (all)
+         do (bcomp =sqrt(max(0,store4/&output.accept.count-(x^2+y^2+z^2)))) (all)
+
+      end if
+   else
+
+      @CNS_NMRMODULE:calcsubener ( count=&output.trial.count;
+                                   ener1=&ener1;
+                                   ener2=&ener2; )
+                  
+                  
+      @CNS_NMRMODULE:calcsubave ( ave=&ave;
+                                  ave2=&ave2;
+                                  count=&output.trial.count;
+                                  cv=&cv;
+                                  flag=&flag;
+                                  nmr=&nmr; )
+
+
+      do (x = store1 / &output.trial.count) (all)
+      do (y = store2 / &output.trial.count) (all)
+      do (z = store3 / &output.trial.count) (all)
+      do (bcomp =sqrt(max(0,store4/&output.trial.count-(x^2+y^2+z^2)))) (all)
+
+   end if
+
+   if (&flag.calc.ave.struct=true) then
+      do (store1=0) (all)
+      do (store2=0) (all)
+      do (store3=0) (all)
+      do (store4=0) (all)
+      evaluate ($count = 0)
+      evaluate ($average_flag=false)
+      if (&flag.calc.ave.accpt=true) then
+         if (&flag.print.accept=true) then
+            evaluate ($ave_counter = &output.accept.count)
+            evaluate (&output.prefix=&pdb.out.name + "a_")
+            evaluate ($average_flag=true)
+         end if
+      elseif (&flag.print.trial=true) then
+         evaluate ($ave_counter = &output.trial.count)
+         evaluate (&output.prefix=&pdb.out.name + "_")
+         evaluate ($average_flag=true)
+      end if
+      if (&flag.dgsa.flag=true) then
+         if ($ave_counter > 0) then
+            set remarks=reset end
+            evaluate ($filename=&output.prefix+"1.pdb")
+            coor @@$filename
+            coor copy end
+         else
+            coor copy end
+         end if
+      else
+            coor copy end
+      end if
+      if ($average_flag=true) then
+         @CNS_NMRMODULE:avecoord ( ave=&ave;
+                                   ave2=&ave2;
+                                   count=$ave_counter;
+                                   output=&output;
+                                   pdb=&pdb; )
+      end if 
+
+      do (b=bcomp) ( all )
+
+      {- minimize average coordinates -}
+      if (&flag.min.ave.coor=true) then
+         evaluate ($count=0 )
+         while (10 > $count) loop pmini
+            evaluate ($count=$count + 1)
+            minimize lbfgs nstep=200 drop=10.0 nprint=25 end 
+         end loop pmini
+
+         flags exclude *
+               include bond angle dihedral improper vdw end
+         minimize lbfgs nstep=200 drop=10.0 nprint=100 end
+
+         flags exclude * 
+               include bond angle dihedral improper vdw harm 
+                       noe cdih coup oneb carb prot ncs 
+                       dani sani end
+         if (&output.nucl.num > 0) then
+            flags include elec plan end
+         end if
+         evaluate ($count=0 )
+         while (10 > $count) loop pmini
+            evaluate ($count=$count + 1)
+            minimize lbfgs nstep=200 drop=10.0 nprint=25 end 
+         end loop pmini
+      end if
+
+   end if
+
+{- refinement information for coordinate header -}
+
+   evaluate ($hottime=&md.hot.step*&md.hot.ss)
+   evaluate ($cooltime=&md.cool.step*&md.cool.ss)
+   if (&flag.dgsa.flag=true) then
+      evaluate ($cool_temp=&md.hot.temp)
+      evaluate ($md_schem="cartesian; cartesian; minimize")
+      evaluate ($hot_func="temp: "+encode(&md.hot.temp)+" steps: "+encode(&md.hot.step)
+                          +" time(ps): "+encode($hottime))
+      evaluate ($cool_func="temp: "+encode(&md.hot.temp)+"->0 steps: "+encode(&md.cool.step)
+                          +" time(ps): "+encode($cooltime)+" temp step: "+encode(&md.cool.tmpstp))
+      evaluate ($used_flag="not used")
+      evaluate ($cart_func="")
+      evaluate ($vdw_scale="20 20 0.01 0.003 0.003; "+encode(&md.cool.vdw.init)+"->"
+                           +encode(&md.cool.vdw.finl)+"; 1")
+      evaluate ($noe_scale=encode(&md.cool.noe)+"; "+encode(&md.cool.noe)+"; "+encode(&md.pow.noe))
+      evaluate ($cdih_scale=encode(&md.hot.cdih)+"; "+encode(&md.cool.cdih)+"; "+encode(&md.pow.cdih))
+   else
+      evaluate ($cool_temp=&md.cool.temp)
+      evaluate ($carttime=&md.cart.step*&md.cart.ss)
+      if (&md.cart.flag=true) then
+         if (&md.type.cool="torsion") then
+    	    evaluate ($md_schem=&md.type.hot+"; "+&md.type.cool+"; cartesian; minimize")
+    	    evaluate ($hot_func="temp: "+encode(&md.hot.temp)+" steps: "+encode(&md.hot.step)
+    				+" time(ps): "+encode($hottime))
+    	    evaluate ($cool_func="temp: "+encode($cool_temp)+"->0 steps: "+encode(&md.cool.step)
+    				+" time(ps): "+encode($cooltime)+" temp step: "+encode(&md.cool.tmpstp))
+    	    evaluate ($used_flag="	  ")
+    	    evaluate ($cart_func="temp: "+encode(&md.cart.temp)+"->0 steps: "+encode(&md.cart.step)
+    				 +" time(ps): "+encode($carttime)+" temp step: "+encode(&md.cart.tmpstp))
+    	    evaluate ($vdw_scale=encode(&md.hot.vdw)+"; "+encode(&md.hot.vdw)+"->"+encode(&md.cool.vdw)
+    				 +"; "+encode(&md.cart.vdw.init)+"->"+encode(&md.cart.vdw.finl)+"; "+"1")
+    	    evaluate ($noe_scale=encode(&md.hot.noe)+"; "+encode(&md.cool.noe)+"; "+
+    				 encode(&md.cart.noe)+"; "+encode(&md.pow.noe))
+    	    evaluate ($cdih_scale=encode(&md.hot.cdih)+"; "+encode(&md.cool.cdih)+"; "
+    				  +encode(&md.cart.cdih)+"; "+encode(&md.pow.cdih))
+    	    evaluate ($dani_scale=encode(&nmr.dani.force.init.1)+"; "+encode(&nmr.dani.force.init.1)+"; "
+    				  +encode(&nmr.dani.force.init.1)+"->"+encode(&nmr.dani.force.finl.1)+"; "
+    				  +encode(&nmr.dani.force.finl.1))
+    	    evaluate ($sani_scale=encode(&nmr.sani.force.init.1)+"; "+encode(&nmr.sani.force.init.1)+"; "
+    				  +encode(&nmr.sani.force.init.1)+"->"+encode(&nmr.sani.force.finl.1)+"; "
+    				  +encode(&nmr.sani.force.finl.1))
+         else
+    	    evaluate ($md_schem=&md.type.hot+"; "+&md.type.cool+"; minimize")
+    	    evaluate ($hot_func="temp: "+encode(&md.hot.temp)+" steps: "+encode(&md.hot.step)
+    				+" time(ps): "+encode($hottime))
+    	    evaluate ($cool_func="temp: "+encode($cool_temp)+"->0 steps: "+encode(&md.cool.step)
+    				+" time(ps): "+encode($cooltime)+" temp step: "+encode(&md.cool.tmpstp))
+    	    evaluate ($used_flag="not used")
+    	    evaluate ($cart_func="")
+    	    evaluate ($vdw_scale=encode(&md.hot.vdw)+"; "+encode(&md.hot.vdw)+"->"+encode(&md.cool.vdw)
+    				 +"; 1")
+    	    evaluate ($noe_scale=encode(&md.hot.noe)+"; "+encode(&md.cool.noe)+"; "+encode(&md.pow.noe))
+    	    evaluate ($cdih_scale=encode(&md.hot.cdih)+"; "+encode(&md.cool.cdih)+"; "
+    				  +encode(&md.pow.cdih))
+    	    evaluate ($dani_scale=encode(&nmr.dani.force.init.1)+"; "+encode(&nmr.dani.force.init.1)+"->"
+    	                          +encode(&nmr.dani.force.finl.1)+"; "+encode(&nmr.dani.force.finl.1))
+    	    evaluate ($sani_scale=encode(&nmr.sani.force.init.1)+"; "+encode(&nmr.sani.force.init.1)+"->"
+    	                          +encode(&nmr.sani.force.finl.1)+"; "+encode(&nmr.sani.force.finl.1))
+         end if
+      else
+         evaluate ($md_schem=&md.type.hot+"; "+&md.type.cool+"; minimize")
+         evaluate ($hot_func="temp: "+encode(&md.hot.temp)+" steps: "+encode(&md.hot.step)
+                             +" time(ps): "+encode($hottime))
+         evaluate ($cool_func="temp: "+encode($cool_temp)+"->0 steps: "+encode(&md.cool.step)
+                             +" time(ps): "+encode($cooltime)+" temp step: "+encode(&md.cool.tmpstp))
+   	 evaluate ($used_flag="not used")
+   	 evaluate ($cart_func="")
+         evaluate ($vdw_scale=encode(&md.hot.vdw)+"; "+encode(&md.hot.vdw)+"->"+encode(&md.cool.vdw)
+                              +"; 1")
+         evaluate ($noe_scale=encode(&md.hot.noe)+"; "+encode(&md.cool.noe)+"; "+encode(&md.pow.noe))
+         evaluate ($cdih_scale=encode(&md.hot.cdih)+"; "+encode(&md.cool.cdih)+"; "
+                               +encode(&md.pow.cdih))
+    	 evaluate ($dani_scale=encode(&nmr.dani.force.init.1)+"; "+encode(&nmr.dani.force.init.1)+"->"
+    	                       +encode(&nmr.dani.force.finl.1)+"; "+encode(&nmr.dani.force.finl.1))
+    	 evaluate ($sani_scale=encode(&nmr.sani.force.init.1)+"; "+encode(&nmr.sani.force.init.1)+"->"
+    	                       +encode(&nmr.sani.force.finl.1)+"; "+encode(&nmr.sani.force.finl.1))
+      end if
+   end if
+
+   evaluate ($noeave="NA")
+   if (&output.noe.class.num > 0) then
+      evaluate ($noeave="")
+      evaluate ($count=1)
+      while (&exist%nmr.noe.file.$count=true) loop chk
+   	 if (&nmr.noe.file.$count # "") then
+   	    evaluate ($noeave=$noeave+&nmr.noe.ave.mode.$count+", ")
+   	 end if
+   	 evaluate ($count=$count+1)
+      end loop chk
+      if (&nmr.noe.hbnd.file # "" ) then
+   	 evaluate ($noeave=$noeave+"hbnd: "+&nmr.noe.ave.mode.hbnd)
+      end if
+   end if
+
+   evaluate ($jcoup_scale="NA")
+   if (&output.jcoup.class.num > 0) then
+      evaluate ($jcoup_scale="")
+      evaluate ($count=1)
+      while (&exist%nmr.jcoup.file.$count=true) loop chk
+   	 if (&nmr.jcoup.file.$count # "") then
+   	    if (&&nmr.jcoup.force.2.$count=0) then
+   	       evaluate ($jcoup_scale=$jcoup_scale+encode(&nmr.jcoup.force.1.$count)+", ")
+   	    else
+   	       evaluate ($jcoup_scale=$jcoup_scale+encode(&nmr.jcoup.force.1.$count)
+   	                              +" "+encode(&nmr.jcoup.force.2.$count)+", ")
+   	    end if
+   	 end if
+   	 evaluate ($count=$count+1)
+      end loop chk
+   end if
+
+   evaluate ($oneb_scale="NA")
+   if (&output.oneb.class.num > 0) then
+      evaluate ($oneb_scale="")
+      evaluate ($count=1)
+      while (&exist%nmr.oneb.file.$count=true) loop chk
+   	 if (&nmr.oneb.file.$count # "") then
+   	    evaluate ($oneb_scale=$oneb_scale+encode(&nmr.oneb.force.$count)+", ")
+   	 end if
+   	 evaluate ($count=$count+1)
+      end loop chk
+   end if
+
+   evaluate ($carb_scale="NA")
+   if (&output.carb.class.num > 0) then
+      evaluate ($carb_scale="")
+      evaluate ($count=1)
+      while (&exist%nmr.carb.file.$count=true) loop chk
+   	 if (&nmr.carb.file.$count # "") then
+   	    evaluate ($carb_scale=$carb_scale+encode(&nmr.carb.force.$count)+", ")
+   	 end if
+   	 evaluate ($count=$count+1)
+      end loop chk
+   end if
+
+   evaluate ($prot_scale="NA")
+   if (&output.prot.class.num > 0) then
+      evaluate ($prot_scale="")
+      evaluate ($count=1)
+      while (&exist%nmr.prot.file.$count=true) loop chk
+   	 if (&nmr.prot.file.$count # "") then
+   	    if (&nmr.prot.force.2.$count=0) then
+   	       evaluate ($prot_scale=$prot_scale+encode(&nmr.prot.force.1.$count)+", ")
+   	    else
+   	       evaluate ($prot_scale=$prot_scale+encode(&nmr.prot.force.1.$count)
+   	                             +" "+encode(&nmr.prot.force.2.$count)+", ")
+   	    end if
+   	 end if
+   	 evaluate ($count=$count+1)
+      end loop chk
+   end if
+
+   evaluate ($dani_scale="NA")
+   if (&output.dani.class.num > 0) then
+      evaluate ($dani_scale="")
+      evaluate ($count=1)
+      while (&exist%nmr.dani.file.$count=true) loop chk
+   	 if (&nmr.dani.file.$count # "") then
+   	    evaluate ($dani_scale=$dani_scale+encode(&nmr.dani.force.init.$count)
+   	                          +"->"+encode(&nmr.dani.force.finl.$count)+", ")
+   	 end if
+   	 evaluate ($count=$count+1)
+      end loop chk
+   end if
+
+   evaluate ($sani_scale="NA")
+   if (&output.sani.class.num > 0) then
+      evaluate ($sani_scale="")
+      evaluate ($count=1)
+      while (&exist%nmr.sani.file.$count=true) loop chk
+   	 if (&nmr.sani.file.$count # "") then
+   	    evaluate ($sani_scale=$sani_scale+encode(&nmr.sani.force.init.$count)
+   	                          +"->"+encode(&nmr.sani.force.finl.$count)+", ")
+   	 end if
+   	 evaluate ($count=$count+1)
+      end loop chk
+   end if
+
+   if (&nmr.plan.file = "") then
+      evaluate ($pscale = "NA")
+   else
+      evaluate ($pscale = &nmr.plan.scale)
+   end if
+
+   if (&nmr.ncs.file # "") then
+      evaluate ($ncs_flag = "used.")
+   else
+      evaluate ($ncs_flag = "not used.")
+   end if
+
+{- determine the total number of restraints for the cv case -}
+   if (&flag.cv.flag=true) then
+      evaluate ($rstr_num=20000)
+      noe
+         reset
+         nrestraints = $rstr_num
+      end
+
+      evaluate ($count = 1)
+      while (&exist%nmr.noe.file.$count=true) loop nloop
+         evaluate ($clsname = "N"+encode($count))
+         if (&nmr.noe.file.$count # "" ) then
+             @CNS_NMRMODULE:readnoe ( classname=$clsname;
+                                      filename=&&nmr.noe.file.$count;
+                                      avemode=&&nmr.noe.ave.mode.$count; )
+         end if
+         evaluate ($count = $count + 1)
+      end loop nloop
+
+      if (&nmr.noe.hbnd.file # "" ) then
+         evaluate ($clsname = "hbnd")
+         @CNS_NMRMODULE:readnoe ( classname=$clsname;
+                                  filename=&&nmr.noe.hbnd.file;
+                                  avemode=&&nmr.noe.ave.mode.hbnd; )
+      end if
+      
+      noe print threshold = 50.0 end
+      evaluate (&num.noe = $number)
+      
+      evaluate ($rstr_num=800)
+      couplings
+         reset
+         nres = $rstr_num
+      end
+
+      evaluate ($count = 1)
+      while (&exist%nmr.jcoup.file.$count=true) loop nloop
+   	 evaluate ($clsname = "J"+encode($count))
+   	 if (&nmr.jcoup.file.$count # "" ) then
+    	    @CNS_NMRMODULE:readjcoup  ( classname=$$clsname;
+    	    		  	        classpoten=&&nmr.jcoup.pot.$count;
+    	    		  	        filename=&&nmr.jcoup.file.$count;
+    	    		  	        weight1=&nmr.jcoup.force.1.$count;
+    	    		  	        weight2=&nmr.jcoup.force.2.$count;
+    	    		  	        jcoef1=&nmr.jcoup.coef.1.$count;
+    	    		  	        jcoef2=&nmr.jcoup.coef.2.$count;
+    	    		  	        jcoef3=&nmr.jcoup.coef.3.$count;
+    	    		  	        jcoef4=&nmr.jcoup.coef.4.$count; )
+   	 end if
+   	 evaluate ($count = $count + 1)
+      end loop nloop
+      
+      couplings print threshold 10.0 all end
+      evaluate (&num.coup = $number)
+      
+      if (&nmr.cdih.file # "") then
+         evaluate ($rstr_num=1600)
+         restraints dihed reset
+            nassign $rstr_num
+              @@&nmr.cdih.file
+         end
+      end if 
+      
+      print threshold = 50.0 cdih 
+      evaluate (&num.cdih = $number)
+   end if
+
+{- format header -}
+
+if (&flag.cv.flag=false) then
+   buffer calchead
+      reset
+      display The macromolecule has &output.rsn.num residues
+      display Number of accepted structures is &output.accept.count / &output.trial.count
+   end
+else
+   buffer calchead
+      reset
+      display The macromolecule has &output.rsn.num residues
+      display Number of accepted structures is &output.accept.count / &output.trial.count
+      display There were &nmr.cv.numpart cross-validation partitions
+   end
+end if
+
+buffer calchead
+   display Molecular dynamics scheme : $md_schem 
+   display High temperature dynamics : 
+   display      $hot_func 
+   display 1st cooling stage         :
+   display      $cool_func
+   display 2nd cooling stage $used_flag: 
+   display      $cart_func
+   display an average of &ave.pow.num[F6.1] +/- &ave2.pow.num[F6.2] steps of minimization
+   display VDW scale factors $vdw_scale
+   display &num.noe NOEs in &output.noe.class.num class(es) with scale factors of $noe_scale
+   display      averaging function(s): $noeave
+   display &num.coup 3-bond j-couplings in &output.jcoup.class.num class(es) with 
+   display      scale factor(s) of $jcoup_scale
+   display &num.oneb 1-bond j-couplings in &output.oneb.class.num class(es) with
+   display      scale factor(s) of $oneb_scale
+   display &num.carb carbon chemical shifts in &output.carb.class.num class(es) with
+   display      scale factor(s) of $carb_scale
+   display &num.prot.all proton chemical shifts in &output.prot.class.num class(es) with
+   display      scale factor(s) of $prot_scale
+   display &num.dani diffusion anisotropy restraints in &output.dani.class.num class(es) with
+   display      scale factor(s) of $dani_scale
+   display &num.sani susceptability anisotropy restraints in &output.sani.class.num class(es) with
+   display      scale factor(s) of $sani_scale
+   display &num.cdih dihedral restraints with scale factors of $cdih_scale
+   display &num.plan planarity restraints with a scale factor of $pscale
+   display NCS restraints $ncs_flag
+end
+
+buffer calcviol
+   reset
+   display          viol   +/-  sd       rmsd   +/- sd 
+   display Bond   : &ave.viol.bond[F6.2] +/- &ave2.viol.bond[F7.3]   &ave.rms.bond[F6.4] \
++/- &ave2.rms.bond[F7.5]
+   display Angl   : &ave.viol.angl[F6.2] +/- &ave2.viol.angl[F7.3]   &ave.rms.angl[F6.4] \
++/- &ave2.rms.angl[F6.4]
+   display Impr   : &ave.viol.impr[F6.2] +/- &ave2.viol.impr[F7.3]   \
+&ave.rms.impr[F6.4] +/- &ave2.rms.impr[F6.4]
+   display VDW    : &ave.viol.vdw[F6.2] +/- &ave2.viol.vdw[F7.3]
+   display Dihed  : &ave.viol.dihe[F6.2] +/- &ave2.viol.dihe[F7.3]   &ave.rms.dihe[F6.3] \
++/- &ave2.rms.dihe[F6.4]
+   display =============================================================== 
+   display          viol   +/-  sd       rmsd   +/-  sd      viol2   sd
+   display NOE    : &ave.viol.noe.5[F6.2] +/- &ave2.viol.noe.5[F7.3]  &ave.rms.noe[F7.4] +/- \
+&ave2.rms.noe[F7.4] &ave.viol.noe.2[F6.2] &ave2.viol.noe.2[F7.3]
+   display cdih   : &ave.viol.cdih.5[F6.2] +/- &ave2.viol.cdih.5[F7.3]  &ave.rms.cdih[F7.4] +/- \
+&ave2.rms.cdih[F7.4] &ave.viol.cdih.2[F6.2] &ave2.viol.cdih.2[F7.3]
+   display J-coup : &ave.viol.jcoup.1[F6.2] +/- &ave2.viol.jcoup.1[F7.3]  &ave.rms.jcoup[F7.4] +/- \
+&ave2.rms.jcoup[F7.4] &ave.viol.jcoup.2[F6.2] &ave2.viol.jcoup.2[F7.3]
+   display Oneb   : &ave.viol.oneb[F6.2] +/- &ave2.viol.oneb[F7.3]  &ave.rms.oneb[F7.4] +/- \
+&ave2.rms.oneb[F7.4]
+   display =============================================================== 
+   display          viol   +/-  sd     rmsd A +/-  sd     rmsd B +/- sd
+   display Carb   : &ave.viol.carb[F6.2] +/- &ave2.viol.carb[F6.3]  &ave.rms.carb.a[F6.3] +/- \
+&ave2.rms.carb.a[F6.3]  &ave.rms.carb.b[F6.3] +/- &ave2.rms.carb.b[F6.3]
+   display =============================================================== 
+   display Protons  viol   +/-  sd       rmsd   +/-  sd 
+   display all    : &ave.viol.prot.all[F6.2] +/- &ave2.viol.prot.all[F7.3]  \
+&ave.rms.prot.all[F7.4] +/- &ave2.rms.prot.all[F7.4] 
+   display class 1: &ave.viol.prot.P1[F6.2] +/- &ave2.viol.prot.P1[F7.3]  \
+&ave.rms.prot.P1[F7.4] +/- &ave2.rms.prot.P1[F7.4] 
+   display class 2: &ave.viol.prot.P2[F6.2] +/- &ave2.viol.prot.P2[F7.3]  \
+&ave.rms.prot.P2[F7.4] +/- &ave2.rms.prot.P2[F7.4] 
+   display class 3: &ave.viol.prot.P3[F6.2] +/- &ave2.viol.prot.P3[F7.3]  \
+&ave.rms.prot.P3[F7.4] +/- &ave2.rms.prot.P3[F7.4]
+   display class 4: &ave.viol.prot.P4[F6.2] +/- &ave2.viol.prot.P4[F7.3]  \
+&ave.rms.prot.P4[F7.4] +/- &ave2.rms.prot.P4[F7.4]
+   display =============================================================== 
+   display          viol   +/-  sd       rmsd   +/-  sd      viol2/1 sd
+   display dani   : &ave.viol.dani.1[F6.2] +/- &ave2.viol.dani.1[F7.3]  &ave.rms.dani[F7.4] +/- \
+&ave2.rms.dani[F7.4] &ave.viol.dani.2[F6.2] &ave2.viol.dani.2[F7.3]
+   display sani   : &ave.viol.sani.10[F6.2] +/- &ave2.viol.sani.10[F7.3]  &ave.rms.sani[F7.4] +/- \
+&ave2.rms.sani[F7.4] &ave.viol.sani.01[F6.2] &ave2.viol.sani.01[F7.3]
+end
+
+if (&flag.cv.flag=true) then
+   buffer calcviol
+      display =============================================================== 
+      display Cross-validation on NOE, j-coupling, dihedral restraints
+      display                 viol  +/-   sd      rmsd   +/- sd
+      display NOE    (>0.2): &ave.test.viol.noe[F6.2] +/- &ave2.test.viol.noe[F7.3]  \
+&ave.test.rms.noe[F7.4] +/- &ave2.test.rms.noe[F7.5]
+      display J-coup (>0.2): &ave.test.viol.coup[F6.2] +/- &ave2.test.viol.coup[F7.3]  \
+&ave.test.rms.coup[F7.4] +/- &ave2.test.rms.coup[F7.5]
+      display cdih   (>2.0): &ave.test.viol.cdih[F6.2] +/- &ave2.test.viol.cdih[F7.3]  \
+&ave.test.rms.cdih[F7.4] +/- &ave2.test.rms.cdih[F7.5]
+   end
+end if
+
+buffer calcener
+   reset
+   display overall = &ener1.ovrl[F8.2] +/- &ener2.ovrl[F8.2]
+   display bond    = &ener1.bond[F8.2] +/- &ener2.bond[F8.2]
+   display angle   = &ener1.angl[F8.2] +/- &ener2.angl[F8.2]
+   display improp  = &ener1.impr[F8.2] +/- &ener2.impr[F8.2]
+   display vdw     = &ener1.vdw[F8.2] +/- &ener2.vdw[F8.2]
+end
+
+if (&output.nucl.num >0) then
+   buffer calcener
+      display dihed   = &ener1.dihe[F8.2] +/- &ener2.dihe[F8.2]
+      display elect   = &ener1.elec[F8.2] +/- &ener2.elec[F8.2]
+   end
+end if
+
+buffer calcener
+   display harm    = &ener1.harm[F8.2] +/- &ener2.harm[F8.2]
+   display noe     = &ener1.noe[F8.2] +/- &ener2.noe[F8.2]
+   display coup    = &ener1.jcop[F8.2] +/- &ener2.jcop[F8.2]
+   display oneb    = &ener1.oneb[F8.2] +/- &ener2.oneb[F8.2]
+   display carb    = &ener1.carb[F8.2] +/- &ener2.carb[F8.2]
+   display prot    = &ener1.prot[F8.2] +/- &ener2.prot[F8.2]
+   display dani    = &ener1.dani[F8.2] +/- &ener2.dani[F8.2]
+   display sani    = &ener1.sani[F8.2] +/- &ener2.sani[F8.2]
+   display cdih    = &ener1.cdih[F8.2] +/- &ener2.cdih[F8.2]
+end
+
+if (&output.nucl.num >0) then
+   buffer calcener
+      display plan    = &ener1.plan[F8.2] +/- &ener2.plan[F8.2]
+      display ncs     = &ener1.ncs[F8.2] +/- &ener2.ncs[F8.2]
+   end
+else
+   buffer calcener
+      display ncs     = &ener1.ncs[F8.2] +/- &ener2.ncs[F8.2]
+   end
+end if
+
+buffer calccoor
+   reset
+   display rms around the mean for selection   = &ave.rms.atom.slct[F6.3] +/- &ave2.rms.atom.slct[F6.4]
+   display rms around the mean for non-h atoms = &ave.rms.atom.all[F6.3] +/- &ave2.rms.atom.all[F6.4]
+end
+
+{- print remarks/diplay header and coordinates -}
+
+set remarks=reset end
+set remarks=accu end
+
+if (&flag.calc.ave.struct=true) then
+
+   if ($average_flag=true) then
+   
+      buffer calchead
+         to remarks
+         flush
+      end
+      remarks ===============================================================
+      buffer calcviol
+         to remarks
+         flush
+      end
+      remarks ===============================================================
+      buffer calcener
+         to remarks
+         flush
+      end
+      remarks ===============================================================
+      buffer calccoor
+         to remarks
+         flush
+      end
+      remarks ===============================================================
+
+      if (&flag.calc.ave.accpt=true) then
+         if (&output.accept.count > 0) then
+            evaluate ($filename=&pdb.out.name + "_accepted_ave.pdb")
+            write coordinates  output=$filename format=PDBO end
+         end if
+      else
+         evaluate ($filename=&pdb.out.name + "_trial_ave.pdb")
+         write coordinates  output=$filename format=PDBO end
+      end if
+   end if
+
+elseif (&flag.cv.flag=true) then
+
+   if (&flag.calc.ave.accpt=true) then
+      evaluate ($resultfile=&pdb.out.name + "_accepted.results")
+   else
+      evaluate ($resultfile=&pdb.out.name + "_trial.results")
+   end if
+
+   set display=$resultfile end
+
+   buffer calchead
+      to display
+      flush
+   end
+   display ===============================================================
+   buffer calcviol
+      to display
+      flush
+   end
+   display ===============================================================
+   buffer calcener
+      to display
+      flush
+   end
+   display ===============================================================
+
+   close $resultfile end
+   
+end if
+
+set message=$message_old echo=$echo_old end

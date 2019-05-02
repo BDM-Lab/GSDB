@@ -1,0 +1,86 @@
+remarks test file: connect.inp
+remarks  connectivity feature
+remarks
+
+topology
+  remarks topology
+  remarks
+  !
+  mass TA 1.0
+  mass TB 1.0
+  mass TC 1.0
+  !
+  residue GRAP
+    atom A type TA end
+    atom B type TB end
+    atom C type TC end
+    atom D type TA end
+    atom E type TB end
+    atom F type TC end
+    atom G type TA end
+    atom H type TB end
+    atom I type TC end
+    atom J type TA end
+    atom K type TB end
+    atom L type TC end
+    !
+    bond A B 
+    bond B C 
+    bond C D
+    bond D E
+    bond E A
+    bond C A
+    bond D A
+    !
+    bond F G 
+    bond F G
+    bond F G
+    bond G H
+    ! 
+    bond I J
+    bond J K
+    bond K I
+    !
+  end
+  !
+end !topology
+!
+segment
+  name=main
+  molecule 
+     name=GRAP number=2
+  end
+end
+!
+connectivity
+    print=true selection=(all)
+end
+
+display  $mset
+
+connectivity
+    print=true selection=(all)
+    setidto=rmsd  
+end
+
+show elem ( rmsd ) ( all ) 
+
+connectivity
+    print=true selection=(all)
+    setidto=rmsd  nsetto=fbeta
+end
+
+show elem ( rmsd ) ( all ) 
+show elem ( fbeta ) ( all ) 
+
+connectivity
+    print=true selection=(all)
+    setidto=store1  nsetto=store2 
+end
+
+show elem ( store1 ) ( all ) 
+show elem ( store2 ) ( all ) 
+
+
+!
+stop

@@ -1,0 +1,59 @@
+mmdg {<mmdg-statement>} end
+
+<mmdg-statement> :==
+
+  ?
+  --{Prints current status.}
+  writebounds=<filename>
+  --{Smoothed bounds matrices are written to this file, no 
+     metrization or embedding are performed.}
+  readbounds=<filename>
+  --{Read smoothed bounds matrices from this file, then metrization
+     and embedding are performed.}
+  storebounds
+  --{Smoothed bounds matrices are stored in memory, no metrization
+     or embedding are performed. This is required for subsequent 
+     calls with recallbounds or for using the dg energy term.}
+  recallbounds 
+  --{Recall smoothed bounds matrices from memory, metrization and 
+     embedding are then performed.}
+  reference=parameter|coordinate
+  --{Use parameters or coordinates to fill distances for bonds, 
+     angles, and unique dihedrals or impropers. Takes information
+     from reference coordinates for refe=coordinate.}
+  verbose=<logical>
+  --{Prints verbose information. Default=false}
+  baccuracy=<real>
+  --{Accuracy for bounds based on bonds (in Angstroms).}
+  taccuracy=<real>
+  --{Accuracy for bounds based on angles (degrees).}
+  paccuracy=<real>
+  --{Accuracy for bounds based on dihedrals (degrees).}
+  iaccuracy=<real>
+  --{Accuracy for bounds based in impropers (degrees).}
+  group <atom-selection> <real>
+  --{Atom selection and accuracy for rigid group. Takes information 
+     from the main coordinates.}
+  substructure=<atom-selection>
+  --{Selects atoms to be embedded. Default=(all)}
+  metrization <atom-selection> <real>
+  --{Atom selection and number of picked subset of atoms that are 
+     used for metrization. Bound smoothing is applied to other
+     atoms. Default=(none)}
+  random|ordered
+  --{Mutually exclusive options for ordered or random metrization.}
+  shortest_path_algorithm=auto|full|sparse
+  --{select shortest path algorithm for bound smoothing. Default=auto}
+  scale=<real>
+  --{Scale factor for the dg energy term.}
+  exponent=<integer>
+  --{Exponent for dg energy term.}
+  selection=<atom-selection>
+  --{Select atoms to be included in distance geometry energy term.}
+
+  --{All steps of distance geometry calculations (initialization, 
+     metrization, smoothing, and embedding) are executed by default
+     unless storebounds, writebounds, recallbounds or readbounds are
+     specified.}
+  --{For automatic pseudoatom correction a template coordinate set 
+     must be present in the reference coordinate set (refx, refy, refz).}

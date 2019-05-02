@@ -1,0 +1,157 @@
+! Module file: calculate_r
+!
+! CNS module
+! ************
+!
+! Authors: Axel Brunger and Paul Adams
+!
+! copyright Yale University
+!
+! Function:
+!    Calculates crystallographic R-values
+!
+! Requirements:
+!    Needs to be called within xray
+
+module {calculate_r}
+
+(
+&fobs=fobs;
+&fcalc=fcalc;
+&fpart=fpart;
+&sel=all;
+&sel_test=none;
+
+&print=false;  ! if true, writes R value distributions as a function of resolution to the file specified by "&output"
+               ! if false, only writes the overall R values to &output
+
+&output=OUTPUT;
+&r=$r;
+&test_r=$test_r;
+
+&calc_r_stats=false; !flag indicating to compute compound symbol that contains the R value distribution and completeness
+&r_stats=$r_stats;   !compound symbol that contains R value distributions and completeness
+!  r_stats.nbins           ! number of bins
+!  r_stats.<i>.high        ! high resolution limit for bin <i>
+!  r_stats.<i>.low         ! low resolution limit for bin <i>
+!  r_stats.<i>.nref_work   ! number of reflections in working set for bin <i>
+!  r_stats.<i>.nref_free   ! number of reflections in test set for bin <i>
+!  r_stats.<i>.value_comp  ! completeness (work + test set) for bin <i>
+!  r_stats.<i>.value_work  ! working R value for bin <i>
+!  r_stats.<i>.value_free  ! free R value for bin <i>
+
+)
+
+set message ? end
+evaluate ($message_old=$result)
+set echo ? end
+evaluate ($echo_old=$result)
+if ( $log_level = verbose ) then
+  set echo=on message=normal end
+else
+  set echo=off message=off end
+end if
+
+set display=? end
+evaluate ($curr_display=$result)
+
+checkversion 1.3
+
+show sum(1) (&sel)
+
+if ( $result <= 0 ) then
+  display Error: no reflections are selected for calculation
+  display        aborting program
+  abort
+end if
+
+set display=&output end
+
+show sum(1) (&sel_test)
+
+if ( $result > 0 ) then
+
+  eval ($free_r_present=true) 
+
+  if ( &print = true ) then
+    display ============================================
+    display      R-value by resolution for test set
+    display ============================================
+  end if
+  statistics
+      (rvalue(&fobs,&fcalc+&fpart))
+      selection=(&sel and &sel_test)
+      if ( &print = true) then output=&output end if
+  end
+    
+  if (&calc_r_stats=true) then
+    eval ($1=1)
+    while ( $1 <= $statistics.nbins ) loop stat
+      eval (&r_stats.$1.nref_free=$statistics.$1.nref)
+      eval (&r_stats.$1.value_free=$statistics.$1.value)
+      eval ($1=$1+1)
+    end loop stat
+  end if
+    
+  statistics overall
+    (rvalue[overall](&fobs,&fcalc+&fpart))
+    selection=(&sel and &sel_test)
+  end
+  evaluate (&test_r=$expression1)
+  display >>>> Overall R-value for test set: &test_r
+
+else
+  eval ($free_r_present=false)
+end if
+
+if ( &print = true ) then
+  display ============================================
+  display     R-value by resolution for working set
+  display ============================================
+end if
+
+statistics
+    (rvalue(&fobs,&fcalc+&fpart))
+    selection=(&sel and not &sel_test)
+    if ( &print = true) then output=&output end if
+end
+
+if (&calc_r_stats=true) then
+   eval (&r_stats.nbins=$statistics.nbins)
+   eval ($1=1)
+   while ( $1 <= $statistics.nbins ) loop stat2
+      eval (&r_stats.$1.high=$statistics.$1.high)
+      eval (&r_stats.$1.low=$statistics.$1.low)
+      eval (&r_stats.$1.nref_work=$statistics.$1.nref)
+      eval (&r_stats.$1.value_work=$statistics.$1.value)
+
+      if ($free_r_present=false) then
+        eval (&r_stats.$1.nref_free=0)
+        eval (&r_stats.$1.value_free=0)
+      end if
+
+      eval ($1=$1+1)
+   end loop stat2
+
+   statistics
+    completeness
+    selection=(&sel)
+   end
+
+   eval ($1=1)
+   while ( $1 <= $statistics.nbins ) loop stat3
+      eval (&r_stats.$1.value_comp=$statistics.$1.value)
+      eval ($1=$1+1)
+   end loop stat3
+end if
+
+statistics overall
+  (rvalue[overall](&fobs,&fcalc+&fpart))
+  selection=(&sel and not &sel_test)
+end
+evaluate (&r=$expression1)
+display >>>> Overall R-value for working set: &r
+
+set display=$curr_display end
+
+set message=$message_old echo=$echo_old end

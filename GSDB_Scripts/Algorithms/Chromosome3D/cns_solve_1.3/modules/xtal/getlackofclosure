@@ -1,0 +1,186 @@
+! CNS_XTALMODULE: getlackofclosure
+!
+! CNS module
+! **********
+!
+! Authors: Piet Gros and Axel T. Brunger
+!
+! copyright Yale University
+!
+! Function:
+! Compute lack-of-closure for each reflection
+!
+! Requirements:
+! 1. This module can only be used from within xray.
+! 2. Probability must be defined when &method="maxlike" or "anomaxlike"
+! 3. Phases for Fp must be defined when &method="chisquare" or "anochisquare"
+! 4. For anomalous differences ANOMalous must be TRUE and, thus, the
+!    arrays of domain=reciprocal (like structure factors) contain both
+!    the (+) and the (-) elements.
+!
+
+macro   {getlackofclosure}
+(
+   &method="maxlike"; {"centric" | "chisquare" | "maxlike" | 
+                       "anochisquare" | "anomaxlike" }
+
+   &messages="normal"; {set verbosity "normal" | "all" | "off"}
+
+   &loc;               {lack-of-closure}
+
+   &sel=(all);         {structure factor selection}
+
+   &fp=fobs;           {specify native data array}
+   &fh;                {specify heavy atom structure factor array}
+   &fph;               {specify derivative data array  }
+
+   &pa=pa;             {Hendrickson and Lattman A array}
+   &pb=pb;             {Hendrickson and Lattman B array}
+   &pc=pc;             {Hendrickson and Lattman C array}
+   &pd=pd;             {Hendrickson and Lattman D array}
+
+   &phistep=20;        {size of phase steps in integration}
+
+   &cen360=FALSE; { TRUE | FALSE (type logical); if TRUE a full 0...360 phase prob. distr. }
+                  { is used for centric reflections (useful if the "native"                }
+                  { structure factor has an anomalous signal).                             }
+)
+
+
+checkversion 1.3
+
+declare domain=reci type=real name=selected end {selected reflections}
+
+
+{*compute lack-of-closure*}
+
+if (&method = "chisquare") then	
+   {*CHISQUARE formulation*}
+
+   do (&loc=0) (all)     {initialize}
+
+   do (&loc=             {compute lack-of-closure}
+          (abs(&fh+&fp)-abs(&fph))^2
+         ) (&sel) 
+
+   if (&messages = "all") then
+         display GETLACKOFCLOSURE: individual chi-square closure errors on Fs
+         display GETLACKOFCLOSURE: expr= sqrt((| &fh + &fp |-| &fph |)^2)
+         show min (sqrt(&loc)) (&sel)
+         show max (sqrt(&loc)) (&sel)
+         show ave (sqrt(&loc)) (&sel)
+   end if
+
+
+elseif (&method = "anochisquare") then	
+
+   {*ANOmalousCHISQUARE formulation*}
+ 
+   do (selected=0) ( all )               {select Bijvoet pairs}
+   do (selected=1) ( friedel_pair(&sel) and acentric )
+
+   do (&loc=0) (all)            {initialize}
+
+   do (&loc=                    {compute lack-of-closure}
+          (
+           abs(&fh+&fp)-abs(friedel(&fh)+friedel(&fp))
+           -abs(&fph)+abs(friedel(&fph))
+          )^2
+         ) (selected=1) 
+
+   if (&messages = "all") then
+         display GETLACKOFCLOSURE: individual anomalous chi-square closure errors on Fs
+         display GETLACKOFCLOSURE: expr= sqrt(
+         display GETLACKOFCLOSURE:            (
+         display GETLACKOFCLOSURE:             (| &fh(+) + &fp(+) |-| &fh(-) + &fp(-) |)
+         display GETLACKOFCLOSURE:             -(| &fph(+) |-| &fph(-) |)
+         display GETLACKOFCLOSURE:            )^2
+         display GETLACKOFCLOSURE:           )
+         show min (sqrt(&loc)) (selected=1)
+         show max (sqrt(&loc)) (selected=1)
+         show ave (sqrt(&loc)) (selected=1)
+   end if
+
+
+elseif (&method = "maxlike") then
+
+    {*MAXimum-LIKElihood formulation*}
+
+   declare domain=reci type=real name=gl_pk end
+   @@CNS_XTALMODULE:normalizeprobability	        
+           (
+            sel=&sel;
+            pk=gl_pk;
+            pa=&pa;pb=&pb;pc=&pc;pd=&pd;
+            phistep=&phistep;
+            cen360=&cen360;
+           )
+
+   do (&loc=0) (all)   {initialize}
+   do (&loc=GET_ML[PHIStep=&phistep,CEN360=&cen360](abs(&fp),&fh,abs(&fph),1.,gl_pk,&pa,&pb,&pc,&pd)) ( &sel ) 
+
+   undeclare domain=reci name=gl_pk end
+
+   if (&messages = "all") then
+         display GETLACKOFCLOSURE: individual maximum-likelihood closure errors on Fs
+         display GETLACKOFCLOSURE: expr= sqrt(
+         display GETLACKOFCLOSURE:            Int
+         display GETLACKOFCLOSURE:            (
+         display GETLACKOFCLOSURE:             (| &fh + &fp(phi) |-| &fph |)^2 P(phi) dphi
+         display GETLACKOFCLOSURE:            )
+         display GETLACKOFCLOSURE:           )
+         show min (sqrt(&loc)) (&sel)
+         show max (sqrt(&loc)) (&sel)
+         show ave (sqrt(&loc)) (&sel)
+   end if
+
+elseif (&method = "anomaxlike") then
+
+    {*ANOmalous MAXimum-LIKElihood*}
+
+   do (selected=0) ( all )       {select Bijvoet pairs}
+   do (selected=1) ( friedel_pair(&sel) and acentric )
+
+   declare domain=reci type=real name=gl_pk end
+   @@CNS_XTALMODULE:normalizeprobability	        
+           (
+            sel=(selected=1);
+            pk=gl_pk;
+            pa=&pa;pb=&pb;pc=&pc;pd=&pd;
+            phistep=&phistep;
+            cen360=&cen360;
+           )
+
+   do (&loc=0) (all)   {initialize}
+
+   do (&loc=GET_AML[PHIStep=&phistep](abs(&fp),&fh,abs(&fph),1.,gl_pk,&pa,&pb,&pc,&pd)) (selected=1) 
+
+   undeclare domain=reci name=gl_pk end
+
+   if (&messages = "all") then
+         display GETLACKOFCLOSURE: individual anomalous maximum-likelihood closure errors on Fs
+         display GETLACKOFCLOSURE: expr= sqrt(
+         display GETLACKOFCLOSURE:            Int
+         display GETLACKOFCLOSURE:            (
+         display GETLACKOFCLOSURE:             (
+         display GETLACKOFCLOSURE:              (| &fh(+) + &fp(+)(phi) |-| &fh(-) + &fp(-)(-phi) |)
+         display GETLACKOFCLOSURE:              -(| &fph(+) |-| &fph(-) |)
+         display GETLACKOFCLOSURE:             )^2
+         display GETLACKOFCLOSURE:             P(phi) dphi
+         display GETLACKOFCLOSURE:            )
+         display GETLACKOFCLOSURE:           )
+         show min (sqrt(&loc)) (selected=1)
+         show max (sqrt(&loc)) (selected=1)
+         show ave (sqrt(&loc)) (selected=1)
+   end if
+
+else
+
+   display GETLACKOFCLOSURE-ERR: method &method not defined
+
+end if
+
+undeclare domain=reci name=selected end 
+
+
+

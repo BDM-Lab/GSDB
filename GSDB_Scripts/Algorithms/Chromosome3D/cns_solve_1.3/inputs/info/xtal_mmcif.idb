@@ -1,0 +1,166 @@
+###############################################################################
+# Parameter names matched in common.idb:
+#     a
+#     b
+#     c
+#     alpha
+#     beta
+#     gamma
+#     anom_library
+#     bscale
+#     coordinate_infile
+#     fft_memory
+#     high_res
+#     low_res_bscale
+#     low_res
+#     obs_f
+#     obs_fom
+#     obs_i
+#     obs_pa
+#     obs_pb
+#     obs_pc
+#     obs_pd
+#     obs_phase
+#     obs_rms
+#     obs_sigf
+#     obs_sigi
+#     obs_w
+#     parameter_infile_\d+
+#     reflection_infile_\d+
+#     sg
+#     sigma_cut
+#     structure_infile
+#     test_flag
+#     test_set
+#     bulk_mask_infile
+#     ncs_infile
+#     atom_select
+#     atom_main
+#     bulk_sol
+#     sol_b
+#     sol_k
+#     target_bins
+#     asig_main
+#     asig_side
+#     bsig_main
+#     bsig_side
+#     reftarget
+#     low_res_wilson
+#     conf_\d+
+###############################################################################
+#
+vars: entry_id
+info: String which is used as the mmCIF entry indentifier. This can be
+more than 1 character (but should not be too long).
+#
+vars: title
+info: Text providing some human readable information about the
+structure, for example the name of the molecule.
+#
+vars: topology_infile_\d+
+info: Input CNS topology file containing residue definitions.
+#
+vars: mod_fpart
+info: Complex reciprocal space array containing partial structure
+factors (for example, a previously calculated bulk solvent correction
+calculated). This is not normally used but may be required if the bulk
+solvent model has been calculated in a different program. It is
+suggested to use the internal bulk solvent correction in the CNS task
+files.
+#
+vars: cv_method
+info: String defining the cross-validation method used in the
+structure determination. Usually cross-validation should be used
+throughout the refinement (from the very start). If cross-validation
+has been used a posteriori (at the end of refinement) then bias in the
+test set should be removed by simulated annealing refinement at high
+temperature (for example, 5000K).
+#
+vars: cv_select
+info: String defining the method for selecting cross-validation
+reflections. If the test set has been generated using CNS then this
+will be random. If another program has been used to generate the test
+set other options may have been used (for example to use of thin
+shells for structures with NCS).
+#
+vars: low_res_cut
+info: The lower resolution limit in &Aring; for calculation of
+coordinate error using the Luzzati (Luzzati P.V. (1952). Acta
+Cryst. 5, 802-810) and Sigma-A (Read R.J. (1986). Acta Cryst. A42,
+140-149) plots. The suggested value is 5&Aring;. This makes the
+calculation independent of the bulk solvent model.
+#
+vars: mbins
+info: Number of equal volume resolution bins for reporting reciprocal
+space statistics. Bin limits are calculated such that an approximately
+equal number of reflections are in each bin. A value of 10 is
+suggested for most structures. A larger value may be better if there
+are many reflections (large unit cell or very high resolution).
+#
+vars: bfactor_model
+info: String indicating the atomic B-value model used in
+refinement. For structures are medium to high resolution a restrained
+individual B-value model is used. At lower resolution it may be only
+possible to use a group B-value model (with one or two B-values per
+residue). At very low resolution it may only be possible to apply an
+overall B-value to all atoms (this is not usual).
+#
+vars: atom_poly
+info: Atom selection specifying those atoms which belong to
+macromolecular polymers such as protein and nucleic acid. This is
+required to allow the reporting of some statistics based on atom type.
+#
+vars: atom_nonpoly
+info: Atom selection specifying those atoms which do not belong to
+macromolecular polymers such as protein and nucleic acid. This
+includes ligands, ions and non-polymer atoms covalently attached to
+polymers. This is required to allow the reporting of some statistics
+based on atom type.
+#
+vars: atom_water
+info: Atom selection specifying those atoms which belong to water
+molecules. This is required to allow the reporting of some statistics
+based on atom type.
+#
+vars: chain_sele_\d+
+info: Atom selection specifying atoms which are part of a molecular
+chain. A molecular chain is a chemically district entity, for example
+a single polypeptide chain or a polypeptide chain with breaks. Each
+occurance of a chain must be identified separately (for example, if
+there were 2copies of the same protein in the asymmetric unit they
+would both be listed and given different chain names).
+#
+vars: chain_name_\d+
+info: String defining the chain name for a selected set of atoms. This
+name can be more than 1 character in length. This is used later to
+indentify chains by molecular entities.
+#
+vars: entity_name_\d+
+info: String defining the name of a molecular entitity in the
+asymmetric unit. For example, if there are 2 copies of a trypsin like
+enzyme in the asymmetric unit they could be given the molecular entity
+name of TRYP.
+#
+vars: entity_chains_\d+
+info: Text string listing the molecular chains which are of the define
+molecular entitity. For example, if there are 2 copies of the same
+protein in the asymmetric unit they would both be listed here as
+"MOL_A MOL_B" (assuming their chain names had previously been given as
+MOL_A and MOL_B). 
+#
+vars: deposit_outfile
+info: Output file in mmCIF format for structure deposition.
+#
+vars: sol_auto
+info: automatic bulk solvent parameter search
+#
+vars: sol_output
+info: optional file with a listing of the results of the automatic bulk solvent grid
+search
+#
+vars: sol_rad
+info: solvent mask parameter
+#
+vars: sol_shrink
+info: solvent mask parameter
+#

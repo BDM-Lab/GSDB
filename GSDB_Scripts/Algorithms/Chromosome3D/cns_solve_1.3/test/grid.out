@@ -1,0 +1,209 @@
+          ============================================================
+          |                                                          |
+          |            Crystallography & NMR System (CNS)            |
+          |                         CNSsolve                         |
+          |                                                          |
+          ============================================================
+           Version: 1.3
+           Status: General release
+          ============================================================
+           Written by: A.T.Brunger, P.D.Adams, G.M.Clore, W.L.DeLano,
+                       P.Gros, R.W.Grosse-Kunstleve,J.-S.Jiang,J.M.Krahn,
+                       J.Kuszewski, M.Nilges, N.S.Pannu, R.J.Read,
+                       L.M.Rice, G.F.Schroeder, T.Simonson, G.L.Warren.
+           Copyright (c) 1997-2010 Yale University
+          ============================================================
+           Running on machine: lewis4-r710-login-node223 (x86_64/Linux,64-bit)
+                               with 16 threads
+           Program started by: oeow39
+           Program started at: 16:08:00 on 05-Jul-2018
+          ============================================================
+
+ FFT3C: Using FFTPACK4.1
+
+ CNSsolve>remark 
+ CNSsolve>remark  GRIDTEST1 
+ CNSsolve>remark 
+ CNSsolve>remark  tests grid-based nonbonded pairlist generation 
+ CNSsolve> 
+ CNSsolve>{* topology: protein *} 
+ CNSsolve> 
+ CNSsolve>param 
+ PARRDR>   @CNS_TOPPAR:protein.param 
+ ASSFIL: file protein.param opened.
+ PARRDR>remarks file toppar/protein.param 
+ PARRDR>remarks   protein parameters with Lennard-Jones van der Waals parameters 
+ PARRDR>remarks   for crystallographic structure determination 
+ PARRDR> 
+ PARRDR>! 
+ PARRDR>! Please cite the following reference when using these parameters: 
+ PARRDR>! Engh, R.A. and  Huber, R. (1991). Accurate Bond and 
+ PARRDR>!  Angle Parameters for X-ray Protein-Structure Refinement, 
+ PARRDR>!  Acta Cryst. A47, 392-400. 
+ PARRDR>! 
+ PARRDR>! 
+ PARRDR> 
+ PARRDR>set message ? end eval ($old_message=$result) set echo ? end eval ($old_echo=$result) 
+ MESSage=NORM
+ EVALUATE: symbol $OLD_MESSAGE set to "NORM" (string)
+ ECHO=TRUE {ON}
+ EVALUATE: symbol $OLD_ECHO set to TRUE (logical)
+ PARRDR>set message=off echo=off end 
+ PARRDR> 
+ PARRDR>   @CNS_TOPPAR:water.param 
+ ASSFIL: file water.param opened.
+ PARRDR>remarks file toppar/water.param 
+ PARRDR>remarks   water parameters for structure determination 
+ PARRDR>remarks 
+ PARRDR>remarks   available: Jorgensen TIPS3P model 
+ PARRDR> 
+ PARRDR>set message ? end eval ($old_message=$result) set echo ? end eval ($old_echo=$result) 
+ MESSage=NORM
+ EVALUATE: symbol $OLD_MESSAGE set to "NORM" (string)
+ ECHO=TRUE {ON}
+ EVALUATE: symbol $OLD_ECHO set to TRUE (logical)
+ PARRDR>set message=off echo=off end 
+ PARRDR> 
+ PARRDR>end 
+ CNSsolve> 
+ CNSsolve>stru 
+ STRUcture>data_cns_mtf 
+ REMARKS FILENAME="/data/rwgk/test/tmp.mtf"
+ REMARKS  TOPH19.pep -MACRO for protein sequence
+ REMARKS DATE:18-Nov-98  14:17:39       created by user: rwgk
+ REMARKS VERSION:0.4a
+ Status of internal molecular topology database:
+ -> NATOM=       3814(MAXA=     1000000)  NBOND=       3555(MAXB=     1000000)
+ -> NTHETA=      4504(MAXT=     2000000)  NGRP=         641(MAXGRP=   1000000)
+ -> NPHI=        1597(MAXP=     2000000)  NIMPHI=      1436(MAXIMP=   1000000)
+ -> NNB=            0(MAXNB=    1000000) 
+ STRUcture> 
+ STRUcture>end 
+ CNSsolve> 
+ CNSsolve>coor 
+ COOR>REMARK FILENAME="" 
+ COOR>REMARK  TOPH19.pep -MACRO for protein sequence 
+ COOR>REMARK DATE:22-Feb-92  23:17:46       created by user: 
+ COOR>ATOM      1  CB  ALA     1      35.524  32.341   2.722  1.00 36.35      PROT 
+ COOR>ATOM      2  C   ALA     1      35.785  29.924   1.847  1.00 36.50      PROT 
+ CNSsolve> 
+ CNSsolve> 
+ CNSsolve>xray 
+ XRAY> 
+ XRAY>   a=97.37 b=46.64 c=65.47 alpha=90. beta=115.4 gamma=90. 
+ XRAY> 
+ XRAY>   symmetry=(x,y,z)     { C2 } 
+ XRAY>   symmetry=(-x,y,-z) 
+ XRAY>   symmetry=(1/2+x,1/2+y,z) 
+ XRAY>   symmetry=(1/2-x,1/2+y,-z) 
+ XRAY> 
+ XRAY>end 
+ CNSsolve> 
+ CNSsolve>{* set wmin to something smaller *} 
+ CNSsolve>param 
+ PARRDR>   nbonds 
+ NBDSET>      wmin=0.9 
+ NBDSET>   end 
+ PARRDR>end 
+ CNSsolve> 
+ CNSsolve>{* turn the symmetry on *} 
+ CNSsolve>flags include pvdw pele ? end 
+ EFLAGS: the following energy flags are set
+ EFLAGS: BOND ANGL DIHE IMPR VDW  ELEC PVDW PELE
+ CNSsolve> 
+ CNSsolve>{* do an energy predict mode=reciprocal to=fcalc end first *} 
+ CNSsolve>energy end 
+ NBONDS: generating intra-molecular exclusion list with mode= 5
+ MAKINB: mode   5 found   8059 exclusions and   5252 interactions(1-4)
+ NBONDS: found   167777 intra-atom interactions
+ NBONDS: found    34461 symmetry-atom interactions
+ --------------- cycle=     1 --------------------------------------------------
+ | Etotal =-2150.127  grad(E)=103.448    E(BOND)=1284.930   E(ANGL)=5534.180   |
+ | E(DIHE)=1668.744   E(IMPR)=1242.182   E(VDW )=-749.010   E(ELEC)=-11104.842 |
+ | E(PVDW)=68.243     E(PELE)=-94.553                                          |
+ -------------------------------------------------------------------------------
+ CNSsolve>param nbonds ? end end 
+ -----nonbonded-list-options-------------------------------
+ | CUTNb=   7.500 TOLErance=   0.500 WMIN=   0.900 ATOM   |
+ | INHIbit=   0.250                                       |
+ -----electrostatic options--------------------------------
+ | EPS=   1.000 E14Fac=   0.400 CDIElectric POTEN SHIFt   |
+ -----van der Waals options--------------------------------
+ | VSWItch                                                |
+ -----switching /shifting parameters-----------------------
+ | CTONNB=   6.000 CTOFNB=   6.500                        |
+ -----exclusion list options-------------------------------
+ | NBXMOD=   5                                            |
+ ----------------------------------------------------------
+ CNSsolve> 
+ CNSsolve>{* turn the timer on *} 
+ CNSsolve>set timing=on end 
+ CNSsolve> 
+ CNSsolve>{* predict mode=reciprocal to=fcalc end the pairlist using normal method *} 
+ CNSsolve>energy end 
+ ENERGY: at entry  CPU=    0.162148 sec.
+ ENERGY: after BOND term  CPU=    0.163992 sec.
+ ENERGY: after ANGLE term  CPU=    0.167025 sec.
+ ENERGY: after DIHEdral term  CPU=    0.169789 sec.
+ ENERGY: after IMPRoper term  CPU=    0.172266 sec.
+ ENBOND: after parameter lookup CPU=    0.172547 sec.
+ NBONDS: at entry CPU=    0.172554 sec.
+ NBONDS: generating intra-molecular exclusion list with mode= 5
+ MAKINB: mode   5 found   8059 exclusions and   5252 interactions(1-4)
+ NBONDS: after excl.  CPU=    0.177583 sec.
+ NBONDS: found   167777 intra-atom interactions
+ NBONDS: found    34461 symmetry-atom interactions
+ NBONDS: at exit CPU=    0.211868 sec.
+ ENBOND: after intra interactions CPU=    0.216164 sec.
+ ENBOND: after 1-4 interactions CPU=    0.216437 sec.
+ ENBOND: after symmetry interact. CPU=    0.218202 sec.
+ ENERGY: after NONBonded term  CPU=    0.218213 sec.
+ --------------- cycle=     2 --------------------------------------------------
+ | Etotal =-2150.127  grad(E)=103.448    E(BOND)=1284.930   E(ANGL)=5534.180   |
+ | E(DIHE)=1668.744   E(IMPR)=1242.182   E(VDW )=-749.010   E(ELEC)=-11104.842 |
+ | E(PVDW)=68.243     E(PELE)=-94.553                                          |
+ -------------------------------------------------------------------------------
+ CNSsolve> 
+ CNSsolve>{* turn on the grid-based method *} 
+ CNSsolve>fastnb 
+ FASTNB>   grid 
+ FASTNB>   ? 
+ -----fast-nonbonded-options-------------------------------
+ | GRID                                                   |
+ ----------------------------------------------------------
+ FASTNB>end 
+ CNSsolve> 
+ CNSsolve>{* predict mode=reciprocal to=fcalc end the pairlist using grid method *} 
+ CNSsolve>energy end 
+ ENERGY: at entry  CPU=    0.218363 sec.
+ ENERGY: after BOND term  CPU=    0.218493 sec.
+ ENERGY: after ANGLE term  CPU=    0.218990 sec.
+ ENERGY: after DIHEdral term  CPU=    0.219308 sec.
+ ENERGY: after IMPRoper term  CPU=    0.219686 sec.
+ NBONDS: at entry CPU=    0.219696 sec.
+ NBONDS: generating intra-molecular exclusion list with mode= 5
+ MAKINB: mode   5 found   8059 exclusions and   5252 interactions(1-4)
+ NBONDS: after excl.  CPU=    0.224977 sec.
+ BOX: Macro box size   4  4  3
+ BOX: Number of boxes filled  38
+ NBONDS: found   167777 intra-atom interactions
+ NBONDS: found    34461 symmetry-atom interactions
+ NBONDS: at exit CPU=    0.263880 sec.
+ ENBOND: after intra interactions CPU=    0.268262 sec.
+ ENBOND: after 1-4 interactions CPU=    0.268546 sec.
+ ENBOND: after symmetry interact. CPU=    0.270332 sec.
+ ENERGY: after NONBonded term  CPU=    0.270345 sec.
+ --------------- cycle=     3 --------------------------------------------------
+ | Etotal =-2150.127  grad(E)=103.448    E(BOND)=1284.930   E(ANGL)=5534.180   |
+ | E(DIHE)=1668.744   E(IMPR)=1242.182   E(VDW )=-749.010   E(ELEC)=-11104.842 |
+ | E(PVDW)=68.243     E(PELE)=-94.553                                          |
+ -------------------------------------------------------------------------------
+ CNSsolve> 
+ CNSsolve>stop 
+          ============================================================
+           Maximum dynamic memory allocation:    12043224 bytes
+           Maximum dynamic memory overhead:          2080 bytes
+           Program started at: 16:08:00 on 05-Jul-2018
+           Program stopped at: 16:08:01 on 05-Jul-2018
+           CPU time used:       0.2731 seconds
+          ============================================================

@@ -1,0 +1,30 @@
+###############################################################################
+#                                                                             #
+#       Machine dependent Makefile header for CNSsolve                        #
+#       Paul Adams  20-10-98                                                  #
+#       copyright Yale University                                             #
+#                                                                             #
+###############################################################################
+
+TMP=.
+
+cns_solve.exe: $(OBJECTS)
+	df /nologo /fpscomp /exe:cns_solve.exe $(OBJECTS)
+
+.f.obj:
+	df /nologo /c /fast $*.f
+
+.c.obj:
+	cl /DCNS_ARCH_TYPE_WIN32 /c $*.c
+
+#
+# utilities
+#
+
+space:
+	del *.obj
+
+clean:
+        del cns.exe
+        del *.obj
+#

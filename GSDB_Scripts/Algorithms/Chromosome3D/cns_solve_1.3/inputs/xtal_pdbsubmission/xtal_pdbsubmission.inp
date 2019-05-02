@@ -1,0 +1,783 @@
+{+ file: xtal_pdbsubmission.inp +}
+{+ directory: xtal_pdbsubmission +}
+{+ description: Produces partial information required for PDB submission +}
+{+ authors: Jian-Sheng Jiang and Axel T. Brunger +}
+{+ copyright: Yale University +}
+
+{- Guidelines for using this file:
+   - all strings must be quoted by double-quotes
+   - logical variables (true/false) are not quoted
+   - do not remove any evaluate statements from the file
+   - the selections store2 through store7 are available for general use -}
+
+{- begin block parameter definition -} define(
+
+{============================ coordinates ============================}
+
+{* coordinate file *}
+{===>} coordinate_infile="amy_anneal.pdb";
+
+{* optional final coordinate file refined without cross-validation *}
+{* leave blank if not needed *}
+{===>} nocv_coordinate_infile="";
+
+{==================== molecular information ==========================}
+
+{* topology files *}
+{===>} topology_infile_1="CNS_TOPPAR:protein.top";
+{===>} topology_infile_2="CNS_TOPPAR:dna-rna.top";
+{===>} topology_infile_3="CNS_TOPPAR:water.top";
+{===>} topology_infile_4="CNS_TOPPAR:ion.top";
+{===>} topology_infile_5="CNS_TOPPAR:carbohydrate.top";
+{===>} topology_infile_6="";
+{===>} topology_infile_7="";
+{===>} topology_infile_8="";
+
+{* linkage files for linear, continuous polymers (protein, DNA, RNA) *}
+{===>} link_infile_1="CNS_TOPPAR:protein.link";
+{===>} link_infile_2="CNS_TOPPAR:dna-rna-pho.link";
+{===>} link_infile_3="";
+
+{* parameter files *}
+{===>} parameter_infile_1="CNS_TOPPAR:protein_rep.param";
+{===>} parameter_infile_2="CNS_TOPPAR:dna-rna_rep.param";
+{===>} parameter_infile_3="CNS_TOPPAR:water_rep.param";
+{===>} parameter_infile_4="CNS_TOPPAR:ion.param";
+{===>} parameter_infile_5="CNS_TOPPAR:carbohydrate.param";
+{===>} parameter_infile_6="";
+{===>} parameter_infile_7="";
+{===>} parameter_infile_8="";
+
+{* molecular topology file: optional (leave blank for auto generation) *}
+{* 
+   Auto generation of the molecular topology from the coordinates should only 
+   be used if:
+   (1) Each distinct protein, DNA, or RNA chain must have a separate segid 
+       (or chainid if the chainid is non-blank). 
+   (2) Each contiguous protein, RNA, or RNA chain must not be disrupted by 
+       other types of residues or ligands.  Rather, these other residues 
+       should be listed after protein, RNA/DNA chains. 
+   (3) Disulphides are automatically detected based on distances between the sulfur atoms
+      (must be less than 3 A apart).
+   (4) Broken protein/RNA/DNA chains without terminii must be more than 2.5 A apart to be recognized as such.
+   (5) N-linked glycan links are automatically recognized if the bonded atoms are less than 2.5 A apart.
+   (6) Automatic generation cannot be used with alternate conformations. 
+   For ligands, the user must make suitable topology and parameter files.
+   For non-standard covalent linkages, the custom patch file should be used.
+   Alternatively, the generate.inp or generate_easy.inp task files
+   can be used to generated the mtf prior to running this task file.
+    *}
+{===>} structure_infile="amy.mtf";
+
+{* for auto generation: extra linkages and modifications by custom patches *}
+{===>} patch_infile="";
+
+
+{====================== crystallographic data ========================}
+
+{* space group *}
+{* use International Table conventions with subscripts substituted
+   by parenthesis *}
+{===>} sg="P2(1)2(1)2(1)";
+
+{* unit cell parameters in Angstroms and degrees *}
+{+ table: rows=1 "cell" cols=6 "a" "b" "c" "alpha" "beta" "gamma" +}
+{===>} a=61.76;
+{===>} b=40.73;
+{===>} c=26.74;
+{===>} alpha=90;
+{===>} beta=90;
+{===>} gamma=90;
+
+{* anomalous f' f'' library file *}
+{* If a file is not specified, no anomalous contribution will be included *}
+{+ choice: "CNS_XRAYLIB:anom_cu.lib" "CNS_XRAYLIB:anom_mo.lib" "" user_file +}
+{===>} anom_library="";
+
+{* reflection file *}
+{===>} reflection_infile_1="amy.cv";
+{===>} reflection_infile_2="";
+{===>} reflection_infile_3="";
+{===>} reflection_infile_4="";
+
+{* reciprocal space array containing observed amplitudes: required *}
+{===>} obs_f="fobs";
+
+{* reciprocal space array containing sigma values for amplitudes: required *}
+{===>} obs_sigf="sigma";
+
+{* reciprocal space array containing test set for cross-validation: required *}
+{===>} test_set="test";
+
+{* number for selection of test reflections: required *}
+{* ie. reflections with the test set array equal to this number will be
+       used for cross-validation, all other reflections form the working set *}
+{===>} test_flag=1;
+
+{* reciprocal space array containing weighting scheme for observed
+   amplitudes: optional *}
+{* this will default to a constant value of 1 if array is not present *}
+{===>} obs_w="weight";
+
+{* set PDB REMARKS record that indicates if resolution dependent weighting was used *} {- MODIFIED -}
+{+ choice: true false +}
+{===>} weighting=false;
+
+{* cross-validation method *}
+{+ choice: "none" "throughout" "a posteriori" +}
+{===>} cv_method="throughout";
+
+{* test set selection *}
+{+ choice: "random" "shells" "spheres" "everynth" "other" +}
+{===>} cv_select="random";
+
+{* resolution limits *}
+{* for most refinement target functions, unless a bulk solvent correction
+   is applied, data must be truncated at a lower resolution limit of
+   between 8 and 6 A. Any lower resolution limit can be used if a bulk
+   solvent correction is applied or the maximum likelihood target is used *}
+{+ table: rows=1 "resolution" cols=2 "lowest" "highest" +}
+{===>} low_res=500.0;
+{===>} high_res=2.0;
+
+{* Fobs/sigma amplitude cutoff *}
+{* reflections with |Fobs|/sigma_Fobs < cutoff will be rejected. *}
+{===>} f_cut=0.0;
+
+{* rms outlier cutoff *}
+{* reflections with |Fobs| > cutoff*rms(Fobs) will be rejected *}
+{===>} f_rms=10000;
+
+{* low resolution cutoff for coordinate error estimates *}
+{* this should be greater than or equal to the low resolution limit *}
+{===>} low_res_cut=5;
+
+{* low resolution cutoff for Wilson plot *}
+{* this should be greater than or equal to the low resolution limit *}
+{===>} low_res_wilson=3;
+
+{* number of equal volume reciprocal space bins *}
+{===>} mbins=6;
+
+{* memory allocation for FFT calculation *}
+{* this will be determined automatically if a negative value is given
+   otherwise the specified number of words will be allocated *}
+{===>} fft_memory=-1;
+
+{* NCS-constraints file name *}
+{* There are two modes of NCS relations in CNS:
+   strict: in this mode, the structure and coordinate files only define one
+           molecule ("protomer") in the asymmetric unit; the other NCS
+           molecules in relation to the first one are described by real 
+           space operators. The file defines the NCS matrixes and 
+           SKEW matrix (if any). 
+           An example is in xtal_data/eg1_ncs_strict.inp
+   restraints: in this mode, the structure and coordinate file contains
+               all NCS molecules in the asymmetric unit which are 
+               restrained to each other.  There is presently no automatic
+               CNS->PDB conversion to treat this situation.  The whole 
+               set of molecule(s) should be written. *}
+{* leave this blank if there is no strict NCS symmetry *}
+{===>} ncs_infile="";
+
+{============ initial B-factor and bulk solvent corrections ==========}
+
+{* overall B-factor correction *}
+{+ choice: "no" "isotropic" "anisotropic" +}
+{===>} bscale="anisotropic";
+
+{* bulk solvent correction *}
+{* a mask is required around the molecule(s). The region
+   outside this mask is the solvent region *}
+{+ choice: true false +}
+{===>} bulk_sol=true;
+
+{* bulk solvent mask file *}
+{* mask will be read from O type mask file if a name is given
+   otherwise calculated from coordinates of selected atoms *}
+{===>} bulk_mask_infile="";
+
+{* automatic bulk solvent parameter optimization for e-density level sol_k (e/A^3) and B-factor sol_b (A^2) *}
+{+ choice: true false +}
+{===>} sol_auto=true;
+
+{* fixed solvent parameters (used if the automatic option is turned off) *}
+{+ table: rows=1 "bulk solvent" cols=2 "e-density level sol_k (e/A^3)" "B-factor sol_b (A^2) " +}
+{===>} sol_k=0.3;
+{===>} sol_b=50.0;
+
+{* optional file with a listing of the results of the automatic bulk solvent optimization *}
+{===>} sol_output="";
+
+{* solvent mask parameters *}
+{+ table: rows=1 "bulk solvent" cols=2 "probe radius (A) (usually set to 1)" "shrink radius (A) (usually set to 1)" +}
+{===>} sol_rad=1.0;
+{===>} sol_shrink=1.0;
+
+{======================= atomic B-factor model =======================}
+
+{* isotropic atomic B-factor refinement model *}
+{+ choice: "overall" "group" "restrained" +}
+{===>} bfactor_model="restrained";
+
+{* select mainchain atoms - atoms outside this selection are considered
+   to be side chain *}
+{===>} atom_main=(name ca or name n or name c or name o or name ot+);
+
+{* restrained B-sigmas (only for restrained mode) *}
+
+{* mainchain bonds *}
+{===>} bsig_main=1.5;
+{* mainchain angles *}
+{===>} asig_main=2.0;
+
+{* sidechain bonds *}
+{===>} bsig_side=2.0;
+{* sidechain angles *}
+{===>} asig_side=2.5;
+
+{========================== atom selection ===========================}
+
+{* select atoms that were included in the refinement *}
+{* this should include all conformations if multiple conformations are used *}
+{===>} atom_select=(known and not hydrogen);
+
+{* select protein atoms *}
+{===>} atom_protein=(segid "" and not hydrogen);
+
+{* select water atoms *}
+{===>} atom_water=(none);
+
+{* select nucleic acid atoms *}
+{===>} atom_nucleic=(none);
+
+{* select ligand atoms *}
+{===>} atom_ligand=(none);
+
+{* alternate conformations *}
+{* alternate conformations require some manual editing
+   - include all conformations in the all_select, protein_select,
+     and nucleic_select atom selections
+   - define the alternate conformations in the selections below
+   - include only the main conformation in the chain selections
+   - the alternate conformations will appear as HETATM records
+   - edit the file and move the HETATM alternate conformation
+     entries into the proper place and rename them to ATOM records *}
+
+{* select atoms in alternate conformation 1 *}
+{===>} conf_1=(none);
+
+{* select atoms in alternate conformation 2 *}
+{===>} conf_2=(none);
+
+{* select atoms in alternate conformation 3 *}
+{===>} conf_3=(none);
+
+{* select atoms in alternate conformation 4 *}
+{===>} conf_4=(none);
+
+{* specify chainIDs *}
+{* notes: selections must be non-overlapping. The PDB format only allows 26 distinct chainIDs. 
+  If more chainIDs are required it is necessary to split the deposition into multiple files. 
+  Include any associated non-polymers (e.g., water molecules, ligands, heteroatoms) 
+  in these selections. This script file will automatically write all polymers first, separated
+  by TER lines, followed by all non-polymer entries. *}
+
+{* select atoms for chainID A *}
+{===>} chain_1=(known and not hydrogen);
+{* select atoms for chainID B *}
+{===>} chain_2=(none);
+{* select atoms for chainID C *}
+{===>} chain_3=(none);
+{* select atoms for chainID D *}
+{===>} chain_4=(none);
+{* select atoms for chainID E *}
+{===>} chain_5=(none);
+{* select atoms for chainID F *}
+{===>} chain_6=(none);
+{* select atoms for chainID G *}
+{===>} chain_7=(none);
+{* select atoms for chainID H *}
+{===>} chain_8=(none);
+{* select atoms for chainID I *}
+{===>} chain_9=(none);
+{* select atoms for chainID J *}
+{===>} chain_10=(none);
+{* select atoms for chainID K *}
+{===>} chain_11=(none);
+{* select atoms for chainID L *}
+{===>} chain_12=(none);
+{* select atoms for chainID M *}
+{===>} chain_13=(none);
+{* select atoms for chainID N *}
+{===>} chain_14=(none);
+{* select atoms for chainID O *}
+{===>} chain_15=(none);
+{* select atoms for chainID P *}
+{===>} chain_16=(none);
+{* select atoms for chainID Q *}
+{===>} chain_17=(none);
+{* select atoms for chainID R *}
+{===>} chain_18=(none);
+{* select atoms for chainID S *}
+{===>} chain_19=(none);
+{* select atoms for chainID T *}
+{===>} chain_20=(none);
+{* select atoms for chainID U *}
+{===>} chain_21=(none);
+{* select atoms for chainID V *}
+{===>} chain_22=(none);
+{* select atoms for chainID W *}
+{===>} chain_23=(none);
+{* select atoms for chainID X *}
+{===>} chain_24=(none);
+{* select atoms for chainID Y *}
+{===>} chain_25=(none);
+{* select atoms for chainID Z *}
+{===>} chain_26=(none);
+
+{* ignore atoms not specified in the chainID selections. *}
+{* if false, all atoms not specified in the above chainID selections will be written at the end of the 
+   PDB files using the SEGIds used in CNS. If true, all atoms not specified will not be written. Use 
+   the latter option with caution.  It is intended to write split PDB files for very large structures. *}
+{+ choice: true false +}
+{===>} ignore_missing=false;
+
+{=========================== output file =============================}
+
+{* output file for PDB submission *}
+{===>} coordinate_outfile="xtal_pdbsubmission.deposit";
+
+{===========================================================================}
+{        things below this line do not normally need to be changed          }
+{===========================================================================}
+
+) {- end block parameter definition -}
+
+checkversion 1.3
+
+evaluate ($log_level=quiet)
+
+ if ( $log_level = verbose ) then
+   set message=normal echo=on end
+ else
+   set message=off echo=off end
+ end if
+
+ if ( &BLANK%structure_infile = true ) then
+ 
+    {- read topology files -}
+    topology
+     evaluate ($counter=1)
+     evaluate ($done=false)
+     while ( $done = false ) loop read
+      if ( &exist_topology_infile_$counter = true ) then
+         if ( &BLANK%topology_infile_$counter = false ) then
+            @@&topology_infile_$counter
+         end if
+      else
+        evaluate ($done=true)
+      end if
+      evaluate ($counter=$counter+1)
+     end loop read
+    end
+    
+    @CNS_XTALMODULE:mtfautogenerate (
+                                  coordinate_infile=&coordinate_infile;
+                                  convert=true;
+                                  separate=true;
+                                  atom_delete=(not known);
+                                  hydrogen_flag=true;
+                                  break_cutoff=2.5;
+                                  disulphide_dist=3.0;
+                                  carbo_dist=2.5;
+                                  patch_infile=&patch_infile;
+                                  O5_becomes="O";
+                                 )
+
+ else
+
+   structure @&structure_infile end
+   coordinates @&coordinate_infile
+
+ end if
+
+ {- read parameter files -}
+ parameter
+  evaluate ($counter=1)
+  evaluate ($done=false)
+  while ( $done = false ) loop read
+   if ( &exist_parameter_infile_$counter = true ) then
+      if ( &BLANK%parameter_infile_$counter = false ) then
+         @@&parameter_infile_$counter
+      end if
+   else
+     evaluate ($done=true)
+   end if
+   evaluate ($counter=$counter+1)
+  end loop read
+ end
+
+ set message=off echo=off end
+
+evaluate ($cv_method=&cv_method)
+if ( &cv_method = "none" ) then
+  evaluate ($cv_method="NONE")
+elseif ( &cv_method = "throughout" ) then
+  evaluate ($cv_method="THROUGHOUT")
+elseif ( &cv_method = "a posteriori" ) then
+  evaluate ($cv_method="A POSTERIORI")
+end if
+
+evaluate ($cv_select=&cv_select)
+if ( &cv_select = "random" ) then
+  evaluate ($cv_select="RANDOM")
+elseif ( &cv_select = "shells" ) then
+  evaluate ($cv_select="SHELLS")
+elseif ( &cv_select = "spheres" ) then
+  evaluate ($cv_select="SPHERES")
+elseif ( &cv_select = "everynth" ) then
+  evaluate ($cv_select="EVERYnTH")
+elseif ( &cv_select = "other" ) then
+  evaluate ($cv_select="OTHER")
+end if
+
+evaluate ($bfactor_model=&bfactor_model)
+if ( &bfactor_model = "overall" ) then
+  evaluate ($bfactor_model="OVERALL")
+elseif ( &bfactor_model = "group" ) then
+  evaluate ($bfactor_model="GROUP")
+elseif ( &bfactor_model = "restrained" ) then
+  evaluate ($bfactor_model="RESTRAINED")
+end if
+
+do (store1=0) (all)
+
+evaluate ($nalt=1)
+evaluate ($alt=1)
+evaluate ($done=false)
+while ( $done = false ) loop nalt
+  if ( &exist_conf_$alt = true ) then
+    show sum(1) ( &conf_$alt )
+    if ( $result > 0 ) then
+      evaluate ($nalt=$nalt+1)
+    end if
+  else
+    evaluate ($done=true)
+    evaluate ($nalt=$nalt-1)
+  end if
+  evaluate ($alt=$alt+1)
+end loop nalt
+
+evaluate ($alt=1)
+while ( $alt <= $nalt ) loop alt
+  do (store1=$alt) ( &conf_$alt )
+  evaluate ($alt=$alt+1)
+end loop alt
+
+{- read the NCS relations file if any -}
+
+if ( &BLANK%ncs_infile = false ) then
+  inline @&ncs_infile
+end if
+
+xray
+
+   mbins=&mbins
+
+   {- read the unit cell dimensions -}
+   a=&a b=&b c=&c alpha=&alpha beta=&beta gamma=&gamma
+
+   {- read symmetry operators from the library -}
+
+   @@CNS_XTALLIB:spacegroup.lib (sg=&sg; sgparam = $sgparam )
+
+   @@CNS_XRAYLIB:scatter.lib
+
+end
+
+if ( &BLANK%anom_library = false ) then
+   @@&anom_library
+else
+   xray anomolous=? end
+   if ( $result = true ) then
+     display Warning: no anomolous library has been specified
+     display          no anomolous contribution will used
+   end if
+end if
+
+xray
+
+   evaluate ($counter=1)
+   evaluate ($done=false)
+   while ( $done = false ) loop read
+    if ( &exist_reflection_infile_$counter = true ) then
+      if ( &BLANK%reflection_infile_$counter = false ) then
+       reflection
+         @@&reflection_infile_$counter
+       end
+      end if
+    else
+     evaluate ($done=true)
+    end if
+    evaluate ($counter=$counter+1)
+   end loop read
+
+   {- check that all data arrays are well-defined -}
+
+   if ( &BLANK%obs_f = true ) then
+      display 
+      display  *********************************************************
+      display  Error: required observed amplitude array is not specified
+      display  *********************************************************
+      display
+      abort
+   else
+      query name=&STRIP%obs_f domain=reciprocal end
+      if ( $object_exist = false ) then
+          display 
+          display  **************************************************************
+          display  Error: required observed amplitude array &obs_f does not exist
+          display  **************************************************************
+          display
+          abort
+       end if
+    {- note: this array can be of any type -}
+    end if
+
+    if ( &BLANK%obs_sigf = true ) then
+      display 
+      display  *****************************************************
+      display  Error: required observed sigma array is not specified
+      display  *****************************************************
+      display
+      abort
+    else
+       query name=&STRIP%obs_sigf domain=reciprocal end
+       if ( $object_exist = false ) then
+          display 
+          display  *************************************************************
+          display  Error: required observed sigma array &obs_sigf does not exist
+          display  *************************************************************
+          display
+          abort
+       end if
+       if ( $object_type # "REAL" ) then
+          display 
+          display  **********************************************************************
+          display  Error: required observed sigma array &obs_sigf has the wrong data type
+          display  **********************************************************************
+          display
+          abort
+       end if
+   end if
+
+   if ( &BLANK%test_set = true ) then
+      display 
+      display  ***********************************************
+      display  Error: required test set array is not specified
+      display  ***********************************************
+      display
+      abort
+   else
+      query name=&STRIP%test_set domain=reciprocal end
+      if ( $object_exist = false ) then
+         display 
+         display  *******************************************************
+         display  Error: required test set array &test_set does not exist
+         display  *******************************************************
+         display
+         abort
+      end if
+      {- test set array can be integer or real -}
+      if ( $object_type = "COMPLEX" ) then
+         display 
+         display  ****************************************************************
+         display  Error: required test set array &test_set has the wrong data type
+         display  ****************************************************************
+         display
+         abort
+      end if
+ end if
+
+ end
+
+ {- BEGIN MODIFICATION -}
+ xray 
+   method=FFT
+ end
+ 
+
+ show min ( b ) ( &atom_select )
+ evaluate ($b_min=$result)
+ @@CNS_XTALMODULE:fft_parameter_check ( 
+                             d_min=&high_res; 
+                             b_min=$b_min;
+                             grid=auto;
+                             fft_memory=&fft_memory;
+                             fft_grid=$fft_grid;   
+                             fft_b_add=$fft_b_add; 
+                             fft_elim=$fft_elim; 
+                                      )
+                            
+ xray
+   tolerance=0.0 lookup=false
+ end
+ {- END MODIFICATION -}
+
+@CNS_XTALMODULE:pdbsubmission (
+
+ { unit cell dimensions }
+ a=&a; 
+ b=&b;
+ c=&c;
+ alpha=&alpha;
+ beta=&beta;
+ gamma=&gamma;
+
+ { space group name }
+ sg=&sg;
+ sgparam = $sgparam;
+ 
+ { parameter files }
+ par_1=&parameter_infile_1;
+ par_2=&parameter_infile_2;
+ par_3=&parameter_infile_3;
+ par_4=&parameter_infile_4;
+ par_5=&parameter_infile_5;
+ par_6=&parameter_infile_6;
+ par_7=&parameter_infile_7;
+ par_8=&parameter_infile_8;
+
+ { topology files }
+ top_1=&topology_infile_1;
+ top_2=&topology_infile_2;
+ top_3=&topology_infile_3;
+ top_4=&topology_infile_4;
+ top_5=&topology_infile_5;
+ top_6=&topology_infile_6;
+ top_7=&topology_infile_7;
+ top_8=&topology_infile_8;
+
+ { molecular structure file }
+ structure_file=&structure_infile;
+
+ { coordinate file after the final refinement using cross-validation }
+ coordinate_file=&coordinate_infile;
+ 
+ { coordinate file after the final refinement without cross-validation }
+ coordinate_file_wo_cv=&nocv_coordinate_infile;
+
+ { NCS information. }
+ strict_ncs_file=&ncs_infile;
+
+ { reciprocal space arrays in reflection file }
+ fobs=&STRIP%obs_f;
+ sigma=&STRIP%obs_sigf;
+ test=&STRIP%test_set;
+ test_flag=&test_flag;
+ weight=&STRIP%obs_w;
+ 
+ { cross-validation method }
+ cv_method=$cv_method;
+
+ { test set selection }
+ cv_select=$cv_select;
+
+ { resolution range was used in the refinement }
+ high_res=&high_res;
+ low_res=&low_res;
+
+ { low resolution cutoff for coord. err. estimates }
+ low_res_cut=&low_res_cut; 
+
+ { low resolution cutoff for Wilson plot }
+ low_res_wilson=&low_res_wilson;
+
+ { number of equal volume reciprocal space bins }
+ mbins=&mbins; 
+
+ { memory for FFT calc. }
+ fft_memory=&fft_memory;
+
+ { sigma cutoff }
+ sigcutf=&f_cut; 
+
+ { outlier cutoff }
+ f_rms=&f_rms;  
+
+ { overall anisotropic B-scaling }
+ bscale=&bscale;
+ 
+ { bulk solvent correction }
+ bulk_sol=&bulk_sol;
+ bulk_mask=&bulk_mask_infile;
+ {- BEGIN MODIFICATION -}
+ sol_auto=&sol_auto;
+ sol_k=&sol_k;
+ sol_b=&sol_b;
+ sol_rad=&sol_rad;
+ sol_shrink=&sol_shrink;
+  {- END MODIFICATION -}
+
+ { isotropic B factor refinement model }
+ bfactor=$bfactor_model;
+
+ { selection for mainchain atoms }
+ b_main_sel=&atom_main;
+
+ { restrained B-sigmas }
+ bsig_main=&bsig_main;
+ asig_main=&asig_main;
+
+ bsig_side=&bsig_side;
+ asig_side=&asig_side;
+ 
+ { resolution dependent weighting }
+ weighting=&weighting;
+
+ { selections }
+ all_select=( &atom_select );
+
+ protein_select=( &atom_protein );
+ water_select=( &atom_water );
+ nucleic_select=( &atom_nucleic );
+ ligand_select=( &atom_ligand  );
+
+ sel_alt_conf=store1;
+
+ { chain selections }
+ chain_a=&chain_1;
+ chain_b=&chain_2; 
+ chain_c=&chain_3; 
+ chain_d=&chain_4; 
+ chain_e=&chain_5; 
+ chain_f=&chain_6; 
+ chain_g=&chain_7; 
+ chain_h=&chain_8; 
+ chain_i=&chain_9; 
+ chain_j=&chain_10; 
+ chain_k=&chain_11; 
+ chain_l=&chain_12; 
+ chain_m=&chain_13; 
+ chain_n=&chain_14; 
+ chain_o=&chain_15; 
+ chain_p=&chain_16; 
+ chain_q=&chain_17; 
+ chain_r=&chain_18; 
+ chain_s=&chain_19; 
+ chain_t=&chain_20; 
+ chain_u=&chain_21; 
+ chain_v=&chain_22; 
+ chain_w=&chain_23; 
+ chain_x=&chain_24; 
+ chain_y=&chain_25; 
+ chain_z=&chain_26;
+
+ ignore_missing=&ignore_missing;
+
+ { output file name }
+ list=&coordinate_outfile;
+)
+
+stop

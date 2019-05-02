@@ -1,0 +1,71 @@
+analyse {<aria-analyse-statement>} end
+
+<aria-analyse-statement> :==
+
+  --{distance averaging options:}
+  --{===========================}
+
+  accumulate 
+  --{calculate <r-6>-1/6 average over ensemble}
+  average 
+  --{calculate <r> average over ensemble}
+  single 
+  --{read in and use a single structure}
+  minimum 
+  --{calculate minimum distance over ensemble}
+
+  --{assignment options: (applied before action or output)}
+  --{=====================================================}
+
+  equivalent <aria-equivalent-statement> end
+  --{define equiv. groups}
+  cutoff <real> 
+  --{distance cutoff for assignment}
+  level <real> 
+  --{<r-6>-1/6 weighted assignment; level=1 uses all, level=0 only first}
+  maxnumber <integer> 
+  --{maximum number of possibilities allowed}
+  minnumber <integer> 
+  --{minimum number of possibilities allowed}
+  del1 <real>
+  --{estimated frequency error in F1 direction}
+  del2 <real>
+  --{estimated frequency error in F2 direction}
+
+  --{actions:}
+  --{========}
+
+  check <classname>         
+  --{check for double entries and remove}
+  purge <classname> <classname> 
+  --{remove unamb. ass. from other peaks}
+  reset 
+  --{reset entire database}
+
+  --{output options (assignment is performed implicitly):}
+  --{====================================================}
+
+  from <atom-selection> 
+  --{select protons to assign}
+  to   <atom-selection> 
+  --{select protons to assign}
+  list <classname> 
+  --{list all possible assignments in table format}
+  restraint <classname> 
+  --{write standard noe restraints}
+  sort <classname> 
+  --{generate sorted list in table format}
+  or-restraint <classname> 
+  --{write extended noe restraints using OR statements}
+  silent <classname> 
+  --{do not write anything}
+
+  --{statistics per atom: output is in RMSD array}
+  --{============================================}
+
+  frqupdate 
+  --{update frequencies from new NOE assignments}
+  rstatistic 
+  --{restraint statistics}
+  vstatistic 
+  --{violation statistics}

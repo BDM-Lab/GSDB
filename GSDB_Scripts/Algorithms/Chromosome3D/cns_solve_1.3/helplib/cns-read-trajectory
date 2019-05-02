@@ -1,0 +1,27 @@
+read trajectory {<read-trajectory-statement>} end
+
+<read-trajectory-statement> :==
+
+  {<trajectory-statement>}
+  --{On initial call.}
+  next
+  --{For subsequent calls.}
+
+  --{The symbol $status initially is set to READ. After the
+     last coordinate set has been read it is set to COMPLETE.}
+
+  <trajectory-statement> :==
+
+    input=<filename>
+    --{File to read trajectory from.}
+    begin=<integer>
+    --{Start at this step in trajectory file. Default=1}
+    skip=<integer>
+    --{Skip the specified number of steps. Default=1}
+    stop=<integer>
+    --{Stop at this step. Default=999999}
+    ascii=<logical>
+    --{Input trajectory is formatted rather than binary. Default=false}
+
+    --{Several input files may be specified. Files are read in the
+       order given. Begin, skip, stop are all in integration units.}

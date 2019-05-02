@@ -1,0 +1,26 @@
+! Test Hybrid-36 encode and decode
+evaluate ( $1 = decode("9999"))
+evaluate ( $1 = decode("A000"))
+evaluate ( $1 = decode("ZZZZ"))
+evaluate ( $1 = decode("a000"))
+evaluate ( $1 = decode("zzzz"))
+! CAUTION: hybrid-36 accepts a blank character as zero (as implemented
+! in the CCTBX hybrid_36_f.f routines)
+evaluate ( $1 = decode("a  0"))
+evaluate ( $1 = decode("a   "))
+! The next two statements should fail; only 4-char hybrid36 is supported.
+evaluate ( $1 = decode("A0000"))
+evaluate ( $1 = decode("A00"))
+
+evaluate ( $1 = format("I4",9999))    ! A000 - 1
+evaluate ( $1 = format("I4",10000))   ! A000
+evaluate ( $1 = format("I4",1223055)) ! ZZZZ
+evaluate ( $1 = format("I4",1223056)) ! a000
+evaluate ( $1 = format("I4",2436111)) ! zzzz
+
+! For the near future, use a fixed-format and trim leading spaces
+! using the new string functions:
+evaluate ( $1 = trim(adjustl(format("I20",1223056))))
+
+stop
+

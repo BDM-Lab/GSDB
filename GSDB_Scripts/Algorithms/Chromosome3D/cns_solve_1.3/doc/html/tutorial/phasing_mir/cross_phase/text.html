@@ -1,0 +1,93 @@
+<HTML>
+<HEAD>
+   <TITLE>Crystallography & NMR System</TITLE>
+</HEAD>
+<BODY BGCOLOR=#8ebf8e>
+
+<HR WIDTH="100%">
+
+<h2>Location of heavy atoms for other derivatives</h2>
+
+<HR WIDTH="100%">
+
+The SIR phases calculated from the uranyl derivative can be used in
+combination with the isomorphous amplitude differences from a mercury
+derivative to calculate a Fourier map (we will call this a
+cross-phased map). Assuming that the SIR phases are reasonable, this
+map will show the location of the mercury heavy atom sites. To
+calculate the cross-phased Fourier map the CNS script
+<TT>cross_phase_phga.inp</TT> is used.
+
+<PRE>
+      cns_solve &lt; <A HREF="cross_phase_phga.inp">cross_phase_phga.inp</A> &gt; cross_phase_phga.out
+</PRE>
+Three output files are produced.
+<PRE>
+      cross_phase_phga.map           
+      cross_phase_phga_negative.peaks
+      cross_phase_phga_positive.peaks
+</PRE>
+
+The 30 highest positive and negative peaks are written in PDB format
+to the <tt>*.peaks</tt> files. 
+<p>
+Here is the map; also displayed are the positions of the peaks (by reading the cross_phase_phga_positive.peaks as a PDB file into Coot, PyMol, or O).<HR WIDTH="67%">
+<TABLE ALIGN=CENTER>
+<TR>
+<TD ALIGN=CENTER><IMG SRC="cross_phase_phga.jpeg" ALIGN=ABSCENTER></TD>
+</TR>
+<TR>
+<TD ALIGN=CENTER>Cross-phased map (contoured at 7.5 sigma) showing the location of
+mercury heavy atom sites.</TD>
+</TR>
+</TABLE>
+<HR WIDTH="67%">
+
+<p>
+There are 3 clear peaks in the map above 7.5 sigma. These are taken as
+the initial sites for the mercury derivative. This is carried out by
+copying the cross_phase_phga_positive.peaks file to phga.pdb. This
+file is then edited manually to leave only the top 3 peaks and the END
+record:
+
+<PRE>
+ATOM      1 PEAK PEAK    1      14.542   9.673  43.436  1.00 23.85      PEAK
+ATOM      2 PEAK PEAK    2      -6.783   2.796  36.629  1.00 12.52      PEAK
+ATOM      3 PEAK PEAK    3      11.681  20.605   9.361  1.00 11.39      PEAK
+END
+</PRE>
+
+<p>
+This PDB format file is then converted to the CNS site-database format
+using the CNS task file <TT>pdb_to_sdb.inp</TT>:
+</p>
+
+<PRE>
+      cns_solve &lt; <A HREF="pdb_to_sdb.inp">pdb_to_sdb.inp</A> &gt; pdb_to_sdb.out</PRE>
+
+<p>Now that we have located heavy atom sites for a uranyl and mercury
+derivative MIR phasing can be carried out. In this example the CNS
+task file <TT>mir_phase_2deriv.inp</TT> is used:</P>
+
+<PRE>
+      cns_solve &lt; <A HREF="mir_phase_2deriv.inp">mir_phase_2deriv.inp</A> &gt; mir_phase_2deriv.inp</PRE>
+
+The new MIR phases can then be used to compute other cross-phased
+Fourier maps to locate sites for other derivatives, complete the heavy
+atom model for the current derivatives (see next tutorial), or as
+starting phases for density modification (see later tutorial).
+
+<p>
+
+<A HREF="tutorial.csh">Script to run this tutorial</A>
+
+<HR WIDTH="100%">
+
+<A HREF="../../text.html">Back to tutorials</A>&nbsp;&nbsp;
+<A HREF="../ir_phase/text.html">Previous section</A>&nbsp;&nbsp;
+<A HREF="../more_sites/text.html">Next section</A>
+
+<HR WIDTH="100%"></P>
+
+</BODY>
+</HTML>

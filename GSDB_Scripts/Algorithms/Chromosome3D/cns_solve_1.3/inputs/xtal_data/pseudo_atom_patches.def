@@ -1,0 +1,43 @@
+remarks custom patch file
+remarks
+remarks makes covalent links between pseudoatoms (representing dye centers) and the CA atoms of
+remarks the corresponding residues that the dye is connected to. 
+remarks
+
+for $id in id (    
+
+                   ( resid 140 and segid S and name CA) 
+                or ( resid 154 and segid S and name CA) 
+                or ( resid 174 and segid S and name CA)
+                or ( resid 189 and segid S and name CA)
+                or ( resid 254 and segid S and name CA)
+                or ( resid 269 and segid S and name CA)
+                or ( resid 350 and segid S and name CA)
+                or ( resid 368 and segid S and name CA)
+                or ( resid 383 and segid S and name CA)
+                or ( resid 396 and segid S and name CA)
+                
+                or ( resid 61 and ( segid A ) and name CA)
+                
+                or ( resid 20 and ( segid C or segid D ) and name CA ) 
+                or ( resid 139 and ( segid C or segid D ) and name CA ) 
+                or ( resid 76 and ( segid C or segid D ) and name CA ) 
+                or ( resid 197 and ( segid C or segid D ) and name CA ) 
+                
+                   ) loop patc
+
+ show elem ( segid ) ( id $id ) 
+ evaluate ($segid=$result)
+
+ show elem ( resid ) ( id $id )
+ evaluate ($resid=$result) 
+
+ patch pdum
+  reference=-=( byresidue ( id $id)  ) 
+  reference=+=( resname PSDO and resid $resid and segid $segid ) 
+ end
+
+end loop patc
+
+connectivity print=true end
+

@@ -1,0 +1,349 @@
+! Module file: scale_and_solvent_grid_search
+!
+! Function: determines best bulk solvent model by a grid search in ( k_sol ) space. 
+!           For each pair of values, the optimum B_sol is determined by least-squares minimization.
+!           The module also computes an overall (an)-isotropic B-tensor and applies the isotropic component to the
+!           model structure factors, and bulk solvent structure factors; the negated modified
+!           B-tensor (-Ucif, with the isotropic component removed) is then applied to the 
+!           observed amplitudes, sigmas, intensities, and their sigmas.  The corresponding Ucart is 
+!           passed back to the calling script file. 
+!  
+!
+! CNS module
+! **********
+!
+! Authors: Axel T. Brunger and Paul D. Adams
+!
+! copyright Yale University
+!
+! Requirements:
+! This module can only be used from the main level of CNS. 
+!
+! 6/28/2006
+
+module {scale_and_solvent_grid_search}
+(
+ &bscale="no";         {input: "no" | "isotropic" | "anisotropic" }
+                        
+ &sel=all;             {input: all active structure factors}
+ &sel_test=none;       {input: test set reflections}
+ &atom_select=( all ); {input: atom selection for all atoms that contribute to calculated structure factor}
+
+ &bulk_sol=false;      {input: logical flag (true/false) specifying if bulk solvent correction should be computed}
+ &bulk_mask="";        {optional input: mask file for bulk solvent model - it not specified mask will be generated from selected atoms}
+ &bulk_atoms=( all );  {input: atoms used to create solvent mask}   
+ 
+ &sol_auto=true;       {input: logical flag (true/false) specifying if grid search shall be performed }
+ &sol_k=0.3;           {for sol_auto=false: solvent density fixed at specified value}
+ &sol_b=50.;           {for sol_auto=false: solvent B factor fixed at specified value}
+ &sol_rad=1.0;         {solvent radius (fixed at specified value)}
+ &sol_shrink=1.0;      {shrink factor (fixed at specified value)} 
+ 
+ &sol_k_range=0.1 0.2 0.25 0.28 0.30 0.32 0.33 0.34 0.35 0.36 0.37 0.38 0.4 0.42 0.45 0.5 0.6; {for sol_auto=true: parameters for sol_k grid search}
+                         
+ &fcalc="";            {input/output: calculated structure factors - modified at output (isotropic portion of B-tensor applied)}
+  
+ &obs_f="";            {input/output: observed structure factors - modified at output (negative of anisotropic B-tensor (w/o isotropic portion) applied)}
+ 
+ &obs_sigf="";         {input/putput: corresponding sigma array - modified at output (negative of anisotropic B-tensor (w/o isotropic portion) applied)}
+ 
+ &obs_i="";            {input/output: observed intensity data - modified at output (negative of anisotropic B-tensor (w/o isotropic portion) applied)}
+ 
+ &obs_sigi="";         {input/output: corresponding sigma array - modified at output (negative of anisotropic B-tensor (w/o isotropic portion) applied)}
+
+ &fpart="";            {output: bulk solvent structure factors (isotropic portion of B-tensor applied)}
+
+ &Baniso_11;           {required output: anisotropic B-tensor (Ucart) of atomic model, with isotropic component removed }
+ &Baniso_22;        
+ &Baniso_33;        
+ &Baniso_12;   
+ &Baniso_13;   
+ &Baniso_23;   
+ &Biso;                {required output: isotropic component of the B-tensor }
+ 
+ &sol_k_best;          {required output: k_sol of best solvent model}
+ &sol_b_best;          {required output: b_sol of best solvent model}
+ &solrad_best;         {required output: solrad of solvent model that was actually used (for compatibility with previous versions of this module)}
+ &shrink_best;         {required output: shrink value of solvent model that was actually used (for compatibility with previous versions of this module)}
+ 
+ &b=b;                 {input/output: atomic B-factor array - isotropic portion of B-factor tensor added }
+
+ &low_b_flag;          {required output: if true then there were some negative B-factors that have been set to zero }
+ 
+ &sol_output="";       {optional output: listing filename for grid search}
+
+)
+ 
+ set message ? end
+ evaluate ($message_old2=$result)
+ set echo ? end
+ evaluate ($echo_old2=$result)
+ if ( $log_level = verbose ) then
+   set echo=on message=normal end
+ else
+   set echo=off message=off end
+ end if
+
+ checkversion 1.3
+
+
+ xray 
+    declare name=fpart_previous domain=reciprocal type=complex end
+    query name=&obs_f domain=reciprocal end    
+    declare name=fobs_out domain=reciprocal type=$object_type end
+    declare name=sigma_out domain=reciprocal type=real end
+    declare name=fcalc_out domain=reciprocal type=complex end
+    if (&obs_i # "" ) then
+       declare name=obs_i_out domain=reciprocal type=real end
+    end if
+    if (&obs_sigi # "" ) then
+       declare name=obs_sigi_out domain=reciprocal type=real end
+    end if
+ end
+ 
+ !!! modification ATB 4/28/08
+ evaluate ($dogrid=false)
+ if (&sol_auto=true) then
+   if (&bulk_sol=true) then
+      evaluate ($dogrid=true) 
+   end if
+ end if
+ 
+ !!! moved to here, ATB 3/18/11
+ xray  {- reset solvent mask for different probe/shrink parameters -}
+     do (fpart_previous=0) ( all )
+ end
+
+ if ($dogrid=true) then
+ !!!
+ 
+  {- automatic solvent parameter determination - grid search -}
+  
+  if (&sol_output # "") then
+     buffer sol
+       display   k_sol       B_sol    probe   shrink    dB_model     R  
+     end
+  end if
+  
+  evaluate ($min_r=1.1)
+
+  xray 
+     show min ( d ) ( &sel ) 
+     evaluate ( $dmin_grid=$result)
+  end
+    
+  
+   for $sol_k in ( &sol_k_range ) loop sol_k
+ 
+    display
+    display  trying solvent model with fixed k_sol = $sol_k , solrad = &sol_rad, shrink = &sol_shrink, bscale option = &bscale
+    
+    @CNS_XTALMODULE:scale_and_solvent (
+                             bscale=&bscale;
+                             sel=&sel;
+                             sel_test=&sel_test;
+                             atom_select=&atom_select;
+                             bulk_sol=&bulk_sol;
+                             bulk_mask=&bulk_mask;
+                             bulk_atoms=&bulk_atoms;
+                             sol_k=$sol_k;  {- fixed at current value         -}
+                             sol_b=-9999;   {- let the B-factor refine -}
+                             fcalc_in=&fcalc;
+                             fcalc_out=fcalc_out;
+                             fobs_in=&obs_f;
+                             fobs_out=fobs_out;
+                             sigma_in=&obs_sigf;
+                             sigma_out=sigma_out;
+                             iobs_in=&obs_i;
+                             iobs_out=obs_i_out;
+                             sigi_in=&obs_sigi;
+                             sigi_out=obs_sigi_out;
+                             fpart=&fpart;
+                             fpart_previous=fpart_previous;
+                             Baniso_11=&Baniso_11;
+                             Baniso_22=&Baniso_22;
+                             Baniso_33=&Baniso_33;
+                             Baniso_12=&Baniso_12;
+                             Baniso_13=&Baniso_13;
+                             Baniso_23=&Baniso_23;
+                             biso=$biso_opt;
+                             sol_k_ref=$sol_k_opt;
+                             sol_b_ref=$sol_b_opt;
+			     solrad=&sol_rad;
+			     shrink=&sol_shrink;
+                             )
+
+     xray
+       @@CNS_XTALMODULE:calculate_r (
+                                 fobs=fobs_out;
+                                 fcalc=fcalc_out;
+                                 fpart=&fpart;
+                                 sel=&sel;
+                                 sel_test=&sel_test;
+                                 print=false;
+                                 output=OUTPUT;
+                                 r=$start_r;
+                                 test_r=$start_test_r;)
+                                 
+        if ($start_r < $min_r) then
+           evaluate ($min_r=$start_r) 
+           evaluate (&sol_k_best=$sol_k_opt) 
+           evaluate (&sol_b_best=$sol_b_opt) 
+           evaluate (&solrad_best=&sol_rad)
+           evaluate (&shrink_best=&sol_shrink)
+           evaluate (&Biso=$biso_opt)
+        end if 
+        
+        if (&sol_output # "") then
+           buffer sol
+              display    $sol_k_opt[f5.3]     $sol_b_opt[f7.2]     &sol_rad[f4.2]     &sol_shrink[f4.2]     $biso_opt[f7.2]    $start_r[f8.6]
+           end
+        end if
+         
+     end
+          
+    end loop sol_k
+     
+   if (&sol_output # "") then
+     buffer sol
+        display
+        display    best model:
+        display    &sol_k_best[f5.3]     &sol_b_best[f7.2]     &solrad_best[f4.2]     &shrink_best[f4.2]     &Biso[f7.2]    $min_r[f8.6]
+        to file &sol_output
+        flush
+     end
+   end if
+   
+   display
+   display  now recomputing solvent model for best parameters
+   display  best sol_k = &sol_k_best
+   display  best sol_b = &sol_b_best
+   display  Note: isotropic scaling is now applied to Fcalc = &Biso
+   display 
+ 
+   
+ else 
+   {- use fixed values that are specified in the declaration section -}
+   evaluate (&sol_k_best=&sol_k)
+   evaluate (&sol_b_best=&sol_b)
+   evaluate (&solrad_best=&sol_rad)
+   evaluate (&shrink_best=&sol_shrink)
+   evaluate (&Biso=0)
+ 
+ !!! modification ATB 4/29/08
+    if (&bulk_sol=true) then    
+      display
+      display  now recomputing solvent model with fixed parameters
+      display  best sol_k = &sol_k_best
+      display  best sol_b = &sol_b_best
+      display  Note: no isotropic scaling is applied to Fcalc relative to the bulk solvent structure factors Fpart
+      display        but overall B scaling of (Fcalc + Fpart) is computed below.   
+      display 
+    else
+      display 
+      display no bulk solvent model applied.  
+      display
+   end if
+ !!!
+ 
+ end if
+ 
+ {- recompute solvent model for best values -}
+ 
+ xray  
+!!! modification: not necessary to reset solvent mask, ATB 11/02/09
+!!!     {- reset solvent mask  -}
+!!!     do (fpart_previous=0) ( all )
+     {- apply isotropic Bscaling to model Fs that was obtained for best solvent model -}
+     do (&fcalc=exp(-&Biso*s*s/4.0)* &fcalc ) ( all )
+ end
+ do (&b=&b+&Biso) &atom_select      
+  
+ @CNS_XTALMODULE:scale_and_solvent (
+                             bscale=&bscale;
+                             sel=&sel;
+                             sel_test=&sel_test;
+                             atom_select=&atom_select;
+                             bulk_sol=&bulk_sol;
+                             bulk_mask=&bulk_mask;
+                             bulk_atoms=&bulk_atoms;
+                             sol_k=&sol_k_best;
+                             sol_b=&sol_b_best;
+                             fcalc_in=&fcalc;
+                             fcalc_out=fcalc_out;
+                             fobs_in=&obs_f;
+                             fobs_out=fobs_out;
+                             sigma_in=&obs_sigf;
+                             sigma_out=sigma_out;
+                             iobs_in=&obs_i;
+                             iobs_out=obs_i_out;
+                             sigi_in=&obs_sigi;
+                             sigi_out=obs_sigi_out;
+                             fpart=&fpart;
+                             fpart_previous=fpart_previous;
+                             Baniso_11=&Baniso_11;
+                             Baniso_22=&Baniso_22;
+                             Baniso_33=&Baniso_33;
+                             Baniso_12=&Baniso_12;
+                             Baniso_13=&Baniso_13;
+                             Baniso_23=&Baniso_23;
+                             biso=$biso_opt;
+                             sol_k_ref=&sol_k_best;
+                             sol_b_ref=&sol_b_best;
+			     solrad=&solrad_best;
+			     shrink=&shrink_best;
+                             )
+ 
+ xray
+    do (&obs_f=fobs_out) (all)
+    do (&obs_sigf=sigma_out) (all)
+    do (&fcalc=fcalc_out) (all)
+    undeclare name=fpart_previous domain=reciprocal end
+    undeclare name=fobs_out domain=reciprocal end
+    undeclare name=sigma_out domain=reciprocal end
+    undeclare name=fcalc_out domain=reciprocal end
+    if (&obs_i # "" ) then
+       do (&obs_i=obs_i_out) (all)
+       undeclare name=obs_i_out domain=reciprocal end
+    end if
+    if (&obs_sigi # "" ) then
+       do (&obs_sigi=obs_sigi_out) (all)
+       undeclare name=obs_sigi_out domain=reciprocal end
+    end if
+ end
+ 
+ do (&b=&b+$biso_opt) &atom_select 
+ evaluate (&Biso=&Biso+$biso_opt)
+ 
+ display
+ display  Solvent model and B-scaling completed
+ if (&bulk_sol=true) then
+    display  Solvent model sol_k = &sol_k_best
+    display  Solvent model sol_b = &sol_b_best
+    display  Solvent model solrad = &solrad_best
+    display  Solvent model shrink = &shrink_best
+ end if
+ if (&bscale="anisotropic") then
+    display  The isotropic component of B scaling ( &Biso ) has been added to the isotropic B-factors of the atomic model. 
+    display  The isotropic component was removed from the anisotropic tensor, resulting in Ucart (anisotropic B-tensor of the atomic model):  
+    display  Ucart_11=&Baniso_11[F8.3] Ucart_22=&Baniso_22[F8.3] Ucart_33=&Baniso_33[F8.3] Ucart_12=&Baniso_12[F8.3] Ucart_13=&Baniso_13[F8.3] Ucart_23=&Baniso_23[F8.3]
+ elseif (&bscale="isotropic") then
+    display  The isotropic component of B scaling ( &Biso ) has been added to the B-factors of the atomic model
+ end if
+ display 
+
+ {- any B-factors less or equal to ~ 0 are reset.  We use 0.01 as a cutoff here to
+    avoid B-factors that are exactly zero since the electron density calculation 
+    routine checks for B-factors that are less or equal to zero -}
+    
+ evaluate (&low_b_flag=false)
+ show min(&b) &atom_select
+ if ($result < 0.01) then
+   evaluate (&low_b_flag=true)
+   do (&b=0.01) ( &atom_select and ( attr &b < 0.01 ) )
+ end if
+
+ set message=$message_old2 echo=$echo_old2 end
+ 
+ 
+ 

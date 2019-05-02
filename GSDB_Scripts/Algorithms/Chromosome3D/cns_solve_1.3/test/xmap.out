@@ -1,0 +1,1203 @@
+          ============================================================
+          |                                                          |
+          |            Crystallography & NMR System (CNS)            |
+          |                         CNSsolve                         |
+          |                                                          |
+          ============================================================
+           Version: 1.3
+           Status: General release
+          ============================================================
+           Written by: A.T.Brunger, P.D.Adams, G.M.Clore, W.L.DeLano,
+                       P.Gros, R.W.Grosse-Kunstleve,J.-S.Jiang,J.M.Krahn,
+                       J.Kuszewski, M.Nilges, N.S.Pannu, R.J.Read,
+                       L.M.Rice, G.F.Schroeder, T.Simonson, G.L.Warren.
+           Copyright (c) 1997-2010 Yale University
+          ============================================================
+           Running on machine: lewis4-r710-login-node223 (x86_64/Linux,64-bit)
+                               with 16 threads
+           Program started by: oeow39
+           Program started at: 16:08:28 on 05-Jul-2018
+          ============================================================
+
+ FFT3C: Using FFTPACK4.1
+
+ CNSsolve>REMARKS  XFINITE.INP 
+ CNSsolve>remarks  test consistency of energy and first derivatives 
+ CNSsolve> 
+ CNSsolve>parameter @CNS_TOPPAR:protein.param end 
+ ASSFIL: file protein.param opened.
+ PARRDR>remarks file toppar/protein.param 
+ PARRDR>remarks   protein parameters with Lennard-Jones van der Waals parameters 
+ PARRDR>remarks   for crystallographic structure determination 
+ PARRDR> 
+ PARRDR>! 
+ PARRDR>! Please cite the following reference when using these parameters: 
+ PARRDR>! Engh, R.A. and  Huber, R. (1991). Accurate Bond and 
+ PARRDR>!  Angle Parameters for X-ray Protein-Structure Refinement, 
+ PARRDR>!  Acta Cryst. A47, 392-400. 
+ PARRDR>! 
+ PARRDR>! 
+ PARRDR> 
+ PARRDR>set message ? end eval ($old_message=$result) set echo ? end eval ($old_echo=$result) 
+ MESSage=NORM
+ EVALUATE: symbol $OLD_MESSAGE set to "NORM" (string)
+ ECHO=TRUE {ON}
+ EVALUATE: symbol $OLD_ECHO set to TRUE (logical)
+ PARRDR>set message=off echo=off end 
+ PARRDR> 
+ PARRDR> end 
+ CNSsolve> 
+ CNSsolve>{* read a ca trace *} 
+ CNSsolve>struc 
+ STRUcture>data_cns_mtf 
+ REMARKS FILENAME="/data/rwgk/test/tmp.mtf"
+ REMARKS DATE:18-Nov-98  14:17:53       created by user: rwgk
+ REMARKS VERSION:0.4a
+ Status of internal molecular topology database:
+ -> NATOM=          3(MAXA=     1000000)  NBOND=          0(MAXB=     1000000)
+ -> NTHETA=         0(MAXT=     2000000)  NGRP=           2(MAXGRP=   1000000)
+ -> NPHI=           0(MAXP=     2000000)  NIMPHI=         0(MAXIMP=   1000000)
+ -> NNB=            0(MAXNB=    1000000) 
+ STRUcture> 
+ STRUcture>end 
+ CNSsolve> 
+ CNSsolve>coor 
+ COOR>ATOM      1  CA  LYS     1       8.000   8.000   8.000  1.00 15.00 
+ COOR>ATOM      2  CA  LYS     2       1.400   6.200  18.000  1.00 15.00 
+ CNSsolve> 
+ CNSsolve> 
+ CNSsolve>coor copy end 
+ COOR: selected main coordinates copied to comp
+ CNSsolve> 
+ CNSsolve>xray 
+ XRAY>  reset 
+ XRAY: whole xray database erased and reset
+ XRAY>   declare name=fobs type=complex domain=reciprocal end 
+ XDECLARE: Object FOBS has been declared.
+ XRAY>   declare name=fpart domain=reciprocal type=complex end 
+ XDECLARE: Object FPART has been declared.
+ XRAY>   declare name=fcalc domain=reciprocal type=complex end 
+ XDECLARE: Object FCALC has been declared.
+ XRAY>   declare name=fom domain=reciprocal type=real end 
+ XDECLARE: Object FOM has been declared.
+ XRAY>   declare name=weight domain=reciprocal type=real end 
+ XDECLARE: Object WEIGHT has been declared.
+ XRAY>   declare name=sigma domain=reciprocal type=real end 
+ XDECLARE: Object SIGMA has been declared.
+ XRAY>   declare name=test domain=reciprocal type=integer end 
+ XDECLARE: Object TEST has been declared.
+ XRAY> 
+ XRAY>  a=10.00 b=10.00 c=10.00 alpha=90.0 beta=90.00 gamma=90.0 
+ XRAY>  symmetry=( X,Y,Z ) 
+ XRAY>  symmetry=( 1/2-X,-Y,1/2+Z ) 
+ XRAY>  symmetry=( -X,1/2+Y,1/2-Z ) 
+ XRAY>  symmetry=( 1/2+X,1/2-Y,-Z ) 
+ XRAY>  SCATter ( chemical C* ) 
+ SELRPN:      3 atoms have been selected out of      3
+ SCATTER_A1=       2.31000 20.8439 1.02000 10.2075 1.58860 .568700 .865000 51.6512 .215600 
+ XRAY>  method=fft 
+ XRAY>  fft 
+ XFFT>     prime=5 avoid=2 
+ XFFT>  end 
+ XRAY>  nreflections=1000 
+ XRAY: allocating space for    1000 reflections.
+ XRAY> 
+ XRAY>  evaluate ($lr=infinity) 
+ Assuming literal string "INFINITY"
+ EVALUATE: symbol $LR set to "INFINITY" (string)
+ XRAY>  evaluate ($hr=5) 
+ EVALUATE: symbol $HR set to    5.00000     (real)
+ XRAY>  binresolution $lr $hr 
+ XRAY>  mapresolution $hr 
+ XRAY>  tselection=( $hr <= d  ) 
+ XRAY> 
+ XRAY>  generate  5. infinity 
+ XGENER: generating reflections to produce a full set
+         for the specified resolution range.
+ XGENE2:        8 new reflections have been generated.
+ XRAY>   predict 
+ PREDict>      mode=reciprocal 
+ PREDict>      to=fcalc 
+ PREDict>      selection=( $hr <= d) 
+ Total of         8 structure factor elements were selected.
+ PREDict>      atomselection=( not hydrogen ) 
+ SELRPN:      3 atoms have been selected out of      3
+ PREDict>   end 
+ FCALC: #scatt.=      3 #anomalous=   0 #special pos.=  0 occupancies=1
+ XSFAL: allocating space for complex reciprocal space object.
+ XFFT: using grid [   6,   6,   6] and sublattice [   6(   7),   6(   7),   2]
+ XRAY>  do (fobs=fcalc) ( all ) 
+ XSFAL: allocating space for complex reciprocal space object.
+ Total of         8 structure factor elements were selected.
+ XRAY>  wa=200. 
+ XRAY>  tolerance=0.0 
+ XRAY>  do (fpart=0) ( all ) 
+ XSFAL: allocating space for complex reciprocal space object.
+ Total of         8 structure factor elements were selected.
+ XRAY>end 
+ CNSsolve>coor translate vector=( 1.1  0.8 1.4 ) sele=( resid 1 ) end 
+ SELRPN:      1 atoms have been selected out of      3
+ COOR: using atom subset.
+ COOR: translation vector =(     1.100000    0.800000    1.400000 )
+ COOR: selected coordinates translated
+ CNSsolve> 
+ CNSsolve>flags exclu * inclu xref end 
+ CNSsolve>energy end 
+ XRTSELSET: number of selected reflections       8
+ FCALC: #scatt.=      3 #anomalous=   0 #special pos.=  0 occupancies=1
+ XFFT: using grid [   6,   6,   6] and sublattice [   6(   7),   6(   7),   2]
+ XTAREXPR:                 monitor=  0.406
+ --------------- cycle=     1 --------------------------------------------------
+ | Etotal =29.873     grad(E)=20.536     E(XREF)=29.873                        |
+ -------------------------------------------------------------------------------
+ CNSsolve> 
+ CNSsolve>xray 
+ XRAY>   method=fft lookup=false 
+ XRAY>   predict 
+ PREDict>      mode=reciprocal 
+ PREDict>      to=fcalc 
+ PREDict>      selection=( $hr <= d) 
+ Total of         8 structure factor elements were selected.
+ PREDict>      atomselection=( not hydrogen ) 
+ SELRPN:      3 atoms have been selected out of      3
+ PREDict>   end 
+ FCALC: #scatt.=      3 #anomalous=   0 #special pos.=  0 occupancies=1
+ XFFT: using grid [   6,   6,   6] and sublattice [   6(   7),   6(   7),   2]
+ XRAY>   do (weight=0) ( all ) 
+ XSFAL: allocating space for real reciprocal space object.
+ Total of         8 structure factor elements were selected.
+ XRAY>   write reflection fobs fcalc weight end 
+ NREFlection=         8
+ ANOMalous=FALSe { equiv. to HERMitian=TRUE}
+ DECLare NAME=FOBS                   DOMAin=RECIprocal   TYPE=COMP END
+ DECLare NAME=FCALC                  DOMAin=RECIprocal   TYPE=COMP END
+ DECLare NAME=WEIGHT                 DOMAin=RECIprocal   TYPE=REAL END
+ INDE     2    0    0 FOBS=    33.035   180.000 FCALC=    15.080   180.000
+                   WEIGHT=     0.000
+ INDE     1    1    1 FOBS=     3.083   159.383 FCALC=    14.238   291.328
+                   WEIGHT=     0.000
+ INDE     1    1    0 FOBS=     3.774   270.000 FCALC=     3.427   270.000
+                   WEIGHT=     0.000
+ INDE     1    0    1 FOBS=    20.307   270.000 FCALC=    17.877   270.000
+                   WEIGHT=     0.000
+ INDE     0    2    0 FOBS=     9.400   180.000 FCALC=     1.047     0.000
+                   WEIGHT=     0.000
+ INDE     0    1    1 FOBS=     6.373   270.000 FCALC=    11.871   270.000
+                   WEIGHT=     0.000
+ INDE     0    0    2 FOBS=    24.529   180.000 FCALC=     1.259     0.000
+                   WEIGHT=     0.000
+ INDE     0    0    0 FOBS=    70.726     0.000 FCALC=    68.346     0.000
+                   WEIGHT=     0.000
+ XRAY>end 
+ CNSsolve>test first sele=( id 1 ) step=0.000004 tolerance=0.0 end 
+ SELRPN:      1 atoms have been selected out of      3
+ XRTSELSET: number of selected reflections       8
+ FCALC: #scatt.=      3 #anomalous=   0 #special pos.=  0 occupancies=1
+ XFFT: using grid [   6,   6,   6] and sublattice [   6(   7),   6(   7),   2]
+ XTAREXPR:                 monitor=  0.406
+ FCALC: #scatt.=      3 #anomalous=   0 #special pos.=  0 occupancies=1
+ XFFT: using grid [   6,   6,   6] and sublattice [   6(   7),   6(   7),   2]
+ XTAREXPR:                 monitor=  0.406
+ FCALC: #scatt.=      3 #anomalous=   0 #special pos.=  0 occupancies=1
+ XFFT: using grid [   6,   6,   6] and sublattice [   6(   7),   6(   7),   2]
+ XTAREXPR:                 monitor=  0.406
+ FCALC: #scatt.=      3 #anomalous=   0 #special pos.=  0 occupancies=1
+ XFFT: using grid [   6,   6,   6] and sublattice [   6(   7),   6(   7),   2]
+ XTAREXPR:                 monitor=  0.406
+ FCALC: #scatt.=      3 #anomalous=   0 #special pos.=  0 occupancies=1
+ XFFT: using grid [   6,   6,   6] and sublattice [   6(   7),   6(   7),   2]
+ XTAREXPR:                 monitor=  0.406
+ FCALC: #scatt.=      3 #anomalous=   0 #special pos.=  0 occupancies=1
+ XFFT: using grid [   6,   6,   6] and sublattice [   6(   7),   6(   7),   2]
+ XTAREXPR:                 monitor=  0.406
+ FCALC: #scatt.=      3 #anomalous=   0 #special pos.=  0 occupancies=1
+ XFFT: using grid [   6,   6,   6] and sublattice [   6(   7),   6(   7),   2]
+ XTAREXPR:                 monitor=  0.406
+ TESTFD: Parameters: STEP=   0.00000  MASSweighting=F
+ TESTFD: The following first derivatives differ by more than TOL=    0.000000
+
+  DIM.         ATOM                 ANALYTIC        FINITE-DIFF     DEVIATION
+    1 X (      1    LYS  CA  )      30.153645      30.153645       0.000000
+    1 Y (      1    LYS  CA  )     -10.537246     -10.537246       0.000000
+    1 Z (      1    LYS  CA  )     -25.312729     -25.312729       0.000000
+ TESTFD: A total of     0 elements were within the tolerance
+ CNSsolve> 
+ CNSsolve>xray 
+ XRAY>   display  $symmetry  $ncs 
+ 4  1
+ XRAY>   method=direct 
+ XRAY>   predict 
+ PREDict>      mode=reciprocal 
+ PREDict>      to=fcalc 
+ PREDict>      selection=( $hr <= d) 
+ Total of         8 structure factor elements were selected.
+ PREDict>      atomselection=( not hydrogen ) 
+ SELRPN:      3 atoms have been selected out of      3
+ PREDict>   end 
+ FCALC: #scatt.=      3 #anomalous=   0 #special pos.=  0 occupancies=1
+ XRAY>   show ( fcalc ) (h=0 and k=0 and l=0 ) 
+ [H=    0 K=    0 L=    0]  Amplitude=      71.9904  Phase=       0.0000
+ Total of         1 elements were selected.
+ XRAY>   method=fft 
+ XRAY>   predict 
+ PREDict>      mode=reciprocal 
+ PREDict>      to=fcalc 
+ PREDict>      selection=( $hr <= d) 
+ Total of         8 structure factor elements were selected.
+ PREDict>      atomselection=( not hydrogen ) 
+ SELRPN:      3 atoms have been selected out of      3
+ PREDict>   end 
+ FCALC: #scatt.=      3 #anomalous=   0 #special pos.=  0 occupancies=1
+ XFFT: using grid [   6,   6,   6] and sublattice [   6(   7),   6(   7),   2]
+ XRAY>   show ( fcalc ) (h=0 and k=0 and l=0 ) 
+ [H=    0 K=    0 L=    0]  Amplitude=      68.3462  Phase=       0.0000
+ Total of         1 elements were selected.
+ XRAY> 
+ XRAY>   declare name=map1 domain=real end 
+ XRAY>   do (map1=ft(fcalc)) ( all ) 
+ XSFAL: allocating space for complex reciprocal space object.
+ Total of         8 structure factor elements were selected.
+ XMAPASU: using grid [   6,   6,   6] and sublattice [   6,   6,   6]
+ %XASUDEF-warning: no asymmetric unit for maps specified.
+ %XASUDEF-warning: excessive memory and CPU usage may occur.
+ Maps will be stored in P1:
+   A=     0,...,     5  B=     0,...,     5  C=     0,...,     5
+ XMAPAL: allocating space for real space object.
+ XRAY> 
+ XRAY>   write map 
+ WRITe MAP>     from=map1 
+ WRITe MAP>     extend=unit 
+ WRITe MAP>     auto=false 
+ WRITe MAP>     output=OUTPUT 
+ WRITe MAP>   end 
+ XMAPX: map will be written in [e]/A^3 units.
+ XMAPX: extend NA=(   6   0   6) NB=(   6   0   6) NC=(   6   0   6) 
+ XMAPX: ave. density (real) in unit cell=       0.06835 sigma=       0.06301 e/A^3
+
+       3 !NTITLE
+ REMARKS FILENAME="OUTPUT"                                                                                                                                                                                                                                              
+ REMARKS DATE:05-Jul-2018  16:08:28       created by user: oeow39                                                                                                                                                                                                       
+ REMARKS VERSION:1.3                                                                                                                                                                                                                                                    
+       6       0       6       6       0       6       6       0       6
+ 0.10000E+02 0.10000E+02 0.10000E+02 0.90000E+02 0.90000E+02 0.90000E+02
+ZYX
+ XMAPX: real part of section #   0 ave. dens.=       0.06770 sigma=       0.04511 e/A^3
+       0
+ 0.84225E-01 0.96879E-01 0.55452E-01 0.13694E-02 0.79193E-01 0.12062E+00
+ 0.84225E-01 0.19250E-01 0.48197E-01 0.27483E-01-0.22178E-01 0.39353E-01
+ 0.60067E-01 0.19250E-01-0.22178E-01 0.39353E-01 0.60067E-01 0.19250E-01
+ 0.48197E-01 0.27483E-01-0.22178E-01 0.13694E-02 0.79193E-01 0.12062E+00
+ 0.84225E-01 0.96879E-01 0.55452E-01 0.13694E-02 0.60065E-01 0.12160E+00
+ 0.14231E+00 0.10149E+00 0.13044E+00 0.10973E+00 0.60065E-01 0.10149E+00
+ 0.13044E+00 0.10973E+00 0.60065E-01 0.12160E+00 0.14231E+00 0.10149E+00
+ 0.84225E-01 0.96879E-01 0.55452E-01 0.13694E-02 0.79193E-01 0.12062E+00
+ 0.84225E-01
+ XMAPX: real part of section #   1 ave. dens.=       0.05465 sigma=       0.06950 e/A^3
+       1
+-0.21910E-02 0.51784E-01 0.92996E-01 0.80234E-01 0.11674E+00 0.75525E-01
+-0.21910E-02-0.36249E-01 0.97755E-01 0.14932E+00 0.66891E-01 0.23365E-01
+-0.28205E-01-0.36249E-01-0.56962E-01 0.99269E-01 0.17155E+00 0.87604E-01
+ 0.21851E-01-0.50432E-01-0.56962E-01-0.43619E-01 0.54811E-01 0.13745E+00
+ 0.12166E+00 0.11371E+00 0.31070E-01-0.43619E-01-0.15841E-01 0.25595E-02
+ 0.74843E-01 0.12873E+00 0.20080E+00 0.12852E+00-0.15841E-01 0.48728E-02
+ 0.10458E-02 0.52615E-01 0.10801E+00 0.20232E+00 0.15075E+00 0.48728E-02
+-0.21910E-02 0.51784E-01 0.92996E-01 0.80234E-01 0.11674E+00 0.75525E-01
+-0.21910E-02
+ XMAPX: real part of section #   2 ave. dens.=       0.05381 sigma=       0.07263 e/A^3
+       2
+-0.43619E-01 0.31070E-01 0.11371E+00 0.12166E+00 0.13745E+00 0.54811E-01
+-0.43619E-01-0.15841E-01 0.12852E+00 0.20080E+00 0.12873E+00 0.74843E-01
+ 0.25595E-02-0.15841E-01 0.48728E-02 0.15075E+00 0.20232E+00 0.10801E+00
+ 0.52615E-01 0.10458E-02 0.48728E-02-0.21910E-02 0.75525E-01 0.11674E+00
+ 0.80234E-01 0.92996E-01 0.51784E-01-0.21910E-02-0.36249E-01-0.28205E-01
+ 0.23365E-01 0.66891E-01 0.14932E+00 0.97755E-01-0.36249E-01-0.56962E-01
+-0.50432E-01 0.21851E-01 0.87604E-01 0.17155E+00 0.99269E-01-0.56962E-01
+-0.43619E-01 0.31070E-01 0.11371E+00 0.12166E+00 0.13745E+00 0.54811E-01
+-0.43619E-01
+ XMAPX: real part of section #   3 ave. dens.=       0.06601 sigma=       0.04600 e/A^3
+       3
+ 0.13694E-02 0.55452E-01 0.96879E-01 0.84225E-01 0.12062E+00 0.79193E-01
+ 0.13694E-02 0.60065E-01 0.10973E+00 0.13044E+00 0.10149E+00 0.14231E+00
+ 0.12160E+00 0.60065E-01 0.10149E+00 0.14231E+00 0.12160E+00 0.60065E-01
+ 0.10973E+00 0.13044E+00 0.10149E+00 0.84225E-01 0.12062E+00 0.79193E-01
+ 0.13694E-02 0.55452E-01 0.96879E-01 0.84225E-01 0.19250E-01 0.60067E-01
+ 0.39353E-01-0.22178E-01 0.27483E-01 0.48197E-01 0.19250E-01-0.22178E-01
+ 0.27483E-01 0.48197E-01 0.19250E-01 0.60067E-01 0.39353E-01-0.22178E-01
+ 0.13694E-02 0.55452E-01 0.96879E-01 0.84225E-01 0.12062E+00 0.79193E-01
+ 0.13694E-02
+ XMAPX: real part of section #   4 ave. dens.=       0.07150 sigma=       0.06290 e/A^3
+       4
+ 0.80234E-01 0.92996E-01 0.51784E-01-0.21910E-02 0.75525E-01 0.11674E+00
+ 0.80234E-01 0.10801E+00 0.52615E-01 0.10458E-02 0.48728E-02 0.15075E+00
+ 0.20232E+00 0.10801E+00 0.12873E+00 0.74843E-01 0.25595E-02-0.15841E-01
+ 0.12852E+00 0.20080E+00 0.12873E+00 0.12166E+00 0.13745E+00 0.54811E-01
+-0.43619E-01 0.31070E-01 0.11371E+00 0.12166E+00 0.87604E-01 0.17155E+00
+ 0.99269E-01-0.56962E-01-0.50432E-01 0.21851E-01 0.87604E-01 0.66891E-01
+ 0.14932E+00 0.97755E-01-0.36249E-01-0.28205E-01 0.23365E-01 0.66891E-01
+ 0.80234E-01 0.92996E-01 0.51784E-01-0.21910E-02 0.75525E-01 0.11674E+00
+ 0.80234E-01
+ XMAPX: real part of section #   5 ave. dens.=       0.07235 sigma=       0.06572 e/A^3
+       5
+ 0.12166E+00 0.11371E+00 0.31070E-01-0.43619E-01 0.54811E-01 0.13745E+00
+ 0.12166E+00 0.87604E-01 0.21851E-01-0.50432E-01-0.56962E-01 0.99269E-01
+ 0.17155E+00 0.87604E-01 0.66891E-01 0.23365E-01-0.28205E-01-0.36249E-01
+ 0.97755E-01 0.14932E+00 0.66891E-01 0.80234E-01 0.11674E+00 0.75525E-01
+-0.21910E-02 0.51784E-01 0.92996E-01 0.80234E-01 0.10801E+00 0.20232E+00
+ 0.15075E+00 0.48728E-02 0.10458E-02 0.52615E-01 0.10801E+00 0.12873E+00
+ 0.20080E+00 0.12852E+00-0.15841E-01 0.25595E-02 0.74843E-01 0.12873E+00
+ 0.12166E+00 0.11371E+00 0.31070E-01-0.43619E-01 0.54811E-01 0.13745E+00
+ 0.12166E+00
+ XMAPX: real part of section #   6 ave. dens.=       0.06770 sigma=       0.04511 e/A^3
+       6
+ 0.84225E-01 0.96879E-01 0.55452E-01 0.13694E-02 0.79193E-01 0.12062E+00
+ 0.84225E-01 0.19250E-01 0.48197E-01 0.27483E-01-0.22178E-01 0.39353E-01
+ 0.60067E-01 0.19250E-01-0.22178E-01 0.39353E-01 0.60067E-01 0.19250E-01
+ 0.48197E-01 0.27483E-01-0.22178E-01 0.13694E-02 0.79193E-01 0.12062E+00
+ 0.84225E-01 0.96879E-01 0.55452E-01 0.13694E-02 0.60065E-01 0.12160E+00
+ 0.14231E+00 0.10149E+00 0.13044E+00 0.10973E+00 0.60065E-01 0.10149E+00
+ 0.13044E+00 0.10973E+00 0.60065E-01 0.12160E+00 0.14231E+00 0.10149E+00
+ 0.84225E-01 0.96879E-01 0.55452E-01 0.13694E-02 0.79193E-01 0.12062E+00
+ 0.84225E-01
+   -9999
+  0.0000E+00   0.1000E+01
+ XRAY> 
+ XRAY>end 
+ CNSsolve> 
+ CNSsolve> 
+ CNSsolve>xray 
+ XRAY>  reset 
+ XRAY: whole xray database erased and reset
+ XRAY>   declare name=fobs type=complex domain=reciprocal end 
+ XDECLARE: Object FOBS has been declared.
+ XRAY>   declare name=fpart domain=reciprocal type=complex end 
+ XDECLARE: Object FPART has been declared.
+ XRAY>   declare name=fcalc domain=reciprocal type=complex end 
+ XDECLARE: Object FCALC has been declared.
+ XRAY>   declare name=fom domain=reciprocal type=real end 
+ XDECLARE: Object FOM has been declared.
+ XRAY>   declare name=weight domain=reciprocal type=real end 
+ XDECLARE: Object WEIGHT has been declared.
+ XRAY>   declare name=sigma domain=reciprocal type=real end 
+ XDECLARE: Object SIGMA has been declared.
+ XRAY>   declare name=test domain=reciprocal type=integer end 
+ XDECLARE: Object TEST has been declared.
+ XRAY> 
+ XRAY>  a=10.00 b=10.00 c=10.00 alpha=90.0 beta=90.00 gamma=90.0 
+ XRAY> 
+ XRAY>  hermitian=false  lookup=false 
+ XRAY> 
+ XRAY>  symmetry=( X,Y,Z ) 
+ XRAY>  symmetry=( 1/2-X,-Y,1/2+Z ) 
+ XRAY>  symmetry=( -X,1/2+Y,1/2-Z ) 
+ XRAY>  symmetry=( 1/2+X,1/2-Y,-Z ) 
+ XRAY>  SCATter ( chemical C* ) 
+ SELRPN:      3 atoms have been selected out of      3
+ SCATTER_A1=       2.31000 20.8439 1.02000 10.2075 1.58860 .568700 .865000 51.6512 .215600 
+ XRAY>  method=fft 
+ XRAY>  fft 
+ XFFT>     prime=5 avoid=2 
+ XFFT>  end 
+ XRAY>  nreflections=1000 
+ XRAY: allocating space for    1000 reflections.
+ XRAY> 
+ XRAY>  evaluate ($lr=infinity) 
+ Assuming literal string "INFINITY"
+ EVALUATE: symbol $LR set to "INFINITY" (string)
+ XRAY>  evaluate ($hr=5) 
+ EVALUATE: symbol $HR set to    5.00000     (real)
+ XRAY>  binresolution $lr $hr 
+ XRAY>  mapresolution $hr 
+ XRAY>  tselection=( $hr <= d ) 
+ XRAY> 
+ XRAY>  generate  5. infinity 
+ XGENER: generating reflections to produce a full set
+         for the specified resolution range.
+ XGENE2:        9 new reflections have been generated.
+ XRAY>   predict 
+ PREDict>      mode=reciprocal 
+ PREDict>      to=fcalc 
+ PREDict>      selection=( $hr <= d) 
+ Total of         9 structure factor elements were selected.
+ PREDict>      atomselection=( not hydrogen ) 
+ SELRPN:      3 atoms have been selected out of      3
+ PREDict>   end 
+ FCALC: #scatt.=      3 #anomalous=   0 #special pos.=  0 occupancies=1
+ XSFAL: allocating space for complex reciprocal space object.
+ XFFT: using grid [   6,   6,   6] and sublattice [   6(   7),   6(   7),   2]
+ XRAY>  do (fobs=fcalc) ( all ) 
+ XSFAL: allocating space for complex reciprocal space object.
+ Total of         9 structure factor elements were selected.
+ XRAY>  wa=200. 
+ XRAY>  tolerance=0.0 
+ XRAY>  do (fpart=0) ( all ) 
+ XSFAL: allocating space for complex reciprocal space object.
+ Total of         9 structure factor elements were selected.
+ XRAY>end 
+ CNSsolve>coor translate vector=( 0.5  0.8 1.3 ) sele=( resid 1 ) end 
+ SELRPN:      1 atoms have been selected out of      3
+ COOR: using atom subset.
+ COOR: translation vector =(     0.500000    0.800000    1.300000 )
+ COOR: selected coordinates translated
+ CNSsolve> 
+ CNSsolve>flags exclu * inclu xref end 
+ CNSsolve>energy end 
+ XRTSELSET: number of selected reflections       9
+ FCALC: #scatt.=      3 #anomalous=   0 #special pos.=  0 occupancies=1
+ XFFT: using grid [   6,   6,   6] and sublattice [   6(   7),   6(   7),   2]
+ XTAREXPR:                 monitor=  0.477
+ --------------- cycle=     2 --------------------------------------------------
+ | Etotal =28.312     grad(E)=18.598     E(XREF)=28.312                        |
+ -------------------------------------------------------------------------------
+ CNSsolve> 
+ CNSsolve>xray 
+ XRAY>   method=fft lookup=false 
+ XRAY>   predict 
+ PREDict>      mode=reciprocal 
+ PREDict>      to=fcalc 
+ PREDict>      selection=( $hr <= d) 
+ Total of         9 structure factor elements were selected.
+ PREDict>      atomselection=( not hydrogen ) 
+ SELRPN:      3 atoms have been selected out of      3
+ PREDict>   end 
+ FCALC: #scatt.=      3 #anomalous=   0 #special pos.=  0 occupancies=1
+ XFFT: using grid [   6,   6,   6] and sublattice [   6(   7),   6(   7),   2]
+ XRAY>   do (weight=0) ( all ) 
+ XSFAL: allocating space for real reciprocal space object.
+ Total of         9 structure factor elements were selected.
+ XRAY>   write reflection fobs fcalc weight end 
+ NREFlection=         9
+ ANOMalous=TRUE { equiv. to HERMitian=FALSe}
+ DECLare NAME=FOBS                   DOMAin=RECIprocal   TYPE=COMP END
+ DECLare NAME=FCALC                  DOMAin=RECIprocal   TYPE=COMP END
+ DECLare NAME=WEIGHT                 DOMAin=RECIprocal   TYPE=REAL END
+ INDE     2    0    0 FOBS=    15.080   180.000 FCALC=     2.578   180.000
+                   WEIGHT=     0.000
+ INDE     1    1   -1 FOBS=    14.238    68.672 FCALC=    19.779    52.485
+                   WEIGHT=     0.000
+ INDE     1    1    0 FOBS=     3.427   270.000 FCALC=     0.202   270.000
+                   WEIGHT=     0.000
+ INDE     1    1    1 FOBS=    14.238   291.328 FCALC=    19.779   307.515
+                   WEIGHT=     0.000
+ INDE     1    0   -1 FOBS=    17.877    90.000 FCALC=     5.434    90.000
+                   WEIGHT=     0.000
+ INDE     0    2    0 FOBS=     1.047     0.000 FCALC=    21.020     0.000
+                   WEIGHT=     0.000
+ INDE     0    1   -1 FOBS=    11.871   270.000 FCALC=     2.475   270.000
+                   WEIGHT=     0.000
+ INDE     0    0   -2 FOBS=     1.259     0.000 FCALC=     0.762   180.000
+                   WEIGHT=     0.000
+ INDE     0    0    0 FOBS=    68.346     0.000 FCALC=    69.067     0.000
+                   WEIGHT=     0.000
+ XRAY>end 
+ CNSsolve>test first sele=( id 1 ) step=0.000004 tolerance=0.0 end 
+ SELRPN:      1 atoms have been selected out of      3
+ XRTSELSET: number of selected reflections       9
+ FCALC: #scatt.=      3 #anomalous=   0 #special pos.=  0 occupancies=1
+ XFFT: using grid [   6,   6,   6] and sublattice [   6(   7),   6(   7),   2]
+ XTAREXPR:                 monitor=  0.477
+ FCALC: #scatt.=      3 #anomalous=   0 #special pos.=  0 occupancies=1
+ XFFT: using grid [   6,   6,   6] and sublattice [   6(   7),   6(   7),   2]
+ XTAREXPR:                 monitor=  0.477
+ FCALC: #scatt.=      3 #anomalous=   0 #special pos.=  0 occupancies=1
+ XFFT: using grid [   6,   6,   6] and sublattice [   6(   7),   6(   7),   2]
+ XTAREXPR:                 monitor=  0.477
+ FCALC: #scatt.=      3 #anomalous=   0 #special pos.=  0 occupancies=1
+ XFFT: using grid [   6,   6,   6] and sublattice [   6(   7),   6(   7),   2]
+ XTAREXPR:                 monitor=  0.477
+ FCALC: #scatt.=      3 #anomalous=   0 #special pos.=  0 occupancies=1
+ XFFT: using grid [   6,   6,   6] and sublattice [   6(   7),   6(   7),   2]
+ XTAREXPR:                 monitor=  0.477
+ FCALC: #scatt.=      3 #anomalous=   0 #special pos.=  0 occupancies=1
+ XFFT: using grid [   6,   6,   6] and sublattice [   6(   7),   6(   7),   2]
+ XTAREXPR:                 monitor=  0.477
+ FCALC: #scatt.=      3 #anomalous=   0 #special pos.=  0 occupancies=1
+ XFFT: using grid [   6,   6,   6] and sublattice [   6(   7),   6(   7),   2]
+ XTAREXPR:                 monitor=  0.477
+ TESTFD: Parameters: STEP=   0.00000  MASSweighting=F
+ TESTFD: The following first derivatives differ by more than TOL=    0.000000
+
+  DIM.         ATOM                 ANALYTIC        FINITE-DIFF     DEVIATION
+    1 X (      1    LYS  CA  )      22.614465      22.614465       0.000000
+    1 Y (      1    LYS  CA  )      30.257812      30.257812       0.000000
+    1 Z (      1    LYS  CA  )       6.460193       6.460193       0.000000
+ TESTFD: A total of     0 elements were within the tolerance
+ CNSsolve>xray 
+ XRAY>  evaluate ($lr=infinity) 
+ Assuming literal string "INFINITY"
+ EVALUATE: symbol $LR set to "INFINITY" (string)
+ XRAY>  evaluate ($hr=3) 
+ EVALUATE: symbol $HR set to    3.00000     (real)
+ XRAY>  binresolution $lr $hr 
+ XRAY>  mapresolution $hr 
+ XRAY>  tselection=( $hr <= d ) 
+ XRAY>   fft memory=200 end 
+ XRAY>end 
+ CNSsolve>test first sele=( id 1 ) step=0.000004 tolerance=0.0 end 
+ SELRPN:      1 atoms have been selected out of      3
+ XRTSELSET: number of selected reflections       9
+ FCALC: #scatt.=      3 #anomalous=   0 #special pos.=  0 occupancies=1
+ XFFT: using grid [  10,  10,  10] and sublattice [  10(  11),  10(  11),   2]
+ XTAREXPR:                 monitor=  0.492
+ FCALC: #scatt.=      3 #anomalous=   0 #special pos.=  0 occupancies=1
+ XFFT: using grid [  10,  10,  10] and sublattice [  10(  11),  10(  11),   2]
+ XTAREXPR:                 monitor=  0.492
+ FCALC: #scatt.=      3 #anomalous=   0 #special pos.=  0 occupancies=1
+ XFFT: using grid [  10,  10,  10] and sublattice [  10(  11),  10(  11),   2]
+ XTAREXPR:                 monitor=  0.492
+ FCALC: #scatt.=      3 #anomalous=   0 #special pos.=  0 occupancies=1
+ XFFT: using grid [  10,  10,  10] and sublattice [  10(  11),  10(  11),   2]
+ XTAREXPR:                 monitor=  0.492
+ FCALC: #scatt.=      3 #anomalous=   0 #special pos.=  0 occupancies=1
+ XFFT: using grid [  10,  10,  10] and sublattice [  10(  11),  10(  11),   2]
+ XTAREXPR:                 monitor=  0.492
+ FCALC: #scatt.=      3 #anomalous=   0 #special pos.=  0 occupancies=1
+ XFFT: using grid [  10,  10,  10] and sublattice [  10(  11),  10(  11),   2]
+ XTAREXPR:                 monitor=  0.492
+ FCALC: #scatt.=      3 #anomalous=   0 #special pos.=  0 occupancies=1
+ XFFT: using grid [  10,  10,  10] and sublattice [  10(  11),  10(  11),   2]
+ XTAREXPR:                 monitor=  0.492
+ TESTFD: Parameters: STEP=   0.00000  MASSweighting=F
+ TESTFD: The following first derivatives differ by more than TOL=    0.000000
+
+  DIM.         ATOM                 ANALYTIC        FINITE-DIFF     DEVIATION
+    1 X (      1    LYS  CA  )       6.528182       6.528182       0.000000
+    1 Y (      1    LYS  CA  )      21.047488      21.047488       0.000000
+    1 Z (      1    LYS  CA  )       8.459944       8.459944       0.000000
+ TESTFD: A total of     0 elements were within the tolerance
+ CNSsolve>xray 
+ XRAY>  evaluate ($lr=infinity) 
+ Assuming literal string "INFINITY"
+ EVALUATE: symbol $LR set to "INFINITY" (string)
+ XRAY>  evaluate ($hr=5) 
+ EVALUATE: symbol $HR set to    5.00000     (real)
+ XRAY>  binresolution $lr $hr 
+ XRAY>  mapresolution $hr 
+ XRAY>  tselection=( $hr <= d ) 
+ XRAY>   fft memory=500000 end 
+ XRAY>end 
+ CNSsolve> 
+ CNSsolve>xray 
+ XRAY>   predict 
+ PREDict>      mode=reciprocal 
+ PREDict>      to=fcalc 
+ PREDict>      selection=( $hr <= d) 
+ Total of         9 structure factor elements were selected.
+ PREDict>      atomselection=( not hydrogen ) 
+ SELRPN:      3 atoms have been selected out of      3
+ PREDict>   end 
+ FCALC: #scatt.=      3 #anomalous=   0 #special pos.=  0 occupancies=1
+ XFFT: using grid [   6,   6,   6] and sublattice [   6(   7),   6(   7),   2]
+ XRAY> 
+ XRAY>   declare name=map1 domain=real end 
+ XRAY> 
+ XRAY>   do (map1=ft(fcalc)) ( all ) 
+ XSFAL: allocating space for complex reciprocal space object.
+ Total of         9 structure factor elements were selected.
+ XMAPASU: using grid [   6,   6,   6] and sublattice [   6,   6,   6]
+ %XASUDEF-warning: no asymmetric unit for maps specified.
+ %XASUDEF-warning: excessive memory and CPU usage may occur.
+ Maps will be stored in P1:
+   A=     0,...,     5  B=     0,...,     5  C=     0,...,     5
+ XMAPAL: allocating space for real space object.
+ XRAY> 
+ XRAY>   write map 
+ WRITe MAP>     from=map1 
+ WRITe MAP>     extend=unit 
+ WRITe MAP>     auto=true 
+ WRITe MAP>     output=xmap.dat 
+ WRITe MAP>   end 
+ ASSFIL: file xmap.dat opened.
+ XMAPX: map will be scaled.
+ XMAPX: extend NA=(   6   0   6) NB=(   6   0   6) NC=(   6   0   6) 
+ XMAPX: ave. density (real) in unit cell=       0.06907 sigma=       0.06458 e/A^3
+ XMAPX: real part of section #   0 ave. dens.=       0.07478 sigma=       0.06467 e/A^3
+ XMAPX: real part of section #   1 ave. dens.=       0.07339 sigma=       0.06375 e/A^3
+ XMAPX: real part of section #   2 ave. dens.=       0.07143 sigma=       0.06500 e/A^3
+ XMAPX: real part of section #   3 ave. dens.=       0.07085 sigma=       0.06272 e/A^3
+ XMAPX: real part of section #   4 ave. dens.=       0.07680 sigma=       0.06239 e/A^3
+ XMAPX: real part of section #   5 ave. dens.=       0.07877 sigma=       0.06559 e/A^3
+ XMAPX: real part of section #   6 ave. dens.=       0.07478 sigma=       0.06467 e/A^3
+ XRAY> 
+ XRAY>end 
+ CNSsolve> 
+ CNSsolve> 
+ CNSsolve>coor swap end 
+ COOR: selected coordinates swaped (main<->comp)
+ CNSsolve> 
+ CNSsolve>xray 
+ XRAY>  reset lookup=false 
+ XRAY: whole xray database erased and reset
+ XRAY>   declare name=fobs type=complex domain=reciprocal end 
+ XDECLARE: Object FOBS has been declared.
+ XRAY>   declare name=fpart domain=reciprocal type=complex end 
+ XDECLARE: Object FPART has been declared.
+ XRAY>   declare name=fcalc domain=reciprocal type=complex end 
+ XDECLARE: Object FCALC has been declared.
+ XRAY>   declare name=fom domain=reciprocal type=real end 
+ XDECLARE: Object FOM has been declared.
+ XRAY>   declare name=weight domain=reciprocal type=real end 
+ XDECLARE: Object WEIGHT has been declared.
+ XRAY>   declare name=sigma domain=reciprocal type=real end 
+ XDECLARE: Object SIGMA has been declared.
+ XRAY>   declare name=test domain=reciprocal type=integer end 
+ XDECLARE: Object TEST has been declared.
+ XRAY> 
+ XRAY>  a=10.00 b=10.00 c=10.00 alpha=90.0 beta=90.00 gamma=90.0 
+ XRAY>  symmetry=( X,Y,Z ) 
+ XRAY>  symmetry=( 1/2-X,-Y,1/2+Z ) 
+ XRAY>  symmetry=( -X,1/2+Y,1/2-Z ) 
+ XRAY>  symmetry=( 1/2+X,1/2-Y,-Z ) 
+ XRAY>  asymm=( 0<=x<=1/2 
+ ASYMmetric>     and  0<=y<=1/2 
+ ASYMmetric>     and  0<=z<=1 ) 
+ XRAY>  hermitian=false 
+ XRAY> 
+ XRAY>  SCATter ( chemical C* ) 
+ SELRPN:      3 atoms have been selected out of      3
+ SCATTER_A1=       2.31000 20.8439 1.02000 10.2075 1.58860 .568700 .865000 51.6512 .215600 
+ XRAY>  method=fft 
+ XRAY>  fft 
+ XFFT>     prime=5 avoid=2 
+ XFFT>  end 
+ XRAY>  nreflections=1000 
+ XRAY: allocating space for    1000 reflections.
+ XRAY> 
+ XRAY>  evaluate ($lr=infinity) 
+ Assuming literal string "INFINITY"
+ EVALUATE: symbol $LR set to "INFINITY" (string)
+ XRAY>  evaluate ($hr=5) 
+ EVALUATE: symbol $HR set to    5.00000     (real)
+ XRAY>  binresolution $lr $hr 
+ XRAY>  mapresolution $hr 
+ XRAY>  tselection=( $hr <= d  ) 
+ XRAY> 
+ XRAY>  generate  5. infinity 
+ XGENER: generating reflections to produce a full set
+         for the specified resolution range.
+ XGENE2:        9 new reflections have been generated.
+ XRAY>   predict 
+ PREDict>      mode=reciprocal 
+ PREDict>      to=fcalc 
+ PREDict>      selection=( $hr <= d) 
+ Total of         9 structure factor elements were selected.
+ PREDict>      atomselection=( not hydrogen ) 
+ SELRPN:      3 atoms have been selected out of      3
+ PREDict>   end 
+ FCALC: #scatt.=      3 #anomalous=   0 #special pos.=  0 occupancies=1
+ XSFAL: allocating space for complex reciprocal space object.
+ XFFT: using grid [   6,   6,   6] and sublattice [   6(   7),   6(   7),   2]
+ XRAY>  do (fobs=fcalc) ( all ) 
+ XSFAL: allocating space for complex reciprocal space object.
+ Total of         9 structure factor elements were selected.
+ XRAY>  wa=200. 
+ XRAY>  tolerance=0.0 
+ XRAY>end 
+ CNSsolve>coor translate vector=( 1.1  0.8 1.4 ) sele=( resid 1 ) end 
+ SELRPN:      1 atoms have been selected out of      3
+ COOR: using atom subset.
+ COOR: translation vector =(     1.100000    0.800000    1.400000 )
+ COOR: selected coordinates translated
+ CNSsolve>xray 
+ XRAY>   predict 
+ PREDict>      mode=reciprocal 
+ PREDict>      to=fcalc 
+ PREDict>      selection=( $hr <= d) 
+ Total of         9 structure factor elements were selected.
+ PREDict>      atomselection=( not hydrogen ) 
+ SELRPN:      3 atoms have been selected out of      3
+ PREDict>   end 
+ FCALC: #scatt.=      3 #anomalous=   0 #special pos.=  0 occupancies=1
+ XFFT: using grid [   6,   6,   6] and sublattice [   6(   7),   6(   7),   2]
+ XRAY> 
+ XRAY>   declare name=map1  domain=real end 
+ XRAY>   declare name=map2  domain=real end 
+ XRAY>   declare name=map3  domain=real end 
+ XRAY>   declare name=map4  domain=real end 
+ XRAY>  do (map1=ft(fcalc)) ( 5 <= d <= infinity ) 
+ XSFAL: allocating space for complex reciprocal space object.
+ Total of         9 structure factor elements were selected.
+ XMAPASU: using grid [   6,   6,   6] and sublattice [   6,   6,   6]
+ Minimum brick that covers asymmetric unit:
+   A=     0,...,     3  B=     0,...,     3  C=     0,...,     6
+ XMAPAL: allocating space for real space object.
+ XRAY>   write map 
+ WRITe MAP>     extend=unit 
+ WRITe MAP>     auto=false 
+ WRITe MAP>     output=OUTPUT 
+ WRITe MAP>   end 
+ XMAPX: map will be written in [e]/A^3 units.
+ XMAPX: extend NA=(   6   0   6) NB=(   6   0   6) NC=(   6   0   6) 
+ XMAPX: ave. density (real) in unit cell=       0.06835 sigma=       0.06301 e/A^3
+
+       3 !NTITLE
+ REMARKS FILENAME="OUTPUT"                                                                                                                                                                                                                                              
+ REMARKS DATE:05-Jul-2018  16:08:28       created by user: oeow39                                                                                                                                                                                                       
+ REMARKS VERSION:1.3                                                                                                                                                                                                                                                    
+       6       0       6       6       0       6       6       0       6
+ 0.10000E+02 0.10000E+02 0.10000E+02 0.90000E+02 0.90000E+02 0.90000E+02
+ZYX
+ XMAPX: real part of section #   0 ave. dens.=       0.06770 sigma=       0.04511 e/A^3
+       0
+ 0.84225E-01 0.96879E-01 0.55452E-01 0.13694E-02 0.79193E-01 0.12062E+00
+ 0.84225E-01 0.19250E-01 0.48197E-01 0.27483E-01-0.22178E-01 0.39353E-01
+ 0.60067E-01 0.19250E-01-0.22178E-01 0.39353E-01 0.60067E-01 0.19250E-01
+ 0.48197E-01 0.27483E-01-0.22178E-01 0.13694E-02 0.79193E-01 0.12062E+00
+ 0.84225E-01 0.96879E-01 0.55452E-01 0.13694E-02 0.60065E-01 0.12160E+00
+ 0.14231E+00 0.10149E+00 0.13044E+00 0.10973E+00 0.60065E-01 0.10149E+00
+ 0.13044E+00 0.10973E+00 0.60065E-01 0.12160E+00 0.14231E+00 0.10149E+00
+ 0.84225E-01 0.96879E-01 0.55452E-01 0.13694E-02 0.79193E-01 0.12062E+00
+ 0.84225E-01
+ XMAPX: real part of section #   1 ave. dens.=       0.05465 sigma=       0.06950 e/A^3
+       1
+-0.21910E-02 0.51784E-01 0.92996E-01 0.80234E-01 0.11674E+00 0.75525E-01
+-0.21910E-02-0.36249E-01 0.97755E-01 0.14932E+00 0.66891E-01 0.23365E-01
+-0.28205E-01-0.36249E-01-0.56962E-01 0.99269E-01 0.17155E+00 0.87604E-01
+ 0.21851E-01-0.50432E-01-0.56962E-01-0.43619E-01 0.54811E-01 0.13745E+00
+ 0.12166E+00 0.11371E+00 0.31070E-01-0.43619E-01-0.15841E-01 0.25595E-02
+ 0.74843E-01 0.12873E+00 0.20080E+00 0.12852E+00-0.15841E-01 0.48728E-02
+ 0.10458E-02 0.52615E-01 0.10801E+00 0.20232E+00 0.15075E+00 0.48728E-02
+-0.21910E-02 0.51784E-01 0.92996E-01 0.80234E-01 0.11674E+00 0.75525E-01
+-0.21910E-02
+ XMAPX: real part of section #   2 ave. dens.=       0.05381 sigma=       0.07263 e/A^3
+       2
+-0.43619E-01 0.31070E-01 0.11371E+00 0.12166E+00 0.13745E+00 0.54811E-01
+-0.43619E-01-0.15841E-01 0.12852E+00 0.20080E+00 0.12873E+00 0.74843E-01
+ 0.25595E-02-0.15841E-01 0.48728E-02 0.15075E+00 0.20232E+00 0.10801E+00
+ 0.52615E-01 0.10458E-02 0.48728E-02-0.21910E-02 0.75525E-01 0.11674E+00
+ 0.80234E-01 0.92996E-01 0.51784E-01-0.21910E-02-0.36249E-01-0.28205E-01
+ 0.23365E-01 0.66891E-01 0.14932E+00 0.97755E-01-0.36249E-01-0.56962E-01
+-0.50432E-01 0.21851E-01 0.87604E-01 0.17155E+00 0.99269E-01-0.56962E-01
+-0.43619E-01 0.31070E-01 0.11371E+00 0.12166E+00 0.13745E+00 0.54811E-01
+-0.43619E-01
+ XMAPX: real part of section #   3 ave. dens.=       0.06601 sigma=       0.04600 e/A^3
+       3
+ 0.13694E-02 0.55452E-01 0.96879E-01 0.84225E-01 0.12062E+00 0.79193E-01
+ 0.13694E-02 0.60065E-01 0.10973E+00 0.13044E+00 0.10149E+00 0.14231E+00
+ 0.12160E+00 0.60065E-01 0.10149E+00 0.14231E+00 0.12160E+00 0.60065E-01
+ 0.10973E+00 0.13044E+00 0.10149E+00 0.84225E-01 0.12062E+00 0.79193E-01
+ 0.13694E-02 0.55452E-01 0.96879E-01 0.84225E-01 0.19250E-01 0.60067E-01
+ 0.39353E-01-0.22178E-01 0.27483E-01 0.48197E-01 0.19250E-01-0.22178E-01
+ 0.27483E-01 0.48197E-01 0.19250E-01 0.60067E-01 0.39353E-01-0.22178E-01
+ 0.13694E-02 0.55452E-01 0.96879E-01 0.84225E-01 0.12062E+00 0.79193E-01
+ 0.13694E-02
+ XMAPX: real part of section #   4 ave. dens.=       0.07150 sigma=       0.06290 e/A^3
+       4
+ 0.80234E-01 0.92996E-01 0.51784E-01-0.21910E-02 0.75525E-01 0.11674E+00
+ 0.80234E-01 0.10801E+00 0.52615E-01 0.10458E-02 0.48728E-02 0.15075E+00
+ 0.20232E+00 0.10801E+00 0.12873E+00 0.74843E-01 0.25595E-02-0.15841E-01
+ 0.12852E+00 0.20080E+00 0.12873E+00 0.12166E+00 0.13745E+00 0.54811E-01
+-0.43619E-01 0.31070E-01 0.11371E+00 0.12166E+00 0.87604E-01 0.17155E+00
+ 0.99269E-01-0.56962E-01-0.50432E-01 0.21851E-01 0.87604E-01 0.66891E-01
+ 0.14932E+00 0.97755E-01-0.36249E-01-0.28205E-01 0.23365E-01 0.66891E-01
+ 0.80234E-01 0.92996E-01 0.51784E-01-0.21910E-02 0.75525E-01 0.11674E+00
+ 0.80234E-01
+ XMAPX: real part of section #   5 ave. dens.=       0.07235 sigma=       0.06572 e/A^3
+       5
+ 0.12166E+00 0.11371E+00 0.31070E-01-0.43619E-01 0.54811E-01 0.13745E+00
+ 0.12166E+00 0.87604E-01 0.21851E-01-0.50432E-01-0.56962E-01 0.99269E-01
+ 0.17155E+00 0.87604E-01 0.66891E-01 0.23365E-01-0.28205E-01-0.36249E-01
+ 0.97755E-01 0.14932E+00 0.66891E-01 0.80234E-01 0.11674E+00 0.75525E-01
+-0.21910E-02 0.51784E-01 0.92996E-01 0.80234E-01 0.10801E+00 0.20232E+00
+ 0.15075E+00 0.48728E-02 0.10458E-02 0.52615E-01 0.10801E+00 0.12873E+00
+ 0.20080E+00 0.12852E+00-0.15841E-01 0.25595E-02 0.74843E-01 0.12873E+00
+ 0.12166E+00 0.11371E+00 0.31070E-01-0.43619E-01 0.54811E-01 0.13745E+00
+ 0.12166E+00
+ XMAPX: real part of section #   6 ave. dens.=       0.06770 sigma=       0.04511 e/A^3
+       6
+ 0.84225E-01 0.96879E-01 0.55452E-01 0.13694E-02 0.79193E-01 0.12062E+00
+ 0.84225E-01 0.19250E-01 0.48197E-01 0.27483E-01-0.22178E-01 0.39353E-01
+ 0.60067E-01 0.19250E-01-0.22178E-01 0.39353E-01 0.60067E-01 0.19250E-01
+ 0.48197E-01 0.27483E-01-0.22178E-01 0.13694E-02 0.79193E-01 0.12062E+00
+ 0.84225E-01 0.96879E-01 0.55452E-01 0.13694E-02 0.60065E-01 0.12160E+00
+ 0.14231E+00 0.10149E+00 0.13044E+00 0.10973E+00 0.60065E-01 0.10149E+00
+ 0.13044E+00 0.10973E+00 0.60065E-01 0.12160E+00 0.14231E+00 0.10149E+00
+ 0.84225E-01 0.96879E-01 0.55452E-01 0.13694E-02 0.79193E-01 0.12062E+00
+ 0.84225E-01
+   -9999
+  0.0000E+00   0.1000E+01
+ XRAY> 
+ XRAY>end 
+ CNSsolve> 
+ CNSsolve> 
+ CNSsolve>xray 
+ XRAY>  reset 
+ XRAY: whole xray database erased and reset
+ XRAY>   declare name=fobs type=complex domain=reciprocal end 
+ XDECLARE: Object FOBS has been declared.
+ XRAY>   declare name=fpart domain=reciprocal type=complex end 
+ XDECLARE: Object FPART has been declared.
+ XRAY>   declare name=fcalc domain=reciprocal type=complex end 
+ XDECLARE: Object FCALC has been declared.
+ XRAY>   declare name=fom domain=reciprocal type=real end 
+ XDECLARE: Object FOM has been declared.
+ XRAY>   declare name=weight domain=reciprocal type=real end 
+ XDECLARE: Object WEIGHT has been declared.
+ XRAY>   declare name=sigma domain=reciprocal type=real end 
+ XDECLARE: Object SIGMA has been declared.
+ XRAY>   declare name=test domain=reciprocal type=integer end 
+ XDECLARE: Object TEST has been declared.
+ XRAY> 
+ XRAY>  a=10.00 b=10.00 c=10.00 alpha=90.0 beta=90.00 gamma=90.0 
+ XRAY> 
+ XRAY>  hermitian=false lookup=false 
+ XRAY> 
+ XRAY>  symmetry=( X,Y,Z ) 
+ XRAY>  symmetry=( 1/2-X,-Y,1/2+Z ) 
+ XRAY>  symmetry=( -X,1/2+Y,1/2-Z ) 
+ XRAY>  symmetry=( 1/2+X,1/2-Y,-Z ) 
+ XRAY>  asymm=( 0<=x<=1/2 
+ ASYMmetric>     and  0<=y<=1/2 
+ ASYMmetric>     and  0<=z<1 ) 
+ XRAY>   declare name=map1  domain=real end 
+ XRAY>   declare name=map2  domain=real end 
+ XRAY>   declare name=map3  domain=real end 
+ XRAY>   declare name=map4  domain=real end 
+ XRAY> 
+ XRAY>  SCATter ( chemical C* ) 
+ SELRPN:      3 atoms have been selected out of      3
+ SCATTER_A1=       2.31000 20.8439 1.02000 10.2075 1.58860 .568700 .865000 51.6512 .215600 
+ XRAY>  method=fft 
+ XRAY>  fft 
+ XFFT>     prime=5 avoid=2 
+ XFFT>  end 
+ XRAY>  nreflections=1000 
+ XRAY: allocating space for    1000 reflections.
+ XRAY> 
+ XRAY>  evaluate ($lr=infinity) 
+ Assuming literal string "INFINITY"
+ EVALUATE: symbol $LR set to "INFINITY" (string)
+ XRAY>  evaluate ($hr=5) 
+ EVALUATE: symbol $HR set to    5.00000     (real)
+ XRAY>  binresolution $lr $hr 
+ XRAY>  mapresolution $hr 
+ XRAY>  tselection=( $hr <= d ) 
+ XRAY> 
+ XRAY>  generate  5. infinity 
+ XGENER: generating reflections to produce a full set
+         for the specified resolution range.
+ XGENE2:        9 new reflections have been generated.
+ XRAY>   predict 
+ PREDict>      mode=reciprocal 
+ PREDict>      to=fcalc 
+ PREDict>      selection=( $hr <= d) 
+ Total of         9 structure factor elements were selected.
+ PREDict>      atomselection=( not hydrogen ) 
+ SELRPN:      3 atoms have been selected out of      3
+ PREDict>   end 
+ FCALC: #scatt.=      3 #anomalous=   0 #special pos.=  0 occupancies=1
+ XSFAL: allocating space for complex reciprocal space object.
+ XFFT: using grid [   6,   6,   6] and sublattice [   6(   7),   6(   7),   2]
+ XRAY>  do (fobs=fcalc) ( all ) 
+ XSFAL: allocating space for complex reciprocal space object.
+ Total of         9 structure factor elements were selected.
+ XRAY>  wa=200. 
+ XRAY>end 
+ CNSsolve>coor translate vector=( 0.5  0.8 1.3 ) sele=( resid 1 ) end 
+ SELRPN:      1 atoms have been selected out of      3
+ COOR: using atom subset.
+ COOR: translation vector =(     0.500000    0.800000    1.300000 )
+ COOR: selected coordinates translated
+ CNSsolve>xray 
+ XRAY>   predict 
+ PREDict>      mode=reciprocal 
+ PREDict>      to=fcalc 
+ PREDict>      selection=( $hr <= d) 
+ Total of         9 structure factor elements were selected.
+ PREDict>      atomselection=( not hydrogen ) 
+ SELRPN:      3 atoms have been selected out of      3
+ PREDict>   end 
+ FCALC: #scatt.=      3 #anomalous=   0 #special pos.=  0 occupancies=1
+ XFFT: using grid [   6,   6,   6] and sublattice [   6(   7),   6(   7),   2]
+ XRAY>   set message=all end 
+ XRAY>   do (map1=ft(fcalc)) ( 5 <= d <= infinity ) 
+ DO: executing operations right of FT.
+ XSFAL: allocating space for complex reciprocal space object.
+ Total of         9 structure factor elements were selected.
+ XMAPASU: using grid [   6,   6,   6] and sublattice [   6,   6,   6]
+ Minimum brick that covers asymmetric unit:
+   A=     0,...,     3  B=     0,...,     3  C=     0,...,     5
+ Number of deleted points in ASU=          42
+ Number of non-zero lattice points in ASU=          54
+ Number of special positions in ASU=           0
+ XMAPAL: allocating space for real space object.
+ DO: bypassing operations left of FT.
+ XRAY>   write map 
+ WRITe MAP>     extend=unit 
+ WRITe MAP>     auto=true 
+ WRITe MAP>     output=xmap.dat 
+ WRITe MAP>   end 
+ ASSFIL: file xmap.dat opened.
+ XMAPX: map will be scaled.
+ XMAPX: extend NA=(   6   0   6) NB=(   6   0   6) NC=(   6   0   6) 
+ XMAPX: ave. density (real) in unit cell=       0.06907 sigma=       0.06458 e/A^3
+ XMAPX: real part of section #   0 ave. dens.=       0.07478 sigma=       0.06467 e/A^3
+ XMAPX: real part of section #   1 ave. dens.=       0.07339 sigma=       0.06375 e/A^3
+ XMAPX: real part of section #   2 ave. dens.=       0.07143 sigma=       0.06500 e/A^3
+ XMAPX: real part of section #   3 ave. dens.=       0.07085 sigma=       0.06272 e/A^3
+ XMAPX: real part of section #   4 ave. dens.=       0.07680 sigma=       0.06239 e/A^3
+ XMAPX: real part of section #   5 ave. dens.=       0.07877 sigma=       0.06559 e/A^3
+ XMAPX: real part of section #   6 ave. dens.=       0.07478 sigma=       0.06467 e/A^3
+ XRAY> 
+ XRAY>end 
+ CNSsolve> 
+ CNSsolve>xray 
+ XRAY>   write map 
+ WRITe MAP>     extend=asymmetric 
+ WRITe MAP>     auto=false 
+ WRITe MAP>     output=OUTPUT 
+ WRITe MAP>   end 
+ XMAPX: map will be written in [e]/A^3 units.
+ XMAPX: extend NA=(   6   0   3) NB=(   6   0   3) NC=(   6   0   5) 
+ XMAPX: ave. density (real) in unit cell=       0.06907 sigma=       0.06458 e/A^3
+
+       3 !NTITLE
+ REMARKS FILENAME="OUTPUT"                                                                                                                                                                                                                                              
+ REMARKS DATE:05-Jul-2018  16:08:28       created by user: oeow39                                                                                                                                                                                                       
+ REMARKS VERSION:1.3                                                                                                                                                                                                                                                    
+       6       0       3       6       0       3       6       0       5
+ 0.10000E+02 0.10000E+02 0.10000E+02 0.90000E+02 0.90000E+02 0.90000E+02
+ZYX
+ XMAPX: real part of section #   0 ave. dens.=       0.05532 sigma=       0.06456 e/A^3
+       0
+ 0.20078E+00 0.15964E+00 0.63283E-01 0.80709E-02 0.80970E-01 0.64265E-01
+ 0.16087E-01-0.15386E-01 0.00000E+00 0.16786E-01 0.64964E-01 0.00000E+00
+ 0.00000E+00 0.64682E-01 0.16104E+00 0.00000E+00
+ XMAPX: real part of section #   1 ave. dens.=       0.09729 sigma=       0.04804 e/A^3
+       1
+ 0.13607E+00 0.12843E+00 0.99071E-01 0.77359E-01 0.44633E-01 0.13090E+00
+ 0.12564E+00 0.34101E-01-0.35452E-02 0.10751E+00 0.15043E+00 0.82279E-01
+ 0.39713E-01 0.81647E-01 0.14865E+00 0.17372E+00
+ XMAPX: real part of section #   2 ave. dens.=       0.07490 sigma=       0.05835 e/A^3
+       2
+ 0.00000E+00 0.80248E-01 0.14725E+00 0.00000E+00 0.50294E-02 0.11539E+00
+ 0.15830E+00 0.90853E-01 0.53207E-01 0.14018E+00 0.13491E+00 0.42675E-01
+ 0.00000E+00 0.12982E+00 0.10047E+00 0.00000E+00
+ XMAPX: real part of section #   3 ave. dens.=       0.02066 sigma=       0.03394 e/A^3
+       3
+ 0.00000E+00 0.00000E+00 0.00000E+00 0.00000E+00 0.17633E-02 0.33236E-01
+ 0.81414E-01 0.98119E-01 0.00000E+00 0.82114E-01 0.33936E-01 0.00000E+00
+ 0.00000E+00 0.00000E+00 0.00000E+00 0.00000E+00
+ XMAPX: real part of section #   4 ave. dens.=      -0.00646 sigma=       0.01355 e/A^3
+       4
+ 0.00000E+00 0.00000E+00 0.00000E+00 0.00000E+00 0.00000E+00-0.28827E-01
+-0.23561E-01 0.00000E+00 0.00000E+00-0.40385E-02-0.46950E-01 0.00000E+00
+ 0.00000E+00 0.00000E+00 0.00000E+00 0.00000E+00
+ XMAPX: real part of section #   5 ave. dens.=      -0.00860 sigma=       0.01675 e/A^3
+       5
+ 0.00000E+00 0.00000E+00 0.00000E+00 0.00000E+00 0.00000E+00-0.13313E-01
+-0.56225E-01 0.00000E+00 0.00000E+00-0.36702E-01-0.31436E-01 0.00000E+00
+ 0.00000E+00 0.00000E+00 0.00000E+00 0.00000E+00
+   -9999
+  0.0000E+00   0.1000E+01
+ XRAY>end 
+ CNSsolve> 
+ CNSsolve>xray 
+ XRAY>   do (map2=map1) ( all ) 
+ DO: bypassing selection.
+ XMAPAL: allocating space for real space object.
+ Total of        54 map elements were selected.
+ XRAY>   write map from=map2 
+ WRITe MAP>       extend=unit 
+ WRITe MAP>       auto=false 
+ WRITe MAP>       output=xmap3.dat 
+ WRITe MAP>   end 
+ ASSFIL: file xmap3.dat opened.
+ XMAPX: map will be written in [e]/A^3 units.
+ XMAPX: extend NA=(   6   0   6) NB=(   6   0   6) NC=(   6   0   6) 
+ XMAPX: ave. density (real) in unit cell=       0.06907 sigma=       0.06458 e/A^3
+ XMAPX: real part of section #   0 ave. dens.=       0.07478 sigma=       0.06467 e/A^3
+ XMAPX: real part of section #   1 ave. dens.=       0.07339 sigma=       0.06375 e/A^3
+ XMAPX: real part of section #   2 ave. dens.=       0.07143 sigma=       0.06500 e/A^3
+ XMAPX: real part of section #   3 ave. dens.=       0.07085 sigma=       0.06272 e/A^3
+ XMAPX: real part of section #   4 ave. dens.=       0.07680 sigma=       0.06239 e/A^3
+ XMAPX: real part of section #   5 ave. dens.=       0.07877 sigma=       0.06559 e/A^3
+ XMAPX: real part of section #   6 ave. dens.=       0.07478 sigma=       0.06467 e/A^3
+ XRAY>end 
+ CNSsolve> 
+ CNSsolve>xray 
+ XRAY>   do (map2=i map1) ( all ) 
+ DO: bypassing selection.
+ Total of        54 map elements were selected.
+ XRAY>   write map from=map2 
+ WRITe MAP>       extend=unit 
+ WRITe MAP>       auto=false 
+ WRITe MAP>       output=xmap6.dat 
+ WRITe MAP>       ioutput=xmap4.dat 
+ WRITe MAP>   end 
+ ASSFIL: file xmap6.dat opened.
+ ASSFIL: file xmap4.dat opened.
+ XMAPX: map will be written in [e]/A^3 units.
+ XMAPX: extend NA=(   6   0   6) NB=(   6   0   6) NC=(   6   0   6) 
+ XMAPX: ave. density (real) in unit cell=       0.00000 sigma=       0.00000 e/A^3
+ XMAPX: ave. density (imaginary) in unit cell=       0.06907 sigma=       0.06458 e/A^3
+ XMAPX: real part of section #   0 ave. dens.=       0.00000 sigma=       0.00000 e/A^3
+ XMAPX: imaginary part of section #   0 ave. dens.=       0.07478 sigma=       0.06467 e/A^3
+ XMAPX: real part of section #   1 ave. dens.=       0.00000 sigma=       0.00000 e/A^3
+ XMAPX: imaginary part of section #   1 ave. dens.=       0.07339 sigma=       0.06375 e/A^3
+ XMAPX: real part of section #   2 ave. dens.=       0.00000 sigma=       0.00000 e/A^3
+ XMAPX: imaginary part of section #   2 ave. dens.=       0.07143 sigma=       0.06500 e/A^3
+ XMAPX: real part of section #   3 ave. dens.=       0.00000 sigma=       0.00000 e/A^3
+ XMAPX: imaginary part of section #   3 ave. dens.=       0.07085 sigma=       0.06272 e/A^3
+ XMAPX: real part of section #   4 ave. dens.=       0.00000 sigma=       0.00000 e/A^3
+ XMAPX: imaginary part of section #   4 ave. dens.=       0.07680 sigma=       0.06239 e/A^3
+ XMAPX: real part of section #   5 ave. dens.=       0.00000 sigma=       0.00000 e/A^3
+ XMAPX: imaginary part of section #   5 ave. dens.=       0.07877 sigma=       0.06559 e/A^3
+ XMAPX: real part of section #   6 ave. dens.=       0.00000 sigma=       0.00000 e/A^3
+ XMAPX: imaginary part of section #   6 ave. dens.=       0.07478 sigma=       0.06467 e/A^3
+ XRAY>end 
+ CNSsolve> 
+ CNSsolve> 
+ CNSsolve>xray 
+ XRAY>   write map 
+ WRITe MAP>      extend=molecule 
+ WRITe MAP>      sele=( resid 1:2 ) 
+ SELRPN:      2 atoms have been selected out of      3
+ WRITe MAP>      output=xmap7.dat 
+ WRITe MAP>   end 
+ ASSFIL: file xmap7.dat opened.
+ XMAPX: map will be scaled.
+ XMAPX: extend NA=(   6   0   7) NB=(   6   3   7) NC=(   6   5  12) 
+ XMAPX: ave. density (real) in unit cell=       0.06907 sigma=       0.06458 e/A^3
+ XMAPX: real part of section #   0 ave. dens.=       0.08103 sigma=       0.06501 e/A^3
+ XMAPX: real part of section #   1 ave. dens.=       0.07494 sigma=       0.05910 e/A^3
+ XMAPX: real part of section #   2 ave. dens.=       0.06990 sigma=       0.06522 e/A^3
+ XMAPX: real part of section #   3 ave. dens.=       0.06637 sigma=       0.06794 e/A^3
+ XMAPX: real part of section #   4 ave. dens.=       0.06789 sigma=       0.06223 e/A^3
+ XMAPX: real part of section #   5 ave. dens.=       0.07751 sigma=       0.06515 e/A^3
+ XMAPX: real part of section #   6 ave. dens.=       0.08103 sigma=       0.06501 e/A^3
+ XMAPX: real part of section #   7 ave. dens.=       0.07494 sigma=       0.05910 e/A^3
+ XRAY>end 
+ CNSsolve> 
+ CNSsolve> 
+ CNSsolve>xray 
+ XRAY>  write map 
+ WRITe MAP>      extend=orthogonal 
+ WRITe MAP>       xmin=20 xmax=30 
+ WRITe MAP>       ymin=-20 ymax=0 
+ WRITe MAP>       zmin=0 zmax=5 
+ WRITe MAP>      output=xmap7.dat 
+ WRITe MAP>  end 
+ ASSFIL: file xmap7.dat opened.
+ XMAPX: map will be scaled.
+ XMAPX: extend NA=(   6  12  18) NB=(   6 -12   0) NC=(   6   0   3) 
+ XMAPX: ave. density (real) in unit cell=       0.06907 sigma=       0.06458 e/A^3
+ XMAPX: real part of section #   0 ave. dens.=       0.07110 sigma=       0.06269 e/A^3
+ XMAPX: real part of section #   1 ave. dens.=       0.07017 sigma=       0.06478 e/A^3
+ XMAPX: real part of section #   2 ave. dens.=       0.06911 sigma=       0.06540 e/A^3
+ XMAPX: real part of section #   3 ave. dens.=       0.06898 sigma=       0.06151 e/A^3
+ XRAY>end 
+ CNSsolve> 
+ CNSsolve>xray 
+ XRAY>   do (fpart=3.1 * fcalc) ( all ) 
+ DO: bypassing selection.
+ XSFAL: allocating space for complex reciprocal space object.
+ Total of         9 structure factor elements were selected.
+ XRAY>   do (test=0 ) ( all ) 
+ DO: bypassing selection.
+ XSFAL: allocating space for integer reciprocal space object.
+ Total of         9 structure factor elements were selected.
+ XRAY>   do (test=1) ( h=1 ) 
+ Total of         4 structure factor elements were selected.
+ XRAY> 
+ XRAY>   do (map1=ft(fcalc+fpart))  ( test=0 ) 
+ DO: executing operations right of FT.
+ XSFAL: allocating space for complex reciprocal space object.
+ Total of         5 structure factor elements were selected.
+ DO: bypassing operations left of FT.
+ XRAY>   write map 
+ WRITe MAP>      extend=orthogonal 
+ WRITe MAP>       xmin=20 xmax=30 
+ WRITe MAP>       ymin=-20 ymax=0 
+ WRITe MAP>       zmin=0 zmax=5 
+ WRITe MAP>      output=xmap10.dat 
+ WRITe MAP>   end 
+ ASSFIL: file xmap10.dat opened.
+ XMAPX: map will be scaled.
+ XMAPX: extend NA=(   6  12  18) NB=(   6 -12   0) NC=(   6   0   3) 
+ XMAPX: ave. density (real) in unit cell=       0.28318 sigma=       0.12454 e/A^3
+ XMAPX: real part of section #   0 ave. dens.=       0.28716 sigma=       0.12972 e/A^3
+ XMAPX: real part of section #   1 ave. dens.=       0.29654 sigma=       0.12751 e/A^3
+ XMAPX: real part of section #   2 ave. dens.=       0.29654 sigma=       0.12751 e/A^3
+ XMAPX: real part of section #   3 ave. dens.=       0.28716 sigma=       0.12972 e/A^3
+ XRAY> 
+ XRAY> 
+ XRAY>   write map 
+ WRITe MAP>      from=map1 
+ WRITe MAP>      extend=fractional 
+ WRITe MAP>       xmin=0 xmax=1 
+ WRITe MAP>       ymin=0 ymax=1 
+ WRITe MAP>       zmin=0.5 zmax=0.5 
+ WRITe MAP>      output=xmap12.dat 
+ WRITe MAP>   end 
+ ASSFIL: file xmap12.dat opened.
+ XMAPX: map will be scaled.
+ XMAPX: extend NA=(   6   0   6) NB=(   6   0   6) NC=(   6   3   3) 
+ XMAPX: ave. density (real) in unit cell=       0.28318 sigma=       0.12454 e/A^3
+ XMAPX: real part of section #   0 ave. dens.=       0.29853 sigma=       0.13162 e/A^3
+ XRAY> 
+ XRAY>   write map 
+ WRITe MAP>      from=map1 
+ WRITe MAP>      extend=fractional 
+ WRITe MAP>       xmin=0 xmax=1 
+ WRITe MAP>       ymin=0.5 ymax=0.5 
+ WRITe MAP>       zmin=0 zmax=1 
+ WRITe MAP>      output=xmap14.dat 
+ WRITe MAP>   end 
+ ASSFIL: file xmap14.dat opened.
+ XMAPX: map will be scaled.
+ XMAPX: extend NA=(   6   0   6) NB=(   6   3   3) NC=(   6   0   6) 
+ XMAPX: ave. density (real) in unit cell=       0.28318 sigma=       0.12454 e/A^3
+ XMAPX: real part of section #   0 ave. dens.=       0.44627 sigma=       0.01569 e/A^3
+ XMAPX: real part of section #   1 ave. dens.=       0.45565 sigma=       0.01569 e/A^3
+ XMAPX: real part of section #   2 ave. dens.=       0.45565 sigma=       0.01569 e/A^3
+ XMAPX: real part of section #   3 ave. dens.=       0.44627 sigma=       0.01569 e/A^3
+ XMAPX: real part of section #   4 ave. dens.=       0.45565 sigma=       0.01569 e/A^3
+ XMAPX: real part of section #   5 ave. dens.=       0.45565 sigma=       0.01569 e/A^3
+ XMAPX: real part of section #   6 ave. dens.=       0.44627 sigma=       0.01569 e/A^3
+ XRAY> 
+ XRAY>   write map 
+ WRITe MAP>      from=map1 
+ WRITe MAP>      type=cns 
+ WRITe MAP>      extend=fractional 
+ WRITe MAP>       xmin=0 xmax=1 
+ WRITe MAP>       ymin=0.4999 ymax=0.50001 
+ WRITe MAP>       zmin=0 zmax=1 
+ WRITe MAP>      output=xmap15.dat 
+ WRITe MAP>   end 
+ ASSFIL: file xmap15.dat opened.
+ XMAPX: map will be scaled.
+ XMAPX: extend NA=(   6   0   6) NB=(   6   3   3) NC=(   6   0   6) 
+ XMAPX: ave. density (real) in unit cell=       0.28318 sigma=       0.12454 e/A^3
+ XMAPX: real part of section #   0 ave. dens.=       0.44627 sigma=       0.01569 e/A^3
+ XMAPX: real part of section #   1 ave. dens.=       0.45565 sigma=       0.01569 e/A^3
+ XMAPX: real part of section #   2 ave. dens.=       0.45565 sigma=       0.01569 e/A^3
+ XMAPX: real part of section #   3 ave. dens.=       0.44627 sigma=       0.01569 e/A^3
+ XMAPX: real part of section #   4 ave. dens.=       0.45565 sigma=       0.01569 e/A^3
+ XMAPX: real part of section #   5 ave. dens.=       0.45565 sigma=       0.01569 e/A^3
+ XMAPX: real part of section #   6 ave. dens.=       0.44627 sigma=       0.01569 e/A^3
+ XRAY> 
+ XRAY>   write map 
+ WRITe MAP>      from=map1 
+ WRITe MAP>      extend=fractional 
+ WRITe MAP>      type=ezd 
+ WRITe MAP>       xmin=0 xmax=1 
+ WRITe MAP>       ymin=0.4999 ymax=0.50001 
+ WRITe MAP>       zmin=0 zmax=1 
+ WRITe MAP>      output=xmap15.dat 
+ WRITe MAP>   end 
+ ASSFIL: file xmap15.dat opened.
+ XMAPX: map will be scaled.
+ XMAPX: extend NA=(   6   0   6) NB=(   6   3   3) NC=(   6   0   6) 
+ XEZDMAP: ave. density (real) in unit cell=       0.28318 sigma=       0.12454 e/A^3
+ XEZDMAP:         49 grid points written to EZD map
+ XRAY> 
+ XRAY>end 
+ CNSsolve> 
+ CNSsolve>stop 
+          ============================================================
+           Maximum dynamic memory allocation:     8413320 bytes
+           Maximum dynamic memory overhead:          1312 bytes
+           Program started at: 16:08:28 on 05-Jul-2018
+           Program stopped at: 16:08:28 on 05-Jul-2018
+           CPU time used:       3.8868 seconds
+          ============================================================

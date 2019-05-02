@@ -1,0 +1,95 @@
+! Module file: printener
+!
+! CNS MODULE
+! **********
+!
+! Authors: Gregory L. Warren and Axel T. Brunger
+!
+! copyright Yale University
+!
+! version 02/18/98
+!
+! Function:
+!          Sum energy values for average value determination
+!
+! Requirements:
+!       The macro initave contains the symbol definitions    
+!       required for average structure calculation and for
+!       cross-validation.    
+!
+
+module {printener}
+(
+   &ener1=ener1;             {INPUT/OUTPUT: average energy values}
+   &ener2=ener2;             {INPUT/OUTPUT: squared average energy values}
+   &inener=inener;           {INPUT: total energy}
+   &inbond=inbond;           {INPUT: bond energy}
+   &inangl=inangl;           {INPUT: angle energy}
+   &inimpr=inimpr;           {INPUT: improper energy}
+   &invdw=invdw;             {INPUT: van der Waals energy}  
+   &indihe=indihe;           {INPUT: dihedral angle energy}
+   &inelec=inelec;           {INPUT: electrostatic energy}           
+   &inharm=inharm;           {INPUT: harmonic restraints energy}
+   &innoe=innoe;             {INPUT: noe energy}
+   &incoup=incoup;           {INPUT: 3-bond j-coupling energy}
+   &inoneb=inoneb;           {INPUT: 1-bond j-coupling energy}
+   &incarb=incarb;           {INPUT: carbon chemical shift energy}
+   &inprot=inprot;           {INPUT: proton chemical shift energy}
+   &indani=indani;           {INPUT: diffusion anisotropy energy}
+   &insani=insani;           {INPUT: susceptability anisotropy energy}
+   &incdih=incdih;           {INPUT: dihedral restraints energy}
+   &inplan=inplan;           {INPUT: planarity restraints energy}
+   &inncs=inncs;             {INPUT: ncs restraints energy}
+)
+
+checkversion 1.3
+
+set message ? end
+evaluate ($message_old=$result)
+set echo ? end
+evaluate ($echo_old=$result)
+if ( $log_level = verbose ) then
+  set echo=on message=normal end
+else
+  set echo=off message=off end
+end if
+
+         evaluate (&ener1.ovrl=&ener1.ovrl + &inener)
+         evaluate (&ener1.bond=&ener1.bond + &inbond)
+         evaluate (&ener1.angl=&ener1.angl + &inangl)
+         evaluate (&ener1.impr=&ener1.impr + &inimpr)
+         evaluate (&ener1.vdw =&ener1.vdw  + &invdw )
+         evaluate (&ener1.dihe=&ener1.dihe + &indihe)
+         evaluate (&ener1.elec=&ener1.elec + &inelec)
+         evaluate (&ener1.harm=&ener1.harm + &inharm)
+         evaluate (&ener1.noe =&ener1.noe  + &innoe )
+         evaluate (&ener1.jcop=&ener1.jcop + &incoup)
+         evaluate (&ener1.oneb=&ener1.oneb + &inoneb)
+         evaluate (&ener1.carb=&ener1.carb + &incarb)
+         evaluate (&ener1.prot=&ener1.prot + &inprot)
+         evaluate (&ener1.dani=&ener1.dani + &indani)
+         evaluate (&ener1.sani=&ener1.sani + &insani)
+         evaluate (&ener1.cdih=&ener1.cdih + &incdih)
+         evaluate (&ener1.plan=&ener1.plan + &inplan)
+         evaluate (&ener1.ncs =&ener1.ncs  + &inncs )
+	 
+         evaluate (&ener2.ovrl=&ener2.ovrl + &inener^2)
+         evaluate (&ener2.bond=&ener2.bond + &inbond^2)
+         evaluate (&ener2.angl=&ener2.angl + &inangl^2)
+         evaluate (&ener2.impr=&ener2.impr + &inimpr^2)
+         evaluate (&ener2.vdw =&ener2.vdw  + &invdw^2 )
+         evaluate (&ener2.dihe=&ener2.dihe + &indihe^2)
+         evaluate (&ener2.elec=&ener2.elec + &inelec^2)
+         evaluate (&ener2.harm=&ener2.harm + &inharm^2)
+         evaluate (&ener2.noe =&ener2.noe  + &innoe^2 )
+         evaluate (&ener2.jcop=&ener2.jcop + &incoup^2)
+         evaluate (&ener2.oneb=&ener2.oneb + &inoneb^2)
+         evaluate (&ener2.carb=&ener2.carb + &incarb^2)
+         evaluate (&ener2.prot=&ener2.prot + &inprot^2)
+         evaluate (&ener2.dani=&ener2.dani + &indani^2)
+         evaluate (&ener2.sani=&ener2.sani + &insani^2)
+         evaluate (&ener2.cdih=&ener2.cdih + &incdih^2)
+         evaluate (&ener2.plan=&ener2.plan + &inplan^2)
+         evaluate (&ener2.ncs =&ener2.ncs  + &inncs^2 )
+
+set message=$message_old echo=$echo_old end

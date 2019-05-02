@@ -1,0 +1,367 @@
+{+ file: manipulate.inp +}
+{+ directory: xtal_util +}
+{+ description: Performs operations and analysis on 
+                reciprocal space arrays and can create new arrays. +}
+{+ authors: Axel T. Brunger +}
+{+ copyright: Yale University +}
+
+{- Guidelines for using this file:
+   - all strings must be quoted by double-quotes
+   - logical variables (true/false) are not quoted
+   - do not remove any evaluate statements from the file -}
+
+{- begin block parameter definition -} define(
+
+{====================== crystallographic data ========================}
+
+{* space group *}
+{* use International Table conventions with subscripts substituted
+   by parenthesis *}
+{===>} sg="P2(1)2(1)2(1)";
+
+{* unit cell parameters in Angstroms and degrees *}
+{+ table: rows=1 "cell" cols=6 "a" "b" "c" "alpha" "beta" "gamma" +}
+{===>} a=65.508;
+{===>} b=72.216;
+{===>} c=45.035;
+{===>} alpha=90;
+{===>} beta=90;
+{===>} gamma=90;
+
+{* input reflection file(s) *}
+{* specify non-anomalous reflection file(s) (if any)
+   before anomalous reflection file(s) *}
+{===>} reflection_infile_1="mbp_refine.hkl";
+{===>} reflection_infile_2="";
+{===>} reflection_infile_3="";
+{===>} reflection_infile_4="";
+{===>} reflection_infile_5="";
+
+{=========================== output file =============================}
+
+{* output reflection file *}
+{===>} reflection_outfile="manipulate.hkl";
+
+{======================== global operations ==========================}
+
+{* flip Friedel mates of all reciprocal space arrays *}
+{* this will operate on all array types, including complex and 
+   Hendrickson-Lattman groups *}
+{+ choice: true false +}
+{===>} flip=false;
+
+{===================== declaration of new arrays =====================}
+
+{* declare new arrays reciprocal space arrays, give name (must not exist)
+   and type *}
+{* note: for Hendrickson-Lattman type arrays, the name refers to the
+   base name.  Four arrays will be created with name "base-name"a, 
+   "base-name"b, "base-name"c, and "base-name"d. *}
+{+ table: rows=9 cols=2 "name" "type" +}   
+
+{===>} new.1.name=""; 
+{+ choice: "integer" "complex" "real" "hendrickson-lattman" +}
+{===>} new.1.type="";
+
+{===>} new.2.name=""; 
+{+ choice: "integer" "complex" "real" "hendrickson-lattman" +}
+{===>} new.2.type="";
+
+{===>} new.3.name=""; 
+{+ choice: "integer" "complex" "real" "hendrickson-lattman" +}
+{===>} new.3.type="complex";
+
+{===>} new.4.name=""; 
+{+ choice: "integer" "complex" "real" "hendrickson-lattman" +}
+{===>} new.4.type="complex";
+
+{===>} new.5.name=""; 
+{+ choice: "integer" "complex" "real" "hendrickson-lattman" +}
+{===>} new.5.type="complex";
+
+{===>} new.6.name=""; 
+{+ choice: "integer" "complex" "real" "hendrickson-lattman" +}
+{===>} new.6.type="complex";
+
+{===>} new.7.name=""; 
+{+ choice: "integer" "complex" "real" "hendrickson-lattman" +}
+{===>} new.7.type="complex";
+
+{===>} new.8.name=""; 
+{+ choice: "integer" "complex" "real" "hendrickson-lattman" +}
+{===>} new.8.type="complex";
+
+{===>} new.9.name=""; 
+{+ choice: "integer" "complex" "real" "hendrickson-lattman" +}
+{===>} new.9.type="complex";
+
+{===================== operations on arrays ==========================}
+
+{* remarks *}
+{+ list: please note:
+         1. operations on grouped structure factor arrays (e.g., 
+            Hendrickson-Lattman coefficients) must be performed on 
+            the individual arrays.
+         2. specify () for all operations not in use 
+         3. specify (none) for all reflection selections not in use +}
+   
+{* operation 1 *}
+{===>} op.1.expression=();
+{* reflection selection for operation 1 *}
+{===>} op.1.selection=(none);
+
+{* operation 2 *}
+{===>} op.2.expression=();
+{* reflection selection for operation 2 *}
+{===>} op.2.selection=(none);
+
+{* operation 3 *}
+{===>} op.3.expression=();
+{* reflection selection for operation 3 *}
+{===>} op.3.selection=(none);
+
+{* operation 4 *}
+{===>} op.4.expression=();
+{* reflection selection for operation 4 *}
+{===>} op.4.selection=(none);
+
+{* operation 5 *}
+{===>} op.5.expression=();
+{* reflection selection for operation 5 *}
+{===>} op.5.selection=(none);
+
+{* operation 6 *}
+{===>} op.6.expression=();
+{* reflection selection for operation 6 *}
+{===>} op.6.selection=(none);
+
+{* operation 7 *}
+{===>} op.7.expression=();
+{* reflection selection for operation 7 *}
+{===>} op.7.selection=(none);
+
+{* operation 8 *}
+{===>} op.8.expression=();
+{* reflection selection for operation 8 *}
+{===>} op.8.selection=(none);
+
+{* operation 9 *}
+{===>} op.9.expression=();
+{* reflection selection for operation 9 *}
+{===>} op.9.selection=(none);
+
+{============================ analysis ===============================}
+
+{* remarks *}
+{+ list: please note:
+         1. specify () for all expressions not in use 
+         2. specify (none) for all reflection selections not in use +}
+
+{* output analysis file *}
+{===>} analyse_outfile="manipulate.list";
+
+{* analysis expression 1 *}
+{+ choice: "average" "sum" "element" "min" "max" "rms" "norm" +}
+{===>} analysis.1.property="average";
+{===>} analysis.1.expression=();
+{* reflection selection for analysis 1 *}
+{===>} analysis.1.selection=(none);
+
+{* analysis expression 2 *}
+{+ choice: "average" "sum" "element" "min" "max" "rms" "norm" +}
+{===>} analysis.2.property="average";
+{===>} analysis.2.expression=();
+{* reflection selection for analysis 2 *}
+{===>} analysis.2.selection=(none);
+
+{* analysis expression 3 *}
+{+ choice: "average" "sum" "element" "min" "max" "rms" "norm" +}
+{===>} analysis.3.property="average";
+{===>} analysis.3.expression=();
+{* reflection selection for analysis 3 *}
+{===>} analysis.3.selection=(none);
+
+{* analysis expression 4 *}
+{+ choice: "average" "sum" "element" "min" "max" "rms" "norm" +}
+{===>} analysis.4.property="average";
+{===>} analysis.4.expression=();
+{* reflection selection for analysis 4 *}
+{===>} analysis.4.selection=(none);
+
+{* analysis expression 5 *}
+{+ choice: "average" "sum" "element" "min" "max" "rms" "norm" +}
+{===>} analysis.5.property="average";
+{===>} analysis.5.expression=();
+{* reflection selection for analysis 5 *}
+{===>} analysis.5.selection=(none);
+
+{* analysis expression 6 *}
+{+ choice: "average" "sum" "element" "min" "max" "rms" "norm" +}
+{===>} analysis.6.property="average";
+{===>} analysis.6.expression=();
+{* reflection selection for analysis 6 *}
+{===>} analysis.6.selection=(none);
+
+{* analysis expression 7 *}
+{+ choice: "average" "sum" "element" "min" "max" "rms" "norm" +}
+{===>} analysis.7.property="average";
+{===>} analysis.7.expression=();
+{* reflection selection for analysis 7 *}
+{===>} analysis.7.selection=(none);
+
+{* analysis expression 8 *}
+{+ choice: "average" "sum" "element" "min" "max" "rms" "norm" +}
+{===>} analysis.8.property="average";
+{===>} analysis.8.expression=();
+{* reflection selection for analysis 8 *}
+{===>} analysis.8.selection=(none);
+
+{* analysis expression 9 *}
+{+ choice: "average" "sum" "element" "min" "max" "rms" "norm" +}
+{===>} analysis.9.property="average";
+{===>} analysis.9.expression=();
+{* reflection selection for analysis 9 *}
+{===>} analysis.9.selection=(none);
+
+{===========================================================================}
+{         things below this line do not normally need to be changed         }
+{===========================================================================}
+
+ ) {- end block parameter definition -}
+
+checkversion 1.3
+
+evaluate ($log_level=quiet)
+
+xray                                   
+
+   a=&a b=&b c=&c  alpha=&alpha beta=&beta gamma=&gamma
+
+   @CNS_XTALLIB:spacegroup.lib (sg=&sg;sgparam=$sgparam;)
+
+   evaluate ($counter=1)
+   evaluate ($done=false)
+   while ( $done = false ) loop read
+    if ( &exist_reflection_infile_$counter = true ) then
+      if ( &BLANK%reflection_infile_$counter = false ) then
+       reflection
+         @@&reflection_infile_$counter
+       end
+      end if
+    else
+     evaluate ($done=true)
+    end if
+    evaluate ($counter=$counter+1)
+   end loop read
+
+   if (&flip=true) then
+      flip
+   end if
+  
+   if ( $log_level = verbose ) then
+     set message=normal echo=on end
+   else
+     set message=off echo=off end
+   end if
+ 
+   evaluate ($jj=1)
+   while ($jj<10) loop cpp
+      if ( &BLANK%new.$jj.name = false ) then
+         if ( &BLANK%new.$jj.type = true ) then
+             display 
+             display ***************************************
+             display Error, new array $jj: no type specified
+             display ***************************************
+             abort
+         end if
+         if (&new.$jj.type="hendrickson-lattman") then
+            evaluate ($namehl.a=&new.$jj.name+"a") 
+            evaluate ($namehl.b=&new.$jj.name+"b") 
+            evaluate ($namehl.c=&new.$jj.name+"c") 
+            evaluate ($namehl.d=&new.$jj.name+"d") 
+            declare name=$STRIP%namehl.a type=real domain=reciprocal end
+            declare name=$STRIP%namehl.b type=real domain=reciprocal end
+            declare name=$STRIP%namehl.c type=real domain=reciprocal end
+            declare name=$STRIP%namehl.d type=real domain=reciprocal end
+            group 
+                  type=hl 
+                  object=$STRIP%namehl.a object=$STRIP%namehl.b object=$STRIP%namehl.c object=$STRIP%namehl.d 
+            end
+            do ( $STRIP%namehl.a= 0 ) ( all ) 
+            do ( $STRIP%namehl.b= 0 ) ( all ) 
+            do ( $STRIP%namehl.c= 0 ) ( all ) 
+            do ( $STRIP%namehl.d= 0 ) ( all ) 
+         else
+            declare name=&STRIP%new.$jj.name type=&STRIP%new.$jj.type domain=reciprocal end
+            do ( &STRIP%new.$jj.name = 0 ) ( all ) 
+         end if
+      end if
+      evaluate ($jj=$jj+1)
+   end loop cpp
+
+   evaluate ($jj=1)
+   while ($jj<10) loop opp
+      if ( &QUOTE%op.$jj.selection # "( none )") then
+         do &STRIP%op.$jj.expression  &STRIP%op.$jj.selection 
+      end if
+      evaluate ($jj=$jj+1)
+   end loop opp
+
+   evaluate ($jj=1)
+   while ($jj<10) loop ana
+      if ( &QUOTE%analysis.$jj.selection # "( none )") then
+      
+         
+         if ( &BLANK%analyse_outfile = false ) then
+            if (&analysis.$jj.property="element") then
+               set display=&analyse_outfile end
+               set print=&analyse_outfile end
+               display
+               display  Components of  &STRIP%analysis.$jj.expression  for \
+selected reflections with  &STRIP%analysis.$jj.selection 
+            end if
+         end if
+         
+         show &STRIP%analysis.$jj.property  &STRIP%analysis.$jj.expression 
+                                       &STRIP%analysis.$jj.selection 
+          
+         if ( &BLANK%analyse_outfile = false ) then
+            set display=&analyse_outfile end
+            if (&analysis.$jj.property # "element") then
+               display
+               display  &STRIP%analysis.$jj.property of  &STRIP%analysis.$jj.expression  for \
+selected reflections with  &STRIP%analysis.$jj.selection  : $result
+            end if
+         end if
+
+         set display=OUTPUT end
+                  
+      end if
+      evaluate ($jj=$jj+1)
+   end loop ana
+ 
+   set message=on end
+   set echo=on end
+end
+
+if ( &BLANK%reflection_outfile = false ) then 
+   
+   set display=&reflection_outfile end
+
+   @CNS_XTALMODULE:write_hkl_header (sg=&STRIP%sg;
+                                     sgparam=$sgparam;)
+
+   xray
+ 
+     write reflection
+        output=&reflection_outfile  
+        sele=( all ) 
+     end
+       
+   end
+
+   set display=OUTPUT end     
+
+end if
+
+stop

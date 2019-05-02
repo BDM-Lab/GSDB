@@ -1,0 +1,1512 @@
+{+ file: translation.inp +}
+{+ directory: xtal_mr +}
+{+ description: Automated translation search for molecular replacement +}
+{+ comment:
+            Translation functions for specified set of rotation function peaks.
+            Fine grid search around each rotation function peak optional.
+            Pre-refinement by PC-refinement optional.
+            Post-refinement by rigid-body refinement optional.
+            Amplitude-based or phased translation functions +}
+{+ authors: Axel T. Brunger +}
+{+ copyright: Yale University +}
+
+{+ reference: M. Fujinaga and R.J. Read, Experiences with a new translation 
+              function program.  J. Appl. Crystallogr. 20, 517-521 (1987). +}
+              
+{+ reference: R.J. Read and A.J.J. Schierbeek, A phased translation 
+              function, Appl. Cryst. 21, 490-495 (1988) +}
+
+{+ reference: A.T. Brunger, Extension of molecular replacement: A
+              new search strategy based on Patterson correlation refinement, 
+              Acta Cryst. A46, 46-57 (1990). +}
+
+{+ reference: J. Navaza and E. Vernoslova, On the fast translation 
+              function for molecular replacement, Acta Cryst. A51, 
+              445-449 (1995) +}
+              
+{- Guidelines for using this file:
+   - all strings must be quoted by double-quotes
+   - logical variables (true/false) are not quoted
+   - do not remove any evaluate statements from the file  -}
+
+{- begin block parameter definition -} define(
+
+{============================ coordinates ============================}
+
+{* coordinate file *}
+{===>} coordinate_infile="mbp_dimer_search.pdb";
+
+{==================== molecular information ==========================}
+
+{* topology files *}
+{===>} topology_infile_1="CNS_TOPPAR:protein.top";
+{===>} topology_infile_2="CNS_TOPPAR:dna-rna.top";
+{===>} topology_infile_3="CNS_TOPPAR:water.top";
+{===>} topology_infile_4="CNS_TOPPAR:ion.top";
+{===>} topology_infile_5="CNS_TOPPAR:carbohydrate.top";
+{===>} topology_infile_6="";
+{===>} topology_infile_7="";
+{===>} topology_infile_8="";
+
+{* linkage files for linear, continuous polymers (protein, DNA, RNA) *}
+{===>} link_infile_1="CNS_TOPPAR:protein.link";
+{===>} link_infile_2="CNS_TOPPAR:dna-rna-pho.link";
+{===>} link_infile_3="";
+
+{* parameter files *}
+{===>} parameter_infile_1="CNS_TOPPAR:protein_rep.param";
+{===>} parameter_infile_2="CNS_TOPPAR:dna-rna_rep.param";
+{===>} parameter_infile_3="CNS_TOPPAR:water_rep.param";
+{===>} parameter_infile_4="CNS_TOPPAR:ion.param";
+{===>} parameter_infile_5="CNS_TOPPAR:carbohydrate.param";
+{===>} parameter_infile_6="";
+{===>} parameter_infile_7="";
+{===>} parameter_infile_8="";
+
+{* molecular topology file: optional (leave blank for auto generation) *}
+{* 
+   Auto generation of the molecular topology from the coordinates should only 
+   be used if:
+   (1) Each distinct protein, DNA, or RNA chain must have a separate segid 
+       (or chainid if the chainid is non-blank). 
+   (2) Each contiguous protein, RNA, or RNA chain must not be disrupted by 
+       other types of residues or ligands.  Rather, these other residues 
+       should be listed after protein, RNA/DNA chains. 
+   (3) Disulphides are automatically detected based on distances between the sulfur atoms
+      (must be less than 3 A apart).
+   (4) Broken protein/RNA/DNA chains without terminii must be more than 2.5 A apart to be recognized as such.
+   (5) N-linked glycan links are automatically recognized if the bonded atoms are less than 2.5 A apart.
+   (6) Automatic generation cannot be used with alternate conformations. 
+   For ligands, the user must make suitable topology and parameter files.
+   For non-standard covalent linkages, the custom patch file should be used.
+   Alternatively, the generate.inp or generate_easy.inp task files
+   can be used to generated the mtf prior to running this task file.
+    *}
+{===>} structure_infile="";
+
+{* for auto generation: extra linkages and modifications by custom patches *}
+{===>} patch_infile="";
+
+{====================== crystallographic data ========================}
+
+{* space group *}
+{* use International Table conventions with subscripts substituted
+   by parenthesis *}
+{===>} sg="P2(1)2(1)2(1)";
+
+{* unit cell parameters in Angstroms and degrees *}
+{+ table: rows=1 "cell" cols=6 "a" "b" "c" "alpha" "beta" "gamma" +}
+{===>} a=65.508;
+{===>} b=72.216;
+{===>} c=45.035;
+{===>} alpha=90;
+{===>} beta=90;
+{===>} gamma=90;
+
+{* anomalous f' f'' library file *}
+{* If a file is not specified, no anomalous contribution will be included *}
+{+ choice: "CNS_XRAYLIB:anom_cu.lib" "CNS_XRAYLIB:anom_mo.lib" "" user_file +}
+{===>} anom_library="";
+
+{* reflection file(s) *}
+{* specify non-anomalous reflection file(s) (if any)
+   before anomalous reflection file(s) *}
+{===>} reflection_infile_1="mbp_mr.hkl";
+{===>} reflection_infile_2="";
+{===>} reflection_infile_3="";
+{===>} reflection_infile_4="";
+
+{* reciprocal space array containing observed amplitudes: required *}
+{===>} obs_f="fobs";
+
+{* reciprocal space array containing sigma values for amplitudes: required *}
+{===>} obs_sigf="sigma";
+
+{* Hendrickson-Lattman coefficient arrays for phased translation search *}
+{* leave these blank if centroid phases and foms are directly read *}
+{+ table: rows=1 "HL coefficients" cols=4 "A" "B" "C" "D" +}
+{===>} obs_pa="";
+{===>} obs_pb="";
+{===>} obs_pc="";
+{===>} obs_pd="";
+
+{* complex reciprocal space array containing experimental phases for
+   phased translation search *}
+{* you must specify this array if no Hendrickson-Lattman coefficients are 
+   specified, leave blank otherwise. *}
+{===>} obs_phase="fobs";
+
+{* reciprocal space array containing experimental figures of merit for
+   phased translation search *}
+{* you must specify this array if no Hendrickson-Lattman coefficients are 
+   specified, leave blank otherwise. *}
+{===>} obs_fom="fom";
+
+{* resolution limits *}
+{+ table: rows=1 "resolution" cols=2 "lowest" "highest" +}
+{===>} low_res=15;
+{===>} high_res=4;
+
+{* Observed data cutoff criteria: applied to amplitudes *}
+{* reflections with magnitude(Obs)/sigma < cutoff are rejected. *}
+{===>} sigma_cut=0.0;
+
+{* rms outlier cutoff: applied to amplitudes *}
+{* reflections with magnitude(Obs) > cutoff*rms(Obs) will be rejected *}
+{===>} obs_rms=1000;
+
+{========================== atom selection ===========================}
+
+{* select atoms to be used in the calculation of structure factors *}
+{* this must include the molecule whose translation is unknown and
+   any molecules whose translation is already known which will remain 
+   stationary during the translation search *}
+{===>} atom_select=(known and not hydrogen);
+
+{* select atoms of molecule(s) whose translation is already known *}
+{* these atoms will not be translated during the translation search,
+   but their position may be optimized during the final rigid body
+   refinement *}
+{===>} atom_placed=(segid A);
+
+{============= pre-translation PC-refinement parameters ==============}
+
+{* Target for PC-refinement *}
+{+ choice: "residual" "e2e2" "e1e1" "f2f2" "f1f1" +}
+{===>} pc_target="e2e2";
+
+{* Number of PC-refinement steps before each translation search *}
+{* Set to zero if not required. *}
+{===>} pc_mini_steps=30;
+
+{* select atoms of translated molecule in group 1, use the selection all
+   if just overall refinement of the translated molecule required. *}
+{===>} pcgroup_1=(all);
+
+{* select atoms of translated molecule in group 2, use the selection none
+   if not required *}
+{===>} pcgroup_2=(none);
+
+{* select atoms of translated molecule in group 3, use the selection none
+   if not required *}
+{===>} pcgroup_3=(none);
+
+{* select atoms of translated molecule in group 4, use the selection none
+   if not required *}
+{===>} pcgroup_4=(none);
+
+{* select atoms of translated molecule in group 5, use the selection none
+   if not required *}
+{===>} pcgroup_5=(none);
+
+{* select atoms of translated molecule in group 6, use the selection none
+   if not required *}
+{===>} pcgroup_6=(none);
+
+{* select atoms of translated molecule in group 7, use the selection none
+   if not required *}
+{===>} pcgroup_7=(none);
+
+{* select atoms of translated molecule in group 8, use the selection none
+   if not required *}
+{===>} pcgroup_8=(none);
+
+{* select atoms of translated molecule in group 9, use the selection none
+   if not required *}
+{===>} pcgroup_9=(none);
+
+{=================== translation search parameters ===================}
+
+{* perform translation search *}
+{* setting this to false will result in PC refinement only of the 
+   input cross rotation peaks *}
+{+ choice: true false +}
+{===>} do_trans=true;
+
+{* method: general or phased translation function *}
+{* Note: the phased translation function does not permit already placed
+   molecules to be used *}
+{+ choice: "general" "phased" +}
+{===>} trans_method="general";
+
+{* Target for general translation function *}
+{* The translation search with target "fastf2f2" is 100 to 500 times faster
+   than all other targets but it may require a significant amount of memory.
+   See also the optimize_sum option below. *}
+{+ choice: "fastf2f2" "e2e2" "e1e1" "f2f2" "f1f1" "residual" "vector" +}
+{===>} general_target="fastf2f2";
+
+{* optimize summation step of the translation search *}
+{* the "automatic" option will result in the best memory usage
+   parameters for the translation search. This will result in the fast
+   translation search using a significant amount of memory for high 
+   symmetry spacegroups. If the memory usage is too much then some 
+   memory can be saved at the cost of increased computing time by
+   using the "memory" option. *}
+{+ choice: "automatic" "memory" "cpu" +}
+{===>} optimize_sum="automatic";
+
+{* rotation function list file *}
+{===>} rf_list_infile="cross_rotation.list";
+
+{* number of rotation function peaks to be searched *}
+{===>} max_rf_peaks=10;
+
+{* number of translation function peaks to be tested for each rotation
+   function peak *}
+{===>} ntrials=1;
+
+{* extent in degrees for fine grid search around each rotation function peak *}
+{* the grid search will be -grid_int to +grid_int around the current position
+   no grid search is performed if the extent is set to 0. *}
+{===>} grid_int=0;
+
+{* angular step size in degrees for fine grid search around each rotation
+   function peak. *}
+{===>} delta=5;
+
+{* packing analysis. *}
+{* the reported value is the percentage of the unit cell volume 
+   that is covered by all (translated and fixed) atoms. *}
+{+ choice: true false +}
+{===>} packing_anal=true;
+
+{* Set the relative grid size for the translation searches relative to dmin *}
+{* The grid size should be 0.33 or smaller. *}
+{===>} tf_grid=0.33;
+
+{* memory allocation for FFT calculation *}
+{* this will be determined automatically if a negative value is given
+   otherwise the specified number of words will be allocated *}
+{===>} fft_memory=-1;
+
+{* number of bins for bin-wise resolution-dependent operations 
+   and functions *}
+{* if negative this will be determined automatically *}
+{===>} target_bins=5;
+
+{========= post-translation rigid-body refinement parameters =========}
+
+{* Target for rigid-body refinement.  *}
+{* This also determines the "monitor" value printed in the list and 
+   coordinate files. *}
+{+ choice: "residual" "vector" "e2e2" "e1e1" "f2f2" "f1f1" +}
+{===>} rigid_target="e2e2";
+
+{* Number of rigid-body minimization steps after each translation search *}
+{* Set to zero if not required. *}
+{===>} final_mini_steps=30;
+
+{* select atoms of already placed and translated molecules in group 1, 
+   use the selection all if just overall refinement required *}
+{===>} rigidgroup_1=(all);
+
+{* select atoms of already placed and translated molecules in group 2, 
+   use the selection none if not required *}
+{===>} rigidgroup_2=(none);
+
+{* select atoms of already placed and translated molecules in group 3, 
+   use the selection none if not required *}
+{===>} rigidgroup_3=(none);
+
+{* select atoms of already placed and translated molecules in group 4, 
+   use the selection none if not required  *}
+{===>} rigidgroup_4=(none);
+
+{* select atoms of already placed and translated molecules in group 5, 
+   use the selection none if not required  *}
+{===>} rigidgroup_5=(none);
+
+{* select atoms of already placed and translated molecules in group 6, 
+   use the selection none if not required  *}
+{===>} rigidgroup_6=(none);
+
+{* select atoms of already placed and translated molecules in group 7, 
+   use the selection none if not required  *}
+{===>} rigidgroup_7=(none);
+
+{* select atoms of already placed and translated molecules in group 8, 
+   use the selection none if not required  *}
+{===>} rigidgroup_8=(none);
+
+{* select atoms of already placed and translated molecules in group 9, 
+   use the selection none if not required  *}
+{===>} rigidgroup_9=(none);
+
+{=========================== output files ============================}
+
+{* root name for output files *}
+{+ list:
+         list file will be in: <output_root>.list
+         coordinate file for best solution in: <output_root>.pdb 
+         translation map file(s) will be in: <output_root>_i.map 
+         where i is the number of the translation function +}
+{===>} output_root="translation_dimer";
+
+{* write 3-d CNS map file(s) that contain the translation functions *}
+{* CNS map files will be <output_root>_<i>.map *}
+{+ choice: true false +}
+{===>} write_map=false;
+
+{* write coordinate file(s) for all translation searches *}
+{* coordinate files will be <output_root>_<i>.pdb *}
+{+ choice: true false +}
+{===>} write_coord=true;
+
+{* write peaks for each translation search to file - a maximum of 100 will
+   be listed *}
+{* peak listing files will be <output_root>_<i>.list *}
+{+ choice: true false +}
+{===>} trans_list=false;
+
+{===========================================================================}
+{         things below this line do not normally need to be changed         }
+{===========================================================================}
+
+ ) {- end block parameter definition -}
+
+ checkversion 1.3
+
+ evaluate ($log_level=quiet)
+
+ if ( $log_level = verbose ) then
+   set message=normal echo=on end
+ else
+   set message=off echo=off end
+ end if
+
+ if ( &BLANK%structure_infile = true ) then
+ 
+    {- read topology files -}
+    topology
+     evaluate ($counter=1)
+     evaluate ($done=false)
+     while ( $done = false ) loop read
+      if ( &exist_topology_infile_$counter = true ) then
+         if ( &BLANK%topology_infile_$counter = false ) then
+            @@&topology_infile_$counter
+         end if
+      else
+        evaluate ($done=true)
+      end if
+      evaluate ($counter=$counter+1)
+     end loop read
+    end
+    
+    @CNS_XTALMODULE:mtfautogenerate (
+                                  coordinate_infile=&coordinate_infile;
+                                  convert=true;
+                                  separate=true;
+                                  atom_delete=(not known);
+                                  hydrogen_flag=true;
+                                  break_cutoff=2.5;
+                                  disulphide_dist=3.0;
+                                  carbo_dist=2.5;
+                                  patch_infile=&patch_infile;
+                                  O5_becomes="O";
+                                 )
+
+ else
+
+   structure @&structure_infile end
+   coordinates @&coordinate_infile
+
+ end if
+
+ {- read parameter files -}
+ parameter
+  evaluate ($counter=1)
+  evaluate ($done=false)
+  while ( $done = false ) loop read
+   if ( &exist_parameter_infile_$counter = true ) then
+      if ( &BLANK%parameter_infile_$counter = false ) then
+         @@&parameter_infile_$counter
+      end if
+   else
+     evaluate ($done=true)
+   end if
+   evaluate ($counter=$counter+1)
+  end loop read
+ end
+
+ set message=normal echo=on end
+
+ {- Number of neighborhood spheres to look at in peak search -}
+ {- choice: 0 1 2 3 -}
+ evaluate ($psearch_level=1)
+
+ evaluate ($ntrials=max(1,&ntrials))
+ evaluate ($max_rf_peaks=max(1,&max_rf_peaks))
+
+ show sum (1) ( &atom_placed ) 
+ if ( $select > 0 ) then
+    evaluate ($partial=true) 
+    fix selection=( &atom_placed ) end
+ else
+    evaluate ($partial=false)
+ end if
+
+ xray
+
+   @CNS_XTALLIB:spacegroup.lib (sg=&sg; sgparam=$sgparam )
+
+   a=&a b=&b c=&c  alpha=&alpha beta=&beta gamma=&gamma
+  
+   @CNS_XRAYLIB:scatter.lib
+
+   evaluate ($counter=1)
+   evaluate ($done=false)
+   while ( $done = false ) loop read
+    if ( &exist_reflection_infile_$counter = true ) then
+      if ( &BLANK%reflection_infile_$counter = false ) then
+       reflection
+         @@&reflection_infile_$counter
+       end
+      end if
+    else
+     evaluate ($done=true)
+    end if
+    evaluate ($counter=$counter+1)
+   end loop read
+
+ end
+
+ if ( &BLANK%anom_library = false ) then
+   @@&anom_library
+ else
+   set echo=off end
+   xray anomalous=? end
+   if ( $result = true ) then
+     display Warning: no anomalous library has been specified
+     display          no anomalous contribution will used
+   end if
+   set echo=on end
+ end if
+
+ xray
+
+   set echo=off end
+   
+   
+   if ( &BLANK%obs_f = true ) then
+      display 
+      display  *********************************************************
+      display  Error: required observed amplitude array is not specified
+      display  *********************************************************
+      display
+      abort
+   else
+      query name=&STRIP%obs_f domain=reciprocal end
+      if ( $object_exist = false ) then
+         display 
+         display  **************************************************************
+         display  Error: required observed amplitude array &obs_f does not exist
+         display  **************************************************************
+         display
+         abort
+      end if
+      {- note: this array can be of any type -}
+    end if
+
+   if ( &BLANK%obs_sigf = true ) then
+      display 
+      display  *****************************************************
+      display  Error: required observed sigma array is not specified
+      display  *****************************************************
+      display
+      abort
+   else
+      query name=&STRIP%obs_sigf domain=reciprocal end
+      if ( $object_exist = false ) then
+         display 
+         display  *************************************************************
+         display  Error: required observed sigma array &obs_sigf does not exist
+         display  *************************************************************
+         display
+         abort
+      end if
+      if ( $object_type # "REAL" ) then
+         display 
+         display  **********************************************************************
+         display  Error: required observed sigma array &obs_sigf has the wrong data type
+         display  **********************************************************************
+         display
+         abort
+      end if
+   end if
+   
+   if (&trans_method="phased") then
+      if ( &BLANK%obs_pa = false ) then
+         {- Hendrickson-Lattman coefficients are specified -> compute
+            phases and figure of merit arrays -}
+            
+         @@CNS_XTALMODULE:check_abcd(pa=&obs_pa;
+                                     pb=&obs_pb;
+                                     pc=&obs_pc;
+                                     pd=&obs_pd;)
+         if ( &BLANK%obs_fom = false ) then
+            display
+            display *********************************************************
+            display           error, both Hendrickson-Lattman and centroid 
+            display           phases specified.  Use either one or the other. 
+            display *********************************************************
+            display 
+            abort
+         elseif ( &BLANK%obs_phase = false ) then
+            display
+            display *********************************************************
+            display           error, both Hendrickson-Lattman and fom 
+            display           specified.  Use either one or the other. 
+            display *********************************************************
+            display 
+            abort
+         end if
+
+         evaluate ($obs_phase="phase_tem")
+         declare name=$STRIP%obs_phase type=complex domain=reciprocal end
+         
+         @CNS_XTALMODULE:getfom (pa=&STRIP%obs_pa;
+                                 pb=&STRIP%obs_pb;
+                                 pc=&STRIP%obs_pc;
+                                 pd=&STRIP%obs_pd;
+                                 m=$STRIP%obs_phase;
+                                 phistep=5; )
+                                 
+         evaluate ($obs_fom="fom_tem")  
+         declare name=$STRIP%obs_fom type=real domain=reciprocal end
+         do ($STRIP%obs_fom=amplitude($STRIP%obs_phase)) ( all )
+                                 
+
+      else 
+         if ( &BLANK%obs_fom = true ) then
+            display 
+            display  ******************************************
+            display  Error: figure of merit array not specified
+            display  ******************************************
+            display
+            abort
+         else
+            evalaute ($obs_fom=&obs_fom)       
+            query name=&STRIP%obs_fom domain=reciprocal end
+            if ( $object_exist = false ) then
+               display 
+               display  ****************************************
+               display  Error: fom array &obs_fom does not exist
+               display  ****************************************
+               display
+               abort
+            end if
+            if ( $object_type # "REAL" ) then
+               display 
+               display  *************************************************
+               display  Error: fom array &obs_fom has the wrong data type
+               display  *************************************************
+               display
+               abort
+            end if
+         end if
+         
+         if ( &BLANK%obs_phase = true ) then
+           display 
+           display  *************************************************
+           display  Error: complex array with phases is not specified
+           display  *************************************************
+           display
+           abort
+         else
+            evaluate ($obs_phase=&obs_phase) 
+            query name=&STRIP%obs_phase domain=reciprocal end
+            if ( $object_exist=false ) then
+               display								
+               display **********************************************************
+               display Error, complex array with phases &obs_phase does not exist
+               display **********************************************************
+               display 
+               abort
+            end if
+            if ( $object_type # "COMPLEX" ) then
+               display 
+               display *******************************************************************
+               display Error, complex array with phases &obs_phase has the wrong data type
+               display *******************************************************************
+               display
+               abort
+            end if
+         end if
+         
+      end if
+   end if
+   
+   declare name=mod_fpart domain=reciprocal type=complex end
+   query name=fcalc domain=reciprocal end
+   if ( $object_exist = false ) then
+      declare name=fcalc domain=reciprocal type=complex end
+   end if
+   
+   set echo=on end
+
+   binresolution &low_res &high_res
+   mapresolution &high_res
+
+   evaluate ($reject_obs=&obs_f)
+   evaluate ($reject_sig=&obs_sigf)
+
+   declare name=ref_active domain=reciprocal type=integer end
+
+   do (ref_active=0) ( all )
+   do (ref_active=1) ( ( $STRIP%reject_sig # 0 ) and
+                      ( &low_res >= d >= &high_res ) )
+
+   statistics overall
+     completeness
+     selection=( ref_active=1 )
+   end
+   evaluate ($total_compl=$expression1)
+
+   show sum(1) ( ref_active=1 )
+   evaluate ($total_read=$select)
+   evaluate ($total_theor=int(1./$total_compl * $total_read))
+
+   show rms (amplitude($STRIP%reject_obs)) ( ref_active=1 )
+   evaluate ($obs_high=$result*&obs_rms)
+   show min (amplitude($STRIP%reject_obs)) ( ref_active=1 )
+   evaluate ($obs_low=$result)
+
+   do (ref_active=0) ( all )
+   do (ref_active=1)
+                  ( ( amplitude($STRIP%reject_obs) > &sigma_cut*$STRIP%reject_sig ) and
+                    ( $STRIP%reject_sig # 0 ) and
+                    ( $obs_low <= amplitude($STRIP%reject_obs) <= $obs_high ) and
+                    ( &low_res >= d >= &high_res ) )
+
+   delete selection=(ref_active # 1) end
+
+   show sum(1) ( ref_active=1 )
+   evaluate ($total_used=$select)
+
+   evaluate ($unobserved=$total_theor-$total_read)
+   evaluate ($rejected=$total_read-$total_used)
+   evaluate ($per_unobs=100*($unobserved/$total_theor))
+   evaluate ($per_reject=100*($rejected/$total_theor))
+   evaluate ($per_used=100*($total_used/$total_theor))
+
+   associate fcalc ( &atom_select and not ( &atom_placed ) )
+
+   tselection=( ref_active=1 )
+
+   lookup=false 
+
+   method=fft          
+   fft
+     if ( &fft_memory < 0 ) then
+       automemory=true
+     else
+       memory=&fft_memory
+     end if
+   end
+
+   if ($partial=true) then
+      if (&trans_method="phased") then
+         display 
+         display  ******************************************************************
+         display  Cannot use already placed molecule for phased translation function
+         display  ******************************************************************
+         display  
+         abort 
+      end if
+      predict 
+       mode=reciprocal
+       to=mod_fpart
+       atomselection=( &atom_select and &atom_placed )
+       selection=( ref_active=1 )
+      end
+   else
+      do (mod_fpart=0) ( all )
+   end if
+ 
+   tolerance=0.0
+   
+   evaluate ($wa=10000.)                                        
+   wa=$wa 
+   
+ end                  
+
+ xray
+   show sum(1) ( &low_res >= d >= &high_res )
+   evaluate ($nref_all=$result)
+   if ( &target_bins < 0 ) then
+     anomalous=?
+     if ( $result = true ) then
+       evaluate ($bins=max(5,min(20,int($nref_all/2000))))
+     else
+       evaluate ($bins=max(5,min(20,int($nref_all/1000))))
+     end if
+   else
+     evaluate ($bins=&target_bins)
+   end if
+
+   bins=$bins
+
+ end
+
+ xray
+   fft
+     xGridFactor=$sgparam.SymGrid_x
+     yGridFactor=$sgparam.SymGrid_y
+     zGridFactor=$sgparam.SymGrid_z
+   end
+
+   expand
+
+   fmap
+     @CNS_XTALLIB:spacegroup.lib (sg=&sg; sgparam = $sgparam )
+     if ($sgparam.ssVM_1 # "VOID") then ssVM = $sgparam.ssVM_1 end if
+     if ($sgparam.ssVM_2 # "VOID") then ssVM = $sgparam.ssVM_2 end if
+     if ($sgparam.ssVM_3 # "VOID") then ssVM = $sgparam.ssVM_3 end if
+     if ($sgparam.GenK2L # "VOID") then Addl = $sgparam.GenK2L end if
+     ?
+   end
+
+   fmap
+     UseSym  = false
+     UseAddl = false
+     if     (&trans_method="phased") then
+       Use_ss = false
+     elseif (&general_target="ab") then
+       Use_ss = false
+     elseif ($partial=true) then
+       Use_ss = false
+     else
+       Use_ss = true
+     end if
+     Action=Build
+     ?
+   end
+
+   eval($nInd = $result)
+
+   unexpand
+
+   associate fcalc (&atom_select and not ( &atom_placed ) )
+ end
+
+ if ( &optimize_sum = "automatic" ) then
+   if ( &general_target="fastf2f2" ) then
+     if ( $sgparam.nsym > 24 ) then
+       evaluate ($lessmemory=false)
+     else
+       evaluate ($lessmemory=true)
+     end if
+   else
+     evaluate ($lessmemory=false)
+   end if
+ elseif ( &optimize_sum = "memory" ) then
+   evaluate ($lessmemory=true)
+ elseif ( &optimize_sum = "cpu" ) then
+   evaluate ($lessmemory=false)
+ end if
+
+ evaluate ($list_filename=&output_root + ".list") 
+ set display=$list_filename end
+
+ display ! translation search
+ display ! at resolution: &low_res - &high_res A  
+ display ! method= &STRIP%trans_method
+ display ! target for PC-refinement= &STRIP%pc_target
+ display ! target for rigid-body refinement= &STRIP%rigid_target   monitor-value= &STRIP%rigid_target
+ display ! target for general translation function= &STRIP%general_target
+ display ! bins= $bins 
+ display ! independent grid points to search: $nInd
+ if ( $lessmemory = true ) then
+   display ! reduced memory usage in translation search
+ end if
+ display ! sg= &STRIP%sg a= &a b= &b c= &c alpha= &alpha beta= &beta gamma= &gamma
+ 
+ if ( &BLANK%structure_infile = true ) then
+   display ! molecular structure file: automatic
+
+   evaluate ($counter=1)
+   evaluate ($done=false)
+   while ( $done = false ) loop read
+    if ( &exist_topology_infile_$counter = true ) then
+      if ( &BLANK%topology_infile_$counter = false ) then
+        display ! topology file $counter  : &STRIP%topology_infile_$counter
+      end if
+    else
+     evaluate ($done=true)
+    end if
+    evaluate ($counter=$counter+1)
+   end loop read
+
+   evaluate ($counter=1)
+   evaluate ($done=false)
+   while ( $done = false ) loop read
+    if ( &exist_link_infile_$counter = true ) then
+      if ( &BLANK%link_infile_$counter = false ) then
+        display ! linkage file $counter  : &STRIP%link_infile_$counter
+      end if
+    else
+     evaluate ($done=true)
+    end if
+    evaluate ($counter=$counter+1)
+   end loop read
+
+   if ( &BLANK%patch_infile = false ) then
+      display ! custom patch file = &STRIP%patch_infile
+   end if
+
+ else
+   display ! molecular structure file: &STRIP%structure_infile
+ end if
+ 
+ display ! input coordinates: &STRIP%coordinate_infile
+ if ( &BLANK%anom_library = false ) then
+   display ! anomalous f' f'' library: &STRIP%anom_library
+ end if
+
+ evaluate ($counter=1)
+ evaluate ($done=false)
+ while ( $done = false ) loop read
+    if ( &exist_reflection_infile_$counter = true ) then
+      if ( &BLANK%reflection_infile_$counter = false ) then
+         display ! reflection file $counter : &STRIP%reflection_infile_$counter       
+      end if
+   else
+     evaluate ($done=true)
+   end if
+   evaluate ($counter=$counter+1)
+ end loop read
+ 
+ display ! reflections with |Fobs|/sigma_F < &sigma_cut rejected
+ display ! reflections with |Fobs| > &obs_rms * rms(Fobs) rejected
+ display ! theoretical total number of refl. in resol. range:    $total_theor[I6] ( 100.0 % )
+ display ! number of unobserved reflections (no entry):          $unobserved[I6] ( $per_unobs[f5.1] % )
+ display ! number of reflections rejected:                       $rejected[I6] ( $per_reject[f5.1] % )
+ display ! total number of reflections used:                     $total_used[I6] ( $per_used[f5.1] % )
+ display
+
+ if (&packing_anal=true) then
+   display           theta1   theta2   theta3    transX   transY   transZ  monitor  packing
+ else
+   display           theta1   theta2   theta3    transX   transY   transZ  monitor
+ end if
+
+flags exclude * include xref end {- Use only XREF energy term. -}
+
+igroup
+  interaction=( &atom_select and not ( &atom_placed ) ) 
+              ( &atom_select and not ( &atom_placed ) ) 
+end
+
+coor copy end
+
+evaluate ($ntrials=max(1,&ntrials)) 
+
+if ( $log_level = verbose ) then
+  set message=normal echo=on end
+else
+  set message=off echo=off end
+end if
+
+evaluate ($pcgroup=1)
+evaluate ($group=1)
+evaluate ($done=false)
+while ( $done = false ) loop ngroup
+  if ( &exist_pcgroup_$group = true ) then
+    show sum(1) ( &pcgroup_$group )
+    if ( $result > 0 ) then
+      evaluate ($pcgroup=$pcgroup+1)
+    end if
+  else
+    evaluate ($done=true)
+    evaluate ($pcgroup=$pcgroup-1)
+  end if
+  evaluate ($group=$group+1)
+end loop ngroup
+
+evaluate ($rigidgroup=1)
+evaluate ($group=1)
+evaluate ($done=false)
+while ( $done = false ) loop ngroup
+  if ( &exist_rigidgroup_$group = true ) then
+    show sum(1) ( &rigidgroup_$group )
+    if ( $result > 0 ) then
+      evaluate ($rigidgroup=$rigidgroup+1)
+    end if
+  else
+    evaluate ($done=true)
+    evaluate ($rigidgroup=$rigidgroup-1)
+  end if
+  evaluate ($group=$group+1)
+end loop ngroup
+
+evaluate ($tfbest=9999999.)
+
+evaluate ($tfave=0.)
+evaluate ($tf2ave=0.)
+evaluate ($tfcount=0.)
+
+evaluate ($number=0)
+evaluate ($counter=0)
+
+evaluate ($nDoneTSMap=0)
+
+for $1 in ( @&rf_list_infile ) loop main
+
+   evaluate ($counter=$counter+1)               
+   if     ($counter=1) then  
+      evaluate($index=$1)
+   elseif ($counter=2) then  
+      evaluate($tt1=$1) 
+   elseif ($counter=3) then  
+      evaluate($tt2=$1) 
+   elseif ($counter=4) then  
+      evaluate($tt3=$1) 
+   elseif ($counter=5) then  
+      evaluate ($rf=$1) 
+      evaluate ($counter=0)
+      evaluate ($number=$number+1)
+      
+      if ($number <= &max_rf_peaks) then
+
+         evaluate ($ntf_maps=1)
+
+         evaluate ($t1=$tt1-&grid_int )
+         evaluate ($t1_int=&delta)
+         evaluate ($t1_end=$tt1+&grid_int+0.01)
+         while ($t1 < $t1_end ) loop m1
+            evaluate ($t2=$tt2-&grid_int )
+            evaluate ($t2_int=&delta)
+            evaluate ($t2_end=$tt2+&grid_int+0.01)
+            while ($t2 < $t2_end ) loop m2
+               evaluate ($t3=$tt3-&grid_int )
+               evaluate ($t3_int=&delta)
+               evaluate ($t3_end=$tt3+&grid_int+0.01)
+               while ($t3 < $t3_end ) loop m3
+
+               coor swap end
+               coor copy end
+               coor rotate 
+                 euler=( $t1 $t2 $t3 ) 
+                 selection=( &atom_select and not ( &atom_placed ) ) 
+               end
+
+               xray
+                 expand
+               end
+
+               if (&pc_mini_steps > 0) then
+                 fix selection=( &atom_placed ) end
+                 xray
+                    {- don't use the partial model structure factors for
+                       the PC target -}
+                    associate fcalc (&atom_select and not ( &atom_placed ) )
+                    @@CNS_XTALMODULE:molreptarget (target=&pc_target;
+                                                  mbins=$bins;
+                                                  fobs=&STRIP%obs_f;
+                                                  sigma=&STRIP%obs_sigf;
+                                                  fcalc=fcalc;
+                                                  fpart=0;
+                                                  phase=$STRIP%obs_phase;
+                                                  fom=$STRIP%obs_fom;
+                                                  sel=(ref_active=1);
+                                                  statistics=true;)
+                 end
+                 minimize rigid
+
+                   evaluate ($group=1)
+                   while ( $group <= $pcgroup ) loop pcref
+                     group ( ( &atom_select and not ( &atom_placed ) ) and 
+                             ( &pcgroup_$group ) )
+                     evaluate ($group=$group+1)
+                   end loop pcref
+
+                   nstep=&pc_mini_steps
+                   drop=10.
+                   translation=false  {- Translation of the last 
+                                         group is kept fixed. -}
+                 end
+               end if
+ 
+               do (refx=x) ( all )
+               do (refy=y) ( all )
+               do (refz=z) ( all )
+
+               if ( &do_trans = true ) then
+           
+               xray
+
+                  declare name=tsmap domain=real end
+
+                  if (&trans_method="general") then
+
+                    predict 
+                      mode=reciprocal
+                      to=fcalc
+                      atomselection=( &atom_select and not ( &atom_placed ) )
+                      selection=( ref_active=1 )
+                    end
+                       
+                    if (&general_target="fastf2f2") then
+                       evaluate ($search_target="f2f2") 
+                    else
+                       evaluate ($search_target=&general_target)
+                    end if
+                       
+                    {- use the partial model structure factors for the
+                       translation search target -}
+                    associate fcalc (&atom_select and not ( &atom_placed ) )
+                    @@CNS_XTALMODULE:molreptarget (target=$search_target;
+                                                  mbins=$bins;
+                                                  fobs=&STRIP%obs_f;
+                                                  sigma=&STRIP%obs_sigf;
+                                                  fcalc=fcalc;
+                                                  fpart=mod_fpart;
+                                                  phase=$STRIP%obs_phase;
+                                                  fom=$STRIP%obs_fom;
+                                                  sel=(ref_active=1);
+                                                  statistics=true;)
+
+                    if ($nDoneTSMap < 5) then
+                      set timer=1 end
+                    end if
+                    search tsmap
+                      FobsFrom=&STRIP%obs_f
+                      p1FcalcFrom=fcalc
+                      trfcalc=fcalc
+                      if ($partial = true) then FpartFrom=mod_fpart end if
+                      To=tsmap
+                      if (&general_target="fastf2f2") then
+                        method=FFT
+                      else
+                        method=DIRECT
+                      end if
+                      LessMemory=$lessmemory
+                      if ($nDoneTSMap < 5) then
+                        Verbose=true
+                      else
+                        Verbose=false
+                      end if
+                    end
+                    set timer=0 end
+                    evaluate ($nDoneTSMap=$nDoneTSMap+1)
+                  else
+                      
+                    predict 
+                      mode=reciprocal
+                      to=fcalc
+                      atomselection=( &atom_select and not ( &atom_placed ) )
+                      selection=( ref_active=1 )
+                    end
+
+                    {- The following expression produces the -}
+                    {- correlation coefficient between Fobs  -}
+                    {- and Fcalc electron densities (without -}
+                    {- crystallographic symmetry).           -}
+
+                    bins=1
+                    do (fcalc=$volume * $STRIP%obs_fom * 
+                        combine(amplitude(&STRIP%obs_f)*amplitude(fcalc),
+                                phase($STRIP%obs_phase)-phase(fcalc))
+                        / sqrt(sum(($STRIP%obs_fom *
+                                    amplitude(&STRIP%obs_f))^2) * 
+                          sum(amplitude(fcalc)^2))) 
+                                (ref_active=1) 
+                     bins=$bins
+
+                    do (tsmap=FT(fcalc)) (ref_active=1)
+                  end if
+
+                  set remarks=reset end
+                  set remarks=accu end
+                  remarks translation search number $ntf_maps for rotation peak $number
+                  if ( &write_map = true ) then
+                    if ( &grid_int = 0 ) then
+                      evaluate ($filename=&output_root + "_" + 
+                                          encode($number) + ".map")
+                    else
+                      evaluate ($filename=&output_root + "_" + 
+                                          encode($number) + "_" +
+                                          encode($ntf_maps) + ".map")
+                    end if
+                    write map 
+                       automatic=false
+                       from=tsmap
+                       extend=unit
+                       output=$filename
+                    end  
+                  end if  
+                                                         
+                  if ( &ntrials > 100 ) then
+                    evaluate ($list_len=&ntrials)
+                  else
+                    evaluate ($list_len=100)
+                  end if
+
+                  set message=on end
+
+                  psearch
+                    From=tsmap
+                    level = $psearch_level
+                    nList=$list_len
+                    Symbols=peak
+                  end
+
+                  if ( &trans_list = true ) then
+
+                  if ( &grid_int = 0 ) then
+                    evaluate ($peak_listname=&output_root + "_" + 
+                                             encode($number) + ".list")
+                  else
+                    evaluate ($peak_listname=&output_root + "_" + 
+                                             encode($number) + "_" +
+                                             encode($ntf_maps) + ".list")
+                  end if
+                  set display=$peak_listname end
+                  display >>> peak list for translation search $ntf_maps \
+for rotation peak $number
+                  display   peak  transX   transY   transZ      TF
+                  evaluate ($pcount=1)
+                  while ( $pcount <= $peak_nlist ) loop plist
+                    display $pcount[i5] $peak_x_$pcount[f8.3] $peak_y_$pcount[f8.3] $peak_z_$pcount[f8.3] $peak_dens_$pcount[f8.3]
+                    evaluate ($pcount=$pcount+1)
+                  end loop plist
+
+                  set display=$list_filename end
+
+                  end if
+
+                  if ( $log_level = verbose ) then
+                    set message=normal end
+                  else
+                    set message=off end
+                  end if
+                     
+                  undeclare name=tsmap domain=real end
+ 
+                  unexpand                   
+
+               end
+
+               end if
+                 
+               evaluate ($2=0) 
+               while ($2 < &ntrials ) loop tri2 
+
+                 evaluate ($2=$2+1) 
+                 do (x=refx) ( all )
+                 do (y=refy) ( all )
+                 do (z=refz) ( all )
+                    
+                  fix selection=( none ) end
+                  xray
+                     {- use both already placed and translated molecules
+                        in rigid body ref. -}
+                     associate fcalc (&atom_select)
+                     @@CNS_XTALMODULE:molreptarget (target=&rigid_target;
+                                                   mbins=$bins;
+                                                   fobs=&STRIP%obs_f;
+                                                   sigma=&STRIP%obs_sigf;
+                                                   fcalc=fcalc;
+                                                   fpart=0;
+                                                   phase=$STRIP%obs_phase;
+                                                   fom=$STRIP%obs_fom;
+                                                   sel=(ref_active=1);
+                                                   statistics=true;)
+                  end
+
+                  coor translate 
+                     if ( &do_trans = true ) then
+                       vector=( $peak_x_$2 $peak_y_$2 $peak_z_$2 ) 
+                     else
+                       vector=( 0 0 0 )
+                     end if
+                     selection=( &atom_select and ( not &atom_placed ) )
+                  end 
+                    
+                  if (&final_mini_steps > 0) then
+                             
+                     minimize rigid
+                       nstep=&final_mini_steps
+                       drop=10.
+                       evaluate ($group=1)
+                       while ( $group <= $rigidgroup ) loop rigid
+                          group ( ( &atom_select ) and
+                                  ( &rigidgroup_$group ) )
+                          evaluate ($group=$group+1)
+                       end loop rigid
+                       if ( &do_trans = false ) then
+                         translation=false {- fix translation if only doing
+                                              PC refinement -}
+                       end if
+                     end
+                  end if
+                
+                  xray
+                    print target
+                  end
+                  
+                  if ($2 = 1) then
+                    evaluate ($best_target=$target)
+                    do (store4=x) ( all )
+                    do (store5=y) ( all )
+                    do (store6=z) ( all ) 
+                  elseif ($target < $best_target) then
+                    evaluate ($best_target=$target)                
+                    do (store4=x) ( all )
+                    do (store5=y) ( all )
+                    do (store6=z) ( all ) 
+                  end if
+               end loop tri2
+               do (x=store4) ( all )
+               do (y=store5) ( all )
+               do (z=store6) ( all ) 
+
+               xray
+                 predict 
+                   mode=reciprocal
+                   to=fcalc
+                   atomselection=( &atom_select )
+                   selection=( ref_active=1 )
+                 end
+                 print target
+                 if (&packing_anal=true) then
+                    declare name=mask domain=real end
+                    mask
+                       mode=vdw
+                       solrad=1.0
+                       shrink=1.0
+                       nshell=1
+                       to=mask
+                       selection=( &atom_select ) 
+                    end
+                    undeclare name=mask domain=real end
+                    evaluate ($packing=$inside) 
+                 end if 
+               end
+ 
+               {- Fit coordinates to starting structure in order to
+                  measure the orientation of the PC-refined structure -}
+               {- The arrays vx, vy, vz are used as temporary stores in
+                  order to keep the starting coordinates -}
+               {- The COOR FIT statement stores the angles in the symbols 
+                  $theta1, $theta2, $theta3 -}
+               coor swap end
+
+               do (vx=x) ( all )
+               do (vy=y) ( all )
+               do (vz=z) ( all )
+
+               coor fit 
+                 selection=( &atom_select and not ( &atom_placed ) )
+               end
+
+               do (x=vx) ( all )
+               do (y=vy) ( all )
+               do (z=vz) ( all )
+
+               coor swap end
+          
+               evaluate ($tfave=$tfave+$monitor)
+               evaluate ($tf2ave=$tf2ave+$monitor^2)
+               evaluate ($tfcount=$tfcount+1)
+
+               if (&packing_anal=true) then
+display R# $number[i4] $theta1[F8.2] $theta2[F8.2] $theta3[F8.2]  $x[F8.2] $y[F8.2] \
+$z[F8.2]  $monitor[F6.3]    $packing[F6.4]
+               else
+display R# $number[i4] $theta1[F8.2] $theta2[F8.2] $theta3[F8.2]  $x[F8.2] $y[F8.2] \
+$z[F8.2]  $monitor[F6.3]
+               end if
+
+               if ($best_target < $tfbest) then
+                 evaluate ($tfbest=$best_target)
+                 if (&packing_anal=true) then
+                   evaluate ($tfbest_packing=$packing)
+                 end if
+                 evaluate ($tfbest_monitor=$monitor) 
+                 evaluate ($tfbest_x=$x)
+                 evaluate ($tfbest_y=$y)
+                 evaluate ($tfbest_z=$z)
+                 evaluate ($t1best=$t1)
+                 evaluate ($t2best=$t2)
+                 evaluate ($t3best=$t3)
+                 evaluate ($theta1best=$theta1)
+                 evaluate ($theta2best=$theta2)
+                 evaluate ($theta3best=$theta3)
+                 evaluate ($num_best=$number)
+                 evaluate ($ntf_mapsbest=$ntf_maps)
+                 do (store1=x) ( all )
+                 do (store2=y) ( all )
+                 do (store3=z) ( all )
+               end if
+                    
+               if (&write_coord=true) then
+                 {- write coordinates of all selected 
+                    (fixed or translated) coordinates -}
+                 if ( &grid_int = 0 ) then
+                   evaluate ($filename=&output_root + "_" + 
+                                       encode($number) + ".pdb")
+                 else
+                   evaluate ($filename=&output_root + "_" + 
+                                       encode($number) + "_" +
+                                       encode($ntf_maps) + ".pdb")
+                 end if
+                 set remarks=reset end
+                 set remarks=accu end
+   remarks translation search number $ntf_maps for rotation peak $number
+   remarks at resolution: &low_res - &high_res A  
+   remarks method= &STRIP%trans_method
+   remarks target for PC-refinement = &STRIP%pc_target
+   remarks target for rigid-body refinement = &STRIP%rigid_target   monitor-value= &STRIP%rigid_target
+   remarks target for general translation function = &STRIP%general_target
+   remarks bins= $bins 
+   remarks independent grid points to search: $nInd
+   remarks sg= &STRIP%sg a= &a b= &b c= &c alpha= &alpha beta= &beta gamma= &gamma
+   remarks molecular structure file: &STRIP%structure_infile
+   remarks input coordinates: &STRIP%coordinate_infile
+   if ( &BLANK%anom_library = false ) then
+     remarks anomalous f' f'' library: &STRIP%anom_library
+   end if
+
+   evaluate ($count=1)
+   evaluate ($done=false)
+   while ( $done = false ) loop read
+    if ( &exist_reflection_infile_$count = true ) then
+      if ( &BLANK%reflection_infile_$count = false ) then
+         remarks reflection file $count : &STRIP%reflection_infile_$count      
+      end if
+     else
+     evaluate ($done=true)
+     end if
+     evaluate ($count=$count+1)
+   end loop read
+
+   remarks reflections with |Fobs|/sigma_F < &sigma_cut rejected
+   remarks reflections with |Fobs| > &obs_rms * rms(Fobs) rejected
+   remarks theoretical total number of refl. in resol. range:    $total_theor[I6] ( 100.0 % )
+   remarks number of unobserved reflections (no entry):          $unobserved[I6] ( $per_unobs[f5.1] % )
+   remarks number of reflections rejected:                       $rejected[I6] ( $per_reject[f5.1] % )
+   remarks total number of reflections used:                     $total_used[I6] ( $per_used[f5.1] % )
+   remarks 
+   if (&packing_anal=true) then
+      remarks           theta1   theta2   theta3    transX   transY   transZ  monitor  packing
+      remarks R# $number[i4] $theta1[F8.2] $theta2[F8.2] $theta3[F8.2]  \
+$x[F8.2] $y[F8.2] $z[F8.2]  $monitor[F6.3]    $packing[F6.4]
+   else
+      remarks           theta1   theta2   theta3    transX   transY   transZ  monitor
+      remarks R# $number[i4] $theta1[F8.2] $theta2[F8.2] $theta3[F8.2]  \
+$x[F8.2] $y[F8.2] $z[F8.2]  $monitor[F6.3]
+   end if
+
+                 @CNS_XTALMODULE:write_pdb (pdb_o_format=true;
+                                            coordinate_outfile=$filename;
+                                            sgparam=$sgparam;)
+
+               end if
+          
+               evaluate ($ntf_maps=$ntf_maps+1)
+                    
+               evaluate ($t3=$t3+$t3_int)
+             end loop m3
+             evaluate ($t2=$t2+$t2_int)
+           end loop m2
+           evaluate ($t1=$t1+$t1_int)
+        end loop m1
+      end if
+   end if
+end loop main
+
+if ($number>0) then
+   do (x=store1) ( all )
+   do (y=store2) ( all )
+   do (z=store3) ( all )
+
+   if (&packing_anal=true) then
+display 
+display                              === best solution ===
+display
+display           theta1   theta2   theta3    transX   transY   transZ  monitor  packing
+display R# $num_best[i4] $theta1best[F8.2] $theta2best[F8.2] $theta3best[F8.2]  \
+$tfbest_x[F8.2] $tfbest_y[F8.2] $tfbest_z[F8.2]  $tfbest_monitor[F6.3]    \
+$tfbest_packing[F6.4]
+display
+   else
+display 
+display                              === best solution ===
+display
+display           theta1   theta2   theta3    transX   transY   transZ  monitor
+display R# $num_best[i4] $theta1best[F8.2] $theta2best[F8.2] $theta3best[F8.2]  \
+$tfbest_x[F8.2] $tfbest_y[F8.2] $tfbest_z[F8.2]  $tfbest_monitor[F6.3]
+display
+   end if
+
+   evaluate ($tfave=$tfave/$tfcount)
+   evaluate ($tf2ave=sqrt($tf2ave/$tfcount-$tfave^2))
+   display >>>> mean of monitor values:         $tfave[F14.5]
+   display >>>> standard deviation around mean: $tf2ave[F14.5]
+
+   set remarks=reset end
+   set remarks=accu end
+   
+   remarks translation search
+   remarks at resolution: &low_res - &high_res A  
+   remarks method= &STRIP%trans_method
+   remarks target for PC-refinement = &STRIP%pc_target
+   remarks target for rigid-body refinement = &STRIP%rigid_target   monitor-value= &STRIP%rigid_target
+   remarks target for general translation function = &STRIP%general_target
+   remarks bins= $bins 
+   remarks independent grid points to search: $nInd
+   remarks sg= &STRIP%sg a= &a b= &b c= &c alpha= &alpha beta= &beta gamma= &gamma
+   remarks molecular structure file: &STRIP%structure_infile
+   remarks input coordinates: &STRIP%coordinate_infile
+   if ( &BLANK%anom_library = false ) then
+     remarks anomalous f' f'' library: &STRIP%anom_library
+   end if
+
+   evaluate ($count=1)
+   evaluate ($done=false)
+   while ( $done = false ) loop read
+    if ( &exist_reflection_infile_$count = true ) then
+      if ( &BLANK%reflection_infile_$count = false ) then
+         remarks reflection file $count : &STRIP%reflection_infile_$count       
+      end if
+     else
+     evaluate ($done=true)
+     end if
+     evaluate ($count=$count+1)
+   end loop read
+
+   remarks reflections with |Fobs|/sigma_F < &sigma_cut rejected
+   remarks reflections with |Fobs| > &obs_rms * rms(Fobs) rejected
+   remarks theoretical total number of refl. in resol. range:    $total_theor[I6] ( 100.0 % )
+   remarks number of unobserved reflections (no entry):          $unobserved[I6] ( $per_unobs[f5.1] % )
+   remarks number of reflections rejected:                       $rejected[I6] ( $per_reject[f5.1] % )
+   remarks total number of reflections used:                     $total_used[I6] ( $per_used[f5.1] % )
+   remarks 
+   remarks                                 === best solution ===
+   if (&packing_anal=true) then
+      remarks           theta1   theta2   theta3    transX   transY   transZ  monitor  packing
+      remarks R# $num_best[i4] $theta1best[F8.2] $theta2best[F8.2] $theta3best[F8.2]  \
+$tfbest_x[F8.2] $tfbest_y[F8.2] $tfbest_z[F8.2]  $tfbest_monitor[F6.3]    \
+$tfbest_packing[F6.4]
+   else
+      remarks         theta1   theta2   theta3    transX   transY   transZ  monitor
+      remarks R# $num_best[i4] $theta1best[F8.2] $theta2best[F8.2] $theta3best[F8.2]  \
+$tfbest_x[F8.2] $tfbest_y[F8.2] $tfbest_z[F8.2]  $tfbest_monitor[F6.3]
+   end if
+   remarks mean of monitor values:         $tfave[F14.5]
+   remarks standard deviation around mean: $tf2ave[F14.5]
+
+   {- write coordinates of all selected (fixed or translated) coordinates -}
+   evaluate ($filename=&output_root + ".pdb") 
+
+   @CNS_XTALMODULE:write_pdb (pdb_o_format=true;
+                              coordinate_outfile=$filename;
+                              sgparam=$sgparam;)
+    
+end if                                      
+                                       
+
+stop
+

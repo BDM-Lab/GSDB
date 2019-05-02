@@ -1,0 +1,25 @@
+reflection {<xray-reflection-statement>} end
+
+<xray-reflection-statement> :==
+
+  nreflection=<integer>
+  --{Number of reflections: must be specified before any reflection.}
+  reset
+  --{Remove existing reflections.}
+  declare <xray-declare-statement> end
+  --{Declare crystallographic objects.}
+  group <xray-group-statement> end
+  --{Group crystallographic objects.}
+  anomalous=<logical>
+  --{Non-anomalous / anomalous data.}
+  index <integer> <integer> <integer> {<real><real>|<real>|<integer>}
+  --{A reflection: h k l [complex-object] [real-object] [integer-object]
+     A complex object consists of 2 real numbers: an amplitude and a phase.}
+
+  --{The index statements must be read after object declarations. 
+     To merge two data sets or to merge different information the two
+     reflection sets should be read with individual xray reflection
+     statements, i.e.
+       xray reflection @<filename> end  reflection @<filename> end
+     The command line echo is automatically turned off for the index
+     statements (except for the first occurrence).}

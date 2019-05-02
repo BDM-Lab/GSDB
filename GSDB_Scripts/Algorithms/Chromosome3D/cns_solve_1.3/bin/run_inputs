@@ -1,0 +1,173 @@
+#!/bin/csh -f
+#
+# A fairly general script to run input files from a directory above.
+# Run with -links first to set up links to input and data files.
+# 
+# options:
+#         -help    [print usage]
+#         -tidy    [remove all output data files produced by input files]
+#         -link    [remake links to data directory and input files]
+#         -save    [move .out files to .save]
+#         -diff    [make differences between outputs]
+#         -clean   [remove all files except Makefile]
+#         -echo    [echo commands only]
+#          file(s) [a list of input files to run]
+#          note: the default is to run no input files
+#
+# Written by: Paul Adams 20-3-97
+#
+# copyright Yale University
+#
+# ===========================================================================
+#
+# determine which files we need to process
+#
+set tidy=0
+set echoonly=0
+set links=0
+set save=0
+set diff=0
+set filelist=()
+set linklist=()
+set savelist=()
+if ( $#argv > 0 ) then
+  foreach arg ( $argv[*] )
+    switch ( $arg )
+    case -clean:
+      goto clean
+      breaksw
+    case -echo:
+      set echoonly=1
+      breaksw
+    case -tidy:
+      set tidy=1
+      breaksw
+    case -link:
+      set links=1
+      breaksw
+    case -save:
+      set save=1
+      breaksw
+    case -diff:
+      set diff=1
+      breaksw
+    case -help:
+      echo 'usage: run_inputs [-help] [-link] [-save] [-tidy] [-clean] [-echo] [-diff] file(s)'
+      goto exit
+    default:
+      if ( "$arg" =~ "-"* ) then
+        echo unknown option: $arg
+      else
+        if ( $save ) then
+          set savelist=($savelist $arg)
+        else if ( $links ) then
+          set linklist=($linklist $arg)
+        else
+          set filelist=($filelist $arg)
+        endif
+      endif
+    endsw
+  end
+else
+  echo 'usage: run_inputs [-help] [-link] [-save] [-tidy] [-clean] [-echo] [-diff] file(s)'
+  goto exit
+endif
+#
+# remove old output files
+#
+if ( $tidy ) then
+  foreach file (`/bin/ls -l | grep -v '.save' | grep -v '\->' | awk '{print $9}'`)
+    echo "removing $file"
+    if ( ! $echoonly ) /bin/rm -f $file
+  end
+endif
+#
+# make links to files
+#
+if ( $links ) then
+  foreach dir ( $linklist )
+    foreach file ( $dir/*.* )
+      if ( ! -e $file:t && ! -d $file ) then
+        echo adding link to $file:t
+        if ( ! $echoonly ) ln -s $file $file:t
+      endif
+    end
+  end
+endif
+#
+if ( $diff ) then
+  foreach file ($filelist)
+    if ( -e $file:r.save ) then
+      if ( -e $file:r.out ) then
+        if ( ! $echoonly ) then
+          echo "finding difference between $file:r.out and $file:r.save"
+          refloat $file:r.out  >! tmp1
+          refloat $file:r.save >! tmp2
+          diff -b tmp1 tmp2 > $file:r.diff
+          /bin/rm -f tmp1 tmp2
+        endif
+      endif
+    endif
+  end
+  goto exit
+endif
+#
+# stop if filelist blank
+#
+if ( $#filelist == 0 && $#savelist == 0 ) goto exit
+#
+# run the input files in the list
+#
+if ( $#filelist > 0 ) then
+  foreach file ($filelist)
+    if ( -e $file ) then
+      echo "cns_solve < $file > $file:r.out"
+      if ( ! $echoonly ) then
+        cns_solve < $file > $file:r.out
+      endif
+    else
+      echo file $file does not exist
+    endif
+  end
+#
+# differences to file
+#
+  foreach file ( $filelist )
+    if ( -e $file:r.save ) then
+       if ( ! $echoonly ) then
+         echo "finding difference between $file:r.out and $file:r.save"
+         refloat $file:r.out  >! tmp1
+         refloat $file:r.save >! tmp2
+         diff -b tmp1 tmp2 > $file:r.diff
+         /bin/rm -f tmp1 tmp2
+       endif
+    endif
+  end
+endif
+#
+# move selected output files to save files
+#
+if ( $save ) then
+  if ( $#savelist > 0 ) then
+    foreach file ( $savelist )
+      if ( -e $file:r.out ) then
+        echo moving $file:r.out to $file:r.save
+        if ( ! $echoonly ) mv $file:r.out $file:r.save
+      else
+        echo file $file:r.out does not exist
+      endif
+    end
+  endif
+endif
+#
+exit:
+exit 0
+#
+# remove all files except this script
+#
+clean:
+foreach file (`/bin/ls -l | grep -v Makefile | awk '{print $9}'`)
+  echo "removing $file"
+  if ( ! $echoonly ) /bin/rm -f $file
+end
+#

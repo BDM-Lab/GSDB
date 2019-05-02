@@ -1,0 +1,88 @@
+<HTML>
+<HEAD>
+   <TITLE>Crystallography & NMR System</TITLE>
+</HEAD>
+<BODY BGCOLOR=#8ebf8e>
+
+<HR WIDTH="100%">
+
+<h2>Heavy-atom search</h2>
+
+<HR WIDTH="100%">
+
+The heavy-atom search procedure of CNS can be applied
+to various native and difference Patterson maps and their statistically
+weighted averages.  Using the default parameters, a search for two
+thirds of the number of expected sites is often successful. In the
+example, 100 trials are carried out, searching for 6 of the expected 9
+sites.
+
+<PRE>
+      cns_solve &lt; <A HREF="heavy_search.inp">heavy_search.inp</A> &gt; heavy_search.out
+</PRE>
+
+The beginning of the output file <tt>heavy_search.summary</tt> should be
+looked at to check the input parameters. The 100
+heavy-atom configurations found are stored in the files
+<tt>heavy_search_*.sdb</tt>. A list of trial numbers and correlation
+coefficients can be found in the file <tt>heavy_search.list</tt>.
+Often it is useful to plot the list:
+<p>
+<center>
+<IMG SRC="list.jpeg">
+</center>
+In many cases there are only a few outstanding correlation coefficients,
+and the highest one normally corresponds to the correct heavy-atom
+configuration. However, in the example the correct configuration was found
+many times.
+<p>
+On Unix computers, the list file can easily be sorted.
+<pre>
+      sort -r heavy_search.list
+</pre>
+The beginning of the output shows that <tt>heavy_search_1.sdb</tt> is one of
+the correct configurations.
+<pre>
+       +1     0.5279
+      +15     0.5279
+      +17     0.5279
+       +6     0.5279
+      +79     0.5279
+       +9     0.5279
+      +10     0.5278
+      +12     0.5278
+      +13     0.5278
+       +2     0.5278
+      +29     0.5278
+      +48     0.5278
+      +61     0.5278
+       73     0.5001
+       83     0.5000
+       95     0.4937
+       ...
+</pre>
+
+To aid the interpretation of the distribution of the
+correlation coefficients, trials with a correlation coefficients
+greater than 1.5 sigma of all trials are flagged with a plus sign.
+<p>
+The configuration corresponding to the top of the sorted list,
+<tt>heavy_search_1.sdb</tt>, can be used in the
+<tt>predict_patterson.inp</tt> task file for visual comparison of the
+observed and calculated Patterson maps (see previous tutorial), and
+as input for refinement of the heavy-atom parameters and computation of
+experimental phases (see following tutorials).
+
+<p>
+<A HREF="tutorial.csh">Script to run this tutorial</A>
+
+<HR WIDTH="100%">
+
+<A HREF="../../text.html">Back to tutorials</A>&nbsp;&nbsp;
+<A HREF="../anom_patt/text.html">Previous section</A>&nbsp;&nbsp;
+<A HREF="../heavy_refine/text.html">Next section</A>
+
+<HR WIDTH="100%"></P>
+
+</BODY>
+</HTML>

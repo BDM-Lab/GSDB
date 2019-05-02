@@ -1,0 +1,34 @@
+#! /bin/csh -f
+#
+# script to write an O macro to display a CNS map and associated bones
+# MAPMAN must be installed and in your path for this script to work
+# MAPMAN can be obtained from:
+#   http://alpha2.bmc.uu.se/~gerard/manuals/gerard_manuals.html
+#
+# copyright Yale University
+#
+
+foreach f ($*)
+  set mapf = "$f:r"
+  set omacro = $mapf.omacro
+  set omap = $mapf.omap
+  set bones = $mapf.bones
+
+  echo "creating DSN6 format map $omap"
+  map_to_omap $f
+
+  echo "creating bones file $bones"
+  map_to_bones $f
+
+  echo "writing O macro"
+  echo "map_file $omap" > $omacro
+  echo "map_object map" >> $omacro
+  echo "map_param 30 30 30 1.5 blue ; ;" >> $omacro
+  echo "map_ac" >> $omacro
+  echo "map_dr" >> $omacro
+  echo "read $bones" >> $omacro
+  echo "bone_set skel skel 30 3" >> $omacro
+  echo "bone_draw" >> $omacro
+end
+
+exit 0

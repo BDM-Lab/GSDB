@@ -1,0 +1,30 @@
+###############################################################################
+# 									      #
+#       Machine dependent Makefile header for CNSsolve                        #
+#       Paul Adams  20-10-98                                                  #
+#       copyright Yale University                                             #
+# 									      #
+###############################################################################
+
+# fortran options
+F77 = f77
+F77STD = +E1 +E2 +E4 +E5 +E6
+F77OPT = +O3 +Onoinline
+F77FLAGS = $(F77STD) $(F77OPT) $(EXT_F77FLAGS) $(F77BUG)
+
+# C options
+CC = cc
+CCFLAGS = -Ae -DCNS_ARCH_TYPE_$(CNS_ARCH_TYPE) $(EXT_CCFLAGS)
+
+# link options
+LD = fort77
+LDFLAGS = -Wl,-N $(EXT_LDFLAGS)
+
+# utility programs
+compile-utils:
+	@ cd $(CNS_INST)/utils; \
+	  make utils F77="$(F77)"  CC="$(CC)" \
+	             F77FLAGS="-O" CCFLAGS="-Ae -O" \
+	             F77LINK="-Wl,+vnocompatwarnings" CCLINK="-lm" LEXLIB="l"
+
+#==============================================================================

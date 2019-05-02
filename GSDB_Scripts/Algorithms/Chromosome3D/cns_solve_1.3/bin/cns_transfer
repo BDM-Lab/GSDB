@@ -1,0 +1,217 @@
+#!/bin/sh 
+#
+eval "exec perl -x $0 $*"
+#
+#!perl
+#
+# transfer defaults from one file to another and return new file
+# output will be written to the specified file or to stdout
+# 
+# Written by: Paul Adams and Jesse Reklaw
+#
+# copyright Yale University
+#
+
+check_version();
+
+( $infile, $default, $outfile ) = get_args();
+
+open( DEF, "< $default" ) || &die_error( "cannot open default file $default" );
+
+while (<DEF>) {
+    $line_number++;
+    if (/^\s*\{===>\}\s*(\w+.*)$/) {
+	@vars = &get_vars(DEF,$1);
+	foreach $var (@vars) {
+	    ($lhs,$rhs) = split('.cns_var_is_set_to.',$var);
+	    if ( defined($default_value{$lhs}) ) {
+		&die_error( "error in defaults file at line $line_number: 
+parameter $lhs is multiply defined" );
+	    }
+	    $default_value{$lhs} = $rhs;
+	}
+    }
+}
+close DEF;
+
+open( INP, "< $infile" ) || &die_error("cannot open input file $infile");
+
+if ( $outfile !~ /^\s*$/ ) {
+    open( STDOUT, "> $outfile" ) || 
+	&die_error("cannot open output file $outfile");
+}
+
+while ( $line=<INP> ) {
+    if ($line =~ m/^\s*\{===>\}\s*(\w+.*)$/) {
+	@vars = &get_vars(INP,$1);
+	print '{===>}';
+	foreach $var (@vars) {
+	    ($lhs,$rhs) = split('.cns_var_is_set_to.',$var);
+	    if ($default_value{$lhs} ne '') {
+		$rhs = $default_value{$lhs};
+	    }
+	    $prelen=8;
+	    $indent = ' ' x ($prelen + length($lhs));
+	    $rhs =~ s/\n/\n$indent/g;
+	    print " ${lhs}=$rhs;";
+	}
+	print "\n";
+    }
+    else {
+	print "$line";
+    }
+}
+
+close INP;
+
+sub get_args {
+    local ( $infile, $default, $outfile );
+    local ( $i, $arg );
+
+    $infile='';
+    $default='';
+    $outfile='';
+
+    for ( $i=0; $i<=$#ARGV; $i++ ) {
+	$arg = $ARGV[$i];
+	if ( $arg =~ /-inp[=]*(\S*)/ ) {
+	    if ( $1 ) {
+		$infile=$1;
+	    }
+	    else {
+		$i++;
+		$infile=$ARGV[$i];
+	    }
+	}
+	if ( $arg =~ /-def[=]*(\S*)/ ) {
+	    if ( $1 ) {
+		$default=$1;
+	    }
+	    else {
+		$i++;
+		$default=$ARGV[$i];
+	    }
+	}
+	if ( $arg =~ /-out[=]*(\S*)/ ) {
+	    if ( $1 ) {
+		$outfile=$1;
+	    }
+	    else {
+		$i++;
+		$outfile=$ARGV[$i];
+	    }
+	}
+	if ( $arg =~ /-help/ ) {
+	    usage();
+	    exit;
+	}
+    }
+    if ( $infile =~ /^\s*$/ ) {
+	print STDERR "input file not specified\n";
+	usage();
+	exit 1;
+    }
+    elsif ( $default =~ /^\s*$/ ) {
+	print STDERR "default file not specified\n";
+	usage();
+	exit 1;
+    }
+    else {
+	return ($infile, $default, $outfile);
+    }
+}
+
+sub get_vars { 
+    local( $stream, $first_line ) = @_;
+    local( $lhs, $rhs, $rem, @varpairs, $varpair, %vars );
+
+    @vars = ();
+    if ($first_line =~ m/^(.*)\;\s*$/) {
+	@varpairs = split(';',$1);
+	foreach $varpair (@varpairs) {
+	    ($lhs,$rhs) = split('=', $varpair, 2);
+	    ($lhs,$rhs) = &process_var($lhs,$rhs);
+	    push(@vars, "$lhs.cns_var_is_set_to.$rhs");
+	}
+    } else {
+	($varpair,$rem) = &append_text_until($stream,'\;', $first_line);
+	($lhs,$rhs) = split('=', $varpair, 2);
+	($lhs,$rhs) = &process_var($lhs,$rhs);
+	@vars = ("$lhs.cns_var_is_set_to.$rhs");
+    }
+    return @vars;
+}
+
+sub process_var {
+
+    local($lhs,$rhs) = @_;
+    local( @lines, $line, @newlines );
+
+    $lhs =~ s/\s+//g;
+
+    @lines = split(/\n/,$rhs);
+
+    foreach $line (@lines) {
+	if ($line =~ m/^\s*(\S.*)$/) { $line = $1; }    # clear start spaces
+	if ($line =~ m/^(.*\S)\s*$/) { $line = $1; }    # clear end spaces
+	if ($line !~ m/^\s*$/) {push(@newlines,$line);} # keep non-blank lines
+    }
+
+    $rhs = join("\n",@newlines);
+
+    return($lhs,$rhs);
+}
+
+sub append_text_until { 
+
+    local( $stream, $delim, $tmp ) = @_;
+    local( $buffer='', $continue, $start_line_num, $rem, $d );
+
+    $start_line_num = $current_line_number;
+    $continue = 1;
+    $tmp .= "\n";
+
+    while ($continue) {
+	if ($tmp =~ /^(.*)$delim(.*)$/) { # If $tmp contains $delim ...
+	    $buffer .= $1;                # ...append desired text to buffer
+	    $rem = $2;
+	    $continue = 0;
+	} 
+	else {
+	    $buffer .= $tmp;              # ... Otherwise append all of $tmp
+	    $tmp = <$stream>;             # ... and get a new line.
+	    $current_line_number++;       # global counter for debugging
+	}
+	if ( eof && $continue ) {
+	    $d = $delim; $d =~ tr/\\//d;
+	    &die_error( "EOF detected while trying to parse input
+Please check the input file -- it may be corrupted.
+Cannot find ' $d ' after line $line_num: $line");
+	}
+    }
+    return($buffer,$rem);
+}
+
+sub die_error { 
+
+    local($err) = @_;
+
+    print "$err\n";
+
+    exit 1;
+}
+
+sub usage {
+
+    print "usage: cns_transfer -def file -inp file [-out file]\n";
+
+}
+
+sub check_version {
+
+    if ( $] < 5.000 ) {
+	print "current PERL version is: $]\n";
+	die "PERL version 5 or higher is required\n";
+    }
+    
+}

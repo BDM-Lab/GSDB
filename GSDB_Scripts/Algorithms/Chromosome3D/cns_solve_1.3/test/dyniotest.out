@@ -1,0 +1,2114 @@
+          ============================================================
+          |                                                          |
+          |            Crystallography & NMR System (CNS)            |
+          |                         CNSsolve                         |
+          |                                                          |
+          ============================================================
+           Version: 1.3
+           Status: General release
+          ============================================================
+           Written by: A.T.Brunger, P.D.Adams, G.M.Clore, W.L.DeLano,
+                       P.Gros, R.W.Grosse-Kunstleve,J.-S.Jiang,J.M.Krahn,
+                       J.Kuszewski, M.Nilges, N.S.Pannu, R.J.Read,
+                       L.M.Rice, G.F.Schroeder, T.Simonson, G.L.Warren.
+           Copyright (c) 1997-2010 Yale University
+          ============================================================
+           Running on machine: lewis4-r710-login-node223 (x86_64/Linux,64-bit)
+                               with 16 threads
+           Program started by: oeow39
+           Program started at: 16:08:00 on 05-Jul-2018
+          ============================================================
+
+ FFT3C: Using FFTPACK4.1
+
+ CNSsolve>remarks DYNIOTEST.INP 
+ CNSsolve>remarks TEST DYNAMICS I/O AND MERGING 
+ CNSsolve> 
+ CNSsolve>topology @CNS_TOPPAR:protein.top end 
+ ASSFIL: file protein.top opened.
+ RTFRDR>remarks file toppar/protein.top 
+ RTFRDR>remarks   protein topology with polar hydrogens 
+ RTFRDR> 
+ RTFRDR>! 
+ RTFRDR>! Please cite the following reference when using these parameters: 
+ RTFRDR>! Engh, R.A. and  Huber, R. (1991). Accurate Bond and 
+ RTFRDR>!  Angle Parameters for X-ray Protein-Structure Refinement, 
+ RTFRDR>!  Acta Cryst. A47, 392-400. 
+ RTFRDR>! 
+ RTFRDR>! 
+ RTFRDR> 
+ RTFRDR>set message ? end eval ($old_message=$result) set echo ? end eval ($old_echo=$result) 
+ MESSage=NORM
+ EVALUATE: symbol $OLD_MESSAGE set to "NORM" (string)
+ ECHO=TRUE {ON}
+ EVALUATE: symbol $OLD_ECHO set to TRUE (logical)
+ RTFRDR>set message=off echo=off end 
+ RTFRDR> 
+ RTFRDR> 
+ RTFRDR> end 
+ CNSsolve>parameter @CNS_TOPPAR:protein.param end 
+ ASSFIL: file protein.param opened.
+ PARRDR>remarks file toppar/protein.param 
+ PARRDR>remarks   protein parameters with Lennard-Jones van der Waals parameters 
+ PARRDR>remarks   for crystallographic structure determination 
+ PARRDR> 
+ PARRDR>! 
+ PARRDR>! Please cite the following reference when using these parameters: 
+ PARRDR>! Engh, R.A. and  Huber, R. (1991). Accurate Bond and 
+ PARRDR>!  Angle Parameters for X-ray Protein-Structure Refinement, 
+ PARRDR>!  Acta Cryst. A47, 392-400. 
+ PARRDR>! 
+ PARRDR>! 
+ PARRDR> 
+ PARRDR>set message ? end eval ($old_message=$result) set echo ? end eval ($old_echo=$result) 
+ MESSage=NORM
+ EVALUATE: symbol $OLD_MESSAGE set to "NORM" (string)
+ ECHO=TRUE {ON}
+ EVALUATE: symbol $OLD_ECHO set to TRUE (logical)
+ PARRDR>set message=off echo=off end 
+ PARRDR> 
+ PARRDR> end 
+ CNSsolve> 
+ CNSsolve>segment 
+ SEGMENT>  name=tryp 
+ SEGMENT>  chain 
+ CHAIN>     @CNS_TOPPAR:protein.link 
+ ASSFIL: file protein.link opened.
+ CHAIN>remarks file toppar/protein.link 
+ CHAIN>remarks 
+ CHAIN>remarks this is a macro to define standard protein peptide bonds 
+ CHAIN>remarks and termini to generate a protein sequence. 
+ CHAIN> 
+ CHAIN>set message ? end eval ($old_message=$result) set echo ? end eval ($old_echo=$result) 
+ MESSage=NORM
+ EVALUATE: symbol $OLD_MESSAGE set to "NORM" (string)
+ ECHO=TRUE {ON}
+ EVALUATE: symbol $OLD_ECHO set to TRUE (logical)
+ CHAIN>set message=off echo=off end 
+ CHAIN>     sequence 
+ SEQUENCE>        TRP 
+ SEQUence-element (terminate with END) =     end 
+ SEGMNT:     1 residues were inserted into segment "TRYP"
+ CHAIN>  end 
+ SEGMENT>end 
+ Status of internal molecular topology database:
+ -> NATOM=         19(MAXA=     1000000)  NBOND=         20(MAXB=     1000000)
+ -> NTHETA=        30(MAXT=     2000000)  NGRP=           3(MAXGRP=   1000000)
+ -> NPHI=          10(MAXP=     2000000)  NIMPHI=        15(MAXIMP=   1000000)
+ -> NNB=            0(MAXNB=    1000000) 
+ CNSsolve> 
+ CNSsolve>coor 
+ COOR>ATOM      1  HT1 TRP     1       0.101   0.574  -1.385  1.00  0.00      TRYP 
+ COOR>ATOM      2  HT2 TRP     1       1.711   0.436  -1.904  1.00  0.00      TRYP 
+ CNSsolve> 
+ CNSsolve> 
+ CNSsolve>coor copy end 
+ COOR: selected main coordinates copied to comp
+ CNSsolve> 
+ CNSsolve>parameter 
+ PARRDR>  nbonds 
+ NBDSET>     atom cdie shift eps=1.0 
+ NBDSET>     cutnb=30.0 ctonnb=99.0 ctofnb=99.0 
+ NBDSET>     nbxmod=5 vswitch 
+ NBDSET>  end 
+ %NBDSET-ERR: inconsistent CTONNB, CTOFNB given. Reset.
+ %NBDSET-ERR: inconsistent CUTNB, TOLErance, CTOFNB given.  Reset.
+ PARRDR>end 
+ CNSsolve> 
+ CNSsolve> 
+ CNSsolve>!fix selection=( name O   ) end 
+ CNSsolve> 
+ CNSsolve> 
+ CNSsolve>set seed=311. end 
+ CNSsolve>do (fbeta=100) ( all ) 
+ SELRPN:     19 atoms have been selected out of     19
+ CNSsolve>do (vx=maxwell(298./2000)) ( all ) 
+ SELRPN:     19 atoms have been selected out of     19
+ CNSsolve>do (vy=maxwell(298./2000)) ( all ) 
+ SELRPN:     19 atoms have been selected out of     19
+ CNSsolve>do (vz=maxwell(298./2000)) ( all ) 
+ SELRPN:     19 atoms have been selected out of     19
+ CNSsolve> 
+ CNSsolve>dyna tors 
+ Torsion Dynamics>   nstep=20 
+ Torsion Dynamics>   cmremove=false 
+ Torsion Dynamics>   topology 
+ Torsion Topology>      maxchn=300 
+ Torsion Topology>      kdihmax=10. 
+ Torsion Topology>      maxtree=20 
+ Torsion Topology>   end 
+ Torsion Dynamics>   timestep=0.003 
+ Torsion Dynamics>   tcoupling=true   temperature=298. 
+ TORMD: temperature coupling (TCOUpl) enabled
+ Torsion Dynamics>   trajectory=tra1.dat  nsavc=2 
+ Torsion Dynamics>end 
+ ASSFIL: file tra1.dat opened.
+ DTOREST2: total number of groups          5
+ DTOREST2: total number of joints          4
+ DTOREST2: total number of closed loops          0
+ DTOREST2: total number of distinct bodies          1
+ DTOREST2: total number of chains          3
+ DTOREST2: maximum number of chains (per distinct body)          3
+ DTOREST2: maximum unbranched chain length          2
+ DTOREST2: adj. max. number of chains (per distinct body)          5
+ DTOREST2: adj. maximum unbranched chain length          4
+ TOPOLOGY: number of distinct bodies          1
+ TOPOLOGY: maximum number of chains (per distinct body)          3
+ TOPOLOGY: maximum unbranched chain length          3
+ -------------------------- Torsion Angle Dynamics -----------------------------
+ WARNING: Current Velocities Taken 
+          Bad Initial Velocities May Result 
+ -------------------------------------------------------------------------------
+ NBONDS: generating intra-molecular exclusion list with mode= 5
+ MAKINB: mode   5 found     50 exclusions and     29 interactions(1-4)
+ NBONDS: found       92 intra-atom interactions
+ TORMD3: number of degrees of freedom=      10
+ -------------------------- Initial Conditions ---------------------------------
+ | E(kin)+E(total)=31.657          E(kin)=0.009         temperature=0.932      |
+ | Etotal =31.647     grad(E)=216.977    E(BOND)=40.681     E(ANGL)=55.851     |
+ | E(DIHE)=10.798     E(IMPR)=20.775     E(VDW )=6.686      E(ELEC)=-103.143   |
+ -------------------------------------------------------------------------------
+ --------------- step=        1 at      0.00300 ps -----------------------------
+ | E(kin)+E(total)=32.111          E(kin)=0.465         temperature=46.828     |
+ | Etotal =31.646     grad(E)=216.978    E(BOND)=40.681     E(ANGL)=55.851     |
+ | E(DIHE)=10.794     E(IMPR)=20.775     E(VDW )=6.679      E(ELEC)=-103.134   |
+ -------------------------------------------------------------------------------
+ WRITEC: CORD sets starting from step        2 are written every     2  steps
+ WRITEC: where       19 atoms are "free"
+ --------------- step=        2 at      0.00600 ps -----------------------------
+ | E(kin)+E(total)=33.240          E(kin)=1.634         temperature=164.484    |
+ | Etotal =31.605     grad(E)=216.979    E(BOND)=40.681     E(ANGL)=55.851     |
+ | E(DIHE)=10.793     E(IMPR)=20.775     E(VDW )=6.721      E(ELEC)=-103.216   |
+ -------------------------------------------------------------------------------
+ --------------- step=        3 at      0.00900 ps -----------------------------
+ | E(kin)+E(total)=33.827          E(kin)=2.269         temperature=228.352    |
+ | Etotal =31.558     grad(E)=216.982    E(BOND)=40.681     E(ANGL)=55.851     |
+ | E(DIHE)=10.778     E(IMPR)=20.775     E(VDW )=6.747      E(ELEC)=-103.273   |
+ -------------------------------------------------------------------------------
+ --------------- step=        4 at      0.01200 ps -----------------------------
+ | E(kin)+E(total)=34.121          E(kin)=2.638         temperature=265.542    |
+ | Etotal =31.483     grad(E)=216.986    E(BOND)=40.681     E(ANGL)=55.851     |
+ | E(DIHE)=10.741     E(IMPR)=20.775     E(VDW )=6.778      E(ELEC)=-103.343   |
+ -------------------------------------------------------------------------------
+ --------------- step=        5 at      0.01500 ps -----------------------------
+ | E(kin)+E(total)=34.240          E(kin)=2.871         temperature=288.997    |
+ | Etotal =31.368     grad(E)=216.992    E(BOND)=40.681     E(ANGL)=55.851     |
+ | E(DIHE)=10.667     E(IMPR)=20.775     E(VDW )=6.813      E(ELEC)=-103.418   |
+ -------------------------------------------------------------------------------
+ --------------- step=        6 at      0.01800 ps -----------------------------
+ | E(kin)+E(total)=34.239          E(kin)=3.044         temperature=306.397    |
+ | Etotal =31.195     grad(E)=216.999    E(BOND)=40.681     E(ANGL)=55.851     |
+ | E(DIHE)=10.534     E(IMPR)=20.775     E(VDW )=6.849      E(ELEC)=-103.494   |
+ -------------------------------------------------------------------------------
+ --------------- step=        7 at      0.02100 ps -----------------------------
+ | E(kin)+E(total)=34.141          E(kin)=3.206         temperature=322.633    |
+ | Etotal =30.935     grad(E)=217.008    E(BOND)=40.681     E(ANGL)=55.851     |
+ | E(DIHE)=10.307     E(IMPR)=20.775     E(VDW )=6.887      E(ELEC)=-103.565   |
+ -------------------------------------------------------------------------------
+ --------------- step=        8 at      0.02400 ps -----------------------------
+ | E(kin)+E(total)=33.941          E(kin)=3.389         temperature=341.104    |
+ | Etotal =30.552     grad(E)=217.019    E(BOND)=40.681     E(ANGL)=55.851     |
+ | E(DIHE)=9.944      E(IMPR)=20.775     E(VDW )=6.921      E(ELEC)=-103.620   |
+ -------------------------------------------------------------------------------
+ --------------- step=        9 at      0.02700 ps -----------------------------
+ | E(kin)+E(total)=33.618          E(kin)=3.618         temperature=364.177    |
+ | Etotal =29.999     grad(E)=217.032    E(BOND)=40.681     E(ANGL)=55.851     |
+ | E(DIHE)=9.388      E(IMPR)=20.775     E(VDW )=6.949      E(ELEC)=-103.645   |
+ -------------------------------------------------------------------------------
+ --------------- step=       10 at      0.03000 ps -----------------------------
+ | E(kin)+E(total)=33.140          E(kin)=3.904         temperature=392.932    |
+ | Etotal =29.236     grad(E)=217.045    E(BOND)=40.681     E(ANGL)=55.851     |
+ | E(DIHE)=8.587      E(IMPR)=20.775     E(VDW )=6.964      E(ELEC)=-103.621   |
+ -------------------------------------------------------------------------------
+ NBONDS: found       92 intra-atom interactions
+ --------------- step=       11 at      0.03300 ps -----------------------------
+ | E(kin)+E(total)=32.477          E(kin)=4.236         temperature=426.294    |
+ | Etotal =28.241     grad(E)=217.055    E(BOND)=40.681     E(ANGL)=55.851     |
+ | E(DIHE)=7.504      E(IMPR)=20.775     E(VDW )=6.960      E(ELEC)=-103.530   |
+ -------------------------------------------------------------------------------
+ --------------- step=       12 at      0.03600 ps -----------------------------
+ | E(kin)+E(total)=31.611          E(kin)=4.571         temperature=460.042    |
+ | Etotal =27.040     grad(E)=217.061    E(BOND)=40.681     E(ANGL)=55.851     |
+ | E(DIHE)=6.154      E(IMPR)=20.775     E(VDW )=6.935      E(ELEC)=-103.356   |
+ -------------------------------------------------------------------------------
+ --------------- step=       13 at      0.03900 ps -----------------------------
+ | E(kin)+E(total)=30.560          E(kin)=4.836         temperature=486.683    |
+ | Etotal =25.724     grad(E)=217.060    E(BOND)=40.681     E(ANGL)=55.851     |
+ | E(DIHE)=4.625      E(IMPR)=20.775     E(VDW )=6.895      E(ELEC)=-103.102   |
+ -------------------------------------------------------------------------------
+ --------------- step=       14 at      0.04200 ps -----------------------------
+ | E(kin)+E(total)=29.393          E(kin)=4.941         temperature=497.325    |
+ | Etotal =24.452     grad(E)=217.050    E(BOND)=40.681     E(ANGL)=55.851     |
+ | E(DIHE)=3.084      E(IMPR)=20.775     E(VDW )=6.849      E(ELEC)=-102.787   |
+ -------------------------------------------------------------------------------
+ --------------- step=       15 at      0.04500 ps -----------------------------
+ | E(kin)+E(total)=28.228          E(kin)=4.824         temperature=485.465    |
+ | Etotal =23.404     grad(E)=217.032    E(BOND)=40.681     E(ANGL)=55.851     |
+ | E(DIHE)=1.737      E(IMPR)=20.775     E(VDW )=6.810      E(ELEC)=-102.450   |
+ -------------------------------------------------------------------------------
+ NBONDS: found       92 intra-atom interactions
+ --------------- step=       16 at      0.04800 ps -----------------------------
+ | E(kin)+E(total)=27.202          E(kin)=4.478         temperature=450.660    |
+ | Etotal =22.725     grad(E)=217.011    E(BOND)=40.681     E(ANGL)=55.851     |
+ | E(DIHE)=0.765      E(IMPR)=20.775     E(VDW )=6.786      E(ELEC)=-102.133   |
+ -------------------------------------------------------------------------------
+ --------------- step=       17 at      0.05100 ps -----------------------------
+ | E(kin)+E(total)=26.438          E(kin)=3.968         temperature=399.308    |
+ | Etotal =22.471     grad(E)=216.989    E(BOND)=40.681     E(ANGL)=55.851     |
+ | E(DIHE)=0.259      E(IMPR)=20.775     E(VDW )=6.776      E(ELEC)=-101.871   |
+ -------------------------------------------------------------------------------
+ --------------- step=       18 at      0.05400 ps -----------------------------
+ | E(kin)+E(total)=26.005          E(kin)=3.396         temperature=341.752    |
+ | Etotal =22.609     grad(E)=216.970    E(BOND)=40.681     E(ANGL)=55.851     |
+ | E(DIHE)=0.207      E(IMPR)=20.775     E(VDW )=6.775      E(ELEC)=-101.680   |
+ -------------------------------------------------------------------------------
+ --------------- step=       19 at      0.05700 ps -----------------------------
+ | E(kin)+E(total)=25.909          E(kin)=2.860         temperature=287.833    |
+ | Etotal =23.049     grad(E)=216.955    E(BOND)=40.681     E(ANGL)=55.851     |
+ | E(DIHE)=0.522      E(IMPR)=20.775     E(VDW )=6.780      E(ELEC)=-101.560   |
+ -------------------------------------------------------------------------------
+ --------------- step=       20 at      0.06000 ps -----------------------------
+ | E(kin)+E(total)=26.107          E(kin)=2.423         temperature=243.827    |
+ | Etotal =23.684     grad(E)=216.943    E(BOND)=40.681     E(ANGL)=55.851     |
+ | E(DIHE)=1.091      E(IMPR)=20.775     E(VDW )=6.787      E(ELEC)=-101.501   |
+ -------------------------------------------------------------------------------
+ CNSsolve> 
+ CNSsolve> 
+ CNSsolve>dyna tors 
+ Torsion Dynamics>   nstep=20 
+ Torsion Dynamics>   cmremove=false 
+ Torsion Dynamics>   timestep=0.003 
+ Torsion Dynamics>   tcoupling=true   temperature=298. 
+ TORMD: temperature coupling (TCOUpl) enabled
+ Torsion Dynamics>   trajectory=tra2.dat  nsavc=2 
+ Torsion Dynamics>end 
+ ASSFIL: file tra2.dat opened.
+ -------------------------- Torsion Angle Dynamics -----------------------------
+ Info: Velocities and coordinates taken from last torsion angle dynamics step.
+ -------------------------------------------------------------------------------
+ TORMD3: number of degrees of freedom=      10
+ -------------------------- Initial Conditions ---------------------------------
+ | E(kin)+E(total)=26.107          E(kin)=2.423         temperature=243.827    |
+ | Etotal =23.684     grad(E)=216.943    E(BOND)=40.681     E(ANGL)=55.851     |
+ | E(DIHE)=1.091      E(IMPR)=20.775     E(VDW )=6.787      E(ELEC)=-101.501   |
+ -------------------------------------------------------------------------------
+ NBONDS: found       92 intra-atom interactions
+ --------------- step=        1 at      0.00300 ps -----------------------------
+ | E(kin)+E(total)=26.531          E(kin)=2.107         temperature=212.025    |
+ | Etotal =24.424     grad(E)=216.935    E(BOND)=40.681     E(ANGL)=55.851     |
+ | E(DIHE)=1.813      E(IMPR)=20.775     E(VDW )=6.796      E(ELEC)=-101.491   |
+ -------------------------------------------------------------------------------
+ WRITEC: CORD sets starting from step        2 are written every     2  steps
+ WRITEC: where       19 atoms are "free"
+ --------------- step=        2 at      0.00600 ps -----------------------------
+ | E(kin)+E(total)=27.108          E(kin)=1.909         temperature=192.157    |
+ | Etotal =25.199     grad(E)=216.930    E(BOND)=40.681     E(ANGL)=55.851     |
+ | E(DIHE)=2.604      E(IMPR)=20.775     E(VDW )=6.805      E(ELEC)=-101.516   |
+ -------------------------------------------------------------------------------
+ --------------- step=        3 at      0.00900 ps -----------------------------
+ | E(kin)+E(total)=27.770          E(kin)=1.820         temperature=183.215    |
+ | Etotal =25.950     grad(E)=216.926    E(BOND)=40.681     E(ANGL)=55.851     |
+ | E(DIHE)=3.395      E(IMPR)=20.775     E(VDW )=6.815      E(ELEC)=-101.567   |
+ -------------------------------------------------------------------------------
+ --------------- step=        4 at      0.01200 ps -----------------------------
+ | E(kin)+E(total)=28.454          E(kin)=1.834         temperature=184.627    |
+ | Etotal =26.619     grad(E)=216.924    E(BOND)=40.681     E(ANGL)=55.851     |
+ | E(DIHE)=4.117      E(IMPR)=20.775     E(VDW )=6.826      E(ELEC)=-101.630   |
+ -------------------------------------------------------------------------------
+ --------------- step=        5 at      0.01500 ps -----------------------------
+ | E(kin)+E(total)=29.098          E(kin)=1.951         temperature=196.401    |
+ | Etotal =27.147     grad(E)=216.923    E(BOND)=40.681     E(ANGL)=55.851     |
+ | E(DIHE)=4.696      E(IMPR)=20.775     E(VDW )=6.839      E(ELEC)=-101.695   |
+ -------------------------------------------------------------------------------
+ --------------- step=        6 at      0.01800 ps -----------------------------
+ | E(kin)+E(total)=29.642          E(kin)=2.170         temperature=218.400    |
+ | Etotal =27.472     grad(E)=216.922    E(BOND)=40.681     E(ANGL)=55.851     |
+ | E(DIHE)=5.058      E(IMPR)=20.775     E(VDW )=6.854      E(ELEC)=-101.746   |
+ -------------------------------------------------------------------------------
+ --------------- step=        7 at      0.02100 ps -----------------------------
+ | E(kin)+E(total)=30.029          E(kin)=2.479         temperature=249.492    |
+ | Etotal =27.550     grad(E)=216.921    E(BOND)=40.681     E(ANGL)=55.851     |
+ | E(DIHE)=5.146      E(IMPR)=20.775     E(VDW )=6.869      E(ELEC)=-101.772   |
+ -------------------------------------------------------------------------------
+ --------------- step=        8 at      0.02400 ps -----------------------------
+ | E(kin)+E(total)=30.209          E(kin)=2.855         temperature=287.323    |
+ | Etotal =27.354     grad(E)=216.920    E(BOND)=40.681     E(ANGL)=55.851     |
+ | E(DIHE)=4.931      E(IMPR)=20.775     E(VDW )=6.884      E(ELEC)=-101.768   |
+ -------------------------------------------------------------------------------
+ --------------- step=        9 at      0.02700 ps -----------------------------
+ | E(kin)+E(total)=30.151          E(kin)=3.264         temperature=328.523    |
+ | Etotal =26.887     grad(E)=216.919    E(BOND)=40.681     E(ANGL)=55.851     |
+ | E(DIHE)=4.416      E(IMPR)=20.775     E(VDW )=6.899      E(ELEC)=-101.735   |
+ -------------------------------------------------------------------------------
+ --------------- step=       10 at      0.03000 ps -----------------------------
+ | E(kin)+E(total)=29.848          E(kin)=3.663         temperature=368.698    |
+ | Etotal =26.185     grad(E)=216.920    E(BOND)=40.681     E(ANGL)=55.851     |
+ | E(DIHE)=3.651      E(IMPR)=20.775     E(VDW )=6.912      E(ELEC)=-101.685   |
+ -------------------------------------------------------------------------------
+ --------------- step=       11 at      0.03300 ps -----------------------------
+ | E(kin)+E(total)=29.322          E(kin)=3.997         temperature=402.326    |
+ | Etotal =25.324     grad(E)=216.923    E(BOND)=40.681     E(ANGL)=55.851     |
+ | E(DIHE)=2.732      E(IMPR)=20.775     E(VDW )=6.925      E(ELEC)=-101.639   |
+ -------------------------------------------------------------------------------
+ --------------- step=       12 at      0.03600 ps -----------------------------
+ | E(kin)+E(total)=28.629          E(kin)=4.207         temperature=423.379    |
+ | Etotal =24.422     grad(E)=216.930    E(BOND)=40.681     E(ANGL)=55.851     |
+ | E(DIHE)=1.800      E(IMPR)=20.775     E(VDW )=6.936      E(ELEC)=-101.620   |
+ -------------------------------------------------------------------------------
+ --------------- step=       13 at      0.03900 ps -----------------------------
+ | E(kin)+E(total)=27.860          E(kin)=4.243         temperature=427.067    |
+ | Etotal =23.617     grad(E)=216.940    E(BOND)=40.681     E(ANGL)=55.851     |
+ | E(DIHE)=1.013      E(IMPR)=20.775     E(VDW )=6.946      E(ELEC)=-101.648   |
+ -------------------------------------------------------------------------------
+ --------------- step=       14 at      0.04200 ps -----------------------------
+ | E(kin)+E(total)=27.125          E(kin)=4.094         temperature=412.019    |
+ | Etotal =23.032     grad(E)=216.955    E(BOND)=40.681     E(ANGL)=55.851     |
+ | E(DIHE)=0.507      E(IMPR)=20.775     E(VDW )=6.956      E(ELEC)=-101.738   |
+ -------------------------------------------------------------------------------
+ --------------- step=       15 at      0.04500 ps -----------------------------
+ | E(kin)+E(total)=26.530          E(kin)=3.789         temperature=381.370    |
+ | Etotal =22.740     grad(E)=216.974    E(BOND)=40.681     E(ANGL)=55.851     |
+ | E(DIHE)=0.352      E(IMPR)=20.775     E(VDW )=6.968      E(ELEC)=-101.886   |
+ -------------------------------------------------------------------------------
+ NBONDS: found       92 intra-atom interactions
+ --------------- step=       16 at      0.04800 ps -----------------------------
+ | E(kin)+E(total)=26.147          E(kin)=3.396         temperature=341.772    |
+ | Etotal =22.752     grad(E)=216.993    E(BOND)=40.681     E(ANGL)=55.851     |
+ | E(DIHE)=0.541      E(IMPR)=20.775     E(VDW )=6.985      E(ELEC)=-102.081   |
+ -------------------------------------------------------------------------------
+ --------------- step=       17 at      0.05100 ps -----------------------------
+ | E(kin)+E(total)=26.009          E(kin)=2.990         temperature=300.877    |
+ | Etotal =23.020     grad(E)=217.013    E(BOND)=40.681     E(ANGL)=55.851     |
+ | E(DIHE)=1.010      E(IMPR)=20.775     E(VDW )=7.008      E(ELEC)=-102.305   |
+ -------------------------------------------------------------------------------
+ --------------- step=       18 at      0.05400 ps -----------------------------
+ | E(kin)+E(total)=26.103          E(kin)=2.632         temperature=264.911    |
+ | Etotal =23.471     grad(E)=217.030    E(BOND)=40.681     E(ANGL)=55.851     |
+ | E(DIHE)=1.664      E(IMPR)=20.775     E(VDW )=7.037      E(ELEC)=-102.537   |
+ -------------------------------------------------------------------------------
+ --------------- step=       19 at      0.05700 ps -----------------------------
+ | E(kin)+E(total)=26.386          E(kin)=2.361         temperature=237.606    |
+ | Etotal =24.025     grad(E)=217.045    E(BOND)=40.681     E(ANGL)=55.851     |
+ | E(DIHE)=2.411      E(IMPR)=20.775     E(VDW )=7.069      E(ELEC)=-102.762   |
+ -------------------------------------------------------------------------------
+ --------------- step=       20 at      0.06000 ps -----------------------------
+ | E(kin)+E(total)=26.802          E(kin)=2.191         temperature=220.537    |
+ | Etotal =24.611     grad(E)=217.055    E(BOND)=40.681     E(ANGL)=55.851     |
+ | E(DIHE)=3.167      E(IMPR)=20.775     E(VDW )=7.103      E(ELEC)=-102.965   |
+ -------------------------------------------------------------------------------
+ CNSsolve> 
+ CNSsolve>dyna tors 
+ Torsion Dynamics>   nstep=20 
+ Torsion Dynamics>   cmremove=false 
+ Torsion Dynamics>   timestep=0.003 
+ Torsion Dynamics>   tcoupling=true   temperature=298. 
+ TORMD: temperature coupling (TCOUpl) enabled
+ Torsion Dynamics>   trajectory=tra3.dat  nsavc=2 
+ Torsion Dynamics>end 
+ ASSFIL: file tra3.dat opened.
+ -------------------------- Torsion Angle Dynamics -----------------------------
+ Info: Velocities and coordinates taken from last torsion angle dynamics step.
+ -------------------------------------------------------------------------------
+ TORMD3: number of degrees of freedom=      10
+ -------------------------- Initial Conditions ---------------------------------
+ | E(kin)+E(total)=26.803          E(kin)=2.191         temperature=220.537    |
+ | Etotal =24.612     grad(E)=217.055    E(BOND)=40.681     E(ANGL)=55.851     |
+ | E(DIHE)=3.169      E(IMPR)=20.775     E(VDW )=7.103      E(ELEC)=-102.966   |
+ -------------------------------------------------------------------------------
+ --------------- step=        1 at      0.00300 ps -----------------------------
+ | E(kin)+E(total)=27.288          E(kin)=2.127         temperature=214.088    |
+ | Etotal =25.160     grad(E)=217.062    E(BOND)=40.681     E(ANGL)=55.851     |
+ | E(DIHE)=3.858      E(IMPR)=20.775     E(VDW )=7.133      E(ELEC)=-103.138   |
+ -------------------------------------------------------------------------------
+ WRITEC: CORD sets starting from step        2 are written every     2  steps
+ WRITEC: where       19 atoms are "free"
+ --------------- step=        2 at      0.00600 ps -----------------------------
+ | E(kin)+E(total)=27.780          E(kin)=2.168         temperature=218.184    |
+ | Etotal =25.612     grad(E)=217.066    E(BOND)=40.681     E(ANGL)=55.851     |
+ | E(DIHE)=4.417      E(IMPR)=20.775     E(VDW )=7.158      E(ELEC)=-103.269   |
+ -------------------------------------------------------------------------------
+ --------------- step=        3 at      0.00900 ps -----------------------------
+ | E(kin)+E(total)=28.218          E(kin)=2.309         temperature=232.364    |
+ | Etotal =25.909     grad(E)=217.068    E(BOND)=40.681     E(ANGL)=55.851     |
+ | E(DIHE)=4.781      E(IMPR)=20.775     E(VDW )=7.174      E(ELEC)=-103.352   |
+ -------------------------------------------------------------------------------
+ --------------- step=        4 at      0.01200 ps -----------------------------
+ | E(kin)+E(total)=28.544          E(kin)=2.537         temperature=255.381    |
+ | Etotal =26.007     grad(E)=217.068    E(BOND)=40.681     E(ANGL)=55.851     |
+ | E(DIHE)=4.902      E(IMPR)=20.775     E(VDW )=7.178      E(ELEC)=-103.379   |
+ -------------------------------------------------------------------------------
+ --------------- step=        5 at      0.01500 ps -----------------------------
+ | E(kin)+E(total)=28.714          E(kin)=2.830         temperature=284.869    |
+ | Etotal =25.883     grad(E)=217.066    E(BOND)=40.681     E(ANGL)=55.851     |
+ | E(DIHE)=4.753      E(IMPR)=20.775     E(VDW )=7.169      E(ELEC)=-103.346   |
+ -------------------------------------------------------------------------------
+ --------------- step=        6 at      0.01800 ps -----------------------------
+ | E(kin)+E(total)=28.696          E(kin)=3.153         temperature=317.349    |
+ | Etotal =25.543     grad(E)=217.063    E(BOND)=40.681     E(ANGL)=55.851     |
+ | E(DIHE)=4.339      E(IMPR)=20.775     E(VDW )=7.148      E(ELEC)=-103.251   |
+ -------------------------------------------------------------------------------
+ --------------- step=        7 at      0.02100 ps -----------------------------
+ | E(kin)+E(total)=28.487          E(kin)=3.462         temperature=348.420    |
+ | Etotal =25.025     grad(E)=217.057    E(BOND)=40.681     E(ANGL)=55.851     |
+ | E(DIHE)=3.698      E(IMPR)=20.775     E(VDW )=7.118      E(ELEC)=-103.098   |
+ -------------------------------------------------------------------------------
+ --------------- step=        8 at      0.02400 ps -----------------------------
+ | E(kin)+E(total)=28.108          E(kin)=3.708         temperature=373.157    |
+ | Etotal =24.401     grad(E)=217.047    E(BOND)=40.681     E(ANGL)=55.851     |
+ | E(DIHE)=2.907      E(IMPR)=20.775     E(VDW )=7.083      E(ELEC)=-102.895   |
+ -------------------------------------------------------------------------------
+ --------------- step=        9 at      0.02700 ps -----------------------------
+ | E(kin)+E(total)=27.612          E(kin)=3.845         temperature=386.968    |
+ | Etotal =23.767     grad(E)=217.033    E(BOND)=40.681     E(ANGL)=55.851     |
+ | E(DIHE)=2.074      E(IMPR)=20.775     E(VDW )=7.047      E(ELEC)=-102.660   |
+ -------------------------------------------------------------------------------
+ --------------- step=       10 at      0.03000 ps -----------------------------
+ | E(kin)+E(total)=27.074          E(kin)=3.845         temperature=386.938    |
+ | Etotal =23.229     grad(E)=217.015    E(BOND)=40.681     E(ANGL)=55.851     |
+ | E(DIHE)=1.323      E(IMPR)=20.775     E(VDW )=7.016      E(ELEC)=-102.417   |
+ -------------------------------------------------------------------------------
+ --------------- step=       11 at      0.03300 ps -----------------------------
+ | E(kin)+E(total)=26.578          E(kin)=3.706         temperature=373.035    |
+ | Etotal =22.871     grad(E)=216.996    E(BOND)=40.681     E(ANGL)=55.851     |
+ | E(DIHE)=0.760      E(IMPR)=20.775     E(VDW )=6.992      E(ELEC)=-102.187   |
+ -------------------------------------------------------------------------------
+ --------------- step=       12 at      0.03600 ps -----------------------------
+ | E(kin)+E(total)=26.199          E(kin)=3.461         temperature=348.361    |
+ | Etotal =22.737     grad(E)=216.977    E(BOND)=40.681     E(ANGL)=55.851     |
+ | E(DIHE)=0.448      E(IMPR)=20.775     E(VDW )=6.976      E(ELEC)=-101.992   |
+ -------------------------------------------------------------------------------
+ --------------- step=       13 at      0.03900 ps -----------------------------
+ | E(kin)+E(total)=25.987          E(kin)=3.161         temperature=318.138    |
+ | Etotal =22.826     grad(E)=216.960    E(BOND)=40.681     E(ANGL)=55.851     |
+ | E(DIHE)=0.396      E(IMPR)=20.775     E(VDW )=6.965      E(ELEC)=-101.842   |
+ -------------------------------------------------------------------------------
+ --------------- step=       14 at      0.04200 ps -----------------------------
+ | E(kin)+E(total)=25.958          E(kin)=2.862         temperature=288.005    |
+ | Etotal =23.096     grad(E)=216.945    E(BOND)=40.681     E(ANGL)=55.851     |
+ | E(DIHE)=0.570      E(IMPR)=20.775     E(VDW )=6.957      E(ELEC)=-101.737   |
+ -------------------------------------------------------------------------------
+ --------------- step=       15 at      0.04500 ps -----------------------------
+ | E(kin)+E(total)=26.096          E(kin)=2.609         temperature=262.576    |
+ | Etotal =23.487     grad(E)=216.934    E(BOND)=40.681     E(ANGL)=55.851     |
+ | E(DIHE)=0.904      E(IMPR)=20.775     E(VDW )=6.950      E(ELEC)=-101.673   |
+ -------------------------------------------------------------------------------
+ NBONDS: found       92 intra-atom interactions
+ --------------- step=       16 at      0.04800 ps -----------------------------
+ | E(kin)+E(total)=26.364          E(kin)=2.433         temperature=244.879    |
+ | Etotal =23.931     grad(E)=216.926    E(BOND)=40.681     E(ANGL)=55.851     |
+ | E(DIHE)=1.322      E(IMPR)=20.775     E(VDW )=6.943      E(ELEC)=-101.640   |
+ -------------------------------------------------------------------------------
+ --------------- step=       17 at      0.05100 ps -----------------------------
+ | E(kin)+E(total)=26.710          E(kin)=2.350         temperature=236.548    |
+ | Etotal =24.360     grad(E)=216.920    E(BOND)=40.681     E(ANGL)=55.851     |
+ | E(DIHE)=1.747      E(IMPR)=20.775     E(VDW )=6.935      E(ELEC)=-101.628   |
+ -------------------------------------------------------------------------------
+ --------------- step=       18 at      0.05400 ps -----------------------------
+ | E(kin)+E(total)=27.076          E(kin)=2.367         temperature=238.231    |
+ | Etotal =24.709     grad(E)=216.917    E(BOND)=40.681     E(ANGL)=55.851     |
+ | E(DIHE)=2.103      E(IMPR)=20.775     E(VDW )=6.925      E(ELEC)=-101.625   |
+ -------------------------------------------------------------------------------
+ --------------- step=       19 at      0.05700 ps -----------------------------
+ | E(kin)+E(total)=27.402          E(kin)=2.481         temperature=249.701    |
+ | Etotal =24.921     grad(E)=216.915    E(BOND)=40.681     E(ANGL)=55.851     |
+ | E(DIHE)=2.323      E(IMPR)=20.775     E(VDW )=6.914      E(ELEC)=-101.622   |
+ -------------------------------------------------------------------------------
+ --------------- step=       20 at      0.06000 ps -----------------------------
+ | E(kin)+E(total)=27.635          E(kin)=2.679         temperature=269.591    |
+ | Etotal =24.956     grad(E)=216.914    E(BOND)=40.681     E(ANGL)=55.851     |
+ | E(DIHE)=2.362      E(IMPR)=20.775     E(VDW )=6.901      E(ELEC)=-101.613   |
+ -------------------------------------------------------------------------------
+ CNSsolve> 
+ CNSsolve> 
+ CNSsolve>{* test trajectory merging *} 
+ CNSsolve>{* ======================= *} 
+ CNSsolve>dynamics merge 
+ MERGE>   input=tra1.dat 
+ ASSFIL: file tra1.dat opened.
+ MERGE>   input=tra2.dat 
+ ASSFIL: file tra2.dat opened.
+ MERGE>   input=tra3.dat 
+ ASSFIL: file tra3.dat opened.
+ MERGE>   ensemble=true 
+ MERGE>   begin=2 skip=2 stop=60 
+ MERGE>   output=trat.dat 
+ MERGE>end 
+ ASSFIL: file trat.dat opened.
+ MERGE: ensemble merging of several trajectory files
+ REMARKS FILENAME="tra1.dat"
+ REMARKS file toppar/protein.link
+ REMARKS
+ REMARKS this is a macro to define standard protein peptide bonds
+ REMARKS and termini to generate a protein sequence.
+ REMARKS DATE:05-Jul-2018  16:08:00       created by user: oeow39
+ REMARKS VERSION:1.3
+ READC: reading file=   1   ISTART=       2
+ READC:       19 atoms were "free"
+ READC: NUNIt=   3
+ READC: BEGIn=       2  SKIP=       2  STOP=      60
+ READC: TIMEstep=  0.00300000 ps    header= CORD
+ WRITEC: CORD sets starting from step        2 are written every     2  steps
+ WRITEC: where       19 atoms are "free"
+ READC: EOF on file=   1  while trying to read step=      22
+ REMARKS FILENAME="tra2.dat"
+ REMARKS file toppar/protein.link
+ REMARKS
+ REMARKS this is a macro to define standard protein peptide bonds
+ REMARKS and termini to generate a protein sequence.
+ REMARKS DATE:05-Jul-2018  16:08:00       created by user: oeow39
+ REMARKS VERSION:1.3
+ READC: reading file=   2   ISTART=       2
+ READC:       19 atoms were "free"
+ READC: EOF on file=   2  while trying to read step=      42
+ REMARKS FILENAME="tra3.dat"
+ REMARKS file toppar/protein.link
+ REMARKS
+ REMARKS this is a macro to define standard protein peptide bonds
+ REMARKS and termini to generate a protein sequence.
+ REMARKS DATE:05-Jul-2018  16:08:00       created by user: oeow39
+ REMARKS VERSION:1.3
+ READC: reading file=   3   ISTART=       2
+ READC:       19 atoms were "free"
+ READC: complete.       30 coordinate sets were passed to calling routine
+ CNSsolve>rewind tra1.dat end 
+ MISCOM: rewinding file tra1.dat
+ CNSsolve>rewind tra2.dat end 
+ MISCOM: rewinding file tra2.dat
+ CNSsolve>rewind tra3.dat end 
+ MISCOM: rewinding file tra3.dat
+ CNSsolve> 
+ CNSsolve> 
+ CNSsolve>{* test merging and re-orienting *} 
+ CNSsolve>{* ============================= *} 
+ CNSsolve>dynamics merge 
+ MERGE>   input=tra1.dat 
+ MERGE>   input=tra2.dat 
+ MERGE>   input=tra3.dat 
+ MERGE>   ensemble=true 
+ MERGE>   begin=2 skip=2 stop=60 
+ MERGE>   output=trar.dat 
+ MERGE>   orient 
+ ORIENT>      massweighted=true 
+ ORIENT>      selection=( not ( name C  or name CA or name N ) ) 
+ SELRPN:     16 atoms have been selected out of     19
+ ORIENT>   end 
+ MERGE>end 
+ ASSFIL: file trar.dat opened.
+ MERGE: ensemble merging of several trajectory files
+ MERGE: output-trajectory oriented with respect to main coordinate set
+ MERGE: MASSweighting=T  NO-ROtation=F  wmainWEIGhting=F
+ REMARKS FILENAME="tra1.dat"
+ REMARKS file toppar/protein.link
+ REMARKS
+ REMARKS this is a macro to define standard protein peptide bonds
+ REMARKS and termini to generate a protein sequence.
+ REMARKS DATE:05-Jul-2018  16:08:00       created by user: oeow39
+ REMARKS VERSION:1.3
+ READC: reading file=   1   ISTART=       2
+ READC:       19 atoms were "free"
+ READC: NUNIt=   3
+ READC: BEGIn=       2  SKIP=       2  STOP=      60
+ READC: TIMEstep=  0.00300000 ps    header= CORD
+ WRITEC: CORD sets starting from step        2 are written every     2  steps
+ WRITEC: where       19 atoms are "free"
+ READC: EOF on file=   1  while trying to read step=      22
+ REMARKS FILENAME="tra2.dat"
+ REMARKS file toppar/protein.link
+ REMARKS
+ REMARKS this is a macro to define standard protein peptide bonds
+ REMARKS and termini to generate a protein sequence.
+ REMARKS DATE:05-Jul-2018  16:08:00       created by user: oeow39
+ REMARKS VERSION:1.3
+ READC: reading file=   2   ISTART=       2
+ READC:       19 atoms were "free"
+ READC: EOF on file=   2  while trying to read step=      42
+ REMARKS FILENAME="tra3.dat"
+ REMARKS file toppar/protein.link
+ REMARKS
+ REMARKS this is a macro to define standard protein peptide bonds
+ REMARKS and termini to generate a protein sequence.
+ REMARKS DATE:05-Jul-2018  16:08:00       created by user: oeow39
+ REMARKS VERSION:1.3
+ READC: reading file=   3   ISTART=       2
+ READC:       19 atoms were "free"
+ READC: complete.       30 coordinate sets were passed to calling routine
+ CNSsolve> 
+ CNSsolve> 
+ CNSsolve>dynamics merge 
+ MERGE>   ascii=false input=trat.dat  begin=2 skip=2 stop=60 
+ ASSFIL: file trat.dat opened.
+ MERGE>   oascii=true scale=100000  offset=800     format=10Z7 
+ MERGE>   output=traf.dat 
+ MERGE>end 
+ ASSFIL: file traf.dat opened.
+ REMARKS FILENAME="trat.dat"
+ REMARKS file toppar/protein.link
+ REMARKS
+ REMARKS this is a macro to define standard protein peptide bonds
+ REMARKS and termini to generate a protein sequence.
+ REMARKS DATE:05-Jul-2018  16:08:00       created by user: oeow39
+ REMARKS VERSION:1.3
+ READC: reading file=   1   ISTART=       2
+ READC:       19 atoms were "free"
+ READC: NUNIt=   1
+ READC: BEGIn=       2  SKIP=       2  STOP=      60
+ READC: TIMEstep=  0.00300000 ps    header= CORD
+ WRITEC: CORD sets starting from step        2 are written every     2  steps
+ WRITEC: where       19 atoms are "free"
+ READC: complete.       30 coordinate sets were passed to calling routine
+ CNSsolve> 
+ CNSsolve>dynamics merge 
+ MERGE>   ascii=true input=traf.dat 
+ ASSFIL: file traf.dat opened.
+ MERGE>   oascii=false output=tran.dat 
+ MERGE>end 
+ ASSFIL: file tran.dat opened.
+ REMARKS FILENAME="traf.dat"
+ REMARKS file toppar/protein.link
+ REMARKS
+ REMARKS this is a macro to define standard protein peptide bonds
+ REMARKS and termini to generate a protein sequence.
+ REMARKS DATE:05-Jul-2018  16:08:00       created by user: oeow39
+ REMARKS VERSION:1.3
+ READC: reading file=   1   ISTART=       2
+ READC:       19 atoms were "free"
+ READC: BEGIN not compatible. Modified
+ READC: SKIP not compatible. Modified
+ READC: STOP not compatible. Modified
+ READC: NUNIt=   1
+ READC: BEGIn=       2  SKIP=       2  STOP=  999998
+ READC: TIMEstep=  0.00300000 ps    header= CORD
+ WRITEC: CORD sets starting from step        2 are written every     2  steps
+ WRITEC: where       19 atoms are "free"
+ READC: EOF on file=   1  while trying to read step=      62
+ %READC-EOF file    1 at step      62
+ READC: complete.       30 coordinate sets were passed to calling routine
+ CNSsolve> 
+ CNSsolve> 
+ CNSsolve>{* now test the selected trajectory generation *} 
+ CNSsolve>{* =========================================== *} 
+ CNSsolve>{* first generate a standard trajectory for the following tests *} 
+ CNSsolve>{* ============================================================ *} 
+ CNSsolve> 
+ CNSsolve>set seed=311. end 
+ CNSsolve> 
+ CNSsolve>dyna tors 
+ Torsion Dynamics>   nstep=60 
+ Torsion Dynamics>   cmremove=false 
+ Torsion Dynamics>   timestep=0.003 
+ Torsion Dynamics>   tcoupling=true   temperature=298. 
+ TORMD: temperature coupling (TCOUpl) enabled
+ Torsion Dynamics>   trajectory=tracrd.dat    nsavc=2   cselection=( name O   or name cb ) 
+ SELRPN:      2 atoms have been selected out of     19
+ Torsion Dynamics>end 
+ ASSFIL: file tracrd.dat opened.
+ -------------------------- Torsion Angle Dynamics -----------------------------
+ Info: Velocities and coordinates taken from last torsion angle dynamics step.
+ -------------------------------------------------------------------------------
+ TORMD3: number of degrees of freedom=      10
+ -------------------------- Initial Conditions ---------------------------------
+ | E(kin)+E(total)=27.636          E(kin)=2.679         temperature=269.591    |
+ | Etotal =24.957     grad(E)=216.914    E(BOND)=40.681     E(ANGL)=55.851     |
+ | E(DIHE)=2.363      E(IMPR)=20.775     E(VDW )=6.901      E(ELEC)=-101.613   |
+ -------------------------------------------------------------------------------
+ --------------- step=        1 at      0.00300 ps -----------------------------
+ | E(kin)+E(total)=27.730          E(kin)=2.932         temperature=295.127    |
+ | Etotal =24.798     grad(E)=216.915    E(BOND)=40.681     E(ANGL)=55.851     |
+ | E(DIHE)=2.201      E(IMPR)=20.775     E(VDW )=6.887      E(ELEC)=-101.596   |
+ -------------------------------------------------------------------------------
+ WRITEC: CORD sets starting from step        2 are written every     2  steps
+ WRITEC: where        2 atoms are "free"
+ --------------- step=        2 at      0.00600 ps -----------------------------
+ | E(kin)+E(total)=27.667          E(kin)=3.202         temperature=322.254    |
+ | Etotal =24.465     grad(E)=216.918    E(BOND)=40.681     E(ANGL)=55.851     |
+ | E(DIHE)=1.864      E(IMPR)=20.775     E(VDW )=6.872      E(ELEC)=-101.577   |
+ -------------------------------------------------------------------------------
+ --------------- step=        3 at      0.00900 ps -----------------------------
+ | E(kin)+E(total)=27.448          E(kin)=3.440         temperature=346.202    |
+ | Etotal =24.009     grad(E)=216.923    E(BOND)=40.681     E(ANGL)=55.851     |
+ | E(DIHE)=1.413      E(IMPR)=20.775     E(VDW )=6.856      E(ELEC)=-101.567   |
+ -------------------------------------------------------------------------------
+ --------------- step=        4 at      0.01200 ps -----------------------------
+ | E(kin)+E(total)=27.108          E(kin)=3.601         temperature=362.420    |
+ | Etotal =23.507     grad(E)=216.930    E(BOND)=40.681     E(ANGL)=55.851     |
+ | E(DIHE)=0.939      E(IMPR)=20.775     E(VDW )=6.841      E(ELEC)=-101.580   |
+ -------------------------------------------------------------------------------
+ --------------- step=        5 at      0.01500 ps -----------------------------
+ | E(kin)+E(total)=26.701          E(kin)=3.653         temperature=367.697    |
+ | Etotal =23.048     grad(E)=216.939    E(BOND)=40.681     E(ANGL)=55.851     |
+ | E(DIHE)=0.541      E(IMPR)=20.775     E(VDW )=6.826      E(ELEC)=-101.626   |
+ -------------------------------------------------------------------------------
+ --------------- step=        6 at      0.01800 ps -----------------------------
+ | E(kin)+E(total)=26.299          E(kin)=3.588         temperature=361.149    |
+ | Etotal =22.710     grad(E)=216.951    E(BOND)=40.681     E(ANGL)=55.851     |
+ | E(DIHE)=0.302      E(IMPR)=20.775     E(VDW )=6.813      E(ELEC)=-101.711   |
+ -------------------------------------------------------------------------------
+ --------------- step=        7 at      0.02100 ps -----------------------------
+ | E(kin)+E(total)=25.967          E(kin)=3.423         temperature=344.553    |
+ | Etotal =22.543     grad(E)=216.965    E(BOND)=40.681     E(ANGL)=55.851     |
+ | E(DIHE)=0.267      E(IMPR)=20.775     E(VDW )=6.802      E(ELEC)=-101.832   |
+ -------------------------------------------------------------------------------
+ --------------- step=        8 at      0.02400 ps -----------------------------
+ | E(kin)+E(total)=25.755          E(kin)=3.197         temperature=321.752    |
+ | Etotal =22.558     grad(E)=216.979    E(BOND)=40.681     E(ANGL)=55.851     |
+ | E(DIHE)=0.436      E(IMPR)=20.775     E(VDW )=6.794      E(ELEC)=-101.979   |
+ -------------------------------------------------------------------------------
+ --------------- step=        9 at      0.02700 ps -----------------------------
+ | E(kin)+E(total)=25.686          E(kin)=2.955         temperature=297.417    |
+ | Etotal =22.730     grad(E)=216.992    E(BOND)=40.681     E(ANGL)=55.851     |
+ | E(DIHE)=0.774      E(IMPR)=20.775     E(VDW )=6.790      E(ELEC)=-102.140   |
+ -------------------------------------------------------------------------------
+ --------------- step=       10 at      0.03000 ps -----------------------------
+ | E(kin)+E(total)=25.755          E(kin)=2.740         temperature=275.798    |
+ | Etotal =23.015     grad(E)=217.004    E(BOND)=40.681     E(ANGL)=55.851     |
+ | E(DIHE)=1.221      E(IMPR)=20.775     E(VDW )=6.788      E(ELEC)=-102.300   |
+ -------------------------------------------------------------------------------
+ --------------- step=       11 at      0.03300 ps -----------------------------
+ | E(kin)+E(total)=25.938          E(kin)=2.583         temperature=260.013    |
+ | Etotal =23.355     grad(E)=217.013    E(BOND)=40.681     E(ANGL)=55.851     |
+ | E(DIHE)=1.707      E(IMPR)=20.775     E(VDW )=6.786      E(ELEC)=-102.446   |
+ -------------------------------------------------------------------------------
+ NBONDS: found       92 intra-atom interactions
+ --------------- step=       12 at      0.03600 ps -----------------------------
+ | E(kin)+E(total)=26.192          E(kin)=2.503         temperature=251.926    |
+ | Etotal =23.689     grad(E)=217.020    E(BOND)=40.681     E(ANGL)=55.851     |
+ | E(DIHE)=2.164      E(IMPR)=20.775     E(VDW )=6.783      E(ELEC)=-102.565   |
+ -------------------------------------------------------------------------------
+ --------------- step=       13 at      0.03900 ps -----------------------------
+ | E(kin)+E(total)=26.470          E(kin)=2.507         temperature=252.318    |
+ | Etotal =23.963     grad(E)=217.024    E(BOND)=40.681     E(ANGL)=55.851     |
+ | E(DIHE)=2.528      E(IMPR)=20.775     E(VDW )=6.777      E(ELEC)=-102.648   |
+ -------------------------------------------------------------------------------
+ --------------- step=       14 at      0.04200 ps -----------------------------
+ | E(kin)+E(total)=26.720          E(kin)=2.593         temperature=260.977    |
+ | Etotal =24.127     grad(E)=217.026    E(BOND)=40.681     E(ANGL)=55.851     |
+ | E(DIHE)=2.745      E(IMPR)=20.775     E(VDW )=6.764      E(ELEC)=-102.688   |
+ -------------------------------------------------------------------------------
+ --------------- step=       15 at      0.04500 ps -----------------------------
+ | E(kin)+E(total)=26.898          E(kin)=2.748         temperature=276.620    |
+ | Etotal =24.149     grad(E)=217.026    E(BOND)=40.681     E(ANGL)=55.851     |
+ | E(DIHE)=2.779      E(IMPR)=20.775     E(VDW )=6.745      E(ELEC)=-102.681   |
+ -------------------------------------------------------------------------------
+ --------------- step=       16 at      0.04800 ps -----------------------------
+ | E(kin)+E(total)=26.967          E(kin)=2.949         temperature=296.815    |
+ | Etotal =24.018     grad(E)=217.024    E(BOND)=40.681     E(ANGL)=55.851     |
+ | E(DIHE)=2.617      E(IMPR)=20.775     E(VDW )=6.719      E(ELEC)=-102.625   |
+ -------------------------------------------------------------------------------
+ --------------- step=       17 at      0.05100 ps -----------------------------
+ | E(kin)+E(total)=26.910          E(kin)=3.161         temperature=318.136    |
+ | Etotal =23.749     grad(E)=217.019    E(BOND)=40.681     E(ANGL)=55.851     |
+ | E(DIHE)=2.278      E(IMPR)=20.775     E(VDW )=6.688      E(ELEC)=-102.524   |
+ -------------------------------------------------------------------------------
+ --------------- step=       18 at      0.05400 ps -----------------------------
+ | E(kin)+E(total)=26.733          E(kin)=3.345         temperature=336.652    |
+ | Etotal =23.388     grad(E)=217.013    E(BOND)=40.681     E(ANGL)=55.851     |
+ | E(DIHE)=1.810      E(IMPR)=20.775     E(VDW )=6.655      E(ELEC)=-102.383   |
+ -------------------------------------------------------------------------------
+ --------------- step=       19 at      0.05700 ps -----------------------------
+ | E(kin)+E(total)=26.462          E(kin)=3.465         temperature=348.696    |
+ | Etotal =22.998     grad(E)=217.004    E(BOND)=40.681     E(ANGL)=55.851     |
+ | E(DIHE)=1.285      E(IMPR)=20.775     E(VDW )=6.621      E(ELEC)=-102.215   |
+ -------------------------------------------------------------------------------
+ --------------- step=       20 at      0.06000 ps -----------------------------
+ | E(kin)+E(total)=26.145          E(kin)=3.495         temperature=351.775    |
+ | Etotal =22.650     grad(E)=216.993    E(BOND)=40.681     E(ANGL)=55.851     |
+ | E(DIHE)=0.786      E(IMPR)=20.775     E(VDW )=6.590      E(ELEC)=-102.032   |
+ -------------------------------------------------------------------------------
+ --------------- step=       21 at      0.06300 ps -----------------------------
+ | E(kin)+E(total)=25.839          E(kin)=3.431         temperature=345.318    |
+ | Etotal =22.408     grad(E)=216.982    E(BOND)=40.681     E(ANGL)=55.851     |
+ | E(DIHE)=0.388      E(IMPR)=20.775     E(VDW )=6.563      E(ELEC)=-101.849   |
+ -------------------------------------------------------------------------------
+ --------------- step=       22 at      0.06600 ps -----------------------------
+ | E(kin)+E(total)=25.596          E(kin)=3.288         temperature=330.884    |
+ | Etotal =22.308     grad(E)=216.971    E(BOND)=40.681     E(ANGL)=55.851     |
+ | E(DIHE)=0.143      E(IMPR)=20.775     E(VDW )=6.539      E(ELEC)=-101.680   |
+ -------------------------------------------------------------------------------
+ --------------- step=       23 at      0.06900 ps -----------------------------
+ | E(kin)+E(total)=25.455          E(kin)=3.097         temperature=311.678    |
+ | Etotal =22.358     grad(E)=216.961    E(BOND)=40.681     E(ANGL)=55.851     |
+ | E(DIHE)=0.066      E(IMPR)=20.775     E(VDW )=6.520      E(ELEC)=-101.534   |
+ -------------------------------------------------------------------------------
+ --------------- step=       24 at      0.07200 ps -----------------------------
+ | E(kin)+E(total)=25.434          E(kin)=2.897         temperature=291.587    |
+ | Etotal =22.536     grad(E)=216.953    E(BOND)=40.681     E(ANGL)=55.851     |
+ | E(DIHE)=0.142      E(IMPR)=20.775     E(VDW )=6.502      E(ELEC)=-101.414   |
+ -------------------------------------------------------------------------------
+ --------------- step=       25 at      0.07500 ps -----------------------------
+ | E(kin)+E(total)=25.525          E(kin)=2.725         temperature=274.222    |
+ | Etotal =22.801     grad(E)=216.947    E(BOND)=40.681     E(ANGL)=55.851     |
+ | E(DIHE)=0.329      E(IMPR)=20.775     E(VDW )=6.485      E(ELEC)=-101.320   |
+ -------------------------------------------------------------------------------
+ NBONDS: found       92 intra-atom interactions
+ --------------- step=       26 at      0.07800 ps -----------------------------
+ | E(kin)+E(total)=25.706          E(kin)=2.606         temperature=262.330    |
+ | Etotal =23.099     grad(E)=216.943    E(BOND)=40.681     E(ANGL)=55.851     |
+ | E(DIHE)=0.573      E(IMPR)=20.775     E(VDW )=6.469      E(ELEC)=-101.249   |
+ -------------------------------------------------------------------------------
+ --------------- step=       27 at      0.08100 ps -----------------------------
+ | E(kin)+E(total)=25.936          E(kin)=2.560         temperature=257.607    |
+ | Etotal =23.376     grad(E)=216.941    E(BOND)=40.681     E(ANGL)=55.851     |
+ | E(DIHE)=0.814      E(IMPR)=20.775     E(VDW )=6.452      E(ELEC)=-101.196   |
+ -------------------------------------------------------------------------------
+ --------------- step=       28 at      0.08400 ps -----------------------------
+ | E(kin)+E(total)=26.171          E(kin)=2.590         temperature=260.688    |
+ | Etotal =23.581     grad(E)=216.941    E(BOND)=40.681     E(ANGL)=55.851     |
+ | E(DIHE)=0.997      E(IMPR)=20.775     E(VDW )=6.434      E(ELEC)=-101.156   |
+ -------------------------------------------------------------------------------
+ --------------- step=       29 at      0.08700 ps -----------------------------
+ | E(kin)+E(total)=26.366          E(kin)=2.693         temperature=271.072    |
+ | Etotal =23.673     grad(E)=216.941    E(BOND)=40.681     E(ANGL)=55.851     |
+ | E(DIHE)=1.077      E(IMPR)=20.775     E(VDW )=6.416      E(ELEC)=-101.126   |
+ -------------------------------------------------------------------------------
+ --------------- step=       30 at      0.09000 ps -----------------------------
+ | E(kin)+E(total)=26.482          E(kin)=2.852         temperature=287.006    |
+ | Etotal =23.630     grad(E)=216.943    E(BOND)=40.681     E(ANGL)=55.851     |
+ | E(DIHE)=1.032      E(IMPR)=20.775     E(VDW )=6.397      E(ELEC)=-101.106   |
+ -------------------------------------------------------------------------------
+ --------------- step=       31 at      0.09300 ps -----------------------------
+ | E(kin)+E(total)=26.493          E(kin)=3.036         temperature=305.537    |
+ | Etotal =23.457     grad(E)=216.946    E(BOND)=40.681     E(ANGL)=55.851     |
+ | E(DIHE)=0.869      E(IMPR)=20.775     E(VDW )=6.378      E(ELEC)=-101.096   |
+ -------------------------------------------------------------------------------
+ --------------- step=       32 at      0.09600 ps -----------------------------
+ | E(kin)+E(total)=26.395          E(kin)=3.209         temperature=322.935    |
+ | Etotal =23.186     grad(E)=216.950    E(BOND)=40.681     E(ANGL)=55.851     |
+ | E(DIHE)=0.624      E(IMPR)=20.775     E(VDW )=6.359      E(ELEC)=-101.103   |
+ -------------------------------------------------------------------------------
+ --------------- step=       33 at      0.09900 ps -----------------------------
+ | E(kin)+E(total)=26.205          E(kin)=3.333         temperature=335.484    |
+ | Etotal =22.872     grad(E)=216.955    E(BOND)=40.681     E(ANGL)=55.851     |
+ | E(DIHE)=0.355      E(IMPR)=20.775     E(VDW )=6.341      E(ELEC)=-101.131   |
+ -------------------------------------------------------------------------------
+ --------------- step=       34 at      0.10200 ps -----------------------------
+ | E(kin)+E(total)=25.962          E(kin)=3.382         temperature=340.428    |
+ | Etotal =22.580     grad(E)=216.962    E(BOND)=40.681     E(ANGL)=55.851     |
+ | E(DIHE)=0.133      E(IMPR)=20.775     E(VDW )=6.324      E(ELEC)=-101.183   |
+ -------------------------------------------------------------------------------
+ --------------- step=       35 at      0.10500 ps -----------------------------
+ | E(kin)+E(total)=25.716          E(kin)=3.346         temperature=336.755    |
+ | Etotal =22.370     grad(E)=216.969    E(BOND)=40.681     E(ANGL)=55.851     |
+ | E(DIHE)=0.014      E(IMPR)=20.775     E(VDW )=6.310      E(ELEC)=-101.260   |
+ -------------------------------------------------------------------------------
+ --------------- step=       36 at      0.10800 ps -----------------------------
+ | E(kin)+E(total)=25.514          E(kin)=3.234         temperature=325.474    |
+ | Etotal =22.280     grad(E)=216.977    E(BOND)=40.681     E(ANGL)=55.851     |
+ | E(DIHE)=0.033      E(IMPR)=20.775     E(VDW )=6.298      E(ELEC)=-101.357   |
+ -------------------------------------------------------------------------------
+ --------------- step=       37 at      0.11100 ps -----------------------------
+ | E(kin)+E(total)=25.397          E(kin)=3.073         temperature=309.252    |
+ | Etotal =22.324     grad(E)=216.985    E(BOND)=40.681     E(ANGL)=55.851     |
+ | E(DIHE)=0.195      E(IMPR)=20.775     E(VDW )=6.289      E(ELEC)=-101.466   |
+ -------------------------------------------------------------------------------
+ --------------- step=       38 at      0.11400 ps -----------------------------
+ | E(kin)+E(total)=25.382          E(kin)=2.897         temperature=291.568    |
+ | Etotal =22.485     grad(E)=216.993    E(BOND)=40.681     E(ANGL)=55.851     |
+ | E(DIHE)=0.473      E(IMPR)=20.775     E(VDW )=6.282      E(ELEC)=-101.576   |
+ -------------------------------------------------------------------------------
+ --------------- step=       39 at      0.11700 ps -----------------------------
+ | E(kin)+E(total)=25.469          E(kin)=2.740         temperature=275.815    |
+ | Etotal =22.728     grad(E)=216.999    E(BOND)=40.681     E(ANGL)=55.851     |
+ | E(DIHE)=0.823      E(IMPR)=20.775     E(VDW )=6.277      E(ELEC)=-101.678   |
+ -------------------------------------------------------------------------------
+ --------------- step=       40 at      0.12000 ps -----------------------------
+ | E(kin)+E(total)=25.637          E(kin)=2.630         temperature=264.677    |
+ | Etotal =23.007     grad(E)=217.005    E(BOND)=40.681     E(ANGL)=55.851     |
+ | E(DIHE)=1.191      E(IMPR)=20.775     E(VDW )=6.273      E(ELEC)=-101.764   |
+ -------------------------------------------------------------------------------
+ --------------- step=       41 at      0.12300 ps -----------------------------
+ | E(kin)+E(total)=25.853          E(kin)=2.582         temperature=259.879    |
+ | Etotal =23.271     grad(E)=217.009    E(BOND)=40.681     E(ANGL)=55.851     |
+ | E(DIHE)=1.521      E(IMPR)=20.775     E(VDW )=6.268      E(ELEC)=-101.824   |
+ -------------------------------------------------------------------------------
+ --------------- step=       42 at      0.12600 ps -----------------------------
+ | E(kin)+E(total)=26.077          E(kin)=2.604         temperature=262.120    |
+ | Etotal =23.473     grad(E)=217.011    E(BOND)=40.681     E(ANGL)=55.851     |
+ | E(DIHE)=1.760      E(IMPR)=20.775     E(VDW )=6.261      E(ELEC)=-101.855   |
+ -------------------------------------------------------------------------------
+ --------------- step=       43 at      0.12900 ps -----------------------------
+ | E(kin)+E(total)=26.268          E(kin)=2.693         temperature=271.024    |
+ | Etotal =23.575     grad(E)=217.012    E(BOND)=40.681     E(ANGL)=55.851     |
+ | E(DIHE)=1.870      E(IMPR)=20.775     E(VDW )=6.252      E(ELEC)=-101.854   |
+ -------------------------------------------------------------------------------
+ --------------- step=       44 at      0.13200 ps -----------------------------
+ | E(kin)+E(total)=26.389          E(kin)=2.832         temperature=285.052    |
+ | Etotal =23.557     grad(E)=217.012    E(BOND)=40.681     E(ANGL)=55.851     |
+ | E(DIHE)=1.828      E(IMPR)=20.775     E(VDW )=6.239      E(ELEC)=-101.817   |
+ -------------------------------------------------------------------------------
+ --------------- step=       45 at      0.13500 ps -----------------------------
+ | E(kin)+E(total)=26.418          E(kin)=2.996         temperature=301.567    |
+ | Etotal =23.421     grad(E)=217.011    E(BOND)=40.681     E(ANGL)=55.851     |
+ | E(DIHE)=1.639      E(IMPR)=20.775     E(VDW )=6.224      E(ELEC)=-101.748   |
+ -------------------------------------------------------------------------------
+ --------------- step=       46 at      0.13800 ps -----------------------------
+ | E(kin)+E(total)=26.349          E(kin)=3.152         temperature=317.201    |
+ | Etotal =23.197     grad(E)=217.008    E(BOND)=40.681     E(ANGL)=55.851     |
+ | E(DIHE)=1.333      E(IMPR)=20.775     E(VDW )=6.207      E(ELEC)=-101.650   |
+ -------------------------------------------------------------------------------
+ --------------- step=       47 at      0.14100 ps -----------------------------
+ | E(kin)+E(total)=26.197          E(kin)=3.265         temperature=328.560    |
+ | Etotal =22.933     grad(E)=217.005    E(BOND)=40.681     E(ANGL)=55.851     |
+ | E(DIHE)=0.964      E(IMPR)=20.775     E(VDW )=6.190      E(ELEC)=-101.527   |
+ -------------------------------------------------------------------------------
+ --------------- step=       48 at      0.14400 ps -----------------------------
+ | E(kin)+E(total)=25.997          E(kin)=3.309         temperature=333.080    |
+ | Etotal =22.688     grad(E)=217.001    E(BOND)=40.681     E(ANGL)=55.851     |
+ | E(DIHE)=0.599      E(IMPR)=20.775     E(VDW )=6.173      E(ELEC)=-101.390   |
+ -------------------------------------------------------------------------------
+ --------------- step=       49 at      0.14700 ps -----------------------------
+ | E(kin)+E(total)=25.794          E(kin)=3.277         temperature=329.765    |
+ | Etotal =22.517     grad(E)=216.996    E(BOND)=40.681     E(ANGL)=55.851     |
+ | E(DIHE)=0.300      E(IMPR)=20.775     E(VDW )=6.158      E(ELEC)=-101.248   |
+ -------------------------------------------------------------------------------
+ --------------- step=       50 at      0.15000 ps -----------------------------
+ | E(kin)+E(total)=25.631          E(kin)=3.174         temperature=319.486    |
+ | Etotal =22.457     grad(E)=216.992    E(BOND)=40.681     E(ANGL)=55.851     |
+ | E(DIHE)=0.114      E(IMPR)=20.775     E(VDW )=6.146      E(ELEC)=-101.110   |
+ -------------------------------------------------------------------------------
+ NBONDS: found       92 intra-atom interactions
+ --------------- step=       51 at      0.15300 ps -----------------------------
+ | E(kin)+E(total)=25.545          E(kin)=3.027         temperature=304.674    |
+ | Etotal =22.518     grad(E)=216.988    E(BOND)=40.681     E(ANGL)=55.851     |
+ | E(DIHE)=0.059      E(IMPR)=20.775     E(VDW )=6.137      E(ELEC)=-100.984   |
+ -------------------------------------------------------------------------------
+ --------------- step=       52 at      0.15600 ps -----------------------------
+ | E(kin)+E(total)=25.553          E(kin)=2.867         temperature=288.575    |
+ | Etotal =22.686     grad(E)=216.986    E(BOND)=40.681     E(ANGL)=55.851     |
+ | E(DIHE)=0.126      E(IMPR)=20.775     E(VDW )=6.129      E(ELEC)=-100.875   |
+ -------------------------------------------------------------------------------
+ --------------- step=       53 at      0.15900 ps -----------------------------
+ | E(kin)+E(total)=25.653          E(kin)=2.727         temperature=274.414    |
+ | Etotal =22.927     grad(E)=216.984    E(BOND)=40.681     E(ANGL)=55.851     |
+ | E(DIHE)=0.283      E(IMPR)=20.775     E(VDW )=6.122      E(ELEC)=-100.785   |
+ -------------------------------------------------------------------------------
+ --------------- step=       54 at      0.16200 ps -----------------------------
+ | E(kin)+E(total)=25.825          E(kin)=2.631         temperature=264.792    |
+ | Etotal =23.194     grad(E)=216.984    E(BOND)=40.681     E(ANGL)=55.851     |
+ | E(DIHE)=0.485      E(IMPR)=20.775     E(VDW )=6.117      E(ELEC)=-100.714   |
+ -------------------------------------------------------------------------------
+ --------------- step=       55 at      0.16500 ps -----------------------------
+ | E(kin)+E(total)=26.036          E(kin)=2.597         temperature=261.392    |
+ | Etotal =23.439     grad(E)=216.984    E(BOND)=40.681     E(ANGL)=55.851     |
+ | E(DIHE)=0.682      E(IMPR)=20.775     E(VDW )=6.112      E(ELEC)=-100.661   |
+ -------------------------------------------------------------------------------
+ --------------- step=       56 at      0.16800 ps -----------------------------
+ | E(kin)+E(total)=26.248          E(kin)=2.631         temperature=264.846    |
+ | Etotal =23.616     grad(E)=216.984    E(BOND)=40.681     E(ANGL)=55.851     |
+ | E(DIHE)=0.827      E(IMPR)=20.775     E(VDW )=6.107      E(ELEC)=-100.624   |
+ -------------------------------------------------------------------------------
+ --------------- step=       57 at      0.17100 ps -----------------------------
+ | E(kin)+E(total)=26.419          E(kin)=2.729         temperature=274.609    |
+ | Etotal =23.691     grad(E)=216.985    E(BOND)=40.681     E(ANGL)=55.851     |
+ | E(DIHE)=0.884      E(IMPR)=20.775     E(VDW )=6.102      E(ELEC)=-100.602   |
+ -------------------------------------------------------------------------------
+ --------------- step=       58 at      0.17400 ps -----------------------------
+ | E(kin)+E(total)=26.518          E(kin)=2.870         temperature=288.885    |
+ | Etotal =23.648     grad(E)=216.987    E(BOND)=40.681     E(ANGL)=55.851     |
+ | E(DIHE)=0.839      E(IMPR)=20.775     E(VDW )=6.098      E(ELEC)=-100.596   |
+ -------------------------------------------------------------------------------
+ --------------- step=       59 at      0.17700 ps -----------------------------
+ | E(kin)+E(total)=26.525          E(kin)=3.028         temperature=304.779    |
+ | Etotal =23.497     grad(E)=216.988    E(BOND)=40.681     E(ANGL)=55.851     |
+ | E(DIHE)=0.702      E(IMPR)=20.775     E(VDW )=6.093      E(ELEC)=-100.605   |
+ -------------------------------------------------------------------------------
+ --------------- step=       60 at      0.18000 ps -----------------------------
+ | E(kin)+E(total)=26.441          E(kin)=3.168         temperature=318.834    |
+ | Etotal =23.273     grad(E)=216.990    E(BOND)=40.681     E(ANGL)=55.851     |
+ | E(DIHE)=0.510      E(IMPR)=20.775     E(VDW )=6.090      E(ELEC)=-100.633   |
+ -------------------------------------------------------------------------------
+ CNSsolve> 
+ CNSsolve> 
+ CNSsolve> 
+ CNSsolve>write coor end 
+REMARK FILENAME="OUTPUT"
+REMARK file toppar/protein.link
+REMARK this is a macro to define standard protein peptide bonds
+REMARK and termini to generate a protein sequence.
+REMARK DATE:05-Jul-2018  16:08:00       created by user: oeow39
+REMARK VERSION:1.3
+ATOM      1  CB  TRP     1       3.177   2.470  -0.004  1.00  0.00      TRYP
+ATOM      2  CG  TRP     1       4.098   1.334  -0.458  1.00  0.00      TRYP
+ATOM      3  CD2 TRP     1       4.515   1.051  -1.720  1.00  0.00      TRYP
+ATOM      4  CE2 TRP     1       5.283  -0.049  -1.544  1.00  0.00      TRYP
+ATOM      5  CE3 TRP     1       4.297   1.635  -2.944  1.00  0.00      TRYP
+ATOM      6  CD1 TRP     1       4.613   0.420   0.430  1.00  0.00      TRYP
+ATOM      7  NE1 TRP     1       5.340  -0.420  -0.281  1.00  0.00      TRYP
+ATOM      8  HE1 TRP     1       5.340  -1.371  -0.054  1.00  0.00      TRYP
+ATOM      9  CZ2 TRP     1       5.911  -0.675  -2.590  1.00  0.00      TRYP
+ATOM     10  CZ3 TRP     1       4.921   1.022  -4.020  1.00  0.00      TRYP
+ATOM     11  CH2 TRP     1       5.714  -0.114  -3.845  1.00  0.00      TRYP
+ATOM     12  C   TRP     1       0.837   3.250   0.436  1.00  0.00      TRYP
+ATOM     13  O   TRP     1       0.607   4.035  -0.473  1.00  0.00      TRYP
+ATOM     14  OXT TRP     1       0.174   3.223   1.455  1.00  0.00      TRYP
+ATOM     15  HT1 TRP     1       1.420   2.123  -1.903  1.00  0.00      TRYP
+ATOM     16  HT2 TRP     1       1.708   0.550  -1.333  1.00  0.00      TRYP
+ATOM     17  N   TRP     1       1.215   1.443  -1.139  1.00  0.00      TRYP
+ATOM     18  HT3 TRP     1       0.191   1.281  -1.073  1.00  0.00      TRYP
+ATOM     19  CA  TRP     1       1.719   2.033   0.136  1.00  0.00      TRYP
+END
+ CNSsolve> 
+ CNSsolve>{* now test the parsing facility for trajectory reading and writing *} 
+ CNSsolve>read trajectory 
+ READ-TRAJectory>    input=tracrd.dat 
+ ASSFIL: file tracrd.dat opened.
+ READ-TRAJectory>    begin=4 
+ READ-TRAJectory>    skip=4 
+ READ-TRAJectory>    stop=60 
+ READ-TRAJectory>end 
+ REMARKS FILENAME="tracrd.dat"
+ REMARKS file toppar/protein.link
+ REMARKS
+ REMARKS this is a macro to define standard protein peptide bonds
+ REMARKS and termini to generate a protein sequence.
+ REMARKS DATE:05-Jul-2018  16:08:00       created by user: oeow39
+ REMARKS VERSION:1.3
+ READC: reading file=   1   ISTART=       2
+ READC:        2 atoms were "free"
+ READC: NUNIt=   1
+ READC: BEGIn=       4  SKIP=       4  STOP=      60
+ READC: TIMEstep=  0.00300000 ps    header= CORD
+ READ-TRAJectory: frame #        4 has been copied to the main coordinate set.
+ CNSsolve>write trajectory 
+ WRITe-DYNAmics>    output=ttt.dat  ascii=false  selection=( name O   or name cb ) 
+ SELRPN:      2 atoms have been selected out of     19
+ WRITe-DYNAmics>end 
+ ASSFIL: file ttt.dat opened.
+ WRITEC: CORD sets starting from step        1 are written every     1  steps
+ WRITEC: where        2 atoms are "free"
+ CNSsolve> 
+ CNSsolve>while ($status # "COMPLETE" ) loop rrr 
+ NEXTCD: condition evaluated as true
+ CNSsolve>   read trajectory next end 
+ READCP: trajectory number        8 has been copied to the main coordinate set
+ CNSsolve>   write trajectory next end 
+ CNSsolve>end loop rrr 
+ CNSsolve>while ($status # "COMPLETE" ) loop rrr 
+ NEXTCD: condition evaluated as true
+ CNSsolve>   read trajectory next end 
+ READCP: trajectory number       12 has been copied to the main coordinate set
+ CNSsolve>   write trajectory next end 
+ CNSsolve>end loop rrr 
+ CNSsolve>while ($status # "COMPLETE" ) loop rrr 
+ NEXTCD: condition evaluated as true
+ CNSsolve>   read trajectory next end 
+ READCP: trajectory number       16 has been copied to the main coordinate set
+ CNSsolve>   write trajectory next end 
+ CNSsolve>end loop rrr 
+ CNSsolve>while ($status # "COMPLETE" ) loop rrr 
+ NEXTCD: condition evaluated as true
+ CNSsolve>   read trajectory next end 
+ READCP: trajectory number       20 has been copied to the main coordinate set
+ CNSsolve>   write trajectory next end 
+ CNSsolve>end loop rrr 
+ CNSsolve>while ($status # "COMPLETE" ) loop rrr 
+ NEXTCD: condition evaluated as true
+ CNSsolve>   read trajectory next end 
+ READCP: trajectory number       24 has been copied to the main coordinate set
+ CNSsolve>   write trajectory next end 
+ CNSsolve>end loop rrr 
+ CNSsolve>while ($status # "COMPLETE" ) loop rrr 
+ NEXTCD: condition evaluated as true
+ CNSsolve>   read trajectory next end 
+ READCP: trajectory number       28 has been copied to the main coordinate set
+ CNSsolve>   write trajectory next end 
+ CNSsolve>end loop rrr 
+ CNSsolve>while ($status # "COMPLETE" ) loop rrr 
+ NEXTCD: condition evaluated as true
+ CNSsolve>   read trajectory next end 
+ READCP: trajectory number       32 has been copied to the main coordinate set
+ CNSsolve>   write trajectory next end 
+ CNSsolve>end loop rrr 
+ CNSsolve>while ($status # "COMPLETE" ) loop rrr 
+ NEXTCD: condition evaluated as true
+ CNSsolve>   read trajectory next end 
+ READCP: trajectory number       36 has been copied to the main coordinate set
+ CNSsolve>   write trajectory next end 
+ CNSsolve>end loop rrr 
+ CNSsolve>while ($status # "COMPLETE" ) loop rrr 
+ NEXTCD: condition evaluated as true
+ CNSsolve>   read trajectory next end 
+ READCP: trajectory number       40 has been copied to the main coordinate set
+ CNSsolve>   write trajectory next end 
+ CNSsolve>end loop rrr 
+ CNSsolve>while ($status # "COMPLETE" ) loop rrr 
+ NEXTCD: condition evaluated as true
+ CNSsolve>   read trajectory next end 
+ READCP: trajectory number       44 has been copied to the main coordinate set
+ CNSsolve>   write trajectory next end 
+ CNSsolve>end loop rrr 
+ CNSsolve>while ($status # "COMPLETE" ) loop rrr 
+ NEXTCD: condition evaluated as true
+ CNSsolve>   read trajectory next end 
+ READCP: trajectory number       48 has been copied to the main coordinate set
+ CNSsolve>   write trajectory next end 
+ CNSsolve>end loop rrr 
+ CNSsolve>while ($status # "COMPLETE" ) loop rrr 
+ NEXTCD: condition evaluated as true
+ CNSsolve>   read trajectory next end 
+ READCP: trajectory number       52 has been copied to the main coordinate set
+ CNSsolve>   write trajectory next end 
+ CNSsolve>end loop rrr 
+ CNSsolve>while ($status # "COMPLETE" ) loop rrr 
+ NEXTCD: condition evaluated as true
+ CNSsolve>   read trajectory next end 
+ READCP: trajectory number       56 has been copied to the main coordinate set
+ CNSsolve>   write trajectory next end 
+ CNSsolve>end loop rrr 
+ CNSsolve>while ($status # "COMPLETE" ) loop rrr 
+ NEXTCD: condition evaluated as true
+ CNSsolve>   read trajectory next end 
+ READC: complete.       15 coordinate sets were passed to calling routine
+ READCP: trajectory number       60 has been copied to the main coordinate set
+ CNSsolve>   write trajectory next end 
+ CNSsolve>end loop rrr 
+ CNSsolve>while ($status # "COMPLETE" ) loop rrr 
+ NEXTCD: condition evaluated as false
+ CNSsolve>   read trajectory next end 
+ CNSsolve>   write trajectory next end 
+ CNSsolve>end loop rrr 
+ CNSsolve> 
+ CNSsolve> 
+ CNSsolve>write coor end 
+REMARK FILENAME="OUTPUT"
+REMARK file toppar/protein.link
+REMARK this is a macro to define standard protein peptide bonds
+REMARK and termini to generate a protein sequence.
+REMARK DATE:05-Jul-2018  16:08:00       created by user: oeow39
+REMARK VERSION:1.3
+ATOM      1  CB  TRP     1       3.177   2.470  -0.004  1.00  0.00      TRYP
+ATOM      2  CG  TRP     1       4.019   1.255  -0.582  1.00  0.00      TRYP
+ATOM      3  CD2 TRP     1       4.412   0.841  -1.815  1.00  0.00      TRYP
+ATOM      4  CE2 TRP     1       5.401  -0.040  -1.536  1.00  0.00      TRYP
+ATOM      5  CE3 TRP     1       4.009   1.147  -3.092  1.00  0.00      TRYP
+ATOM      6  CD1 TRP     1       4.762   0.630   0.390  1.00  0.00      TRYP
+ATOM      7  NE1 TRP     1       5.605  -0.165  -0.241  1.00  0.00      TRYP
+ATOM      8  HE1 TRP     1       5.815  -1.043   0.136  1.00  0.00      TRYP
+ATOM      9  CZ2 TRP     1       6.083  -0.707  -2.521  1.00  0.00      TRYP
+ATOM     10  CZ3 TRP     1       4.683   0.486  -4.108  1.00  0.00      TRYP
+ATOM     11  CH2 TRP     1       5.702  -0.425  -3.826  1.00  0.00      TRYP
+ATOM     12  C   TRP     1       0.517   2.624   0.407  1.00  0.00      TRYP
+ATOM     13  O   TRP     1       0.607   4.035  -0.473  1.00  0.00      TRYP
+ATOM     14  OXT TRP     1       0.212   2.627   1.584  1.00  0.00      TRYP
+ATOM     15  HT1 TRP     1       1.214   1.750  -2.081  1.00  0.00      TRYP
+ATOM     16  HT2 TRP     1       1.574   0.168  -1.583  1.00  0.00      TRYP
+ATOM     17  N   TRP     1       1.048   1.031  -1.344  1.00  0.00      TRYP
+ATOM     18  HT3 TRP     1       0.033   0.825  -1.271  1.00  0.00      TRYP
+ATOM     19  CA  TRP     1       1.548   1.586  -0.052  1.00  0.00      TRYP
+END
+ CNSsolve> 
+ CNSsolve>{* now test the parsing facility for trajectory reading and writing *} 
+ CNSsolve>{* (formatted *} 
+ CNSsolve>read trajectory 
+ READ-TRAJectory>    input=tracrd.dat 
+ READ-TRAJectory>    begin=4 
+ READ-TRAJectory>    skip=4 
+ READ-TRAJectory>    stop=60 
+ READ-TRAJectory>end 
+ REMARKS FILENAME="tracrd.dat"
+ REMARKS file toppar/protein.link
+ REMARKS
+ REMARKS this is a macro to define standard protein peptide bonds
+ REMARKS and termini to generate a protein sequence.
+ REMARKS DATE:05-Jul-2018  16:08:00       created by user: oeow39
+ REMARKS VERSION:1.3
+ READC: reading file=   1   ISTART=       2
+ READC:        2 atoms were "free"
+ READC: NUNIt=   1
+ READC: BEGIn=       4  SKIP=       4  STOP=      60
+ READC: TIMEstep=  0.00300000 ps    header= CORD
+ READ-TRAJectory: frame #        4 has been copied to the main coordinate set.
+ CNSsolve>write trajectory 
+ WRITe-DYNAmics>    reset 
+ WRITe-DYNAmics>    output=fttt.dat  ascii=true  selection=( name O   or name cb ) 
+ SELRPN:      2 atoms have been selected out of     19
+ WRITe-DYNAmics>    format="12Z6" offset=800. scale=10000. 
+ WRITe-DYNAmics>end 
+ ASSFIL: file fttt.dat opened.
+ WRITEC: CORD sets starting from step        1 are written every     1  steps
+ WRITEC: where        2 atoms are "free"
+ CNSsolve> 
+ CNSsolve>while ($status # "COMPLETE" ) loop rrr 
+ NEXTCD: condition evaluated as true
+ CNSsolve>   read trajectory next end 
+ READCP: trajectory number        8 has been copied to the main coordinate set
+ CNSsolve>   write trajectory next end 
+ CNSsolve>end loop rrr 
+ CNSsolve>while ($status # "COMPLETE" ) loop rrr 
+ NEXTCD: condition evaluated as true
+ CNSsolve>   read trajectory next end 
+ READCP: trajectory number       12 has been copied to the main coordinate set
+ CNSsolve>   write trajectory next end 
+ CNSsolve>end loop rrr 
+ CNSsolve>while ($status # "COMPLETE" ) loop rrr 
+ NEXTCD: condition evaluated as true
+ CNSsolve>   read trajectory next end 
+ READCP: trajectory number       16 has been copied to the main coordinate set
+ CNSsolve>   write trajectory next end 
+ CNSsolve>end loop rrr 
+ CNSsolve>while ($status # "COMPLETE" ) loop rrr 
+ NEXTCD: condition evaluated as true
+ CNSsolve>   read trajectory next end 
+ READCP: trajectory number       20 has been copied to the main coordinate set
+ CNSsolve>   write trajectory next end 
+ CNSsolve>end loop rrr 
+ CNSsolve>while ($status # "COMPLETE" ) loop rrr 
+ NEXTCD: condition evaluated as true
+ CNSsolve>   read trajectory next end 
+ READCP: trajectory number       24 has been copied to the main coordinate set
+ CNSsolve>   write trajectory next end 
+ CNSsolve>end loop rrr 
+ CNSsolve>while ($status # "COMPLETE" ) loop rrr 
+ NEXTCD: condition evaluated as true
+ CNSsolve>   read trajectory next end 
+ READCP: trajectory number       28 has been copied to the main coordinate set
+ CNSsolve>   write trajectory next end 
+ CNSsolve>end loop rrr 
+ CNSsolve>while ($status # "COMPLETE" ) loop rrr 
+ NEXTCD: condition evaluated as true
+ CNSsolve>   read trajectory next end 
+ READCP: trajectory number       32 has been copied to the main coordinate set
+ CNSsolve>   write trajectory next end 
+ CNSsolve>end loop rrr 
+ CNSsolve>while ($status # "COMPLETE" ) loop rrr 
+ NEXTCD: condition evaluated as true
+ CNSsolve>   read trajectory next end 
+ READCP: trajectory number       36 has been copied to the main coordinate set
+ CNSsolve>   write trajectory next end 
+ CNSsolve>end loop rrr 
+ CNSsolve>while ($status # "COMPLETE" ) loop rrr 
+ NEXTCD: condition evaluated as true
+ CNSsolve>   read trajectory next end 
+ READCP: trajectory number       40 has been copied to the main coordinate set
+ CNSsolve>   write trajectory next end 
+ CNSsolve>end loop rrr 
+ CNSsolve>while ($status # "COMPLETE" ) loop rrr 
+ NEXTCD: condition evaluated as true
+ CNSsolve>   read trajectory next end 
+ READCP: trajectory number       44 has been copied to the main coordinate set
+ CNSsolve>   write trajectory next end 
+ CNSsolve>end loop rrr 
+ CNSsolve>while ($status # "COMPLETE" ) loop rrr 
+ NEXTCD: condition evaluated as true
+ CNSsolve>   read trajectory next end 
+ READCP: trajectory number       48 has been copied to the main coordinate set
+ CNSsolve>   write trajectory next end 
+ CNSsolve>end loop rrr 
+ CNSsolve>while ($status # "COMPLETE" ) loop rrr 
+ NEXTCD: condition evaluated as true
+ CNSsolve>   read trajectory next end 
+ READCP: trajectory number       52 has been copied to the main coordinate set
+ CNSsolve>   write trajectory next end 
+ CNSsolve>end loop rrr 
+ CNSsolve>while ($status # "COMPLETE" ) loop rrr 
+ NEXTCD: condition evaluated as true
+ CNSsolve>   read trajectory next end 
+ READCP: trajectory number       56 has been copied to the main coordinate set
+ CNSsolve>   write trajectory next end 
+ CNSsolve>end loop rrr 
+ CNSsolve>while ($status # "COMPLETE" ) loop rrr 
+ NEXTCD: condition evaluated as true
+ CNSsolve>   read trajectory next end 
+ READC: complete.       15 coordinate sets were passed to calling routine
+ READCP: trajectory number       60 has been copied to the main coordinate set
+ CNSsolve>   write trajectory next end 
+ CNSsolve>end loop rrr 
+ CNSsolve>while ($status # "COMPLETE" ) loop rrr 
+ NEXTCD: condition evaluated as false
+ CNSsolve>   read trajectory next end 
+ CNSsolve>   write trajectory next end 
+ CNSsolve>end loop rrr 
+ CNSsolve> 
+ CNSsolve>close fttt.dat end 
+ CNSsolve> 
+ CNSsolve> 
+ CNSsolve>write coor end 
+REMARK FILENAME="OUTPUT"
+REMARK file toppar/protein.link
+REMARK this is a macro to define standard protein peptide bonds
+REMARK and termini to generate a protein sequence.
+REMARK DATE:05-Jul-2018  16:08:00       created by user: oeow39
+REMARK VERSION:1.3
+ATOM      1  CB  TRP     1       3.177   2.470  -0.004  1.00  0.00      TRYP
+ATOM      2  CG  TRP     1       4.019   1.255  -0.582  1.00  0.00      TRYP
+ATOM      3  CD2 TRP     1       4.412   0.841  -1.815  1.00  0.00      TRYP
+ATOM      4  CE2 TRP     1       5.401  -0.040  -1.536  1.00  0.00      TRYP
+ATOM      5  CE3 TRP     1       4.009   1.147  -3.092  1.00  0.00      TRYP
+ATOM      6  CD1 TRP     1       4.762   0.630   0.390  1.00  0.00      TRYP
+ATOM      7  NE1 TRP     1       5.605  -0.165  -0.241  1.00  0.00      TRYP
+ATOM      8  HE1 TRP     1       5.815  -1.043   0.136  1.00  0.00      TRYP
+ATOM      9  CZ2 TRP     1       6.083  -0.707  -2.521  1.00  0.00      TRYP
+ATOM     10  CZ3 TRP     1       4.683   0.486  -4.108  1.00  0.00      TRYP
+ATOM     11  CH2 TRP     1       5.702  -0.425  -3.826  1.00  0.00      TRYP
+ATOM     12  C   TRP     1       0.517   2.624   0.407  1.00  0.00      TRYP
+ATOM     13  O   TRP     1       0.607   4.035  -0.473  1.00  0.00      TRYP
+ATOM     14  OXT TRP     1       0.212   2.627   1.584  1.00  0.00      TRYP
+ATOM     15  HT1 TRP     1       1.214   1.750  -2.081  1.00  0.00      TRYP
+ATOM     16  HT2 TRP     1       1.574   0.168  -1.583  1.00  0.00      TRYP
+ATOM     17  N   TRP     1       1.048   1.031  -1.344  1.00  0.00      TRYP
+ATOM     18  HT3 TRP     1       0.033   0.825  -1.271  1.00  0.00      TRYP
+ATOM     19  CA  TRP     1       1.548   1.586  -0.052  1.00  0.00      TRYP
+END
+ CNSsolve> 
+ CNSsolve>dyna tors 
+ Torsion Dynamics>   nstep=60 
+ Torsion Dynamics>   cmremove=false 
+ Torsion Dynamics>   timestep=0.003 
+ Torsion Dynamics>   tcoupling=true   temperature=298. 
+ TORMD: temperature coupling (TCOUpl) enabled
+ Torsion Dynamics>   trajectory=traje.dat    nsavc=2   cselection=( name O   or name cb ) ascii=true 
+ SELRPN:      2 atoms have been selected out of     19
+ Torsion Dynamics>end 
+ ASSFIL: file traje.dat opened.
+ -------------------------- Torsion Angle Dynamics -----------------------------
+ Info: Velocities and coordinates taken from last torsion angle dynamics step.
+ -------------------------------------------------------------------------------
+ NBONDS: found       92 intra-atom interactions
+ TORMD3: number of degrees of freedom=      10
+ -------------------------- Initial Conditions ---------------------------------
+ | E(kin)+E(total)=676.614         E(kin)=3.168         temperature=318.834    |
+ | Etotal =673.446    grad(E)=446.502    E(BOND)=483.193    E(ANGL)=208.419    |
+ | E(DIHE)=1.593      E(IMPR)=66.663     E(VDW )=5.109      E(ELEC)=-91.531    |
+ -------------------------------------------------------------------------------
+ NBONDS: found       92 intra-atom interactions
+ --------------- step=        1 at      0.00300 ps -----------------------------
+ | E(kin)+E(total)=26.284          E(kin)=3.255         temperature=327.601    |
+ | Etotal =23.029     grad(E)=216.992    E(BOND)=40.681     E(ANGL)=55.851     |
+ | E(DIHE)=0.316      E(IMPR)=20.775     E(VDW )=6.087      E(ELEC)=-100.680   |
+ -------------------------------------------------------------------------------
+ WRITEC: CORD sets starting from step        2 are written every     2  steps
+ WRITEC: where        2 atoms are "free"
+ --------------- step=        2 at      0.00600 ps -----------------------------
+ | E(kin)+E(total)=26.098          E(kin)=3.276         temperature=329.705    |
+ | Etotal =22.822     grad(E)=216.994    E(BOND)=40.681     E(ANGL)=55.851     |
+ | E(DIHE)=0.177      E(IMPR)=20.775     E(VDW )=6.085      E(ELEC)=-100.747   |
+ -------------------------------------------------------------------------------
+ --------------- step=        3 at      0.00900 ps -----------------------------
+ | E(kin)+E(total)=25.921          E(kin)=3.224         temperature=324.458    |
+ | Etotal =22.697     grad(E)=216.997    E(BOND)=40.681     E(ANGL)=55.851     |
+ | E(DIHE)=0.135      E(IMPR)=20.775     E(VDW )=6.085      E(ELEC)=-100.829   |
+ -------------------------------------------------------------------------------
+ --------------- step=        4 at      0.01200 ps -----------------------------
+ | E(kin)+E(total)=25.793          E(kin)=3.113         temperature=313.318    |
+ | Etotal =22.680     grad(E)=217.000    E(BOND)=40.681     E(ANGL)=55.851     |
+ | E(DIHE)=0.210      E(IMPR)=20.775     E(VDW )=6.086      E(ELEC)=-100.923   |
+ -------------------------------------------------------------------------------
+ --------------- step=        5 at      0.01500 ps -----------------------------
+ | E(kin)+E(total)=25.743          E(kin)=2.971         temperature=299.002    |
+ | Etotal =22.772     grad(E)=217.004    E(BOND)=40.681     E(ANGL)=55.851     |
+ | E(DIHE)=0.396      E(IMPR)=20.775     E(VDW )=6.090      E(ELEC)=-101.020   |
+ -------------------------------------------------------------------------------
+ --------------- step=        6 at      0.01800 ps -----------------------------
+ | E(kin)+E(total)=25.780          E(kin)=2.829         temperature=284.685    |
+ | Etotal =22.952     grad(E)=217.007    E(BOND)=40.681     E(ANGL)=55.851     |
+ | E(DIHE)=0.663      E(IMPR)=20.775     E(VDW )=6.095      E(ELEC)=-101.113   |
+ -------------------------------------------------------------------------------
+ --------------- step=        7 at      0.02100 ps -----------------------------
+ | E(kin)+E(total)=25.896          E(kin)=2.715         temperature=273.260    |
+ | Etotal =23.181     grad(E)=217.010    E(BOND)=40.681     E(ANGL)=55.851     |
+ | E(DIHE)=0.969      E(IMPR)=20.775     E(VDW )=6.100      E(ELEC)=-101.196   |
+ -------------------------------------------------------------------------------
+ --------------- step=        8 at      0.02400 ps -----------------------------
+ | E(kin)+E(total)=26.065          E(kin)=2.652         temperature=266.860    |
+ | Etotal =23.413     grad(E)=217.012    E(BOND)=40.681     E(ANGL)=55.851     |
+ | E(DIHE)=1.264      E(IMPR)=20.775     E(VDW )=6.106      E(ELEC)=-101.262   |
+ -------------------------------------------------------------------------------
+ --------------- step=        9 at      0.02700 ps -----------------------------
+ | E(kin)+E(total)=26.254          E(kin)=2.649         temperature=266.644    |
+ | Etotal =23.605     grad(E)=217.013    E(BOND)=40.681     E(ANGL)=55.851     |
+ | E(DIHE)=1.497      E(IMPR)=20.775     E(VDW )=6.110      E(ELEC)=-101.308   |
+ -------------------------------------------------------------------------------
+ --------------- step=       10 at      0.03000 ps -----------------------------
+ | E(kin)+E(total)=26.426          E(kin)=2.709         temperature=272.684    |
+ | Etotal =23.717     grad(E)=217.014    E(BOND)=40.681     E(ANGL)=55.851     |
+ | E(DIHE)=1.630      E(IMPR)=20.775     E(VDW )=6.111      E(ELEC)=-101.331   |
+ -------------------------------------------------------------------------------
+ --------------- step=       11 at      0.03300 ps -----------------------------
+ | E(kin)+E(total)=26.546          E(kin)=2.821         temperature=283.895    |
+ | Etotal =23.725     grad(E)=217.014    E(BOND)=40.681     E(ANGL)=55.851     |
+ | E(DIHE)=1.636      E(IMPR)=20.775     E(VDW )=6.110      E(ELEC)=-101.328   |
+ -------------------------------------------------------------------------------
+ --------------- step=       12 at      0.03600 ps -----------------------------
+ | E(kin)+E(total)=26.589          E(kin)=2.962         temperature=298.089    |
+ | Etotal =23.627     grad(E)=217.013    E(BOND)=40.681     E(ANGL)=55.851     |
+ | E(DIHE)=1.513      E(IMPR)=20.775     E(VDW )=6.107      E(ELEC)=-101.299   |
+ -------------------------------------------------------------------------------
+ --------------- step=       13 at      0.03900 ps -----------------------------
+ | E(kin)+E(total)=26.546          E(kin)=3.103         temperature=312.307    |
+ | Etotal =23.442     grad(E)=217.011    E(BOND)=40.681     E(ANGL)=55.851     |
+ | E(DIHE)=1.281      E(IMPR)=20.775     E(VDW )=6.101      E(ELEC)=-101.246   |
+ -------------------------------------------------------------------------------
+ --------------- step=       14 at      0.04200 ps -----------------------------
+ | E(kin)+E(total)=26.425          E(kin)=3.214         temperature=323.436    |
+ | Etotal =23.211     grad(E)=217.008    E(BOND)=40.681     E(ANGL)=55.851     |
+ | E(DIHE)=0.982      E(IMPR)=20.775     E(VDW )=6.094      E(ELEC)=-101.171   |
+ -------------------------------------------------------------------------------
+ --------------- step=       15 at      0.04500 ps -----------------------------
+ | E(kin)+E(total)=26.253          E(kin)=3.269         temperature=329.002    |
+ | Etotal =22.984     grad(E)=217.005    E(BOND)=40.681     E(ANGL)=55.851     |
+ | E(DIHE)=0.672      E(IMPR)=20.775     E(VDW )=6.087      E(ELEC)=-101.081   |
+ -------------------------------------------------------------------------------
+ --------------- step=       16 at      0.04800 ps -----------------------------
+ | E(kin)+E(total)=26.068          E(kin)=3.257         temperature=327.846    |
+ | Etotal =22.810     grad(E)=217.002    E(BOND)=40.681     E(ANGL)=55.851     |
+ | E(DIHE)=0.406      E(IMPR)=20.775     E(VDW )=6.081      E(ELEC)=-100.982   |
+ -------------------------------------------------------------------------------
+ --------------- step=       17 at      0.05100 ps -----------------------------
+ | E(kin)+E(total)=25.909          E(kin)=3.184         temperature=320.444    |
+ | Etotal =22.725     grad(E)=216.998    E(BOND)=40.681     E(ANGL)=55.851     |
+ | E(DIHE)=0.225      E(IMPR)=20.775     E(VDW )=6.076      E(ELEC)=-100.883   |
+ -------------------------------------------------------------------------------
+ --------------- step=       18 at      0.05400 ps -----------------------------
+ | E(kin)+E(total)=25.808          E(kin)=3.067         temperature=308.715    |
+ | Etotal =22.740     grad(E)=216.995    E(BOND)=40.681     E(ANGL)=55.851     |
+ | E(DIHE)=0.151      E(IMPR)=20.775     E(VDW )=6.072      E(ELEC)=-100.790   |
+ -------------------------------------------------------------------------------
+ --------------- step=       19 at      0.05700 ps -----------------------------
+ | E(kin)+E(total)=25.783          E(kin)=2.935         temperature=295.425    |
+ | Etotal =22.848     grad(E)=216.992    E(BOND)=40.681     E(ANGL)=55.851     |
+ | E(DIHE)=0.179      E(IMPR)=20.775     E(VDW )=6.071      E(ELEC)=-100.709   |
+ -------------------------------------------------------------------------------
+ --------------- step=       20 at      0.06000 ps -----------------------------
+ | E(kin)+E(total)=25.835          E(kin)=2.816         temperature=283.452    |
+ | Etotal =23.019     grad(E)=216.990    E(BOND)=40.681     E(ANGL)=55.851     |
+ | E(DIHE)=0.285      E(IMPR)=20.775     E(VDW )=6.070      E(ELEC)=-100.643   |
+ -------------------------------------------------------------------------------
+ --------------- step=       21 at      0.06300 ps -----------------------------
+ | E(kin)+E(total)=25.949          E(kin)=2.734         temperature=275.199    |
+ | Etotal =23.214     grad(E)=216.988    E(BOND)=40.681     E(ANGL)=55.851     |
+ | E(DIHE)=0.431      E(IMPR)=20.775     E(VDW )=6.071      E(ELEC)=-100.595   |
+ -------------------------------------------------------------------------------
+ --------------- step=       22 at      0.06600 ps -----------------------------
+ | E(kin)+E(total)=26.096          E(kin)=2.705         temperature=272.233    |
+ | Etotal =23.391     grad(E)=216.987    E(BOND)=40.681     E(ANGL)=55.851     |
+ | E(DIHE)=0.576      E(IMPR)=20.775     E(VDW )=6.072      E(ELEC)=-100.563   |
+ -------------------------------------------------------------------------------
+ --------------- step=       23 at      0.06900 ps -----------------------------
+ | E(kin)+E(total)=26.244          E(kin)=2.734         temperature=275.114    |
+ | Etotal =23.511     grad(E)=216.985    E(BOND)=40.681     E(ANGL)=55.851     |
+ | E(DIHE)=0.679      E(IMPR)=20.775     E(VDW )=6.074      E(ELEC)=-100.548   |
+ -------------------------------------------------------------------------------
+ --------------- step=       24 at      0.07200 ps -----------------------------
+ | E(kin)+E(total)=26.359          E(kin)=2.815         temperature=283.294    |
+ | Etotal =23.544     grad(E)=216.984    E(BOND)=40.681     E(ANGL)=55.851     |
+ | E(DIHE)=0.712      E(IMPR)=20.775     E(VDW )=6.075      E(ELEC)=-100.550   |
+ -------------------------------------------------------------------------------
+ --------------- step=       25 at      0.07500 ps -----------------------------
+ | E(kin)+E(total)=26.413          E(kin)=2.932         temperature=295.133    |
+ | Etotal =23.480     grad(E)=216.983    E(BOND)=40.681     E(ANGL)=55.851     |
+ | E(DIHE)=0.663      E(IMPR)=20.775     E(VDW )=6.077      E(ELEC)=-100.567   |
+ -------------------------------------------------------------------------------
+ --------------- step=       26 at      0.07800 ps -----------------------------
+ | E(kin)+E(total)=26.391          E(kin)=3.062         temperature=308.126    |
+ | Etotal =23.330     grad(E)=216.981    E(BOND)=40.681     E(ANGL)=55.851     |
+ | E(DIHE)=0.543      E(IMPR)=20.775     E(VDW )=6.079      E(ELEC)=-100.600   |
+ -------------------------------------------------------------------------------
+ --------------- step=       27 at      0.08100 ps -----------------------------
+ | E(kin)+E(total)=26.296          E(kin)=3.174         temperature=319.412    |
+ | Etotal =23.122     grad(E)=216.981    E(BOND)=40.681     E(ANGL)=55.851     |
+ | E(DIHE)=0.384      E(IMPR)=20.775     E(VDW )=6.082      E(ELEC)=-100.650   |
+ -------------------------------------------------------------------------------
+ --------------- step=       28 at      0.08400 ps -----------------------------
+ | E(kin)+E(total)=26.144          E(kin)=3.244         temperature=326.471    |
+ | Etotal =22.900     grad(E)=216.981    E(BOND)=40.681     E(ANGL)=55.851     |
+ | E(DIHE)=0.227      E(IMPR)=20.775     E(VDW )=6.085      E(ELEC)=-100.718   |
+ -------------------------------------------------------------------------------
+ --------------- step=       29 at      0.08700 ps -----------------------------
+ | E(kin)+E(total)=25.967          E(kin)=3.257         temperature=327.786    |
+ | Etotal =22.710     grad(E)=216.981    E(BOND)=40.681     E(ANGL)=55.851     |
+ | E(DIHE)=0.117      E(IMPR)=20.775     E(VDW )=6.089      E(ELEC)=-100.802   |
+ -------------------------------------------------------------------------------
+ NBONDS: found       92 intra-atom interactions
+ --------------- step=       30 at      0.09000 ps -----------------------------
+ | E(kin)+E(total)=25.800          E(kin)=3.212         temperature=323.245    |
+ | Etotal =22.588     grad(E)=216.982    E(BOND)=40.681     E(ANGL)=55.851     |
+ | E(DIHE)=0.088      E(IMPR)=20.775     E(VDW )=6.093      E(ELEC)=-100.900   |
+ -------------------------------------------------------------------------------
+ --------------- step=       31 at      0.09300 ps -----------------------------
+ | E(kin)+E(total)=25.674          E(kin)=3.121         temperature=314.115    |
+ | Etotal =22.553     grad(E)=216.984    E(BOND)=40.681     E(ANGL)=55.851     |
+ | E(DIHE)=0.155      E(IMPR)=20.775     E(VDW )=6.099      E(ELEC)=-101.008   |
+ -------------------------------------------------------------------------------
+ --------------- step=       32 at      0.09600 ps -----------------------------
+ | E(kin)+E(total)=25.612          E(kin)=3.007         temperature=302.621    |
+ | Etotal =22.605     grad(E)=216.987    E(BOND)=40.681     E(ANGL)=55.851     |
+ | E(DIHE)=0.310      E(IMPR)=20.775     E(VDW )=6.107      E(ELEC)=-101.119   |
+ -------------------------------------------------------------------------------
+ --------------- step=       33 at      0.09900 ps -----------------------------
+ | E(kin)+E(total)=25.618          E(kin)=2.895         temperature=291.321    |
+ | Etotal =22.724     grad(E)=216.989    E(BOND)=40.681     E(ANGL)=55.851     |
+ | E(DIHE)=0.529      E(IMPR)=20.775     E(VDW )=6.115      E(ELEC)=-101.227   |
+ -------------------------------------------------------------------------------
+ --------------- step=       34 at      0.10200 ps -----------------------------
+ | E(kin)+E(total)=25.686          E(kin)=2.807         temperature=282.518    |
+ | Etotal =22.879     grad(E)=216.991    E(BOND)=40.681     E(ANGL)=55.851     |
+ | E(DIHE)=0.774      E(IMPR)=20.775     E(VDW )=6.125      E(ELEC)=-101.327   |
+ -------------------------------------------------------------------------------
+ --------------- step=       35 at      0.10500 ps -----------------------------
+ | E(kin)+E(total)=25.794          E(kin)=2.761         temperature=277.868    |
+ | Etotal =23.033     grad(E)=216.993    E(BOND)=40.681     E(ANGL)=55.851     |
+ | E(DIHE)=1.005      E(IMPR)=20.775     E(VDW )=6.134      E(ELEC)=-101.412   |
+ -------------------------------------------------------------------------------
+ --------------- step=       36 at      0.10800 ps -----------------------------
+ | E(kin)+E(total)=25.916          E(kin)=2.764         temperature=278.171    |
+ | Etotal =23.152     grad(E)=216.993    E(BOND)=40.681     E(ANGL)=55.851     |
+ | E(DIHE)=1.182      E(IMPR)=20.775     E(VDW )=6.143      E(ELEC)=-101.479   |
+ -------------------------------------------------------------------------------
+ --------------- step=       37 at      0.11100 ps -----------------------------
+ | E(kin)+E(total)=26.021          E(kin)=2.815         temperature=283.284    |
+ | Etotal =23.206     grad(E)=216.993    E(BOND)=40.681     E(ANGL)=55.851     |
+ | E(DIHE)=1.274      E(IMPR)=20.775     E(VDW )=6.151      E(ELEC)=-101.525   |
+ -------------------------------------------------------------------------------
+ --------------- step=       38 at      0.11400 ps -----------------------------
+ | E(kin)+E(total)=26.084          E(kin)=2.903         temperature=292.134    |
+ | Etotal =23.182     grad(E)=216.992    E(BOND)=40.681     E(ANGL)=55.851     |
+ | E(DIHE)=1.262      E(IMPR)=20.775     E(VDW )=6.158      E(ELEC)=-101.545   |
+ -------------------------------------------------------------------------------
+ --------------- step=       39 at      0.11700 ps -----------------------------
+ | E(kin)+E(total)=26.088          E(kin)=3.009         temperature=302.864    |
+ | Etotal =23.078     grad(E)=216.990    E(BOND)=40.681     E(ANGL)=55.851     |
+ | E(DIHE)=1.148      E(IMPR)=20.775     E(VDW )=6.164      E(ELEC)=-101.540   |
+ -------------------------------------------------------------------------------
+ --------------- step=       40 at      0.12000 ps -----------------------------
+ | E(kin)+E(total)=26.027          E(kin)=3.112         temperature=313.166    |
+ | Etotal =22.916     grad(E)=216.987    E(BOND)=40.681     E(ANGL)=55.851     |
+ | E(DIHE)=0.951      E(IMPR)=20.775     E(VDW )=6.169      E(ELEC)=-101.510   |
+ -------------------------------------------------------------------------------
+ --------------- step=       41 at      0.12300 ps -----------------------------
+ | E(kin)+E(total)=25.912          E(kin)=3.187         temperature=320.780    |
+ | Etotal =22.725     grad(E)=216.983    E(BOND)=40.681     E(ANGL)=55.851     |
+ | E(DIHE)=0.704      E(IMPR)=20.775     E(VDW )=6.174      E(ELEC)=-101.459   |
+ -------------------------------------------------------------------------------
+ --------------- step=       42 at      0.12600 ps -----------------------------
+ | E(kin)+E(total)=25.764          E(kin)=3.220         temperature=324.036    |
+ | Etotal =22.544     grad(E)=216.978    E(BOND)=40.681     E(ANGL)=55.851     |
+ | E(DIHE)=0.451      E(IMPR)=20.775     E(VDW )=6.179      E(ELEC)=-101.392   |
+ -------------------------------------------------------------------------------
+ --------------- step=       43 at      0.12900 ps -----------------------------
+ | E(kin)+E(total)=25.611          E(kin)=3.202         temperature=322.279    |
+ | Etotal =22.409     grad(E)=216.973    E(BOND)=40.681     E(ANGL)=55.851     |
+ | E(DIHE)=0.233      E(IMPR)=20.775     E(VDW )=6.186      E(ELEC)=-101.317   |
+ -------------------------------------------------------------------------------
+ --------------- step=       44 at      0.13200 ps -----------------------------
+ | E(kin)+E(total)=25.483          E(kin)=3.140         temperature=316.016    |
+ | Etotal =22.343     grad(E)=216.967    E(BOND)=40.681     E(ANGL)=55.851     |
+ | E(DIHE)=0.082      E(IMPR)=20.775     E(VDW )=6.194      E(ELEC)=-101.240   |
+ -------------------------------------------------------------------------------
+ --------------- step=       45 at      0.13500 ps -----------------------------
+ | E(kin)+E(total)=25.402          E(kin)=3.048         temperature=306.739    |
+ | Etotal =22.354     grad(E)=216.961    E(BOND)=40.681     E(ANGL)=55.851     |
+ | E(DIHE)=0.012      E(IMPR)=20.775     E(VDW )=6.204      E(ELEC)=-101.169   |
+ -------------------------------------------------------------------------------
+ --------------- step=       46 at      0.13800 ps -----------------------------
+ | E(kin)+E(total)=25.380          E(kin)=2.946         temperature=296.505    |
+ | Etotal =22.434     grad(E)=216.956    E(BOND)=40.681     E(ANGL)=55.851     |
+ | E(DIHE)=0.021      E(IMPR)=20.775     E(VDW )=6.215      E(ELEC)=-101.109   |
+ -------------------------------------------------------------------------------
+ --------------- step=       47 at      0.14100 ps -----------------------------
+ | E(kin)+E(total)=25.417          E(kin)=2.856         temperature=287.428    |
+ | Etotal =22.561     grad(E)=216.951    E(BOND)=40.681     E(ANGL)=55.851     |
+ | E(DIHE)=0.091      E(IMPR)=20.775     E(VDW )=6.228      E(ELEC)=-101.064   |
+ -------------------------------------------------------------------------------
+ NBONDS: found       92 intra-atom interactions
+ --------------- step=       48 at      0.14400 ps -----------------------------
+ | E(kin)+E(total)=25.500          E(kin)=2.795         temperature=281.260    |
+ | Etotal =22.705     grad(E)=216.947    E(BOND)=40.681     E(ANGL)=55.851     |
+ | E(DIHE)=0.193      E(IMPR)=20.775     E(VDW )=6.242      E(ELEC)=-101.036   |
+ -------------------------------------------------------------------------------
+ --------------- step=       49 at      0.14700 ps -----------------------------
+ | E(kin)+E(total)=25.608          E(kin)=2.773         temperature=279.117    |
+ | Etotal =22.835     grad(E)=216.943    E(BOND)=40.681     E(ANGL)=55.851     |
+ | E(DIHE)=0.295      E(IMPR)=20.775     E(VDW )=6.256      E(ELEC)=-101.023   |
+ -------------------------------------------------------------------------------
+ --------------- step=       50 at      0.15000 ps -----------------------------
+ | E(kin)+E(total)=25.716          E(kin)=2.795         temperature=281.322    |
+ | Etotal =22.921     grad(E)=216.940    E(BOND)=40.681     E(ANGL)=55.851     |
+ | E(DIHE)=0.369      E(IMPR)=20.775     E(VDW )=6.272      E(ELEC)=-101.026   |
+ -------------------------------------------------------------------------------
+ --------------- step=       51 at      0.15300 ps -----------------------------
+ | E(kin)+E(total)=25.800          E(kin)=2.855         temperature=287.361    |
+ | Etotal =22.944     grad(E)=216.939    E(BOND)=40.681     E(ANGL)=55.851     |
+ | E(DIHE)=0.393      E(IMPR)=20.775     E(VDW )=6.288      E(ELEC)=-101.043   |
+ -------------------------------------------------------------------------------
+ --------------- step=       52 at      0.15600 ps -----------------------------
+ | E(kin)+E(total)=25.838          E(kin)=2.940         temperature=295.937    |
+ | Etotal =22.898     grad(E)=216.938    E(BOND)=40.681     E(ANGL)=55.851     |
+ | E(DIHE)=0.361      E(IMPR)=20.775     E(VDW )=6.305      E(ELEC)=-101.075   |
+ -------------------------------------------------------------------------------
+ --------------- step=       53 at      0.15900 ps -----------------------------
+ | E(kin)+E(total)=25.823          E(kin)=3.032         temperature=305.185    |
+ | Etotal =22.791     grad(E)=216.938    E(BOND)=40.681     E(ANGL)=55.851     |
+ | E(DIHE)=0.282      E(IMPR)=20.775     E(VDW )=6.322      E(ELEC)=-101.120   |
+ -------------------------------------------------------------------------------
+ --------------- step=       54 at      0.16200 ps -----------------------------
+ | E(kin)+E(total)=25.756          E(kin)=3.110         temperature=313.054    |
+ | Etotal =22.645     grad(E)=216.939    E(BOND)=40.681     E(ANGL)=55.851     |
+ | E(DIHE)=0.179      E(IMPR)=20.775     E(VDW )=6.340      E(ELEC)=-101.180   |
+ -------------------------------------------------------------------------------
+ --------------- step=       55 at      0.16500 ps -----------------------------
+ | E(kin)+E(total)=25.650          E(kin)=3.157         temperature=317.783    |
+ | Etotal =22.492     grad(E)=216.941    E(BOND)=40.681     E(ANGL)=55.851     |
+ | E(DIHE)=0.083      E(IMPR)=20.775     E(VDW )=6.357      E(ELEC)=-101.255   |
+ -------------------------------------------------------------------------------
+ --------------- step=       56 at      0.16800 ps -----------------------------
+ | E(kin)+E(total)=25.528          E(kin)=3.163         temperature=318.338    |
+ | Etotal =22.365     grad(E)=216.945    E(BOND)=40.681     E(ANGL)=55.851     |
+ | E(DIHE)=0.028      E(IMPR)=20.775     E(VDW )=6.375      E(ELEC)=-101.345   |
+ -------------------------------------------------------------------------------
+ --------------- step=       57 at      0.17100 ps -----------------------------
+ | E(kin)+E(total)=25.415          E(kin)=3.126         temperature=314.657    |
+ | Etotal =22.289     grad(E)=216.950    E(BOND)=40.681     E(ANGL)=55.851     |
+ | E(DIHE)=0.036      E(IMPR)=20.775     E(VDW )=6.394      E(ELEC)=-101.448   |
+ -------------------------------------------------------------------------------
+ --------------- step=       58 at      0.17400 ps -----------------------------
+ | E(kin)+E(total)=25.335          E(kin)=3.057         temperature=307.629    |
+ | Etotal =22.279     grad(E)=216.956    E(BOND)=40.681     E(ANGL)=55.851     |
+ | E(DIHE)=0.119      E(IMPR)=20.775     E(VDW )=6.414      E(ELEC)=-101.561   |
+ -------------------------------------------------------------------------------
+ --------------- step=       59 at      0.17700 ps -----------------------------
+ | E(kin)+E(total)=25.303          E(kin)=2.969         temperature=298.821    |
+ | Etotal =22.334     grad(E)=216.962    E(BOND)=40.681     E(ANGL)=55.851     |
+ | E(DIHE)=0.272      E(IMPR)=20.775     E(VDW )=6.434      E(ELEC)=-101.679   |
+ -------------------------------------------------------------------------------
+ --------------- step=       60 at      0.18000 ps -----------------------------
+ | E(kin)+E(total)=25.325          E(kin)=2.882         temperature=290.062    |
+ | Etotal =22.443     grad(E)=216.968    E(BOND)=40.681     E(ANGL)=55.851     |
+ | E(DIHE)=0.476      E(IMPR)=20.775     E(VDW )=6.456      E(ELEC)=-101.795   |
+ -------------------------------------------------------------------------------
+ CNSsolve> 
+ CNSsolve>read dynamics 
+ READ-TRAJectory>    ascii=true input=traje.dat begin=2 skip=2 stop=60 
+ ASSFIL: file traje.dat opened.
+ READ-TRAJectory>end 
+ REMARKS FILENAME="traje.dat"
+ REMARKS file toppar/protein.link
+ REMARKS
+ REMARKS this is a macro to define standard protein peptide bonds
+ REMARKS and termini to generate a protein sequence.
+ REMARKS DATE:05-Jul-2018  16:08:00       created by user: oeow39
+ REMARKS VERSION:1.3
+ READC: reading file=   1   ISTART=       2
+ READC:        2 atoms were "free"
+ READC: NUNIt=   1
+ READC: BEGIn=       2  SKIP=       2  STOP=      60
+ READC: TIMEstep=  0.00300000 ps    header= CORD
+ READ-TRAJectory: frame #        2 has been copied to the main coordinate set.
+ CNSsolve> 
+ CNSsolve>write coordinates end 
+REMARK FILENAME="OUTPUT"
+REMARK file toppar/protein.link
+REMARK this is a macro to define standard protein peptide bonds
+REMARK and termini to generate a protein sequence.
+REMARK DATE:05-Jul-2018  16:08:00       created by user: oeow39
+REMARK VERSION:1.3
+ATOM      1  CB  TRP     1       3.186   2.478   0.005  1.00  0.00      TRYP
+ATOM      2  CG  TRP     1       4.100   1.337  -0.453  1.00  0.00      TRYP
+ATOM      3  CD2 TRP     1       4.518   1.059  -1.716  1.00  0.00      TRYP
+ATOM      4  CE2 TRP     1       5.278  -0.049  -1.544  1.00  0.00      TRYP
+ATOM      5  CE3 TRP     1       4.310   1.652  -2.937  1.00  0.00      TRYP
+ATOM      6  CD1 TRP     1       4.605   0.414   0.430  1.00  0.00      TRYP
+ATOM      7  NE1 TRP     1       5.327  -0.428  -0.283  1.00  0.00      TRYP
+ATOM      8  HE1 TRP     1       5.319  -1.380  -0.062  1.00  0.00      TRYP
+ATOM      9  CZ2 TRP     1       5.904  -0.673  -2.592  1.00  0.00      TRYP
+ATOM     10  CZ3 TRP     1       4.932   1.039  -4.015  1.00  0.00      TRYP
+ATOM     11  CH2 TRP     1       5.716  -0.103  -3.844  1.00  0.00      TRYP
+ATOM     12  C   TRP     1       0.850   3.273   0.437  1.00  0.00      TRYP
+ATOM     13  O   TRP     1       0.634   4.063  -0.469  1.00  0.00      TRYP
+ATOM     14  OXT TRP     1       0.179   3.247   1.451  1.00  0.00      TRYP
+ATOM     15  HT1 TRP     1       1.358   2.177  -1.886  1.00  0.00      TRYP
+ATOM     16  HT2 TRP     1       1.764   0.611  -1.371  1.00  0.00      TRYP
+ATOM     17  N   TRP     1       1.221   1.464  -1.137  1.00  0.00      TRYP
+ATOM     18  HT3 TRP     1       0.212   1.235  -1.046  1.00  0.00      TRYP
+ATOM     19  CA  TRP     1       1.725   2.050   0.140  1.00  0.00      TRYP
+END
+ CNSsolve> 
+ CNSsolve>dyna cartesian 
+ Cartesian Dynamics>   nstep=60 
+ Cartesian Dynamics>   cmremove=true 
+ Cartesian Dynamics>   timestep=0.001 
+ Cartesian Dynamics>   tcoupling=true   temperature=298. 
+ DCART: temperature coupling (TCOUpling) enabled
+ Cartesian Dynamics>   trajectory=trajf.dat    nsavc=2   cselection=( name O   or name cb ) ascii=true 
+ SELRPN:      2 atoms have been selected out of     19
+ Cartesian Dynamics>end 
+ ASSFIL: file trajf.dat opened.
+ CENMAS: Information about center of free masses
+         position [A]          :      3.37494      1.43657     -1.05142
+         velocity [A/ps]       :      0.68681      1.73920      0.32549
+         ang. mom. [amu A/ps]  :     22.87138     22.74562   -872.70220
+         kin. ener. [Kcal/mol] :      0.87921
+ ROTSTP: CM translation and rotation removed.
+ CENMAS: Information about center of free masses
+         position [A]          :      3.37494      1.43657     -1.05142
+         velocity [A/ps]       :      0.00000      0.00000      0.00000
+         ang. mom. [amu A/ps]  :      0.00000      0.00000      0.00000
+         kin. ener. [Kcal/mol] :      0.00000
+ NBONDS: found       92 intra-atom interactions
+ -------------------------- Cartesian dynamics start ---------------------------
+ | E(kin)+E(total)=25.319          E(kin)=2.513         temperature=44.367     |
+ | Etotal =22.806     grad(E)=216.946    E(BOND)=40.719     E(ANGL)=55.796     |
+ | E(DIHE)=0.176      E(IMPR)=20.779     E(VDW )=6.084      E(ELEC)=-100.747   |
+ -------------------------------------------------------------------------------
+ -------------------- step=        1 at      0.00100 ps ------------------------
+ | E(kin)+E(total)=13.346          E(kin)=45.321        temperature=800.228    |
+ | Etotal =-31.975    grad(E)=98.925     E(BOND)=26.105     E(ANGL)=17.572     |
+ | E(DIHE)=0.118      E(IMPR)=18.929     E(VDW )=6.230      E(ELEC)=-100.929   |
+ -------------------------------------------------------------------------------
+ WRITEC: CORD sets starting from step        2 are written every     2  steps
+ WRITEC: where        2 atoms are "free"
+ -------------------- step=        2 at      0.00200 ps ------------------------
+ | E(kin)+E(total)=34.984          E(kin)=70.273        temperature=1240.799   |
+ | Etotal =-35.288    grad(E)=167.611    E(BOND)=29.080     E(ANGL)=14.442     |
+ | E(DIHE)=0.097      E(IMPR)=15.982     E(VDW )=6.335      E(ELEC)=-101.225   |
+ -------------------------------------------------------------------------------
+ -------------------- step=        3 at      0.00300 ps ------------------------
+ | E(kin)+E(total)=23.318          E(kin)=60.610        temperature=1070.191   |
+ | Etotal =-37.293    grad(E)=156.520    E(BOND)=25.723     E(ANGL)=19.743     |
+ | E(DIHE)=0.141      E(IMPR)=12.664     E(VDW )=6.077      E(ELEC)=-101.640   |
+ -------------------------------------------------------------------------------
+ -------------------- step=        4 at      0.00400 ps ------------------------
+ | E(kin)+E(total)=24.343          E(kin)=61.353        temperature=1083.300   |
+ | Etotal =-37.009    grad(E)=154.996    E(BOND)=21.662     E(ANGL)=28.194     |
+ | E(DIHE)=0.231      E(IMPR)=9.423      E(VDW )=5.636      E(ELEC)=-102.155   |
+ -------------------------------------------------------------------------------
+ -------------------- step=        5 at      0.00500 ps ------------------------
+ | E(kin)+E(total)=12.327          E(kin)=52.166        temperature=921.094    |
+ | Etotal =-39.839    grad(E)=181.843    E(BOND)=24.139     E(ANGL)=26.709     |
+ | E(DIHE)=0.309      E(IMPR)=6.508      E(VDW )=5.228      E(ELEC)=-102.733   |
+ -------------------------------------------------------------------------------
+ -------------------- step=        6 at      0.00600 ps ------------------------
+ | E(kin)+E(total)=-1.427          E(kin)=67.057        temperature=1184.022   |
+ | Etotal =-68.484    grad(E)=100.021    E(BOND)=16.040     E(ANGL)=9.434      |
+ | E(DIHE)=0.348      E(IMPR)=4.138      E(VDW )=4.888      E(ELEC)=-103.331   |
+ -------------------------------------------------------------------------------
+ -------------------- step=        7 at      0.00700 ps ------------------------
+ | E(kin)+E(total)=17.783          E(kin)=76.810        temperature=1356.239   |
+ | Etotal =-59.027    grad(E)=130.350    E(BOND)=16.507     E(ANGL)=20.881     |
+ | E(DIHE)=0.375      E(IMPR)=2.452      E(VDW )=4.684      E(ELEC)=-103.926   |
+ -------------------------------------------------------------------------------
+ NBONDS: found       92 intra-atom interactions
+ -------------------- step=        8 at      0.00800 ps ------------------------
+ | E(kin)+E(total)=8.543           E(kin)=46.180        temperature=815.393    |
+ | Etotal =-37.637    grad(E)=181.094    E(BOND)=23.325     E(ANGL)=37.378     |
+ | E(DIHE)=0.383      E(IMPR)=1.400      E(VDW )=4.383      E(ELEC)=-104.505   |
+ -------------------------------------------------------------------------------
+ -------------------- step=        9 at      0.00900 ps ------------------------
+ | E(kin)+E(total)=-10.423         E(kin)=42.987        temperature=759.013    |
+ | Etotal =-53.409    grad(E)=122.091    E(BOND)=19.770     E(ANGL)=26.842     |
+ | E(DIHE)=0.347      E(IMPR)=0.840      E(VDW )=3.833      E(ELEC)=-105.041   |
+ -------------------------------------------------------------------------------
+ -------------------- step=       10 at      0.01000 ps ------------------------
+ | E(kin)+E(total)=-3.892          E(kin)=54.530        temperature=962.832    |
+ | Etotal =-58.422    grad(E)=128.770    E(BOND)=16.812     E(ANGL)=25.822     |
+ | E(DIHE)=0.315      E(IMPR)=0.777      E(VDW )=3.340      E(ELEC)=-105.488   |
+ -------------------------------------------------------------------------------
+ -------------------- step=       11 at      0.01100 ps ------------------------
+ | E(kin)+E(total)=-8.653          E(kin)=48.457        temperature=855.600    |
+ | Etotal =-57.110    grad(E)=136.140    E(BOND)=13.355     E(ANGL)=30.721     |
+ | E(DIHE)=0.338      E(IMPR)=1.247      E(VDW )=3.041      E(ELEC)=-105.812   |
+ -------------------------------------------------------------------------------
+ -------------------- step=       12 at      0.01200 ps ------------------------
+ | E(kin)+E(total)=-9.081          E(kin)=47.267        temperature=834.593    |
+ | Etotal =-56.348    grad(E)=113.005    E(BOND)=15.629     E(ANGL)=28.644     |
+ | E(DIHE)=0.417      E(IMPR)=2.155      E(VDW )=2.814      E(ELEC)=-106.007   |
+ -------------------------------------------------------------------------------
+ -------------------- step=       13 at      0.01300 ps ------------------------
+ | E(kin)+E(total)=-7.386          E(kin)=35.752        temperature=631.279    |
+ | Etotal =-43.139    grad(E)=157.306    E(BOND)=23.144     E(ANGL)=33.448     |
+ | E(DIHE)=0.525      E(IMPR)=3.322      E(VDW )=2.520      E(ELEC)=-106.096   |
+ -------------------------------------------------------------------------------
+ -------------------- step=       14 at      0.01400 ps ------------------------
+ | E(kin)+E(total)=-22.002         E(kin)=28.921        temperature=510.648    |
+ | Etotal =-50.922    grad(E)=122.823    E(BOND)=18.992     E(ANGL)=28.839     |
+ | E(DIHE)=0.646      E(IMPR)=4.586      E(VDW )=2.119      E(ELEC)=-106.104   |
+ -------------------------------------------------------------------------------
+ -------------------- step=       15 at      0.01500 ps ------------------------
+ | E(kin)+E(total)=-14.827         E(kin)=39.159        temperature=691.426    |
+ | Etotal =-53.985    grad(E)=96.176     E(BOND)=23.695     E(ANGL)=19.974     |
+ | E(DIHE)=0.769      E(IMPR)=5.805      E(VDW )=1.811      E(ELEC)=-106.040   |
+ -------------------------------------------------------------------------------
+ -------------------- step=       16 at      0.01600 ps ------------------------
+ | E(kin)+E(total)=-12.828         E(kin)=26.861        temperature=474.278    |
+ | Etotal =-39.688    grad(E)=160.176    E(BOND)=35.426     E(ANGL)=21.294     |
+ | E(DIHE)=0.846      E(IMPR)=6.817      E(VDW )=1.824      E(ELEC)=-105.895   |
+ -------------------------------------------------------------------------------
+ -------------------- step=       17 at      0.01700 ps ------------------------
+ | E(kin)+E(total)=-30.618         E(kin)=24.327        temperature=429.540    |
+ | Etotal =-54.945    grad(E)=117.223    E(BOND)=23.791     E(ANGL)=16.377     |
+ | E(DIHE)=0.842      E(IMPR)=7.453      E(VDW )=2.263      E(ELEC)=-105.672   |
+ -------------------------------------------------------------------------------
+ -------------------- step=       18 at      0.01800 ps ------------------------
+ | E(kin)+E(total)=-23.598         E(kin)=42.524        temperature=750.851    |
+ | Etotal =-66.123    grad(E)=94.413     E(BOND)=13.594     E(ANGL)=14.025     |
+ | E(DIHE)=0.823      E(IMPR)=7.736      E(VDW )=3.093      E(ELEC)=-105.394   |
+ -------------------------------------------------------------------------------
+ -------------------- step=       19 at      0.01900 ps ------------------------
+ | E(kin)+E(total)=-21.815         E(kin)=37.977        temperature=670.562    |
+ | Etotal =-59.792    grad(E)=135.457    E(BOND)=17.403     E(ANGL)=15.374     |
+ | E(DIHE)=0.853      E(IMPR)=7.710      E(VDW )=3.961      E(ELEC)=-105.093   |
+ -------------------------------------------------------------------------------
+ -------------------- step=       20 at      0.02000 ps ------------------------
+ | E(kin)+E(total)=-27.744         E(kin)=34.820        temperature=614.814    |
+ | Etotal =-62.564    grad(E)=99.951     E(BOND)=16.251     E(ANGL)=13.325     |
+ | E(DIHE)=0.915      E(IMPR)=7.289      E(VDW )=4.440      E(ELEC)=-104.785   |
+ -------------------------------------------------------------------------------
+ -------------------- step=       21 at      0.02100 ps ------------------------
+ | E(kin)+E(total)=-23.805         E(kin)=32.138        temperature=567.450    |
+ | Etotal =-55.942    grad(E)=132.514    E(BOND)=17.917     E(ANGL)=18.610     |
+ | E(DIHE)=0.984      E(IMPR)=6.402      E(VDW )=4.614      E(ELEC)=-104.468   |
+ -------------------------------------------------------------------------------
+ -------------------- step=       22 at      0.02200 ps ------------------------
+ | E(kin)+E(total)=-36.271         E(kin)=26.663        temperature=470.779    |
+ | Etotal =-62.934    grad(E)=127.229    E(BOND)=17.185     E(ANGL)=13.027     |
+ | E(DIHE)=1.064      E(IMPR)=5.179      E(VDW )=4.738      E(ELEC)=-104.127   |
+ -------------------------------------------------------------------------------
+ -------------------- step=       23 at      0.02300 ps ------------------------
+ | E(kin)+E(total)=-36.079         E(kin)=41.182        temperature=727.153    |
+ | Etotal =-77.261    grad(E)=52.130     E(BOND)=8.098      E(ANGL)=8.360      |
+ | E(DIHE)=1.166      E(IMPR)=3.966      E(VDW )=4.918      E(ELEC)=-103.769   |
+ -------------------------------------------------------------------------------
+ -------------------- step=       24 at      0.02400 ps ------------------------
+ | E(kin)+E(total)=-23.749         E(kin)=38.023        temperature=671.373    |
+ | Etotal =-61.773    grad(E)=126.094    E(BOND)=6.325      E(ANGL)=25.965     |
+ | E(DIHE)=1.266      E(IMPR)=2.991      E(VDW )=5.091      E(ELEC)=-103.411   |
+ -------------------------------------------------------------------------------
+ -------------------- step=       25 at      0.02500 ps ------------------------
+ | E(kin)+E(total)=-36.393         E(kin)=20.308        temperature=358.574    |
+ | Etotal =-56.701    grad(E)=134.621    E(BOND)=7.928      E(ANGL)=29.732     |
+ | E(DIHE)=1.331      E(IMPR)=2.323      E(VDW )=5.050      E(ELEC)=-103.065   |
+ -------------------------------------------------------------------------------
+ -------------------- step=       26 at      0.02600 ps ------------------------
+ | E(kin)+E(total)=-42.236         E(kin)=28.300        temperature=499.685    |
+ | Etotal =-70.536    grad(E)=88.209     E(BOND)=8.130      E(ANGL)=15.932     |
+ | E(DIHE)=1.349      E(IMPR)=1.975      E(VDW )=4.823      E(ELEC)=-102.745   |
+ -------------------------------------------------------------------------------
+ -------------------- step=       27 at      0.02700 ps ------------------------
+ | E(kin)+E(total)=-37.880         E(kin)=35.210        temperature=621.693    |
+ | Etotal =-73.090    grad(E)=106.666    E(BOND)=8.186      E(ANGL)=13.212     |
+ | E(DIHE)=1.340      E(IMPR)=1.959      E(VDW )=4.662      E(ELEC)=-102.448   |
+ -------------------------------------------------------------------------------
+ -------------------- step=       28 at      0.02800 ps ------------------------
+ | E(kin)+E(total)=-39.260         E(kin)=33.644        temperature=594.043    |
+ | Etotal =-72.903    grad(E)=89.483     E(BOND)=7.019      E(ANGL)=13.977     |
+ | E(DIHE)=1.322      E(IMPR)=2.265      E(VDW )=4.686      E(ELEC)=-102.173   |
+ -------------------------------------------------------------------------------
+ -------------------- step=       29 at      0.02900 ps ------------------------
+ | E(kin)+E(total)=-34.634         E(kin)=28.686        temperature=506.499    |
+ | Etotal =-63.319    grad(E)=109.343    E(BOND)=15.275     E(ANGL)=14.509     |
+ | E(DIHE)=1.279      E(IMPR)=2.768      E(VDW )=4.780      E(ELEC)=-101.931   |
+ -------------------------------------------------------------------------------
+ -------------------- step=       30 at      0.03000 ps ------------------------
+ | E(kin)+E(total)=-41.330         E(kin)=16.816        temperature=296.927    |
+ | Etotal =-58.146    grad(E)=134.422    E(BOND)=19.533     E(ANGL)=14.880     |
+ | E(DIHE)=1.177      E(IMPR)=3.382      E(VDW )=4.624      E(ELEC)=-101.743   |
+ -------------------------------------------------------------------------------
+ -------------------- step=       31 at      0.03100 ps ------------------------
+ | E(kin)+E(total)=-49.970         E(kin)=23.527        temperature=415.407    |
+ | Etotal =-73.496    grad(E)=73.365     E(BOND)=7.823      E(ANGL)=11.111     |
+ | E(DIHE)=1.037      E(IMPR)=4.038      E(VDW )=4.117      E(ELEC)=-101.624   |
+ -------------------------------------------------------------------------------
+ -------------------- step=       32 at      0.03200 ps ------------------------
+ | E(kin)+E(total)=-40.096         E(kin)=33.305        temperature=588.062    |
+ | Etotal =-73.401    grad(E)=88.033     E(BOND)=6.320      E(ANGL)=12.730     |
+ | E(DIHE)=0.918      E(IMPR)=4.669      E(VDW )=3.534      E(ELEC)=-101.572   |
+ -------------------------------------------------------------------------------
+ -------------------- step=       33 at      0.03300 ps ------------------------
+ | E(kin)+E(total)=-41.410         E(kin)=23.581        temperature=416.374    |
+ | Etotal =-64.991    grad(E)=118.470    E(BOND)=13.284     E(ANGL)=14.245     |
+ | E(DIHE)=0.837      E(IMPR)=5.154      E(VDW )=3.066      E(ELEC)=-101.578   |
+ -------------------------------------------------------------------------------
+ -------------------- step=       34 at      0.03400 ps ------------------------
+ | E(kin)+E(total)=-46.484         E(kin)=21.157        temperature=373.561    |
+ | Etotal =-67.640    grad(E)=92.248     E(BOND)=11.005     E(ANGL)=14.006     |
+ | E(DIHE)=0.779      E(IMPR)=5.385      E(VDW )=2.826      E(ELEC)=-101.641   |
+ -------------------------------------------------------------------------------
+ -------------------- step=       35 at      0.03500 ps ------------------------
+ | E(kin)+E(total)=-45.517         E(kin)=22.680        temperature=400.456    |
+ | Etotal =-68.197    grad(E)=107.495    E(BOND)=8.330      E(ANGL)=16.243     |
+ | E(DIHE)=0.724      E(IMPR)=5.417      E(VDW )=2.862      E(ELEC)=-101.773   |
+ -------------------------------------------------------------------------------
+ -------------------- step=       36 at      0.03600 ps ------------------------
+ | E(kin)+E(total)=-50.161         E(kin)=24.249        temperature=428.162    |
+ | Etotal =-74.410    grad(E)=86.159     E(BOND)=6.993      E(ANGL)=11.574     |
+ | E(DIHE)=0.668      E(IMPR)=5.317      E(VDW )=3.023      E(ELEC)=-101.985   |
+ -------------------------------------------------------------------------------
+ -------------------- step=       37 at      0.03700 ps ------------------------
+ | E(kin)+E(total)=-44.745         E(kin)=29.054        temperature=513.001    |
+ | Etotal =-73.799    grad(E)=75.512     E(BOND)=5.606      E(ANGL)=14.070     |
+ | E(DIHE)=0.597      E(IMPR)=5.020      E(VDW )=3.182      E(ELEC)=-102.273   |
+ -------------------------------------------------------------------------------
+ -------------------- step=       38 at      0.03800 ps ------------------------
+ | E(kin)+E(total)=-43.511         E(kin)=19.755        temperature=348.806    |
+ | Etotal =-63.265    grad(E)=123.828    E(BOND)=7.198      E(ANGL)=23.876     |
+ | E(DIHE)=0.493      E(IMPR)=4.436      E(VDW )=3.361      E(ELEC)=-102.628   |
+ -------------------------------------------------------------------------------
+ -------------------- step=       39 at      0.03900 ps ------------------------
+ | E(kin)+E(total)=-54.076         E(kin)=17.035        temperature=300.784    |
+ | Etotal =-71.111    grad(E)=88.415     E(BOND)=8.548      E(ANGL)=15.834     |
+ | E(DIHE)=0.372      E(IMPR)=3.592      E(VDW )=3.581      E(ELEC)=-103.039   |
+ -------------------------------------------------------------------------------
+ -------------------- step=       40 at      0.04000 ps ------------------------
+ | E(kin)+E(total)=-48.867         E(kin)=27.195        temperature=480.184    |
+ | Etotal =-76.062    grad(E)=65.976     E(BOND)=12.578     E(ANGL)=8.116      |
+ | E(DIHE)=0.281      E(IMPR)=2.675      E(VDW )=3.779      E(ELEC)=-103.491   |
+ -------------------------------------------------------------------------------
+ -------------------- step=       41 at      0.04100 ps ------------------------
+ | E(kin)+E(total)=-46.396         E(kin)=22.335        temperature=394.377    |
+ | Etotal =-68.731    grad(E)=112.927    E(BOND)=15.207     E(ANGL)=14.206     |
+ | E(DIHE)=0.231      E(IMPR)=1.795      E(VDW )=3.817      E(ELEC)=-103.987   |
+ -------------------------------------------------------------------------------
+ -------------------- step=       42 at      0.04200 ps ------------------------
+ | E(kin)+E(total)=-53.773         E(kin)=19.740        temperature=348.542    |
+ | Etotal =-73.513    grad(E)=87.857     E(BOND)=11.462     E(ANGL)=14.630     |
+ | E(DIHE)=0.206      E(IMPR)=1.023      E(VDW )=3.681      E(ELEC)=-104.513   |
+ -------------------------------------------------------------------------------
+ -------------------- step=       43 at      0.04300 ps ------------------------
+ | E(kin)+E(total)=-51.406         E(kin)=25.576        temperature=451.593    |
+ | Etotal =-76.982    grad(E)=88.977     E(BOND)=10.520     E(ANGL)=13.284     |
+ | E(DIHE)=0.200      E(IMPR)=0.474      E(VDW )=3.568      E(ELEC)=-105.028   |
+ -------------------------------------------------------------------------------
+ -------------------- step=       44 at      0.04400 ps ------------------------
+ | E(kin)+E(total)=-53.468         E(kin)=25.135        temperature=443.800    |
+ | Etotal =-78.603    grad(E)=96.033     E(BOND)=8.726      E(ANGL)=14.100     |
+ | E(DIHE)=0.213      E(IMPR)=0.268      E(VDW )=3.580      E(ELEC)=-105.490   |
+ -------------------------------------------------------------------------------
+ -------------------- step=       45 at      0.04500 ps ------------------------
+ | E(kin)+E(total)=-53.239         E(kin)=28.155        temperature=497.136    |
+ | Etotal =-81.394    grad(E)=60.201     E(BOND)=5.455      E(ANGL)=14.584     |
+ | E(DIHE)=0.233      E(IMPR)=0.502      E(VDW )=3.701      E(ELEC)=-105.869   |
+ -------------------------------------------------------------------------------
+ -------------------- step=       46 at      0.04600 ps ------------------------
+ | E(kin)+E(total)=-48.133         E(kin)=23.632        temperature=417.273    |
+ | Etotal =-71.766    grad(E)=104.742    E(BOND)=10.134     E(ANGL)=18.968     |
+ | E(DIHE)=0.244      E(IMPR)=1.163      E(VDW )=3.883      E(ELEC)=-106.158   |
+ -------------------------------------------------------------------------------
+ -------------------- step=       47 at      0.04700 ps ------------------------
+ | E(kin)+E(total)=-56.463         E(kin)=15.369        temperature=271.375    |
+ | Etotal =-71.832    grad(E)=105.905    E(BOND)=11.900     E(ANGL)=16.195     |
+ | E(DIHE)=0.248      E(IMPR)=2.177      E(VDW )=4.006      E(ELEC)=-106.358   |
+ -------------------------------------------------------------------------------
+ -------------------- step=       48 at      0.04800 ps ------------------------
+ | E(kin)+E(total)=-58.373         E(kin)=23.370        temperature=412.650    |
+ | Etotal =-81.743    grad(E)=53.936     E(BOND)=7.702      E(ANGL)=9.353      |
+ | E(DIHE)=0.258      E(IMPR)=3.343      E(VDW )=4.059      E(ELEC)=-106.457   |
+ -------------------------------------------------------------------------------
+ -------------------- step=       49 at      0.04900 ps ------------------------
+ | E(kin)+E(total)=-51.467         E(kin)=25.777        temperature=455.142    |
+ | Etotal =-77.244    grad(E)=89.405     E(BOND)=7.786      E(ANGL)=12.580     |
+ | E(DIHE)=0.277      E(IMPR)=4.369      E(VDW )=4.183      E(ELEC)=-106.440   |
+ -------------------------------------------------------------------------------
+ -------------------- step=       50 at      0.05000 ps ------------------------
+ | E(kin)+E(total)=-54.510         E(kin)=18.341        temperature=323.840    |
+ | Etotal =-72.850    grad(E)=94.380     E(BOND)=6.841      E(ANGL)=16.830     |
+ | E(DIHE)=0.298      E(IMPR)=5.073      E(VDW )=4.409      E(ELEC)=-106.302   |
+ -------------------------------------------------------------------------------
+ -------------------- step=       51 at      0.05100 ps ------------------------
+ | E(kin)+E(total)=-55.528         E(kin)=17.662        temperature=311.858    |
+ | Etotal =-73.190    grad(E)=86.022     E(BOND)=4.385      E(ANGL)=18.102     |
+ | E(DIHE)=0.305      E(IMPR)=5.436      E(VDW )=4.640      E(ELEC)=-106.057   |
+ -------------------------------------------------------------------------------
+ NBONDS: found       92 intra-atom interactions
+ -------------------- step=       52 at      0.05200 ps ------------------------
+ | E(kin)+E(total)=-57.288         E(kin)=17.453        temperature=308.171    |
+ | Etotal =-74.741    grad(E)=96.525     E(BOND)=3.882      E(ANGL)=16.533     |
+ | E(DIHE)=0.290      E(IMPR)=5.546      E(VDW )=4.747      E(ELEC)=-105.739   |
+ -------------------------------------------------------------------------------
+ -------------------- step=       53 at      0.05300 ps ------------------------
+ | E(kin)+E(total)=-58.644         E(kin)=22.026        temperature=388.915    |
+ | Etotal =-80.670    grad(E)=56.843     E(BOND)=4.088      E(ANGL)=10.263     |
+ | E(DIHE)=0.269      E(IMPR)=5.426      E(VDW )=4.669      E(ELEC)=-105.384   |
+ -------------------------------------------------------------------------------
+ -------------------- step=       54 at      0.05400 ps ------------------------
+ | E(kin)+E(total)=-51.576         E(kin)=22.301        temperature=393.773    |
+ | Etotal =-73.877    grad(E)=85.880     E(BOND)=8.689      E(ANGL)=12.665     |
+ | E(DIHE)=0.261      E(IMPR)=4.999      E(VDW )=4.527      E(ELEC)=-105.019   |
+ -------------------------------------------------------------------------------
+ -------------------- step=       55 at      0.05500 ps ------------------------
+ | E(kin)+E(total)=-55.124         E(kin)=12.425        temperature=219.389    |
+ | Etotal =-67.550    grad(E)=109.334    E(BOND)=11.204     E(ANGL)=16.915     |
+ | E(DIHE)=0.269      E(IMPR)=4.253      E(VDW )=4.460      E(ELEC)=-104.651   |
+ -------------------------------------------------------------------------------
+ -------------------- step=       56 at      0.05600 ps ------------------------
+ | E(kin)+E(total)=-60.689         E(kin)=14.933        temperature=263.668    |
+ | Etotal =-75.622    grad(E)=68.718     E(BOND)=7.551      E(ANGL)=13.028     |
+ | E(DIHE)=0.270      E(IMPR)=3.337      E(VDW )=4.501      E(ELEC)=-104.309   |
+ -------------------------------------------------------------------------------
+ -------------------- step=       57 at      0.05700 ps ------------------------
+ | E(kin)+E(total)=-55.921         E(kin)=21.206        temperature=374.439    |
+ | Etotal =-77.128    grad(E)=83.116     E(BOND)=6.020      E(ANGL)=13.687     |
+ | E(DIHE)=0.245      E(IMPR)=2.432      E(VDW )=4.512      E(ELEC)=-104.024   |
+ -------------------------------------------------------------------------------
+ -------------------- step=       58 at      0.05800 ps ------------------------
+ | E(kin)+E(total)=-57.551         E(kin)=19.440        temperature=343.247    |
+ | Etotal =-76.991    grad(E)=87.799     E(BOND)=4.728      E(ANGL)=15.965     |
+ | E(DIHE)=0.197      E(IMPR)=1.657      E(VDW )=4.273      E(ELEC)=-103.811   |
+ -------------------------------------------------------------------------------
+ -------------------- step=       59 at      0.05900 ps ------------------------
+ | E(kin)+E(total)=-56.690         E(kin)=20.888        temperature=368.820    |
+ | Etotal =-77.578    grad(E)=75.964     E(BOND)=4.986      E(ANGL)=15.977     |
+ | E(DIHE)=0.148      E(IMPR)=1.100      E(VDW )=3.881      E(ELEC)=-103.670   |
+ -------------------------------------------------------------------------------
+ ----------------- final step=       60 at      0.06000 ps ---------------------
+ | E(kin)+E(total)=-56.395         E(kin)=17.986        temperature=317.586    |
+ | Etotal =-74.381    grad(E)=105.294    E(BOND)=7.365      E(ANGL)=17.277     |
+ | E(DIHE)=0.115      E(IMPR)=0.809      E(VDW )=3.637      E(ELEC)=-103.585   |
+ -------------------------------------------------------------------------------
+ CENMAS: Information about center of free masses
+         position [A]          :      3.37494      1.43657     -1.05142
+         velocity [A/ps]       :      0.00000      0.00000      0.00000
+         ang. mom. [amu A/ps]  :      0.00000      0.00000      0.00000
+         kin. ener. [Kcal/mol] :      0.00000
+ CNSsolve> 
+ CNSsolve>read dynamics 
+ READ-TRAJectory>    ascii=true input=trajf.dat begin=2 skip=2 stop=60 
+ ASSFIL: file trajf.dat opened.
+ READ-TRAJectory>end 
+ REMARKS FILENAME="trajf.dat"
+ REMARKS file toppar/protein.link
+ REMARKS
+ REMARKS this is a macro to define standard protein peptide bonds
+ REMARKS and termini to generate a protein sequence.
+ REMARKS DATE:05-Jul-2018  16:08:00       created by user: oeow39
+ REMARKS VERSION:1.3
+ READC: reading file=   1   ISTART=       2
+ READC:        2 atoms were "free"
+ READC: NUNIt=   1
+ READC: BEGIn=       2  SKIP=       2  STOP=      60
+ READC: TIMEstep=  0.00100000 ps    header= CORD
+ READ-TRAJectory: frame #        2 has been copied to the main coordinate set.
+ CNSsolve> 
+ CNSsolve>write coordinates end 
+REMARK FILENAME="OUTPUT"
+REMARK file toppar/protein.link
+REMARK this is a macro to define standard protein peptide bonds
+REMARK and termini to generate a protein sequence.
+REMARK DATE:05-Jul-2018  16:08:00       created by user: oeow39
+REMARK VERSION:1.3
+ATOM      1  CB  TRP     1       3.186   2.478  -0.007  1.00  0.00      TRYP
+ATOM      2  CG  TRP     1       4.070   1.366  -0.404  1.00  0.00      TRYP
+ATOM      3  CD2 TRP     1       4.505   1.070  -1.680  1.00  0.00      TRYP
+ATOM      4  CE2 TRP     1       5.309  -0.077  -1.601  1.00  0.00      TRYP
+ATOM      5  CE3 TRP     1       4.324   1.633  -2.950  1.00  0.00      TRYP
+ATOM      6  CD1 TRP     1       4.605   0.421   0.412  1.00  0.00      TRYP
+ATOM      7  NE1 TRP     1       5.317  -0.438  -0.251  1.00  0.00      TRYP
+ATOM      8  HE1 TRP     1       5.373  -1.366  -0.044  1.00  0.00      TRYP
+ATOM      9  CZ2 TRP     1       5.900  -0.664  -2.610  1.00  0.00      TRYP
+ATOM     10  CZ3 TRP     1       4.931   1.042  -4.019  1.00  0.00      TRYP
+ATOM     11  CH2 TRP     1       5.721  -0.111  -3.841  1.00  0.00      TRYP
+ATOM     12  C   TRP     1       0.848   3.262   0.432  1.00  0.00      TRYP
+ATOM     13  O   TRP     1       0.630   4.066  -0.472  1.00  0.00      TRYP
+ATOM     14  OXT TRP     1       0.184   3.244   1.463  1.00  0.00      TRYP
+ATOM     15  HT1 TRP     1       1.323   2.205  -1.866  1.00  0.00      TRYP
+ATOM     16  HT2 TRP     1       1.791   0.646  -1.383  1.00  0.00      TRYP
+ATOM     17  N   TRP     1       1.227   1.470  -1.141  1.00  0.00      TRYP
+ATOM     18  HT3 TRP     1       0.223   1.220  -1.042  1.00  0.00      TRYP
+ATOM     19  CA  TRP     1       1.722   2.056   0.137  1.00  0.00      TRYP
+END
+ CNSsolve> 
+ CNSsolve>stop 
+          ============================================================
+           Maximum dynamic memory allocation:   104142200 bytes
+           Maximum dynamic memory overhead:          1856 bytes
+           Program started at: 16:08:00 on 05-Jul-2018
+           Program stopped at: 16:08:00 on 05-Jul-2018
+           CPU time used:       0.0862 seconds
+          ============================================================

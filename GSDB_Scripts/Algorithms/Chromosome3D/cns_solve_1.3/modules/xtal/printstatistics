@@ -1,0 +1,347 @@
+! Module file: printstatistics
+!
+! CNS module
+! **********
+!
+! Authors: Piet Gros and Axel T. Brunger
+!
+! copyright Yale University
+!
+! Function:
+! Print statistics of lack-of-closure expression
+!
+! Requirements:
+! 1. This module can only be called from xray
+! 2. All data must be precomputed
+! 3. Target function (including arrays) must be predefined
+!
+
+module {printstatistics}
+(
+   &text="";           {identifying text}
+   &table="";          {identifying text for tabulation}
+   &epsilon="yes";     {"yes" | "no", use epsilon weighting in summing variances}
+   &anomalous="no";    {"yes" | "no"  Fano (anomalous loc) expression }
+
+   &target_set=(all);   {selection for refinement and scaling target}
+   &free_set=(none);    {selection for cross-validation}
+   &phase_set=(all);    {selection for all phased reflections}
+
+   &fp=fobs;           {native data}
+   &sp=null;           {measurement error of native data}
+   &m=null;            {array with complex fom}
+   &fph;               {derivative data}
+   &sph=null;          {measurement error of derivative data}
+   &fh;                {heavy atom data}
+   &varloc=null;       {lack-of-closure variance}
+   &varloi=null;       {lack-of-isomorphism variance}
+   &output=OUTPUT;     {output filename}
+)
+
+checkversion 1.3
+
+set display=&output end
+
+show sum (&fp) (&free_set)
+if ($select > 0) then
+   evaluate ($pd_free="yes") 
+else
+   evaluate ($pd_free="no")
+end if
+
+evaluate ($pd_text=&text+" (LOC target working set, excluding outliers)")
+evaluate ($pd_textphas=&text+" (LOC phase set, excluding outliers)")
+evaluate ($pd_texttest=&text+" (LOC target test set, excluding outliers)")
+if (&table # "") then
+   evaluate ($pd_tabletest=&table+" (test set)")
+   evaluate ($pd_tablephas=&table+" (phase set)")
+   evaluate ($pd_table=&table+" (target set)")
+else
+   evaluate ($pd_tabletest="")
+   evaluate ($pd_tablephas="")
+   evaluate ($pd_table="")
+end if
+
+display 
+display ----------------------------------------------------------------
+if (&anomalous="no") then
+   @@CNS_XTALMODULE:printrcullis (
+         text=$pd_text;      
+         table=$pd_table;
+         epsilon=&epsilon;     
+         fp=&fp; 
+         fph=&fph;
+         var=&varloc;
+         sel=&target_set;
+         output=&output;
+             )				
+   display ................................................................ 
+   @@CNS_XTALMODULE:printrcullis (
+         text=$pd_textphas;      
+         table=$pd_tablephas;
+         epsilon=&epsilon;     
+         fp=&fp; 
+         fph=&fph;
+         var=&varloc;
+         sel=&phase_set;
+         output=&output;
+             )				
+   if ($pd_free = "yes") then
+      display ................................................................ 
+      @@CNS_XTALMODULE:printrcullis (
+            text=$pd_texttest;      
+            table=$pd_tabletest;
+            epsilon=&epsilon;     
+            fp=&fp; 
+            fph=&fph;
+            var=&varloc;
+            sel=&free_set;
+            output=&output;
+                  )				
+   end if
+else
+   @@CNS_XTALMODULE:printanorcullis (
+         text=$pd_text;      
+         table=$pd_table;
+         epsilon=&epsilon;     
+         fph=&fph;
+         var=&varloc;
+         sel=&target_set;
+         output=&output;
+             )				
+    display .............................................................. 
+    @@CNS_XTALMODULE:printanorcullis (
+         text=$pd_textphas;      
+         table=$pd_tablephas;
+         epsilon=&epsilon;     
+         fph=&fph;
+         var=&varloc;
+         sel=&phase_set;
+         output=&output;
+             )				
+   if ($pd_free = "yes") then
+       display .............................................................. 
+       @@CNS_XTALMODULE:printanorcullis (
+            text=$pd_texttest;      
+            table=$pd_tabletest;
+            epsilon=&epsilon;     
+            fph=&fph;
+            var=&varloc;
+            sel=&free_set;
+            output=&output;
+                  )				
+   end if
+end if
+display ----------------------------------------------------------------
+display
+	
+display 
+display -----------------------------------------------------------------
+if (&anomalous="no") then
+   @@CNS_XTALMODULE:printriso (				
+         text=$pd_text;
+         table=$pd_table;
+         sel=&target_set;
+         fp=&fp;
+         fph=&fph;
+         fh=&fh;
+         output=&output;
+            )
+   display ................................................................. 
+   @@CNS_XTALMODULE:printriso (				
+         text=$pd_textphas;
+         table=$pd_tablephas;
+         sel=&phase_set;
+         fp=&fp;
+         fph=&fph;
+         fh=&fh;
+         output=&output;
+            )
+   if ($pd_free = "yes") then
+      display ................................................................. 
+      @@CNS_XTALMODULE:printriso (				
+            text=$pd_texttest;
+            table=$pd_tabletest;
+            sel=&free_set;
+            fp=&fp;
+            fph=&fph;
+            fh=&fh;
+            output=&output;
+               )
+   end if 
+else
+   @@CNS_XTALMODULE:printrano (				
+      text=$pd_text;
+      table=$pd_table;
+      sel=&target_set;
+      fp=&fp;
+      fph=&fph;
+      fh=&fh;
+      output=&output;
+          )
+   display .............................................................. 
+   @@CNS_XTALMODULE:printrano (				
+      text=$pd_textphas;
+      table=$pd_tablephas;
+      sel=&phase_set;
+      fp=&fp;
+      fph=&fph;
+      fh=&fh;
+      output=&output;
+          )
+   if ($pd_free = "yes") then
+      display .............................................................. 
+      @@CNS_XTALMODULE:printrano (
+         text=$pd_texttest;				
+         table=$pd_tabletest;
+         sel=&free_set;
+         fp=&fp;
+         fph=&fph;
+         fh=&fh;
+         output=&output;
+             )
+   end if 
+end if
+display -----------------------------------------------------------------
+display
+
+display 
+display --------------------------------------------------------------\
+-------------------------------
+@@CNS_XTALMODULE:printlackof (       
+      text=$pd_text;         
+      epsilon=&epsilon;
+      table=$pd_table;
+      sel=&target_set;
+      varloi=&varloi;
+      varloc=&varloc;
+      output=&output;
+         )	
+display ..............................................................\
+............................... 
+@@CNS_XTALMODULE:printlackof (       
+      text=$pd_textphas;         
+      epsilon=&epsilon;
+      table=$pd_tablephas;
+      sel=&phase_set;
+      varloi=&varloi;
+      varloc=&varloc;
+      output=&output;
+         )	
+if ($pd_free = "yes") then
+      display ........................................................\
+..................................... 
+      @@CNS_XTALMODULE:printlackof (
+      text=$pd_texttest;
+      epsilon=&epsilon;
+      table=$pd_tabletest;
+      sel=&free_set;
+      varloi=&varloi;
+      varloc=&varloc;
+      output=&output;
+            )	
+end if 
+display --------------------------------------------------------------\
+-------------------------------
+display
+
+
+display 
+display ---------------------------------------------------------------
+if (&anomalous="yes") then
+   @@CNS_XTALMODULE:printanophasingpower (  {print rms f/rms E}
+      text=$pd_text;
+      epsilon=&epsilon;
+      table=$pd_table;
+      fh=&fh;var=&varloc;
+      sel=&target_set;
+      output=&output;
+            )
+   display ...............................................................
+   @@CNS_XTALMODULE:printanophasingpower (  {print rms f/rms E}
+      text=$pd_textphas;
+      epsilon=&epsilon;
+      table=$pd_tablephas;
+      fh=&fh;var=&varloc;
+      sel=&phase_set;
+      output=&output;
+            )
+   if ($pd_free = "yes") then
+      display ...............................................................
+      @@CNS_XTALMODULE:printanophasingpower (
+         text=$pd_texttest;
+         epsilon=&epsilon;
+         table=$pd_tabletest;
+         fh=&fh;var=&varloc;
+         sel=&free_set;
+         output=&output;
+               )
+   end if 
+else
+   @@CNS_XTALMODULE:printphasingpower (  {print rms f/rms E}
+      text=$pd_text;
+      epsilon=&epsilon;
+      table=$pd_table;
+      fh=&fh;var=&varloc;
+      sel=&target_set;
+      output=&output;
+            )
+   display ...............................................................
+   @@CNS_XTALMODULE:printphasingpower (  {print rms f/rms E}
+      text=$pd_textphas;
+      epsilon=&epsilon;
+      table=$pd_tablephas;
+      fh=&fh;var=&varloc;
+      sel=&phase_set;
+      output=&output;
+            )
+   if ($pd_free = "yes") then
+      display ...............................................................
+      @@CNS_XTALMODULE:printphasingpower (
+         text=$pd_texttest;
+         epsilon=&epsilon;
+         table=$pd_tabletest;
+         fh=&fh;var=&varloc;
+         sel=&free_set;
+         output=&output;
+               )
+   end if 
+end if
+display ---------------------------------------------------------------
+display
+
+display 
+display ---------------------------------------------------------------
+@@CNS_XTALMODULE:printfom ( {print fom}
+   text=$pd_text;
+   epsilon=&epsilon;
+   table=$pd_table;
+   m=&m;
+   sel=&target_set;
+   output=&output;
+         )
+   display ............................................................... 
+@@CNS_XTALMODULE:printfom ( {print fom}
+   text=$pd_textphas;
+   epsilon=&epsilon;
+   table=$pd_tablephas;
+   m=&m;
+   sel=&phase_set;
+   output=&output;
+         )
+if ($pd_free = "yes") then
+   display ............................................................... 
+   @@CNS_XTALMODULE:printfom (				
+      text=$pd_texttest;
+      epsilon=&epsilon;
+      table=$pd_tabletest;
+      m=&m;
+      sel=&free_set;
+      output=&output;
+            )
+end if 
+display ---------------------------------------------------------------
+display
+
+set display=OUTPUT end
+

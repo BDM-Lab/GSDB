@@ -1,0 +1,3323 @@
+          ============================================================
+          |                                                          |
+          |            Crystallography & NMR System (CNS)            |
+          |                         CNSsolve                         |
+          |                                                          |
+          ============================================================
+           Version: 1.3
+           Status: General release
+          ============================================================
+           Written by: A.T.Brunger, P.D.Adams, G.M.Clore, W.L.DeLano,
+                       P.Gros, R.W.Grosse-Kunstleve,J.-S.Jiang,J.M.Krahn,
+                       J.Kuszewski, M.Nilges, N.S.Pannu, R.J.Read,
+                       L.M.Rice, G.F.Schroeder, T.Simonson, G.L.Warren.
+           Copyright (c) 1997-2010 Yale University
+          ============================================================
+           Running on machine: lewis4-r710-login-node223 (x86_64/Linux,64-bit)
+                               with 16 threads
+           Program started by: oeow39
+           Program started at: 16:08:02 on 05-Jul-2018
+          ============================================================
+
+ FFT3C: Using FFTPACK4.1
+
+ CNSsolve>remarks  lidens.inp 
+ CNSsolve>remarks  tests lidens command in XRAY 
+ CNSsolve>remarks  By R.W.Grosse-Kunstleve 
+ CNSsolve> 
+ CNSsolve>{* Generate a two-atom dummy structure 
+ CNSsolve> *} 
+ CNSsolve>topology 
+ RTFRDR>  residue SI 
+ RESIDUE>    atom SI mass=14 charge=0 {chemical}type="SI+4" end 
+ RESIDUE>  end 
+ RTFRDR>  residue O 
+ RESIDUE>    atom O  mass=8  charge=0 {chemical}type="O-1"  end 
+ RESIDUE>  end 
+ RTFRDR>end 
+ CNSsolve> 
+ CNSsolve>segment 
+ SEGMENT>  name = QZ 
+ SEGMENT>  molecule {res}name=SI number=1 end 
+ SEGMENT>  molecule {res}name=O  number=1 end 
+ SEGMENT>end 
+ Status of internal molecular topology database:
+ -> NATOM=          2(MAXA=     1000000)  NBOND=          0(MAXB=     1000000)
+ -> NTHETA=         0(MAXT=     2000000)  NGRP=           2(MAXGRP=   1000000)
+ -> NPHI=           0(MAXP=     2000000)  NIMPHI=         0(MAXIMP=   1000000)
+ -> NNB=            0(MAXNB=    1000000) 
+ CNSsolve> 
+ CNSsolve>do (name="SI1") (resid=1) 
+ SELRPN:      1 atoms have been selected out of      2
+ CNSsolve>do (name="O1")  (resid=2) 
+ SELRPN:      1 atoms have been selected out of      2
+ CNSsolve> 
+ CNSsolve>{* loop over some space groups 
+ CNSsolve> *} 
+ CNSsolve>for $sg in ("P1" "C2/c" "Fddd" "I-4c2" "P3(1)21" "P6(3)/mcm" "P2(1)3") loop sg 
+ FOR LOOP: symbol SG set to "P1" (string)
+ CNSsolve>  do (x=0.499   ) (name=SI1) 
+ SELRPN:      1 atoms have been selected out of      2
+ CNSsolve>  do (y=0.000   ) (name=SI1) 
+ SELRPN:      1 atoms have been selected out of      2
+ CNSsolve>  do (z=0.333333) (name=SI1) 
+ SELRPN:      1 atoms have been selected out of      2
+ CNSsolve>  do (q=1.0     ) (name=SI1) 
+ SELRPN:      1 atoms have been selected out of      2
+ CNSsolve>  do (b=2.0     ) (name=SI1) 
+ SELRPN:      1 atoms have been selected out of      2
+ CNSsolve> 
+ CNSsolve>  do (x=0.427   ) (name=O1) 
+ SELRPN:      1 atoms have been selected out of      2
+ CNSsolve>  do (y=0.187   ) (name=O1) 
+ SELRPN:      1 atoms have been selected out of      2
+ CNSsolve>  do (z=0.128   ) (name=O1) 
+ SELRPN:      1 atoms have been selected out of      2
+ CNSsolve>  do (q=1.0     ) (name=O1) 
+ SELRPN:      1 atoms have been selected out of      2
+ CNSsolve>  do (b=4.0     ) (name=O1) 
+ SELRPN:      1 atoms have been selected out of      2
+ CNSsolve> 
+ CNSsolve>  {* reset all xray settings 
+ CNSsolve>   *} 
+ CNSsolve>  xray 
+ XRAY>    reset 
+ XRAY: whole xray database erased and reset
+ XRAY>  end 
+ CNSsolve> 
+ CNSsolve>  {* define some general xray settings 
+ CNSsolve>   *} 
+ CNSsolve>  xray 
+ XRAY>    bins=1 
+ XRAY>    method=direct 
+ XRAY> 
+ XRAY>    evaluate ($lr=10000.) 
+ EVALUATE: symbol $LR set to    10000.0     (real)
+ XRAY>    evaluate ($hr=1) 
+ EVALUATE: symbol $HR set to    1.00000     (real)
+ XRAY>    binresolution $lr $hr 
+ XRAY>    mapresolution $hr 
+ XRAY>    tselection=( $hr <= d <= $lr ) 
+ XRAY>  end 
+ CNSsolve> 
+ CNSsolve>  {* define scattering factors and symmetry 
+ CNSsolve>   *} 
+ CNSsolve>  xray 
+ XRAY>    @@CNS_XRAYLIB:scatter.lib 
+ ASSFIL: file scatter.lib opened.
+ XRAY>! file libraries/xray/scatter.lib 
+ XRAY>! Atomic scattering factors without anomalous contribution 
+ XRAY>! Library for CNS 
+ XRAY> 
+ XRAY>! Authors: Paul Adams, Joe Jaeger, and Axel T. Brunger 
+ XRAY> 
+ XRAY>!BEWARE: 
+ XRAY>!(1) element Cf (Californium) has to be referred to as Cff 
+ XRAY>!(2) element Sm (Samarium) has to be referred to as Smm 
+ XRAY>!(3) element Np (Neptunium) has to be referred to as Npp 
+ XRAY>!(3) types of elements with ionic state (i.e., +/-) specifications have 
+ XRAY>!    to be put in double quotes in selection statements. 
+ XRAY> 
+ XRAY>set message ? end 
+ MESSage=NORM
+ XRAY>evaluate ($message_old_sclib=$result) 
+ EVALUATE: symbol $MESSAGE_OLD_SCLIB set to "NORM" (string)
+ XRAY>set echo ? end 
+ ECHO=TRUE {ON}
+ XRAY>evaluate ($echo_old_sclib=$result) 
+ EVALUATE: symbol $ECHO_OLD_SCLIB set to TRUE (logical)
+ XRAY>set echo=off message=off end 
+ XRAY>    @@CNS_XTALLIB:spacegroup.lib (sg=$sg; sgparam = $sgparam) 
+ ASSFIL: file spacegroup.lib opened.
+ XRAY>! file  libraries/xtal/spacegroup.lib 
+ XRAY>! library of symmetry operators for CNS 
+ XRAY>! Automatically generated with SgInfo Version 2.00a13 
+ XRAY> 
+ XRAY>module 
+ MODULE-DECLARATION>( 
+ MODULE-DECLARATION>  &sg=$sg; 
+ MODULE-DECLARATION>  &sgparam=$sgparam; 
+ MODULE-DECLARATION>) 
+ &_2_SG set to $_1_SG 
+ &_2_SGPARAM set to $_1_SGPARAM 
+ XRAY> 
+ XRAY>set message ? end 
+ MESSage=NORM
+ XRAY>evaluate ($message_old=$result) 
+ EVALUATE: symbol $MESSAGE_OLD set to "NORM" (string)
+ XRAY>set echo ? end 
+ ECHO=TRUE {ON}
+ XRAY>evaluate ($echo_old=$result) 
+ EVALUATE: symbol $ECHO_OLD set to TRUE (logical)
+ XRAY>set echo=off message=off end 
+SYMMETRY: found symmetry operators for space group P1 in library
+ XRAY> 
+ XRAY>  end 
+ CNSsolve> 
+ CNSsolve>  {* define dummy unit cell dimensions based on space group number 
+ CNSsolve>   *} 
+ CNSsolve>  if     ($sgparam.sg_number <=   2) then 
+ NEXTCD: condition evaluated as true
+ CNSsolve>    evaluate ($a = 5.01) 
+ EVALUATE: symbol $A set to    5.01000     (real)
+ CNSsolve>    evaluate ($b = 6.25) 
+ EVALUATE: symbol $B set to    6.25000     (real)
+ CNSsolve>    evaluate ($c = 5.47) 
+ EVALUATE: symbol $C set to    5.47000     (real)
+ CNSsolve>    evaluate ($alpha = 100) 
+ EVALUATE: symbol $ALPHA set to    100.000     (real)
+ CNSsolve>    evaluate ($beta  =  80) 
+ EVALUATE: symbol $BETA set to    80.0000     (real)
+ CNSsolve>    evaluate ($gamma = 110) 
+ EVALUATE: symbol $GAMMA set to    110.000     (real)
+ CNSsolve>  elseif ($sgparam.sg_number <=  15) then 
+ CNSsolve>    evaluate ($a = 5.01) 
+ CNSsolve>    evaluate ($b = 6.25) 
+ CNSsolve>    evaluate ($c = 5.47) 
+ CNSsolve>    evaluate ($alpha =  90) 
+ CNSsolve>    evaluate ($beta  =  80) 
+ CNSsolve>    evaluate ($gamma =  90) 
+ CNSsolve>  elseif ($sgparam.sg_number <=  74) then 
+ CNSsolve>    evaluate ($a = 5.01) 
+ CNSsolve>    evaluate ($b = 6.25) 
+ CNSsolve>    evaluate ($c = 5.47) 
+ CNSsolve>    evaluate ($alpha =  90) 
+ CNSsolve>    evaluate ($beta  =  90) 
+ CNSsolve>    evaluate ($gamma =  90) 
+ CNSsolve>  elseif ($sgparam.sg_number <= 142) then 
+ CNSsolve>    evaluate ($a = 5.01) 
+ CNSsolve>    evaluate ($b = $a) 
+ CNSsolve>    evaluate ($c = 5.47) 
+ CNSsolve>    evaluate ($alpha =  90) 
+ CNSsolve>    evaluate ($beta  =  90) 
+ CNSsolve>    evaluate ($gamma =  90) 
+ CNSsolve>  elseif ($sgparam.sg_number <= 194) then 
+ CNSsolve>    evaluate ($a = 5.01) 
+ CNSsolve>    evaluate ($b = $a) 
+ CNSsolve>    evaluate ($c = 5.47) 
+ CNSsolve>    evaluate ($alpha =  90) 
+ CNSsolve>    evaluate ($beta  =  90) 
+ CNSsolve>    evaluate ($gamma = 120) 
+ CNSsolve>  else 
+ CNSsolve>    evaluate ($a = 5.01) 
+ CNSsolve>    evaluate ($b = $a) 
+ CNSsolve>    evaluate ($c = $a) 
+ CNSsolve>    evaluate ($alpha =  90) 
+ CNSsolve>    evaluate ($beta  =  90) 
+ CNSsolve>    evaluate ($gamma =  90) 
+ CNSsolve>  end if 
+ CNSsolve> 
+ CNSsolve>  xray 
+ XRAY>    a=$a b=$b c=$c alpha=$alpha beta=$beta gamma=$gamma 
+ XRAY>  end 
+ CNSsolve> 
+ CNSsolve>  coordinates orthogonalize end 
+ ORTHO: transformation matrix =
+     5.010000    -2.137626     0.949856
+     0.000000     5.873079    -0.665096
+     0.000000     0.000000     5.345683
+ CNSsolve> 
+ CNSsolve>  xray 
+ XRAY>    {* set space-group dependent restrictions for map-grid dimensions 
+ XRAY>     *} 
+ XRAY>    fft 
+ XFFT>      grid=0.4 
+ XFFT>      xgridfactor=$sgparam.SymGrid_x 
+ XFFT>      ygridfactor=$sgparam.SymGrid_y 
+ XFFT>      zgridfactor=$sgparam.SymGrid_z 
+ XFFT>    end 
+ XRAY> 
+ XRAY>    {* generate reflections 
+ XRAY>     *} 
+ XRAY>    anomalous = false 
+ XRAY>    generate 100000. 1.0 
+ XGENER: generating reflections to produce a full set
+         for the specified resolution range.
+ XGENE2:      330 new reflections have been generated.
+ XRAY> 
+ XRAY>    {* compute dummy "fobs" 
+ XRAY>     *} 
+ XRAY>    declare name=fobs domain=reciprocal type=complex end 
+ XDECLARE: Object FOBS has been declared.
+ XRAY>    predict 
+ PREDict>      mode=reciprocal 
+ PREDict>      to=fobs 
+ PREDict>      selection=(all) 
+ Total of       330 structure factor elements were selected.
+ PREDict>      atomselection=(all) 
+ SELRPN:      2 atoms have been selected out of      2
+ PREDict>    end 
+ FOBS: #scatt.=      2 #anomalous=   0 #special pos.=  0 occupancies=1
+ XSFAL: allocating space for complex reciprocal space object.
+ XRAY> 
+ XRAY>    {* expand to P1 
+ XRAY>     *} 
+ XRAY>    expand 
+ XEXPA2:        0 new reflections have been generated.
+ XRAY: data expanded and symmetry reset to P1.
+ XRAY>  end 
+ CNSsolve> 
+ CNSsolve>  xray 
+ XRAY>    declare name=edmap domain=real end 
+ XRAY>  end 
+ CNSsolve> 
+ CNSsolve>  xray 
+ XRAY>    do (edmap=FT(fobs)) (all) 
+ XSFAL: allocating space for complex reciprocal space object.
+ Total of       330 structure factor elements were selected.
+ XMAPASU: using grid [  12,  15,  16] and sublattice [  12,  15,  16]
+ Maps will be stored in P1:
+   A=     0,...,    11  B=     0,...,    14  C=     0,...,    15
+ XMAPAL: allocating space for real space object.
+ XRAY>    show min (real(edmap)) (all) 
+ Minimum of      2880 elements =                -1.5541
+ XRAY>    eval($edmin=$result) 
+ EVALUATE: symbol $EDMIN set to   -1.55411     (real)
+ XRAY>    show max (real(edmap)) (all) 
+ Maximum of      2880 elements =                22.8082
+ XRAY>    eval($edmax=$result) 
+ EVALUATE: symbol $EDMAX set to    22.8082     (real)
+ XRAY>  end 
+ CNSsolve> 
+ CNSsolve>  xray 
+ XRAY>    {* define symmetry for flagmap 
+ XRAY>     *} 
+ XRAY>    fmap 
+ XMAPASU: using grid [  12,  15,  16] and sublattice [  12,  15,  16]
+ Minimum brick that covers asymmetric unit:
+   A=     0,...,    12  B=     0,...,    15  C=     0,...,    16
+ FMAP>      @@CNS_XTALLIB:spacegroup.lib (sg=$sg; sgparam = $sgparam) 
+ ASSFIL: file spacegroup.lib opened.
+ FMAP>! file  libraries/xtal/spacegroup.lib 
+ FMAP>! library of symmetry operators for CNS 
+ FMAP>! Automatically generated with SgInfo Version 2.00a13 
+ FMAP> 
+ FMAP>module 
+ MODULE-DECLARATION>( 
+ MODULE-DECLARATION>  &sg=$sg; 
+ MODULE-DECLARATION>  &sgparam=$sgparam; 
+ MODULE-DECLARATION>) 
+ &_2_SG set to $_1_SG 
+ &_2_SGPARAM set to $_1_SGPARAM 
+ FMAP> 
+ FMAP>set message ? end 
+ MESSage=NORM
+ FMAP>evaluate ($message_old=$result) 
+ EVALUATE: symbol $MESSAGE_OLD set to "NORM" (string)
+ FMAP>set echo ? end 
+ ECHO=TRUE {ON}
+ FMAP>evaluate ($echo_old=$result) 
+ EVALUATE: symbol $ECHO_OLD set to TRUE (logical)
+ FMAP>set echo=off message=off end 
+SYMMETRY: found symmetry operators for space group P1 in library
+ FMAP> 
+ FMAP>      if ($sgparam.ssVM_1 # "VOID") then ssVM = $sgparam.ssVM_1 end if 
+ NEXTCD: condition evaluated as true
+ FMAP>      if ($sgparam.ssVM_2 # "VOID") then ssVM = $sgparam.ssVM_2 end if 
+ NEXTCD: condition evaluated as true
+ FMAP>      if ($sgparam.ssVM_3 # "VOID") then ssVM = $sgparam.ssVM_3 end if 
+ NEXTCD: condition evaluated as true
+ FMAP>      if ($sgparam.GenK2L # "VOID") then Addl = $sgparam.GenK2L end if 
+ NEXTCD: condition evaluated as true
+ FMAP>      ? 
+ --------------FMAP-parameters--------------------------------------------------
+ Number of symmetry operations =   1
+ Number of s.s.Vectors & Moduli =   3
+   s.s.Vector  Modulus
+     1  0  0   0
+     0  1  0   0
+     0  0  1   0
+ Number of ADDLgenerators =   1
+ USESym=FALSE
+ USE_ss=FALSE
+ USEAddl=FALSE
+ -------------------------------------------------------------------------------
+ FMAP>      Symmetry ? 
+ --------------FMAP-symmetry----------------------------------------------------
+ | SYMMetry=(X,Y,Z)
+ -------------------------------------------------------------------------------
+ FMAP>      AddlGenerators ? 
+ --------------FMAP-ADDLgenerators----------------------------------------------
+ | SYMMetry=(-X,-Y,-Z)
+ -------------------------------------------------------------------------------
+ FMAP>    end 
+ XRAY>  end 
+ CNSsolve> 
+ CNSsolve>  set message=all end 
+ CNSsolve> 
+ CNSsolve>  xray 
+ XRAY>    {* Build flagmap 
+ XRAY>     *} 
+ XRAY>    fmap 
+ XMAPASU: using grid [  12,  15,  16] and sublattice [  12,  15,  16]
+ Minimum brick that covers asymmetric unit:
+   A=     0,...,    12  B=     0,...,    15  C=     0,...,    16
+ Number of deleted points in ASU=           0
+ Number of non-zero lattice points in ASU=        2880
+ Number of special positions in ASU=           0
+ FMAP>      UseSym = true 
+ FMAP>      Use_ss  = false 
+ FMAP>      UseAddl = false 
+ FMAP>      Action=Build 
+ FMAP>    end 
+ FMAP: Building FlagMap
+ FMAP: Removing grid points related by symmetry operations
+ FMAP:       Total number of grid points =      2880
+ FMAP: Remaining independent grid points =      2880
+ FMAP: Independent grid points =      2880
+ XRAY>  end 
+ CNSsolve> 
+ CNSsolve>  show elem (x) (resid 1) eval($site.x=$result) 
+ SELRPN:      1 atoms have been selected out of      2
+ ( QZ   SI   1    SI1  )    2.8166    
+ EVALUATE: symbol $SITE.X set to    2.81661     (real)
+ CNSsolve>  show elem (y) (resid 1) eval($site.y=$result) 
+ SELRPN:      1 atoms have been selected out of      2
+ ( QZ   SI   1    SI1  )  -0.22170    
+ EVALUATE: symbol $SITE.Y set to  -0.221698     (real)
+ CNSsolve>  show elem (z) (resid 1) eval($site.z=$result) 
+ SELRPN:      1 atoms have been selected out of      2
+ ( QZ   SI   1    SI1  )    1.7819    
+ EVALUATE: symbol $SITE.Z set to    1.78189     (real)
+ CNSsolve> 
+ CNSsolve>  xray 
+ XRAY>    lidens 
+ LIDens>      dens=edmap 
+ LIDens>      atomselection=(all) 
+ SELRPN:      2 atoms have been selected out of      2
+ LIDens>      to=vx 
+ LIDens>      site=$site.x $site.y $site.z 
+ LIDens>    end 
+ LIDens: Density at site     2.82    -0.22     1.78 =  21.6305    
+ LIDens: Density at site     1.86     1.01     0.68 =  7.53560    
+ LIDens: Density at site     2.82    -0.22     1.78 =  21.6306    
+ XRAY>    eval($lidens1=$result) 
+ EVALUATE: symbol $LIDENS1 set to    21.6306     (real)
+ XRAY>  end 
+ CNSsolve>  show elem (vx) (all) 
+ SELRPN:      2 atoms have been selected out of      2
+ ( QZ   SI   1    SI1  )    21.630    
+ ( QZ   O    2    O1   )    7.5356    
+ CNSsolve>  show elem (vx) (resid 1) 
+ SELRPN:      1 atoms have been selected out of      2
+ ( QZ   SI   1    SI1  )    21.630    
+ CNSsolve>  eval($delta=abs($lidens1-$result)) 
+ EVALUATE: symbol $DELTA set to   0.750722E-04 (real)
+ CNSsolve>  if ($delta > 0.001) then 
+ NEXTCD: condition evaluated as false
+ CNSsolve>    display $lidens1 $result 
+ CNSsolve>    abort 
+ CNSsolve>  end if 
+ CNSsolve>  if ($lidens1 < $edmin) then 
+ NEXTCD: condition evaluated as false
+ CNSsolve>    abort 
+ CNSsolve>  end if 
+ CNSsolve>  if ($lidens1 > $edmax) then 
+ NEXTCD: condition evaluated as false
+ CNSsolve>    abort 
+ CNSsolve>  end if 
+ CNSsolve>  show min (vx) (all) 
+ SELRPN:      2 atoms have been selected out of      2
+ SHOW: minimum of selected elements =       7.535597
+ CNSsolve>  eval($minpeak=$result) 
+ EVALUATE: symbol $MINPEAK set to    7.53560     (real)
+ CNSsolve> 
+ CNSsolve>  xray 
+ XRAY>    psearch 
+ PSEARCH>      From=edmap 
+ PSEARCH>      level = 1 
+ PSEARCH>      nList = 10 
+ PSEARCH>      Fractional = true 
+ PSEARCH>    end 
+ PSEARCH: DensCutOff =   0.206452    
+ PSEARCH: Number of peaks in overstore buffer =      101
+ PSEARCH: Number of peaks listed              =       10
+ PSEARCH:                                   (  Fractional Coordinates  )
+ PSEARCH:     1 Dens =    22.8082     Pos = ( 0.50000, 0.00000, 0.31250)
+ PSEARCH:     2 Dens =    8.18829     Pos = ( 0.41667, 0.20000, 0.12500)
+ PSEARCH:     3 Dens =   0.789938     Pos = ( 0.66667, 0.13333, 0.12500)
+ PSEARCH:     4 Dens =   0.742823     Pos = ( 0.25000, 0.06667, 0.31250)
+ PSEARCH:     5 Dens =   0.732343     Pos = ( 0.25000, 0.80000, 0.31250)
+ PSEARCH:     6 Dens =   0.682337     Pos = ( 0.58333, 0.93333, 0.56250)
+ PSEARCH:     7 Dens =   0.666166     Pos = ( 0.75000, 0.20000, 0.37500)
+ PSEARCH:     8 Dens =   0.661562     Pos = ( 0.83333, 0.06667, 0.25000)
+ PSEARCH:     9 Dens =   0.652976     Pos = ( 0.25000, 0.93333, 0.18750)
+ PSEARCH:    10 Dens =   0.649123     Pos = ( 0.75000, 0.93333, 0.37500)
+ XRAY> 
+ XRAY>    declare name=flagmap domain=real end 
+ XRAY>    fmap 
+ XMAPASU: using grid [  12,  15,  16] and sublattice [  12,  15,  16]
+ Minimum brick that covers asymmetric unit:
+   A=     0,...,    12  B=     0,...,    15  C=     0,...,    16
+ Number of deleted points in ASU=           0
+ Number of non-zero lattice points in ASU=        2880
+ Number of special positions in ASU=           0
+ FMAP>      RSObj=flagmap 
+ FMAP>      Action=copy 
+ FMAP>    end 
+ XMAPAL: allocating space for real space object.
+ FMAP: Independent grid points =      2880
+ XRAY> 
+ XRAY>    show sum (1) (flagmap < 1) 
+ Sum of      2880 elements =              2880.0000
+ XRAY>    eval($nasym=$result) 
+ EVALUATE: symbol $NASYM set to    2880.00     (real)
+ XRAY>    show sum (1) (flagmap < 0) 
+ Sum of       204 elements =               204.0000
+ XRAY>    eval($npeaks=max(1,$result)) 
+ EVALUATE: symbol $NPEAKS set to    204.000     (real)
+ XRAY>    show sum (1) (flagmap < 0 and edmap < $minpeak) 
+ Sum of       202 elements =               202.0000
+ XRAY>    eval($smallpeaks=$result) 
+ EVALUATE: symbol $SMALLPEAKS set to    202.000     (real)
+ XRAY>    eval($fom=$smallpeaks/$npeaks) 
+ EVALUATE: symbol $FOM set to   0.990196     (real)
+ XRAY>  end 
+ CNSsolve> 
+ CNSsolve>  set message=on end 
+ CNSsolve>end loop sg 
+ CNSsolve>for $sg in ("P1" "C2/c" "Fddd" "I-4c2" "P3(1)21" "P6(3)/mcm" "P2(1)3") loop sg 
+ FOR LOOP: symbol SG set to "C2/c" (string)
+ CNSsolve>  do (x=0.499   ) (name=SI1) 
+ SELRPN:      1 atoms have been selected out of      2
+ CNSsolve>  do (y=0.000   ) (name=SI1) 
+ SELRPN:      1 atoms have been selected out of      2
+ CNSsolve>  do (z=0.333333) (name=SI1) 
+ SELRPN:      1 atoms have been selected out of      2
+ CNSsolve>  do (q=1.0     ) (name=SI1) 
+ SELRPN:      1 atoms have been selected out of      2
+ CNSsolve>  do (b=2.0     ) (name=SI1) 
+ SELRPN:      1 atoms have been selected out of      2
+ CNSsolve> 
+ CNSsolve>  do (x=0.427   ) (name=O1) 
+ SELRPN:      1 atoms have been selected out of      2
+ CNSsolve>  do (y=0.187   ) (name=O1) 
+ SELRPN:      1 atoms have been selected out of      2
+ CNSsolve>  do (z=0.128   ) (name=O1) 
+ SELRPN:      1 atoms have been selected out of      2
+ CNSsolve>  do (q=1.0     ) (name=O1) 
+ SELRPN:      1 atoms have been selected out of      2
+ CNSsolve>  do (b=4.0     ) (name=O1) 
+ SELRPN:      1 atoms have been selected out of      2
+ CNSsolve> 
+ CNSsolve>  {* reset all xray settings 
+ CNSsolve>   *} 
+ CNSsolve>  xray 
+ XRAY>    reset 
+ XRAY: whole xray database erased and reset
+ XRAY>  end 
+ CNSsolve> 
+ CNSsolve>  {* define some general xray settings 
+ CNSsolve>   *} 
+ CNSsolve>  xray 
+ XRAY>    bins=1 
+ XRAY>    method=direct 
+ XRAY> 
+ XRAY>    evaluate ($lr=10000.) 
+ EVALUATE: symbol $LR set to    10000.0     (real)
+ XRAY>    evaluate ($hr=1) 
+ EVALUATE: symbol $HR set to    1.00000     (real)
+ XRAY>    binresolution $lr $hr 
+ XRAY>    mapresolution $hr 
+ XRAY>    tselection=( $hr <= d <= $lr ) 
+ XRAY>  end 
+ CNSsolve> 
+ CNSsolve>  {* define scattering factors and symmetry 
+ CNSsolve>   *} 
+ CNSsolve>  xray 
+ XRAY>    @@CNS_XRAYLIB:scatter.lib 
+ ASSFIL: file scatter.lib opened.
+ XRAY>! file libraries/xray/scatter.lib 
+ XRAY>! Atomic scattering factors without anomalous contribution 
+ XRAY>! Library for CNS 
+ XRAY> 
+ XRAY>! Authors: Paul Adams, Joe Jaeger, and Axel T. Brunger 
+ XRAY> 
+ XRAY>!BEWARE: 
+ XRAY>!(1) element Cf (Californium) has to be referred to as Cff 
+ XRAY>!(2) element Sm (Samarium) has to be referred to as Smm 
+ XRAY>!(3) element Np (Neptunium) has to be referred to as Npp 
+ XRAY>!(3) types of elements with ionic state (i.e., +/-) specifications have 
+ XRAY>!    to be put in double quotes in selection statements. 
+ XRAY> 
+ XRAY>set message ? end 
+ MESSage=NORM
+ XRAY>evaluate ($message_old_sclib=$result) 
+ EVALUATE: symbol $MESSAGE_OLD_SCLIB set to "NORM" (string)
+ XRAY>set echo ? end 
+ ECHO=TRUE {ON}
+ XRAY>evaluate ($echo_old_sclib=$result) 
+ EVALUATE: symbol $ECHO_OLD_SCLIB set to TRUE (logical)
+ XRAY>set echo=off message=off end 
+ XRAY>    @@CNS_XTALLIB:spacegroup.lib (sg=$sg; sgparam = $sgparam) 
+ ASSFIL: file spacegroup.lib opened.
+ XRAY>! file  libraries/xtal/spacegroup.lib 
+ XRAY>! library of symmetry operators for CNS 
+ XRAY>! Automatically generated with SgInfo Version 2.00a13 
+ XRAY> 
+ XRAY>module 
+ MODULE-DECLARATION>( 
+ MODULE-DECLARATION>  &sg=$sg; 
+ MODULE-DECLARATION>  &sgparam=$sgparam; 
+ MODULE-DECLARATION>) 
+ &_2_SG set to $_1_SG 
+ &_2_SGPARAM set to $_1_SGPARAM 
+ XRAY> 
+ XRAY>set message ? end 
+ MESSage=NORM
+ XRAY>evaluate ($message_old=$result) 
+ EVALUATE: symbol $MESSAGE_OLD set to "NORM" (string)
+ XRAY>set echo ? end 
+ ECHO=TRUE {ON}
+ XRAY>evaluate ($echo_old=$result) 
+ EVALUATE: symbol $ECHO_OLD set to TRUE (logical)
+ XRAY>set echo=off message=off end 
+SYMMETRY: found symmetry operators for space group C2/c in library
+ XRAY> 
+ XRAY>  end 
+ CNSsolve> 
+ CNSsolve>  {* define dummy unit cell dimensions based on space group number 
+ CNSsolve>   *} 
+ CNSsolve>  if     ($sgparam.sg_number <=   2) then 
+ NEXTCD: condition evaluated as false
+ CNSsolve>    evaluate ($a = 5.01) 
+ CNSsolve>    evaluate ($b = 6.25) 
+ CNSsolve>    evaluate ($c = 5.47) 
+ CNSsolve>    evaluate ($alpha = 100) 
+ CNSsolve>    evaluate ($beta  =  80) 
+ CNSsolve>    evaluate ($gamma = 110) 
+ CNSsolve>  elseif ($sgparam.sg_number <=  15) then 
+ NEXTCD: condition evaluated as true
+ CNSsolve>    evaluate ($a = 5.01) 
+ EVALUATE: symbol $A set to    5.01000     (real)
+ CNSsolve>    evaluate ($b = 6.25) 
+ EVALUATE: symbol $B set to    6.25000     (real)
+ CNSsolve>    evaluate ($c = 5.47) 
+ EVALUATE: symbol $C set to    5.47000     (real)
+ CNSsolve>    evaluate ($alpha =  90) 
+ EVALUATE: symbol $ALPHA set to    90.0000     (real)
+ CNSsolve>    evaluate ($beta  =  80) 
+ EVALUATE: symbol $BETA set to    80.0000     (real)
+ CNSsolve>    evaluate ($gamma =  90) 
+ EVALUATE: symbol $GAMMA set to    90.0000     (real)
+ CNSsolve>  elseif ($sgparam.sg_number <=  74) then 
+ CNSsolve>    evaluate ($a = 5.01) 
+ CNSsolve>    evaluate ($b = 6.25) 
+ CNSsolve>    evaluate ($c = 5.47) 
+ CNSsolve>    evaluate ($alpha =  90) 
+ CNSsolve>    evaluate ($beta  =  90) 
+ CNSsolve>    evaluate ($gamma =  90) 
+ CNSsolve>  elseif ($sgparam.sg_number <= 142) then 
+ CNSsolve>    evaluate ($a = 5.01) 
+ CNSsolve>    evaluate ($b = $a) 
+ CNSsolve>    evaluate ($c = 5.47) 
+ CNSsolve>    evaluate ($alpha =  90) 
+ CNSsolve>    evaluate ($beta  =  90) 
+ CNSsolve>    evaluate ($gamma =  90) 
+ CNSsolve>  elseif ($sgparam.sg_number <= 194) then 
+ CNSsolve>    evaluate ($a = 5.01) 
+ CNSsolve>    evaluate ($b = $a) 
+ CNSsolve>    evaluate ($c = 5.47) 
+ CNSsolve>    evaluate ($alpha =  90) 
+ CNSsolve>    evaluate ($beta  =  90) 
+ CNSsolve>    evaluate ($gamma = 120) 
+ CNSsolve>  else 
+ CNSsolve>    evaluate ($a = 5.01) 
+ CNSsolve>    evaluate ($b = $a) 
+ CNSsolve>    evaluate ($c = $a) 
+ CNSsolve>    evaluate ($alpha =  90) 
+ CNSsolve>    evaluate ($beta  =  90) 
+ CNSsolve>    evaluate ($gamma =  90) 
+ CNSsolve>  end if 
+ CNSsolve> 
+ CNSsolve>  xray 
+ XRAY>    a=$a b=$b c=$c alpha=$alpha beta=$beta gamma=$gamma 
+ XRAY>  end 
+ CNSsolve> 
+ CNSsolve>  coordinates orthogonalize end 
+ ORTHO: transformation matrix =
+     5.010000     0.000000     0.949856
+     0.000000     6.250000     0.000000
+     0.000000     0.000000     5.386898
+ CNSsolve> 
+ CNSsolve>  xray 
+ XRAY>    {* set space-group dependent restrictions for map-grid dimensions 
+ XRAY>     *} 
+ XRAY>    fft 
+ XFFT>      grid=0.4 
+ XFFT>      xgridfactor=$sgparam.SymGrid_x 
+ XFFT>      ygridfactor=$sgparam.SymGrid_y 
+ XFFT>      zgridfactor=$sgparam.SymGrid_z 
+ XFFT>    end 
+ XRAY> 
+ XRAY>    {* generate reflections 
+ XRAY>     *} 
+ XRAY>    anomalous = false 
+ XRAY>    generate 100000. 1.0 
+ XGENER: generating reflections to produce a full set
+         for the specified resolution range.
+ XGENE2:       87 new reflections have been generated.
+ XRAY> 
+ XRAY>    {* compute dummy "fobs" 
+ XRAY>     *} 
+ XRAY>    declare name=fobs domain=reciprocal type=complex end 
+ XDECLARE: Object FOBS has been declared.
+ XRAY>    predict 
+ PREDict>      mode=reciprocal 
+ PREDict>      to=fobs 
+ PREDict>      selection=(all) 
+ Total of        87 structure factor elements were selected.
+ PREDict>      atomselection=(all) 
+ SELRPN:      2 atoms have been selected out of      2
+ PREDict>    end 
+ FOBS: #scatt.=      2 #anomalous=   0 #special pos.=  0 occupancies=1
+ XSFAL: allocating space for complex reciprocal space object.
+ XRAY> 
+ XRAY>    {* expand to P1 
+ XRAY>     *} 
+ XRAY>    expand 
+ XEXPA2:       73 new reflections have been generated.
+ XREDUC: some reflection(s) converted to CNS standard asymm. unit.
+ XRAY: data expanded and symmetry reset to P1.
+ XRAY>  end 
+ CNSsolve> 
+ CNSsolve>  xray 
+ XRAY>    declare name=edmap domain=real end 
+ XRAY>  end 
+ CNSsolve> 
+ CNSsolve>  xray 
+ XRAY>    do (edmap=FT(fobs)) (all) 
+ XSFAL: allocating space for complex reciprocal space object.
+ Total of       160 structure factor elements were selected.
+ XMAPASU: using grid [  12,  16,  16] and sublattice [  12,  16,  16]
+ Maps will be stored in P1:
+   A=     0,...,    11  B=     0,...,    15  C=     0,...,    15
+ XMAPAL: allocating space for real space object.
+ XRAY>    show min (real(edmap)) (all) 
+ Minimum of      3072 elements =                -3.5559
+ XRAY>    eval($edmin=$result) 
+ EVALUATE: symbol $EDMIN set to   -3.55591     (real)
+ XRAY>    show max (real(edmap)) (all) 
+ Maximum of      3072 elements =                20.8389
+ XRAY>    eval($edmax=$result) 
+ EVALUATE: symbol $EDMAX set to    20.8389     (real)
+ XRAY>  end 
+ CNSsolve> 
+ CNSsolve>  xray 
+ XRAY>    {* define symmetry for flagmap 
+ XRAY>     *} 
+ XRAY>    fmap 
+ XMAPASU: using grid [  12,  16,  16] and sublattice [  12,  16,  16]
+ Minimum brick that covers asymmetric unit:
+   A=     0,...,     6  B=     0,...,     8  C=     0,...,     8
+ FMAP>      @@CNS_XTALLIB:spacegroup.lib (sg=$sg; sgparam = $sgparam) 
+ ASSFIL: file spacegroup.lib opened.
+ FMAP>! file  libraries/xtal/spacegroup.lib 
+ FMAP>! library of symmetry operators for CNS 
+ FMAP>! Automatically generated with SgInfo Version 2.00a13 
+ FMAP> 
+ FMAP>module 
+ MODULE-DECLARATION>( 
+ MODULE-DECLARATION>  &sg=$sg; 
+ MODULE-DECLARATION>  &sgparam=$sgparam; 
+ MODULE-DECLARATION>) 
+ &_2_SG set to $_1_SG 
+ &_2_SGPARAM set to $_1_SGPARAM 
+ FMAP> 
+ FMAP>set message ? end 
+ MESSage=NORM
+ FMAP>evaluate ($message_old=$result) 
+ EVALUATE: symbol $MESSAGE_OLD set to "NORM" (string)
+ FMAP>set echo ? end 
+ ECHO=TRUE {ON}
+ FMAP>evaluate ($echo_old=$result) 
+ EVALUATE: symbol $ECHO_OLD set to TRUE (logical)
+ FMAP>set echo=off message=off end 
+SYMMETRY: found symmetry operators for space group C2/c in library
+ FMAP> 
+ FMAP>      if ($sgparam.ssVM_1 # "VOID") then ssVM = $sgparam.ssVM_1 end if 
+ NEXTCD: condition evaluated as true
+ FMAP>      if ($sgparam.ssVM_2 # "VOID") then ssVM = $sgparam.ssVM_2 end if 
+ NEXTCD: condition evaluated as true
+ FMAP>      if ($sgparam.ssVM_3 # "VOID") then ssVM = $sgparam.ssVM_3 end if 
+ NEXTCD: condition evaluated as false
+ FMAP>      if ($sgparam.GenK2L # "VOID") then Addl = $sgparam.GenK2L end if 
+ NEXTCD: condition evaluated as false
+ FMAP>      ? 
+ --------------FMAP-parameters--------------------------------------------------
+ Number of symmetry operations =   8
+ Number of s.s.Vectors & Moduli =   2
+   s.s.Vector  Modulus
+     1  0  0   2
+     0  0  1   2
+ Number of ADDLgenerators =   0
+ USESym=FALSE
+ USE_ss=FALSE
+ USEAddl=FALSE
+ -------------------------------------------------------------------------------
+ FMAP>      Symmetry ? 
+ --------------FMAP-symmetry----------------------------------------------------
+ | SYMMetry=(X,Y,Z)
+ | SYMMetry=(-X,Y,-Z+1/2)
+ | SYMMetry=(-X,-Y,-Z)
+ | SYMMetry=(X,-Y,Z+1/2)
+ | SYMMetry=(X+1/2,Y+1/2,Z)
+ | SYMMetry=(-X+1/2,Y+1/2,-Z+1/2)
+ | SYMMetry=(-X+1/2,-Y+1/2,-Z)
+ | SYMMetry=(X+1/2,-Y+1/2,Z+1/2)
+ -------------------------------------------------------------------------------
+ FMAP>      AddlGenerators ? 
+ --------------FMAP-ADDLgenerators----------------------------------------------
+ -------------------------------------------------------------------------------
+ FMAP>    end 
+ XRAY>  end 
+ CNSsolve> 
+ CNSsolve>  set message=all end 
+ CNSsolve> 
+ CNSsolve>  xray 
+ XRAY>    {* Build flagmap 
+ XRAY>     *} 
+ XRAY>    fmap 
+ XMAPASU: using grid [  12,  16,  16] and sublattice [  12,  16,  16]
+ Minimum brick that covers asymmetric unit:
+   A=     0,...,     6  B=     0,...,     8  C=     0,...,     8
+ Number of deleted points in ASU=         173
+ Number of non-zero lattice points in ASU=         394
+ Number of special positions in ASU=          20
+ FMAP>      UseSym = true 
+ FMAP>      Use_ss  = false 
+ FMAP>      UseAddl = false 
+ FMAP>      Action=Build 
+ FMAP>    end 
+ FMAP: Building FlagMap
+ FMAP: Removing grid points related by symmetry operations
+ FMAP:       Total number of grid points =      3072
+ FMAP: Remaining independent grid points =       394
+ FMAP: Independent grid points =       394
+ XRAY>  end 
+ CNSsolve> 
+ CNSsolve>  show elem (x) (resid 1) eval($site.x=$result) 
+ SELRPN:      1 atoms have been selected out of      2
+ ( QZ   SI   1    SI1  )    2.8166    
+ EVALUATE: symbol $SITE.X set to    2.81661     (real)
+ CNSsolve>  show elem (y) (resid 1) eval($site.y=$result) 
+ SELRPN:      1 atoms have been selected out of      2
+ ( QZ   SI   1    SI1  )  -0.52607E-14
+ EVALUATE: symbol $SITE.Y set to  -0.526066E-14 (real)
+ CNSsolve>  show elem (z) (resid 1) eval($site.z=$result) 
+ SELRPN:      1 atoms have been selected out of      2
+ ( QZ   SI   1    SI1  )    1.7956    
+ EVALUATE: symbol $SITE.Z set to    1.79563     (real)
+ CNSsolve> 
+ CNSsolve>  xray 
+ XRAY>    lidens 
+ LIDens>      dens=edmap 
+ LIDens>      atomselection=(all) 
+ SELRPN:      2 atoms have been selected out of      2
+ LIDens>      to=vx 
+ LIDens>      site=$site.x $site.y $site.z 
+ LIDens>    end 
+ LIDens: Density at site     2.82     0.00     1.80 =  19.7393    
+ LIDens: Density at site     2.26     1.17     0.69 =  7.45429    
+ LIDens: Density at site     2.82     0.00     1.80 =  19.7393    
+ XRAY>    eval($lidens1=$result) 
+ EVALUATE: symbol $LIDENS1 set to    19.7393     (real)
+ XRAY>  end 
+ CNSsolve>  show elem (vx) (all) 
+ SELRPN:      2 atoms have been selected out of      2
+ ( QZ   SI   1    SI1  )    19.739    
+ ( QZ   O    2    O1   )    7.4543    
+ CNSsolve>  show elem (vx) (resid 1) 
+ SELRPN:      1 atoms have been selected out of      2
+ ( QZ   SI   1    SI1  )    19.739    
+ CNSsolve>  eval($delta=abs($lidens1-$result)) 
+ EVALUATE: symbol $DELTA set to   0.546768E-04 (real)
+ CNSsolve>  if ($delta > 0.001) then 
+ NEXTCD: condition evaluated as false
+ CNSsolve>    display $lidens1 $result 
+ CNSsolve>    abort 
+ CNSsolve>  end if 
+ CNSsolve>  if ($lidens1 < $edmin) then 
+ NEXTCD: condition evaluated as false
+ CNSsolve>    abort 
+ CNSsolve>  end if 
+ CNSsolve>  if ($lidens1 > $edmax) then 
+ NEXTCD: condition evaluated as false
+ CNSsolve>    abort 
+ CNSsolve>  end if 
+ CNSsolve>  show min (vx) (all) 
+ SELRPN:      2 atoms have been selected out of      2
+ SHOW: minimum of selected elements =       7.454292
+ CNSsolve>  eval($minpeak=$result) 
+ EVALUATE: symbol $MINPEAK set to    7.45429     (real)
+ CNSsolve> 
+ CNSsolve>  xray 
+ XRAY>    psearch 
+ PSEARCH>      From=edmap 
+ PSEARCH>      level = 1 
+ PSEARCH>      nList = 10 
+ PSEARCH>      Fractional = true 
+ PSEARCH>    end 
+ PSEARCH: DensCutOff =   -3.55591    
+ PSEARCH: Number of peaks in overstore buffer =       17
+ PSEARCH: Number of peaks listed              =       10
+ PSEARCH:                                   (  Fractional Coordinates  )
+ PSEARCH:     1 Dens =    20.8389     Pos = ( 0.50000, 0.00000, 0.18750)
+ PSEARCH:     2 Dens =    8.02375     Pos = ( 0.41667, 0.18750, 0.12500)
+ PSEARCH:     3 Dens =   0.955178     Pos = ( 0.25000, 0.37500, 0.25000)
+ PSEARCH:     4 Dens =   0.875474     Pos = ( 0.16667, 0.31250, 0.18750)
+ PSEARCH:     5 Dens =   0.693529     Pos = ( 0.25000, 0.00000, 0.06250)
+ PSEARCH:     6 Dens =   0.627029     Pos = ( 0.25000, 0.12500, 0.25000)
+ PSEARCH:     7 Dens =   0.942151E-01 Pos = ( 0.08333, 0.25000, 0.31250)
+ PSEARCH:     8 Dens =  -0.502640E-01 Pos = ( 0.50000, 0.37500, 0.18750)
+ PSEARCH:     9 Dens =  -0.723738E-01 Pos = ( 0.50000, 0.43750, 0.25000)
+ PSEARCH:    10 Dens =  -0.158667     Pos = ( 0.33333, 0.50000, 0.12500)
+ XRAY> 
+ XRAY>    declare name=flagmap domain=real end 
+ XRAY>    fmap 
+ XMAPASU: using grid [  12,  16,  16] and sublattice [  12,  16,  16]
+ Minimum brick that covers asymmetric unit:
+   A=     0,...,     6  B=     0,...,     8  C=     0,...,     8
+ Number of deleted points in ASU=         173
+ Number of non-zero lattice points in ASU=         394
+ Number of special positions in ASU=          20
+ FMAP>      RSObj=flagmap 
+ FMAP>      Action=copy 
+ FMAP>    end 
+ XMAPAL: allocating space for real space object.
+ FMAP: Independent grid points =       394
+ XRAY> 
+ XRAY>    show sum (1) (flagmap < 1) 
+ Sum of       394 elements =               394.0000
+ XRAY>    eval($nasym=$result) 
+ EVALUATE: symbol $NASYM set to    394.000     (real)
+ XRAY>    show sum (1) (flagmap < 0) 
+ Sum of        17 elements =                17.0000
+ XRAY>    eval($npeaks=max(1,$result)) 
+ EVALUATE: symbol $NPEAKS set to    17.0000     (real)
+ XRAY>    show sum (1) (flagmap < 0 and edmap < $minpeak) 
+ Sum of        15 elements =                15.0000
+ XRAY>    eval($smallpeaks=$result) 
+ EVALUATE: symbol $SMALLPEAKS set to    15.0000     (real)
+ XRAY>    eval($fom=$smallpeaks/$npeaks) 
+ EVALUATE: symbol $FOM set to   0.882353     (real)
+ XRAY>  end 
+ CNSsolve> 
+ CNSsolve>  set message=on end 
+ CNSsolve>end loop sg 
+ CNSsolve>for $sg in ("P1" "C2/c" "Fddd" "I-4c2" "P3(1)21" "P6(3)/mcm" "P2(1)3") loop sg 
+ FOR LOOP: symbol SG set to "Fddd" (string)
+ CNSsolve>  do (x=0.499   ) (name=SI1) 
+ SELRPN:      1 atoms have been selected out of      2
+ CNSsolve>  do (y=0.000   ) (name=SI1) 
+ SELRPN:      1 atoms have been selected out of      2
+ CNSsolve>  do (z=0.333333) (name=SI1) 
+ SELRPN:      1 atoms have been selected out of      2
+ CNSsolve>  do (q=1.0     ) (name=SI1) 
+ SELRPN:      1 atoms have been selected out of      2
+ CNSsolve>  do (b=2.0     ) (name=SI1) 
+ SELRPN:      1 atoms have been selected out of      2
+ CNSsolve> 
+ CNSsolve>  do (x=0.427   ) (name=O1) 
+ SELRPN:      1 atoms have been selected out of      2
+ CNSsolve>  do (y=0.187   ) (name=O1) 
+ SELRPN:      1 atoms have been selected out of      2
+ CNSsolve>  do (z=0.128   ) (name=O1) 
+ SELRPN:      1 atoms have been selected out of      2
+ CNSsolve>  do (q=1.0     ) (name=O1) 
+ SELRPN:      1 atoms have been selected out of      2
+ CNSsolve>  do (b=4.0     ) (name=O1) 
+ SELRPN:      1 atoms have been selected out of      2
+ CNSsolve> 
+ CNSsolve>  {* reset all xray settings 
+ CNSsolve>   *} 
+ CNSsolve>  xray 
+ XRAY>    reset 
+ XRAY: whole xray database erased and reset
+ XRAY>  end 
+ CNSsolve> 
+ CNSsolve>  {* define some general xray settings 
+ CNSsolve>   *} 
+ CNSsolve>  xray 
+ XRAY>    bins=1 
+ XRAY>    method=direct 
+ XRAY> 
+ XRAY>    evaluate ($lr=10000.) 
+ EVALUATE: symbol $LR set to    10000.0     (real)
+ XRAY>    evaluate ($hr=1) 
+ EVALUATE: symbol $HR set to    1.00000     (real)
+ XRAY>    binresolution $lr $hr 
+ XRAY>    mapresolution $hr 
+ XRAY>    tselection=( $hr <= d <= $lr ) 
+ XRAY>  end 
+ CNSsolve> 
+ CNSsolve>  {* define scattering factors and symmetry 
+ CNSsolve>   *} 
+ CNSsolve>  xray 
+ XRAY>    @@CNS_XRAYLIB:scatter.lib 
+ ASSFIL: file scatter.lib opened.
+ XRAY>! file libraries/xray/scatter.lib 
+ XRAY>! Atomic scattering factors without anomalous contribution 
+ XRAY>! Library for CNS 
+ XRAY> 
+ XRAY>! Authors: Paul Adams, Joe Jaeger, and Axel T. Brunger 
+ XRAY> 
+ XRAY>!BEWARE: 
+ XRAY>!(1) element Cf (Californium) has to be referred to as Cff 
+ XRAY>!(2) element Sm (Samarium) has to be referred to as Smm 
+ XRAY>!(3) element Np (Neptunium) has to be referred to as Npp 
+ XRAY>!(3) types of elements with ionic state (i.e., +/-) specifications have 
+ XRAY>!    to be put in double quotes in selection statements. 
+ XRAY> 
+ XRAY>set message ? end 
+ MESSage=NORM
+ XRAY>evaluate ($message_old_sclib=$result) 
+ EVALUATE: symbol $MESSAGE_OLD_SCLIB set to "NORM" (string)
+ XRAY>set echo ? end 
+ ECHO=TRUE {ON}
+ XRAY>evaluate ($echo_old_sclib=$result) 
+ EVALUATE: symbol $ECHO_OLD_SCLIB set to TRUE (logical)
+ XRAY>set echo=off message=off end 
+ XRAY>    @@CNS_XTALLIB:spacegroup.lib (sg=$sg; sgparam = $sgparam) 
+ ASSFIL: file spacegroup.lib opened.
+ XRAY>! file  libraries/xtal/spacegroup.lib 
+ XRAY>! library of symmetry operators for CNS 
+ XRAY>! Automatically generated with SgInfo Version 2.00a13 
+ XRAY> 
+ XRAY>module 
+ MODULE-DECLARATION>( 
+ MODULE-DECLARATION>  &sg=$sg; 
+ MODULE-DECLARATION>  &sgparam=$sgparam; 
+ MODULE-DECLARATION>) 
+ &_2_SG set to $_1_SG 
+ &_2_SGPARAM set to $_1_SGPARAM 
+ XRAY> 
+ XRAY>set message ? end 
+ MESSage=NORM
+ XRAY>evaluate ($message_old=$result) 
+ EVALUATE: symbol $MESSAGE_OLD set to "NORM" (string)
+ XRAY>set echo ? end 
+ ECHO=TRUE {ON}
+ XRAY>evaluate ($echo_old=$result) 
+ EVALUATE: symbol $ECHO_OLD set to TRUE (logical)
+ XRAY>set echo=off message=off end 
+SYMMETRY: found symmetry operators for space group Fddd in library
+ XRAY> 
+ XRAY>  end 
+ CNSsolve> 
+ CNSsolve>  {* define dummy unit cell dimensions based on space group number 
+ CNSsolve>   *} 
+ CNSsolve>  if     ($sgparam.sg_number <=   2) then 
+ NEXTCD: condition evaluated as false
+ CNSsolve>    evaluate ($a = 5.01) 
+ CNSsolve>    evaluate ($b = 6.25) 
+ CNSsolve>    evaluate ($c = 5.47) 
+ CNSsolve>    evaluate ($alpha = 100) 
+ CNSsolve>    evaluate ($beta  =  80) 
+ CNSsolve>    evaluate ($gamma = 110) 
+ CNSsolve>  elseif ($sgparam.sg_number <=  15) then 
+ NEXTCD: condition evaluated as false
+ CNSsolve>    evaluate ($a = 5.01) 
+ CNSsolve>    evaluate ($b = 6.25) 
+ CNSsolve>    evaluate ($c = 5.47) 
+ CNSsolve>    evaluate ($alpha =  90) 
+ CNSsolve>    evaluate ($beta  =  80) 
+ CNSsolve>    evaluate ($gamma =  90) 
+ CNSsolve>  elseif ($sgparam.sg_number <=  74) then 
+ NEXTCD: condition evaluated as true
+ CNSsolve>    evaluate ($a = 5.01) 
+ EVALUATE: symbol $A set to    5.01000     (real)
+ CNSsolve>    evaluate ($b = 6.25) 
+ EVALUATE: symbol $B set to    6.25000     (real)
+ CNSsolve>    evaluate ($c = 5.47) 
+ EVALUATE: symbol $C set to    5.47000     (real)
+ CNSsolve>    evaluate ($alpha =  90) 
+ EVALUATE: symbol $ALPHA set to    90.0000     (real)
+ CNSsolve>    evaluate ($beta  =  90) 
+ EVALUATE: symbol $BETA set to    90.0000     (real)
+ CNSsolve>    evaluate ($gamma =  90) 
+ EVALUATE: symbol $GAMMA set to    90.0000     (real)
+ CNSsolve>  elseif ($sgparam.sg_number <= 142) then 
+ CNSsolve>    evaluate ($a = 5.01) 
+ CNSsolve>    evaluate ($b = $a) 
+ CNSsolve>    evaluate ($c = 5.47) 
+ CNSsolve>    evaluate ($alpha =  90) 
+ CNSsolve>    evaluate ($beta  =  90) 
+ CNSsolve>    evaluate ($gamma =  90) 
+ CNSsolve>  elseif ($sgparam.sg_number <= 194) then 
+ CNSsolve>    evaluate ($a = 5.01) 
+ CNSsolve>    evaluate ($b = $a) 
+ CNSsolve>    evaluate ($c = 5.47) 
+ CNSsolve>    evaluate ($alpha =  90) 
+ CNSsolve>    evaluate ($beta  =  90) 
+ CNSsolve>    evaluate ($gamma = 120) 
+ CNSsolve>  else 
+ CNSsolve>    evaluate ($a = 5.01) 
+ CNSsolve>    evaluate ($b = $a) 
+ CNSsolve>    evaluate ($c = $a) 
+ CNSsolve>    evaluate ($alpha =  90) 
+ CNSsolve>    evaluate ($beta  =  90) 
+ CNSsolve>    evaluate ($gamma =  90) 
+ CNSsolve>  end if 
+ CNSsolve> 
+ CNSsolve>  xray 
+ XRAY>    a=$a b=$b c=$c alpha=$alpha beta=$beta gamma=$gamma 
+ XRAY>  end 
+ CNSsolve> 
+ CNSsolve>  coordinates orthogonalize end 
+ ORTHO: transformation matrix =
+     5.010000     0.000000     0.000000
+     0.000000     6.250000     0.000000
+     0.000000     0.000000     5.470000
+ CNSsolve> 
+ CNSsolve>  xray 
+ XRAY>    {* set space-group dependent restrictions for map-grid dimensions 
+ XRAY>     *} 
+ XRAY>    fft 
+ XFFT>      grid=0.4 
+ XFFT>      xgridfactor=$sgparam.SymGrid_x 
+ XFFT>      ygridfactor=$sgparam.SymGrid_y 
+ XFFT>      zgridfactor=$sgparam.SymGrid_z 
+ XFFT>    end 
+ XRAY> 
+ XRAY>    {* generate reflections 
+ XRAY>     *} 
+ XRAY>    anomalous = false 
+ XRAY>    generate 100000. 1.0 
+ XGENER: generating reflections to produce a full set
+         for the specified resolution range.
+ XGENE2:       22 new reflections have been generated.
+ XRAY> 
+ XRAY>    {* compute dummy "fobs" 
+ XRAY>     *} 
+ XRAY>    declare name=fobs domain=reciprocal type=complex end 
+ XDECLARE: Object FOBS has been declared.
+ XRAY>    predict 
+ PREDict>      mode=reciprocal 
+ PREDict>      to=fobs 
+ PREDict>      selection=(all) 
+ Total of        22 structure factor elements were selected.
+ PREDict>      atomselection=(all) 
+ SELRPN:      2 atoms have been selected out of      2
+ PREDict>    end 
+ FOBS: #scatt.=      2 #anomalous=   0 #special pos.=  1 occupancies=1
+ XSFAL: allocating space for complex reciprocal space object.
+ XRAY> 
+ XRAY>    {* expand to P1 
+ XRAY>     *} 
+ XRAY>    expand 
+ XEXPA2:       49 new reflections have been generated.
+ XREDUC: some reflection(s) converted to CNS standard asymm. unit.
+ XRAY: data expanded and symmetry reset to P1.
+ XRAY>  end 
+ CNSsolve> 
+ CNSsolve>  xray 
+ XRAY>    declare name=edmap domain=real end 
+ XRAY>  end 
+ CNSsolve> 
+ CNSsolve>  xray 
+ XRAY>    do (edmap=FT(fobs)) (all) 
+ XSFAL: allocating space for complex reciprocal space object.
+ Total of        71 structure factor elements were selected.
+ XMAPASU: using grid [  16,  16,  16] and sublattice [  16,  16,  16]
+ Maps will be stored in P1:
+   A=     0,...,    15  B=     0,...,    15  C=     0,...,    15
+ XMAPAL: allocating space for real space object.
+ XRAY>    show min (real(edmap)) (all) 
+ Minimum of      4096 elements =                -8.1690
+ XRAY>    eval($edmin=$result) 
+ EVALUATE: symbol $EDMIN set to   -8.16902     (real)
+ XRAY>    show max (real(edmap)) (all) 
+ Maximum of      4096 elements =                19.8059
+ XRAY>    eval($edmax=$result) 
+ EVALUATE: symbol $EDMAX set to    19.8059     (real)
+ XRAY>  end 
+ CNSsolve> 
+ CNSsolve>  xray 
+ XRAY>    {* define symmetry for flagmap 
+ XRAY>     *} 
+ XRAY>    fmap 
+ XMAPASU: using grid [  16,  16,  16] and sublattice [  16,  16,  16]
+ Minimum brick that covers asymmetric unit:
+   A=     0,...,     2  B=     0,...,     4  C=     0,...,    16
+ FMAP>      @@CNS_XTALLIB:spacegroup.lib (sg=$sg; sgparam = $sgparam) 
+ ASSFIL: file spacegroup.lib opened.
+ FMAP>! file  libraries/xtal/spacegroup.lib 
+ FMAP>! library of symmetry operators for CNS 
+ FMAP>! Automatically generated with SgInfo Version 2.00a13 
+ FMAP> 
+ FMAP>module 
+ MODULE-DECLARATION>( 
+ MODULE-DECLARATION>  &sg=$sg; 
+ MODULE-DECLARATION>  &sgparam=$sgparam; 
+ MODULE-DECLARATION>) 
+ &_2_SG set to $_1_SG 
+ &_2_SGPARAM set to $_1_SGPARAM 
+ FMAP> 
+ FMAP>set message ? end 
+ MESSage=NORM
+ FMAP>evaluate ($message_old=$result) 
+ EVALUATE: symbol $MESSAGE_OLD set to "NORM" (string)
+ FMAP>set echo ? end 
+ ECHO=TRUE {ON}
+ FMAP>evaluate ($echo_old=$result) 
+ EVALUATE: symbol $ECHO_OLD set to TRUE (logical)
+ FMAP>set echo=off message=off end 
+SYMMETRY: found symmetry operators for space group Fddd in library
+ FMAP> 
+ FMAP>      if ($sgparam.ssVM_1 # "VOID") then ssVM = $sgparam.ssVM_1 end if 
+ NEXTCD: condition evaluated as true
+ FMAP>      if ($sgparam.ssVM_2 # "VOID") then ssVM = $sgparam.ssVM_2 end if 
+ NEXTCD: condition evaluated as false
+ FMAP>      if ($sgparam.ssVM_3 # "VOID") then ssVM = $sgparam.ssVM_3 end if 
+ NEXTCD: condition evaluated as false
+ FMAP>      if ($sgparam.GenK2L # "VOID") then Addl = $sgparam.GenK2L end if 
+ NEXTCD: condition evaluated as false
+ FMAP>      ? 
+ --------------FMAP-parameters--------------------------------------------------
+ Number of symmetry operations =  32
+ Number of s.s.Vectors & Moduli =   1
+   s.s.Vector  Modulus
+     1  0  0   2
+ Number of ADDLgenerators =   0
+ USESym=FALSE
+ USE_ss=FALSE
+ USEAddl=FALSE
+ -------------------------------------------------------------------------------
+ FMAP>      Symmetry ? 
+ --------------FMAP-symmetry----------------------------------------------------
+ | SYMMetry=(X,Y,Z)
+ | SYMMetry=(-X+1/4,-Y+1/4,-Z+1/4)
+ | SYMMetry=(-X,-Y,Z)
+ | SYMMetry=(X,-Y,-Z)
+ | SYMMetry=(-X,Y,-Z)
+ | SYMMetry=(X+1/4,Y+1/4,-Z+1/4)
+ | SYMMetry=(-X+1/4,Y+1/4,Z+1/4)
+ | SYMMetry=(X+1/4,-Y+1/4,Z+1/4)
+ | SYMMetry=(X,Y+1/2,Z+1/2)
+ | SYMMetry=(-X+1/4,-Y+3/4,-Z+3/4)
+ | SYMMetry=(-X,-Y+1/2,Z+1/2)
+ | SYMMetry=(X,-Y+1/2,-Z+1/2)
+ | SYMMetry=(-X,Y+1/2,-Z+1/2)
+ | SYMMetry=(X+1/4,Y+3/4,-Z+3/4)
+ | SYMMetry=(-X+1/4,Y+3/4,Z+3/4)
+ | SYMMetry=(X+1/4,-Y+3/4,Z+3/4)
+ | SYMMetry=(X+1/2,Y,Z+1/2)
+ | SYMMetry=(-X+3/4,-Y+1/4,-Z+3/4)
+ | SYMMetry=(-X+1/2,-Y,Z+1/2)
+ | SYMMetry=(X+1/2,-Y,-Z+1/2)
+ | SYMMetry=(-X+1/2,Y,-Z+1/2)
+ | SYMMetry=(X+3/4,Y+1/4,-Z+3/4)
+ | SYMMetry=(-X+3/4,Y+1/4,Z+3/4)
+ | SYMMetry=(X+3/4,-Y+1/4,Z+3/4)
+ | SYMMetry=(X+1/2,Y+1/2,Z)
+ | SYMMetry=(-X+3/4,-Y+3/4,-Z+1/4)
+ | SYMMetry=(-X+1/2,-Y+1/2,Z)
+ | SYMMetry=(X+1/2,-Y+1/2,-Z)
+ | SYMMetry=(-X+1/2,Y+1/2,-Z)
+ | SYMMetry=(X+3/4,Y+3/4,-Z+1/4)
+ | SYMMetry=(-X+3/4,Y+3/4,Z+1/4)
+ | SYMMetry=(X+3/4,-Y+3/4,Z+1/4)
+ -------------------------------------------------------------------------------
+ FMAP>      AddlGenerators ? 
+ --------------FMAP-ADDLgenerators----------------------------------------------
+ -------------------------------------------------------------------------------
+ FMAP>    end 
+ XRAY>  end 
+ CNSsolve> 
+ CNSsolve>  set message=all end 
+ CNSsolve> 
+ CNSsolve>  xray 
+ XRAY>    {* Build flagmap 
+ XRAY>     *} 
+ XRAY>    fmap 
+ XMAPASU: using grid [  16,  16,  16] and sublattice [  16,  16,  16]
+ Minimum brick that covers asymmetric unit:
+   A=     0,...,     2  B=     0,...,     4  C=     0,...,    16
+ Number of deleted points in ASU=          99
+ Number of non-zero lattice points in ASU=         141
+ Number of special positions in ASU=          25
+ FMAP>      UseSym = true 
+ FMAP>      Use_ss  = false 
+ FMAP>      UseAddl = false 
+ FMAP>      Action=Build 
+ FMAP>    end 
+ FMAP: Building FlagMap
+ FMAP: Removing grid points related by symmetry operations
+ FMAP:       Total number of grid points =      4096
+ FMAP: Remaining independent grid points =       141
+ FMAP: Independent grid points =       141
+ XRAY>  end 
+ CNSsolve> 
+ CNSsolve>  show elem (x) (resid 1) eval($site.x=$result) 
+ SELRPN:      1 atoms have been selected out of      2
+ ( QZ   SI   1    SI1  )    2.5000    
+ EVALUATE: symbol $SITE.X set to    2.49999     (real)
+ CNSsolve>  show elem (y) (resid 1) eval($site.y=$result) 
+ SELRPN:      1 atoms have been selected out of      2
+ ( QZ   SI   1    SI1  )  -0.63661E-14
+ EVALUATE: symbol $SITE.Y set to  -0.636613E-14 (real)
+ CNSsolve>  show elem (z) (resid 1) eval($site.z=$result) 
+ SELRPN:      1 atoms have been selected out of      2
+ ( QZ   SI   1    SI1  )    1.8233    
+ EVALUATE: symbol $SITE.Z set to    1.82333     (real)
+ CNSsolve> 
+ CNSsolve>  xray 
+ XRAY>    lidens 
+ LIDens>      dens=edmap 
+ LIDens>      atomselection=(all) 
+ SELRPN:      2 atoms have been selected out of      2
+ LIDens>      to=vx 
+ LIDens>      site=$site.x $site.y $site.z 
+ LIDens>    end 
+ LIDens: Density at site     2.50     0.00     1.82 =  18.8149    
+ LIDens: Density at site     2.14     1.17     0.70 =  3.80847    
+ LIDens: Density at site     2.50     0.00     1.82 =  18.8149    
+ XRAY>    eval($lidens1=$result) 
+ EVALUATE: symbol $LIDENS1 set to    18.8149     (real)
+ XRAY>  end 
+ CNSsolve>  show elem (vx) (all) 
+ SELRPN:      2 atoms have been selected out of      2
+ ( QZ   SI   1    SI1  )    18.815    
+ ( QZ   O    2    O1   )    3.8085    
+ CNSsolve>  show elem (vx) (resid 1) 
+ SELRPN:      1 atoms have been selected out of      2
+ ( QZ   SI   1    SI1  )    18.815    
+ CNSsolve>  eval($delta=abs($lidens1-$result)) 
+ EVALUATE: symbol $DELTA set to   0.119583E-04 (real)
+ CNSsolve>  if ($delta > 0.001) then 
+ NEXTCD: condition evaluated as false
+ CNSsolve>    display $lidens1 $result 
+ CNSsolve>    abort 
+ CNSsolve>  end if 
+ CNSsolve>  if ($lidens1 < $edmin) then 
+ NEXTCD: condition evaluated as false
+ CNSsolve>    abort 
+ CNSsolve>  end if 
+ CNSsolve>  if ($lidens1 > $edmax) then 
+ NEXTCD: condition evaluated as false
+ CNSsolve>    abort 
+ CNSsolve>  end if 
+ CNSsolve>  show min (vx) (all) 
+ SELRPN:      2 atoms have been selected out of      2
+ SHOW: minimum of selected elements =       3.808475
+ CNSsolve>  eval($minpeak=$result) 
+ EVALUATE: symbol $MINPEAK set to    3.80847     (real)
+ CNSsolve> 
+ CNSsolve>  xray 
+ XRAY>    psearch 
+ PSEARCH>      From=edmap 
+ PSEARCH>      level = 1 
+ PSEARCH>      nList = 10 
+ PSEARCH>      Fractional = true 
+ PSEARCH>    end 
+ PSEARCH: DensCutOff =   -8.16902    
+ PSEARCH: Number of peaks in overstore buffer =        2
+ PSEARCH: Number of peaks listed              =        2
+ PSEARCH:                                   (  Fractional Coordinates  )
+ PSEARCH:     1 Dens =    19.8059     Pos = ( 0.00000, 0.00000, 0.18750)
+ PSEARCH:     2 Dens =  -0.369088     Pos = ( 0.00000, 0.12500, 0.00000)
+ XRAY> 
+ XRAY>    declare name=flagmap domain=real end 
+ XRAY>    fmap 
+ XMAPASU: using grid [  16,  16,  16] and sublattice [  16,  16,  16]
+ Minimum brick that covers asymmetric unit:
+   A=     0,...,     2  B=     0,...,     4  C=     0,...,    16
+ Number of deleted points in ASU=          99
+ Number of non-zero lattice points in ASU=         141
+ Number of special positions in ASU=          25
+ FMAP>      RSObj=flagmap 
+ FMAP>      Action=copy 
+ FMAP>    end 
+ XMAPAL: allocating space for real space object.
+ FMAP: Independent grid points =       141
+ XRAY> 
+ XRAY>    show sum (1) (flagmap < 1) 
+ Sum of       141 elements =               141.0000
+ XRAY>    eval($nasym=$result) 
+ EVALUATE: symbol $NASYM set to    141.000     (real)
+ XRAY>    show sum (1) (flagmap < 0) 
+ Sum of         2 elements =                 2.0000
+ XRAY>    eval($npeaks=max(1,$result)) 
+ EVALUATE: symbol $NPEAKS set to    2.00000     (real)
+ XRAY>    show sum (1) (flagmap < 0 and edmap < $minpeak) 
+ Sum of         1 elements =                 1.0000
+ XRAY>    eval($smallpeaks=$result) 
+ EVALUATE: symbol $SMALLPEAKS set to    1.00000     (real)
+ XRAY>    eval($fom=$smallpeaks/$npeaks) 
+ EVALUATE: symbol $FOM set to   0.500000     (real)
+ XRAY>  end 
+ CNSsolve> 
+ CNSsolve>  set message=on end 
+ CNSsolve>end loop sg 
+ CNSsolve>for $sg in ("P1" "C2/c" "Fddd" "I-4c2" "P3(1)21" "P6(3)/mcm" "P2(1)3") loop sg 
+ FOR LOOP: symbol SG set to "I-4c2" (string)
+ CNSsolve>  do (x=0.499   ) (name=SI1) 
+ SELRPN:      1 atoms have been selected out of      2
+ CNSsolve>  do (y=0.000   ) (name=SI1) 
+ SELRPN:      1 atoms have been selected out of      2
+ CNSsolve>  do (z=0.333333) (name=SI1) 
+ SELRPN:      1 atoms have been selected out of      2
+ CNSsolve>  do (q=1.0     ) (name=SI1) 
+ SELRPN:      1 atoms have been selected out of      2
+ CNSsolve>  do (b=2.0     ) (name=SI1) 
+ SELRPN:      1 atoms have been selected out of      2
+ CNSsolve> 
+ CNSsolve>  do (x=0.427   ) (name=O1) 
+ SELRPN:      1 atoms have been selected out of      2
+ CNSsolve>  do (y=0.187   ) (name=O1) 
+ SELRPN:      1 atoms have been selected out of      2
+ CNSsolve>  do (z=0.128   ) (name=O1) 
+ SELRPN:      1 atoms have been selected out of      2
+ CNSsolve>  do (q=1.0     ) (name=O1) 
+ SELRPN:      1 atoms have been selected out of      2
+ CNSsolve>  do (b=4.0     ) (name=O1) 
+ SELRPN:      1 atoms have been selected out of      2
+ CNSsolve> 
+ CNSsolve>  {* reset all xray settings 
+ CNSsolve>   *} 
+ CNSsolve>  xray 
+ XRAY>    reset 
+ XRAY: whole xray database erased and reset
+ XRAY>  end 
+ CNSsolve> 
+ CNSsolve>  {* define some general xray settings 
+ CNSsolve>   *} 
+ CNSsolve>  xray 
+ XRAY>    bins=1 
+ XRAY>    method=direct 
+ XRAY> 
+ XRAY>    evaluate ($lr=10000.) 
+ EVALUATE: symbol $LR set to    10000.0     (real)
+ XRAY>    evaluate ($hr=1) 
+ EVALUATE: symbol $HR set to    1.00000     (real)
+ XRAY>    binresolution $lr $hr 
+ XRAY>    mapresolution $hr 
+ XRAY>    tselection=( $hr <= d <= $lr ) 
+ XRAY>  end 
+ CNSsolve> 
+ CNSsolve>  {* define scattering factors and symmetry 
+ CNSsolve>   *} 
+ CNSsolve>  xray 
+ XRAY>    @@CNS_XRAYLIB:scatter.lib 
+ ASSFIL: file scatter.lib opened.
+ XRAY>! file libraries/xray/scatter.lib 
+ XRAY>! Atomic scattering factors without anomalous contribution 
+ XRAY>! Library for CNS 
+ XRAY> 
+ XRAY>! Authors: Paul Adams, Joe Jaeger, and Axel T. Brunger 
+ XRAY> 
+ XRAY>!BEWARE: 
+ XRAY>!(1) element Cf (Californium) has to be referred to as Cff 
+ XRAY>!(2) element Sm (Samarium) has to be referred to as Smm 
+ XRAY>!(3) element Np (Neptunium) has to be referred to as Npp 
+ XRAY>!(3) types of elements with ionic state (i.e., +/-) specifications have 
+ XRAY>!    to be put in double quotes in selection statements. 
+ XRAY> 
+ XRAY>set message ? end 
+ MESSage=NORM
+ XRAY>evaluate ($message_old_sclib=$result) 
+ EVALUATE: symbol $MESSAGE_OLD_SCLIB set to "NORM" (string)
+ XRAY>set echo ? end 
+ ECHO=TRUE {ON}
+ XRAY>evaluate ($echo_old_sclib=$result) 
+ EVALUATE: symbol $ECHO_OLD_SCLIB set to TRUE (logical)
+ XRAY>set echo=off message=off end 
+ XRAY>    @@CNS_XTALLIB:spacegroup.lib (sg=$sg; sgparam = $sgparam) 
+ ASSFIL: file spacegroup.lib opened.
+ XRAY>! file  libraries/xtal/spacegroup.lib 
+ XRAY>! library of symmetry operators for CNS 
+ XRAY>! Automatically generated with SgInfo Version 2.00a13 
+ XRAY> 
+ XRAY>module 
+ MODULE-DECLARATION>( 
+ MODULE-DECLARATION>  &sg=$sg; 
+ MODULE-DECLARATION>  &sgparam=$sgparam; 
+ MODULE-DECLARATION>) 
+ &_2_SG set to $_1_SG 
+ &_2_SGPARAM set to $_1_SGPARAM 
+ XRAY> 
+ XRAY>set message ? end 
+ MESSage=NORM
+ XRAY>evaluate ($message_old=$result) 
+ EVALUATE: symbol $MESSAGE_OLD set to "NORM" (string)
+ XRAY>set echo ? end 
+ ECHO=TRUE {ON}
+ XRAY>evaluate ($echo_old=$result) 
+ EVALUATE: symbol $ECHO_OLD set to TRUE (logical)
+ XRAY>set echo=off message=off end 
+SYMMETRY: found symmetry operators for space group I-4c2 in library
+ XRAY> 
+ XRAY>  end 
+ CNSsolve> 
+ CNSsolve>  {* define dummy unit cell dimensions based on space group number 
+ CNSsolve>   *} 
+ CNSsolve>  if     ($sgparam.sg_number <=   2) then 
+ NEXTCD: condition evaluated as false
+ CNSsolve>    evaluate ($a = 5.01) 
+ CNSsolve>    evaluate ($b = 6.25) 
+ CNSsolve>    evaluate ($c = 5.47) 
+ CNSsolve>    evaluate ($alpha = 100) 
+ CNSsolve>    evaluate ($beta  =  80) 
+ CNSsolve>    evaluate ($gamma = 110) 
+ CNSsolve>  elseif ($sgparam.sg_number <=  15) then 
+ NEXTCD: condition evaluated as false
+ CNSsolve>    evaluate ($a = 5.01) 
+ CNSsolve>    evaluate ($b = 6.25) 
+ CNSsolve>    evaluate ($c = 5.47) 
+ CNSsolve>    evaluate ($alpha =  90) 
+ CNSsolve>    evaluate ($beta  =  80) 
+ CNSsolve>    evaluate ($gamma =  90) 
+ CNSsolve>  elseif ($sgparam.sg_number <=  74) then 
+ NEXTCD: condition evaluated as false
+ CNSsolve>    evaluate ($a = 5.01) 
+ CNSsolve>    evaluate ($b = 6.25) 
+ CNSsolve>    evaluate ($c = 5.47) 
+ CNSsolve>    evaluate ($alpha =  90) 
+ CNSsolve>    evaluate ($beta  =  90) 
+ CNSsolve>    evaluate ($gamma =  90) 
+ CNSsolve>  elseif ($sgparam.sg_number <= 142) then 
+ NEXTCD: condition evaluated as true
+ CNSsolve>    evaluate ($a = 5.01) 
+ EVALUATE: symbol $A set to    5.01000     (real)
+ CNSsolve>    evaluate ($b = $a) 
+ EVALUATE: symbol $B set to    5.01000     (real)
+ CNSsolve>    evaluate ($c = 5.47) 
+ EVALUATE: symbol $C set to    5.47000     (real)
+ CNSsolve>    evaluate ($alpha =  90) 
+ EVALUATE: symbol $ALPHA set to    90.0000     (real)
+ CNSsolve>    evaluate ($beta  =  90) 
+ EVALUATE: symbol $BETA set to    90.0000     (real)
+ CNSsolve>    evaluate ($gamma =  90) 
+ EVALUATE: symbol $GAMMA set to    90.0000     (real)
+ CNSsolve>  elseif ($sgparam.sg_number <= 194) then 
+ CNSsolve>    evaluate ($a = 5.01) 
+ CNSsolve>    evaluate ($b = $a) 
+ CNSsolve>    evaluate ($c = 5.47) 
+ CNSsolve>    evaluate ($alpha =  90) 
+ CNSsolve>    evaluate ($beta  =  90) 
+ CNSsolve>    evaluate ($gamma = 120) 
+ CNSsolve>  else 
+ CNSsolve>    evaluate ($a = 5.01) 
+ CNSsolve>    evaluate ($b = $a) 
+ CNSsolve>    evaluate ($c = $a) 
+ CNSsolve>    evaluate ($alpha =  90) 
+ CNSsolve>    evaluate ($beta  =  90) 
+ CNSsolve>    evaluate ($gamma =  90) 
+ CNSsolve>  end if 
+ CNSsolve> 
+ CNSsolve>  xray 
+ XRAY>    a=$a b=$b c=$c alpha=$alpha beta=$beta gamma=$gamma 
+ XRAY>  end 
+ CNSsolve> 
+ CNSsolve>  coordinates orthogonalize end 
+ ORTHO: transformation matrix =
+     5.010000     0.000000     0.000000
+     0.000000     5.010000     0.000000
+     0.000000     0.000000     5.470000
+ CNSsolve> 
+ CNSsolve>  xray 
+ XRAY>    {* set space-group dependent restrictions for map-grid dimensions 
+ XRAY>     *} 
+ XRAY>    fft 
+ XFFT>      grid=0.4 
+ XFFT>      xgridfactor=$sgparam.SymGrid_x 
+ XFFT>      ygridfactor=$sgparam.SymGrid_y 
+ XFFT>      zgridfactor=$sgparam.SymGrid_z 
+ XFFT>    end 
+ XRAY> 
+ XRAY>    {* generate reflections 
+ XRAY>     *} 
+ XRAY>    anomalous = false 
+ XRAY>    generate 100000. 1.0 
+ XGENER: generating reflections to produce a full set
+         for the specified resolution range.
+ XGENE2:       26 new reflections have been generated.
+ XRAY> 
+ XRAY>    {* compute dummy "fobs" 
+ XRAY>     *} 
+ XRAY>    declare name=fobs domain=reciprocal type=complex end 
+ XDECLARE: Object FOBS has been declared.
+ XRAY>    predict 
+ PREDict>      mode=reciprocal 
+ PREDict>      to=fobs 
+ PREDict>      selection=(all) 
+ Total of        26 structure factor elements were selected.
+ PREDict>      atomselection=(all) 
+ SELRPN:      2 atoms have been selected out of      2
+ PREDict>    end 
+ FOBS: #scatt.=      2 #anomalous=   0 #special pos.=  1 occupancies=1
+ XSFAL: allocating space for complex reciprocal space object.
+ XRAY> 
+ XRAY>    {* expand to P1 
+ XRAY>     *} 
+ XRAY>    expand 
+ XEXPA2:       98 new reflections have been generated.
+ XREDUC: some reflection(s) converted to CNS standard asymm. unit.
+ XRAY: data expanded and symmetry reset to P1.
+ XRAY>  end 
+ CNSsolve> 
+ CNSsolve>  xray 
+ XRAY>    declare name=edmap domain=real end 
+ XRAY>  end 
+ CNSsolve> 
+ CNSsolve>  xray 
+ XRAY>    do (edmap=FT(fobs)) (all) 
+ XSFAL: allocating space for complex reciprocal space object.
+ Total of       124 structure factor elements were selected.
+ XMAPASU: using grid [  12,  12,  16] and sublattice [  12,  12,  16]
+ Maps will be stored in P1:
+   A=     0,...,    11  B=     0,...,    11  C=     0,...,    15
+ XMAPAL: allocating space for real space object.
+ XRAY>    show min (real(edmap)) (all) 
+ Minimum of      2304 elements =                -5.0998
+ XRAY>    eval($edmin=$result) 
+ EVALUATE: symbol $EDMIN set to   -5.09983     (real)
+ XRAY>    show max (real(edmap)) (all) 
+ Maximum of      2304 elements =                21.4488
+ XRAY>    eval($edmax=$result) 
+ EVALUATE: symbol $EDMAX set to    21.4488     (real)
+ XRAY>  end 
+ CNSsolve> 
+ CNSsolve>  xray 
+ XRAY>    {* define symmetry for flagmap 
+ XRAY>     *} 
+ XRAY>    fmap 
+ XMAPASU: using grid [  12,  12,  16] and sublattice [  12,  12,  16]
+ Minimum brick that covers asymmetric unit:
+   A=     0,...,     6  B=     0,...,     6  C=     0,...,     4
+ FMAP>      @@CNS_XTALLIB:spacegroup.lib (sg=$sg; sgparam = $sgparam) 
+ ASSFIL: file spacegroup.lib opened.
+ FMAP>! file  libraries/xtal/spacegroup.lib 
+ FMAP>! library of symmetry operators for CNS 
+ FMAP>! Automatically generated with SgInfo Version 2.00a13 
+ FMAP> 
+ FMAP>module 
+ MODULE-DECLARATION>( 
+ MODULE-DECLARATION>  &sg=$sg; 
+ MODULE-DECLARATION>  &sgparam=$sgparam; 
+ MODULE-DECLARATION>) 
+ &_2_SG set to $_1_SG 
+ &_2_SGPARAM set to $_1_SGPARAM 
+ FMAP> 
+ FMAP>set message ? end 
+ MESSage=NORM
+ FMAP>evaluate ($message_old=$result) 
+ EVALUATE: symbol $MESSAGE_OLD set to "NORM" (string)
+ FMAP>set echo ? end 
+ ECHO=TRUE {ON}
+ FMAP>evaluate ($echo_old=$result) 
+ EVALUATE: symbol $ECHO_OLD set to TRUE (logical)
+ FMAP>set echo=off message=off end 
+SYMMETRY: found symmetry operators for space group I-4c2 in library
+ FMAP> 
+ FMAP>      if ($sgparam.ssVM_1 # "VOID") then ssVM = $sgparam.ssVM_1 end if 
+ NEXTCD: condition evaluated as true
+ FMAP>      if ($sgparam.ssVM_2 # "VOID") then ssVM = $sgparam.ssVM_2 end if 
+ NEXTCD: condition evaluated as false
+ FMAP>      if ($sgparam.ssVM_3 # "VOID") then ssVM = $sgparam.ssVM_3 end if 
+ NEXTCD: condition evaluated as false
+ FMAP>      if ($sgparam.GenK2L # "VOID") then Addl = $sgparam.GenK2L end if 
+ NEXTCD: condition evaluated as true
+ FMAP>      ? 
+ --------------FMAP-parameters--------------------------------------------------
+ Number of symmetry operations =  16
+ Number of s.s.Vectors & Moduli =   1
+   s.s.Vector  Modulus
+     2  0  1   4
+ Number of ADDLgenerators =   1
+ USESym=FALSE
+ USE_ss=FALSE
+ USEAddl=FALSE
+ -------------------------------------------------------------------------------
+ FMAP>      Symmetry ? 
+ --------------FMAP-symmetry----------------------------------------------------
+ | SYMMetry=(X,Y,Z)
+ | SYMMetry=(Y,-X,-Z)
+ | SYMMetry=(-X,-Y,Z)
+ | SYMMetry=(-Y,X,-Z)
+ | SYMMetry=(Y,X,-Z+1/2)
+ | SYMMetry=(-Y,-X,-Z+1/2)
+ | SYMMetry=(-X,Y,Z+1/2)
+ | SYMMetry=(X,-Y,Z+1/2)
+ | SYMMetry=(X+1/2,Y+1/2,Z+1/2)
+ | SYMMetry=(Y+1/2,-X+1/2,-Z+1/2)
+ | SYMMetry=(-X+1/2,-Y+1/2,Z+1/2)
+ | SYMMetry=(-Y+1/2,X+1/2,-Z+1/2)
+ | SYMMetry=(Y+1/2,X+1/2,-Z)
+ | SYMMetry=(-Y+1/2,-X+1/2,-Z)
+ | SYMMetry=(-X+1/2,Y+1/2,Z)
+ | SYMMetry=(X+1/2,-Y+1/2,Z)
+ -------------------------------------------------------------------------------
+ FMAP>      AddlGenerators ? 
+ --------------FMAP-ADDLgenerators----------------------------------------------
+ | SYMMetry=(-X,-Y,-Z)
+ -------------------------------------------------------------------------------
+ FMAP>    end 
+ XRAY>  end 
+ CNSsolve> 
+ CNSsolve>  set message=all end 
+ CNSsolve> 
+ CNSsolve>  xray 
+ XRAY>    {* Build flagmap 
+ XRAY>     *} 
+ XRAY>    fmap 
+ XMAPASU: using grid [  12,  12,  16] and sublattice [  12,  12,  16]
+ Minimum brick that covers asymmetric unit:
+   A=     0,...,     6  B=     0,...,     6  C=     0,...,     4
+ Number of deleted points in ASU=          90
+ Number of non-zero lattice points in ASU=         155
+ Number of special positions in ASU=          20
+ FMAP>      UseSym = true 
+ FMAP>      Use_ss  = false 
+ FMAP>      UseAddl = false 
+ FMAP>      Action=Build 
+ FMAP>    end 
+ FMAP: Building FlagMap
+ FMAP: Removing grid points related by symmetry operations
+ FMAP:       Total number of grid points =      2304
+ FMAP: Remaining independent grid points =       155
+ FMAP: Independent grid points =       155
+ XRAY>  end 
+ CNSsolve> 
+ CNSsolve>  show elem (x) (resid 1) eval($site.x=$result) 
+ SELRPN:      1 atoms have been selected out of      2
+ ( QZ   SI   1    SI1  )    2.5000    
+ EVALUATE: symbol $SITE.X set to    2.49999     (real)
+ CNSsolve>  show elem (y) (resid 1) eval($site.y=$result) 
+ SELRPN:      1 atoms have been selected out of      2
+ ( QZ   SI   1    SI1  )  -0.63661E-14
+ EVALUATE: symbol $SITE.Y set to  -0.636613E-14 (real)
+ CNSsolve>  show elem (z) (resid 1) eval($site.z=$result) 
+ SELRPN:      1 atoms have been selected out of      2
+ ( QZ   SI   1    SI1  )    1.8233    
+ EVALUATE: symbol $SITE.Z set to    1.82333     (real)
+ CNSsolve> 
+ CNSsolve>  xray 
+ XRAY>    lidens 
+ LIDens>      dens=edmap 
+ LIDens>      atomselection=(all) 
+ SELRPN:      2 atoms have been selected out of      2
+ LIDens>      to=vx 
+ LIDens>      site=$site.x $site.y $site.z 
+ LIDens>    end 
+ LIDens: Density at site     2.50     0.00     1.82 =  20.2632    
+ LIDens: Density at site     2.14     0.94     0.70 =  5.28579    
+ LIDens: Density at site     2.50     0.00     1.82 =  20.2632    
+ XRAY>    eval($lidens1=$result) 
+ EVALUATE: symbol $LIDENS1 set to    20.2632     (real)
+ XRAY>  end 
+ CNSsolve>  show elem (vx) (all) 
+ SELRPN:      2 atoms have been selected out of      2
+ ( QZ   SI   1    SI1  )    20.263    
+ ( QZ   O    2    O1   )    5.2858    
+ CNSsolve>  show elem (vx) (resid 1) 
+ SELRPN:      1 atoms have been selected out of      2
+ ( QZ   SI   1    SI1  )    20.263    
+ CNSsolve>  eval($delta=abs($lidens1-$result)) 
+ EVALUATE: symbol $DELTA set to   0.140238E-04 (real)
+ CNSsolve>  if ($delta > 0.001) then 
+ NEXTCD: condition evaluated as false
+ CNSsolve>    display $lidens1 $result 
+ CNSsolve>    abort 
+ CNSsolve>  end if 
+ CNSsolve>  if ($lidens1 < $edmin) then 
+ NEXTCD: condition evaluated as false
+ CNSsolve>    abort 
+ CNSsolve>  end if 
+ CNSsolve>  if ($lidens1 > $edmax) then 
+ NEXTCD: condition evaluated as false
+ CNSsolve>    abort 
+ CNSsolve>  end if 
+ CNSsolve>  show min (vx) (all) 
+ SELRPN:      2 atoms have been selected out of      2
+ SHOW: minimum of selected elements =       5.285788
+ CNSsolve>  eval($minpeak=$result) 
+ EVALUATE: symbol $MINPEAK set to    5.28579     (real)
+ CNSsolve> 
+ CNSsolve>  xray 
+ XRAY>    psearch 
+ PSEARCH>      From=edmap 
+ PSEARCH>      level = 1 
+ PSEARCH>      nList = 10 
+ PSEARCH>      Fractional = true 
+ PSEARCH>    end 
+ PSEARCH: DensCutOff =   -5.09983    
+ PSEARCH: Number of peaks in overstore buffer =        7
+ PSEARCH: Number of peaks listed              =        7
+ PSEARCH:                                   (  Fractional Coordinates  )
+ PSEARCH:     1 Dens =    21.4488     Pos = ( 0.50000, 0.00000, 0.18750)
+ PSEARCH:     2 Dens =    1.48005     Pos = ( 0.00000, 0.00000, 0.25000)
+ PSEARCH:     3 Dens =   0.100629     Pos = ( 0.25000, 0.08333, 0.25000)
+ PSEARCH:     4 Dens =  -0.564129     Pos = ( 0.25000, 0.41667, 0.06250)
+ PSEARCH:     5 Dens =  -0.682608     Pos = ( 0.00000, 0.00000, 0.00000)
+ PSEARCH:     6 Dens =  -0.707544     Pos = ( 0.16667, 0.16667, 0.12500)
+ PSEARCH:     7 Dens =   -1.08336     Pos = ( 0.16667, 0.33333, 0.00000)
+ XRAY> 
+ XRAY>    declare name=flagmap domain=real end 
+ XRAY>    fmap 
+ XMAPASU: using grid [  12,  12,  16] and sublattice [  12,  12,  16]
+ Minimum brick that covers asymmetric unit:
+   A=     0,...,     6  B=     0,...,     6  C=     0,...,     4
+ Number of deleted points in ASU=          90
+ Number of non-zero lattice points in ASU=         155
+ Number of special positions in ASU=          20
+ FMAP>      RSObj=flagmap 
+ FMAP>      Action=copy 
+ FMAP>    end 
+ XMAPAL: allocating space for real space object.
+ FMAP: Independent grid points =       155
+ XRAY> 
+ XRAY>    show sum (1) (flagmap < 1) 
+ Sum of       155 elements =               155.0000
+ XRAY>    eval($nasym=$result) 
+ EVALUATE: symbol $NASYM set to    155.000     (real)
+ XRAY>    show sum (1) (flagmap < 0) 
+ Sum of         7 elements =                 7.0000
+ XRAY>    eval($npeaks=max(1,$result)) 
+ EVALUATE: symbol $NPEAKS set to    7.00000     (real)
+ XRAY>    show sum (1) (flagmap < 0 and edmap < $minpeak) 
+ Sum of         6 elements =                 6.0000
+ XRAY>    eval($smallpeaks=$result) 
+ EVALUATE: symbol $SMALLPEAKS set to    6.00000     (real)
+ XRAY>    eval($fom=$smallpeaks/$npeaks) 
+ EVALUATE: symbol $FOM set to   0.857143     (real)
+ XRAY>  end 
+ CNSsolve> 
+ CNSsolve>  set message=on end 
+ CNSsolve>end loop sg 
+ CNSsolve>for $sg in ("P1" "C2/c" "Fddd" "I-4c2" "P3(1)21" "P6(3)/mcm" "P2(1)3") loop sg 
+ FOR LOOP: symbol SG set to "P3(1)21" (string)
+ CNSsolve>  do (x=0.499   ) (name=SI1) 
+ SELRPN:      1 atoms have been selected out of      2
+ CNSsolve>  do (y=0.000   ) (name=SI1) 
+ SELRPN:      1 atoms have been selected out of      2
+ CNSsolve>  do (z=0.333333) (name=SI1) 
+ SELRPN:      1 atoms have been selected out of      2
+ CNSsolve>  do (q=1.0     ) (name=SI1) 
+ SELRPN:      1 atoms have been selected out of      2
+ CNSsolve>  do (b=2.0     ) (name=SI1) 
+ SELRPN:      1 atoms have been selected out of      2
+ CNSsolve> 
+ CNSsolve>  do (x=0.427   ) (name=O1) 
+ SELRPN:      1 atoms have been selected out of      2
+ CNSsolve>  do (y=0.187   ) (name=O1) 
+ SELRPN:      1 atoms have been selected out of      2
+ CNSsolve>  do (z=0.128   ) (name=O1) 
+ SELRPN:      1 atoms have been selected out of      2
+ CNSsolve>  do (q=1.0     ) (name=O1) 
+ SELRPN:      1 atoms have been selected out of      2
+ CNSsolve>  do (b=4.0     ) (name=O1) 
+ SELRPN:      1 atoms have been selected out of      2
+ CNSsolve> 
+ CNSsolve>  {* reset all xray settings 
+ CNSsolve>   *} 
+ CNSsolve>  xray 
+ XRAY>    reset 
+ XRAY: whole xray database erased and reset
+ XRAY>  end 
+ CNSsolve> 
+ CNSsolve>  {* define some general xray settings 
+ CNSsolve>   *} 
+ CNSsolve>  xray 
+ XRAY>    bins=1 
+ XRAY>    method=direct 
+ XRAY> 
+ XRAY>    evaluate ($lr=10000.) 
+ EVALUATE: symbol $LR set to    10000.0     (real)
+ XRAY>    evaluate ($hr=1) 
+ EVALUATE: symbol $HR set to    1.00000     (real)
+ XRAY>    binresolution $lr $hr 
+ XRAY>    mapresolution $hr 
+ XRAY>    tselection=( $hr <= d <= $lr ) 
+ XRAY>  end 
+ CNSsolve> 
+ CNSsolve>  {* define scattering factors and symmetry 
+ CNSsolve>   *} 
+ CNSsolve>  xray 
+ XRAY>    @@CNS_XRAYLIB:scatter.lib 
+ ASSFIL: file scatter.lib opened.
+ XRAY>! file libraries/xray/scatter.lib 
+ XRAY>! Atomic scattering factors without anomalous contribution 
+ XRAY>! Library for CNS 
+ XRAY> 
+ XRAY>! Authors: Paul Adams, Joe Jaeger, and Axel T. Brunger 
+ XRAY> 
+ XRAY>!BEWARE: 
+ XRAY>!(1) element Cf (Californium) has to be referred to as Cff 
+ XRAY>!(2) element Sm (Samarium) has to be referred to as Smm 
+ XRAY>!(3) element Np (Neptunium) has to be referred to as Npp 
+ XRAY>!(3) types of elements with ionic state (i.e., +/-) specifications have 
+ XRAY>!    to be put in double quotes in selection statements. 
+ XRAY> 
+ XRAY>set message ? end 
+ MESSage=NORM
+ XRAY>evaluate ($message_old_sclib=$result) 
+ EVALUATE: symbol $MESSAGE_OLD_SCLIB set to "NORM" (string)
+ XRAY>set echo ? end 
+ ECHO=TRUE {ON}
+ XRAY>evaluate ($echo_old_sclib=$result) 
+ EVALUATE: symbol $ECHO_OLD_SCLIB set to TRUE (logical)
+ XRAY>set echo=off message=off end 
+ XRAY>    @@CNS_XTALLIB:spacegroup.lib (sg=$sg; sgparam = $sgparam) 
+ ASSFIL: file spacegroup.lib opened.
+ XRAY>! file  libraries/xtal/spacegroup.lib 
+ XRAY>! library of symmetry operators for CNS 
+ XRAY>! Automatically generated with SgInfo Version 2.00a13 
+ XRAY> 
+ XRAY>module 
+ MODULE-DECLARATION>( 
+ MODULE-DECLARATION>  &sg=$sg; 
+ MODULE-DECLARATION>  &sgparam=$sgparam; 
+ MODULE-DECLARATION>) 
+ &_2_SG set to $_1_SG 
+ &_2_SGPARAM set to $_1_SGPARAM 
+ XRAY> 
+ XRAY>set message ? end 
+ MESSage=NORM
+ XRAY>evaluate ($message_old=$result) 
+ EVALUATE: symbol $MESSAGE_OLD set to "NORM" (string)
+ XRAY>set echo ? end 
+ ECHO=TRUE {ON}
+ XRAY>evaluate ($echo_old=$result) 
+ EVALUATE: symbol $ECHO_OLD set to TRUE (logical)
+ XRAY>set echo=off message=off end 
+SYMMETRY: found symmetry operators for space group P3(1)21 in library
+ XRAY> 
+ XRAY>  end 
+ CNSsolve> 
+ CNSsolve>  {* define dummy unit cell dimensions based on space group number 
+ CNSsolve>   *} 
+ CNSsolve>  if     ($sgparam.sg_number <=   2) then 
+ NEXTCD: condition evaluated as false
+ CNSsolve>    evaluate ($a = 5.01) 
+ CNSsolve>    evaluate ($b = 6.25) 
+ CNSsolve>    evaluate ($c = 5.47) 
+ CNSsolve>    evaluate ($alpha = 100) 
+ CNSsolve>    evaluate ($beta  =  80) 
+ CNSsolve>    evaluate ($gamma = 110) 
+ CNSsolve>  elseif ($sgparam.sg_number <=  15) then 
+ NEXTCD: condition evaluated as false
+ CNSsolve>    evaluate ($a = 5.01) 
+ CNSsolve>    evaluate ($b = 6.25) 
+ CNSsolve>    evaluate ($c = 5.47) 
+ CNSsolve>    evaluate ($alpha =  90) 
+ CNSsolve>    evaluate ($beta  =  80) 
+ CNSsolve>    evaluate ($gamma =  90) 
+ CNSsolve>  elseif ($sgparam.sg_number <=  74) then 
+ NEXTCD: condition evaluated as false
+ CNSsolve>    evaluate ($a = 5.01) 
+ CNSsolve>    evaluate ($b = 6.25) 
+ CNSsolve>    evaluate ($c = 5.47) 
+ CNSsolve>    evaluate ($alpha =  90) 
+ CNSsolve>    evaluate ($beta  =  90) 
+ CNSsolve>    evaluate ($gamma =  90) 
+ CNSsolve>  elseif ($sgparam.sg_number <= 142) then 
+ NEXTCD: condition evaluated as false
+ CNSsolve>    evaluate ($a = 5.01) 
+ CNSsolve>    evaluate ($b = $a) 
+ CNSsolve>    evaluate ($c = 5.47) 
+ CNSsolve>    evaluate ($alpha =  90) 
+ CNSsolve>    evaluate ($beta  =  90) 
+ CNSsolve>    evaluate ($gamma =  90) 
+ CNSsolve>  elseif ($sgparam.sg_number <= 194) then 
+ NEXTCD: condition evaluated as true
+ CNSsolve>    evaluate ($a = 5.01) 
+ EVALUATE: symbol $A set to    5.01000     (real)
+ CNSsolve>    evaluate ($b = $a) 
+ EVALUATE: symbol $B set to    5.01000     (real)
+ CNSsolve>    evaluate ($c = 5.47) 
+ EVALUATE: symbol $C set to    5.47000     (real)
+ CNSsolve>    evaluate ($alpha =  90) 
+ EVALUATE: symbol $ALPHA set to    90.0000     (real)
+ CNSsolve>    evaluate ($beta  =  90) 
+ EVALUATE: symbol $BETA set to    90.0000     (real)
+ CNSsolve>    evaluate ($gamma = 120) 
+ EVALUATE: symbol $GAMMA set to    120.000     (real)
+ CNSsolve>  else 
+ CNSsolve>    evaluate ($a = 5.01) 
+ CNSsolve>    evaluate ($b = $a) 
+ CNSsolve>    evaluate ($c = $a) 
+ CNSsolve>    evaluate ($alpha =  90) 
+ CNSsolve>    evaluate ($beta  =  90) 
+ CNSsolve>    evaluate ($gamma =  90) 
+ CNSsolve>  end if 
+ CNSsolve> 
+ CNSsolve>  xray 
+ XRAY>    a=$a b=$b c=$c alpha=$alpha beta=$beta gamma=$gamma 
+ XRAY>  end 
+ CNSsolve> 
+ CNSsolve>  coordinates orthogonalize end 
+ ORTHO: transformation matrix =
+     5.010000    -2.505000     0.000000
+     0.000000     4.338787     0.000000
+     0.000000     0.000000     5.470000
+ CNSsolve> 
+ CNSsolve>  xray 
+ XRAY>    {* set space-group dependent restrictions for map-grid dimensions 
+ XRAY>     *} 
+ XRAY>    fft 
+ XFFT>      grid=0.4 
+ XFFT>      xgridfactor=$sgparam.SymGrid_x 
+ XFFT>      ygridfactor=$sgparam.SymGrid_y 
+ XFFT>      zgridfactor=$sgparam.SymGrid_z 
+ XFFT>    end 
+ XRAY> 
+ XRAY>    {* generate reflections 
+ XRAY>     *} 
+ XRAY>    anomalous = false 
+ XRAY>    generate 100000. 1.0 
+ XGENER: generating reflections to produce a full set
+         for the specified resolution range.
+ XGENE2:       59 new reflections have been generated.
+ XRAY> 
+ XRAY>    {* compute dummy "fobs" 
+ XRAY>     *} 
+ XRAY>    declare name=fobs domain=reciprocal type=complex end 
+ XDECLARE: Object FOBS has been declared.
+ XRAY>    predict 
+ PREDict>      mode=reciprocal 
+ PREDict>      to=fobs 
+ PREDict>      selection=(all) 
+ Total of        59 structure factor elements were selected.
+ PREDict>      atomselection=(all) 
+ SELRPN:      2 atoms have been selected out of      2
+ PREDict>    end 
+ FOBS: #scatt.=      2 #anomalous=   0 #special pos.=  1 occupancies=1
+ XSFAL: allocating space for complex reciprocal space object.
+ XRAY> 
+ XRAY>    {* expand to P1 
+ XRAY>     *} 
+ XRAY>    expand 
+ XEXPA2:      188 new reflections have been generated.
+ XREDUC: some reflection(s) converted to CNS standard asymm. unit.
+ XRAY: data expanded and symmetry reset to P1.
+ XRAY>  end 
+ CNSsolve> 
+ CNSsolve>  xray 
+ XRAY>    declare name=edmap domain=real end 
+ XRAY>  end 
+ CNSsolve> 
+ CNSsolve>  xray 
+ XRAY>    do (edmap=FT(fobs)) (all) 
+ XSFAL: allocating space for complex reciprocal space object.
+ Total of       247 structure factor elements were selected.
+ XMAPASU: using grid [  12,  12,  18] and sublattice [  12,  12,  18]
+ Maps will be stored in P1:
+   A=     0,...,    11  B=     0,...,    11  C=     0,...,    17
+ XMAPAL: allocating space for real space object.
+ XRAY>    show min (real(edmap)) (all) 
+ Minimum of      2592 elements =                -1.9479
+ XRAY>    eval($edmin=$result) 
+ EVALUATE: symbol $EDMIN set to   -1.94790     (real)
+ XRAY>    show max (real(edmap)) (all) 
+ Maximum of      2592 elements =                23.5930
+ XRAY>    eval($edmax=$result) 
+ EVALUATE: symbol $EDMAX set to    23.5930     (real)
+ XRAY>  end 
+ CNSsolve> 
+ CNSsolve>  xray 
+ XRAY>    {* define symmetry for flagmap 
+ XRAY>     *} 
+ XRAY>    fmap 
+ XMAPASU: using grid [  12,  12,  18] and sublattice [  12,  12,  18]
+ Minimum brick that covers asymmetric unit:
+   A=     0,...,    12  B=     0,...,    12  C=     0,...,     3
+ FMAP>      @@CNS_XTALLIB:spacegroup.lib (sg=$sg; sgparam = $sgparam) 
+ ASSFIL: file spacegroup.lib opened.
+ FMAP>! file  libraries/xtal/spacegroup.lib 
+ FMAP>! library of symmetry operators for CNS 
+ FMAP>! Automatically generated with SgInfo Version 2.00a13 
+ FMAP> 
+ FMAP>module 
+ MODULE-DECLARATION>( 
+ MODULE-DECLARATION>  &sg=$sg; 
+ MODULE-DECLARATION>  &sgparam=$sgparam; 
+ MODULE-DECLARATION>) 
+ &_2_SG set to $_1_SG 
+ &_2_SGPARAM set to $_1_SGPARAM 
+ FMAP> 
+ FMAP>set message ? end 
+ MESSage=NORM
+ FMAP>evaluate ($message_old=$result) 
+ EVALUATE: symbol $MESSAGE_OLD set to "NORM" (string)
+ FMAP>set echo ? end 
+ ECHO=TRUE {ON}
+ FMAP>evaluate ($echo_old=$result) 
+ EVALUATE: symbol $ECHO_OLD set to TRUE (logical)
+ FMAP>set echo=off message=off end 
+SYMMETRY: found symmetry operators for space group P3(1)21 in library
+ FMAP> 
+ FMAP>      if ($sgparam.ssVM_1 # "VOID") then ssVM = $sgparam.ssVM_1 end if 
+ NEXTCD: condition evaluated as true
+ FMAP>      if ($sgparam.ssVM_2 # "VOID") then ssVM = $sgparam.ssVM_2 end if 
+ NEXTCD: condition evaluated as false
+ FMAP>      if ($sgparam.ssVM_3 # "VOID") then ssVM = $sgparam.ssVM_3 end if 
+ NEXTCD: condition evaluated as false
+ FMAP>      if ($sgparam.GenK2L # "VOID") then Addl = $sgparam.GenK2L end if 
+ NEXTCD: condition evaluated as false
+ FMAP>      ? 
+ --------------FMAP-parameters--------------------------------------------------
+ Number of symmetry operations =   6
+ Number of s.s.Vectors & Moduli =   1
+   s.s.Vector  Modulus
+     0  0  1   2
+ Number of ADDLgenerators =   0
+ USESym=FALSE
+ USE_ss=FALSE
+ USEAddl=FALSE
+ -------------------------------------------------------------------------------
+ FMAP>      Symmetry ? 
+ --------------FMAP-symmetry----------------------------------------------------
+ | SYMMetry=(X,Y,Z)
+ | SYMMetry=(-Y,X-Y,Z+1/3)
+ | SYMMetry=(-X+Y,-X,Z+2/3)
+ | SYMMetry=(X-Y,-Y,-Z+2/3)
+ | SYMMetry=(-X,-X+Y,-Z+1/3)
+ | SYMMetry=(Y,X,-Z)
+ -------------------------------------------------------------------------------
+ FMAP>      AddlGenerators ? 
+ --------------FMAP-ADDLgenerators----------------------------------------------
+ -------------------------------------------------------------------------------
+ FMAP>    end 
+ XRAY>  end 
+ CNSsolve> 
+ CNSsolve>  set message=all end 
+ CNSsolve> 
+ CNSsolve>  xray 
+ XRAY>    {* Build flagmap 
+ XRAY>     *} 
+ XRAY>    fmap 
+ XMAPASU: using grid [  12,  12,  18] and sublattice [  12,  12,  18]
+ Minimum brick that covers asymmetric unit:
+   A=     0,...,    12  B=     0,...,    12  C=     0,...,     3
+ Number of deleted points in ASU=         132
+ Number of non-zero lattice points in ASU=         444
+ Number of special positions in ASU=          24
+ FMAP>      UseSym = true 
+ FMAP>      Use_ss  = false 
+ FMAP>      UseAddl = false 
+ FMAP>      Action=Build 
+ FMAP>    end 
+ FMAP: Building FlagMap
+ FMAP: Removing grid points related by symmetry operations
+ FMAP:       Total number of grid points =      2592
+ FMAP: Remaining independent grid points =       444
+ FMAP: Independent grid points =       444
+ XRAY>  end 
+ CNSsolve> 
+ CNSsolve>  show elem (x) (resid 1) eval($site.x=$result) 
+ SELRPN:      1 atoms have been selected out of      2
+ ( QZ   SI   1    SI1  )    2.5000    
+ EVALUATE: symbol $SITE.X set to    2.49999     (real)
+ CNSsolve>  show elem (y) (resid 1) eval($site.y=$result) 
+ SELRPN:      1 atoms have been selected out of      2
+ ( QZ   SI   1    SI1  )  -0.11026E-13
+ EVALUATE: symbol $SITE.Y set to  -0.110265E-13 (real)
+ CNSsolve>  show elem (z) (resid 1) eval($site.z=$result) 
+ SELRPN:      1 atoms have been selected out of      2
+ ( QZ   SI   1    SI1  )    1.8233    
+ EVALUATE: symbol $SITE.Z set to    1.82333     (real)
+ CNSsolve> 
+ CNSsolve>  xray 
+ XRAY>    lidens 
+ LIDens>      dens=edmap 
+ LIDens>      atomselection=(all) 
+ SELRPN:      2 atoms have been selected out of      2
+ LIDens>      to=vx 
+ LIDens>      site=$site.x $site.y $site.z 
+ LIDens>    end 
+ LIDens: Density at site     2.50     0.00     1.82 =  23.4605    
+ LIDens: Density at site     1.67     0.81     0.70 =  7.09257    
+ LIDens: Density at site     2.50     0.00     1.82 =  23.4604    
+ XRAY>    eval($lidens1=$result) 
+ EVALUATE: symbol $LIDENS1 set to    23.4604     (real)
+ XRAY>  end 
+ CNSsolve>  show elem (vx) (all) 
+ SELRPN:      2 atoms have been selected out of      2
+ ( QZ   SI   1    SI1  )    23.460    
+ ( QZ   O    2    O1   )    7.0926    
+ CNSsolve>  show elem (vx) (resid 1) 
+ SELRPN:      1 atoms have been selected out of      2
+ ( QZ   SI   1    SI1  )    23.460    
+ CNSsolve>  eval($delta=abs($lidens1-$result)) 
+ EVALUATE: symbol $DELTA set to   0.369984E-04 (real)
+ CNSsolve>  if ($delta > 0.001) then 
+ NEXTCD: condition evaluated as false
+ CNSsolve>    display $lidens1 $result 
+ CNSsolve>    abort 
+ CNSsolve>  end if 
+ CNSsolve>  if ($lidens1 < $edmin) then 
+ NEXTCD: condition evaluated as false
+ CNSsolve>    abort 
+ CNSsolve>  end if 
+ CNSsolve>  if ($lidens1 > $edmax) then 
+ NEXTCD: condition evaluated as false
+ CNSsolve>    abort 
+ CNSsolve>  end if 
+ CNSsolve>  show min (vx) (all) 
+ SELRPN:      2 atoms have been selected out of      2
+ SHOW: minimum of selected elements =       7.092568
+ CNSsolve>  eval($minpeak=$result) 
+ EVALUATE: symbol $MINPEAK set to    7.09257     (real)
+ CNSsolve> 
+ CNSsolve>  xray 
+ XRAY>    psearch 
+ PSEARCH>      From=edmap 
+ PSEARCH>      level = 1 
+ PSEARCH>      nList = 10 
+ PSEARCH>      Fractional = true 
+ PSEARCH>    end 
+ PSEARCH: DensCutOff =   -1.94790    
+ PSEARCH: Number of peaks in overstore buffer =       35
+ PSEARCH: Number of peaks listed              =       10
+ PSEARCH:                                   (  Fractional Coordinates  )
+ PSEARCH:     1 Dens =    23.5930     Pos = ( 0.50000, 0.50000, 0.00000)
+ PSEARCH:     2 Dens =    12.5512     Pos = ( 0.58333, 0.58333, 0.00000)
+ PSEARCH:     3 Dens =    8.65012     Pos = ( 0.41667, 0.16667, 0.11111)
+ PSEARCH:     4 Dens =    6.36588     Pos = ( 0.50000, 0.25000, 0.11111)
+ PSEARCH:     5 Dens =   0.753691     Pos = ( 0.25000, 0.16667, 0.05556)
+ PSEARCH:     6 Dens =   0.749126     Pos = ( 0.75000, 0.41667, 0.05556)
+ PSEARCH:     7 Dens =   0.724125     Pos = ( 0.25000, 0.00000, 0.16667)
+ PSEARCH:     8 Dens =   0.639860     Pos = ( 0.25000, 0.50000, 0.11111)
+ PSEARCH:     9 Dens =   0.557020     Pos = ( 0.25000, 0.58333, 0.05556)
+ PSEARCH:    10 Dens =   0.542567     Pos = ( 0.75000, 0.50000, 0.11111)
+ XRAY> 
+ XRAY>    declare name=flagmap domain=real end 
+ XRAY>    fmap 
+ XMAPASU: using grid [  12,  12,  18] and sublattice [  12,  12,  18]
+ Minimum brick that covers asymmetric unit:
+   A=     0,...,    12  B=     0,...,    12  C=     0,...,     3
+ Number of deleted points in ASU=         132
+ Number of non-zero lattice points in ASU=         444
+ Number of special positions in ASU=          24
+ FMAP>      RSObj=flagmap 
+ FMAP>      Action=copy 
+ FMAP>    end 
+ XMAPAL: allocating space for real space object.
+ FMAP: Independent grid points =       444
+ XRAY> 
+ XRAY>    show sum (1) (flagmap < 1) 
+ Sum of       444 elements =               444.0000
+ XRAY>    eval($nasym=$result) 
+ EVALUATE: symbol $NASYM set to    444.000     (real)
+ XRAY>    show sum (1) (flagmap < 0) 
+ Sum of        35 elements =                35.0000
+ XRAY>    eval($npeaks=max(1,$result)) 
+ EVALUATE: symbol $NPEAKS set to    35.0000     (real)
+ XRAY>    show sum (1) (flagmap < 0 and edmap < $minpeak) 
+ Sum of        32 elements =                32.0000
+ XRAY>    eval($smallpeaks=$result) 
+ EVALUATE: symbol $SMALLPEAKS set to    32.0000     (real)
+ XRAY>    eval($fom=$smallpeaks/$npeaks) 
+ EVALUATE: symbol $FOM set to   0.914286     (real)
+ XRAY>  end 
+ CNSsolve> 
+ CNSsolve>  set message=on end 
+ CNSsolve>end loop sg 
+ CNSsolve>for $sg in ("P1" "C2/c" "Fddd" "I-4c2" "P3(1)21" "P6(3)/mcm" "P2(1)3") loop sg 
+ FOR LOOP: symbol SG set to "P6(3)/mcm" (string)
+ CNSsolve>  do (x=0.499   ) (name=SI1) 
+ SELRPN:      1 atoms have been selected out of      2
+ CNSsolve>  do (y=0.000   ) (name=SI1) 
+ SELRPN:      1 atoms have been selected out of      2
+ CNSsolve>  do (z=0.333333) (name=SI1) 
+ SELRPN:      1 atoms have been selected out of      2
+ CNSsolve>  do (q=1.0     ) (name=SI1) 
+ SELRPN:      1 atoms have been selected out of      2
+ CNSsolve>  do (b=2.0     ) (name=SI1) 
+ SELRPN:      1 atoms have been selected out of      2
+ CNSsolve> 
+ CNSsolve>  do (x=0.427   ) (name=O1) 
+ SELRPN:      1 atoms have been selected out of      2
+ CNSsolve>  do (y=0.187   ) (name=O1) 
+ SELRPN:      1 atoms have been selected out of      2
+ CNSsolve>  do (z=0.128   ) (name=O1) 
+ SELRPN:      1 atoms have been selected out of      2
+ CNSsolve>  do (q=1.0     ) (name=O1) 
+ SELRPN:      1 atoms have been selected out of      2
+ CNSsolve>  do (b=4.0     ) (name=O1) 
+ SELRPN:      1 atoms have been selected out of      2
+ CNSsolve> 
+ CNSsolve>  {* reset all xray settings 
+ CNSsolve>   *} 
+ CNSsolve>  xray 
+ XRAY>    reset 
+ XRAY: whole xray database erased and reset
+ XRAY>  end 
+ CNSsolve> 
+ CNSsolve>  {* define some general xray settings 
+ CNSsolve>   *} 
+ CNSsolve>  xray 
+ XRAY>    bins=1 
+ XRAY>    method=direct 
+ XRAY> 
+ XRAY>    evaluate ($lr=10000.) 
+ EVALUATE: symbol $LR set to    10000.0     (real)
+ XRAY>    evaluate ($hr=1) 
+ EVALUATE: symbol $HR set to    1.00000     (real)
+ XRAY>    binresolution $lr $hr 
+ XRAY>    mapresolution $hr 
+ XRAY>    tselection=( $hr <= d <= $lr ) 
+ XRAY>  end 
+ CNSsolve> 
+ CNSsolve>  {* define scattering factors and symmetry 
+ CNSsolve>   *} 
+ CNSsolve>  xray 
+ XRAY>    @@CNS_XRAYLIB:scatter.lib 
+ ASSFIL: file scatter.lib opened.
+ XRAY>! file libraries/xray/scatter.lib 
+ XRAY>! Atomic scattering factors without anomalous contribution 
+ XRAY>! Library for CNS 
+ XRAY> 
+ XRAY>! Authors: Paul Adams, Joe Jaeger, and Axel T. Brunger 
+ XRAY> 
+ XRAY>!BEWARE: 
+ XRAY>!(1) element Cf (Californium) has to be referred to as Cff 
+ XRAY>!(2) element Sm (Samarium) has to be referred to as Smm 
+ XRAY>!(3) element Np (Neptunium) has to be referred to as Npp 
+ XRAY>!(3) types of elements with ionic state (i.e., +/-) specifications have 
+ XRAY>!    to be put in double quotes in selection statements. 
+ XRAY> 
+ XRAY>set message ? end 
+ MESSage=NORM
+ XRAY>evaluate ($message_old_sclib=$result) 
+ EVALUATE: symbol $MESSAGE_OLD_SCLIB set to "NORM" (string)
+ XRAY>set echo ? end 
+ ECHO=TRUE {ON}
+ XRAY>evaluate ($echo_old_sclib=$result) 
+ EVALUATE: symbol $ECHO_OLD_SCLIB set to TRUE (logical)
+ XRAY>set echo=off message=off end 
+ XRAY>    @@CNS_XTALLIB:spacegroup.lib (sg=$sg; sgparam = $sgparam) 
+ ASSFIL: file spacegroup.lib opened.
+ XRAY>! file  libraries/xtal/spacegroup.lib 
+ XRAY>! library of symmetry operators for CNS 
+ XRAY>! Automatically generated with SgInfo Version 2.00a13 
+ XRAY> 
+ XRAY>module 
+ MODULE-DECLARATION>( 
+ MODULE-DECLARATION>  &sg=$sg; 
+ MODULE-DECLARATION>  &sgparam=$sgparam; 
+ MODULE-DECLARATION>) 
+ &_2_SG set to $_1_SG 
+ &_2_SGPARAM set to $_1_SGPARAM 
+ XRAY> 
+ XRAY>set message ? end 
+ MESSage=NORM
+ XRAY>evaluate ($message_old=$result) 
+ EVALUATE: symbol $MESSAGE_OLD set to "NORM" (string)
+ XRAY>set echo ? end 
+ ECHO=TRUE {ON}
+ XRAY>evaluate ($echo_old=$result) 
+ EVALUATE: symbol $ECHO_OLD set to TRUE (logical)
+ XRAY>set echo=off message=off end 
+SYMMETRY: found symmetry operators for space group P6(3)/mcm in library
+ XRAY> 
+ XRAY>  end 
+ CNSsolve> 
+ CNSsolve>  {* define dummy unit cell dimensions based on space group number 
+ CNSsolve>   *} 
+ CNSsolve>  if     ($sgparam.sg_number <=   2) then 
+ NEXTCD: condition evaluated as false
+ CNSsolve>    evaluate ($a = 5.01) 
+ CNSsolve>    evaluate ($b = 6.25) 
+ CNSsolve>    evaluate ($c = 5.47) 
+ CNSsolve>    evaluate ($alpha = 100) 
+ CNSsolve>    evaluate ($beta  =  80) 
+ CNSsolve>    evaluate ($gamma = 110) 
+ CNSsolve>  elseif ($sgparam.sg_number <=  15) then 
+ NEXTCD: condition evaluated as false
+ CNSsolve>    evaluate ($a = 5.01) 
+ CNSsolve>    evaluate ($b = 6.25) 
+ CNSsolve>    evaluate ($c = 5.47) 
+ CNSsolve>    evaluate ($alpha =  90) 
+ CNSsolve>    evaluate ($beta  =  80) 
+ CNSsolve>    evaluate ($gamma =  90) 
+ CNSsolve>  elseif ($sgparam.sg_number <=  74) then 
+ NEXTCD: condition evaluated as false
+ CNSsolve>    evaluate ($a = 5.01) 
+ CNSsolve>    evaluate ($b = 6.25) 
+ CNSsolve>    evaluate ($c = 5.47) 
+ CNSsolve>    evaluate ($alpha =  90) 
+ CNSsolve>    evaluate ($beta  =  90) 
+ CNSsolve>    evaluate ($gamma =  90) 
+ CNSsolve>  elseif ($sgparam.sg_number <= 142) then 
+ NEXTCD: condition evaluated as false
+ CNSsolve>    evaluate ($a = 5.01) 
+ CNSsolve>    evaluate ($b = $a) 
+ CNSsolve>    evaluate ($c = 5.47) 
+ CNSsolve>    evaluate ($alpha =  90) 
+ CNSsolve>    evaluate ($beta  =  90) 
+ CNSsolve>    evaluate ($gamma =  90) 
+ CNSsolve>  elseif ($sgparam.sg_number <= 194) then 
+ NEXTCD: condition evaluated as true
+ CNSsolve>    evaluate ($a = 5.01) 
+ EVALUATE: symbol $A set to    5.01000     (real)
+ CNSsolve>    evaluate ($b = $a) 
+ EVALUATE: symbol $B set to    5.01000     (real)
+ CNSsolve>    evaluate ($c = 5.47) 
+ EVALUATE: symbol $C set to    5.47000     (real)
+ CNSsolve>    evaluate ($alpha =  90) 
+ EVALUATE: symbol $ALPHA set to    90.0000     (real)
+ CNSsolve>    evaluate ($beta  =  90) 
+ EVALUATE: symbol $BETA set to    90.0000     (real)
+ CNSsolve>    evaluate ($gamma = 120) 
+ EVALUATE: symbol $GAMMA set to    120.000     (real)
+ CNSsolve>  else 
+ CNSsolve>    evaluate ($a = 5.01) 
+ CNSsolve>    evaluate ($b = $a) 
+ CNSsolve>    evaluate ($c = $a) 
+ CNSsolve>    evaluate ($alpha =  90) 
+ CNSsolve>    evaluate ($beta  =  90) 
+ CNSsolve>    evaluate ($gamma =  90) 
+ CNSsolve>  end if 
+ CNSsolve> 
+ CNSsolve>  xray 
+ XRAY>    a=$a b=$b c=$c alpha=$alpha beta=$beta gamma=$gamma 
+ XRAY>  end 
+ CNSsolve> 
+ CNSsolve>  coordinates orthogonalize end 
+ ORTHO: transformation matrix =
+     5.010000    -2.505000     0.000000
+     0.000000     4.338787     0.000000
+     0.000000     0.000000     5.470000
+ CNSsolve> 
+ CNSsolve>  xray 
+ XRAY>    {* set space-group dependent restrictions for map-grid dimensions 
+ XRAY>     *} 
+ XRAY>    fft 
+ XFFT>      grid=0.4 
+ XFFT>      xgridfactor=$sgparam.SymGrid_x 
+ XFFT>      ygridfactor=$sgparam.SymGrid_y 
+ XFFT>      zgridfactor=$sgparam.SymGrid_z 
+ XFFT>    end 
+ XRAY> 
+ XRAY>    {* generate reflections 
+ XRAY>     *} 
+ XRAY>    anomalous = false 
+ XRAY>    generate 100000. 1.0 
+ XGENER: generating reflections to produce a full set
+         for the specified resolution range.
+ XGENE2:       31 new reflections have been generated.
+ XRAY> 
+ XRAY>    {* compute dummy "fobs" 
+ XRAY>     *} 
+ XRAY>    declare name=fobs domain=reciprocal type=complex end 
+ XDECLARE: Object FOBS has been declared.
+ XRAY>    predict 
+ PREDict>      mode=reciprocal 
+ PREDict>      to=fobs 
+ PREDict>      selection=(all) 
+ Total of        31 structure factor elements were selected.
+ PREDict>      atomselection=(all) 
+ SELRPN:      2 atoms have been selected out of      2
+ PREDict>    end 
+ FOBS: #scatt.=      2 #anomalous=   0 #special pos.=  1 occupancies=1
+ XSFAL: allocating space for complex reciprocal space object.
+ XRAY> 
+ XRAY>    {* expand to P1 
+ XRAY>     *} 
+ XRAY>    expand 
+ XEXPA2:      169 new reflections have been generated.
+ XREDUC: some reflection(s) converted to CNS standard asymm. unit.
+ XRAY: data expanded and symmetry reset to P1.
+ XRAY>  end 
+ CNSsolve> 
+ CNSsolve>  xray 
+ XRAY>    declare name=edmap domain=real end 
+ XRAY>  end 
+ CNSsolve> 
+ CNSsolve>  xray 
+ XRAY>    do (edmap=FT(fobs)) (all) 
+ XSFAL: allocating space for complex reciprocal space object.
+ Total of       200 structure factor elements were selected.
+ XMAPASU: using grid [  12,  12,  16] and sublattice [  12,  12,  16]
+ Maps will be stored in P1:
+   A=     0,...,    11  B=     0,...,    11  C=     0,...,    15
+ XMAPAL: allocating space for real space object.
+ XRAY>    show min (real(edmap)) (all) 
+ Minimum of      2304 elements =                -6.0866
+ XRAY>    eval($edmin=$result) 
+ EVALUATE: symbol $EDMIN set to   -6.08656     (real)
+ XRAY>    show max (real(edmap)) (all) 
+ Maximum of      2304 elements =                22.1304
+ XRAY>    eval($edmax=$result) 
+ EVALUATE: symbol $EDMAX set to    22.1304     (real)
+ XRAY>  end 
+ CNSsolve> 
+ CNSsolve>  xray 
+ XRAY>    {* define symmetry for flagmap 
+ XRAY>     *} 
+ XRAY>    fmap 
+ XMAPASU: using grid [  12,  12,  16] and sublattice [  12,  12,  16]
+ Minimum brick that covers asymmetric unit:
+   A=     0,...,     8  B=     0,...,     6  C=     0,...,     4
+ FMAP>      @@CNS_XTALLIB:spacegroup.lib (sg=$sg; sgparam = $sgparam) 
+ ASSFIL: file spacegroup.lib opened.
+ FMAP>! file  libraries/xtal/spacegroup.lib 
+ FMAP>! library of symmetry operators for CNS 
+ FMAP>! Automatically generated with SgInfo Version 2.00a13 
+ FMAP> 
+ FMAP>module 
+ MODULE-DECLARATION>( 
+ MODULE-DECLARATION>  &sg=$sg; 
+ MODULE-DECLARATION>  &sgparam=$sgparam; 
+ MODULE-DECLARATION>) 
+ &_2_SG set to $_1_SG 
+ &_2_SGPARAM set to $_1_SGPARAM 
+ FMAP> 
+ FMAP>set message ? end 
+ MESSage=NORM
+ FMAP>evaluate ($message_old=$result) 
+ EVALUATE: symbol $MESSAGE_OLD set to "NORM" (string)
+ FMAP>set echo ? end 
+ ECHO=TRUE {ON}
+ FMAP>evaluate ($echo_old=$result) 
+ EVALUATE: symbol $ECHO_OLD set to TRUE (logical)
+ FMAP>set echo=off message=off end 
+SYMMETRY: found symmetry operators for space group P6(3)/mcm in library
+ FMAP> 
+ FMAP>      if ($sgparam.ssVM_1 # "VOID") then ssVM = $sgparam.ssVM_1 end if 
+ NEXTCD: condition evaluated as true
+ FMAP>      if ($sgparam.ssVM_2 # "VOID") then ssVM = $sgparam.ssVM_2 end if 
+ NEXTCD: condition evaluated as false
+ FMAP>      if ($sgparam.ssVM_3 # "VOID") then ssVM = $sgparam.ssVM_3 end if 
+ NEXTCD: condition evaluated as false
+ FMAP>      if ($sgparam.GenK2L # "VOID") then Addl = $sgparam.GenK2L end if 
+ NEXTCD: condition evaluated as false
+ FMAP>      ? 
+ --------------FMAP-parameters--------------------------------------------------
+ Number of symmetry operations =  24
+ Number of s.s.Vectors & Moduli =   1
+   s.s.Vector  Modulus
+     0  0  1   2
+ Number of ADDLgenerators =   0
+ USESym=FALSE
+ USE_ss=FALSE
+ USEAddl=FALSE
+ -------------------------------------------------------------------------------
+ FMAP>      Symmetry ? 
+ --------------FMAP-symmetry----------------------------------------------------
+ | SYMMetry=(X,Y,Z)
+ | SYMMetry=(X-Y,X,Z+1/2)
+ | SYMMetry=(-Y,X-Y,Z)
+ | SYMMetry=(-X,-Y,Z+1/2)
+ | SYMMetry=(-X+Y,-X,Z)
+ | SYMMetry=(Y,-X+Y,Z+1/2)
+ | SYMMetry=(X-Y,-Y,-Z+1/2)
+ | SYMMetry=(-X,-X+Y,-Z+1/2)
+ | SYMMetry=(Y,X,-Z+1/2)
+ | SYMMetry=(-Y,-X,-Z)
+ | SYMMetry=(-X+Y,Y,-Z)
+ | SYMMetry=(X,X-Y,-Z)
+ | SYMMetry=(-X,-Y,-Z)
+ | SYMMetry=(-X+Y,-X,-Z+1/2)
+ | SYMMetry=(Y,-X+Y,-Z)
+ | SYMMetry=(X,Y,-Z+1/2)
+ | SYMMetry=(X-Y,X,-Z)
+ | SYMMetry=(-Y,X-Y,-Z+1/2)
+ | SYMMetry=(-X+Y,Y,Z+1/2)
+ | SYMMetry=(X,X-Y,Z+1/2)
+ | SYMMetry=(-Y,-X,Z+1/2)
+ | SYMMetry=(Y,X,Z)
+ | SYMMetry=(X-Y,-Y,Z)
+ | SYMMetry=(-X,-X+Y,Z)
+ -------------------------------------------------------------------------------
+ FMAP>      AddlGenerators ? 
+ --------------FMAP-ADDLgenerators----------------------------------------------
+ -------------------------------------------------------------------------------
+ FMAP>    end 
+ XRAY>  end 
+ CNSsolve> 
+ CNSsolve>  set message=all end 
+ CNSsolve> 
+ CNSsolve>  xray 
+ XRAY>    {* Build flagmap 
+ XRAY>     *} 
+ XRAY>    fmap 
+ XMAPASU: using grid [  12,  12,  16] and sublattice [  12,  12,  16]
+ Minimum brick that covers asymmetric unit:
+   A=     0,...,     8  B=     0,...,     6  C=     0,...,     4
+ Number of deleted points in ASU=          22
+ Number of non-zero lattice points in ASU=         143
+ Number of special positions in ASU=          82
+ FMAP>      UseSym = true 
+ FMAP>      Use_ss  = false 
+ FMAP>      UseAddl = false 
+ FMAP>      Action=Build 
+ FMAP>    end 
+ FMAP: Building FlagMap
+ FMAP: Removing grid points related by symmetry operations
+ FMAP:       Total number of grid points =      2304
+ FMAP: Remaining independent grid points =       143
+ FMAP: Independent grid points =       143
+ XRAY>  end 
+ CNSsolve> 
+ CNSsolve>  show elem (x) (resid 1) eval($site.x=$result) 
+ SELRPN:      1 atoms have been selected out of      2
+ ( QZ   SI   1    SI1  )    2.5000    
+ EVALUATE: symbol $SITE.X set to    2.49999     (real)
+ CNSsolve>  show elem (y) (resid 1) eval($site.y=$result) 
+ SELRPN:      1 atoms have been selected out of      2
+ ( QZ   SI   1    SI1  )  -0.11026E-13
+ EVALUATE: symbol $SITE.Y set to  -0.110265E-13 (real)
+ CNSsolve>  show elem (z) (resid 1) eval($site.z=$result) 
+ SELRPN:      1 atoms have been selected out of      2
+ ( QZ   SI   1    SI1  )    1.8233    
+ EVALUATE: symbol $SITE.Z set to    1.82333     (real)
+ CNSsolve> 
+ CNSsolve>  xray 
+ XRAY>    lidens 
+ LIDens>      dens=edmap 
+ LIDens>      atomselection=(all) 
+ SELRPN:      2 atoms have been selected out of      2
+ LIDens>      to=vx 
+ LIDens>      site=$site.x $site.y $site.z 
+ LIDens>    end 
+ LIDens: Density at site     2.50     0.00     1.82 =  20.1756    
+ LIDens: Density at site     1.67     0.81     0.70 =  4.47230    
+ LIDens: Density at site     2.50     0.00     1.82 =  20.1756    
+ XRAY>    eval($lidens1=$result) 
+ EVALUATE: symbol $LIDENS1 set to    20.1756     (real)
+ XRAY>  end 
+ CNSsolve>  show elem (vx) (all) 
+ SELRPN:      2 atoms have been selected out of      2
+ ( QZ   SI   1    SI1  )    20.176    
+ ( QZ   O    2    O1   )    4.4723    
+ CNSsolve>  show elem (vx) (resid 1) 
+ SELRPN:      1 atoms have been selected out of      2
+ ( QZ   SI   1    SI1  )    20.176    
+ CNSsolve>  eval($delta=abs($lidens1-$result)) 
+ EVALUATE: symbol $DELTA set to   0.238718E-04 (real)
+ CNSsolve>  if ($delta > 0.001) then 
+ NEXTCD: condition evaluated as false
+ CNSsolve>    display $lidens1 $result 
+ CNSsolve>    abort 
+ CNSsolve>  end if 
+ CNSsolve>  if ($lidens1 < $edmin) then 
+ NEXTCD: condition evaluated as false
+ CNSsolve>    abort 
+ CNSsolve>  end if 
+ CNSsolve>  if ($lidens1 > $edmax) then 
+ NEXTCD: condition evaluated as false
+ CNSsolve>    abort 
+ CNSsolve>  end if 
+ CNSsolve>  show min (vx) (all) 
+ SELRPN:      2 atoms have been selected out of      2
+ SHOW: minimum of selected elements =       4.472301
+ CNSsolve>  eval($minpeak=$result) 
+ EVALUATE: symbol $MINPEAK set to    4.47230     (real)
+ CNSsolve> 
+ CNSsolve>  xray 
+ XRAY>    psearch 
+ PSEARCH>      From=edmap 
+ PSEARCH>      level = 1 
+ PSEARCH>      nList = 10 
+ PSEARCH>      Fractional = true 
+ PSEARCH>    end 
+ PSEARCH: DensCutOff =   -6.08656    
+ PSEARCH: Number of peaks in overstore buffer =        9
+ PSEARCH: Number of peaks listed              =        9
+ PSEARCH:                                   (  Fractional Coordinates  )
+ PSEARCH:     1 Dens =    22.1304     Pos = ( 0.50000, 0.50000, 0.25000)
+ PSEARCH:     2 Dens =    9.40031     Pos = ( 0.41667, 0.00000, 0.18750)
+ PSEARCH:     3 Dens =    8.73446     Pos = ( 0.41667, 0.41667, 0.18750)
+ PSEARCH:     4 Dens =    5.37544     Pos = ( 0.41667, 0.16667, 0.12500)
+ PSEARCH:     5 Dens =    4.42616     Pos = ( 0.50000, 0.25000, 0.12500)
+ PSEARCH:     6 Dens =   0.723119     Pos = ( 0.00000, 0.00000, 0.18750)
+ PSEARCH:     7 Dens =  -0.300020     Pos = ( 0.66667, 0.33333, 0.25000)
+ PSEARCH:     8 Dens =  -0.520889     Pos = ( 0.25000, 0.08333, 0.25000)
+ PSEARCH:     9 Dens =   -2.28569     Pos = ( 0.08333, 0.08333, 0.12500)
+ XRAY> 
+ XRAY>    declare name=flagmap domain=real end 
+ XRAY>    fmap 
+ XMAPASU: using grid [  12,  12,  16] and sublattice [  12,  12,  16]
+ Minimum brick that covers asymmetric unit:
+   A=     0,...,     8  B=     0,...,     6  C=     0,...,     4
+ Number of deleted points in ASU=          22
+ Number of non-zero lattice points in ASU=         143
+ Number of special positions in ASU=          82
+ FMAP>      RSObj=flagmap 
+ FMAP>      Action=copy 
+ FMAP>    end 
+ XMAPAL: allocating space for real space object.
+ FMAP: Independent grid points =       143
+ XRAY> 
+ XRAY>    show sum (1) (flagmap < 1) 
+ Sum of       143 elements =               143.0000
+ XRAY>    eval($nasym=$result) 
+ EVALUATE: symbol $NASYM set to    143.000     (real)
+ XRAY>    show sum (1) (flagmap < 0) 
+ Sum of         9 elements =                 9.0000
+ XRAY>    eval($npeaks=max(1,$result)) 
+ EVALUATE: symbol $NPEAKS set to    9.00000     (real)
+ XRAY>    show sum (1) (flagmap < 0 and edmap < $minpeak) 
+ Sum of         5 elements =                 5.0000
+ XRAY>    eval($smallpeaks=$result) 
+ EVALUATE: symbol $SMALLPEAKS set to    5.00000     (real)
+ XRAY>    eval($fom=$smallpeaks/$npeaks) 
+ EVALUATE: symbol $FOM set to   0.555556     (real)
+ XRAY>  end 
+ CNSsolve> 
+ CNSsolve>  set message=on end 
+ CNSsolve>end loop sg 
+ CNSsolve>for $sg in ("P1" "C2/c" "Fddd" "I-4c2" "P3(1)21" "P6(3)/mcm" "P2(1)3") loop sg 
+ FOR LOOP: symbol SG set to "P2(1)3" (string)
+ CNSsolve>  do (x=0.499   ) (name=SI1) 
+ SELRPN:      1 atoms have been selected out of      2
+ CNSsolve>  do (y=0.000   ) (name=SI1) 
+ SELRPN:      1 atoms have been selected out of      2
+ CNSsolve>  do (z=0.333333) (name=SI1) 
+ SELRPN:      1 atoms have been selected out of      2
+ CNSsolve>  do (q=1.0     ) (name=SI1) 
+ SELRPN:      1 atoms have been selected out of      2
+ CNSsolve>  do (b=2.0     ) (name=SI1) 
+ SELRPN:      1 atoms have been selected out of      2
+ CNSsolve> 
+ CNSsolve>  do (x=0.427   ) (name=O1) 
+ SELRPN:      1 atoms have been selected out of      2
+ CNSsolve>  do (y=0.187   ) (name=O1) 
+ SELRPN:      1 atoms have been selected out of      2
+ CNSsolve>  do (z=0.128   ) (name=O1) 
+ SELRPN:      1 atoms have been selected out of      2
+ CNSsolve>  do (q=1.0     ) (name=O1) 
+ SELRPN:      1 atoms have been selected out of      2
+ CNSsolve>  do (b=4.0     ) (name=O1) 
+ SELRPN:      1 atoms have been selected out of      2
+ CNSsolve> 
+ CNSsolve>  {* reset all xray settings 
+ CNSsolve>   *} 
+ CNSsolve>  xray 
+ XRAY>    reset 
+ XRAY: whole xray database erased and reset
+ XRAY>  end 
+ CNSsolve> 
+ CNSsolve>  {* define some general xray settings 
+ CNSsolve>   *} 
+ CNSsolve>  xray 
+ XRAY>    bins=1 
+ XRAY>    method=direct 
+ XRAY> 
+ XRAY>    evaluate ($lr=10000.) 
+ EVALUATE: symbol $LR set to    10000.0     (real)
+ XRAY>    evaluate ($hr=1) 
+ EVALUATE: symbol $HR set to    1.00000     (real)
+ XRAY>    binresolution $lr $hr 
+ XRAY>    mapresolution $hr 
+ XRAY>    tselection=( $hr <= d <= $lr ) 
+ XRAY>  end 
+ CNSsolve> 
+ CNSsolve>  {* define scattering factors and symmetry 
+ CNSsolve>   *} 
+ CNSsolve>  xray 
+ XRAY>    @@CNS_XRAYLIB:scatter.lib 
+ ASSFIL: file scatter.lib opened.
+ XRAY>! file libraries/xray/scatter.lib 
+ XRAY>! Atomic scattering factors without anomalous contribution 
+ XRAY>! Library for CNS 
+ XRAY> 
+ XRAY>! Authors: Paul Adams, Joe Jaeger, and Axel T. Brunger 
+ XRAY> 
+ XRAY>!BEWARE: 
+ XRAY>!(1) element Cf (Californium) has to be referred to as Cff 
+ XRAY>!(2) element Sm (Samarium) has to be referred to as Smm 
+ XRAY>!(3) element Np (Neptunium) has to be referred to as Npp 
+ XRAY>!(3) types of elements with ionic state (i.e., +/-) specifications have 
+ XRAY>!    to be put in double quotes in selection statements. 
+ XRAY> 
+ XRAY>set message ? end 
+ MESSage=NORM
+ XRAY>evaluate ($message_old_sclib=$result) 
+ EVALUATE: symbol $MESSAGE_OLD_SCLIB set to "NORM" (string)
+ XRAY>set echo ? end 
+ ECHO=TRUE {ON}
+ XRAY>evaluate ($echo_old_sclib=$result) 
+ EVALUATE: symbol $ECHO_OLD_SCLIB set to TRUE (logical)
+ XRAY>set echo=off message=off end 
+ XRAY>    @@CNS_XTALLIB:spacegroup.lib (sg=$sg; sgparam = $sgparam) 
+ ASSFIL: file spacegroup.lib opened.
+ XRAY>! file  libraries/xtal/spacegroup.lib 
+ XRAY>! library of symmetry operators for CNS 
+ XRAY>! Automatically generated with SgInfo Version 2.00a13 
+ XRAY> 
+ XRAY>module 
+ MODULE-DECLARATION>( 
+ MODULE-DECLARATION>  &sg=$sg; 
+ MODULE-DECLARATION>  &sgparam=$sgparam; 
+ MODULE-DECLARATION>) 
+ &_2_SG set to $_1_SG 
+ &_2_SGPARAM set to $_1_SGPARAM 
+ XRAY> 
+ XRAY>set message ? end 
+ MESSage=NORM
+ XRAY>evaluate ($message_old=$result) 
+ EVALUATE: symbol $MESSAGE_OLD set to "NORM" (string)
+ XRAY>set echo ? end 
+ ECHO=TRUE {ON}
+ XRAY>evaluate ($echo_old=$result) 
+ EVALUATE: symbol $ECHO_OLD set to TRUE (logical)
+ XRAY>set echo=off message=off end 
+SYMMETRY: found symmetry operators for space group P2(1)3 in library
+ XRAY> 
+ XRAY>  end 
+ CNSsolve> 
+ CNSsolve>  {* define dummy unit cell dimensions based on space group number 
+ CNSsolve>   *} 
+ CNSsolve>  if     ($sgparam.sg_number <=   2) then 
+ NEXTCD: condition evaluated as false
+ CNSsolve>    evaluate ($a = 5.01) 
+ CNSsolve>    evaluate ($b = 6.25) 
+ CNSsolve>    evaluate ($c = 5.47) 
+ CNSsolve>    evaluate ($alpha = 100) 
+ CNSsolve>    evaluate ($beta  =  80) 
+ CNSsolve>    evaluate ($gamma = 110) 
+ CNSsolve>  elseif ($sgparam.sg_number <=  15) then 
+ NEXTCD: condition evaluated as false
+ CNSsolve>    evaluate ($a = 5.01) 
+ CNSsolve>    evaluate ($b = 6.25) 
+ CNSsolve>    evaluate ($c = 5.47) 
+ CNSsolve>    evaluate ($alpha =  90) 
+ CNSsolve>    evaluate ($beta  =  80) 
+ CNSsolve>    evaluate ($gamma =  90) 
+ CNSsolve>  elseif ($sgparam.sg_number <=  74) then 
+ NEXTCD: condition evaluated as false
+ CNSsolve>    evaluate ($a = 5.01) 
+ CNSsolve>    evaluate ($b = 6.25) 
+ CNSsolve>    evaluate ($c = 5.47) 
+ CNSsolve>    evaluate ($alpha =  90) 
+ CNSsolve>    evaluate ($beta  =  90) 
+ CNSsolve>    evaluate ($gamma =  90) 
+ CNSsolve>  elseif ($sgparam.sg_number <= 142) then 
+ NEXTCD: condition evaluated as false
+ CNSsolve>    evaluate ($a = 5.01) 
+ CNSsolve>    evaluate ($b = $a) 
+ CNSsolve>    evaluate ($c = 5.47) 
+ CNSsolve>    evaluate ($alpha =  90) 
+ CNSsolve>    evaluate ($beta  =  90) 
+ CNSsolve>    evaluate ($gamma =  90) 
+ CNSsolve>  elseif ($sgparam.sg_number <= 194) then 
+ NEXTCD: condition evaluated as false
+ CNSsolve>    evaluate ($a = 5.01) 
+ CNSsolve>    evaluate ($b = $a) 
+ CNSsolve>    evaluate ($c = 5.47) 
+ CNSsolve>    evaluate ($alpha =  90) 
+ CNSsolve>    evaluate ($beta  =  90) 
+ CNSsolve>    evaluate ($gamma = 120) 
+ CNSsolve>  else 
+ CNSsolve>    evaluate ($a = 5.01) 
+ EVALUATE: symbol $A set to    5.01000     (real)
+ CNSsolve>    evaluate ($b = $a) 
+ EVALUATE: symbol $B set to    5.01000     (real)
+ CNSsolve>    evaluate ($c = $a) 
+ EVALUATE: symbol $C set to    5.01000     (real)
+ CNSsolve>    evaluate ($alpha =  90) 
+ EVALUATE: symbol $ALPHA set to    90.0000     (real)
+ CNSsolve>    evaluate ($beta  =  90) 
+ EVALUATE: symbol $BETA set to    90.0000     (real)
+ CNSsolve>    evaluate ($gamma =  90) 
+ EVALUATE: symbol $GAMMA set to    90.0000     (real)
+ CNSsolve>  end if 
+ CNSsolve> 
+ CNSsolve>  xray 
+ XRAY>    a=$a b=$b c=$c alpha=$alpha beta=$beta gamma=$gamma 
+ XRAY>  end 
+ CNSsolve> 
+ CNSsolve>  coordinates orthogonalize end 
+ ORTHO: transformation matrix =
+     5.010000     0.000000     0.000000
+     0.000000     5.010000     0.000000
+     0.000000     0.000000     5.010000
+ CNSsolve> 
+ CNSsolve>  xray 
+ XRAY>    {* set space-group dependent restrictions for map-grid dimensions 
+ XRAY>     *} 
+ XRAY>    fft 
+ XFFT>      grid=0.4 
+ XFFT>      xgridfactor=$sgparam.SymGrid_x 
+ XFFT>      ygridfactor=$sgparam.SymGrid_y 
+ XFFT>      zgridfactor=$sgparam.SymGrid_z 
+ XFFT>    end 
+ XRAY> 
+ XRAY>    {* generate reflections 
+ XRAY>     *} 
+ XRAY>    anomalous = false 
+ XRAY>    generate 100000. 1.0 
+ XGENER: generating reflections to produce a full set
+         for the specified resolution range.
+ XGENE2:       31 new reflections have been generated.
+ XRAY> 
+ XRAY>    {* compute dummy "fobs" 
+ XRAY>     *} 
+ XRAY>    declare name=fobs domain=reciprocal type=complex end 
+ XDECLARE: Object FOBS has been declared.
+ XRAY>    predict 
+ PREDict>      mode=reciprocal 
+ PREDict>      to=fobs 
+ PREDict>      selection=(all) 
+ Total of        31 structure factor elements were selected.
+ PREDict>      atomselection=(all) 
+ SELRPN:      2 atoms have been selected out of      2
+ PREDict>    end 
+ FOBS: #scatt.=      2 #anomalous=   0 #special pos.=  0 occupancies=1
+ XSFAL: allocating space for complex reciprocal space object.
+ XRAY> 
+ XRAY>    {* expand to P1 
+ XRAY>     *} 
+ XRAY>    expand 
+ XEXPA2:      217 new reflections have been generated.
+ XREDUC: some reflection(s) converted to CNS standard asymm. unit.
+ XRAY: data expanded and symmetry reset to P1.
+ XRAY>  end 
+ CNSsolve> 
+ CNSsolve>  xray 
+ XRAY>    declare name=edmap domain=real end 
+ XRAY>  end 
+ CNSsolve> 
+ CNSsolve>  xray 
+ XRAY>    do (edmap=FT(fobs)) (all) 
+ XSFAL: allocating space for complex reciprocal space object.
+ Total of       248 structure factor elements were selected.
+ XMAPASU: using grid [  12,  12,  12] and sublattice [  12,  12,  12]
+ Maps will be stored in P1:
+   A=     0,...,    11  B=     0,...,    11  C=     0,...,    11
+ XMAPAL: allocating space for real space object.
+ XRAY>    show min (real(edmap)) (all) 
+ Minimum of      1728 elements =                -6.4926
+ XRAY>    eval($edmin=$result) 
+ EVALUATE: symbol $EDMIN set to   -6.49261     (real)
+ XRAY>    show max (real(edmap)) (all) 
+ Maximum of      1728 elements =                20.6061
+ XRAY>    eval($edmax=$result) 
+ EVALUATE: symbol $EDMAX set to    20.6061     (real)
+ XRAY>  end 
+ CNSsolve> 
+ CNSsolve>  xray 
+ XRAY>    {* define symmetry for flagmap 
+ XRAY>     *} 
+ XRAY>    fmap 
+ XMAPASU: using grid [  12,  12,  12] and sublattice [  12,  12,  12]
+ Minimum brick that covers asymmetric unit:
+   A=     0,...,     6  B=     0,...,     6  C=    -6,...,     6
+ FMAP>      @@CNS_XTALLIB:spacegroup.lib (sg=$sg; sgparam = $sgparam) 
+ ASSFIL: file spacegroup.lib opened.
+ FMAP>! file  libraries/xtal/spacegroup.lib 
+ FMAP>! library of symmetry operators for CNS 
+ FMAP>! Automatically generated with SgInfo Version 2.00a13 
+ FMAP> 
+ FMAP>module 
+ MODULE-DECLARATION>( 
+ MODULE-DECLARATION>  &sg=$sg; 
+ MODULE-DECLARATION>  &sgparam=$sgparam; 
+ MODULE-DECLARATION>) 
+ &_2_SG set to $_1_SG 
+ &_2_SGPARAM set to $_1_SGPARAM 
+ FMAP> 
+ FMAP>set message ? end 
+ MESSage=NORM
+ FMAP>evaluate ($message_old=$result) 
+ EVALUATE: symbol $MESSAGE_OLD set to "NORM" (string)
+ FMAP>set echo ? end 
+ ECHO=TRUE {ON}
+ FMAP>evaluate ($echo_old=$result) 
+ EVALUATE: symbol $ECHO_OLD set to TRUE (logical)
+ FMAP>set echo=off message=off end 
+SYMMETRY: found symmetry operators for space group P2(1)3 in library
+ FMAP> 
+ FMAP>      if ($sgparam.ssVM_1 # "VOID") then ssVM = $sgparam.ssVM_1 end if 
+ NEXTCD: condition evaluated as true
+ FMAP>      if ($sgparam.ssVM_2 # "VOID") then ssVM = $sgparam.ssVM_2 end if 
+ NEXTCD: condition evaluated as false
+ FMAP>      if ($sgparam.ssVM_3 # "VOID") then ssVM = $sgparam.ssVM_3 end if 
+ NEXTCD: condition evaluated as false
+ FMAP>      if ($sgparam.GenK2L # "VOID") then Addl = $sgparam.GenK2L end if 
+ NEXTCD: condition evaluated as true
+ FMAP>      ? 
+ --------------FMAP-parameters--------------------------------------------------
+ Number of symmetry operations =  12
+ Number of s.s.Vectors & Moduli =   1
+   s.s.Vector  Modulus
+     1  1  1   2
+ Number of ADDLgenerators =   1
+ USESym=FALSE
+ USE_ss=FALSE
+ USEAddl=FALSE
+ -------------------------------------------------------------------------------
+ FMAP>      Symmetry ? 
+ --------------FMAP-symmetry----------------------------------------------------
+ | SYMMetry=(X,Y,Z)
+ | SYMMetry=(Z,X,Y)
+ | SYMMetry=(Y,Z,X)
+ | SYMMetry=(-Y+1/2,-Z,X+1/2)
+ | SYMMetry=(Z+1/2,-X+1/2,-Y)
+ | SYMMetry=(-Y,Z+1/2,-X+1/2)
+ | SYMMetry=(-Z+1/2,-X,Y+1/2)
+ | SYMMetry=(-Z,X+1/2,-Y+1/2)
+ | SYMMetry=(Y+1/2,-Z+1/2,-X)
+ | SYMMetry=(-X+1/2,-Y,Z+1/2)
+ | SYMMetry=(X+1/2,-Y+1/2,-Z)
+ | SYMMetry=(-X,Y+1/2,-Z+1/2)
+ -------------------------------------------------------------------------------
+ FMAP>      AddlGenerators ? 
+ --------------FMAP-ADDLgenerators----------------------------------------------
+ | SYMMetry=(-X,-Y,-Z)
+ -------------------------------------------------------------------------------
+ FMAP>    end 
+ XRAY>  end 
+ CNSsolve> 
+ CNSsolve>  set message=all end 
+ CNSsolve> 
+ CNSsolve>  xray 
+ XRAY>    {* Build flagmap 
+ XRAY>     *} 
+ XRAY>    fmap 
+ XMAPASU: using grid [  12,  12,  12] and sublattice [  12,  12,  12]
+ Minimum brick that covers asymmetric unit:
+   A=     0,...,     6  B=     0,...,     6  C=    -6,...,     6
+ Number of deleted points in ASU=          79
+ Number of non-zero lattice points in ASU=         152
+ Number of special positions in ASU=          12
+ FMAP>      UseSym = true 
+ FMAP>      Use_ss  = false 
+ FMAP>      UseAddl = false 
+ FMAP>      Action=Build 
+ FMAP>    end 
+ FMAP: Building FlagMap
+ FMAP: Removing grid points related by symmetry operations
+ FMAP:       Total number of grid points =      1728
+ FMAP: Remaining independent grid points =       152
+ FMAP: Independent grid points =       152
+ XRAY>  end 
+ CNSsolve> 
+ CNSsolve>  show elem (x) (resid 1) eval($site.x=$result) 
+ SELRPN:      1 atoms have been selected out of      2
+ ( QZ   SI   1    SI1  )    2.5000    
+ EVALUATE: symbol $SITE.X set to    2.49999     (real)
+ CNSsolve>  show elem (y) (resid 1) eval($site.y=$result) 
+ SELRPN:      1 atoms have been selected out of      2
+ ( QZ   SI   1    SI1  )  -0.58308E-14
+ EVALUATE: symbol $SITE.Y set to  -0.583077E-14 (real)
+ CNSsolve>  show elem (z) (resid 1) eval($site.z=$result) 
+ SELRPN:      1 atoms have been selected out of      2
+ ( QZ   SI   1    SI1  )    1.6700    
+ EVALUATE: symbol $SITE.Z set to    1.67000     (real)
+ CNSsolve> 
+ CNSsolve>  xray 
+ XRAY>    lidens 
+ LIDens>      dens=edmap 
+ LIDens>      atomselection=(all) 
+ SELRPN:      2 atoms have been selected out of      2
+ LIDens>      to=vx 
+ LIDens>      site=$site.x $site.y $site.z 
+ LIDens>    end 
+ LIDens: Density at site     2.50     0.00     1.67 =  20.4941    
+ LIDens: Density at site     2.14     0.94     0.64 =  5.49898    
+ LIDens: Density at site     2.50     0.00     1.67 =  20.4941    
+ XRAY>    eval($lidens1=$result) 
+ EVALUATE: symbol $LIDENS1 set to    20.4941     (real)
+ XRAY>  end 
+ CNSsolve>  show elem (vx) (all) 
+ SELRPN:      2 atoms have been selected out of      2
+ ( QZ   SI   1    SI1  )    20.494    
+ ( QZ   O    2    O1   )    5.4990    
+ CNSsolve>  show elem (vx) (resid 1) 
+ SELRPN:      1 atoms have been selected out of      2
+ ( QZ   SI   1    SI1  )    20.494    
+ CNSsolve>  eval($delta=abs($lidens1-$result)) 
+ EVALUATE: symbol $DELTA set to   0.370228E-04 (real)
+ CNSsolve>  if ($delta > 0.001) then 
+ NEXTCD: condition evaluated as false
+ CNSsolve>    display $lidens1 $result 
+ CNSsolve>    abort 
+ CNSsolve>  end if 
+ CNSsolve>  if ($lidens1 < $edmin) then 
+ NEXTCD: condition evaluated as false
+ CNSsolve>    abort 
+ CNSsolve>  end if 
+ CNSsolve>  if ($lidens1 > $edmax) then 
+ NEXTCD: condition evaluated as false
+ CNSsolve>    abort 
+ CNSsolve>  end if 
+ CNSsolve>  show min (vx) (all) 
+ SELRPN:      2 atoms have been selected out of      2
+ SHOW: minimum of selected elements =       5.498984
+ CNSsolve>  eval($minpeak=$result) 
+ EVALUATE: symbol $MINPEAK set to    5.49898     (real)
+ CNSsolve> 
+ CNSsolve>  xray 
+ XRAY>    psearch 
+ PSEARCH>      From=edmap 
+ PSEARCH>      level = 1 
+ PSEARCH>      nList = 10 
+ PSEARCH>      Fractional = true 
+ PSEARCH>    end 
+ PSEARCH: DensCutOff =   -6.49261    
+ PSEARCH: Number of peaks in overstore buffer =       10
+ PSEARCH: Number of peaks listed              =       10
+ PSEARCH:                                   (  Fractional Coordinates  )
+ PSEARCH:     1 Dens =    20.6061     Pos = ( 0.00000, 0.50000,-0.33333)
+ PSEARCH:     2 Dens =    6.56901     Pos = ( 0.41667, 0.16667, 0.16667)
+ PSEARCH:     3 Dens =    1.49786     Pos = ( 0.33333, 0.33333, 0.33333)
+ PSEARCH:     4 Dens =   0.799970     Pos = ( 0.16667, 0.33333,-0.16667)
+ PSEARCH:     5 Dens =   0.314296     Pos = ( 0.08333, 0.08333, 0.08333)
+ PSEARCH:     6 Dens =   0.206481     Pos = ( 0.25000, 0.41667,-0.25000)
+ PSEARCH:     7 Dens =  -0.150581E-01 Pos = ( 0.25000, 0.16667,-0.08333)
+ PSEARCH:     8 Dens =  -0.124521     Pos = ( 0.41667, 0.41667, 0.41667)
+ PSEARCH:     9 Dens =  -0.392537     Pos = ( 0.33333, 0.16667,-0.16667)
+ PSEARCH:    10 Dens =   -1.11491     Pos = ( 0.16667, 0.16667, 0.00000)
+ XRAY> 
+ XRAY>    declare name=flagmap domain=real end 
+ XRAY>    fmap 
+ XMAPASU: using grid [  12,  12,  12] and sublattice [  12,  12,  12]
+ Minimum brick that covers asymmetric unit:
+   A=     0,...,     6  B=     0,...,     6  C=    -6,...,     6
+ Number of deleted points in ASU=          79
+ Number of non-zero lattice points in ASU=         152
+ Number of special positions in ASU=          12
+ FMAP>      RSObj=flagmap 
+ FMAP>      Action=copy 
+ FMAP>    end 
+ XMAPAL: allocating space for real space object.
+ FMAP: Independent grid points =       152
+ XRAY> 
+ XRAY>    show sum (1) (flagmap < 1) 
+ Sum of       152 elements =               152.0000
+ XRAY>    eval($nasym=$result) 
+ EVALUATE: symbol $NASYM set to    152.000     (real)
+ XRAY>    show sum (1) (flagmap < 0) 
+ Sum of        10 elements =                10.0000
+ XRAY>    eval($npeaks=max(1,$result)) 
+ EVALUATE: symbol $NPEAKS set to    10.0000     (real)
+ XRAY>    show sum (1) (flagmap < 0 and edmap < $minpeak) 
+ Sum of         8 elements =                 8.0000
+ XRAY>    eval($smallpeaks=$result) 
+ EVALUATE: symbol $SMALLPEAKS set to    8.00000     (real)
+ XRAY>    eval($fom=$smallpeaks/$npeaks) 
+ EVALUATE: symbol $FOM set to   0.800000     (real)
+ XRAY>  end 
+ CNSsolve> 
+ CNSsolve>  set message=on end 
+ CNSsolve>end loop sg 
+ CNSsolve>for $sg in ("P1" "C2/c" "Fddd" "I-4c2" "P3(1)21" "P6(3)/mcm" "P2(1)3") loop sg 
+ CNSsolve>  do (x=0.499   ) (name=SI1) 
+ CNSsolve>  do (y=0.000   ) (name=SI1) 
+ CNSsolve>  do (z=0.333333) (name=SI1) 
+ CNSsolve>  do (q=1.0     ) (name=SI1) 
+ CNSsolve>  do (b=2.0     ) (name=SI1) 
+ CNSsolve> 
+ CNSsolve>  do (x=0.427   ) (name=O1) 
+ CNSsolve>  do (y=0.187   ) (name=O1) 
+ CNSsolve>  do (z=0.128   ) (name=O1) 
+ CNSsolve>  do (q=1.0     ) (name=O1) 
+ CNSsolve>  do (b=4.0     ) (name=O1) 
+ CNSsolve> 
+ CNSsolve>  {* reset all xray settings 
+ CNSsolve>   *} 
+ CNSsolve>  xray 
+ CNSsolve>    reset 
+ CNSsolve>  end 
+ CNSsolve> 
+ CNSsolve>  {* define some general xray settings 
+ CNSsolve>   *} 
+ CNSsolve>  xray 
+ CNSsolve>    bins=1 
+ CNSsolve>    method=direct 
+ CNSsolve> 
+ CNSsolve>    evaluate ($lr=10000.) 
+ CNSsolve>    evaluate ($hr=1) 
+ CNSsolve>    binresolution $lr $hr 
+ CNSsolve>    mapresolution $hr 
+ CNSsolve>    tselection=( $hr <= d <= $lr ) 
+ CNSsolve>  end 
+ CNSsolve> 
+ CNSsolve>  {* define scattering factors and symmetry 
+ CNSsolve>   *} 
+ CNSsolve>  xray 
+ CNSsolve>    @@CNS_XRAYLIB:scatter.lib 
+ CNSsolve>    @@CNS_XTALLIB:spacegroup.lib (sg=$sg; sgparam = $sgparam) 
+ CNSsolve>  end 
+ CNSsolve> 
+ CNSsolve>  {* define dummy unit cell dimensions based on space group number 
+ CNSsolve>   *} 
+ CNSsolve>  if     ($sgparam.sg_number <=   2) then 
+ CNSsolve>    evaluate ($a = 5.01) 
+ CNSsolve>    evaluate ($b = 6.25) 
+ CNSsolve>    evaluate ($c = 5.47) 
+ CNSsolve>    evaluate ($alpha = 100) 
+ CNSsolve>    evaluate ($beta  =  80) 
+ CNSsolve>    evaluate ($gamma = 110) 
+ CNSsolve>  elseif ($sgparam.sg_number <=  15) then 
+ CNSsolve>    evaluate ($a = 5.01) 
+ CNSsolve>    evaluate ($b = 6.25) 
+ CNSsolve>    evaluate ($c = 5.47) 
+ CNSsolve>    evaluate ($alpha =  90) 
+ CNSsolve>    evaluate ($beta  =  80) 
+ CNSsolve>    evaluate ($gamma =  90) 
+ CNSsolve>  elseif ($sgparam.sg_number <=  74) then 
+ CNSsolve>    evaluate ($a = 5.01) 
+ CNSsolve>    evaluate ($b = 6.25) 
+ CNSsolve>    evaluate ($c = 5.47) 
+ CNSsolve>    evaluate ($alpha =  90) 
+ CNSsolve>    evaluate ($beta  =  90) 
+ CNSsolve>    evaluate ($gamma =  90) 
+ CNSsolve>  elseif ($sgparam.sg_number <= 142) then 
+ CNSsolve>    evaluate ($a = 5.01) 
+ CNSsolve>    evaluate ($b = $a) 
+ CNSsolve>    evaluate ($c = 5.47) 
+ CNSsolve>    evaluate ($alpha =  90) 
+ CNSsolve>    evaluate ($beta  =  90) 
+ CNSsolve>    evaluate ($gamma =  90) 
+ CNSsolve>  elseif ($sgparam.sg_number <= 194) then 
+ CNSsolve>    evaluate ($a = 5.01) 
+ CNSsolve>    evaluate ($b = $a) 
+ CNSsolve>    evaluate ($c = 5.47) 
+ CNSsolve>    evaluate ($alpha =  90) 
+ CNSsolve>    evaluate ($beta  =  90) 
+ CNSsolve>    evaluate ($gamma = 120) 
+ CNSsolve>  else 
+ CNSsolve>    evaluate ($a = 5.01) 
+ CNSsolve>    evaluate ($b = $a) 
+ CNSsolve>    evaluate ($c = $a) 
+ CNSsolve>    evaluate ($alpha =  90) 
+ CNSsolve>    evaluate ($beta  =  90) 
+ CNSsolve>    evaluate ($gamma =  90) 
+ CNSsolve>  end if 
+ CNSsolve> 
+ CNSsolve>  xray 
+ CNSsolve>    a=$a b=$b c=$c alpha=$alpha beta=$beta gamma=$gamma 
+ CNSsolve>  end 
+ CNSsolve> 
+ CNSsolve>  coordinates orthogonalize end 
+ CNSsolve> 
+ CNSsolve>  xray 
+ CNSsolve>    {* set space-group dependent restrictions for map-grid dimensions 
+ CNSsolve>     *} 
+ CNSsolve>    fft 
+ CNSsolve>      grid=0.4 
+ CNSsolve>      xgridfactor=$sgparam.SymGrid_x 
+ CNSsolve>      ygridfactor=$sgparam.SymGrid_y 
+ CNSsolve>      zgridfactor=$sgparam.SymGrid_z 
+ CNSsolve>    end 
+ CNSsolve> 
+ CNSsolve>    {* generate reflections 
+ CNSsolve>     *} 
+ CNSsolve>    anomalous = false 
+ CNSsolve>    generate 100000. 1.0 
+ CNSsolve> 
+ CNSsolve>    {* compute dummy "fobs" 
+ CNSsolve>     *} 
+ CNSsolve>    declare name=fobs domain=reciprocal type=complex end 
+ CNSsolve>    predict 
+ CNSsolve>      mode=reciprocal 
+ CNSsolve>      to=fobs 
+ CNSsolve>      selection=(all) 
+ CNSsolve>      atomselection=(all) 
+ CNSsolve>    end 
+ CNSsolve> 
+ CNSsolve>    {* expand to P1 
+ CNSsolve>     *} 
+ CNSsolve>    expand 
+ CNSsolve>  end 
+ CNSsolve> 
+ CNSsolve>  xray 
+ CNSsolve>    declare name=edmap domain=real end 
+ CNSsolve>  end 
+ CNSsolve> 
+ CNSsolve>  xray 
+ CNSsolve>    do (edmap=FT(fobs)) (all) 
+ CNSsolve>    show min (real(edmap)) (all) 
+ CNSsolve>    eval($edmin=$result) 
+ CNSsolve>    show max (real(edmap)) (all) 
+ CNSsolve>    eval($edmax=$result) 
+ CNSsolve>  end 
+ CNSsolve> 
+ CNSsolve>  xray 
+ CNSsolve>    {* define symmetry for flagmap 
+ CNSsolve>     *} 
+ CNSsolve>    fmap 
+ CNSsolve>      @@CNS_XTALLIB:spacegroup.lib (sg=$sg; sgparam = $sgparam) 
+ CNSsolve>      if ($sgparam.ssVM_1 # "VOID") then ssVM = $sgparam.ssVM_1 end if 
+ CNSsolve>      if ($sgparam.ssVM_2 # "VOID") then ssVM = $sgparam.ssVM_2 end if 
+ CNSsolve>      if ($sgparam.ssVM_3 # "VOID") then ssVM = $sgparam.ssVM_3 end if 
+ CNSsolve>      if ($sgparam.GenK2L # "VOID") then Addl = $sgparam.GenK2L end if 
+ CNSsolve>      ? 
+ CNSsolve>      Symmetry ? 
+ CNSsolve>      AddlGenerators ? 
+ CNSsolve>    end 
+ CNSsolve>  end 
+ CNSsolve> 
+ CNSsolve>  set message=all end 
+ CNSsolve> 
+ CNSsolve>  xray 
+ CNSsolve>    {* Build flagmap 
+ CNSsolve>     *} 
+ CNSsolve>    fmap 
+ CNSsolve>      UseSym = true 
+ CNSsolve>      Use_ss  = false 
+ CNSsolve>      UseAddl = false 
+ CNSsolve>      Action=Build 
+ CNSsolve>    end 
+ CNSsolve>  end 
+ CNSsolve> 
+ CNSsolve>  show elem (x) (resid 1) eval($site.x=$result) 
+ CNSsolve>  show elem (y) (resid 1) eval($site.y=$result) 
+ CNSsolve>  show elem (z) (resid 1) eval($site.z=$result) 
+ CNSsolve> 
+ CNSsolve>  xray 
+ CNSsolve>    lidens 
+ CNSsolve>      dens=edmap 
+ CNSsolve>      atomselection=(all) 
+ CNSsolve>      to=vx 
+ CNSsolve>      site=$site.x $site.y $site.z 
+ CNSsolve>    end 
+ CNSsolve>    eval($lidens1=$result) 
+ CNSsolve>  end 
+ CNSsolve>  show elem (vx) (all) 
+ CNSsolve>  show elem (vx) (resid 1) 
+ CNSsolve>  eval($delta=abs($lidens1-$result)) 
+ CNSsolve>  if ($delta > 0.001) then 
+ CNSsolve>    display $lidens1 $result 
+ CNSsolve>    abort 
+ CNSsolve>  end if 
+ CNSsolve>  if ($lidens1 < $edmin) then 
+ CNSsolve>    abort 
+ CNSsolve>  end if 
+ CNSsolve>  if ($lidens1 > $edmax) then 
+ CNSsolve>    abort 
+ CNSsolve>  end if 
+ CNSsolve>  show min (vx) (all) 
+ CNSsolve>  eval($minpeak=$result) 
+ CNSsolve> 
+ CNSsolve>  xray 
+ CNSsolve>    psearch 
+ CNSsolve>      From=edmap 
+ CNSsolve>      level = 1 
+ CNSsolve>      nList = 10 
+ CNSsolve>      Fractional = true 
+ CNSsolve>    end 
+ CNSsolve> 
+ CNSsolve>    declare name=flagmap domain=real end 
+ CNSsolve>    fmap 
+ CNSsolve>      RSObj=flagmap 
+ CNSsolve>      Action=copy 
+ CNSsolve>    end 
+ CNSsolve> 
+ CNSsolve>    show sum (1) (flagmap < 1) 
+ CNSsolve>    eval($nasym=$result) 
+ CNSsolve>    show sum (1) (flagmap < 0) 
+ CNSsolve>    eval($npeaks=max(1,$result)) 
+ CNSsolve>    show sum (1) (flagmap < 0 and edmap < $minpeak) 
+ CNSsolve>    eval($smallpeaks=$result) 
+ CNSsolve>    eval($fom=$smallpeaks/$npeaks) 
+ CNSsolve>  end 
+ CNSsolve> 
+ CNSsolve>  set message=on end 
+ CNSsolve>end loop sg 
+ CNSsolve> 
+ CNSsolve>stop 
+          ============================================================
+           Maximum dynamic memory allocation:     9188496 bytes
+           Maximum dynamic memory overhead:           624 bytes
+           Program started at: 16:08:02 on 05-Jul-2018
+           Program stopped at: 16:08:03 on 05-Jul-2018
+           CPU time used:      10.8469 seconds
+          ============================================================

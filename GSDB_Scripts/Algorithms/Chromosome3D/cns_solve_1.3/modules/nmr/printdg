@@ -1,0 +1,85 @@
+! Module file: printdg
+!
+! CNS MODULE
+! **********
+!
+! Authors: Gregory L. Warren and Axel T. Brunger
+!
+! copyright Yale University
+!
+! version 02/27/98
+!
+! Function:
+!          print distance geometry coordinates
+!          
+!
+! Requirements:
+!      Generates the symbol $nmr.prefix which is used in the 
+!      script dg_sa.inp. 
+!       
+!       
+!       
+!         
+!
+
+module {printdg}
+(
+   &md=md;                   {INPUT: md parameters}
+   &output=output;           {OUTPUT: nmr values}
+   &pdb=pdb;                 {INPUT: coordinate parameters}
+)
+
+checkversion 1.3
+
+set message ? end
+evaluate ($message_old=$result)
+set echo ? end
+evaluate ($echo_old=$result)
+if ( $log_level = verbose ) then
+  set echo=on message=normal end
+else
+  set echo=off message=off end
+end if
+
+   set remarks=reset end
+   set remarks=accu end
+   
+   if (&md.dg.type="sub") then
+      evaluate (&output.prefix=&pdb.out.name+"_sub_embed_")
+      buffer prthead
+         reset
+   	 display A subembeded structure produced by dg_sa.inp
+   	 display Trial structure &output.counter of &pdb.end.count structures
+   	 display ===============================================================
+      end
+   else
+      if (&md.dg.metr.flag=true) then
+         evaluate (&output.prefix=&pdb.out.name+"_full_metric_")
+         buffer prthead
+            reset
+            display A full embed metrization structure produced by dg_sa.inp
+            display Trial structure &output.counter of &pdb.end.count structures
+            display ===============================================================
+         end
+      else
+         evaluate (&output.prefix=&pdb.out.name+"_full_embed_")
+         buffer prthead
+            reset
+            display A full embed nonmetrization structure produced by dg_sa.inp
+            display Trial structure &output.counter of &pdb.end.count structures
+            display ===============================================================
+         end
+      end if
+   end if
+ 
+   buffer prthead
+      to remarks
+      flush
+   end
+   
+   evaluate ($filename=&output.prefix+encode(&output.counter)+".pdb")
+   write coordinates output=$filename format=PDBO end
+
+   set remarks=reset end
+
+set message=$message_old echo=$echo_old end

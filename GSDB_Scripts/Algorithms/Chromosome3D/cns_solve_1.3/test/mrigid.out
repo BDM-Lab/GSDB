@@ -1,0 +1,1434 @@
+          ============================================================
+          |                                                          |
+          |            Crystallography & NMR System (CNS)            |
+          |                         CNSsolve                         |
+          |                                                          |
+          ============================================================
+           Version: 1.3
+           Status: General release
+          ============================================================
+           Written by: A.T.Brunger, P.D.Adams, G.M.Clore, W.L.DeLano,
+                       P.Gros, R.W.Grosse-Kunstleve,J.-S.Jiang,J.M.Krahn,
+                       J.Kuszewski, M.Nilges, N.S.Pannu, R.J.Read,
+                       L.M.Rice, G.F.Schroeder, T.Simonson, G.L.Warren.
+           Copyright (c) 1997-2010 Yale University
+          ============================================================
+           Running on machine: lewis4-r710-login-node223 (x86_64/Linux,64-bit)
+                               with 16 threads
+           Program started by: oeow39
+           Program started at: 16:08:03 on 05-Jul-2018
+          ============================================================
+
+ FFT3C: Using FFTPACK4.1
+
+ CNSsolve>remarks MRIGID 
+ CNSsolve>remarks test rigid body minimization 
+ CNSsolve> 
+ CNSsolve>topology @CNS_TOPPAR:protein.top end 
+ ASSFIL: file protein.top opened.
+ RTFRDR>remarks file toppar/protein.top 
+ RTFRDR>remarks   protein topology with polar hydrogens 
+ RTFRDR> 
+ RTFRDR>! 
+ RTFRDR>! Please cite the following reference when using these parameters: 
+ RTFRDR>! Engh, R.A. and  Huber, R. (1991). Accurate Bond and 
+ RTFRDR>!  Angle Parameters for X-ray Protein-Structure Refinement, 
+ RTFRDR>!  Acta Cryst. A47, 392-400. 
+ RTFRDR>! 
+ RTFRDR>! 
+ RTFRDR> 
+ RTFRDR>set message ? end eval ($old_message=$result) set echo ? end eval ($old_echo=$result) 
+ MESSage=NORM
+ EVALUATE: symbol $OLD_MESSAGE set to "NORM" (string)
+ ECHO=TRUE {ON}
+ EVALUATE: symbol $OLD_ECHO set to TRUE (logical)
+ RTFRDR>set message=off echo=off end 
+ RTFRDR> 
+ RTFRDR> 
+ RTFRDR> end 
+ CNSsolve>parameter @CNS_TOPPAR:protein.param end 
+ ASSFIL: file protein.param opened.
+ PARRDR>remarks file toppar/protein.param 
+ PARRDR>remarks   protein parameters with Lennard-Jones van der Waals parameters 
+ PARRDR>remarks   for crystallographic structure determination 
+ PARRDR> 
+ PARRDR>! 
+ PARRDR>! Please cite the following reference when using these parameters: 
+ PARRDR>! Engh, R.A. and  Huber, R. (1991). Accurate Bond and 
+ PARRDR>!  Angle Parameters for X-ray Protein-Structure Refinement, 
+ PARRDR>!  Acta Cryst. A47, 392-400. 
+ PARRDR>! 
+ PARRDR>! 
+ PARRDR> 
+ PARRDR>set message ? end eval ($old_message=$result) set echo ? end eval ($old_echo=$result) 
+ MESSage=NORM
+ EVALUATE: symbol $OLD_MESSAGE set to "NORM" (string)
+ ECHO=TRUE {ON}
+ EVALUATE: symbol $OLD_ECHO set to TRUE (logical)
+ PARRDR>set message=off echo=off end 
+ PARRDR> 
+ PARRDR> end 
+ CNSsolve> 
+ CNSsolve> 
+ CNSsolve>segment 
+ SEGMENT>  name=tryp 
+ SEGMENT>  chain 
+ CHAIN>     @CNS_TOPPAR:protein.link 
+ ASSFIL: file protein.link opened.
+ CHAIN>remarks file toppar/protein.link 
+ CHAIN>remarks 
+ CHAIN>remarks this is a macro to define standard protein peptide bonds 
+ CHAIN>remarks and termini to generate a protein sequence. 
+ CHAIN> 
+ CHAIN>set message ? end eval ($old_message=$result) set echo ? end eval ($old_echo=$result) 
+ MESSage=NORM
+ EVALUATE: symbol $OLD_MESSAGE set to "NORM" (string)
+ ECHO=TRUE {ON}
+ EVALUATE: symbol $OLD_ECHO set to TRUE (logical)
+ CHAIN>set message=off echo=off end 
+ CHAIN>     sequence 
+ SEQUENCE>        TRP 
+ SEQUence-element (terminate with END) =     end 
+ SEGMNT:     1 residues were inserted into segment "TRYP"
+ CHAIN>  end 
+ SEGMENT>end 
+ Status of internal molecular topology database:
+ -> NATOM=         19(MAXA=     1000000)  NBOND=         20(MAXB=     1000000)
+ -> NTHETA=        30(MAXT=     2000000)  NGRP=           3(MAXGRP=   1000000)
+ -> NPHI=          10(MAXP=     2000000)  NIMPHI=        15(MAXIMP=   1000000)
+ -> NNB=            0(MAXNB=    1000000) 
+ CNSsolve> 
+ CNSsolve>coor 
+ COOR>ATOM      1  HT1 TRP     1       0.101   0.574  -1.385  1.00  0.00      TRYP 
+ COOR>ATOM      2  HT2 TRP     1       1.711   0.436  -1.904  1.00  0.00      TRYP 
+ CNSsolve> 
+ CNSsolve> 
+ CNSsolve> 
+ CNSsolve> 
+ CNSsolve>coor copy end 
+ COOR: selected main coordinates copied to comp
+ CNSsolve> 
+ CNSsolve>flags   exclude * include xref    end 
+ CNSsolve> 
+ CNSsolve>parameter 
+ PARRDR>  nbonds 
+ NBDSET>     atom cdie shift eps=1.0 
+ NBDSET>     cutnb=30.0 ctonnb=99.0 ctofnb=99.0 
+ NBDSET>     nbxmod=5 vswitch 
+ NBDSET>  end 
+ %NBDSET-ERR: inconsistent CTONNB, CTOFNB given. Reset.
+ %NBDSET-ERR: inconsistent CUTNB, TOLErance, CTOFNB given.  Reset.
+ PARRDR>end 
+ CNSsolve> 
+ CNSsolve> 
+ CNSsolve>{* =================================================== *} 
+ CNSsolve>{* test rigid body refinement against diffraction data *} 
+ CNSsolve>{* =================================================== *} 
+ CNSsolve>do ( b = 20.0 ) ( all ) 
+ SELRPN:     19 atoms have been selected out of     19
+ CNSsolve> 
+ CNSsolve>xray 
+ XRAY>   declare name=fobs type=complex domain=reciprocal end 
+ XDECLARE: Object FOBS has been declared.
+ XRAY>   declare name=fpart domain=reciprocal type=complex end 
+ XDECLARE: Object FPART has been declared.
+ XRAY>   declare name=fcalc domain=reciprocal type=complex end 
+ XDECLARE: Object FCALC has been declared.
+ XRAY>   declare name=fom domain=reciprocal type=real end 
+ XDECLARE: Object FOM has been declared.
+ XRAY>   declare name=weight domain=reciprocal type=real end 
+ XDECLARE: Object WEIGHT has been declared.
+ XRAY>   declare name=sigma domain=reciprocal type=real end 
+ XDECLARE: Object SIGMA has been declared.
+ XRAY>   declare name=test domain=reciprocal type=integer end 
+ XDECLARE: Object TEST has been declared.
+ XRAY> 
+ XRAY>   a=10.0 b=10.0 c=10.0  alpha=90. beta=90. gamma=90. 
+ XRAY> 
+ XRAY>  evaluate ($lr=10.) 
+ EVALUATE: symbol $LR set to    10.0000     (real)
+ XRAY>  evaluate ($hr=3) 
+ EVALUATE: symbol $HR set to    3.00000     (real)
+ XRAY>  binresolution $lr $hr 
+ XRAY>  mapresolution $hr 
+ XRAY>  tselection=( $hr <= d <= $lr ) 
+ XRAY> 
+ XRAY>   symmetry=(x,y,z) 
+ XRAY>   symmetry=(-x,y+1/2,-z) 
+ XRAY> 
+ XRAY>   !! scattering tables, from SCATT input 
+ XRAY>   !! 
+ XRAY>   SCATter ( chemical C* ) 
+ SELRPN:     11 atoms have been selected out of     19
+ SCATTER_A1=   2.31000 20.8439 1.02000 10.2075 1.58860 .568700 .865000 51.6512 .215600 
+ XRAY> 
+ XRAY>   SCATter ( chemical N* ) 
+ SELRPN:      2 atoms have been selected out of     19
+ SCATTER_A1=   12.2126 .005700 3.13220 9.89330 2.01250 28.9975 1.16630 .582600 -11.529 
+ XRAY> 
+ XRAY>   SCATter ( chemical O* ) 
+ SELRPN:      2 atoms have been selected out of     19
+ SCATTER_A1=   3.04850 13.2771 2.28680 5.70110 1.54630 .323900 .867000 32.9089 .250800 
+ XRAY> 
+ XRAY>   SCATter ( chemical S* ) 
+ SELRPN:      0 atoms have been selected out of     19
+ SCATTER_A1=   6.90530 1.46790 5.20340 22.2151 1.43790 .253600 1.58630 56.1720 .866900 
+ XRAY> 
+ XRAY>   nreflections=1000 
+ XRAY: allocating space for    1000 reflections.
+ XRAY> 
+ XRAY> 
+ XRAY>   reflections 
+ REFLection>     index      -3   -1    0   fobs   678.838 
+ XSFAL: allocating space for complex reciprocal space object.
+ XRRR2:      102 new h,k,l indices have been added.
+ XRAY> 
+ XRAY>   method=direct 
+ XRAY>   wa=10000 
+ XRAY>   tolerance=0.0 
+ XRAY>   predict 
+ XREDUC: some reflection(s) converted to CNS standard asymm. unit.
+ XREDU2: multiple instances found for some reflections.
+ XREDU2: deleting redundant reflections.
+ XREDU2:       51 reflections have been deleted.
+ XREDU2: sorting all reflections.
+ PREDict>      mode=reciprocal to=fcalc 
+ PREDict>      selection=( $hr <= d <= $lr ) 
+ Total of        49 structure factor elements were selected.
+ PREDict>      atomselection=( not hydrogen ) 
+ SELRPN:     15 atoms have been selected out of     19
+ PREDict>   end 
+ FCALC: #scatt.=     15 #anomalous=   0 #special pos.=  0 occupancies=1
+ XSFAL: allocating space for complex reciprocal space object.
+ XRAY> 
+ XRAY>   associate fcalc ( not hydrogen ) 
+ SELRPN:     15 atoms have been selected out of     19
+ XRAY> 
+ XRAY>   do (fobs=fcalc) ( all ) 
+ Total of        51 structure factor elements were selected.
+ XRAY>   do (fpart=0) ( all ) 
+ XSFAL: allocating space for complex reciprocal space object.
+ Total of        51 structure factor elements were selected.
+ XRAY>end 
+ CNSsolve> 
+ CNSsolve>{* now misorient structure *} 
+ CNSsolve>coor translate vector=( 0.3 0.0 0.3 ) end       !! this is probably the 
+ COOR: translation vector =(     0.300000    0.000000    0.300000 )
+ COOR: selected coordinates translated
+ CNSsolve>coor rotate vector=( 3. 4. 2. ) angle=2. end    !! radius of convergence 
+
+ Rotation matrix =
+    0.999580    0.013213   -0.025797
+   -0.012709    0.999727    0.019610
+    0.026049   -0.019274    0.999475
+ Corresp. Eulerian angles (theta1,theta2,theta3)    53.5015    1.8569  307.2413
+ Corresp. spherical polar angles (psi,phi,kappa)   137.9689  146.3099  358.0000
+ Corresp. rotation angle     2.0000 about axis       0.5571    0.7428    0.3714
+ Corresp. quaternions     0.9998    0.0097    0.0130    0.0065
+
+ COOR: rotation center =    0.000000    0.000000    0.000000
+ COOR: selected coordinates rotated
+ CNSsolve>                                                !! of the method 
+ CNSsolve>minimize rigid nstep=25 drop=1.0 nprint=5 end 
+ XRTSELSET: number of selected reflections      49
+ FCALC: #scatt.=     15 #anomalous=   0 #special pos.=  0 occupancies=1
+ XTAREXPR:                 monitor=  0.202
+ FCALC: #scatt.=     15 #anomalous=   0 #special pos.=  0 occupancies=1
+ XTAREXPR:                 monitor=  0.202
+ FCALC: #scatt.=     15 #anomalous=   0 #special pos.=  0 occupancies=1
+ XTAREXPR:                 monitor=  0.200
+ FCALC: #scatt.=     15 #anomalous=   0 #special pos.=  0 occupancies=1
+ XTAREXPR:                 monitor=  0.187
+ FCALC: #scatt.=     15 #anomalous=   0 #special pos.=  0 occupancies=1
+ XTAREXPR:                 monitor=  0.070
+
+ --------------- cycle=     5 --------------------------------------------------
+ | group=    1 rot/tran=(   -0.01    0.00    0.00   -0.27    0.00   -0.27)     |
+ | Etotal =60.021     grad(E)=38.553     E(XREF)=60.021                        |
+ -------------------------------------------------------------------------------
+ FCALC: #scatt.=     15 #anomalous=   0 #special pos.=  0 occupancies=1
+ XTAREXPR:                 monitor=  0.056
+ FCALC: #scatt.=     15 #anomalous=   0 #special pos.=  0 occupancies=1
+ XTAREXPR:                 monitor=  0.054
+ FCALC: #scatt.=     15 #anomalous=   0 #special pos.=  0 occupancies=1
+ XTAREXPR:                 monitor=  0.054
+ FCALC: #scatt.=     15 #anomalous=   0 #special pos.=  0 occupancies=1
+ XTAREXPR:                 monitor=  0.054
+ FCALC: #scatt.=     15 #anomalous=   0 #special pos.=  0 occupancies=1
+ XTAREXPR:                 monitor=  0.054
+
+ --------------- cycle=    10 --------------------------------------------------
+ | group=    1 rot/tran=(   -0.04    0.02   -0.02   -0.30    0.00   -0.35)     |
+ | Etotal =32.068     grad(E)=31.489     E(XREF)=32.068                        |
+ -------------------------------------------------------------------------------
+ FCALC: #scatt.=     15 #anomalous=   0 #special pos.=  0 occupancies=1
+ XTAREXPR:                 monitor=  0.052
+ FCALC: #scatt.=     15 #anomalous=   0 #special pos.=  0 occupancies=1
+ XTAREXPR:                 monitor=  0.042
+ FCALC: #scatt.=     15 #anomalous=   0 #special pos.=  0 occupancies=1
+ XTAREXPR:                 monitor=  0.025
+ FCALC: #scatt.=     15 #anomalous=   0 #special pos.=  0 occupancies=1
+ XTAREXPR:                 monitor=  0.033
+ FCALC: #scatt.=     15 #anomalous=   0 #special pos.=  0 occupancies=1
+ XTAREXPR:                 monitor=  0.025
+
+ --------------- cycle=    15 --------------------------------------------------
+ | group=    1 rot/tran=(   -1.06    0.70   -0.71   -0.34    0.00   -0.36)     |
+ | Etotal =5.770      grad(E)=13.735     E(XREF)=5.770                         |
+ -------------------------------------------------------------------------------
+ FCALC: #scatt.=     15 #anomalous=   0 #special pos.=  0 occupancies=1
+ XTAREXPR:                 monitor=  0.024
+ FCALC: #scatt.=     15 #anomalous=   0 #special pos.=  0 occupancies=1
+ XTAREXPR:                 monitor=  0.021
+ FCALC: #scatt.=     15 #anomalous=   0 #special pos.=  0 occupancies=1
+ XTAREXPR:                 monitor=  0.010
+ FCALC: #scatt.=     15 #anomalous=   0 #special pos.=  0 occupancies=1
+ XTAREXPR:                 monitor=  0.004
+ FCALC: #scatt.=     15 #anomalous=   0 #special pos.=  0 occupancies=1
+ XTAREXPR:                 monitor=  0.004
+
+ --------------- cycle=    20 --------------------------------------------------
+ | group=    1 rot/tran=(   -0.86    1.51   -0.88   -0.33    0.00   -0.38)     |
+ | Etotal =0.179      grad(E)=2.275      E(XREF)=0.179                         |
+ -------------------------------------------------------------------------------
+ FCALC: #scatt.=     15 #anomalous=   0 #special pos.=  0 occupancies=1
+ XTAREXPR:                 monitor=  0.004
+ FCALC: #scatt.=     15 #anomalous=   0 #special pos.=  0 occupancies=1
+ XTAREXPR:                 monitor=  0.004
+ FCALC: #scatt.=     15 #anomalous=   0 #special pos.=  0 occupancies=1
+ XTAREXPR:                 monitor=  0.004
+ FCALC: #scatt.=     15 #anomalous=   0 #special pos.=  0 occupancies=1
+ XTAREXPR:                 monitor=  0.004
+ FCALC: #scatt.=     15 #anomalous=   0 #special pos.=  0 occupancies=1
+ XTAREXPR:                 monitor=  0.004
+
+ --------------- cycle=    25 --------------------------------------------------
+ | group=    1 rot/tran=(   -0.86    1.51   -0.89   -0.33    0.00   -0.37)     |
+ | Etotal =0.141      grad(E)=1.937      E(XREF)=0.141                         |
+ -------------------------------------------------------------------------------
+ ZXCGR: NSTEP limit reached
+ FCALC: #scatt.=     15 #anomalous=   0 #special pos.=  0 occupancies=1
+ XTAREXPR:                 monitor=  0.004
+ RIGID: main coordinates set to best minimum
+ CNSsolve> 
+ CNSsolve>coor fit end 
+
+ Fitted coordinate set r' related to original set r by r'=R*r  + T
+ This transformation is applied to all coordinates.
+ Translation vector T = (   -0.0020    0.0610   -0.0070)
+
+ Rotation matrix =
+    0.999998    0.001920   -0.000578
+   -0.001922    0.999990   -0.004134
+    0.000571    0.004135    0.999991
+ Corresp. Eulerian angles (theta1,theta2,theta3)   172.1446    0.2392  187.9655
+ Corresp. spherical polar angles (psi,phi,kappa)    97.1821   24.9190  359.7367
+ Corresp. rotation angle     0.2633 about axis      -0.8998    0.1250    0.4180
+ Corresp. quaternions     1.0000   -0.0021    0.0003    0.0010
+
+ R.m.s. diff. between fitted set and comp. set for selected atoms =    0.0000
+ CNSsolve>coor swap end 
+ COOR: selected coordinates swaped (main<->comp)
+ CNSsolve>coor copy end 
+ COOR: selected main coordinates copied to comp
+ CNSsolve> 
+ CNSsolve> 
+ CNSsolve>{* ====================================================== *} 
+ CNSsolve>{* test rigid body refinement against a harmonic gradient *} 
+ CNSsolve>{* ====================================================== *} 
+ CNSsolve> 
+ CNSsolve>fix selection=( id 4:6 or id 10 ) end 
+ SELRPN:      4 atoms have been selected out of     19
+ CNSsolve>coor rotate vector=( 2. 3. 5. ) angle=100. sele=( not ( id 4:6 or id 10 )) end 
+ SELRPN:     15 atoms have been selected out of     19
+ COOR: using atom subset.
+
+ Rotation matrix =
+   -0.050106    0.984097   -0.170416
+   -0.613472    0.104321    0.782796
+    0.788126    0.143768    0.598489
+ Corresp. Eulerian angles (theta1,theta2,theta3)   100.3381   53.2383  347.7183
+ Corresp. spherical polar angles (psi,phi,kappa)   119.1216  111.8014  260.0000
+ Corresp. rotation angle   100.0000 about axis       0.3244    0.4867    0.8111
+ Corresp. quaternions     0.6428    0.2485    0.3728    0.6213
+
+ COOR: rotation center =    0.000000    0.000000    0.000000
+ COOR: selected coordinates rotated
+ CNSsolve>coor translate vector=( 3. 20. 10. ) selection=( not ( id 4:6 or id 10 )) end 
+ SELRPN:     15 atoms have been selected out of     19
+ COOR: using atom subset.
+ COOR: translation vector =(     3.000000   20.000000   10.000000 )
+ COOR: selected coordinates translated
+ CNSsolve> 
+ CNSsolve>flags    exclude * include bond angle dihedral improper    end 
+ CNSsolve> 
+ CNSsolve>minimize rigid nstep=50 drop=1.0 end 
+
+ --------------- cycle=     1 --------------------------------------------------
+ | group=    1 rot/tran=(    0.00    0.00    0.00    0.00    0.00    0.00)     |
+ | Etotal =0.58E+07   grad(E)=65049.622  E(BOND)=0.58E+07   E(ANGL)=40329.284  |
+ | E(DIHE)=1022.759   E(IMPR)=405.188                                          |
+ -------------------------------------------------------------------------------
+
+ --------------- cycle=     2 --------------------------------------------------
+ | group=    1 rot/tran=(    0.00    0.00    0.00    0.00    0.00    0.00)     |
+ | Etotal =0.58E+07   grad(E)=65049.616  E(BOND)=0.58E+07   E(ANGL)=40329.284  |
+ | E(DIHE)=1022.759   E(IMPR)=405.188                                          |
+ -------------------------------------------------------------------------------
+
+ --------------- cycle=     3 --------------------------------------------------
+ | group=    1 rot/tran=(    0.00    0.00    0.00    0.00    0.00    0.00)     |
+ | Etotal =0.58E+07   grad(E)=65049.566  E(BOND)=0.58E+07   E(ANGL)=40329.282  |
+ | E(DIHE)=1022.759   E(IMPR)=405.188                                          |
+ -------------------------------------------------------------------------------
+
+ --------------- cycle=     4 --------------------------------------------------
+ | group=    1 rot/tran=(    0.00    0.00    0.00    0.00    0.00    0.00)     |
+ | Etotal =0.58E+07   grad(E)=65049.063  E(BOND)=0.58E+07   E(ANGL)=40329.267  |
+ | E(DIHE)=1022.759   E(IMPR)=405.190                                          |
+ -------------------------------------------------------------------------------
+
+ --------------- cycle=     5 --------------------------------------------------
+ | group=    1 rot/tran=(    0.00    0.00    0.00    0.00    0.00    0.00)     |
+ | Etotal =0.58E+07   grad(E)=65044.033  E(BOND)=0.58E+07   E(ANGL)=40329.114  |
+ | E(DIHE)=1022.758   E(IMPR)=405.211                                          |
+ -------------------------------------------------------------------------------
+
+ --------------- cycle=     6 --------------------------------------------------
+ | group=    1 rot/tran=(    0.00    0.00    0.00    0.00   -0.01   -0.01)     |
+ | Etotal =0.58E+07   grad(E)=64993.729  E(BOND)=0.58E+07   E(ANGL)=40327.581  |
+ | E(DIHE)=1022.748   E(IMPR)=405.419                                          |
+ -------------------------------------------------------------------------------
+
+ --------------- cycle=     7 --------------------------------------------------
+ | group=    1 rot/tran=(    0.00    0.00   -0.01    0.01   -0.13   -0.12)     |
+ | Etotal =0.57E+07   grad(E)=64490.696  E(BOND)=0.57E+07   E(ANGL)=40312.124  |
+ | E(DIHE)=1022.653   E(IMPR)=407.533                                          |
+ -------------------------------------------------------------------------------
+
+ --------------- cycle=     8 --------------------------------------------------
+ | group=    1 rot/tran=(   -0.02   -0.01   -0.08    0.15   -1.27   -1.23)     |
+ | Etotal =0.49E+07   grad(E)=59461.219  E(BOND)=0.48E+07   E(ANGL)=40143.782  |
+ | E(DIHE)=1021.664   E(IMPR)=432.619                                          |
+ -------------------------------------------------------------------------------
+
+ --------------- cycle=     9 --------------------------------------------------
+ | group=    1 rot/tran=(   -0.17   -0.07   -0.80    1.49  -12.69  -12.28)     |
+ | Etotal =174816.016 grad(E)=11065.353  E(BOND)=122170.738 E(ANGL)=27985.331  |
+ | E(DIHE)=1214.484   E(IMPR)=23445.464                                        |
+ -------------------------------------------------------------------------------
+
+ --------------- cycle=    10 --------------------------------------------------
+ | group=    1 rot/tran=(   -0.20   -0.08   -0.94    1.76  -14.93  -14.46)     |
+ | Etotal =26033.274  grad(E)=3382.638   E(BOND)=6632.041   E(ANGL)=5201.547   |
+ | E(DIHE)=1718.924   E(IMPR)=12480.762                                        |
+ -------------------------------------------------------------------------------
+
+ --------------- cycle=    11 --------------------------------------------------
+ | group=    1 rot/tran=(   -0.20   -0.10   -0.98    1.54  -15.42  -14.94)     |
+ | Etotal =22042.724  grad(E)=2752.140   E(BOND)=3795.806   E(ANGL)=4591.680   |
+ | E(DIHE)=1327.757   E(IMPR)=12327.480                                        |
+ -------------------------------------------------------------------------------
+
+ --------------- cycle=    12 --------------------------------------------------
+ | group=    1 rot/tran=(   -0.20   -0.09   -0.97    1.60  -15.28  -14.79)     |
+ | Etotal =21086.661  grad(E)=2553.636   E(BOND)=4150.731   E(ANGL)=4029.060   |
+ | E(DIHE)=1450.909   E(IMPR)=11455.961                                        |
+ -------------------------------------------------------------------------------
+
+ --------------- cycle=    13 --------------------------------------------------
+ | group=    1 rot/tran=(   -0.21   -0.09   -0.98    1.64  -15.36  -14.75)     |
+ | Etotal =20802.482  grad(E)=2666.780   E(BOND)=4382.072   E(ANGL)=3930.069   |
+ | E(DIHE)=1415.940   E(IMPR)=11074.400                                        |
+ -------------------------------------------------------------------------------
+
+ --------------- cycle=    14 --------------------------------------------------
+ | group=    1 rot/tran=(   -0.22   -0.10   -1.00    1.70  -15.49  -14.69)     |
+ | Etotal =20615.251  grad(E)=2941.895   E(BOND)=4982.319   E(ANGL)=3896.243   |
+ | E(DIHE)=1345.295   E(IMPR)=10391.394                                        |
+ -------------------------------------------------------------------------------
+
+ --------------- cycle=    15 --------------------------------------------------
+ | group=    1 rot/tran=(   -0.24   -0.11   -1.04    1.85  -15.53  -14.44)     |
+ | Etotal =20258.838  grad(E)=3243.805   E(BOND)=7186.197   E(ANGL)=4095.811   |
+ | E(DIHE)=1256.833   E(IMPR)=7719.997                                         |
+ -------------------------------------------------------------------------------
+
+ --------------- cycle=    16 --------------------------------------------------
+ | group=    1 rot/tran=(   -0.24   -0.11   -1.03    1.81  -15.52  -14.49)     |
+ | Etotal =20228.264  grad(E)=3131.769   E(BOND)=6626.557   E(ANGL)=3938.256   |
+ | E(DIHE)=1295.628   E(IMPR)=8367.822                                         |
+ -------------------------------------------------------------------------------
+
+ --------------- cycle=    17 --------------------------------------------------
+ | group=    1 rot/tran=(   -0.27   -0.12   -1.09    1.88  -15.68  -14.24)     |
+ | Etotal =20625.714  grad(E)=3004.089   E(BOND)=9746.725   E(ANGL)=4236.174   |
+ | E(DIHE)=1026.701   E(IMPR)=5616.114                                         |
+ -------------------------------------------------------------------------------
+
+ --------------- cycle=    18 --------------------------------------------------
+ | group=    1 rot/tran=(   -0.25   -0.11   -1.06    1.85  -15.60  -14.37)     |
+ | Etotal =20015.846  grad(E)=3003.524   E(BOND)=8087.570   E(ANGL)=4012.612   |
+ | E(DIHE)=1200.512   E(IMPR)=6715.151                                         |
+ -------------------------------------------------------------------------------
+
+ --------------- cycle=    19 --------------------------------------------------
+ | group=    1 rot/tran=(   -0.25   -0.11   -1.07    1.83  -15.61  -14.40)     |
+ | Etotal =20010.605  grad(E)=3044.217   E(BOND)=7710.506   E(ANGL)=3902.515   |
+ | E(DIHE)=1227.671   E(IMPR)=7169.913                                         |
+ -------------------------------------------------------------------------------
+
+ --------------- cycle=    20 --------------------------------------------------
+ | group=    1 rot/tran=(   -0.25   -0.11   -1.07    1.83  -15.61  -14.39)     |
+ | Etotal =20003.236  grad(E)=3020.888   E(BOND)=7874.851   E(ANGL)=3944.615   |
+ | E(DIHE)=1216.647   E(IMPR)=6967.124                                         |
+ -------------------------------------------------------------------------------
+
+ --------------- cycle=    21 --------------------------------------------------
+ | group=    1 rot/tran=(   -0.25   -0.11   -1.07    1.84  -15.61  -14.39)     |
+ | Etotal =19998.413  grad(E)=3014.412   E(BOND)=7901.586   E(ANGL)=3947.853   |
+ | E(DIHE)=1213.558   E(IMPR)=6935.416                                         |
+ -------------------------------------------------------------------------------
+
+ --------------- cycle=    22 --------------------------------------------------
+ | group=    1 rot/tran=(   -0.27   -0.12   -1.13    1.84  -15.63  -14.36)     |
+ | Etotal =19971.584  grad(E)=2952.695   E(BOND)=8144.354   E(ANGL)=3979.055   |
+ | E(DIHE)=1184.728   E(IMPR)=6663.446                                         |
+ -------------------------------------------------------------------------------
+
+ --------------- cycle=    23 --------------------------------------------------
+ | group=    1 rot/tran=(   -0.28   -0.12   -1.15    1.85  -15.63  -14.36)     |
+ | Etotal =19970.325  grad(E)=2935.472   E(BOND)=8212.339   E(ANGL)=3988.369   |
+ | E(DIHE)=1176.420   E(IMPR)=6593.196                                         |
+ -------------------------------------------------------------------------------
+
+ --------------- cycle=    24 --------------------------------------------------
+ | group=    1 rot/tran=(   -0.30   -0.13   -1.24    1.84  -15.63  -14.36)     |
+ | Etotal =19908.334  grad(E)=2926.098   E(BOND)=8168.170   E(ANGL)=3966.185   |
+ | E(DIHE)=1180.351   E(IMPR)=6593.629                                         |
+ -------------------------------------------------------------------------------
+
+ --------------- cycle=    25 --------------------------------------------------
+ | group=    1 rot/tran=(   -0.54   -0.18   -2.09    1.82  -15.58  -14.34)     |
+ | Etotal =19375.049  grad(E)=2849.521   E(BOND)=7772.954   E(ANGL)=3774.333   |
+ | E(DIHE)=1214.880   E(IMPR)=6612.881                                         |
+ -------------------------------------------------------------------------------
+
+ --------------- cycle=    26 --------------------------------------------------
+ | group=    1 rot/tran=(   -2.92   -0.75  -10.52    1.63  -15.15  -14.20)     |
+ | Etotal =15715.355  grad(E)=2400.565   E(BOND)=4328.989   E(ANGL)=2535.065   |
+ | E(DIHE)=1379.357   E(IMPR)=7471.944                                         |
+ -------------------------------------------------------------------------------
+
+ --------------- cycle=    27 --------------------------------------------------
+ | group=    1 rot/tran=(   -5.16   -1.28  -18.46    1.44  -14.74  -14.06)     |
+ | Etotal =14928.857  grad(E)=2173.910   E(BOND)=2562.453   E(ANGL)=2367.526   |
+ | E(DIHE)=1354.280   E(IMPR)=8644.598                                         |
+ -------------------------------------------------------------------------------
+
+ --------------- cycle=    28 --------------------------------------------------
+ | group=    1 rot/tran=(  -10.78   -2.61  -38.20    1.55  -14.78  -12.79)     |
+ | Etotal =11146.901  grad(E)=2046.395   E(BOND)=3679.939   E(ANGL)=2189.736   |
+ | E(DIHE)=1089.408   E(IMPR)=4187.818                                         |
+ -------------------------------------------------------------------------------
+
+ --------------- cycle=    29 --------------------------------------------------
+ | group=    1 rot/tran=(   -9.27   -2.25  -32.89    1.52  -14.77  -13.13)     |
+ | Etotal =10349.840  grad(E)=1787.240   E(BOND)=3099.273   E(ANGL)=1720.729   |
+ | E(DIHE)=1180.726   E(IMPR)=4349.112                                         |
+ -------------------------------------------------------------------------------
+
+ --------------- cycle=    30 --------------------------------------------------
+ | group=    1 rot/tran=(  -11.44   -2.77  -40.54    1.47  -15.25  -13.33)     |
+ | Etotal =12820.564  grad(E)=2677.465   E(BOND)=2117.345   E(ANGL)=3775.200   |
+ | E(DIHE)=911.407    E(IMPR)=6016.612                                         |
+ -------------------------------------------------------------------------------
+
+ --------------- cycle=    31 --------------------------------------------------
+ | group=    1 rot/tran=(  -10.08   -2.45  -35.77    1.50  -14.95  -13.21)     |
+ | Etotal =8975.149   grad(E)=1346.471   E(BOND)=2027.574   E(ANGL)=1438.850   |
+ | E(DIHE)=1073.144   E(IMPR)=4435.581                                         |
+ -------------------------------------------------------------------------------
+
+ --------------- cycle=    32 --------------------------------------------------
+ | group=    1 rot/tran=(  -10.23   -2.48  -36.27    1.41  -14.98  -13.18)     |
+ | Etotal =8796.458   grad(E)=1353.727   E(BOND)=1850.087   E(ANGL)=1285.397   |
+ | E(DIHE)=1116.163   E(IMPR)=4544.812                                         |
+ -------------------------------------------------------------------------------
+
+ --------------- cycle=    33 --------------------------------------------------
+ | group=    1 rot/tran=(  -10.30   -2.49  -36.53    1.36  -14.99  -13.17)     |
+ | Etotal =8771.647   grad(E)=1372.970   E(BOND)=1783.390   E(ANGL)=1226.094   |
+ | E(DIHE)=1135.213   E(IMPR)=4626.951                                         |
+ -------------------------------------------------------------------------------
+
+ --------------- cycle=    34 --------------------------------------------------
+ | group=    1 rot/tran=(  -10.35   -2.50  -36.66    1.35  -14.95  -13.10)     |
+ | Etotal =8764.203   grad(E)=1381.746   E(BOND)=1935.037   E(ANGL)=1164.921   |
+ | E(DIHE)=1157.653   E(IMPR)=4506.592                                         |
+ -------------------------------------------------------------------------------
+
+ --------------- cycle=    35 --------------------------------------------------
+ | group=    1 rot/tran=(  -10.33   -2.50  -36.60    1.36  -14.97  -13.13)     |
+ | Etotal =8743.538   grad(E)=1366.604   E(BOND)=1859.378   E(ANGL)=1182.325   |
+ | E(DIHE)=1146.915   E(IMPR)=4554.920                                         |
+ -------------------------------------------------------------------------------
+
+ --------------- cycle=    36 --------------------------------------------------
+ | group=    1 rot/tran=(  -10.35   -2.50  -36.68    1.36  -14.97  -13.13)     |
+ | Etotal =8735.574   grad(E)=1364.051   E(BOND)=1847.169   E(ANGL)=1179.065   |
+ | E(DIHE)=1146.857   E(IMPR)=4562.483                                         |
+ -------------------------------------------------------------------------------
+
+ --------------- cycle=    37 --------------------------------------------------
+ | group=    1 rot/tran=(  -10.61   -2.53  -37.41    1.34  -14.94  -13.12)     |
+ | Etotal =8683.232   grad(E)=1344.165   E(BOND)=1748.409   E(ANGL)=1155.844   |
+ | E(DIHE)=1145.945   E(IMPR)=4633.033                                         |
+ -------------------------------------------------------------------------------
+
+ --------------- cycle=    38 --------------------------------------------------
+ | group=    1 rot/tran=(  -10.86   -2.57  -38.13    1.32  -14.91  -13.10)     |
+ | Etotal =8666.463   grad(E)=1330.386   E(BOND)=1671.171   E(ANGL)=1144.092   |
+ | E(DIHE)=1144.438   E(IMPR)=4706.762                                         |
+ -------------------------------------------------------------------------------
+
+ --------------- cycle=    39 --------------------------------------------------
+ | group=    1 rot/tran=(  -11.43   -2.64  -39.78    1.29  -14.93  -13.02)     |
+ | Etotal =8533.362   grad(E)=1314.470   E(BOND)=1678.457   E(ANGL)=1125.432   |
+ | E(DIHE)=1134.023   E(IMPR)=4595.451                                         |
+ -------------------------------------------------------------------------------
+
+ --------------- cycle=    40 --------------------------------------------------
+ | group=    1 rot/tran=(  -13.02   -2.84  -44.35    1.23  -14.97  -12.80)     |
+ | Etotal =8373.193   grad(E)=1295.614   E(BOND)=1781.385   E(ANGL)=1106.110   |
+ | E(DIHE)=1108.199   E(IMPR)=4377.499                                         |
+ -------------------------------------------------------------------------------
+
+ --------------- cycle=    41 --------------------------------------------------
+ | group=    1 rot/tran=(  -13.02   -2.83  -44.25    1.22  -15.12  -12.88)     |
+ | Etotal =8676.414   grad(E)=1464.792   E(BOND)=1749.823   E(ANGL)=1355.449   |
+ | E(DIHE)=1087.949   E(IMPR)=4483.193                                         |
+ -------------------------------------------------------------------------------
+
+ --------------- cycle=    42 --------------------------------------------------
+ | group=    1 rot/tran=(  -13.02   -2.84  -44.33    1.23  -15.00  -12.81)     |
+ | Etotal =8363.790   grad(E)=1301.412   E(BOND)=1760.423   E(ANGL)=1123.106   |
+ | E(DIHE)=1105.685   E(IMPR)=4374.577                                         |
+ -------------------------------------------------------------------------------
+
+ --------------- cycle=    43 --------------------------------------------------
+ | group=    1 rot/tran=(  -13.00   -2.84  -44.24    1.23  -15.00  -12.81)     |
+ | Etotal =8362.157   grad(E)=1305.355   E(BOND)=1773.766   E(ANGL)=1118.603   |
+ | E(DIHE)=1107.548   E(IMPR)=4362.241                                         |
+ -------------------------------------------------------------------------------
+
+ --------------- cycle=    44 --------------------------------------------------
+ | group=    1 rot/tran=(  -12.99   -2.83  -44.20    1.23  -15.00  -12.81)     |
+ | Etotal =8362.018   grad(E)=1307.039   E(BOND)=1779.229   E(ANGL)=1117.042   |
+ | E(DIHE)=1108.286   E(IMPR)=4357.461                                         |
+ -------------------------------------------------------------------------------
+
+ --------------- cycle=    45 --------------------------------------------------
+ | group=    1 rot/tran=(  -12.98   -2.83  -44.16    1.23  -15.00  -12.81)     |
+ | Etotal =8360.405   grad(E)=1306.389   E(BOND)=1779.256   E(ANGL)=1116.590   |
+ | E(DIHE)=1108.215   E(IMPR)=4356.345                                         |
+ -------------------------------------------------------------------------------
+
+ --------------- cycle=    46 --------------------------------------------------
+ | group=    1 rot/tran=(  -12.95   -2.79  -43.79    1.24  -14.99  -12.83)     |
+ | Etotal =8348.473   grad(E)=1301.147   E(BOND)=1780.894   E(ANGL)=1113.378   |
+ | E(DIHE)=1107.514   E(IMPR)=4346.687                                         |
+ -------------------------------------------------------------------------------
+
+ --------------- cycle=    47 --------------------------------------------------
+ | group=    1 rot/tran=(  -12.88   -2.70  -43.03    1.26  -14.97  -12.85)     |
+ | Etotal =8338.716   grad(E)=1293.852   E(BOND)=1792.295   E(ANGL)=1111.657   |
+ | E(DIHE)=1105.748   E(IMPR)=4329.016                                         |
+ -------------------------------------------------------------------------------
+
+ --------------- cycle=    48 --------------------------------------------------
+ | group=    1 rot/tran=(  -12.74   -2.56  -41.74    1.27  -14.97  -12.92)     |
+ | Etotal =8311.186   grad(E)=1294.580   E(BOND)=1730.449   E(ANGL)=1123.782   |
+ | E(DIHE)=1105.623   E(IMPR)=4351.332                                         |
+ -------------------------------------------------------------------------------
+
+ --------------- cycle=    49 --------------------------------------------------
+ | group=    1 rot/tran=(  -12.71   -2.52  -41.43    1.27  -14.97  -12.94)     |
+ | Etotal =8310.068   grad(E)=1295.952   E(BOND)=1717.028   E(ANGL)=1127.964   |
+ | E(DIHE)=1105.611   E(IMPR)=4359.465                                         |
+ -------------------------------------------------------------------------------
+
+ --------------- cycle=    50 --------------------------------------------------
+ | group=    1 rot/tran=(  -12.76   -2.49  -41.32    1.25  -14.97  -12.95)     |
+ | Etotal =8298.672   grad(E)=1298.322   E(BOND)=1678.516   E(ANGL)=1105.225   |
+ | E(DIHE)=1113.193   E(IMPR)=4401.738                                         |
+ -------------------------------------------------------------------------------
+ ZXCGR: NSTEP limit reached
+
+ --------------- cycle=    51 --------------------------------------------------
+ | group=    1 rot/tran=(  -12.76   -2.49  -41.32    1.25  -14.97  -12.95)     |
+ | Etotal =8298.672   grad(E)=1298.322   E(BOND)=1678.516   E(ANGL)=1105.225   |
+ | E(DIHE)=1113.193   E(IMPR)=4401.738                                         |
+ -------------------------------------------------------------------------------
+ RIGID: main coordinates set to best minimum
+ CNSsolve>coor fit end 
+
+ Fitted coordinate set r' related to original set r by r'=R*r  + T
+ This transformation is applied to all coordinates.
+ Translation vector T = (    4.6680   -4.4372    0.5473)
+
+ Rotation matrix =
+    0.175107   -0.969729    0.170187
+    0.976786    0.192776    0.093418
+   -0.123398    0.149878    0.980974
+ Corresp. Eulerian angles (theta1,theta2,theta3)   219.4655   11.1945   61.2370
+ Corresp. spherical polar angles (psi,phi,kappa)    98.5735   91.6614   79.9546
+ Corresp. rotation angle    79.9546 about axis      -0.0287   -0.1491   -0.9884
+ Corresp. quaternions     0.7663   -0.0184   -0.0958   -0.6350
+
+ R.m.s. diff. between fitted set and comp. set for selected atoms =    0.4979
+ CNSsolve> 
+ CNSsolve> 
+ CNSsolve>{* now test first derivatives *} 
+ CNSsolve>minimize rigid debug= 0.5 1.0 20.0 3.0 2.0 1.0  0.0001 end 
+ List of group selections
+ ------ GROUP     1 -----------
+ TRYP 1    TRP  CB  
+ TRYP 1    TRP  CG  
+ TRYP 1    TRP  CD2 
+ TRYP 1    TRP  NE1 
+ TRYP 1    TRP  HE1 
+ TRYP 1    TRP  CZ2 
+ TRYP 1    TRP  CH2 
+ TRYP 1    TRP  C   
+ TRYP 1    TRP  O   
+ TRYP 1    TRP  OXT 
+ TRYP 1    TRP  HT1 
+ TRYP 1    TRP  HT2 
+ TRYP 1    TRP  N   
+ TRYP 1    TRP  HT3 
+ TRYP 1    TRP  CA  
+ Performing finite difference test
+ Group      1
+ fin.dif.= -2175.1696 -1715.2299   345.4628 61286.1298 33812.4122 31940.3921
+ analyt. = -2175.1696 -1715.2299   345.4628 61286.1298 33812.4122 31940.3921
+ CNSsolve> 
+ CNSsolve>{* now test multiple groups *} 
+ CNSsolve>fix selection=( not all ) end 
+ SELRPN:      0 atoms have been selected out of     19
+ CNSsolve>minimize rigid 
+ RIGID>   group=( id 1:4 ) 
+ SELRPN:      4 atoms have been selected out of     19
+ RIGID>   group=( id 5:6 ) 
+ SELRPN:      2 atoms have been selected out of     19
+ RIGID>   group=( id 7:12 ) 
+ SELRPN:      6 atoms have been selected out of     19
+ RIGID>   debug 
+ List of group selections
+ ------ GROUP     1 -----------
+ TRYP 1    TRP  CB  
+ TRYP 1    TRP  CG  
+ TRYP 1    TRP  CD2 
+ TRYP 1    TRP  CE2 
+ ------ GROUP     2 -----------
+ TRYP 1    TRP  CE3 
+ TRYP 1    TRP  CD1 
+ ------ GROUP     3 -----------
+ TRYP 1    TRP  NE1 
+ TRYP 1    TRP  HE1 
+ TRYP 1    TRP  CZ2 
+ TRYP 1    TRP  CZ3 
+ TRYP 1    TRP  CH2 
+ TRYP 1    TRP  C   
+ Performing finite difference test
+ thetaz=     0.5 1.0 20.0 3.0 2.0 1.0 
+ thetaz=     0.5 1.0 20.0 3.0 2.0 1.0 
+ thetaz=     0.5 1.0 20.0 3.0 2.0 1.0  0.0001 
+ Group      1
+ fin.dif.=   238.6327    16.6988    42.8475  9019.9013 15921.8973  4513.0782
+ analyt. =   238.6327    16.6988    42.8475  9019.9013 15921.8973  4513.0782
+ Group      2
+ fin.dif.=   -79.7585   -41.1389   134.5633  2484.0134 -7557.8792 -1426.0942
+ analyt. =   -79.7585   -41.1389   134.5633  2484.0134 -7557.8792 -1426.0941
+ Group      3
+ fin.dif.=  2448.6670   762.8015   222.9582 18215.8252 15930.0609  -186.8275
+ analyt. =  2448.6670   762.8015   222.9582 18215.8252 15930.0609  -186.8275
+ RIGID>end 
+ CNSsolve> 
+ CNSsolve>coor rotate 
+ COOR-ROTA>      angle=10. sele=( id 1:10 ) vector=( 2. 3. 5. ) end 
+ SELRPN:     10 atoms have been selected out of     19
+ COOR: using atom subset.
+
+ Rotation matrix =
+    0.986407    0.143246   -0.080510
+   -0.138448    0.988406    0.062336
+    0.088506   -0.050342    0.994803
+ Corresp. Eulerian angles (theta1,theta2,theta3)    60.3690    5.8441  307.7491
+ Corresp. spherical polar angles (psi,phi,kappa)   119.1216  111.8014  350.0000
+ Corresp. rotation angle    10.0000 about axis       0.3244    0.4867    0.8111
+ Corresp. quaternions     0.9962    0.0283    0.0424    0.0707
+
+ COOR: rotation center =    0.000000    0.000000    0.000000
+ COOR: selected coordinates rotated
+ CNSsolve>coor rotate 
+ COOR-ROTA>      angle=50. sele=( id 11:19 ) vector=( 2. 3. 5. ) end 
+ SELRPN:      9 atoms have been selected out of     19
+ COOR: using atom subset.
+
+ Rotation matrix =
+    0.680389    0.677746   -0.278803
+   -0.564942    0.727391    0.389543
+    0.466810   -0.107533    0.877796
+ Corresp. Eulerian angles (theta1,theta2,theta3)    77.0278   28.6224  324.4080
+ Corresp. spherical polar angles (psi,phi,kappa)   119.1216  111.8014  310.0000
+ Corresp. rotation angle    50.0000 about axis       0.3244    0.4867    0.8111
+ Corresp. quaternions     0.9063    0.1371    0.2057    0.3428
+
+ COOR: rotation center =    0.000000    0.000000    0.000000
+ COOR: selected coordinates rotated
+ CNSsolve> 
+ CNSsolve>minimize rigid 
+ RIGID>   group=( id 1:10 ) 
+ SELRPN:     10 atoms have been selected out of     19
+ RIGID>   group=( id 11:19 ) 
+ SELRPN:      9 atoms have been selected out of     19
+ RIGID>   nstep=50 drop=1.0 
+ RIGID>end 
+
+ --------------- cycle=     1 --------------------------------------------------
+ | group=    1 rot/tran=(    0.00    0.00    0.00    0.00    0.00    0.00)     |
+ | group=    2 rot/tran=(    0.00    0.00    0.00    0.00    0.00    0.00)     |
+ | Etotal =41653.790  grad(E)=3036.538   E(BOND)=21570.651  E(ANGL)=6817.291   |
+ | E(DIHE)=1560.528   E(IMPR)=11705.320                                        |
+ -------------------------------------------------------------------------------
+
+ --------------- cycle=     2 --------------------------------------------------
+ | group=    1 rot/tran=(    0.00    0.00    0.00    0.00    0.00    0.00)     |
+ | group=    2 rot/tran=(    0.00    0.00    0.00    0.00    0.00    0.00)     |
+ | Etotal =41652.790  grad(E)=3036.494   E(BOND)=21569.725  E(ANGL)=6817.247   |
+ | E(DIHE)=1560.529   E(IMPR)=11705.289                                        |
+ -------------------------------------------------------------------------------
+
+ --------------- cycle=     3 --------------------------------------------------
+ | group=    1 rot/tran=(    0.00    0.00    0.00    0.00    0.00    0.00)     |
+ | group=    2 rot/tran=(    0.00    0.00    0.00    0.00    0.00    0.00)     |
+ | Etotal =41643.792  grad(E)=3036.099   E(BOND)=21561.397  E(ANGL)=6816.847   |
+ | E(DIHE)=1560.539   E(IMPR)=11705.008                                        |
+ -------------------------------------------------------------------------------
+
+ --------------- cycle=     4 --------------------------------------------------
+ | group=    1 rot/tran=(    0.00    0.00    0.00    0.00    0.00    0.00)     |
+ | group=    2 rot/tran=(    0.00    0.00    0.00    0.00    0.00    0.00)     |
+ | Etotal =41553.923  grad(E)=3032.153   E(BOND)=21478.237  E(ANGL)=6812.846   |
+ | E(DIHE)=1560.640   E(IMPR)=11702.200                                        |
+ -------------------------------------------------------------------------------
+
+ --------------- cycle=     5 --------------------------------------------------
+ | group=    1 rot/tran=(    0.00    0.00    0.00   -0.01   -0.03    0.01)     |
+ | group=    2 rot/tran=(    0.00    0.00    0.00    0.01    0.03   -0.01)     |
+ | Etotal =40667.028  grad(E)=2992.970   E(BOND)=20659.232  E(ANGL)=6772.193   |
+ | E(DIHE)=1561.643   E(IMPR)=11673.959                                        |
+ -------------------------------------------------------------------------------
+
+ --------------- cycle=     6 --------------------------------------------------
+ | group=    1 rot/tran=(    0.00    0.00    0.01   -0.06   -0.26    0.15)     |
+ | group=    2 rot/tran=(   -0.02    0.01   -0.01    0.06    0.26   -0.15)     |
+ | Etotal =32948.076  grad(E)=2633.596   E(BOND)=13704.742  E(ANGL)=6292.812   |
+ | E(DIHE)=1570.772   E(IMPR)=11379.749                                        |
+ -------------------------------------------------------------------------------
+
+ --------------- cycle=     7 --------------------------------------------------
+ | group=    1 rot/tran=(    0.01    0.00    0.03   -0.26   -1.03    0.60)     |
+ | group=    2 rot/tran=(   -0.07    0.03   -0.05    0.26    1.03   -0.60)     |
+ | Etotal =18303.413  grad(E)=1977.123   E(BOND)=2699.202   E(ANGL)=4025.636   |
+ | E(DIHE)=1553.026   E(IMPR)=10025.549                                        |
+ -------------------------------------------------------------------------------
+
+ --------------- cycle=     8 --------------------------------------------------
+ | group=    1 rot/tran=(    0.03    0.00    0.09   -0.63   -2.51    1.48)     |
+ | group=    2 rot/tran=(   -0.17    0.07   -0.12    0.63    2.51   -1.48)     |
+ | Etotal =24329.818  grad(E)=2133.935   E(BOND)=13506.596  E(ANGL)=3441.275   |
+ | E(DIHE)=980.742    E(IMPR)=6401.204                                         |
+ -------------------------------------------------------------------------------
+
+ --------------- cycle=     9 --------------------------------------------------
+ | group=    1 rot/tran=(    0.02    0.00    0.06   -0.44   -1.77    1.04)     |
+ | group=    2 rot/tran=(   -0.12    0.05   -0.08    0.44    1.77   -1.04)     |
+ | Etotal =11106.042  grad(E)=2049.254   E(BOND)=3174.217   E(ANGL)=2318.904   |
+ | E(DIHE)=1201.872   E(IMPR)=4411.050                                         |
+ -------------------------------------------------------------------------------
+
+ --------------- cycle=    10 --------------------------------------------------
+ | group=    1 rot/tran=(    0.02    0.00    0.06   -0.41   -1.63    0.96)     |
+ | group=    2 rot/tran=(   -0.11    0.05   -0.08    0.41    1.63   -0.96)     |
+ | Etotal =11866.697  grad(E)=3044.177   E(BOND)=2572.156   E(ANGL)=2555.655   |
+ | E(DIHE)=1296.282   E(IMPR)=5442.604                                         |
+ -------------------------------------------------------------------------------
+
+ --------------- cycle=    11 --------------------------------------------------
+ | group=    1 rot/tran=(    0.02    0.00    0.06   -0.43   -1.73    1.01)     |
+ | group=    2 rot/tran=(   -0.12    0.05   -0.08    0.43    1.73   -1.01)     |
+ | Etotal =10628.900  grad(E)=1683.023   E(BOND)=2978.874   E(ANGL)=2552.572   |
+ | E(DIHE)=1230.516   E(IMPR)=3866.938                                         |
+ -------------------------------------------------------------------------------
+
+ --------------- cycle=    12 --------------------------------------------------
+ | group=    1 rot/tran=(    0.02    0.00    0.06   -0.42   -1.68    0.99)     |
+ | group=    2 rot/tran=(   -0.11    0.05   -0.08    0.42    1.68   -0.99)     |
+ | Etotal =10815.104  grad(E)=2309.583   E(BOND)=2777.312   E(ANGL)=2661.279   |
+ | E(DIHE)=1262.369   E(IMPR)=4114.144                                         |
+ -------------------------------------------------------------------------------
+
+ --------------- cycle=    13 --------------------------------------------------
+ | group=    1 rot/tran=(    0.02    0.00    0.06   -0.43   -1.71    1.00)     |
+ | group=    2 rot/tran=(   -0.12    0.05   -0.08    0.43    1.71   -1.00)     |
+ | Etotal =10542.826  grad(E)=1540.326   E(BOND)=2904.443   E(ANGL)=2619.970   |
+ | E(DIHE)=1242.050   E(IMPR)=3776.363                                         |
+ -------------------------------------------------------------------------------
+
+ --------------- cycle=    14 --------------------------------------------------
+ | group=    1 rot/tran=(    0.04    0.00    0.08   -0.81   -1.55    1.45)     |
+ | group=    2 rot/tran=(   -0.15    0.08   -0.13    0.81    1.55   -1.45)     |
+ | Etotal =12961.471  grad(E)=1816.438   E(BOND)=4003.787   E(ANGL)=2073.509   |
+ | E(DIHE)=1139.287   E(IMPR)=5744.889                                         |
+ -------------------------------------------------------------------------------
+
+ --------------- cycle=    15 --------------------------------------------------
+ | group=    1 rot/tran=(    0.03    0.00    0.06   -0.54   -1.66    1.14)     |
+ | group=    2 rot/tran=(   -0.13    0.06   -0.10    0.54    1.66   -1.14)     |
+ | Etotal =9813.615   grad(E)=1430.499   E(BOND)=2849.207   E(ANGL)=1467.047   |
+ | E(DIHE)=1200.931   E(IMPR)=4296.430                                         |
+ -------------------------------------------------------------------------------
+
+ --------------- cycle=    16 --------------------------------------------------
+ | group=    1 rot/tran=(    0.03    0.00    0.07   -0.53   -1.60    1.13)     |
+ | group=    2 rot/tran=(   -0.13    0.06   -0.10    0.53    1.60   -1.13)     |
+ | Etotal =9714.536   grad(E)=1449.195   E(BOND)=2604.762   E(ANGL)=1494.708   |
+ | E(DIHE)=1227.714   E(IMPR)=4387.352                                         |
+ -------------------------------------------------------------------------------
+
+ --------------- cycle=    17 --------------------------------------------------
+ | group=    1 rot/tran=(    0.03    0.00    0.07   -0.53   -1.60    1.12)     |
+ | group=    2 rot/tran=(   -0.13    0.06   -0.10    0.53    1.60   -1.12)     |
+ | Etotal =9714.449   grad(E)=1450.259   E(BOND)=2597.641   E(ANGL)=1495.732   |
+ | E(DIHE)=1228.514   E(IMPR)=4392.563                                         |
+ -------------------------------------------------------------------------------
+
+ --------------- cycle=    18 --------------------------------------------------
+ | group=    1 rot/tran=(    0.03    0.00    0.08   -0.54   -1.60    1.12)     |
+ | group=    2 rot/tran=(   -0.13    0.06   -0.11    0.54    1.60   -1.12)     |
+ | Etotal =9706.295   grad(E)=1448.764   E(BOND)=2577.676   E(ANGL)=1506.232   |
+ | E(DIHE)=1229.552   E(IMPR)=4392.835                                         |
+ -------------------------------------------------------------------------------
+
+ --------------- cycle=    19 --------------------------------------------------
+ | group=    1 rot/tran=(    0.04   -0.01    0.09   -0.55   -1.60    1.10)     |
+ | group=    2 rot/tran=(   -0.14    0.06   -0.12    0.55    1.60   -1.10)     |
+ | Etotal =9701.164   grad(E)=1447.724   E(BOND)=2550.689   E(ANGL)=1524.472   |
+ | E(DIHE)=1231.289   E(IMPR)=4394.714                                         |
+ -------------------------------------------------------------------------------
+
+ --------------- cycle=    20 --------------------------------------------------
+ | group=    1 rot/tran=(    0.05   -0.02    0.11   -0.55   -1.60    1.10)     |
+ | group=    2 rot/tran=(   -0.15    0.07   -0.14    0.55    1.60   -1.10)     |
+ | Etotal =9688.696   grad(E)=1447.106   E(BOND)=2537.140   E(ANGL)=1523.466   |
+ | E(DIHE)=1231.401   E(IMPR)=4396.689                                         |
+ -------------------------------------------------------------------------------
+
+ --------------- cycle=    21 --------------------------------------------------
+ | group=    1 rot/tran=(    0.19   -0.11    0.34   -0.54   -1.58    1.09)     |
+ | group=    2 rot/tran=(   -0.28    0.16   -0.37    0.54    1.58   -1.09)     |
+ | Etotal =9581.974   grad(E)=1442.053   E(BOND)=2420.061   E(ANGL)=1514.480   |
+ | E(DIHE)=1232.380   E(IMPR)=4415.053                                         |
+ -------------------------------------------------------------------------------
+
+ --------------- cycle=    22 --------------------------------------------------
+ | group=    1 rot/tran=(    1.52   -0.98    2.63   -0.46   -1.43    1.01)     |
+ | group=    2 rot/tran=(   -1.61    1.03   -2.66    0.46    1.43   -1.01)     |
+ | Etotal =9031.413   grad(E)=1438.229   E(BOND)=1712.764   E(ANGL)=1436.057   |
+ | E(DIHE)=1239.710   E(IMPR)=4642.881                                         |
+ -------------------------------------------------------------------------------
+
+ --------------- cycle=    23 --------------------------------------------------
+ | group=    1 rot/tran=(    3.07   -1.99    5.27   -0.42   -1.51    0.93)     |
+ | group=    2 rot/tran=(   -3.15    2.02   -5.29    0.42    1.51   -0.93)     |
+ | Etotal =8618.493   grad(E)=1320.366   E(BOND)=1673.582   E(ANGL)=1399.531   |
+ | E(DIHE)=1145.095   E(IMPR)=4400.285                                         |
+ -------------------------------------------------------------------------------
+
+ --------------- cycle=    24 --------------------------------------------------
+ | group=    1 rot/tran=(    2.67   -1.73    4.59   -0.43   -1.49    0.95)     |
+ | group=    2 rot/tran=(   -2.76    1.77   -4.62    0.43    1.49   -0.95)     |
+ | Etotal =8558.082   grad(E)=1333.800   E(BOND)=1682.942   E(ANGL)=1367.274   |
+ | E(DIHE)=1168.738   E(IMPR)=4339.128                                         |
+ -------------------------------------------------------------------------------
+
+ --------------- cycle=    25 --------------------------------------------------
+ | group=    1 rot/tran=(    2.89   -1.87    4.96   -0.39   -1.47    0.97)     |
+ | group=    2 rot/tran=(   -2.97    1.91   -4.99    0.39    1.47   -0.97)     |
+ | Etotal =8533.405   grad(E)=1336.019   E(BOND)=1713.826   E(ANGL)=1332.785   |
+ | E(DIHE)=1164.994   E(IMPR)=4321.800                                         |
+ -------------------------------------------------------------------------------
+
+ --------------- cycle=    26 --------------------------------------------------
+ | group=    1 rot/tran=(    2.87   -1.86    4.94   -0.40   -1.48    0.96)     |
+ | group=    2 rot/tran=(   -2.96    1.90   -4.97    0.40    1.48   -0.96)     |
+ | Etotal =8533.290   grad(E)=1335.491   E(BOND)=1710.698   E(ANGL)=1334.796   |
+ | E(DIHE)=1165.224   E(IMPR)=4322.572                                         |
+ -------------------------------------------------------------------------------
+
+ --------------- cycle=    27 --------------------------------------------------
+ | group=    1 rot/tran=(    2.89   -1.87    4.95   -0.39   -1.47    0.95)     |
+ | group=    2 rot/tran=(   -2.97    1.90   -4.98    0.39    1.47   -0.95)     |
+ | Etotal =8531.491   grad(E)=1336.893   E(BOND)=1716.344   E(ANGL)=1349.137   |
+ | E(DIHE)=1171.388   E(IMPR)=4294.621                                         |
+ -------------------------------------------------------------------------------
+
+ --------------- cycle=    28 --------------------------------------------------
+ | group=    1 rot/tran=(    2.88   -1.87    4.95   -0.39   -1.47    0.96)     |
+ | group=    2 rot/tran=(   -2.97    1.90   -4.98    0.39    1.47   -0.96)     |
+ | Etotal =8531.202   grad(E)=1336.375   E(BOND)=1714.688   E(ANGL)=1344.894   |
+ | E(DIHE)=1169.717   E(IMPR)=4301.903                                         |
+ -------------------------------------------------------------------------------
+
+ --------------- cycle=    29 --------------------------------------------------
+ | group=    1 rot/tran=(    2.89   -1.87    4.96   -0.39   -1.47    0.96)     |
+ | group=    2 rot/tran=(   -2.98    1.90   -4.99    0.39    1.47   -0.96)     |
+ | Etotal =8530.984   grad(E)=1335.285   E(BOND)=1715.970   E(ANGL)=1347.033   |
+ | E(DIHE)=1169.455   E(IMPR)=4298.527                                         |
+ -------------------------------------------------------------------------------
+
+ --------------- cycle=    30 --------------------------------------------------
+ | group=    1 rot/tran=(    2.91   -1.88    4.99   -0.39   -1.47    0.96)     |
+ | group=    2 rot/tran=(   -2.99    1.91   -5.02    0.39    1.47   -0.96)     |
+ | Etotal =8530.840   grad(E)=1333.446   E(BOND)=1718.165   E(ANGL)=1350.781   |
+ | E(DIHE)=1169.007   E(IMPR)=4292.888                                         |
+ -------------------------------------------------------------------------------
+
+ --------------- cycle=    31 --------------------------------------------------
+ | group=    1 rot/tran=(    2.93   -1.88    5.02   -0.39   -1.47    0.95)     |
+ | group=    2 rot/tran=(   -3.02    1.92   -5.05    0.39    1.47   -0.95)     |
+ | Etotal =8530.176   grad(E)=1333.707   E(BOND)=1716.794   E(ANGL)=1350.292   |
+ | E(DIHE)=1168.720   E(IMPR)=4294.371                                         |
+ -------------------------------------------------------------------------------
+
+ --------------- cycle=    32 --------------------------------------------------
+ | group=    1 rot/tran=(    3.05   -1.92    5.18   -0.38   -1.46    0.95)     |
+ | group=    2 rot/tran=(   -3.14    1.95   -5.20    0.38    1.46   -0.95)     |
+ | Etotal =8528.692   grad(E)=1335.164   E(BOND)=1711.517   E(ANGL)=1348.255   |
+ | E(DIHE)=1167.313   E(IMPR)=4301.605                                         |
+ -------------------------------------------------------------------------------
+
+ --------------- cycle=    33 --------------------------------------------------
+ | group=    1 rot/tran=(    3.10   -1.87    5.18   -0.38   -1.46    0.95)     |
+ | group=    2 rot/tran=(   -3.19    1.91   -5.20    0.38    1.46   -0.95)     |
+ | Etotal =8524.560   grad(E)=1336.645   E(BOND)=1708.610   E(ANGL)=1341.981   |
+ | E(DIHE)=1167.326   E(IMPR)=4306.643                                         |
+ -------------------------------------------------------------------------------
+
+ --------------- cycle=    34 --------------------------------------------------
+ | group=    1 rot/tran=(    3.54   -1.49    5.23   -0.37   -1.43    0.97)     |
+ | group=    2 rot/tran=(   -3.62    1.52   -5.18    0.37    1.43   -0.97)     |
+ | Etotal =8500.003   grad(E)=1350.701   E(BOND)=1683.203   E(ANGL)=1294.410   |
+ | E(DIHE)=1167.584   E(IMPR)=4354.807                                         |
+ -------------------------------------------------------------------------------
+
+ --------------- cycle=    35 --------------------------------------------------
+ | group=    1 rot/tran=(    3.80   -1.25    5.26   -0.36   -1.41    0.98)     |
+ | group=    2 rot/tran=(   -3.88    1.29   -5.17    0.36    1.41   -0.98)     |
+ | Etotal =8495.877   grad(E)=1359.696   E(BOND)=1668.579   E(ANGL)=1273.426   |
+ | E(DIHE)=1167.850   E(IMPR)=4386.022                                         |
+ -------------------------------------------------------------------------------
+
+ --------------- cycle=    36 --------------------------------------------------
+ | group=    1 rot/tran=(    4.61   -0.63    5.46   -0.30   -1.38    0.99)     |
+ | group=    2 rot/tran=(   -4.69    0.68   -5.25    0.30    1.38   -0.99)     |
+ | Etotal =8437.043   grad(E)=1350.595   E(BOND)=1675.900   E(ANGL)=1246.954   |
+ | E(DIHE)=1168.731   E(IMPR)=4345.458                                         |
+ -------------------------------------------------------------------------------
+
+ --------------- cycle=    37 --------------------------------------------------
+ | group=    1 rot/tran=(    6.67    0.96    5.96   -0.16   -1.31    1.03)     |
+ | group=    2 rot/tran=(   -6.74   -0.88   -5.45    0.16    1.31   -1.03)     |
+ | Etotal =8413.026   grad(E)=1335.185   E(BOND)=1793.220   E(ANGL)=1188.750   |
+ | E(DIHE)=1171.644   E(IMPR)=4259.412                                         |
+ -------------------------------------------------------------------------------
+
+ --------------- cycle=    38 --------------------------------------------------
+ | group=    1 rot/tran=(    5.92    0.38    5.77   -0.21   -1.33    1.02)     |
+ | group=    2 rot/tran=(   -5.99   -0.31   -5.38    0.21    1.33   -1.02)     |
+ | Etotal =8392.899   grad(E)=1338.752   E(BOND)=1725.581   E(ANGL)=1208.142   |
+ | E(DIHE)=1170.951   E(IMPR)=4288.225                                         |
+ -------------------------------------------------------------------------------
+
+ --------------- cycle=    39 --------------------------------------------------
+ | group=    1 rot/tran=(    6.71    0.98    5.97   -0.15   -1.32    0.92)     |
+ | group=    2 rot/tran=(   -6.77   -0.91   -5.45    0.15    1.32   -0.92)     |
+ | Etotal =8434.921   grad(E)=1320.295   E(BOND)=1802.972   E(ANGL)=1399.613   |
+ | E(DIHE)=1198.189   E(IMPR)=4034.147                                         |
+ -------------------------------------------------------------------------------
+
+ --------------- cycle=    40 --------------------------------------------------
+ | group=    1 rot/tran=(    6.23    0.62    5.85   -0.18   -1.33    0.98)     |
+ | group=    2 rot/tran=(   -6.30   -0.55   -5.41    0.18    1.33   -0.98)     |
+ | Etotal =8358.724   grad(E)=1320.197   E(BOND)=1739.554   E(ANGL)=1252.093   |
+ | E(DIHE)=1181.251   E(IMPR)=4185.826                                         |
+ -------------------------------------------------------------------------------
+
+ --------------- cycle=    41 --------------------------------------------------
+ | group=    1 rot/tran=(    6.52    0.84    5.92   -0.17   -1.30    0.97)     |
+ | group=    2 rot/tran=(   -6.59   -0.77   -5.44    0.17    1.30   -0.97)     |
+ | Etotal =8354.372   grad(E)=1326.699   E(BOND)=1743.173   E(ANGL)=1247.766   |
+ | E(DIHE)=1188.888   E(IMPR)=4174.544                                         |
+ -------------------------------------------------------------------------------
+
+ --------------- cycle=    42 --------------------------------------------------
+ | group=    1 rot/tran=(    6.48    0.80    5.91   -0.17   -1.30    0.98)     |
+ | group=    2 rot/tran=(   -6.54   -0.73   -5.43    0.17    1.30   -0.98)     |
+ | Etotal =8354.227   grad(E)=1325.632   E(BOND)=1742.445   E(ANGL)=1248.264   |
+ | E(DIHE)=1187.741   E(IMPR)=4175.778                                         |
+ -------------------------------------------------------------------------------
+
+ --------------- cycle=    43 --------------------------------------------------
+ | group=    1 rot/tran=(    6.46    0.79    5.91   -0.18   -1.30    0.97)     |
+ | group=    2 rot/tran=(   -6.52   -0.72   -5.43    0.18    1.30   -0.97)     |
+ | Etotal =8352.995   grad(E)=1326.933   E(BOND)=1732.460   E(ANGL)=1247.506   |
+ | E(DIHE)=1187.324   E(IMPR)=4185.705                                         |
+ -------------------------------------------------------------------------------
+
+ --------------- cycle=    44 --------------------------------------------------
+ | group=    1 rot/tran=(    6.45    0.78    5.91   -0.18   -1.30    0.97)     |
+ | group=    2 rot/tran=(   -6.52   -0.71   -5.43    0.18    1.30   -0.97)     |
+ | Etotal =8352.873   grad(E)=1327.554   E(BOND)=1728.423   E(ANGL)=1247.260   |
+ | E(DIHE)=1187.144   E(IMPR)=4190.045                                         |
+ -------------------------------------------------------------------------------
+
+ --------------- cycle=    45 --------------------------------------------------
+ | group=    1 rot/tran=(    6.42    0.76    5.90   -0.18   -1.30    0.97)     |
+ | group=    2 rot/tran=(   -6.49   -0.69   -5.43    0.18    1.30   -0.97)     |
+ | Etotal =8352.585   grad(E)=1327.570   E(BOND)=1727.509   E(ANGL)=1248.837   |
+ | E(DIHE)=1187.459   E(IMPR)=4188.779                                         |
+ -------------------------------------------------------------------------------
+
+ --------------- cycle=    46 --------------------------------------------------
+ | group=    1 rot/tran=(    6.34    0.69    5.89   -0.18   -1.31    0.97)     |
+ | group=    2 rot/tran=(   -6.40   -0.62   -5.43    0.18    1.31   -0.97)     |
+ | Etotal =8352.245   grad(E)=1327.684   E(BOND)=1725.184   E(ANGL)=1253.347   |
+ | E(DIHE)=1188.335   E(IMPR)=4185.379                                         |
+ -------------------------------------------------------------------------------
+
+ --------------- cycle=    47 --------------------------------------------------
+ | group=    1 rot/tran=(    6.32    0.67    5.90   -0.18   -1.31    0.97)     |
+ | group=    2 rot/tran=(   -6.39   -0.61   -5.45    0.18    1.31   -0.97)     |
+ | Etotal =8351.165   grad(E)=1328.400   E(BOND)=1723.382   E(ANGL)=1248.812   |
+ | E(DIHE)=1187.708   E(IMPR)=4191.262                                         |
+ -------------------------------------------------------------------------------
+
+ --------------- cycle=    48 --------------------------------------------------
+ | group=    1 rot/tran=(    6.30    0.62    5.93   -0.18   -1.30    0.98)     |
+ | group=    2 rot/tran=(   -6.36   -0.56   -5.49    0.18    1.30   -0.98)     |
+ | Etotal =8350.009   grad(E)=1330.594   E(BOND)=1719.503   E(ANGL)=1237.874   |
+ | E(DIHE)=1186.111   E(IMPR)=4206.521                                         |
+ -------------------------------------------------------------------------------
+
+ --------------- cycle=    49 --------------------------------------------------
+ | group=    1 rot/tran=(    6.36    0.62    5.99   -0.18   -1.30    0.97)     |
+ | group=    2 rot/tran=(   -6.43   -0.58   -5.55    0.18    1.30   -0.97)     |
+ | Etotal =8345.561   grad(E)=1330.163   E(BOND)=1719.029   E(ANGL)=1236.770   |
+ | E(DIHE)=1186.177   E(IMPR)=4203.584                                         |
+ -------------------------------------------------------------------------------
+
+ --------------- cycle=    50 --------------------------------------------------
+ | group=    1 rot/tran=(    6.92    0.65    6.58   -0.15   -1.27    0.95)     |
+ | group=    2 rot/tran=(   -6.99   -0.72   -6.13    0.15    1.27   -0.95)     |
+ | Etotal =8308.157   grad(E)=1326.437   E(BOND)=1718.627   E(ANGL)=1225.268   |
+ | E(DIHE)=1186.227   E(IMPR)=4178.035                                         |
+ -------------------------------------------------------------------------------
+ ZXCGR: NSTEP limit reached
+
+ --------------- cycle=    51 --------------------------------------------------
+ | group=    1 rot/tran=(    6.92    0.65    6.58   -0.15   -1.27    0.95)     |
+ | group=    2 rot/tran=(   -6.99   -0.72   -6.13    0.15    1.27   -0.95)     |
+ | Etotal =8308.157   grad(E)=1326.437   E(BOND)=1718.627   E(ANGL)=1225.268   |
+ | E(DIHE)=1186.227   E(IMPR)=4178.035                                         |
+ -------------------------------------------------------------------------------
+ RIGID: main coordinates set to best minimum
+ CNSsolve> 
+ CNSsolve>coor fit end 
+
+ Fitted coordinate set r' related to original set r by r'=R*r  + T
+ This transformation is applied to all coordinates.
+ Translation vector T = (    0.3675   -0.8545    0.4041)
+
+ Rotation matrix =
+    0.807189   -0.467518    0.360379
+    0.532398    0.840279   -0.102393
+   -0.254948    0.274515    0.927169
+ Corresp. Eulerian angles (theta1,theta2,theta3)   222.8835   22.0022  105.8612
+ Corresp. spherical polar angles (psi,phi,kappa)   119.9346  110.6534   38.0644
+ Corresp. rotation angle    38.0644 about axis      -0.3057   -0.4990   -0.8109
+ Corresp. quaternions     0.9453   -0.0997   -0.1627   -0.2644
+
+ R.m.s. diff. between fitted set and comp. set for selected atoms =    0.7475
+ CNSsolve> 
+ CNSsolve>coor copy end 
+ COOR: selected main coordinates copied to comp
+ CNSsolve>do (refx=x) ( all ) 
+ SELRPN:     19 atoms have been selected out of     19
+ CNSsolve>do (refy=y) ( all ) 
+ SELRPN:     19 atoms have been selected out of     19
+ CNSsolve>do (refz=z) ( all ) 
+ SELRPN:     19 atoms have been selected out of     19
+ CNSsolve>do (harmonic=10. ) ( all ) 
+ SELRPN:     19 atoms have been selected out of     19
+ CNSsolve>flags exclude * include harm end 
+ CNSsolve> 
+ CNSsolve>do (mass=1. ) ( all ) 
+ SELRPN:     19 atoms have been selected out of     19
+ CNSsolve>coor rotate 
+ COOR-ROTA>     angle=5. vector=( 2. 3. 5. )  center=( head=( all ) ) 
+ SELRPN:     19 atoms have been selected out of     19
+ COOR-ROTA>end 
+
+ Rotation matrix =
+    0.996595    0.071293   -0.041414
+   -0.070092    0.997096    0.029779
+    0.043417   -0.026775    0.998698
+ Corresp. Eulerian angles (theta1,theta2,theta3)    58.3381    2.9239  305.7183
+ Corresp. spherical polar angles (psi,phi,kappa)   119.1216  111.8014  355.0000
+ Corresp. rotation angle     5.0000 about axis       0.3244    0.4867    0.8111
+ Corresp. quaternions     0.9990    0.0142    0.0212    0.0354
+
+ COOR: rotation center =    3.062579    0.639105   -1.166579
+ COOR: selected coordinates rotated
+ CNSsolve> 
+ CNSsolve>minimize rigid 
+ RIGID>   translation=false 
+ RIGID>   nstep=8 drop=1.0 
+ RIGID>end 
+
+ --------------- cycle=     1 --------------------------------------------------
+ | group=    1 rot/tran=(    0.00    0.00    0.00    0.00    0.00    0.00)     |
+ | Etotal =10.654     grad(E)=2.734      E(HARM)=10.654                        |
+ -------------------------------------------------------------------------------
+
+ --------------- cycle=     2 --------------------------------------------------
+ | group=    1 rot/tran=(   -0.18    0.12   -0.09    0.00    0.00    0.00)     |
+ | Etotal =9.677      grad(E)=2.606      E(HARM)=9.677                         |
+ -------------------------------------------------------------------------------
+
+ --------------- cycle=     3 --------------------------------------------------
+ | group=    1 rot/tran=(   -1.81    1.18   -0.90    0.00    0.00    0.00)     |
+ | Etotal =3.024      grad(E)=1.457      E(HARM)=3.024                         |
+ -------------------------------------------------------------------------------
+
+ --------------- cycle=     4 --------------------------------------------------
+ | group=    1 rot/tran=(   -3.84    2.50   -1.91    0.00    0.00    0.00)     |
+ | Etotal =0.046      grad(E)=0.180      E(HARM)=0.046                         |
+ -------------------------------------------------------------------------------
+
+ --------------- cycle=     5 --------------------------------------------------
+ | group=    1 rot/tran=(   -4.07    2.27   -1.82    0.00    0.00    0.00)     |
+ | Etotal =0.004      grad(E)=0.053      E(HARM)=0.004                         |
+ -------------------------------------------------------------------------------
+
+ --------------- cycle=     6 --------------------------------------------------
+ | group=    1 rot/tran=(   -4.04    2.30   -1.83    0.00    0.00    0.00)     |
+ | Etotal =0.003      grad(E)=0.047      E(HARM)=0.003                         |
+ -------------------------------------------------------------------------------
+
+ --------------- cycle=     7 --------------------------------------------------
+ | group=    1 rot/tran=(   -4.07    2.33   -1.81    0.00    0.00    0.00)     |
+ | Etotal =0.002      grad(E)=0.033      E(HARM)=0.002                         |
+ -------------------------------------------------------------------------------
+
+ --------------- cycle=     8 --------------------------------------------------
+ | group=    1 rot/tran=(   -4.10    2.36   -1.77    0.00    0.00    0.00)     |
+ | Etotal =0.001      grad(E)=0.024      E(HARM)=0.001                         |
+ -------------------------------------------------------------------------------
+ ZXCGR: NSTEP limit reached
+
+ --------------- cycle=     9 --------------------------------------------------
+ | group=    1 rot/tran=(   -4.10    2.36   -1.77    0.00    0.00    0.00)     |
+ | Etotal =0.001      grad(E)=0.024      E(HARM)=0.001                         |
+ -------------------------------------------------------------------------------
+ RIGID: main coordinates set to best minimum
+ CNSsolve> 
+ CNSsolve>coor fit end 
+
+ Fitted coordinate set r' related to original set r by r'=R*r  + T
+ This transformation is applied to all coordinates.
+ Translation vector T = (    0.0000    0.0017    0.0010)
+
+ Rotation matrix =
+    1.000000    0.000103    0.000090
+   -0.000103    0.999999    0.001155
+   -0.000090   -0.001155    0.999999
+ Corresp. Eulerian angles (theta1,theta2,theta3)   355.5424    0.0664    4.4635
+ Corresp. spherical polar angles (psi,phi,kappa)    85.5569  174.9245  359.9334
+ Corresp. rotation angle     0.0666 about axis       0.9931   -0.0775    0.0882
+ Corresp. quaternions     1.0000    0.0006    0.0000    0.0001
+
+ R.m.s. diff. between fitted set and comp. set for selected atoms =    0.0000
+ CNSsolve> 
+ CNSsolve>coor rotate 
+ COOR-ROTA>      angle=5. sele=( id 1:10 ) vector=( 2. 3. 5. ) end 
+ SELRPN:     10 atoms have been selected out of     19
+ COOR: using atom subset.
+
+ Rotation matrix =
+    0.996595    0.071293   -0.041414
+   -0.070092    0.997096    0.029779
+    0.043417   -0.026775    0.998698
+ Corresp. Eulerian angles (theta1,theta2,theta3)    58.3381    2.9239  305.7183
+ Corresp. spherical polar angles (psi,phi,kappa)   119.1216  111.8014  355.0000
+ Corresp. rotation angle     5.0000 about axis       0.3244    0.4867    0.8111
+ Corresp. quaternions     0.9990    0.0142    0.0212    0.0354
+
+ COOR: rotation center =    0.000000    0.000000    0.000000
+ COOR: selected coordinates rotated
+ CNSsolve>coor rotate 
+ COOR-ROTA>      angle=4. sele=( id 11:19 ) vector=( 2. 3. 5. ) end 
+ SELRPN:      9 atoms have been selected out of     19
+ COOR: using atom subset.
+
+ Rotation matrix =
+    0.997820    0.056965   -0.033307
+   -0.056195    0.998141    0.023594
+    0.034589   -0.021670    0.999167
+ Corresp. Eulerian angles (theta1,theta2,theta3)    57.9324    2.3393  305.3125
+ Corresp. spherical polar angles (psi,phi,kappa)   119.1216  111.8014  356.0000
+ Corresp. rotation angle     4.0000 about axis       0.3244    0.4867    0.8111
+ Corresp. quaternions     0.9994    0.0113    0.0170    0.0283
+
+ COOR: rotation center =    0.000000    0.000000    0.000000
+ COOR: selected coordinates rotated
+ CNSsolve> 
+ CNSsolve>minimize rigid 
+ RIGID>   group=( id 1:10 ) 
+ SELRPN:     10 atoms have been selected out of     19
+ RIGID>   group=( id 11:19 ) 
+ SELRPN:      9 atoms have been selected out of     19
+ RIGID>   nstep=14 drop=1.0 
+ RIGID>   translation=false 
+ RIGID>end 
+
+ --------------- cycle=     1 --------------------------------------------------
+ | group=    1 rot/tran=(    0.00    0.00    0.00    0.00    0.00    0.00)     |
+ | group=    2 rot/tran=(    0.00    0.00    0.00    0.00    0.00    0.00)     |
+ | Etotal =24.619     grad(E)=4.156      E(HARM)=24.619                        |
+ -------------------------------------------------------------------------------
+
+ --------------- cycle=     2 --------------------------------------------------
+ | group=    1 rot/tran=(    0.00    0.00    0.00    0.00    0.01   -0.01)     |
+ | group=    2 rot/tran=(    0.00    0.00    0.00    0.00    0.00    0.00)     |
+ | Etotal =23.632     grad(E)=4.072      E(HARM)=23.632                        |
+ -------------------------------------------------------------------------------
+
+ --------------- cycle=     3 --------------------------------------------------
+ | group=    1 rot/tran=(    0.00    0.00    0.00   -0.01    0.10   -0.05)     |
+ | group=    2 rot/tran=(    0.00    0.00    0.00    0.00    0.00    0.00)     |
+ | Etotal =15.889     grad(E)=3.339      E(HARM)=15.889                        |
+ -------------------------------------------------------------------------------
+
+ --------------- cycle=     4 --------------------------------------------------
+ | group=    1 rot/tran=(    0.00    0.00    0.00   -0.05    0.39   -0.21)     |
+ | group=    2 rot/tran=(    0.00    0.00    0.00    0.00    0.00    0.00)     |
+ | Etotal =4.931      grad(E)=1.860      E(HARM)=4.931                         |
+ -------------------------------------------------------------------------------
+
+ --------------- cycle=     5 --------------------------------------------------
+ | group=    1 rot/tran=(    0.00    0.00    0.00   -0.05    0.39   -0.21)     |
+ | group=    2 rot/tran=(   -0.01    0.00   -0.01    0.00    0.00    0.00)     |
+ | Etotal =4.923      grad(E)=1.859      E(HARM)=4.923                         |
+ -------------------------------------------------------------------------------
+
+ --------------- cycle=     6 --------------------------------------------------
+ | group=    1 rot/tran=(   -0.02    0.02   -0.02   -0.05    0.39   -0.21)     |
+ | group=    2 rot/tran=(   -0.04    0.02   -0.04    0.00    0.00    0.00)     |
+ | Etotal =4.851      grad(E)=1.845      E(HARM)=4.851                         |
+ -------------------------------------------------------------------------------
+
+ --------------- cycle=     7 --------------------------------------------------
+ | group=    1 rot/tran=(   -0.19    0.18   -0.16   -0.05    0.39   -0.21)     |
+ | group=    2 rot/tran=(   -0.38    0.21   -0.36    0.00    0.00    0.00)     |
+ | Etotal =4.182      grad(E)=1.713      E(HARM)=4.182                         |
+ -------------------------------------------------------------------------------
+
+ --------------- cycle=     8 --------------------------------------------------
+ | group=    1 rot/tran=(   -1.36    1.31   -1.17   -0.05    0.39   -0.21)     |
+ | group=    2 rot/tran=(   -2.80    1.57   -2.61    0.00    0.00    0.00)     |
+ | Etotal =1.935      grad(E)=1.165      E(HARM)=1.935                         |
+ -------------------------------------------------------------------------------
+
+ --------------- cycle=     9 --------------------------------------------------
+ | group=    1 rot/tran=(   -2.43    1.82   -1.63   -0.05    0.39   -0.21)     |
+ | group=    2 rot/tran=(   -2.81    1.56   -2.22    0.00    0.00    0.00)     |
+ | Etotal =1.591      grad(E)=1.057      E(HARM)=1.591                         |
+ -------------------------------------------------------------------------------
+
+ --------------- cycle=    10 --------------------------------------------------
+ | group=    1 rot/tran=(   -3.66    2.43   -2.17   -0.05    0.39   -0.21)     |
+ | group=    2 rot/tran=(   -2.83    1.55   -1.76    0.00    0.00    0.00)     |
+ | Etotal =1.450      grad(E)=1.009      E(HARM)=1.450                         |
+ -------------------------------------------------------------------------------
+
+ --------------- cycle=    11 --------------------------------------------------
+ | group=    1 rot/tran=(   -4.33    2.24   -1.69   -0.05    0.39   -0.21)     |
+ | group=    2 rot/tran=(   -3.11    1.87   -1.64    0.00    0.00    0.00)     |
+ | Etotal =1.417      grad(E)=0.997      E(HARM)=1.417                         |
+ -------------------------------------------------------------------------------
+
+ --------------- cycle=    12 --------------------------------------------------
+ | group=    1 rot/tran=(   -4.16    2.29   -1.81   -0.05    0.39   -0.21)     |
+ | group=    2 rot/tran=(   -3.04    1.79   -1.67    0.00    0.00    0.00)     |
+ | Etotal =1.413      grad(E)=0.996      E(HARM)=1.413                         |
+ -------------------------------------------------------------------------------
+
+ --------------- cycle=    13 --------------------------------------------------
+ | group=    1 rot/tran=(   -4.15    2.38   -1.69   -0.05    0.39   -0.21)     |
+ | group=    2 rot/tran=(   -3.13    1.79   -1.51    0.00    0.00    0.00)     |
+ | Etotal =1.408      grad(E)=0.994      E(HARM)=1.408                         |
+ -------------------------------------------------------------------------------
+
+ --------------- cycle=    14 --------------------------------------------------
+ | group=    1 rot/tran=(   -4.15    2.39   -1.67   -0.05    0.39   -0.21)     |
+ | group=    2 rot/tran=(   -3.15    1.78   -1.48    0.00    0.00    0.00)     |
+ | Etotal =1.408      grad(E)=0.994      E(HARM)=1.408                         |
+ -------------------------------------------------------------------------------
+ ZXCGR: NSTEP limit reached
+
+ --------------- cycle=    15 --------------------------------------------------
+ | group=    1 rot/tran=(   -4.15    2.39   -1.67   -0.05    0.39   -0.21)     |
+ | group=    2 rot/tran=(   -3.15    1.78   -1.48    0.00    0.00    0.00)     |
+ | Etotal =1.408      grad(E)=0.994      E(HARM)=1.408                         |
+ -------------------------------------------------------------------------------
+ RIGID: main coordinates set to best minimum
+ CNSsolve> 
+ CNSsolve>coor fit end 
+
+ Fitted coordinate set r' related to original set r by r'=R*r  + T
+ This transformation is applied to all coordinates.
+ Translation vector T = (   -0.0552    0.0634   -0.0174)
+
+ Rotation matrix =
+    0.999950    0.009368   -0.003500
+   -0.009379    0.999951   -0.003174
+    0.003470    0.003207    0.999989
+ Corresp. Eulerian angles (theta1,theta2,theta3)   132.7369    0.2707  227.8002
+ Corresp. spherical polar angles (psi,phi,kappa)   109.3921   71.2045  359.3985
+ Corresp. rotation angle     0.6015 about axis      -0.3039    0.3320    0.8930
+ Corresp. quaternions     1.0000   -0.0016    0.0017    0.0047
+
+ R.m.s. diff. between fitted set and comp. set for selected atoms =    0.0575
+ CNSsolve> 
+ CNSsolve> 
+ CNSsolve>stop 
+          ============================================================
+           Maximum dynamic memory allocation:     8298536 bytes
+           Maximum dynamic memory overhead:          1040 bytes
+           Program started at: 16:08:03 on 05-Jul-2018
+           Program stopped at: 16:08:03 on 05-Jul-2018
+           CPU time used:       0.8124 seconds
+          ============================================================

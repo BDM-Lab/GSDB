@@ -1,0 +1,751 @@
+          ============================================================
+          |                                                          |
+          |            Crystallography & NMR System (CNS)            |
+          |                         CNSsolve                         |
+          |                                                          |
+          ============================================================
+           Version: 1.3
+           Status: General release
+          ============================================================
+           Written by: A.T.Brunger, P.D.Adams, G.M.Clore, W.L.DeLano,
+                       P.Gros, R.W.Grosse-Kunstleve,J.-S.Jiang,J.M.Krahn,
+                       J.Kuszewski, M.Nilges, N.S.Pannu, R.J.Read,
+                       L.M.Rice, G.F.Schroeder, T.Simonson, G.L.Warren.
+           Copyright (c) 1997-2010 Yale University
+          ============================================================
+           Running on machine: lewis4-r710-login-node223 (x86_64/Linux,64-bit)
+                               with 16 threads
+           Program started by: oeow39
+           Program started at: 16:08:09 on 05-Jul-2018
+          ============================================================
+
+ FFT3C: Using FFTPACK4.1
+
+ CNSsolve>topology 
+ RTFRDR> RESIDUE SOD  ! Sodium Ion 
+ RESIDUE> 
+ RESIDUE> GROUP 
+ RESIDUE>       ATOM  SOD   TYPE=SOD  CHARGE=    1.0000  END 
+ RESIDUE> !END GROUP 
+ RESIDUE> 
+ RESIDUE> 
+ RESIDUE> END {SOD } 
+ %RTFIO-warning: undefined masses in residue SOD 
+ %RTFIO error encountered: there are undefined masses.
+   (CNS is in mode: SET ABORT=NORMal END)
+ RTFRDR> !----------------------------------------------------------- 
+ RTFRDR> 
+ RTFRDR> RESIDUE CL   ! Chloride Anion 
+ RESIDUE> 
+ RESIDUE> GROUP 
+ RESIDUE>       ATOM  CL1   TYPE=CLA  CHARGE=   -1.0000  END 
+ RESIDUE> !END GROUP 
+ RESIDUE> 
+ RESIDUE> 
+ RESIDUE> END {CL  } 
+ %RTFIO-warning: undefined masses in residue CL  
+ %RTFIO error encountered: there are undefined masses.
+   (CNS is in mode: SET ABORT=NORMal END)
+ RTFRDR>end 
+ CNSsolve> 
+ CNSsolve>parameter 
+ PARRDR> NONBONDED  SOD      .1000   2.7297    .1000   2.7297 ! FROM BENOIT ROUX 
+ PARRDR> NONBONDED  CLA      .1500   4.2763    .1500   4.2763 ! chloride 
+ PARRDR>end 
+ CNSsolve> 
+ CNSsolve>segment                                                {*Generate ions     *} 
+ SEGMENT> 
+ SEGMENT>   name="CL- "                              {*This name has to match the   *} 
+ SEGMENT>                                            {*four characters in columns 73*} 
+ SEGMENT>                                            {*through 76 in the coordinate *} 
+ SEGMENT>                                            {*file; in CNS this name is  *} 
+ SEGMENT>                                            {*referred to as SEGId.        *} 
+ SEGMENT>   chain 
+ CHAIN>   coor 
+ COOR>ATOM      1  CL1 CL      1       1.000   0.000   0.000  0.00  0.00      CL- 
+ SEGMNT-info: chain termination due to END keyword.     1 residues were inserted into segid "CL- "
+ CHAIN>   end                                       {*obtain the sequence.        *} 
+ SEGMENT>end 
+ Status of internal molecular topology database:
+ -> NATOM=          1(MAXA=     1000000)  NBOND=          0(MAXB=     1000000)
+ -> NTHETA=         0(MAXT=     2000000)  NGRP=           1(MAXGRP=   1000000)
+ -> NPHI=           0(MAXP=     2000000)  NIMPHI=         0(MAXIMP=   1000000)
+ -> NNB=            0(MAXNB=    1000000) 
+ CNSsolve> 
+ CNSsolve>coor 
+ COOR>ATOM      1  CL1 CL      1       1.000   0.000   0.000  0.00  0.00      CL- 
+ COOR>end 
+ CNSsolve> 
+ CNSsolve>segment                                                {*Generate ions     *} 
+ SEGMENT> 
+ SEGMENT>   name="NA+ "                              {*This name has to match the   *} 
+ SEGMENT>                                            {*four characters in columns 73*} 
+ SEGMENT>                                            {*through 76 in the coordinate *} 
+ SEGMENT>                                            {*file; in CNS this name is  *} 
+ SEGMENT>                                            {*referred to as SEGId.        *} 
+ SEGMENT>   chain 
+ CHAIN>   coor 
+ COOR>ATOM      1  SOD SOD     1       0.000   0.000   0.000  1.00  0.00      NA+ 
+ SEGMNT-info: chain termination due to END keyword.     1 residues were inserted into segid "NA+ "
+ CHAIN>   end                                       {*obtain the sequence.        *} 
+ SEGMENT>end 
+ Status of internal molecular topology database:
+ -> NATOM=          2(MAXA=     1000000)  NBOND=          0(MAXB=     1000000)
+ -> NTHETA=         0(MAXT=     2000000)  NGRP=           2(MAXGRP=   1000000)
+ -> NPHI=           0(MAXP=     2000000)  NIMPHI=         0(MAXIMP=   1000000)
+ -> NNB=            0(MAXNB=    1000000) 
+ CNSsolve> 
+ CNSsolve>coor 
+ COOR>ATOM      1  SOD SOD     1       0.000   0.000   0.000  1.00  0.00      NA+ 
+ COOR>end 
+ CNSsolve> 
+ CNSsolve>flag excl * incl vdw end 
+ CNSsolve> 
+ CNSsolve>coor copy end 
+ COOR: selected main coordinates copied to comp
+ CNSsolve> 
+ CNSsolve>parameter 
+ PARRDR>    nbonds 
+ NBDSET>        atom  nbxmod -3  tolerance 0.5 
+ NBDSET>        repel 0.75  rcon 4.0  rexp 2  cutnb 4.5 
+ NBDSET>    end 
+ PARRDR>end 
+ CNSsolve> 
+ CNSsolve>evaluate ($xx = 1.8) 
+ EVALUATE: symbol $XX set to    1.80000     (real)
+ CNSsolve> 
+ CNSsolve>while ($xx < 4.9999) loop ANALYS 
+ NEXTCD: condition evaluated as true
+ CNSsolve>	evaluate ($xx = $xx + 0.2) 
+ EVALUATE: symbol $XX set to    2.00000     (real)
+ CNSsolve>        do (x = $xx) (segid "CL- ") 
+ SELRPN:      1 atoms have been selected out of      2
+ CNSsolve>        energy end 
+ NBONDS: generating intra-molecular exclusion list with mode=-3
+ MAKINB: Ran out of space. RESIZING
+ MAKINB: mode  -3 found      0 exclusions and      0 interactions(1-4)
+ NBONDS: found        1 intra-atom interactions
+ --------------- cycle=     1 --------------------------------------------------
+ | Etotal =88.230     grad(E)=86.769     E(VDW )=88.230                        |
+ -------------------------------------------------------------------------------
+ CNSsolve>        show ave (dx) (segid "CL- ") 
+ SELRPN:      1 atoms have been selected out of      2
+ SHOW: average of selected elements =    -150.289046
+ CNSsolve>        eval ($fx = $result) 
+ EVALUATE: symbol $FX set to   -150.289     (real)
+ CNSsolve>        display DIST	$xx	$vdw 
+DIST	2	88.2297
+ CNSsolve>end loop ANALYS 
+ CNSsolve>while ($xx < 4.9999) loop ANALYS 
+ NEXTCD: condition evaluated as true
+ CNSsolve>	evaluate ($xx = $xx + 0.2) 
+ EVALUATE: symbol $XX set to    2.20000     (real)
+ CNSsolve>        do (x = $xx) (segid "CL- ") 
+ SELRPN:      1 atoms have been selected out of      2
+ CNSsolve>        energy end 
+ --------------- cycle=     2 --------------------------------------------------
+ | Etotal =59.491     grad(E)=78.375     E(VDW )=59.491                        |
+ -------------------------------------------------------------------------------
+ CNSsolve>        show ave (dx) (segid "CL- ") 
+ SELRPN:      1 atoms have been selected out of      2
+ SHOW: average of selected elements =    -135.749950
+ CNSsolve>        eval ($fx = $result) 
+ EVALUATE: symbol $FX set to   -135.750     (real)
+ CNSsolve>        display DIST	$xx	$vdw 
+DIST	2.2	59.4914
+ CNSsolve>end loop ANALYS 
+ CNSsolve>while ($xx < 4.9999) loop ANALYS 
+ NEXTCD: condition evaluated as true
+ CNSsolve>	evaluate ($xx = $xx + 0.2) 
+ EVALUATE: symbol $XX set to    2.40000     (real)
+ CNSsolve>        do (x = $xx) (segid "CL- ") 
+ SELRPN:      1 atoms have been selected out of      2
+ CNSsolve>        energy end 
+ --------------- cycle=     3 --------------------------------------------------
+ | Etotal =34.493     grad(E)=65.104     E(VDW )=34.493                        |
+ -------------------------------------------------------------------------------
+ CNSsolve>        show ave (dx) (segid "CL- ") 
+ SELRPN:      1 atoms have been selected out of      2
+ SHOW: average of selected elements =    -112.762855
+ CNSsolve>        eval ($fx = $result) 
+ EVALUATE: symbol $FX set to   -112.763     (real)
+ CNSsolve>        display DIST	$xx	$vdw 
+DIST	2.4	34.4929
+ CNSsolve>end loop ANALYS 
+ CNSsolve>while ($xx < 4.9999) loop ANALYS 
+ NEXTCD: condition evaluated as true
+ CNSsolve>	evaluate ($xx = $xx + 0.2) 
+ EVALUATE: symbol $XX set to    2.60000     (real)
+ CNSsolve>        do (x = $xx) (segid "CL- ") 
+ SELRPN:      1 atoms have been selected out of      2
+ CNSsolve>        energy end 
+ NBONDS: found        1 intra-atom interactions
+ --------------- cycle=     4 --------------------------------------------------
+ | Etotal =15.001     grad(E)=46.511     E(VDW )=15.001                        |
+ -------------------------------------------------------------------------------
+ CNSsolve>        show ave (dx) (segid "CL- ") 
+ SELRPN:      1 atoms have been selected out of      2
+ SHOW: average of selected elements =     -80.559759
+ CNSsolve>        eval ($fx = $result) 
+ EVALUATE: symbol $FX set to   -80.5598     (real)
+ CNSsolve>        display DIST	$xx	$vdw 
+DIST	2.6	15.0006
+ CNSsolve>end loop ANALYS 
+ CNSsolve>while ($xx < 4.9999) loop ANALYS 
+ NEXTCD: condition evaluated as true
+ CNSsolve>	evaluate ($xx = $xx + 0.2) 
+ EVALUATE: symbol $XX set to    2.80000     (real)
+ CNSsolve>        do (x = $xx) (segid "CL- ") 
+ SELRPN:      1 atoms have been selected out of      2
+ CNSsolve>        energy end 
+ --------------- cycle=     5 --------------------------------------------------
+ | Etotal =2.935      grad(E)=22.154     E(VDW )=2.935                         |
+ -------------------------------------------------------------------------------
+ CNSsolve>        show ave (dx) (segid "CL- ") 
+ SELRPN:      1 atoms have been selected out of      2
+ SHOW: average of selected elements =     -38.372664
+ CNSsolve>        eval ($fx = $result) 
+ EVALUATE: symbol $FX set to   -38.3727     (real)
+ CNSsolve>        display DIST	$xx	$vdw 
+DIST	2.8	2.93459
+ CNSsolve>end loop ANALYS 
+ CNSsolve>while ($xx < 4.9999) loop ANALYS 
+ NEXTCD: condition evaluated as true
+ CNSsolve>	evaluate ($xx = $xx + 0.2) 
+ EVALUATE: symbol $XX set to    3.00000     (real)
+ CNSsolve>        do (x = $xx) (segid "CL- ") 
+ SELRPN:      1 atoms have been selected out of      2
+ CNSsolve>        energy end 
+ --------------- cycle=     6 --------------------------------------------------
+ | Etotal =0.000      grad(E)=0.000      E(VDW )=0.000                         |
+ -------------------------------------------------------------------------------
+ CNSsolve>        show ave (dx) (segid "CL- ") 
+ SELRPN:      1 atoms have been selected out of      2
+ SHOW: average of selected elements =       0.000000
+ CNSsolve>        eval ($fx = $result) 
+ EVALUATE: symbol $FX set to    0.00000     (real)
+ CNSsolve>        display DIST	$xx	$vdw 
+DIST	3	0
+ CNSsolve>end loop ANALYS 
+ CNSsolve>while ($xx < 4.9999) loop ANALYS 
+ NEXTCD: condition evaluated as true
+ CNSsolve>	evaluate ($xx = $xx + 0.2) 
+ EVALUATE: symbol $XX set to    3.20000     (real)
+ CNSsolve>        do (x = $xx) (segid "CL- ") 
+ SELRPN:      1 atoms have been selected out of      2
+ CNSsolve>        energy end 
+ NBONDS: found        1 intra-atom interactions
+ --------------- cycle=     7 --------------------------------------------------
+ | Etotal =0.000      grad(E)=0.000      E(VDW )=0.000                         |
+ -------------------------------------------------------------------------------
+ CNSsolve>        show ave (dx) (segid "CL- ") 
+ SELRPN:      1 atoms have been selected out of      2
+ SHOW: average of selected elements =       0.000000
+ CNSsolve>        eval ($fx = $result) 
+ EVALUATE: symbol $FX set to    0.00000     (real)
+ CNSsolve>        display DIST	$xx	$vdw 
+DIST	3.2	0
+ CNSsolve>end loop ANALYS 
+ CNSsolve>while ($xx < 4.9999) loop ANALYS 
+ NEXTCD: condition evaluated as true
+ CNSsolve>	evaluate ($xx = $xx + 0.2) 
+ EVALUATE: symbol $XX set to    3.40000     (real)
+ CNSsolve>        do (x = $xx) (segid "CL- ") 
+ SELRPN:      1 atoms have been selected out of      2
+ CNSsolve>        energy end 
+ --------------- cycle=     8 --------------------------------------------------
+ | Etotal =0.000      grad(E)=0.000      E(VDW )=0.000                         |
+ -------------------------------------------------------------------------------
+ CNSsolve>        show ave (dx) (segid "CL- ") 
+ SELRPN:      1 atoms have been selected out of      2
+ SHOW: average of selected elements =       0.000000
+ CNSsolve>        eval ($fx = $result) 
+ EVALUATE: symbol $FX set to    0.00000     (real)
+ CNSsolve>        display DIST	$xx	$vdw 
+DIST	3.4	0
+ CNSsolve>end loop ANALYS 
+ CNSsolve>while ($xx < 4.9999) loop ANALYS 
+ NEXTCD: condition evaluated as true
+ CNSsolve>	evaluate ($xx = $xx + 0.2) 
+ EVALUATE: symbol $XX set to    3.60000     (real)
+ CNSsolve>        do (x = $xx) (segid "CL- ") 
+ SELRPN:      1 atoms have been selected out of      2
+ CNSsolve>        energy end 
+ --------------- cycle=     9 --------------------------------------------------
+ | Etotal =0.000      grad(E)=0.000      E(VDW )=0.000                         |
+ -------------------------------------------------------------------------------
+ CNSsolve>        show ave (dx) (segid "CL- ") 
+ SELRPN:      1 atoms have been selected out of      2
+ SHOW: average of selected elements =       0.000000
+ CNSsolve>        eval ($fx = $result) 
+ EVALUATE: symbol $FX set to    0.00000     (real)
+ CNSsolve>        display DIST	$xx	$vdw 
+DIST	3.6	0
+ CNSsolve>end loop ANALYS 
+ CNSsolve>while ($xx < 4.9999) loop ANALYS 
+ NEXTCD: condition evaluated as true
+ CNSsolve>	evaluate ($xx = $xx + 0.2) 
+ EVALUATE: symbol $XX set to    3.80000     (real)
+ CNSsolve>        do (x = $xx) (segid "CL- ") 
+ SELRPN:      1 atoms have been selected out of      2
+ CNSsolve>        energy end 
+ NBONDS: found        1 intra-atom interactions
+ --------------- cycle=    10 --------------------------------------------------
+ | Etotal =0.000      grad(E)=0.000      E(VDW )=0.000                         |
+ -------------------------------------------------------------------------------
+ CNSsolve>        show ave (dx) (segid "CL- ") 
+ SELRPN:      1 atoms have been selected out of      2
+ SHOW: average of selected elements =       0.000000
+ CNSsolve>        eval ($fx = $result) 
+ EVALUATE: symbol $FX set to    0.00000     (real)
+ CNSsolve>        display DIST	$xx	$vdw 
+DIST	3.8	0
+ CNSsolve>end loop ANALYS 
+ CNSsolve>while ($xx < 4.9999) loop ANALYS 
+ NEXTCD: condition evaluated as true
+ CNSsolve>	evaluate ($xx = $xx + 0.2) 
+ EVALUATE: symbol $XX set to    4.00000     (real)
+ CNSsolve>        do (x = $xx) (segid "CL- ") 
+ SELRPN:      1 atoms have been selected out of      2
+ CNSsolve>        energy end 
+ --------------- cycle=    11 --------------------------------------------------
+ | Etotal =0.000      grad(E)=0.000      E(VDW )=0.000                         |
+ -------------------------------------------------------------------------------
+ CNSsolve>        show ave (dx) (segid "CL- ") 
+ SELRPN:      1 atoms have been selected out of      2
+ SHOW: average of selected elements =       0.000000
+ CNSsolve>        eval ($fx = $result) 
+ EVALUATE: symbol $FX set to    0.00000     (real)
+ CNSsolve>        display DIST	$xx	$vdw 
+DIST	4	0
+ CNSsolve>end loop ANALYS 
+ CNSsolve>while ($xx < 4.9999) loop ANALYS 
+ NEXTCD: condition evaluated as true
+ CNSsolve>	evaluate ($xx = $xx + 0.2) 
+ EVALUATE: symbol $XX set to    4.20000     (real)
+ CNSsolve>        do (x = $xx) (segid "CL- ") 
+ SELRPN:      1 atoms have been selected out of      2
+ CNSsolve>        energy end 
+ --------------- cycle=    12 --------------------------------------------------
+ | Etotal =0.000      grad(E)=0.000      E(VDW )=0.000                         |
+ -------------------------------------------------------------------------------
+ CNSsolve>        show ave (dx) (segid "CL- ") 
+ SELRPN:      1 atoms have been selected out of      2
+ SHOW: average of selected elements =       0.000000
+ CNSsolve>        eval ($fx = $result) 
+ EVALUATE: symbol $FX set to    0.00000     (real)
+ CNSsolve>        display DIST	$xx	$vdw 
+DIST	4.2	0
+ CNSsolve>end loop ANALYS 
+ CNSsolve>while ($xx < 4.9999) loop ANALYS 
+ NEXTCD: condition evaluated as true
+ CNSsolve>	evaluate ($xx = $xx + 0.2) 
+ EVALUATE: symbol $XX set to    4.40000     (real)
+ CNSsolve>        do (x = $xx) (segid "CL- ") 
+ SELRPN:      1 atoms have been selected out of      2
+ CNSsolve>        energy end 
+ NBONDS: found        1 intra-atom interactions
+ --------------- cycle=    13 --------------------------------------------------
+ | Etotal =0.000      grad(E)=0.000      E(VDW )=0.000                         |
+ -------------------------------------------------------------------------------
+ CNSsolve>        show ave (dx) (segid "CL- ") 
+ SELRPN:      1 atoms have been selected out of      2
+ SHOW: average of selected elements =       0.000000
+ CNSsolve>        eval ($fx = $result) 
+ EVALUATE: symbol $FX set to    0.00000     (real)
+ CNSsolve>        display DIST	$xx	$vdw 
+DIST	4.4	0
+ CNSsolve>end loop ANALYS 
+ CNSsolve>while ($xx < 4.9999) loop ANALYS 
+ NEXTCD: condition evaluated as true
+ CNSsolve>	evaluate ($xx = $xx + 0.2) 
+ EVALUATE: symbol $XX set to    4.60000     (real)
+ CNSsolve>        do (x = $xx) (segid "CL- ") 
+ SELRPN:      1 atoms have been selected out of      2
+ CNSsolve>        energy end 
+ --------------- cycle=    14 --------------------------------------------------
+ | Etotal =0.000      grad(E)=0.000      E(VDW )=0.000                         |
+ -------------------------------------------------------------------------------
+ CNSsolve>        show ave (dx) (segid "CL- ") 
+ SELRPN:      1 atoms have been selected out of      2
+ SHOW: average of selected elements =       0.000000
+ CNSsolve>        eval ($fx = $result) 
+ EVALUATE: symbol $FX set to    0.00000     (real)
+ CNSsolve>        display DIST	$xx	$vdw 
+DIST	4.6	0
+ CNSsolve>end loop ANALYS 
+ CNSsolve>while ($xx < 4.9999) loop ANALYS 
+ NEXTCD: condition evaluated as true
+ CNSsolve>	evaluate ($xx = $xx + 0.2) 
+ EVALUATE: symbol $XX set to    4.80000     (real)
+ CNSsolve>        do (x = $xx) (segid "CL- ") 
+ SELRPN:      1 atoms have been selected out of      2
+ CNSsolve>        energy end 
+ --------------- cycle=    15 --------------------------------------------------
+ | Etotal =0.000      grad(E)=0.000      E(VDW )=0.000                         |
+ -------------------------------------------------------------------------------
+ CNSsolve>        show ave (dx) (segid "CL- ") 
+ SELRPN:      1 atoms have been selected out of      2
+ SHOW: average of selected elements =       0.000000
+ CNSsolve>        eval ($fx = $result) 
+ EVALUATE: symbol $FX set to    0.00000     (real)
+ CNSsolve>        display DIST	$xx	$vdw 
+DIST	4.8	0
+ CNSsolve>end loop ANALYS 
+ CNSsolve>while ($xx < 4.9999) loop ANALYS 
+ NEXTCD: condition evaluated as true
+ CNSsolve>	evaluate ($xx = $xx + 0.2) 
+ EVALUATE: symbol $XX set to    5.00000     (real)
+ CNSsolve>        do (x = $xx) (segid "CL- ") 
+ SELRPN:      1 atoms have been selected out of      2
+ CNSsolve>        energy end 
+ NBONDS: found        0 intra-atom interactions
+ --------------- cycle=    16 --------------------------------------------------
+ | Etotal =0.000      grad(E)=0.000      E(VDW )=0.000                         |
+ -------------------------------------------------------------------------------
+ CNSsolve>        show ave (dx) (segid "CL- ") 
+ SELRPN:      1 atoms have been selected out of      2
+ SHOW: average of selected elements =       0.000000
+ CNSsolve>        eval ($fx = $result) 
+ EVALUATE: symbol $FX set to    0.00000     (real)
+ CNSsolve>        display DIST	$xx	$vdw 
+DIST	5	0
+ CNSsolve>end loop ANALYS 
+ CNSsolve>while ($xx < 4.9999) loop ANALYS 
+ NEXTCD: condition evaluated as false
+ CNSsolve>	evaluate ($xx = $xx + 0.2) 
+ CNSsolve>        do (x = $xx) (segid "CL- ") 
+ CNSsolve>        energy end 
+ CNSsolve>        show ave (dx) (segid "CL- ") 
+ CNSsolve>        eval ($fx = $result) 
+ CNSsolve>        display DIST	$xx	$vdw 
+ CNSsolve>end loop ANALYS 
+ CNSsolve> 
+ CNSsolve>coor swap end 
+ COOR: selected coordinates swaped (main<->comp)
+ CNSsolve> 
+ CNSsolve>parameter 
+ PARRDR>    nbonds 
+ NBDSET>        atom  nbxmod -3  tolerance 0.5 
+ NBDSET>        repel 0.75  ratt 2.5 rcon 4.0  rexp 2  cutnb 4.5 
+ NBDSET>    end 
+ PARRDR>end 
+ CNSsolve> 
+ CNSsolve>evaluate ($xx = 1.8) 
+ EVALUATE: symbol $XX set to    1.80000     (real)
+ CNSsolve> 
+ CNSsolve>while ($xx < 4.9999) loop ANALYS 
+ NEXTCD: condition evaluated as true
+ CNSsolve>	evaluate ($xx = $xx + 0.2) 
+ EVALUATE: symbol $XX set to    2.00000     (real)
+ CNSsolve>        do (x = $xx) (segid "CL- ") 
+ SELRPN:      1 atoms have been selected out of      2
+ CNSsolve>        energy end 
+ NBONDS: generating intra-molecular exclusion list with mode=-3
+ MAKINB: Ran out of space. RESIZING
+ MAKINB: mode  -3 found      0 exclusions and      0 interactions(1-4)
+ NBONDS: found        1 intra-atom interactions
+ --------------- cycle=    17 --------------------------------------------------
+ | Etotal =88.230     grad(E)=347.078    E(VDW )=88.230                        |
+ -------------------------------------------------------------------------------
+ CNSsolve>        show ave (dx) (segid "CL- ") 
+ SELRPN:      1 atoms have been selected out of      2
+ SHOW: average of selected elements =    -601.156183
+ CNSsolve>        eval ($fx = $result) 
+ EVALUATE: symbol $FX set to   -601.156     (real)
+ CNSsolve>        display DIST	$xx	$vdw 
+DIST	2	88.2297
+ CNSsolve>end loop ANALYS 
+ CNSsolve>while ($xx < 4.9999) loop ANALYS 
+ NEXTCD: condition evaluated as true
+ CNSsolve>	evaluate ($xx = $xx + 0.2) 
+ EVALUATE: symbol $XX set to    2.20000     (real)
+ CNSsolve>        do (x = $xx) (segid "CL- ") 
+ SELRPN:      1 atoms have been selected out of      2
+ CNSsolve>        energy end 
+ --------------- cycle=    18 --------------------------------------------------
+ | Etotal =59.491     grad(E)=344.851    E(VDW )=59.491                        |
+ -------------------------------------------------------------------------------
+ CNSsolve>        show ave (dx) (segid "CL- ") 
+ SELRPN:      1 atoms have been selected out of      2
+ SHOW: average of selected elements =    -597.299782
+ CNSsolve>        eval ($fx = $result) 
+ EVALUATE: symbol $FX set to   -597.300     (real)
+ CNSsolve>        display DIST	$xx	$vdw 
+DIST	2.2	59.4914
+ CNSsolve>end loop ANALYS 
+ CNSsolve>while ($xx < 4.9999) loop ANALYS 
+ NEXTCD: condition evaluated as true
+ CNSsolve>	evaluate ($xx = $xx + 0.2) 
+ EVALUATE: symbol $XX set to    2.40000     (real)
+ CNSsolve>        do (x = $xx) (segid "CL- ") 
+ SELRPN:      1 atoms have been selected out of      2
+ CNSsolve>        energy end 
+ --------------- cycle=    19 --------------------------------------------------
+ | Etotal =34.493     grad(E)=312.498    E(VDW )=34.493                        |
+ -------------------------------------------------------------------------------
+ CNSsolve>        show ave (dx) (segid "CL- ") 
+ SELRPN:      1 atoms have been selected out of      2
+ SHOW: average of selected elements =    -541.261704
+ CNSsolve>        eval ($fx = $result) 
+ EVALUATE: symbol $FX set to   -541.262     (real)
+ CNSsolve>        display DIST	$xx	$vdw 
+DIST	2.4	34.4929
+ CNSsolve>end loop ANALYS 
+ CNSsolve>while ($xx < 4.9999) loop ANALYS 
+ NEXTCD: condition evaluated as true
+ CNSsolve>	evaluate ($xx = $xx + 0.2) 
+ EVALUATE: symbol $XX set to    2.60000     (real)
+ CNSsolve>        do (x = $xx) (segid "CL- ") 
+ SELRPN:      1 atoms have been selected out of      2
+ CNSsolve>        energy end 
+ NBONDS: found        1 intra-atom interactions
+ --------------- cycle=    20 --------------------------------------------------
+ | Etotal =15.001     grad(E)=241.858    E(VDW )=15.001                        |
+ -------------------------------------------------------------------------------
+ CNSsolve>        show ave (dx) (segid "CL- ") 
+ SELRPN:      1 atoms have been selected out of      2
+ SHOW: average of selected elements =    -418.910749
+ CNSsolve>        eval ($fx = $result) 
+ EVALUATE: symbol $FX set to   -418.911     (real)
+ CNSsolve>        display DIST	$xx	$vdw 
+DIST	2.6	15.0006
+ CNSsolve>end loop ANALYS 
+ CNSsolve>while ($xx < 4.9999) loop ANALYS 
+ NEXTCD: condition evaluated as true
+ CNSsolve>	evaluate ($xx = $xx + 0.2) 
+ EVALUATE: symbol $XX set to    2.80000     (real)
+ CNSsolve>        do (x = $xx) (segid "CL- ") 
+ SELRPN:      1 atoms have been selected out of      2
+ CNSsolve>        energy end 
+ --------------- cycle=    21 --------------------------------------------------
+ | Etotal =2.935      grad(E)=124.065    E(VDW )=2.935                         |
+ -------------------------------------------------------------------------------
+ CNSsolve>        show ave (dx) (segid "CL- ") 
+ SELRPN:      1 atoms have been selected out of      2
+ SHOW: average of selected elements =    -214.886919
+ CNSsolve>        eval ($fx = $result) 
+ EVALUATE: symbol $FX set to   -214.887     (real)
+ CNSsolve>        display DIST	$xx	$vdw 
+DIST	2.8	2.93459
+ CNSsolve>end loop ANALYS 
+ CNSsolve>while ($xx < 4.9999) loop ANALYS 
+ NEXTCD: condition evaluated as true
+ CNSsolve>	evaluate ($xx = $xx + 0.2) 
+ EVALUATE: symbol $XX set to    3.00000     (real)
+ CNSsolve>        do (x = $xx) (segid "CL- ") 
+ SELRPN:      1 atoms have been selected out of      2
+ CNSsolve>        energy end 
+ --------------- cycle=    22 --------------------------------------------------
+ | Etotal =0.000      grad(E)=0.000      E(VDW )=0.000                         |
+ -------------------------------------------------------------------------------
+ CNSsolve>        show ave (dx) (segid "CL- ") 
+ SELRPN:      1 atoms have been selected out of      2
+ SHOW: average of selected elements =       0.000000
+ CNSsolve>        eval ($fx = $result) 
+ EVALUATE: symbol $FX set to    0.00000     (real)
+ CNSsolve>        display DIST	$xx	$vdw 
+DIST	3	0
+ CNSsolve>end loop ANALYS 
+ CNSsolve>while ($xx < 4.9999) loop ANALYS 
+ NEXTCD: condition evaluated as true
+ CNSsolve>	evaluate ($xx = $xx + 0.2) 
+ EVALUATE: symbol $XX set to    3.20000     (real)
+ CNSsolve>        do (x = $xx) (segid "CL- ") 
+ SELRPN:      1 atoms have been selected out of      2
+ CNSsolve>        energy end 
+ NBONDS: found        1 intra-atom interactions
+ --------------- cycle=    23 --------------------------------------------------
+ | Etotal =0.000      grad(E)=0.000      E(VDW )=0.000                         |
+ -------------------------------------------------------------------------------
+ CNSsolve>        show ave (dx) (segid "CL- ") 
+ SELRPN:      1 atoms have been selected out of      2
+ SHOW: average of selected elements =       0.000000
+ CNSsolve>        eval ($fx = $result) 
+ EVALUATE: symbol $FX set to    0.00000     (real)
+ CNSsolve>        display DIST	$xx	$vdw 
+DIST	3.2	0
+ CNSsolve>end loop ANALYS 
+ CNSsolve>while ($xx < 4.9999) loop ANALYS 
+ NEXTCD: condition evaluated as true
+ CNSsolve>	evaluate ($xx = $xx + 0.2) 
+ EVALUATE: symbol $XX set to    3.40000     (real)
+ CNSsolve>        do (x = $xx) (segid "CL- ") 
+ SELRPN:      1 atoms have been selected out of      2
+ CNSsolve>        energy end 
+ --------------- cycle=    24 --------------------------------------------------
+ | Etotal =0.000      grad(E)=0.000      E(VDW )=0.000                         |
+ -------------------------------------------------------------------------------
+ CNSsolve>        show ave (dx) (segid "CL- ") 
+ SELRPN:      1 atoms have been selected out of      2
+ SHOW: average of selected elements =       0.000000
+ CNSsolve>        eval ($fx = $result) 
+ EVALUATE: symbol $FX set to    0.00000     (real)
+ CNSsolve>        display DIST	$xx	$vdw 
+DIST	3.4	0
+ CNSsolve>end loop ANALYS 
+ CNSsolve>while ($xx < 4.9999) loop ANALYS 
+ NEXTCD: condition evaluated as true
+ CNSsolve>	evaluate ($xx = $xx + 0.2) 
+ EVALUATE: symbol $XX set to    3.60000     (real)
+ CNSsolve>        do (x = $xx) (segid "CL- ") 
+ SELRPN:      1 atoms have been selected out of      2
+ CNSsolve>        energy end 
+ --------------- cycle=    25 --------------------------------------------------
+ | Etotal =0.000      grad(E)=0.000      E(VDW )=0.000                         |
+ -------------------------------------------------------------------------------
+ CNSsolve>        show ave (dx) (segid "CL- ") 
+ SELRPN:      1 atoms have been selected out of      2
+ SHOW: average of selected elements =       0.000000
+ CNSsolve>        eval ($fx = $result) 
+ EVALUATE: symbol $FX set to    0.00000     (real)
+ CNSsolve>        display DIST	$xx	$vdw 
+DIST	3.6	0
+ CNSsolve>end loop ANALYS 
+ CNSsolve>while ($xx < 4.9999) loop ANALYS 
+ NEXTCD: condition evaluated as true
+ CNSsolve>	evaluate ($xx = $xx + 0.2) 
+ EVALUATE: symbol $XX set to    3.80000     (real)
+ CNSsolve>        do (x = $xx) (segid "CL- ") 
+ SELRPN:      1 atoms have been selected out of      2
+ CNSsolve>        energy end 
+ NBONDS: found        1 intra-atom interactions
+ --------------- cycle=    26 --------------------------------------------------
+ | Etotal =0.000      grad(E)=0.000      E(VDW )=0.000                         |
+ -------------------------------------------------------------------------------
+ CNSsolve>        show ave (dx) (segid "CL- ") 
+ SELRPN:      1 atoms have been selected out of      2
+ SHOW: average of selected elements =       0.000000
+ CNSsolve>        eval ($fx = $result) 
+ EVALUATE: symbol $FX set to    0.00000     (real)
+ CNSsolve>        display DIST	$xx	$vdw 
+DIST	3.8	0
+ CNSsolve>end loop ANALYS 
+ CNSsolve>while ($xx < 4.9999) loop ANALYS 
+ NEXTCD: condition evaluated as true
+ CNSsolve>	evaluate ($xx = $xx + 0.2) 
+ EVALUATE: symbol $XX set to    4.00000     (real)
+ CNSsolve>        do (x = $xx) (segid "CL- ") 
+ SELRPN:      1 atoms have been selected out of      2
+ CNSsolve>        energy end 
+ --------------- cycle=    27 --------------------------------------------------
+ | Etotal =0.000      grad(E)=0.000      E(VDW )=0.000                         |
+ -------------------------------------------------------------------------------
+ CNSsolve>        show ave (dx) (segid "CL- ") 
+ SELRPN:      1 atoms have been selected out of      2
+ SHOW: average of selected elements =       0.000000
+ CNSsolve>        eval ($fx = $result) 
+ EVALUATE: symbol $FX set to    0.00000     (real)
+ CNSsolve>        display DIST	$xx	$vdw 
+DIST	4	0
+ CNSsolve>end loop ANALYS 
+ CNSsolve>while ($xx < 4.9999) loop ANALYS 
+ NEXTCD: condition evaluated as true
+ CNSsolve>	evaluate ($xx = $xx + 0.2) 
+ EVALUATE: symbol $XX set to    4.20000     (real)
+ CNSsolve>        do (x = $xx) (segid "CL- ") 
+ SELRPN:      1 atoms have been selected out of      2
+ CNSsolve>        energy end 
+ --------------- cycle=    28 --------------------------------------------------
+ | Etotal =0.000      grad(E)=0.000      E(VDW )=0.000                         |
+ -------------------------------------------------------------------------------
+ CNSsolve>        show ave (dx) (segid "CL- ") 
+ SELRPN:      1 atoms have been selected out of      2
+ SHOW: average of selected elements =       0.000000
+ CNSsolve>        eval ($fx = $result) 
+ EVALUATE: symbol $FX set to    0.00000     (real)
+ CNSsolve>        display DIST	$xx	$vdw 
+DIST	4.2	0
+ CNSsolve>end loop ANALYS 
+ CNSsolve>while ($xx < 4.9999) loop ANALYS 
+ NEXTCD: condition evaluated as true
+ CNSsolve>	evaluate ($xx = $xx + 0.2) 
+ EVALUATE: symbol $XX set to    4.40000     (real)
+ CNSsolve>        do (x = $xx) (segid "CL- ") 
+ SELRPN:      1 atoms have been selected out of      2
+ CNSsolve>        energy end 
+ NBONDS: found        1 intra-atom interactions
+ --------------- cycle=    29 --------------------------------------------------
+ | Etotal =0.000      grad(E)=0.000      E(VDW )=0.000                         |
+ -------------------------------------------------------------------------------
+ CNSsolve>        show ave (dx) (segid "CL- ") 
+ SELRPN:      1 atoms have been selected out of      2
+ SHOW: average of selected elements =       0.000000
+ CNSsolve>        eval ($fx = $result) 
+ EVALUATE: symbol $FX set to    0.00000     (real)
+ CNSsolve>        display DIST	$xx	$vdw 
+DIST	4.4	0
+ CNSsolve>end loop ANALYS 
+ CNSsolve>while ($xx < 4.9999) loop ANALYS 
+ NEXTCD: condition evaluated as true
+ CNSsolve>	evaluate ($xx = $xx + 0.2) 
+ EVALUATE: symbol $XX set to    4.60000     (real)
+ CNSsolve>        do (x = $xx) (segid "CL- ") 
+ SELRPN:      1 atoms have been selected out of      2
+ CNSsolve>        energy end 
+ --------------- cycle=    30 --------------------------------------------------
+ | Etotal =0.000      grad(E)=0.000      E(VDW )=0.000                         |
+ -------------------------------------------------------------------------------
+ CNSsolve>        show ave (dx) (segid "CL- ") 
+ SELRPN:      1 atoms have been selected out of      2
+ SHOW: average of selected elements =       0.000000
+ CNSsolve>        eval ($fx = $result) 
+ EVALUATE: symbol $FX set to    0.00000     (real)
+ CNSsolve>        display DIST	$xx	$vdw 
+DIST	4.6	0
+ CNSsolve>end loop ANALYS 
+ CNSsolve>while ($xx < 4.9999) loop ANALYS 
+ NEXTCD: condition evaluated as true
+ CNSsolve>	evaluate ($xx = $xx + 0.2) 
+ EVALUATE: symbol $XX set to    4.80000     (real)
+ CNSsolve>        do (x = $xx) (segid "CL- ") 
+ SELRPN:      1 atoms have been selected out of      2
+ CNSsolve>        energy end 
+ --------------- cycle=    31 --------------------------------------------------
+ | Etotal =0.000      grad(E)=0.000      E(VDW )=0.000                         |
+ -------------------------------------------------------------------------------
+ CNSsolve>        show ave (dx) (segid "CL- ") 
+ SELRPN:      1 atoms have been selected out of      2
+ SHOW: average of selected elements =       0.000000
+ CNSsolve>        eval ($fx = $result) 
+ EVALUATE: symbol $FX set to    0.00000     (real)
+ CNSsolve>        display DIST	$xx	$vdw 
+DIST	4.8	0
+ CNSsolve>end loop ANALYS 
+ CNSsolve>while ($xx < 4.9999) loop ANALYS 
+ NEXTCD: condition evaluated as true
+ CNSsolve>	evaluate ($xx = $xx + 0.2) 
+ EVALUATE: symbol $XX set to    5.00000     (real)
+ CNSsolve>        do (x = $xx) (segid "CL- ") 
+ SELRPN:      1 atoms have been selected out of      2
+ CNSsolve>        energy end 
+ NBONDS: found        0 intra-atom interactions
+ --------------- cycle=    32 --------------------------------------------------
+ | Etotal =0.000      grad(E)=0.000      E(VDW )=0.000                         |
+ -------------------------------------------------------------------------------
+ CNSsolve>        show ave (dx) (segid "CL- ") 
+ SELRPN:      1 atoms have been selected out of      2
+ SHOW: average of selected elements =       0.000000
+ CNSsolve>        eval ($fx = $result) 
+ EVALUATE: symbol $FX set to    0.00000     (real)
+ CNSsolve>        display DIST	$xx	$vdw 
+DIST	5	0
+ CNSsolve>end loop ANALYS 
+ CNSsolve>while ($xx < 4.9999) loop ANALYS 
+ NEXTCD: condition evaluated as false
+ CNSsolve>	evaluate ($xx = $xx + 0.2) 
+ CNSsolve>        do (x = $xx) (segid "CL- ") 
+ CNSsolve>        energy end 
+ CNSsolve>        show ave (dx) (segid "CL- ") 
+ CNSsolve>        eval ($fx = $result) 
+ CNSsolve>        display DIST	$xx	$vdw 
+ CNSsolve>end loop ANALYS 
+ CNSsolve> 
+ CNSsolve>stop 
+          ============================================================
+           Maximum dynamic memory allocation:     8248304 bytes
+           Maximum dynamic memory overhead:           688 bytes
+           Program started at: 16:08:09 on 05-Jul-2018
+           Program stopped at: 16:08:09 on 05-Jul-2018
+           CPU time used:       0.0130 seconds
+          ============================================================

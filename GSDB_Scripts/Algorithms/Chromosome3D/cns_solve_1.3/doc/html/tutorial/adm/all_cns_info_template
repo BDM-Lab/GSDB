@@ -1,0 +1,24 @@
+#! /bin/csh -f
+
+set dirs = ( \
+auxiliary \
+general \
+nmr_calc \
+xtal_mmcif \
+xtal_mr \
+xtal_patterson \
+xtal_pdbsubmission \
+xtal_phase \
+xtal_refine \
+xtal_twin \
+xtal_util \
+)
+
+foreach d ($dirs)
+  echo $d
+  set files = (`find $d/* -prune -type f -print`)
+  echo $files | fmt | sed 's/^/# /' > ~/tmp/info/$d.raw
+  cns_info_template.pl $files >> ~/tmp/info/$d.raw
+end
+
+exit 0

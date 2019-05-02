@@ -1,0 +1,82 @@
+noe {<noe-statement>} end
+
+<noe-statement> :==
+
+   analysis=current|taverage|raverage
+   --{Define which distances are used for analysis with the 
+      print statement.}
+   assign <atom-selection> <atom-selection> <real> <real> <real>
+   --{1st-set  2nd-set  distance  dminus  dplus.}
+   asymptote <classname> <real>
+   --{Slope of asymptote.}
+   averaging <classname> <r-3|r-6|sum|center>
+   --{Method of distance averaging. Default=r-6}
+   bhig <classname> <real>
+   --{Height of barrier for high-dimension.}
+   ceiling=<real>
+   --{Ceiling value for energy constants.}
+   class=<classname>
+   --{Partition noe table, applies to all following assignment entries
+      until another class entry is issued.}
+   countviol <classname>
+   --{Count violations and store smallest.}
+   cv=<integer>
+   --{Select partition number for cross-validation.}
+   den initialize
+   --{Initialize DEN restraints, i.e., set DEN reference_distance(s)
+      to distance(s) in main coordinate set.}
+   den update gamma=<real> kappa=<real>
+   --{Update target_distance(s) using current target_distance(s),
+      distance(s) (in main coordinate set), and DEN reference_distance(s):
+      target_distance=target_distance+kappa*(
+                gamma *(distance-target_distance)
+            +(1-gamma)*(reference_distance-target_distance)
+                ).       
+      Gamma and kappa must be between 0 and 1.}
+   distribute <classname> <classname> <real>
+   --{Distribute between two classes: class-1 < r < class-2.}
+   ensemble <noe-ensemble-statement> end
+   --{}
+   monomers <classname> <integer>
+   --{Number of monomers for average=sum.}
+   ncount <classname> <integer>
+   --{Number of assignment statements for high-dimension.}
+   nrestraints=<integer>
+   --{Required parameter that specifies the maximum expected number 
+      of noe-restraints. This has to be greater than or equal to the 
+      actual number of restraints.}
+   outd
+   --{Writes current distance assignments to the print file 
+      (specified by "set print=<filename> end"). This file
+      can be subsequently read with "noe @<filename> end".}
+   partition=<integer>
+   --{Number of partitions for complete cross-validation.}
+   potential <classname> biharmonic|square|softsquare|symmetry|high|3dpo
+   --{Form of restraint potential.}
+   predict <noe-predict-statement> end
+   --{}
+   print threshold=<real>
+   --{Print noe violations greater than specified value.}
+   raverage <classname> <noe-raverage-statement> end
+   --{}
+   reset
+   --{Delete all previous noe restraints.}
+   rswitch <classname> <real>
+   --{Rswitch between square and asymptote.}
+   scale <classname> <real>  
+   --{s scales restraints class.}
+   soexponent <classname> <real> 
+   --{Exponent value for softsquare potential.}
+   sqconstant <classname> <real>
+   --{Force constant for square well potential.}
+   sqexponent <classname> <real>
+   --{Exponent for square well potential.}
+   sqoffset <classname> <real>
+   --{Offset for square well potential.}
+   taverage <classname> <noe-taverage-statement> end
+   --{}
+   temperature=<real>
+   --{for biharmonic potential.}
+
+   --{Wildcards are allowed in the specification of classes. If no 
+      class statement is issued the class defaults to nil.}

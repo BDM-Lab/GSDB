@@ -1,0 +1,105 @@
+{+ file: matthews_coef.inp +}
+{+ directory: xtal_util +}
+{+ description: Compute Matthews coefficient and estimated solvent content. +}
+{+ authors: R. Bryan Sutton and Axel T. Brunger +}
+{+ copyright: Yale University +}
+
+{+ reference: Matthews, B.W. J. Mol. Biol 33, 491-497 (1968). +}
+
+{+ reference: Drenth, Jan. Principals of Protein X-ray 
+              Crystallography (1994), p.71 +} 
+
+{- Guidelines for using this file:
+   - all strings must be quoted by double-quotes
+   - logical variables (true/false) are not quoted
+   - do not remove any evaluate statements from the file -}
+
+{- begin block parameter definition -} define(
+  
+{====================== crystallographic data ========================}
+
+{* space group *}
+{* use International Table conventions with subscripts substituted
+   by parenthesis *}
+{===>} sg="P6";
+
+{* unit cell parameters in Angstroms and degrees *}
+{+ table: rows=1 "cell" cols=6 "a" "b" "c" "alpha" "beta" "gamma" +}
+{===>} a=116.097;
+{===>} b=116.097;
+{===>} c=44.175;
+{===>} alpha=90;
+{===>} beta=90;
+{===>} gamma=120;
+
+{========================= molecular information =====================}
+
+{* molecular weight of molecule (in Daltons) *}
+{* There are on average 110 Daltons per amino acid *}
+{===>} mr=31000;
+
+{* estimated number of molecules in asymmetric unit *}
+{===>} nmol=1;
+
+{* estimated macromolecular density (g/cc) *}
+{===>} density=1.30;
+
+{* partial specific volume (cc/g) *}
+{===>} mu_bar=0.74;
+
+{* output listing file *}
+{===>} list_outfile="matthews_coef.list";
+
+{===========================================================================}
+{         things below this line do not normally need to be changed         }
+{===========================================================================}
+
+ ) {- end block parameter definition -}
+
+checkversion 1.3
+
+evaluate ($log_level=quiet)
+
+xray                                   
+
+   a=&a b=&b c=&c  alpha=&alpha beta=&beta gamma=&gamma
+
+   @CNS_XTALLIB:spacegroup.lib (sg=&sg;sgparam=$sgparam;)
+
+end
+   
+evaluate ($Navogadro = 6.022E23) {1 mole}
+
+evaluate ($hmass=1.67E-24) {g}
+
+evaluate ($vm=$volume / (&nmol * &mr * $symmetry ) )
+   
+evaluate ($mol_fract= 1/($vm * $Navogadro * &density * 1.E-24 ))
+evaluate ($mol_fract2=&mu_bar/($vm * $Navogadro * 1.E-24 )) 
+
+evaluate ($sol_fract=(1-$mol_fract) *100)
+evaluate ($sol_fract2=(1-$mol_fract2) *100)
+
+set display=&list_outfile end
+
+display
+display  sg= &STRIP%sg a= &a b= &b c= &c alpha= &alpha beta= &beta gamma=&gamma
+display  molecular weight= &mr Daltons
+display  number of molecules/ASU= &nmol
+display
+
+display  Note: 
+display    The value of Vm ranges from 1.7 to 3.5 A^3/Da depending
+display    on the solvent fraction of the crystal.
+display    However, Matthews coefficients of about 2.2 A^3/Da are more
+display    typical for protein crystals with 50% solvent content. 
+
+display  
+display  Matthews coefficient:  $vm[f6.3]
+display
+
+display  Solvent fraction: $sol_fract[f6.2] % (assuming molecular density of &density g/cc)
+display  Solvent fraction: $sol_fract2[f6.2] % (assuming partial specific volume of &mu_bar cc/g)
+display
+
+stop

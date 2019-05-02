@@ -1,0 +1,255 @@
+
+! test buffer handling routines
+
+buffer test 
+
+   display item1
+   dump
+   reset
+   dump
+   display item2
+   literal $notevaluated
+   concat  item4
+   concat  item
+   concat 5
+   flush
+
+! check handling of empty buffer
+
+   flush
+   dump
+   reset
+   
+end
+
+! check persistency
+
+buffer test2
+   display a line from test2
+end
+
+buffer test
+   display line one
+end
+
+buffer test
+   display line two
+   dump
+end
+
+buffer test
+   concat  2 dos deu 10 !
+   dump
+   reset
+   dump
+end
+
+buffer test2
+   flush
+end
+
+! check from command.
+
+buffer from1
+   from buffer from1
+   dump
+   display hello
+   dump
+   from buffer from1
+   dump
+   display hello2
+   dump
+   from buffer from1
+   dump
+end
+
+buffer from2
+   display This is the top of the buffer
+   from buffer from1
+   display This is the middle
+   from buffer from1
+   display This is the end.
+   dump
+   reset
+end 
+
+buffer from3
+   display Just this twice
+   from buffer from2
+   from buffer from3
+   dump
+end
+
+! check redirection
+
+set display = buffertest.dat end
+
+buffer test3
+   display display It works!
+   to output
+   dump
+   to display
+   dump
+   to file buffertest2.dat
+   flush
+end
+
+
+set display = OUTPUT end
+
+close buffertest.dat end
+close buffertest2.dat end
+
+@buffertest.dat
+
+@buffertest2.dat
+
+! check output to remarks buffer
+
+struc 
+data_cns_mtf
+
+_cns_mtf.title
+; FILENAME="/data/rwgk/test/tmp.mtf"
+  DATE:18-Nov-98  14:16:59       created by user: rwgk
+  VERSION:0.4a
+;
+
+loop_
+_cns_mtf_atom.id
+_cns_mtf_atom.segment_id
+_cns_mtf_atom.residue_id
+_cns_mtf_atom.residue_name
+_cns_mtf_atom.atom_name
+_cns_mtf_atom.chemical_type
+_cns_mtf_atom.charge
+_cns_mtf_atom.atom_mass
+1 ' ' '1' 'LYS' 'CA' 'CH1E' 0.250000 13.0190
+2 ' ' '2' 'LYS' 'CA' 'CH1E' 0.250000 13.0190
+3 ' ' '3' 'LYS' 'CA' 'CH1E' 0.250000 13.0190
+-1 ' ' ' ' ' ' ' ' ' ' -1.00000 -1.00000
+
+loop_
+_cns_mtf_bond.id[1]
+_cns_mtf_bond.id[2]
+-1 -1
+
+loop_
+_cns_mtf_angle.id[1]
+_cns_mtf_angle.id[2]
+_cns_mtf_angle.id[3]
+-1 -1 -1
+
+loop_
+_cns_mtf_dihedral.id[1]
+_cns_mtf_dihedral.id[2]
+_cns_mtf_dihedral.id[3]
+_cns_mtf_dihedral.id[4]
+-1 -1 -1 -1
+
+loop_
+_cns_mtf_improper.id[1]
+_cns_mtf_improper.id[2]
+_cns_mtf_improper.id[3]
+_cns_mtf_improper.id[4]
+-1 -1 -1 -1
+
+loop_
+_cns_mtf_explicit_nonbonded_exclusion.inb
+-1
+
+loop_
+_cns_mtf_explicit_nonbonded_exclusion.iblo
+0
+0
+0
+-1
+
+loop_
+_cns_mtf_group_linked_list.first_atom_id
+0
+1
+-1
+
+end
+
+coor 
+ATOM      1  CA  LYS     1       8.000   8.000   8.000  1.00 15.00          
+ATOM      2  CA  LYS     2       1.400   6.200  18.000  1.00 15.00          
+ATOM      3  CA  LYS     3       2.400   9.200  16.000  1.00 15.00          
+END 
+
+buffer test
+  to remarks
+  display new remarks
+  dump
+end
+
+write coor end
+                                                       
+buffer test
+  display more remarks
+  dump
+end
+
+write coor end
+
+buffer test
+   dump
+end
+
+! check remarks accumulate mode
+
+set remarks = accumulate end
+
+buffer test
+   reset
+   display even more remarks!
+   dump
+   dump
+end
+
+write coor end
+
+! check handling of loops
+
+buffer count_to_5
+   display Watch me count:
+end
+                                                             
+eval ( $cnt = 1 )
+while ( $cnt le 5 ) loop main
+   buffer count_to_5
+      concat  $cnt[F5.2]
+   end
+   eval ( $cnt = $cnt + 1 )
+end loop main
+
+buffer count_to_5
+   to file buffertest.dat
+   flush
+end
+
+! now check some error conditions
+
+set abort = off end
+
+buffer test
+   reset
+   display this is a super duper long line
+   concat  that will exceed TITMAX by a significant margin
+   concat  so long as TITMAX hasn't been played with
+   concat  so long as TITMAX hasn't been played with
+   concat  so long as TITMAX hasn't been played with
+   concat  so long as TITMAX hasn't been played with
+   concat  so long as TITMAX hasn't been played with
+   dump
+end
+
+write coor end
+
+stop
+
+
+
+

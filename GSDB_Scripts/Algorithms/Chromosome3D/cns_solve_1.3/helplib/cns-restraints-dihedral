@@ -1,0 +1,32 @@
+restraints dihedral {<restraints-dihedral-statement>} end
+
+<restraints-dihedral-statement> :==
+
+  nassign=<integer>
+  --{Required parameter that specifies the maximum expected number
+     of assignments. This must be greater than of equal to the actual number.}
+  assign <atom-selection> <atom-selection> <atom-selection> <atom-selection>
+         <real> <real> <real> <integer>
+  --{Assign a dihedral restraint. The 4 number are respectively:
+     - force constant in kcal/(mole radians**exponent)
+     - equilibrium dihedral value in degrees
+     - range around the equilibrium value in degrees
+     - exponent for restraint calculation.}
+  cv=<integer>
+  --{Select partition number for cross-validation.}
+  partition=<integer>
+  --{Number of partitions for complete cross-validation.}
+  scale=<real>
+  --{Overall scale factor. Default=1}
+  ?
+  --{Print a list of current dihedral constraints.}
+  reset
+  --{Resets the dihedral constraint list.}
+
+  --{The functional form of the restraint is:
+
+     E = constant * well( phi - equilibrium , range )**exponent
+     where,
+           well(a,b) =    a-b        a >  b
+           well(a,b) =     0    -b < a <  b
+           well(a,b) =    a+b        a < -b }

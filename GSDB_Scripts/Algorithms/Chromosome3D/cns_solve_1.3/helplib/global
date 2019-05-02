@@ -1,0 +1,95 @@
+<global-statement> :== 
+
+--{These commands can be used at all levels of CNS}
+
+  abort
+  --{Abort the CNS process immediately}
+  open <filename> formatted=formatted|unformatted access=read|write|append end
+  --{Open a file for access}
+  close <filename> disposition=keep|delete end
+  --{Close a currently opened file}
+  rewind <filename> end
+  --{Rewind a currently opened file}
+  fileexist <filename> end
+  --{Check to see if a file exists. The status (logical) is returned
+     in $result} 
+  set <set-statement> end
+  --{Set miscellaneous run-time parameters}
+  evaluate <evaluate-statement>
+  --{Evaluate an expression and assign result to a symbol}
+  display {<string>|<symbol>[<format>]} newline
+  --{Display text}
+  remark <string> newline
+  --{Add text to current remarks database}
+  system
+  --{Issue a shell command}
+  define ( {<parameter>=<string>{[newline<string>]};} )
+  --{Define parameters}
+  procedure <procedurename> ( {<parameter>=<string>{[newline<string>]};} )
+    {<cns-statement>}
+  endprocedure
+  --{Define a procedure}
+  call <procedurename> ( {<parameter>=<string>{[newline<string>]};} )
+  --{Call a procedure}
+  buffer <buffername> {<buffer-statement>} end
+  --{Manipulate a text storage buffer.}
+  if <condition> then 
+    {<cns-statement>}
+  {[elseif <condition> then 
+    {<cns-statement>}]}
+  [else 
+    {<cns-statement>}]
+  end if
+  --{Conditional execution of statements if a condition is true.}
+  while <condition> <basic-loop>
+  --{Repeated execution of statements while a condition is true.}
+  for <symbol> in ( {<symbol>|<parameter>|<literal-constant>} ) <basic-loop>
+  --{Repeated execution of statements in a loop. <symbol> is set to the
+     value of the next item in the list each loop iteration.}
+  for <symbol> in id <atom-selection>  <basic-loop>
+  --{Repeated execution of statements in a loop. <symbol> is set to the
+     atom id of the next atom in the selection each loop iteration.}
+  @<filename>
+  --{Insert contents of file into command stack and change to a new scope.}
+  @@<filename>
+  --{Read contents of file but do not insert in command stack and change
+     to a new scope.}
+  inline @<filename>
+  --{Insert contents of file in the command stack but do not change the
+     current scope.}
+  { <string> [{newline <string>}] }
+  --{Comment. Text between brackets is ignored.}
+  ! <string>
+  --{Single line comment. Text after exclamation point is ignored.}
+
+  --{The following symbols are automatically defined:
+       $cpu - elapsed user CPU time (real)
+       $time - wall-clock time (string)
+       $date - the date (string)
+       $name - username (string)
+       $system - system identity (string)
+       $pi - Pi (real)
+       $kboltz - Boltzmann constant (real)
+       $eflag.<energy-term> - which energy terms are active (logical)
+       $curbytes - current memory usage (string)
+       $maxbytes - maximum memory usage (string)
+       $curoverh - current memory overhead (string)
+       $maxoverh - maximum memory overhead (string) }
+
+  <condition> :== 
+
+    ( <symbol>|<parameter>|<literal-constant> 
+      <relational-operator>
+      <symbol>|<parameter>|<literal-constant> )
+
+    <relational-operator> :==
+
+        = | == | # | > | >= | < | <= | 
+        --(Comment: "=" and "#" operators perform wildcard matching. "==" requires 100% equality)
+
+  <basic-loop> :== 
+
+    loop <label>
+      {<cns-statement>}
+      {[exit <label>]|[{<cns-statement>}]}
+    end loop

@@ -1,0 +1,156 @@
+{+ file: em_map_to_hkl.inp +}
+{+ directory: xtal_util +}
+{+ description: Fourier transform an EM map to generate structure factors +}
+{+ comment: +}
+{+ authors: Axel T. Brunger +}
+{+ copyright: Yale University +}
+
+{- Guidelines for using this file:
+   - all strings must be quoted by double-quotes
+   - logical variables (true/false) must not be quoted
+   - do not remove any evaluate statements from the file
+   - the selections store1 through store4 are available for general use -}
+
+{- begin block parameter definition -} define(
+
+{====================== crystallographic data ========================}
+
+{* space group *}
+{* use International Table conventions with subscripts substituted
+   by parenthesis *}
+{===>} sg="P1";
+
+{* unit cell parameters in Angstroms and degrees *}
+{+ table: rows=1 "cell" cols=6 "a" "b" "c" "alpha" "beta" "gamma" +}
+{===>} a=156.586;
+{===>} b=153.045;
+{===>} c=86.385;
+{===>} alpha=90;
+{===>} beta=90;
+{===>} gamma=90;
+
+{=========================== input map ===============================}
+
+{* input electron density map *}
+{===>} map_infile="groel_em.map";
+
+{* resolution limits used in map calculation *}
+{* this must be the same as the limits used to calculate the map *}
+{+ table: rows=1 "resolution" cols=2 "lowest" "highest" +}
+{===>} low_res=500.0;
+{===>} high_res=7.0;
+
+{* map grid size: dmin*grid *}
+{* this must be the same as the grid used to calculate the map *}
+{===>} grid=0.33;
+
+{* memory allocation for FFT calculation *}
+{* this must be the same as the FFT memory allocation used
+   to calculate the map *}
+{===>} fft_memory=-1;
+
+{========================= blurring parameters =======================}
+
+{* Phase significance blurring scale factor *}
+{===>} blur_scale=1.0;
+
+{* Phase significance blurring B-factor *}
+{===>} blur_bfactor=100;
+
+{=========================== output files ============================}
+
+{* output reflection file *}
+{===>} ref_outfile="em_map_to_hkl.hkl";
+
+{===========================================================================}
+{         things below this line do not normally need to be changed         }
+{===========================================================================}
+
+ ) {- end block parameter definition -}
+
+ checkversion 1.3
+
+ evaluate ($log_level=quiet)
+
+ xray
+
+   @CNS_XTALLIB:spacegroup.lib (sg=&sg;sgparam=$sgparam;)
+
+   a=&a b=&b c=&c  alpha=&alpha beta=&beta gamma=&gamma
+
+   binresolution &low_res &high_res
+   mapresolution &high_res
+
+   method=FFT
+
+   fft
+     grid=&grid
+     if ( &fft_memory < 0 ) then
+       automemory=true
+     else
+       memory=&fft_memory
+     end if
+   end
+
+ end
+
+ xray
+
+   declare name=map domain=real end
+
+   read map
+     to=map
+     input=&map_infile
+   end
+
+   declare name=fobs  domain=reciprocal type=complex end
+   declare name=sigma domain=reciprocal type=real end
+   declare name=fom domain=reciprocal type=real end
+
+   declare name=pa domain=reciprocal type=real end
+   declare name=pb domain=reciprocal type=real end
+   declare name=pc domain=reciprocal type=real end
+   declare name=pd domain=reciprocal type=real end
+   group type=hl  
+     object=pa     
+     object=pb     
+     object=pc     
+     object=pd     
+   end
+
+   generate &low_res &high_res
+
+   do ( fobs = ft(map) ) ( all )
+   do ( sigma = amplitude(fobs)/2 ) ( all )
+   do ( fom= &blur_scale * exp(-&blur_bfactor*s*s/4.0) ) ( all )
+
+   declare name=x_conv domain=reciprocal type=real end
+
+   @CNS_XTALMODULE:fom_to_x (fom=fom;
+                             x=x_conv;
+                             selection=(all);)
+
+   do (pa=2*x_conv*cos(phase(fobs))) (all)
+   do (pb=2*x_conv*sin(phase(fobs))) (all)
+       	 
+   do (pc=0) (all)
+   do (pd=0) (all)
+
+   undeclare name=x_conv domain=reciprocal end
+
+ end
+
+ set display=&ref_outfile end
+
+ @CNS_XTALMODULE:write_hkl_header (sg=&STRIP%sg;
+                                   sgparam=$sgparam;)
+
+ xray
+   write reflections
+     output=&ref_outfile
+   end
+ end
+
+ set display=OUTPUT end
+
+ stop

@@ -1,0 +1,129 @@
+<HTML>
+<HEAD>
+   <TITLE>Crystallography & NMR System</TITLE>
+</HEAD>
+<BODY BGCOLOR=#8ebf8e>
+
+<HR WIDTH="100%">
+
+<h2>SAD Phasing - Density Modification - Selection of Map</h2>
+
+<HR WIDTH="100%">
+
+Given the completed heavy-atom model, a new set of SAD phases can
+be computed. However, there are still two kinds of ambiguities which
+need to be resolved:
+
+<ul>
+<li>The hand or <a href="../../other/ambiguities_in_phasing.html#enantiomorph"
+    >enantiomorph ambiguity</a> of the heavy atom configuration.
+    <br>
+    This ambiguity is resolved by independent heavy atom refinement and
+    SAD phasing with both choices.
+<P>
+
+<li>The <a href="../../other/ambiguities_in_phasing.html#phase"
+    >phase ambiguity</a>.
+    <br>
+    This ambiguity is intrinsic to the SAD method.  The phase
+    probablity distribution for each reflection is <i>bimodal</i>.
+    This means, there are two maxima in each probablity distribution.
+    Density modification is used to resolve this ambiguity.
+
+</ul>
+
+For the two independent SAD phasing jobs, two site database files
+are needed, one with the original heavy atom configuration and another
+with its inverse image. The file with the inverse image is generated
+with the <tt>flip_sites.inp</tt> task file.
+
+<PRE>
+      cns_solve &lt; <A HREF="flip_sites.inp">flip_sites.inp</A> &gt; flip_sites.out
+</PRE>
+
+The task files for the two independent SAD phasing jobs are identical
+except for the definitions of the file names for the heavy atom sites
+and the output file names.
+
+<PRE>
+      cns_solve &lt; <A HREF="sad_phase2.inp">sad_phase2.inp</A> &gt; sad_phase2.out
+      cns_solve &lt; <A HREF="sad_phase2_flip.inp">sad_phase2_flip.inp</A> &gt; sad_phase2_flip.out</PRE>
+
+For the density modification, it is necessary to have a good estimate
+of the solvent content. In a preliminary step, the solvent content is
+estimated by using <tt>matthews_coef.inp</tt>.
+
+<PRE>
+      cns_solve &lt; <A HREF="matthews_coef.inp">matthews_coef.inp</A> &gt; matthews_coef.out</PRE>
+
+<p>
+
+The estimated solvent content shown in <tt>matthews_coef.list</tt>
+is between 0.53 and 0.55.
+<tt>density_modify.inp</tt> and <tt>density_modify_flip.inp</tt>
+are modified accordingly by setting the solvent content parameter
+to 0.54.
+
+<PRE>
+      cns_solve &lt; <A HREF="density_modify.inp">density_modify.inp</A> &gt; density_modify.out
+      cns_solve &lt; <A HREF="density_modify_flip.inp">density_modify_flip.inp</A> &gt; density_modify_flip.out
+</PRE>
+
+The resulting output files are:
+<PRE>
+      density_modify*.list - listing file with statistics for
+                             each modification cycle
+      density_modify*.hkl  - reflection file with new Hendrickson-Lattman
+                             coefficients
+      density_modify*.map  - map file with modified electron density
+      density_modify*.mask - file with definition of solvent mask
+</PRE>
+
+Electron density maps before solvent flipping are computed
+with modified copies of the <tt>fourier_map.inp</tt> task file.
+
+<PRE>
+      cns_solve &lt; <A HREF="fourier_map_sad2.inp">fourier_map_sad2.inp</A> &gt; fourier_map_sad2.out
+      cns_solve &lt; <A HREF="fourier_map_sad2_flip.inp">fourier_map_sad2_flip.inp</A> &gt; fourier_map_sad2_flip.out</PRE>
+Here are the resulting maps:
+<HR WIDTH="67%" ALIGN=center>
+
+<TABLE ALIGN=CENTER>
+<CAPTION><STRONG>SAD phases</STRONG></CAPTION>
+<TR>
+<TD>Original sites
+<TD>Flipped sites
+<TR>
+<TD><IMG SRC="fmap.jpeg" WIDTH="273" HEIGHT="307"></TD>
+<TD><IMG SRC="fflip.jpeg" WIDTH="273" HEIGHT="307"></TD>
+</TABLE>
+<HR WIDTH="67%" ALIGN=center>
+<TABLE ALIGN=CENTER>
+<CAPTION><STRONG>After solvent flipping</STRONG></CAPTION>
+<TR>
+<TD>Original sites
+<TD>Flipped sites
+<TR>
+<TD><IMG SRC="dmap.jpeg" WIDTH="273" HEIGHT="307"></TD>
+<TD><IMG SRC="dflip.jpeg" WIDTH="273" HEIGHT="307"></TD>
+</TABLE>
+<HR WIDTH="67%" ALIGN=center>
+
+Without density modification, it is practically impossible to decide
+which hand of the heavy-atom configuration is the correct one. However,
+after density modification the map based on the flipped sites shows
+long stretches of well connected density. In contrast, the map
+based on the original sites is uninterpretable.
+
+<p>
+
+<A HREF="tutorial.csh">Script to run this tutorial</A>
+<HR WIDTH="100%">
+
+<A HREF="../../text.html">Back to tutorials</A>&nbsp;&nbsp;
+<A HREF="../more_sites/text.html">Previous section</A>&nbsp;&nbsp;
+
+<HR WIDTH="100%"></P>
+
+</BODY>
+</HTML>

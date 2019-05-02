@@ -1,0 +1,48 @@
+parameter {<parameter-statement>} end
+
+<parameter-statement> :==
+
+  ?
+  --{Print current status.}
+  reset=all|atom|type
+  --{Reset data base.}
+  verbose
+  --{}
+  learn <parameter-learn-statement> end
+  --{}
+  reduce <parameter-reduce-statement> end
+  --{}
+  bond <type> <type> <real> <real>
+  --{}
+  bond <atom-selection> <atom-selection> <real> <real>
+  --{}
+  angle <type> <type> <type> <real> <real> [ub <real> <real>]
+  --{}
+  angle <atom-selection> <atom-selection> <atom-selection> 
+        <real> <real> [ub <real> <real>]
+  --{}
+  dihedral <type> <type> <type> <type> [multiplicity <integer>] 
+           <real> <integer> <real>
+  --{}
+  dihedral <atom-selection> <atom-selection> <atom-selection> <atom-selection>
+           [multiplicity <integer>] repeat[<real> <integer> <real>]
+  --{}
+  improper <type> <type> <type> <type>
+           [multiplicity <integer>] repeat[<real> <integer> <real>]
+  --{}
+  improper <atom-selection> <atom-selection> <atom-selection> <atom-selection>
+           [multiplicity <integer>] repeat[<real> <integer> <real>]
+  --{}
+  nonbonded <type> <real> <real> <real> <real>
+  --{}
+  nonbonded <atom-selection> <real> <real> <real> <real>
+  --{}
+  nbonds <parameter-nbonds-statement> end
+  --{}
+  nbfix <type> <type> <real> <real> <real> <real> 
+  --{}
+  nbfix <atom-selection> <atom-selection> <real> <real> <real> <real>
+
+  --{Wildcard specifications for dihedrals and impropers:
+     dihedrals: (a b c d) -> (x b c x)
+     impropers: (a b c d) -> (a x x d) -> (x b c d) -> (x b c x) -> (x x c d).}

@@ -1,0 +1,48 @@
+proton {<proton-statement>} end
+
+<proton-statement> :==
+
+  observed <atom-selection> [<atom-selection>] <real> [<real>]
+  --{Set the observed proton shift or shifts for the protons in the
+     selection(s) to the real value(s).}
+  rcoil <atom-selection> <real>
+  --{Set the random coil proton shift for all the protons in the
+     selection to the real value(s).}
+  anisotropy <atom-selection> <atom-selection> <atom-selection>
+             co|cn [iscooh] sc|bb
+  --{Select CA     CO    O  atoms (one in each selection).
+     Say if its a CO or CN bond, if its part of a carboxyl group 
+     (which are averaged together), and whether it is a backbone or 
+     sidechain CO.}
+  amides <atom-selection>
+  --{Select all the backbone amide protons.}
+  carbons <atom-selection>
+  --{Select all the backbone carbonyl carbon atoms.}
+  nitrogens <atom-selection>
+  --{Select all the backbone nitrogen atoms.}
+  oxygens <atom-selection>
+  --{Select all the backbone oxygen atoms.}
+  ringatoms phe|tyr|his|trp5|trp6|ade6|ade5|gua6|gua5|thy|cyt|ura
+            <atom-selection> <atom-selection> <atom-selection>
+            <atom-selection> <atom-selection>[<atom-selection>]
+  --{Say how many atoms are in the ring, and select each one in turn.
+     The last selection is only for six-member rings.}
+  alphasandamides <atom-selection>
+  --{Select both alpha and amide protons.}
+  class=<classname>
+  --{Starts a new class which applies to all assignment and force entries
+     until another class entry is issued.}
+  error <real>
+  --{The error to be used by the current class in square well calculations.
+     Default=0.3}
+  forceconstant <real> [<real>]
+  --{Force constant and Constantine force constant for all assignments
+     in the current class. Default=0.1}
+  potential square|harmonic|multiple
+  --{Use shift errors or not.}
+  print threshold <real> all|class=<classname> rmsd|normsd
+  --{Print proton shift violations greater than the specified value
+     (in ppm) for all classes or for the specified class and potentially 
+     print the results to the rmsd array.}
+  reset
+  --{Erase the proton shift assignment table.}

@@ -1,0 +1,42 @@
+conformation {<conformation-statement>} end
+
+<conformation-statement> :==
+
+  assign <atom-selection> <atom-selection> <atom-selection> <atom-selection> 
+        [<atom-selection> <atom-selection> <atom-selection> <atom-selection> 
+        [<atom-selection> <atom-selection> <atom-selection> <atom-selection> 
+        [<atom-selection> <atom-selection> <atom-selection> <atom-selection>]]]
+  --{Add an entry to the current class. Selections define the 
+     dihedral angle(s) for that entry.}
+  class=<classname>
+  --{Starts a new class. Applies to all assignment, expectation,
+     force, and size entries until another class entry is issued.}
+  compressed
+  --{Reads in a complete expectation grid for a class at once.}
+  expectation <integer> [<integer> [<integer> [<integer>]]] <real>
+  --{Indicates coordinate(s) in the expectation grid and the value
+     of that point.}
+  error=<real>
+  --{Set the square well error for the current class in expectation units.}
+  forceconstant=<real>
+  --{Force constant for all assignments in the current class.
+     Default = 1.}
+  nrestraints=<integer>
+  --{Number of slots for conformation restraints to allocate in 
+     memory. Default = 200.}
+  phase <integer> <integer> <integer> [<integer> <integer> <integer> 
+       [<integer> <integer> <integer> [<integer> <integer> <integer>]]]
+  --{Set phase corrections for the torsion angles involved in the 
+     current class.}
+  potential=square|harmonic
+  --{Use conformation errors or not.}
+  print threshold <real> all|class=<classname>
+  --{Prints conformation violations greater than the specified value
+     for all classes or just for the named class.}
+  reset
+  --{Erases the conformation assignment table.}
+  size oned|twod|threed|fourd <integer> [<integer> [<integer> [<integer>]]]
+  --{Defines the number of dimensions in the current class expectation,
+     grid and the number of steps along each dimension.}
+  zero
+  --{Zero out the all the expectation value arrays.}

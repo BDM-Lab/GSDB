@@ -1,0 +1,119 @@
+<HTML>
+<HEAD>
+   <TITLE>Crystallography & NMR System</TITLE>
+</HEAD>
+<BODY BGCOLOR=#8ebf8e>
+
+<HR WIDTH="100%"></P>
+
+<H2>Locating missing parts of the model</H2>
+
+<HR WIDTH="100%"></P>
+
+<p>The <TT>refine.inp</TT> task file that was run in the previous section produced phase-combined sigma-A weighted 2Fo-Fc and Fo-Fc maps:</p>
+<PRE>
+      refine_fofc.map
+      refine_2fofc.map</PRE>
+<P>These maps can be directly displayed with Coot. They can also be displayed with PyMOL when renaming the &quot;.map&quot; extension to &quot;.xplor&quot;. Alternatively, they can be converted for to &quot;omap&quot; files for display with <tt>O</tt>, by using the command</P>
+<PRE>
+      map_to_omap *.map
+</PRE>
+<p>to convert the CNS maps to a format which can be read into <tt>O (you must hav</tt>e <tt>mapman</tt> installed<tt>)</tt>. </p>
+<p>Finally, the <TT>refine.inp</TT> task file produced a file with the extension &quot;.hkl&quot;:</p>
+<PRE>      refine.hkl
+</PRE>
+<p>This is a CNS structure factor file that contains the Fourier coefficients of both the 2Fo-Fc and Fo-Fc maps. It can be read directly with Coot, by going to -&gt; File -&gt; Auto OpenMTZ (even though it is not an MTZ file). In addition to these map files, the <TT>refine.inp</TT> task file also produces files with the extension &quot;.peals&quot;. These contain sorted lists of the positive and negative peaks in the respective electron density maps. Finally, the real space R (RSR) values and real space correlation coefficients (RSCC) are provide in <tt>refine_rsr.list</tt> and <tt>refine_rsr.pdb</tt>. The latter coordinate file contains the refined coordinates, but with the B-factor array set to the RSR values. This enables coloring of atoms by RSR, for example in PyMOL using the spectrum B option.</p>
+<P>The major error in the
+  model at this point is the absence of an ATP molecule which we think
+  is bound to the molecule. We hope that this will be apparent in the
+  difference map when contoured at positive sigma. Inspection of the refine_1fofc.map shows clear density for an ATP molecule and and associated
+  magnesium ion. The positive density peak list generated
+  refine_fofc_positive.peaks) locates the 3 phosphate and 1
+  magnesium atoms (the top 4 peaks respectively). This peak list (which
+  is in PDB format) is used to extract the coordinates for the magnesium
+  atom. The electron density is used as a guide to manually fit an ATP
+molecule using Coot or O.</P>
+<P>The 4th peak in the positive peak list:</P>
+
+<PRE>
+ATOM   1848 PEAK PEAK    4      10.685  28.812  36.469  1.00 11.87      PEAK
+</PRE>
+
+<P>The electron density map:</P>
+
+<TABLE ALIGN=CENTER>
+<TR>
+<TD ALIGN=CENTER><IMG SRC="atp_diff.jpeg"
+    HEIGHT=340 WIDTH=429></TD>
+</TR>
+<TR>
+<TD ALIGN=CENTER>Sigma-A weighted, phase combined difference map (at 5 sigma).<BR>
+                 The density for the missing ATP molecule is clearly seen.</TD>
+</TR>
+</TABLE>
+
+<P>The fitted ATP molecule:</P>
+
+<TABLE ALIGN=CENTER>
+<TR>
+<TD ALIGN=CENTER><IMG SRC="atp_fit.jpeg"
+    HEIGHT=340 WIDTH=429></TD>
+</TR>
+<TR>
+<TD ALIGN=CENTER>Sigma-A weighted, phase combined difference map (at 5 sigma).<BR>
+                 The ATP molecule has been fitted manually into the density.</TD>
+</TR>
+</TABLE>
+
+<P>In order to generate a new model with the ATP included we make a
+separate PDB file with the ATP and magnesium coordinates. The ATP
+coordinates can be obtained from a variety of sources, we used Gerard
+Kleywegt's HIC-Up database (http://welcome.to/hicup). We append the manually fitted ATP and MG2+ coordinates to the refine.pdb file and set their residue ID to unique numbers, 600 and 800, respectively. The atom name
+and residue name for the magnesium ion must be changed manually to MG+2 and MG, respectively. Note that the atom name for the magnesium ion has been changed to
+MG+2 and the residue name to MG2, these are the appropriate names for
+a magnesium 2+ ion. This information can be obtained from the CNS
+topology file CNS_TOPPAR:ion.top. The bottom of
+appended refine_atp.pdb coordinate file now looks like this:</P>
+
+<PRE>ATOM   1840  OE1 GLU   263      20.099  31.573  18.901  1.00 69.53          <br>ATOM   1841  OE2 GLU   263      20.548  31.651  21.051  1.00 70.98          <br>ATOM   1842  C   GLU   263      20.959  26.862  20.532  1.00 70.54          <br>ATOM   1843  O   GLU   263      20.126  26.235  21.223  1.00 71.02          <br>ATOM   1844  OXT GLU   263      20.964  26.876  19.279  1.00 71.04          <br>ATOM      1  PG  ATP   600      12.666  27.828  34.118  1.00 15.00<br>ATOM      2  O1G ATP   600      11.500  27.624  34.971  1.00 15.00<br>ATOM      3  O2G ATP   600      13.874  27.123  34.548  1.00 15.00<br>ATOM      4  O3G ATP   600      12.306  27.574  32.681  1.00 15.00<br>ATOM      5  PB  ATP   600      12.257  30.747  34.155  1.00 15.00<br>ATOM      6  O1B ATP   600      11.240  30.777  35.237  1.00 15.00<br>ATOM      7  O2B ATP   600      11.791  30.936  32.766  1.00 15.00<br>ATOM      8  O3B ATP   600      13.108  29.368  34.276  1.00 15.00<br>ATOM      9  PA  ATP   600      13.728  32.416  36.010  1.00 15.00<br>ATOM     10  O1A ATP   600      12.731  33.444  36.312  1.00 15.00<br>ATOM     11  O2A ATP   600      14.009  31.366  37.013  1.00 15.00<br>ATOM     12  O3A ATP   600      13.315  31.778  34.611  1.00 15.00<br>ATOM     13  O5* ATP   600      15.072  33.088  35.601  1.00 15.00<br>ATOM     14  C5* ATP   600      15.179  34.453  35.185  1.00 15.00<br>ATOM     15  C4* ATP   600      16.449  35.036  35.742  1.00 15.00<br>ATOM     16  O4* ATP   600      16.780  36.171  34.905  1.00 15.00<br>ATOM     17  C3* ATP   600      16.347  35.566  37.156  1.00 15.00<br>ATOM     18  O3* ATP   600      17.684  35.539  37.687  1.00 15.00<br>ATOM     19  C2* ATP   600      15.874  36.974  36.892  1.00 15.00<br>ATOM     20  O2* ATP   600      16.185  37.869  37.946  1.00 15.00<br>ATOM     21  C1* ATP   600      16.714  37.391  35.661  1.00 15.00<br>ATOM     22  N9  ATP   600      16.087  38.446  34.822  1.00 15.00<br>ATOM     23  C8  ATP   600      16.641  39.631  34.388  1.00 15.00<br>ATOM     24  N7  ATP   600      15.859  40.367  33.648  1.00 15.00<br>ATOM     25  C5  ATP   600      14.699  39.615  33.586  1.00 15.00<br>ATOM     26  C6  ATP   600      13.444  39.826  32.945  1.00 15.00<br>ATOM     27  N6  ATP   600      13.215  40.918  32.234  1.00 15.00<br>ATOM     28  N1  ATP   600      12.470  38.880  33.075  1.00 15.00<br>ATOM     29  C2  ATP   600      12.709  37.783  33.794  1.00 15.00<br>ATOM     30  N3  ATP   600      13.841  37.455  34.448  1.00 15.00<br>ATOM     31  C4  ATP   600      14.816  38.437  34.299  1.00 15.00<br>ATOM     32 MG+2 MG2   800      10.685  28.812  36.469  1.00 15.00<br>END</PRE>
+<P>In order to generate the molecular topology information and carry
+  out refinement both topology and parameter information are required
+  for the ATP molecule. These files can also be obtained from Gerard
+  Kleywegt's HIC-Up database (http://welcome.to/hicup). For use in
+  refinement the parameter file needed two modifications to allow
+  different dihedral values from those present in the ATP molecule used
+  to generate the topology and parameters. The force constants for the
+  dihedrals around the PA O5* and C5 C4 bonds were set to 0 (to allow
+  any dihedral value).
+  
+<PRE>
+ { edit if necessary }
+ DIHEdral OX6  PX5  OX8  PX1     750.0 0    90.00 ! Nobs =    1 ... Value =    97.05
+ DIHEdral OX10 PX9  OX12 PX5     750.0 0   -60.00 ! Nobs =    1 ... Value =   -64.65
+ DIHEdral OX11 PX9  OX12 PX5     750.0 0    60.00 ! Nobs =    1 ... Value =    68.21
+ DIHEdral OX13 PX9  OX12 PX5     750.0 0   180.00 ! Nobs =    1 ... Value =  -176.43
+ DIHEdral OX10 PX9  OX13 CX14      0.0 0   180.00 ! Nobs =    1 ... Value =   179.62  <----
+ DIHEdral OX12 PX9  OX13 CX14    750.0 0   -60.00 ! Nobs =    1 ... Value =   -68.35
+ DIHEdral OX13 CX14 CX15 OX16    750.0 0    60.00 ! Nobs =    1 ... Value =    63.80
+ DIHEdral OX13 CX14 CX15 CX17      0.0 0   180.00 ! Nobs =    1 ... Value =  -178.18  <----
+ DIHEdral OX20 CX19 CX21 NX22    750.0 0   -90.00 ! Nobs =    1 ... Value =   -83.44
+</PRE>
+<p>We store these parameters in the file called <tt>atp.param</tt> along with the topology file <tt>atp.top</tt> provided by HIC-Up. <br>
+  <br>
+  We slightly change the CNS file <tt>refine.inp </tt>used in the previous section in order to read the merged coordinate file <tt>refine_atp.pdb</tt>, the ATP topology and parameter files atp.top and <tt>atp.param,</tt> and change the output root to<tt> refine_atp_2</tt>.Since the model is already very good we turn off simulated annealing (i.e., only positional minimization and B-factor refinement) (the <tt>refine_atp_2.inp</tt> file is taken from the <tt>refine.inp</tt> input file, i.e., the only differences are the particular input parameter settings):</p>
+<PRE>
+      cns_solve &lt; <A HREF="refine_atp_2.inp">refine_atp_2.inp</A> &gt; refine_atp_2.out 
+
+<BR><A HREF="tutorial.csh">Script to run this tutorial</A>
+
+</PRE>
+<HR WIDTH="100%"></P>
+
+<A HREF="../../text.html">Back to tutorials</A>&nbsp;&nbsp;
+<A HREF="../refine_start/text.html">Previous section</A>&nbsp;&nbsp;
+<A HREF="../rebuild/text.html">Next section</A>
+
+<HR WIDTH="100%"></P>
+   
+</BODY>
+</HTML>

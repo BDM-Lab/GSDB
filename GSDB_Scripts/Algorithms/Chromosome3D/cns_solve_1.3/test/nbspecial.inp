@@ -1,0 +1,91 @@
+{====>}
+evaluate ($site_type="YB") { Specify type of sites. }
+
+
+topology residue site atom site mass=10.   charge=0.  type=$site_type end end end
+segment name = " " molecule number=4 name=site end end
+do (x=0.)  ( all ) !
+do (y=0.)  ( all ) !
+do (z=0.)  ( all ) ! everything needs to be initialized!
+do (q=1.0) ( all ) !
+do (b=20.) ( all ) !
+
+coor
+ATOM      1 SITE SITE    1      13.934   0.000  15.359  1.00 20.00          
+ATOM      2 SITE SITE    2      11.744  10.360   9.452  1.00 20.00          
+ATOM      3 SITE SITE    3      -2.635   6.475  55.530  1.00 20.00          
+ATOM      4 SITE SITE    4      -3.322   7.770  54.348  1.00 20.00          
+end
+
+do (x=0.)  ( resid 1 ) !
+do (y=0.)  ( resid 1 ) !
+do (z=0.)  ( resid 1 ) ! everything needs to be initialized!
+
+{====>}                    { Space group. Uses International Table conventions.  } 
+                           { with subscripts substituted by parenthesis.         }                                            
+evaluate ($SG="C2" ) 
+
+{====>}                                                             { Unit cell. }
+ evaluate ($a=97.38)
+ evaluate ($b=46.62)
+ evaluate ($c=65.39)
+ evaluate ($alpha=90.0)
+ evaluate ($beta=115.39)
+ evaluate ($gamma=90.0)
+
+
+
+xray                                    
+
+  symmetry=( X,Y,Z )
+  symmetry=( -X,Y,-Z )
+  symmetry=( 1/2+X,1/2+Y,Z )
+  symmetry=( 1/2-X,1/2+Y,-Z )
+
+   a=$a b=$b c=$c  alpha=$alpha beta=$beta gamma=$gamma      { Define unit cell. }
+
+end
+
+
+
+
+
+parameter 
+   evaluate ($max_dist=2*max($a,$b,$c))
+   evaluate ($max_dist_on=$max_dist-1.0)
+   evaluate ($max_dist_off=$max_dist-0.5)
+   nbonds cutnb=$max_dist wmin=0.0 repel=1.0 rexp=4 irex=1 rcons=16 tole=0.5 nbxmod=5
+        ctonnb=$max_dist_on ctofnb=$max_dist_off 
+        special=-1
+   end
+   evaluate ($vdw_radius=2)
+   evaluate ($vdw_radius   = $vdw_radius / 2^(1/6))
+   nonbonded  $site_type   0.1  $vdw_radius    0.1 $vdw_radius  
+end
+
+flags excl * incl vdw pvdw end
+
+eval ($current_site=4) 
+
+igroup interaction=( resid 1:$current_site) ( resid 1:$current_site ) end
+distance from=( resid 1:$current_site ) to=( resid 1:$current_site) cuton=0.0 cutoff=$max_dist 
+         disposition=rmsd
+end
+
+show elem ( rmsd ) ( resid 1:$current_site ) 
+
+xray
+   scatter ( all ) 0 0 0 0 0 0 0 0 1
+   special
+      selection=( all ) 
+      to=rmsd
+   end
+end
+
+show elem ( rmsd ) ( all ) 
+
+      
+
+stop
+
+

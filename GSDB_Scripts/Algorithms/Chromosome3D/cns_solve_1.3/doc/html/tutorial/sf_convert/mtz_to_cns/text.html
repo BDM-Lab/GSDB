@@ -1,0 +1,92 @@
+<HTML>
+<HEAD>
+   <TITLE>Crystallography & NMR System</TITLE>
+</HEAD>
+<BODY BGCOLOR=#8ebf8e>
+
+<HR WIDTH="100%">
+
+<H2>Converting a CCP4 MTZ reflection file</H2>
+
+<HR WIDTH="100%"></P>
+
+<P>There are two programs which can be used to convert CCP4 MTZ
+format reflection files to CNS format (both programs are part of CCP4
+version 3.5):</P>
+
+<UL>
+<LI><B>SFTOOLS:</B> This can read an MTZ file then write it back out
+in CNS format. All items will be correctly converted. However, the
+header information from the CNS file is not written. This must be
+added manually. The header for a file with experimental phase
+information should look something like this:
+
+<PRE>
+ NREFlection=           1400
+ ANOMalous=TRUE { equiv. to HERMitian=FALSe}
+ DECLare NAME=FOBS        DOMAin=RECIprocal   TYPE=COMP END
+ DECLare NAME=SIGMA       DOMAin=RECIprocal   TYPE=REAL END
+ DECLare NAME=PA          DOMAin=RECIprocal   TYPE=REAL END
+ DECLare NAME=PB          DOMAin=RECIprocal   TYPE=REAL END
+ DECLare NAME=PC          DOMAin=RECIprocal   TYPE=REAL END
+ DECLare NAME=PD          DOMAin=RECIprocal   TYPE=REAL END
+ GROUp TYPE=HL
+   OBJEct=PA
+   OBJEct=PB
+   OBJEct=PC
+   OBJEct=PD
+ END
+ INDE     0    4    2 FOBS=     677.8       0.0 SIGMA=     19.40
+                      PA=    -0.486 PB=     0.000 PC=     0.000 PD=     0.000
+</PRE>
+
+Note that the grouping of the HL coefficients is essential in order
+that remapping of reflections to a different asymmetric unit is
+performed correctly.</LI>
+
+<LI><B>mtz2various:</B> This can read an MTZ file and write out a complete CNS
+reflection file. An example script is:
+
+<PRE>
+mtz2various HKLIN infile HKLOUT outfile << EOF
+RESOLUTION 10000 2
+OUTPUT CNS
+EXCLUDE SIGP 0.001   # to exclude unmeasured refl.
+LABIN FP=Fnat SIGFP=SIGnat PHIB=PHI FOM=FOMM HLA=HLA HLB=HLB HLC=HLC HLD=HLD
+END
+EOF
+</PRE>
+If you have anomalous data as F and deltaF:
+<PRE>
+# Convert MTZ file with anomalous data as F and deltaF to CNS format.
+# F(+h +k +l) and F(-h -k -l) are reconstructed from FP and DP.
+
+mtz2various hklin file.mtz HKLOUT file.hkl  <<+
+LABIN  FP=F SIGFP=SIGF DP=DANO SIGDP=SIGDANO
+OUTPUT CNS
+END
++
+</PRE>
+If you have anomalous data as F(+) and F(-):
+<PRE>
+# Convert MTZ file with anomalous data as F(+) and F(-) to CNS format.
+
+mtz2various hklin file.mtz HKLOUT file.hkl  <<+
+LABIN  F(+)=F(+) SIGF(+)=SIGF(+) F(-)=F(-) SIGF(-)=SIGF(-)
+OUTPUT CNS
+END
++
+</PRE>
+
+</LI>
+</UL>
+
+<HR WIDTH="100%">
+
+<A HREF="../../text.html">Back to tutorials</A>&nbsp;&nbsp;
+<A HREF="../scalepack_to_cns/text.html">Previous section</A>&nbsp;&nbsp;
+
+<HR WIDTH="100%"></P>
+   
+</BODY>
+</HTML>

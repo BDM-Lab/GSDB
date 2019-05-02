@@ -1,0 +1,165 @@
+#!/bin/csh -f
+#
+# start the CNSsolve HTML interface from the command line
+# with the specified file
+#
+# usage: cns_edit [-def defaults-file] [-help] file-name
+#
+# assumes the PERL is installed and in the users path
+#
+# bug fix 7/18/2009: .html extension for tmpfile
+#
+# Written by: Paul Adams
+#
+# copyright Yale University
+#
+if ( $#argv < 1 ) then
+  echo "usage: cns_edit [-help] [-def 'defaults-file'] 'file-name'"
+  exit 1
+endif
+#
+set help=0
+set input = ''
+set default = ''
+#
+set counter = 1
+while ( $counter <= $#argv )
+  switch ( $argv[$counter] )
+  case -def:
+    @ counter++
+    set default = $argv[$counter]
+    breaksw
+  case -help:
+    set help=1
+    breaksw
+  case -usage:
+    echo "usage: cns_edit [-help] [-def 'defaults-file'] 'file-name'"
+    exit 0
+  case -*:
+    echo "cns_edit: unknown option $argv[$counter]"
+    echo "usage: cns_edit [-help] [-def 'defaults-file'] 'file-name'"
+    exit 0
+  default:
+    if ( $input == '' ) then
+      set input = $argv[$counter]
+    endif
+  endsw
+  @ counter++
+end
+#
+if ( $input == '' ) then
+  echo "cns_edit: no input file given"
+  exit 1
+else
+  if ( ! -e $input ) then
+    echo "cns_edit: file $input does not exist"
+    exit 1
+  endif
+endif
+#
+if ( $default != '' ) then
+  if ( ! -e $default ) then
+    echo "cns_edit: default file $default does not exist"
+    exit 1
+  endif
+endif
+#
+if ( -d /usr/tmp ) then
+  set tmpfile=/usr/tmp/cns_edit.$user.$$.html
+else if ( -d /var/tmp ) then
+  set tmpfile=/var/tmp/cns_edit.$user.$$.html
+else
+  echo "cns_edit: could not locate temporary directory /usr/tmp or /var/tmp" 
+  exit 1
+endif
+#
+echo '<HTML> \
+<BODY OnLoad="document.cns_edit.submit()" BGCOLOR=#8ebf8e> \
+\
+<CENTER><P><FONT SIZE=+3>Edit file</FONT></P></CENTER> \
+\
+<P> \
+<FORM NAME="cns_edit" \
+      METHOD="POST" \
+' > $tmpfile
+if ( $help ) then
+  echo 'ACTION="http://cns-online.org/cgi-bin/cns_solve_1.3/cns_form.cgi?cns_help=on"' >> $tmpfile
+else
+  echo 'ACTION="http://cns-online.org/cgi-bin/cns_solve_1.3/cns_form.cgi"' >> $tmpfile
+endif
+echo '> \
+</P> \
+\
+<P><INPUT TYPE="SUBMIT" VALUE="Edit File"></P> \
+\
+' >> $tmpfile
+#
+# pass input file as URLencoded text in hidden input field
+#
+echo -n '<INPUT NAME="cns_edit_file" TYPE="HIDDEN" VALUE=' >> $tmpfile
+#
+perl -pe 's/([^a-zA-Z0-9_])/if ( ord($1) > 15 ){ sprintf("%%%x",ord($1)) } else {sprintf("%%0%x",ord($1)) }/eg' $input >> $tmpfile
+#
+echo '>' >> $tmpfile
+#
+# if exists pass default file as URLencoded text in hidden input field
+#
+if ( $default != '' ) then
+  echo -n '<INPUT NAME="cns_edit_def" TYPE="HIDDEN" VALUE=' >> $tmpfile
+  #
+  perl -pe 's/([^a-zA-Z0-9_])/if ( ord($1) > 15 ){ sprintf("%%%x",ord($1)) } else {sprintf("%%0%x",ord($1)) }/eg' $default >> $tmpfile
+  #
+  echo '>' >> $tmpfile
+endif
+#
+echo '<INPUT NAME="cns_edit_fname" TYPE="HIDDEN" VALUE="'$input'">' >> $tmpfile
+echo '</FORM> \
+</BODY> \
+</HTML>' >> $tmpfile
+#
+set browser = ''
+which netscape >& /dev/null
+if ( ! $status ) then
+  set browser = 'netscape'
+endif
+which mozilla >& /dev/null
+if ( ! $status ) then
+  set browser = 'mozilla'
+endif
+which firefox >& /dev/null
+if ( ! $status ) then
+  set browser = 'firefox'
+endif
+if ( -d /Applications/Safari.app ) then
+  set browser = 'safari'
+endif
+#
+if ( "$browser" == "" ) then
+  echo "cns_edit: no suitable browser found, exiting"
+  rm -f $tmpfile
+  exit 1
+endif
+#
+if ( "$browser" == "safari" ) then
+  osascript -e 'tell application "Safari" \
+      make new document with properties {URL:"file://'$tmpfile'"} \
+    end tell' > /dev/null
+  if ( $status != 0 ) then
+    echo 'error opening file'
+  else
+    sleep 5; rm -f $tmpfile
+  endif
+else
+  $browser  -height 1000 \
+            -width 700 \
+            -remote "openURL(file:$tmpfile,new-window)" >& /dev/null
+  #
+  if ( $status != 0 ) then
+    echo 'cns_edit: starting' $browser
+    ($browser -height 1000 -width 700 $tmpfile; sleep 2; rm -f $tmpfile &) >& /dev/null
+  else
+    sleep 2; rm -f $tmpfile
+  endif
+#
+endif
+#

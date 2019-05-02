@@ -1,0 +1,56 @@
+! module file: readproton
+!
+! CNS MODULE
+! **********
+!
+! Authors: Gregory L. Warren and Axel T. Brunger
+!
+! copyright Yale University
+!
+! version 2/6/98
+!
+! Function:
+!    Read in proton chemical shift restraint file,  
+!    class (P#), and averaging functions
+!
+! Requirements:
+! 
+!  
+! 
+!
+
+module { readproton }
+(
+     &classname=classname;       {INPUT: proton class name}
+     &classpoten=classpoten;     {INPUT: proton force potential} 
+     &filename=filename;         {INPUT: restraint file name}
+     &weight1=weight1;           {INPUT: force constant}
+     &weight2=weight2;           {INPUT: 2nd force constant for multiple poten}
+     &violation=violation;       {INPUT: violation threshold used for square well}
+)
+
+checkversion 1.3
+
+set message ? end
+evaluate ($message_old=$result)
+set echo ? end
+evaluate ($echo_old=$result)
+if ( $log_level = verbose ) then
+  set echo=on message=normal end
+else
+  set echo=off message=off end
+end if
+
+protons
+   class=&classname
+   potential=&classpoten
+   if (&classpoten=multiple) then
+      force=&weight1 &weight2
+   else
+      force=&weight1 
+   end if
+   error=&violation
+      @@&filename
+end
+
+set message=$message_old echo=$echo_old end

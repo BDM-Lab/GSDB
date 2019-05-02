@@ -1,0 +1,1464 @@
+{+ file: ir_phase.inp +}
+{+ directory: xtal_phase +}
+{+ description: SIR/MIR/SIRAS/MIRAS heavy atom refinement. +}
+{+ comment:
+           - Blow & Crick model
+           - Terwilliger & Eisenberg error treatment
+           - Otwinowski maximum likelihood treatment
+           - Refer to the CNS on-line tutorial for more information +}
+{+ authors: Axel T. Brunger +}
+{+ copyright: Yale University +}
+
+{+ reference: G. Bricogne, Maximum Entropy and the Foundation of Direct
+              Methods. Acta Cryst. A40, 410-445 (1984). +}
+
+{+ reference: T.C. Terwilliger, D. Eisenberg, Isomorphous replacement:
+              effect of errors on the phase probability distribution.
+              Acta Cryst. A 43, 6-13 (1987). +}
+
+{+ reference: Z. Otwinowski, In: Proc. CCP4 study weekend 25-26 January
+              1991 (W. Wolf, P.R. Evans, A.G.W. Leslie, eds.),
+              SERC Daresbury laboratory, 80-85, 1991). +}
+
+{+ reference: A.T. Brunger, The free R value: a novel statistical quantity for
+              assessing the accuracy of crystal structures, Nature 355,
+              472-474 (1992). +}
+
+{- Guidelines for using this file:
+   - all strings must be quoted by double-quotes
+   - logical variables (true/false) are not quoted
+   - do not remove any evaluate statements from the file -}
+
+{====================== IMPORTANT NOTE ===============================}
+
+{* This input file requires that the data have been properly scaled prior
+   to running this file (absolute scale of native and relative scale
+   between derivatives and native).  Otherwise, the reflection selection
+   definitions and the occupancies will be ill-defined.  *}
+
+{- begin block parameter definition -} define(
+
+{====================== crystallographic data ========================}
+
+{* space group *}
+{* use International Table conventions with subscripts substituted
+   by parenthesis *}
+{===>} sg="C2";
+
+{* unit cell parameters in Angstroms and degrees *}
+{+ table: rows=1 "cell" cols=6 "a" "b" "c" "alpha" "beta" "gamma" +}
+{===>} a=97.37;
+{===>} b=46.64;
+{===>} c=65.47;
+{===>} alpha=90;
+{===>} beta=115.4;
+{===>} gamma=90;
+
+{* anomalous f' f'' library file *}
+{* should be used with anomalous data -
+   libraries: "CNS_XRAYLIB:anom_cu.lib" and "CNS_XRAYLIB:anom_mo.lib" or
+              a user created file.
+   If blank no anomalous contribution will be included *}
+{===>} anom_library="";
+
+{* reflection file(s) containing scaled data *}
+{* specify non-anomalous reflection file(s) (if any)
+   before anomalous reflection file(s) *}
+{===>} reflection_infile_1="scale.hkl";
+{===>} reflection_infile_2="";
+{===>} reflection_infile_3="";
+{===>} reflection_infile_4="";
+
+{* Native data amplitudes. *}
+{===>} f_nat="f_nat";
+
+{* Native data sigmas. *}
+{===>} s_nat="s_nat";
+
+{* Prior phase probability distribution *}
+{* Leave to blank if not used. *}
+{* Hendrickson-Lattman coefficient arrays *}
+{+ table: rows=1 "HL coefficients" cols=4 "A" "B" "C" "D" +}
+{===>} priora="";
+{===>} priorb="";
+{===>} priorc="";
+{===>} priord="";
+
+{* reciprocal space array containing test set for cross-validation: optional *}
+{* Leave blank if not used *}
+{===>} testcv="";
+
+{* number for selection of test reflections. *}
+{* ie. reflections with the test set array equal to this number will be
+       used for cross-validation, all other reflections form the working set *}
+{===>} test_flag=1;
+
+{====================== derivative definitions ========================}
+
+{* Specify only those derivatives that should be used in phasing
+   and/or the refinement process. Leave all other entries blank. *}
+
+{+ list: for each derivative dataset specify:
+         - the amplitude array
+         - the sigma array
+         - the derivative name (specified in the site database file).
+               If heavy_search is used then this will be the same as the
+               chemical type of the sites
+         - whether to use the anomalous signal +}
+
+{+ table: rows=9 numbered cols=4 "amplitude array" "sigma array"
+                                 "derivative name" "use anomalous signal" +}
+
+{===>} f_1="f_kuof";
+{===>} s_1="s_kuof";
+{===>} site_segid_1="kuof";
+{+ choice: true false +}
+{===>} anom_1=false;
+
+{===>} f_2="f_phga";
+{===>} s_2="s_phga";
+{===>} site_segid_2="phga";
+{+ choice: true false +}
+{===>} anom_2=false;
+
+{===>} f_3="";
+{===>} s_3="";
+{===>} site_segid_3="";
+{+ choice: true false +}
+{===>} anom_3=false;
+
+{===>} f_4="";
+{===>} s_4="";
+{===>} site_segid_4="";
+{+ choice: true false +}
+{===>} anom_4=false;
+
+{===>} f_5="";
+{===>} s_5="";
+{===>} site_segid_5="";
+{+ choice: true false +}
+{===>} anom_5=false;
+
+{===>} f_6="";
+{===>} s_6="";
+{===>} site_segid_6="";
+{+ choice: true false +}
+{===>} anom_6=false;
+
+{===>} f_7="";
+{===>} s_7="";
+{===>} site_segid_7="";
+{+ choice: true false +}
+{===>} anom_7=false;
+
+{===>} f_8="";
+{===>} s_8="";
+{===>} site_segid_8="";
+{+ choice: true false +}
+{===>} anom_8=false;
+
+{===>} f_9="";
+{===>} s_9="";
+{===>} site_segid_9="";
+{+ choice: true false +}
+{===>} anom_9=false;
+
+{============= selection criteria for phased reflections =============}
+
+{* Resolution range *}
+{+ table: rows=1 "resolution" cols=2 "lowest" "highest" +}
+{===>} low_res_phase=500;
+{===>} high_res_phase=2.8;
+
+{======= selection criteria for scaling and refinement target ========}
+
+{* Note: all reflections will be phased within overall limits regardless
+         of the individual cutoffs *}
+
+{* Amplitude cutoff for native data ( f_nat > cutoff * s_nat ) *}
+{===>} cut_f_nat=2;
+
+{+ list: for each derivative dataset specify:
+         - the low resolution cutoff
+         - the high resolution cutoff
+         - the amplitude cutoff |f_deriv| > cutoff * s_deriv +}
+
+{+ table: rows=9 numbered cols=3 "low resolution cutoff"
+                                 "high resolution cutoff" "amplitude cutoff" +}
+
+{===>} low_res_1=50;
+{===>} high_res_1=2.8;
+{===>} cut_f_1=2;
+
+{===>} low_res_2=50;
+{===>} high_res_2=2.8;
+{===>} cut_f_2=2;
+
+{===>} low_res_3=50;
+{===>} high_res_3=2;
+{===>} cut_f_3=2;
+
+{===>} low_res_4=50;
+{===>} high_res_4=2;
+{===>} cut_f_4=2;
+
+{===>} low_res_5=50;
+{===>} high_res_5=2;
+{===>} cut_f_5=2;
+
+{===>} low_res_6=50;
+{===>} high_res_6=2;
+{===>} cut_f_6=2;
+
+{===>} low_res_7=50;
+{===>} high_res_7=2;
+{===>} cut_f_7=2;
+
+{===>} low_res_8=50;
+{===>} high_res_8=2;
+{===>} cut_f_8=2;
+
+{===>} low_res_9=50;
+{===>} high_res_9=2;
+{===>} cut_f_9=2;
+
+{+ list: for each derivative dataset specify:
+         - the isomorphous difference cutoff to native data
+         - the isomorphous difference outlier cutoff to native data
+         - the anomalous difference cutoff
+         - the anomalous difference outlier cutoff +}
+
+{+ list: the cutoffs are defined:
+       - isomorphous difference:
+        abs(f_deriv-f_nat ) > cutoff * sqrt(s_deriv^2+s_nat^2)
+       - isomorphous difference outlier:
+        abs(f_deriv-f_nat ) < cutoff * rms[abs(f_deriv-f_nat)]
+       - anomalous difference:
+        abs(f_deriv(+)-f_deriv(-)) > cutoff * sqrt(s_deriv(+)^2 + s_deriv(-)^2)
+       - anomalous difference outlier:
+        abs(f_deriv(+)-f_deriv(-) ) < cutoff * rms[abs(f_deriv(+)-f_deriv(-))]
+  NB: use histograms to determine outlier cutoffs at requested phasing
+      resolution range
+  NB: the rms value is defined with respect to requested phasing
+      resolution range +}
+
+{+ table: rows=9 numbered cols=4 "isomorphous difference cutoff"
+                                 "isomorphous difference outlier cutoff"
+                                 "anomalous difference cutoff"
+                                 "anomalous difference outlier cutoff" +}
+
+{===>} cut_iso_df_1=0.0;
+{===>} max_iso_df_1=5;
+{===>} cut_anom_df_1=0.0;
+{===>} max_anom_df_1=5;
+
+{===>} cut_iso_df_2=0.0;
+{===>} max_iso_df_2=5;
+{===>} cut_anom_df_2=0.0;
+{===>} max_anom_df_2=5;
+
+{===>} cut_iso_df_3=0.0;
+{===>} max_iso_df_3=5;
+{===>} cut_anom_df_3=0.0;
+{===>} max_anom_df_3=5;
+
+{===>} cut_iso_df_4=0.0;
+{===>} max_iso_df_4=5;
+{===>} cut_anom_df_4=0.0;
+{===>} max_anom_df_4=5;
+
+{===>} cut_iso_df_5=0.0;
+{===>} max_iso_df_5=5;
+{===>} cut_anom_df_5=0.0;
+{===>} max_anom_df_5=5;
+
+{===>} cut_iso_df_6=0.0;
+{===>} max_iso_df_6=5;
+{===>} cut_anom_df_6=0.0;
+{===>} max_anom_df_6=5;
+
+{===>} cut_iso_df_7=0.0;
+{===>} max_iso_df_7=5;
+{===>} cut_anom_df_7=0.0;
+{===>} max_anom_df_7=5;
+
+{===>} cut_iso_df_8=0.0;
+{===>} max_iso_df_8=5;
+{===>} cut_anom_df_8=0.0;
+{===>} max_anom_df_8=5;
+
+{===>} cut_iso_df_9=0.0;
+{===>} max_iso_df_9=5;
+{===>} cut_anom_df_9=0.0;
+{===>} max_anom_df_9=5;
+
+{============================== sites ================================}
+
+{+ list:
+        Heavy atom database files are obtained from:
+          - Heavy atom searching (xtal_patterson/heavy_search.inp).
+          - Conversion of pdb and mtf files (xtal_phase/cns_to_sdb.inp).
+          - Conversion of pdb file (xtal_phase/pdb_to_sdb.inp).
+          - Manual entry (auxiliary/heavy_atom.sdb). +}
+
+{* CNS heavy atom site database files containing heavy atom sites *}
+{===>} sitedatabase_infile.1="kuof_sites.sdb";
+{===>} sitedatabase_infile.2="phga_sites.sdb";
+{===>} sitedatabase_infile.3="";
+{===>} sitedatabase_infile.4="";
+{===>} sitedatabase_infile.5="";
+
+{* reset initial B-values to specified value.
+   If set to -1 then the original values are used *}
+{===>} initial_bvalue=20;
+
+{* reset initial occupancies to specified value.
+   If set to -1 then the original values are used *}
+{===>} initial_qvalue=1;
+
+{* NCS-restraints/constraints file *}
+{* Only strict NCS is allowed *}
+{* see auxiliary/ncs.def *}
+{===>} ncs_infile="";
+
+{====================== refinement parameters ========================}
+
+{* Refinement method *}
+{+ choice: "maxlike" "chisquare" +}
+{===>} sirmir_method="maxlike";
+
+{* K-scaling *}
+{+ choice: "yes" "no" +}
+{===>} sirmir_kscale="yes";
+
+{* B-scaling *}
+{+ choice: "no" "isotropic" "anisotropic" +}
+{===>} sirmir_bscale="anisotropic";
+
+{* Number of positional refinement steps for isomorphous LOC *}
+{===>} sirmir_xstep=15;
+
+{* Number of isotropic B refinement steps for isomorphous LOC  *}
+{===>} sirmir_bstep=15;
+
+{* Refine individual atomic B-values for each atom in a group *}
+{+ choice: true false +}
+{===>} sirmir_bindgroup=false;
+
+{* Number of occupancy refinement steps for isomorphous LOC *}
+{===>} sirmir_qstep=15;
+
+{* Number of f' refinement steps for isomorphous LOC *}
+{===>} sirmir_fpstep=0;
+
+{* Number of scale factor refinement steps for isomorphous LOC *}
+{===>} sirmir_kstep=20;
+
+{* K-scaling for anomalous LOC *}
+{+ choice: "yes" "no" +}
+{===>} sirmir_kscale_ano="no";
+
+{* B-scaling for anomalous LOC *}
+{+ choice: "no" "isotropic" "anisotropic" +}
+{===>} sirmir_bscale_ano="no";
+
+{* Number of f'' refinement steps for anomalous LOC *}
+{===>} sirmir_fdpstep_ano=0;
+
+{* Number of scale factor refinement steps for anomalous LOC *}
+{===>} sirmir_kstep_ano=0;
+
+{* minimum b-factor allowed. *}
+{===>} sirmir_bmin=1;
+
+{* maximum b-factor allowed  *}
+{===>} sirmir_bmax=300;
+
+{* minimum occupancy allowed *}
+{===>} sirmir_qmin=-10;
+
+{* maximum occupancy allowed *}
+{===>} sirmir_qmax=10;
+
+{* minimum f' allowed *}
+{===>} sirmir_fpmin=-300;
+
+{* maximum f' allowed *}
+{===>} sirmir_fpmax=300;
+
+{* minimum f'' allowed *}
+{===>} sirmir_fdpmin=-300;
+
+{* maximum f'' allowed *}
+{===>} sirmir_fdpmax=300;
+
+{* Number of refinement macro cycles. *}
+{===>} sirmir_macrocycle=10;
+
+{* Integration step size (in degrees) for phase centroid and
+   figure of merit calculation *}
+{===>} sirmir_phistep=10;
+
+{* Convergence criterion for iterating the estimated model error <H^2> *}
+{* The same criterion is used for convergence of the gradients
+   during minimization *}
+{===>} sirmir_tolerance=0.01;
+
+{* sigma LOC cutoff for automatic outlier detection. *}
+{===>} sirmir_cutoff=4;
+
+{* summation method for structure factor calculation *}
+{* for small numbers of sites use the direct summation method,
+   for large numbers (more than 10), the fft method may be more
+   efficient *}
+{+ choice: "direct" "fft" +}
+{===>} sum_method="direct";
+
+{* grid spacing relative to high resolution limit (for fft summation
+   method only) *}
+{* use 0.2 for data at or below 3 A, use 0.3 for higher resolution *}
+{===>} fft_grid=0.2;
+
+{* memory allocation (for fft summation method only) *}
+{* this will be determined automatically if a negative value is given
+   otherwise the specified number of words will be allocated *}
+{===>} fft_memory=-1;
+
+{================ output phase probability distribution ======================}
+
+{* Output: combined derivative phase probability distribution (WITHOUT
+   including prior phase information). *}
+{* Hendrickson-Lattman coefficient arrays *}
+{+ table: rows=1 "HL coefficients" cols=4 "A" "B" "C" "D" +}
+{===>} pa_name="pa";
+{===>} pb_name="pb";
+{===>} pc_name="pc";
+{===>} pd_name="pd";
+
+{================ output centroid phases and figure of merit =================}
+
+{* Output: name of structure factor complex array with centriod phases and
+   native amplitudes (including prior phase information) *}
+{* Note: this must have a distinct name different from arrays already in use *}
+{===>} centroid_phase_name="mir";
+
+{* Output: name of corresp. figure of merit array (including prior phase
+   information) *}
+{===>} fom_name="fom";
+
+{======================= output files and options ============================}
+
+{* Write scaled input data arrays with output arrays, otherwise only output
+   arrays will be written *}
+{+ choice: true false +}
+{===>} merge_inout=false;
+
+{* Calculate structure factors that can be used to compute a gradient map *}
+{+ list: for example by using the xtal_util/fourier_map.inp input file
+         The quantity - d target / d fcalc will be returned in arrays
+         <derivative_name>_grad in file [output_root]_grad.hkl +}
+{+ choice: true false +}
+{===>} gradient_maps=true;
+
+{* Root name for output files. *}
+{+ list: Output filenames will be
+         <output_root>.hkl: scaled data, phases, foms, hl coefficients
+         <output_root>.summary: summary of refinement.
+         <output_root>.sdb: site database with refined coordinates +}
+{===>} output_root="mir_phase_2deriv";
+
+{===========================================================================}
+{         things below this line do not normally need to be changed         }
+{===========================================================================}
+
+ ) {- end block parameter definition -}
+
+checkversion 1.3
+
+ evaluate ($log_level=quiet)
+
+@CNS_XTALMODULE:read_multi_sdb (filegroup=&sitedatabase_infile;
+                                use_array=store3;
+                                fix_array=store4;
+                                sg_expected=&sg;
+                                sg_read=$sg_read;)
+
+{- MODIFICATION ATB 11/26/09 -}
+{- capitalize site_segid strings -}
+eval ($site_segid_1=capitalize(&site_segid_1))
+
+eval ($site_segid_2=capitalize(&site_segid_2))
+
+eval ($site_segid_3=capitalize(&site_segid_3))
+
+eval ($site_segid_4=capitalize(&site_segid_4))
+
+eval ($site_segid_5=capitalize(&site_segid_5))
+
+eval ($site_segid_6=capitalize(&site_segid_6))
+
+eval ($site_segid_7=capitalize(&site_segid_7))
+
+eval ($site_segid_8=capitalize(&site_segid_8))
+
+eval ($site_segid_9=capitalize(&site_segid_9))
+{- END MODIFICATION -}
+
+show sum (1) (store3)
+eval($n_use_sites = $select)
+show sum (1) (store4)
+eval($n_fix_sites = $select)
+
+if (&initial_bvalue > 0) then
+   do (b=&initial_bvalue) ( store3 and not ( store4 ) )
+end if
+
+if (&initial_qvalue > 0) then
+   do (q=&initial_qvalue) ( store3 and not ( store4 ) )
+end if
+
+
+{ Define output file names. }
+
+{output reflection file with phases, foms, HL coefficients, re-scaled data }
+ evaluate ($refl_out_file=&output_root+".hkl")
+
+{summary file }
+ evaluate ($summary_file=&output_root+".summary")
+
+{refined coordinates. }
+ evaluate ($sitedatabase_outfile=&output_root+".sdb")
+
+
+{- Do some checking. -}
+evaluate ($max_deriv=9)
+
+evaluate ($ii=1)
+while ($ii <= $max_deriv ) loop onof
+   evaluate ($on_off_$ii="off")
+   if (&blank%f_$ii = false) then
+      evaluate ($on_off_$ii="on")
+      if (&blank%s_$ii =true) then
+         display  error: sigmas must be specified for all derivatives.
+         display         sigma is missing for &strip%f_$ii
+         abort
+         evaluate ($on_off_$ii="off")
+      end if
+   end if
+   evaluate ($ii=$ii+1)
+end loop onof
+
+
+xray
+
+   a=&a b=&b c=&c  alpha=&alpha beta=&beta gamma=&gamma
+
+   @CNS_XTALLIB:spacegroup.lib (sg=&sg;)
+
+   @CNS_XRAYLIB:scatter.lib
+
+   evaluate ($counter=1)
+   evaluate ($done=false)
+   while ( $done = false ) loop read
+    if ( &exist_reflection_infile_$counter = true ) then
+      if ( &BLANK%reflection_infile_$counter = false ) then
+       reflection
+         @@&reflection_infile_$counter
+       end
+      end if
+    else
+     evaluate ($done=true)
+    end if
+    evaluate ($counter=$counter+1)
+   end loop read
+
+end
+
+if ( &blank%anom_library = false ) then
+  @@&anom_library
+else
+  set echo=off end
+  xray anomalous=? end
+  if ( $result = true ) then
+     display Warning: no anomalous library has been specified
+     display          no anomalous contribution will used
+  end if
+  set echo=on end
+end if
+
+{- give each derivative its own scattering factor selection -}
+
+@CNS_XTALMODULE:regroup_scatters (use_array=store3;
+                                  fix_array=store4;
+                                  group=false;)
+
+xray
+
+   {- declare zero array -}
+   declare name=null domain=reciprocal type=real end
+   do (null=0) ( all )
+
+   {- check that all reciprocal space objects are defined -}
+   set echo=off end
+
+   if (&blank%f_nat = true) then
+      display
+      display  **********************************************
+      display  Error: native amplitude array is not specified
+      display  **********************************************
+      display
+      abort
+   else
+      query name=&strip%f_nat domain=reciprocal end
+      if ( $object_exist = false ) then
+         display
+         display  ***************************************************
+         display  Error: native amplitude array &f_nat does not exist
+         display  ***************************************************
+         display
+         abort
+      end if
+      {- note: this array can be of any type -}
+    end if
+
+   if (&blank%s_nat = true) then
+      display
+      display  ******************************************
+      display  Error: native sigma array is not specified
+      display  ******************************************
+      display
+      abort
+   else
+      query name=&strip%s_nat domain=reciprocal end
+      if ( $object_exist = false ) then
+         display
+         display  ***********************************************
+         display  Error: native sigma array &s_nat does not exist
+         display  ***********************************************
+         display
+         abort
+      end if
+      if ( $object_type # "REAL" ) then
+         display
+         display  ********************************************************
+         display  Error: native sigma array &s_nat has the wrong data type
+         display  ********************************************************
+         display
+         abort
+      end if
+   end if
+
+   evaluate ($ii=1)
+   while ($ii <= $max_deriv) loop ccc
+      if (&blank%f_$ii = false) then
+         query name=&strip%f_$ii domain=reciprocal end
+         if ( $object_exist = false ) then
+            display
+            display *****************************************************
+            display deivative $ii : amplitude array &f_$ii does not exist
+            display *****************************************************
+            display
+            abort
+         end if
+         {- this array can be of any type -}
+
+         if (&blank%s_$ii = true) then
+            display
+            display ******************************************
+            display derivative $ii : sigma array not specified
+            display ******************************************
+            display
+            abort
+         else
+            query name=&strip%s_$ii domain=reciprocal end
+            if ( $object_exist = false ) then
+               display
+               display **************************************************
+               display derivative $ii : sigma array &s_$ii does not exist
+               display **************************************************
+               display
+               abort
+            end if
+            if ( $object_type # "REAL" ) then
+               display
+               display ***********************************************************
+               display derivative $ii : sigma array &s_$ii has the wrong data type
+               display ***********************************************************
+               display
+               abort
+            end if
+         end if
+       end if
+      evaluate ($ii=$ii+1)
+   end loop ccc
+
+   {- note: the test array is optional -}
+   if (&blank%testcv = false ) then
+      query name=&strip%testcv domain=reciprocal end
+      if ( $object_exist = false ) then
+         display
+         display *************************************
+         display test set array &testcv does not exist
+         display *************************************
+         display
+         abort
+      end if
+      if ( $object_type = "COMPLEX" ) then
+         display
+         display **********************************************
+         display test set array &testcv has the wrong data type
+         display **********************************************
+         display
+         abort
+      end if
+   end if
+
+   {- note: the prior phase probability distribution is optional -}
+   if (&blank%priora = false ) then
+      @@CNS_XTALMODULE:check_abcd (pa=&priora;
+                                  pb=&priorb;
+                                  pc=&priorc;
+                                  pd=&priord;)
+   end if
+
+
+   evaluate ($testcv=&testcv)
+   if (&blank%testcv = true) then
+      evaluate ($testcv="null")
+   end if
+
+   evaluate ($priora=&priora)
+   evaluate ($priorb=&priorb)
+   evaluate ($priorc=&priorc)
+   evaluate ($priord=&priord)
+   if (&blank%priora = true) then
+      evaluate ($priora="null")
+      evaluate ($priorb="null")
+      evaluate ($priorc="null")
+      evaluate ($priord="null")
+   end if
+
+   if (&blank%pa_name = true) then
+      display
+      display ***********************************************************
+      display output phase probability distribution A array not specified
+      display ***********************************************************
+      display
+      abort
+   elseif (&blank%pb_name = true) then
+      display
+      display ***********************************************************
+      display output phase probability distribution B array not specified
+      display ***********************************************************
+      display
+      abort
+   elseif (&blank%pc_name = true) then
+      display
+      display ***********************************************************
+      display output phase probability distribution C array not specified
+      display ***********************************************************
+      display
+      abort
+   elseif (&blank%pd_name = true) then
+      display
+      display ***********************************************************
+      display output phase probability distribution D array not specified
+      display ***********************************************************
+      display
+      abort
+   elseif (&blank%fom_name = true) then
+      display
+      display ******************************************
+      display output figure of merit array not specified
+      display ******************************************
+      display
+      abort
+   elseif (&blank%centroid_phase_name = true) then
+      display
+      display ************************************************************
+      display output native amplitude / centroid phase array not specified
+      display ************************************************************
+      display
+      abort
+   end if
+
+   buffer harvest
+      display sg= &strip%sg
+      display a= &a b= &b c= &c alpha= &alpha beta= &beta gamma= &gamma
+      display
+      display number of used  sites = $n_use_sites
+      display number of fixed sites = $n_fix_sites
+      display
+      display Selection criteria for scaling and refinement:
+      display Native: amplitude= &strip%f_nat , sigma= &strip%s_nat, sigma-cut= &cut_f_nat
+      display
+   end
+   evaluate ($ii=1)
+   while ($ii <= $max_deriv ) loop prt
+      if ($on_off_$ii="on") then
+         buffer harvest
+            display Derivative $ii: ampl= &strip%f_$ii , sigma= &strip%s_$ii
+            display      selected resolution range: &low_res_$ii ... &high_res_$ii
+            display      sigma-cut= &cut_f_$ii
+            display      isomorphous diff.: sigma-cut= &cut_iso_df_$ii\
+ rms-cut= &max_iso_df_$ii
+         end
+         if (&anom_$ii=true) then
+            buffer harvest
+               display      anomalous differences will be used
+               display      anomalous  diff.: sigma-cut= &cut_anom_df_$ii\
+ rms-cut= &max_anom_df_$ii
+            end
+         else
+            buffer harvest
+               display      anomalous differences will not be used
+            end
+         end if
+      end if
+      evaluate ($ii=$ii+1)
+   end loop prt
+   if (&blank%priora = false) then
+      buffer harvest
+         display
+         display Prior phase probability distribution &priora , &priorb , &priorc , &priord
+         display
+      end
+   else
+      buffer harvest
+         display
+         display No prior phase probability distribution used
+         display
+      end
+   end if
+   if (&blank%testcv = false) then
+      buffer harvest
+         display
+         display Using cross-validation with test set &testcv
+      end
+   else
+      buffer harvest
+         display
+         display No cross-validation is used
+      end
+   end if
+   buffer harvest
+      display
+      display Reflections in the range &low_res_phase < d < &high_res_phase A \
+have been phased regardless of the above criteria.
+   end
+
+   declare name=&strip%pa_name  domain=reciprocal   type=real {HL} end
+   declare name=&strip%pb_name  domain=reciprocal   type=real {HL} end
+   declare name=&strip%pc_name  domain=reciprocal   type=real {HL} end
+   declare name=&strip%pd_name  domain=reciprocal   type=real {HL} end
+   group
+       type=hl
+       object=&strip%pa_name object=&strip%pb_name object=&strip%pc_name object=&strip%pd_name
+   end
+
+   declare name=&strip%fom_name domain=reciprocal   type=real end
+   declare name=&strip%centroid_phase_name domain=reciprocal   type=complex end
+
+   do (&strip%centroid_phase_name=combine(amplitude(&strip%f_nat),0)) ( all )
+
+   set echo=on end
+
+end
+
+
+if (&blank%ncs_infile = false) then
+   inline @&ncs_infile
+end if
+
+if ( $log_level = verbose ) then
+  set message=normal echo=on end
+else
+  set message=off echo=off end
+end if
+
+xray
+
+   declare name=df type=real domain=reciprocal end
+   declare name=s_df type=real domain=reciprocal end
+   declare name=df_ano type=real domain=reciprocal end
+   declare name=s_df_ano type=real domain=reciprocal end
+
+   evaluate ($ii=1)
+   while ($ii <= $max_deriv ) loop deff
+      if ($on_off_$ii="on") then
+
+         evaluate ($sha_$ii="sha_"+encode($ii))
+         evaluate ($shaa_$ii="shaa_"+encode($ii))
+
+         declare name=$strip%sha_$ii type=integer domain=reciprocal end
+         declare name=$strip%shaa_$ii type=integer domain=reciprocal end
+
+         do (df=amplitude(&strip%f_$ii)-amplitude(&strip%f_nat))
+            ( amplitude(&strip%f_$ii)>0 and amplitude(&strip%f_nat)>0)
+         do (s_df=sqrt(&strip%s_$ii^2 + &strip%s_nat^2) )
+            ( amplitude(&strip%f_$ii)>0 and amplitude(&strip%f_nat)>0)
+
+         show rms (abs(df)) ( abs(df)>0 and &low_res_phase >= d >= &high_res_phase )
+         evaluate ($rms_df=$result)
+
+         do ($strip%sha_$ii=0) ( all )
+         do ($strip%sha_$ii=1)
+            (amplitude(&strip%f_$ii)>0 and &high_res_$ii < d < &low_res_$ii
+               and amplitude(&strip%f_$ii)> &cut_f_$ii * &strip%s_$ii
+               and amplitude(&strip%f_nat)> &cut_f_nat * &strip%s_nat
+               and abs(df) > &cut_iso_df_$ii * s_df
+               and abs(df) < &max_iso_df_$ii * $rms_df)
+
+         do ($strip%shaa_$ii=0) ( all )
+         if (&anom_$ii=true) then
+
+            do (df_ano=amplitude(&strip%f_$ii)-friedel(amplitude(&strip%f_$ii)) )
+                              ( friedel_pair(amplitude(&strip%f_$ii)>0))
+
+            do (s_df_ano=sqrt(&strip%s_$ii^2 + friedel(&strip%s_$ii)^2) )
+                              ( friedel_pair( amplitude(&strip%f_$ii)>0))
+
+            show rms (abs(df_ano)) ( abs(df_ano)>0 and &low_res_phase >= d >= &high_res_phase )
+            evaluate ($rms_df_ano=$result)
+
+            if ($rms_df_ano < 0.001) then
+                buffer harvest
+                   display
+                   display *******************************************************************
+                   display no anomalous signal present for derivative &strip%f_$ii
+                   display anomalous flag turned off
+                   display *******************************************************************
+                   display
+                end
+                evaluate ($anom_$ii=false)
+            else
+               do ($strip%shaa_$ii=1)
+                 (friedel_pair(
+                  amplitude(&strip%f_$ii)> &cut_f_$ii * &strip%s_$ii
+                  and  abs(df_ano) > &cut_anom_df_$ii * s_df_ano
+                  and abs(df_ano) < &max_anom_df_$ii * $rms_df_ano)
+                  and &low_res_$ii >= d >= &high_res_$ii )
+            end if
+
+
+         end if
+
+         if (&gradient_maps=true) then
+            evaluate ($grad_map_$ii=&f_$ii+"_grad")
+            declare name=$strip%grad_map_$ii type=complex domain=reciprocal end
+         else
+            evaluate ($grad_map_$ii="")
+         end if
+
+      end if
+      evaluate ($ii=$ii+1)
+   end loop deff
+   undeclare name=df domain=reciprocal end
+   undeclare name=s_df domain=reciprocal end
+   undeclare name=df_ano domain=reciprocal end
+   undeclare name=s_df_ano domain=reciprocal end
+
+   {- check that all working sets are large enough -}
+
+   {- get number of phased reflections -}
+   show sum ( 1 ) (&low_res_phase>=d>=&high_res_phase and amplitude(&strip%f_nat)>0)
+   evaluate ($n_phase_set=$result)
+
+   display TAB  total  of reflections to be phased : $n_phase_set
+
+   evaluate ($ii=1)
+   while ($ii <= $max_deriv ) loop chck
+      if ($on_off_$ii="on") then
+         show sum ( $strip%sha_$ii ) ( all )
+
+         display TAB isomorphous diff. for derivative $ii:  of refl. selected for scal. and ref. target: $result
+
+         evaluate ($threshold=0.2 * $n_phase_set )
+
+         if ($result < $threshold) then
+
+            display
+            display  ********************************************************
+            display  Error: selection of reflections used for scaling and
+            display         refinement target for derivative $ii produces
+            display         only $result reflections out of $n_phase_set
+            display         reflections that will be phased.  This is less than 20%
+            display         and may produce unstable refinements.  Check your
+            display         selections and increase the number of selected reflections.
+            display
+
+            abort
+
+         end if
+
+
+         if (&anom_$ii=true) then
+            show sum ( $strip%shaa_$ii ) ( all )
+            display TAB anomalous diff. for derivative $ii:  of refl. selected for scal. and ref. target: $result
+
+            if ($result < $threshold) then
+
+               display
+               display  ********************************************************
+               display  Error: selection of reflections used for scaling and
+               display         refinement target for derivative $ii produces
+               display         only $result reflections out of $n_phase_set
+               display         reflections that will be phased.  This is less than 20%
+               display         and may produce unstable refinements.  Check your
+               display         selections and increase the number of selected reflections.
+               display
+
+               abort
+
+            end if
+         end if
+
+
+      end if
+      evaluate ($ii=$ii+1)
+   end loop chck
+
+end
+
+set display=$summary_file end
+buffer harvest
+   to=display
+   dump
+end
+set display=OUTPUT end
+
+@CNS_XTALMODULE:siterefine(
+
+
+list= 1 2 3 4 5 6 7 8 9  ;
+
+
+{NATIVE DATA}
+{===========}
+fp=&strip%centroid_phase_name;        {native amplitudes -- must be complex --        }
+                           {on output contains ampl and the centroid phases}
+
+sp=&strip%s_nat;               {native sigma}
+
+{PRIOR PHASE PROBABILITY DISTRIBUTION INDEPENDENT OF DERIVATIVES}
+{===============================================================}
+priora=$strip%priora;  {prior probability} {HL}
+priorb=$strip%priorb;  {prior probability} {HL}
+priorc=$strip%priorc;  {prior probability} {HL}
+priord=$strip%priord;  {prior probability} {HL}
+
+{OUTPUT PHASE PROBABILITY DISTRIBUTION AND FOM}
+{=============================================}
+pa=&strip%pa_name;   {output probability}  {HL}
+pb=&strip%pb_name;   {output probability}  {HL}
+pc=&strip%pc_name;   {output probability}  {HL}
+pd=&strip%pd_name;   {output probability}  {HL}
+fom=&strip%fom_name; {FOM array}
+
+scatter="";
+
+
+{SUMMARY FILE NAME}
+{=================}
+summary=$summary_file;
+
+
+{PARAMETERS FOR DERIVATIVE 1 }
+{============================}
+on_off_1=$on_off_1;
+fph_1=&f_1;
+sph_1=&s_1;
+target_set_1= $strip%sha_1=1 ;
+target_set_a_1= $strip%shaa_1=1 ;
+h_1=(segid $site_segid_1 and store3) ;
+hfix_1=(store4);
+xstep_1= &sirmir_xstep;
+qstep_1= &sirmir_qstep;
+bstep_1= &sirmir_bstep;
+bindgroup_1=&sirmir_bindgroup;
+fpstep_1= &sirmir_fpstep;
+fdpstep_1=0;
+kstep_1=&sirmir_kstep;
+kscale_1=&sirmir_kscale;
+bscale_1=&sirmir_bscale;
+xstep_ano_1=0;
+qstep_ano_1=0;
+bstep_ano_1=0;
+kscale_ano_1=&sirmir_kscale_ano;
+bscale_ano_1=&sirmir_bscale_ano;
+kstep_ano_1=&sirmir_kstep_ano;
+fpstep_ano_1=0;
+fdpstep_ano_1= &sirmir_fdpstep_ano;
+grad_map_1=$strip%grad_map_1;
+
+{PARAMETERS FOR DERIVATIVE 2 }
+{============================}
+on_off_2=$on_off_2;
+fph_2=&f_2;
+sph_2=&s_2;
+target_set_2= $strip%sha_2=1 ;
+target_set_a_2= $strip%shaa_2=1 ;
+h_2=(segid $site_segid_2 and store3) ;
+hfix_2=(store4);
+xstep_2= &sirmir_xstep;
+qstep_2= &sirmir_qstep;
+bstep_2= &sirmir_bstep;
+bindgroup_2=&sirmir_bindgroup;
+fpstep_2= &sirmir_fpstep;
+fdpstep_2=0;
+kstep_2=&sirmir_kstep;
+kscale_2=&sirmir_kscale;
+bscale_2=&sirmir_bscale;
+xstep_ano_2=0;
+qstep_ano_2=0;
+bstep_ano_2=0;
+kscale_ano_2=&sirmir_kscale_ano;
+bscale_ano_2=&sirmir_bscale_ano;
+kstep_ano_2=&sirmir_kstep_ano;
+fpstep_ano_2=0;
+fdpstep_ano_2=&sirmir_fdpstep_ano;
+grad_map_2=$strip%grad_map_2;
+
+{PARAMETERS FOR DERIVATIVE 3 }
+{============================}
+on_off_3=$on_off_3;
+fph_3=&f_3;
+sph_3=&s_3;
+target_set_3= $strip%sha_3=1 ;
+target_set_a_3= $strip%shaa_3=1 ;
+h_3=(segid $site_segid_3 and store3) ;
+hfix_3=(store4);
+xstep_3= &sirmir_xstep;
+qstep_3= &sirmir_qstep;
+bstep_3= &sirmir_bstep;
+bindgroup_3=&sirmir_bindgroup;
+fpstep_3= &sirmir_fpstep;
+fdpstep_3=0;
+kstep_3=&sirmir_kstep;
+kscale_3=&sirmir_kscale;
+bscale_3=&sirmir_bscale;
+xstep_ano_3=0;
+qstep_ano_3=0;
+bstep_ano_3=0;
+kscale_ano_3=&sirmir_kscale_ano;
+bscale_ano_3=&sirmir_bscale_ano;
+kstep_ano_3=&sirmir_kstep_ano;
+fpstep_ano_3=0;
+fdpstep_ano_3=&sirmir_fdpstep_ano;
+grad_map_3=$strip%grad_map_3;
+
+{PARAMETERS FOR DERIVATIVE 4 }
+{============================}
+on_off_4=$on_off_4;
+fph_4=&f_4;
+sph_4=&s_4;
+target_set_4= $strip%sha_4=1 ;
+target_set_a_4= $strip%shaa_4=1 ;
+h_4=(segid $site_segid_4 and store3) ;
+hfix_4=(store4);
+xstep_4= &sirmir_xstep;
+qstep_4= &sirmir_qstep;
+bstep_4= &sirmir_bstep;
+bindgroup_4=&sirmir_bindgroup;
+fpstep_4= &sirmir_fpstep;
+fdpstep_4=0;
+kstep_4=&sirmir_kstep;
+kscale_4=&sirmir_kscale;
+bscale_4=&sirmir_bscale;
+xstep_ano_4=0;
+qstep_ano_4=0;
+bstep_ano_4=0;
+kscale_ano_4=&sirmir_kscale_ano;
+bscale_ano_4=&sirmir_bscale_ano;
+kstep_ano_4=&sirmir_kstep_ano;
+fpstep_ano_4=0;
+fdpstep_ano_4=&sirmir_fdpstep_ano;
+grad_map_4=$strip%grad_map_4;
+
+{PARAMETERS FOR DERIVATIVE 5 }
+{============================}
+on_off_5=$on_off_5;
+fph_5=&f_5;
+sph_5=&s_5;
+target_set_5= $strip%sha_5=1 ;
+target_set_a_5= $strip%shaa_5=1 ;
+h_5=(segid $site_segid_5 and store3) ;
+hfix_5=(store4);
+xstep_5= &sirmir_xstep;
+qstep_5= &sirmir_qstep;
+bstep_5= &sirmir_bstep;
+bindgroup_5=&sirmir_bindgroup;
+fpstep_5= &sirmir_fpstep;
+fdpstep_5=0;
+kstep_5=&sirmir_kstep;
+kscale_5=&sirmir_kscale;
+bscale_5=&sirmir_bscale;
+xstep_ano_5=0;
+qstep_ano_5=0;
+bstep_ano_5=0;
+kscale_ano_5=&sirmir_kscale_ano;
+bscale_ano_5=&sirmir_bscale_ano;
+kstep_ano_5=&sirmir_kstep_ano;
+fpstep_ano_5=0;
+fdpstep_ano_5=&sirmir_fdpstep_ano;
+grad_map_5=$strip%grad_map_5;
+
+{PARAMETERS FOR DERIVATIVE 6 }
+{============================}
+on_off_6=$on_off_6;
+fph_6=&f_6;
+sph_6=&s_6;
+target_set_6= $strip%sha_6=1 ;
+target_set_a_6= $strip%shaa_6=1 ;
+h_6=(segid $site_segid_6 and store3) ;
+hfix_6=(store4);
+xstep_6= &sirmir_xstep;
+qstep_6= &sirmir_qstep;
+bstep_6= &sirmir_bstep;
+bindgroup_6=&sirmir_bindgroup;
+fpstep_6= &sirmir_fpstep;
+fdpstep_6=0;
+kstep_6=&sirmir_kstep;
+kscale_6=&sirmir_kscale;
+bscale_6=&sirmir_bscale;
+xstep_ano_6=0;
+qstep_ano_6=0;
+bstep_ano_6=0;
+kscale_ano_6=&sirmir_kscale_ano;
+bscale_ano_6=&sirmir_bscale_ano;
+kstep_ano_6=&sirmir_kstep_ano;
+fpstep_ano_6=0;
+fdpstep_ano_6=&sirmir_fdpstep_ano;
+grad_map_6=$strip%grad_map_6;
+
+{PARAMETERS FOR DERIVATIVE 7 }
+{============================}
+on_off_7=$on_off_7;
+fph_7=&f_7;
+sph_7=&s_7;
+target_set_7= $strip%sha_7=1 ;
+target_set_a_7= $strip%shaa_7=1 ;
+h_7=(segid $site_segid_7 and store3) ;
+hfix_7=(store4);
+xstep_7= &sirmir_xstep;
+qstep_7= &sirmir_qstep;
+bstep_7= &sirmir_bstep;
+bindgroup_7=&sirmir_bindgroup;
+fpstep_7= &sirmir_fpstep;
+fdpstep_7=0;
+kstep_7=&sirmir_kstep;
+kscale_7=&sirmir_kscale;
+bscale_7=&sirmir_bscale;
+xstep_ano_7=0;
+qstep_ano_7=0;
+bstep_ano_7=0;
+kscale_ano_7=&sirmir_kscale_ano;
+bscale_ano_7=&sirmir_bscale_ano;
+kstep_ano_7=&sirmir_kstep_ano;
+fpstep_ano_7=0;
+fdpstep_ano_7=&sirmir_fdpstep_ano;
+grad_map_7=$strip%grad_map_7;
+
+{PARAMETERS FOR DERIVATIVE 8 }
+{============================}
+on_off_8=$on_off_8;
+fph_8=&f_8;
+sph_8=&s_8;
+target_set_8= $strip%sha_8=1 ;
+target_set_a_8= $strip%shaa_8=1 ;
+h_8=(segid $site_segid_8 and store3) ;
+hfix_8=(store4);
+xstep_8= &sirmir_xstep;
+qstep_8= &sirmir_qstep;
+bstep_8= &sirmir_bstep;
+bindgroup_8=&sirmir_bindgroup;
+fpstep_8= &sirmir_fpstep;
+fdpstep_8=0;
+kstep_8=&sirmir_kstep;
+kscale_8=&sirmir_kscale;
+bscale_8=&sirmir_bscale;
+xstep_ano_8=0;
+qstep_ano_8=0;
+bstep_ano_8=0;
+kscale_ano_8=&sirmir_kscale_ano;
+bscale_ano_8=&sirmir_bscale_ano;
+kstep_ano_8=&sirmir_kstep_ano;
+fpstep_ano_8=0;
+fdpstep_ano_8=&sirmir_fdpstep_ano;
+grad_map_8=$strip%grad_map_8;
+
+{PARAMETERS FOR DERIVATIVE 9 }
+{============================}
+on_off_9=$on_off_9;
+fph_9=&f_9;
+sph_9=&s_9;
+target_set_9= $strip%sha_9=1 ;
+target_set_a_9= $strip%shaa_9=1 ;
+h_9=(segid $site_segid_9 and store3) ;
+hfix_9=(store4);
+xstep_9= &sirmir_xstep;
+qstep_9= &sirmir_qstep;
+bstep_9= &sirmir_bstep;
+bindgroup_9=&sirmir_bindgroup;
+fpstep_9= &sirmir_fpstep;
+fdpstep_9=0;
+kstep_9=&sirmir_kstep;
+kscale_9=&sirmir_kscale;
+bscale_9=&sirmir_bscale;
+xstep_ano_9=0;
+qstep_ano_9=0;
+bstep_ano_9=0;
+kscale_ano_9=&sirmir_kscale_ano;
+bscale_ano_9=&sirmir_bscale_ano;
+kstep_ano_9=&sirmir_kstep_ano;
+fpstep_ano_9=0;
+fdpstep_ano_9=&sirmir_fdpstep_ano;
+grad_map_9=$strip%grad_map_9;
+
+
+{GLOBAL PARAMETERS}
+{=================}
+phase_set=(&low_res_phase>=d>=&high_res_phase and amplitude(&strip%f_nat)>0) ;
+test_array=$strip%testcv;
+test_flag=&test_flag ;
+anomalous_mode="fano";
+ref_wavelength=1;
+ref_fp=0;
+text=&output_root;
+messages="normal";
+method=&sirmir_method;
+integration="analytic";
+sum_method=&sum_method;
+fft_grid=&fft_grid;
+fft_memory=&fft_memory;
+macrocycle=&sirmir_macrocycle;
+tolerance=&sirmir_tolerance;
+cutoff=&sirmir_cutoff;
+epsilon="yes";
+resetzero=0.001;
+zerovar=0.001;
+phistep=&sirmir_phistep;
+workbin=8;
+bmin=&sirmir_bmin;
+bmax=&sirmir_bmax;
+qmin=&sirmir_qmin;
+qmax=&sirmir_qmax;
+fpmin=&sirmir_fpmin;
+fpmax=&sirmir_fpmax;
+fdpmin=&sirmir_fdpmin;
+fdpmax=&sirmir_fdpmax;
+qmaxshift=0.4;
+fpmaxshift=10.;
+fdpmaxshift=10.;
+bmaxshift=20;
+
+
+)
+
+buffer harvest
+   to=remarks
+   dump
+end
+
+
+
+if (&gradient_maps=true) then
+   evaluate ($grad_file=&output_root+"_grad.hkl")
+   xray
+      { scale gradient array and chang the sign }
+
+      evaluate ($ii=1)
+      while ($ii <= $max_deriv ) loop un11
+         if ($on_off_$ii="on") then
+
+            { scale gradient_map array }
+            show ave (amplitude($strip%grad_map_$ii)^2) ( amplitude($strip%grad_map_$ii )>0 )
+            if ($result>0) then
+               do ($strip%grad_map_$ii =$strip%grad_map_$ii /sqrt($result)) ( all )
+            end if
+
+            { take the negative gradient in order to get positive peaks }
+            do ($strip%grad_map_$ii = -$strip%grad_map_$ii ) ( all )
+
+         end if
+         evaluate ($ii=$ii+1)
+      end loop un11
+   end
+   
+   set display=$grad_file end
+   
+   @CNS_XTALMODULE:write_hkl_header (sg=&STRIP%sg;
+                                     sgparam=$sgparam;)
+
+   xray
+   
+      write reflection
+         sele=(&low_res_phase>=d>=&high_res_phase and amplitude(&strip%f_nat)>0)
+         output=$grad_file
+         evaluate ($ii=1)
+         while ($ii <= $max_deriv ) loop un33
+            if ($on_off_$ii="on") then
+               $strip%grad_map_$ii
+            end if
+            evaluate ($ii=$ii+1)
+         end loop un33
+      end
+      
+      set display=OUTPUT end
+
+      evaluate ($ii=1)
+      while ($ii <= $max_deriv ) loop un44
+         if ($on_off_$ii="on") then
+            undeclare name=$strip%grad_map_$ii  domain=reciprocal end
+         end if
+         evaluate ($ii=$ii+1)
+      end loop un44
+   end
+end if
+
+xray
+   evaluate ($ii=1)
+   while ($ii <= $max_deriv ) loop undc
+      if ($on_off_$ii="on") then
+         undeclare name=$strip%sha_$ii domain=reciprocal end
+         undeclare name=$strip%shaa_$ii domain=reciprocal end
+      end if
+      evaluate ($ii=$ii+1)
+   end loop undc
+
+   undeclare name=null domain=reciprocal end
+
+end
+
+set display=$refl_out_file end
+
+@CNS_XTALMODULE:write_hkl_header (sg=&STRIP%sg;
+                                  sgparam=$sgparam;)
+
+xray
+   if (&merge_inout=true) then
+      write reflection
+          output=$refl_out_file
+          sele=( all )
+      end
+   else
+      write reflection
+          &strip%centroid_phase_name &strip%pa_name &strip%pb_name &strip%pc_name &strip%pd_name &strip%fom_name
+          output=$refl_out_file
+          sele=( all )
+      end
+   end if
+   set display=OUTPUT end
+end
+
+@CNS_XTALMODULE:coord_to_sdb (sitedb=$allsites;
+                              use_array=store3;
+                              fix_array=store4;
+                              selection=(all);)
+
+@CNS_XTALMODULE:write_sdb (sitedb=$allsites;
+                           sg=&sg;
+                           output=$sitedatabase_outfile;)
+
+stop
+

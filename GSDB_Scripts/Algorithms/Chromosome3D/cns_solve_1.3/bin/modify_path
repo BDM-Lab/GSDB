@@ -1,0 +1,60 @@
+#!/bin/csh -f
+#
+# script to return a new path list such that the given directory is
+# moved to the front of the list or added to the path if not already
+# present
+#
+# Written by: Paul Adams 02/11/98
+#
+# copyright Yale University
+#
+if ( $#argv < 1 ) then
+  echo "usage: modify_path [-sh] 'directory'"
+  exit 1
+endif
+#
+set format="csh"
+foreach arg ( $argv[*] )
+  switch ( $arg )
+  case -sh:
+    set format="sh"
+    breaksw
+  default:
+    set add_dir="$arg"
+    breaksw
+  endsw
+end
+#
+set newpath=()
+set found=0
+#
+if ( "$format" == "sh" ) then
+  set pathtmp=(`echo $PATH | sed -e 's/:/ /g'`)
+  set pathsep=\:
+else
+  set pathtmp=( $path )
+  set pathsep=" "
+endif
+#
+foreach dir ( $pathtmp )
+  if ( "$dir" != "$add_dir" ) then
+    if ( "$newpath" == "" ) then
+      set newpath=($dir)
+    else
+      set newpath=(${newpath}${pathsep}${dir})
+    endif
+  else
+    if ( "$newpath" == "" ) then
+      set newpath=($dir)
+    else
+      set newpath=(${dir}${pathsep}${newpath})
+    endif
+    set found=1
+  endif
+end
+if ( ! $found ) then
+  set newpath=(${add_dir}${pathsep}${newpath})
+endif
+#
+echo $newpath
+#

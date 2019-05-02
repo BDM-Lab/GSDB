@@ -1,0 +1,112 @@
+! module file: repartition
+!
+! CNS MODULE
+! **********
+!
+! Authors: Gregory L. Warren and Axel T. Brunger
+!
+! copyright Yale University
+!
+! version 05/01/98
+!
+! Function:
+!    This is a module which repartitions the
+!    noe, jcoup, and cdih data for multiple
+!    cross validation refinements
+!
+! Requirements:
+!    See the top level script file for the 
+!    defined parameter(s). 
+! 
+!
+
+module { repartition }
+( 
+     &cv=cv;                     {INPUT/OUTPUT: cross validation values}
+     &flag=flag;                 {INPUT: flags for cv }
+     &nmr=nmr;                   {INPUT: all the &nmr. defined paramters}
+)
+
+checkversion 1.3
+
+set message ? end
+evaluate ($message_old=$result)
+set echo ? end
+evaluate ($echo_old=$result)
+if ( $log_level = verbose ) then
+  set echo=on message=normal end
+else
+  set echo=off message=off end
+end if
+
+   noe
+      reset
+      nrestraints = 20000
+   end
+
+   evaluate ($count = 1)
+   while (&exist%nmr.noe.file.$count=true) loop nloop
+      evaluate ($clsname = "N"+encode($count))
+      if (&nmr.noe.file.$count # "" ) then
+         @CNS_NMRMODULE:readnoe ( classname=$$clsname;
+                                  filename=&&nmr.noe.file.$count;
+                                  avemode=&&nmr.noe.ave.mode.$count; )
+      end if
+      evaluate ($count = $count + 1)
+   end loop nloop
+
+   if (&flag.cv.noe=true) then
+      noe
+         part=&nmr.cv.numpart
+      end
+   end if
+
+   if (&nmr.noe.hbnd.file # "" ) then
+      evaluate ($clsname = "hbnd")
+      @CNS_NMRMODULE:readnoe ( classname=$$clsname;
+                               filename=&&nmr.noe.hbnd.file;
+                               avemode=&&nmr.noe.ave.mode.hbnd; )
+   end if
+
+   noe
+      cv = &cv.part.num
+      ceiling=1000
+      potential  * soft
+      sqoffset * 0.0
+      sqconstant * 1.0
+      sqexponent * 2
+      soexponent * 1
+      asymptote  * 1.0
+      rswitch * 0.5
+   end
+ 
+   if (&flag.cv.coup=true) then
+      coup
+         part = &nmr.cv.numpart
+         cv = &cv.part.num
+         end
+   end if
+   if (&flag.cv.cdih=true) then
+      restraints dihed
+         part = &nmr.cv.numpart
+         cv = &cv.part.num
+      end
+   end if
+   evaluate (&cv.part.num=&cv.part.num+1)
+
+   {- define a distance restraint for each disulfide bond, i.e.,
+      treat it as if it were an NOE. -}
+   for $ss_rm_id_1 in id ( name SG ) loop STRM
+      for $ss_rm_id_2 in id ( name SG and
+                          bondedto ( id $ss_rm_id_1 )  ) loop STR2
+         if ($ss_rm_id_1 > $ss_rm_id_2) then
+            pick bond ( id $ss_rm_id_1 ) ( id $ss_rm_id_2 ) equil
+            evaluate ($ss_bond=$result)
+            noe
+               assign ( id $ss_rm_id_1 ) ( id $ss_rm_id_2 ) $ss_bond 0.1 0.1
+            end
+         end if
+      end loop STR2
+   end loop STRM
+
+set message=$message_old echo=$echo_old end

@@ -1,0 +1,151 @@
+xray <xray-statement> end
+
+<xray-statement> :==
+
+  reset
+  --{Erases xray database.}
+  nreflections=<integer>
+  --{Allocates space for reflections.}
+  reflection {<xray-reflection-statement>} end
+  --{Read reflections.}
+  a=<real> b=<real> c=<real> alpha=<real> beta=<real> gamma=<real>
+  --{Unit cell specifications.}
+  symmetry=?|reset|<symmetry-operator>
+  --{Add a symmetry operator to symmetry database.
+     Operators are from the International tables e.g. (-x,y+1/2,-z)
+     and must include parenthesis. Reset removes all operators
+     except identity.}
+  scatter <atom-selection> <real> <real> <real> <real> <real>
+          <real> <real> <real> <real> [fp <real>] [fdp <real>]
+  --{Scattering factor parameters a1, b1, a2, b2, a3, b3, a4, b4, c, i
+     The atomic form factor for selected atoms is:
+        f(real)=sum(i=1,4) a[i] exp(-b[i] s**2/4) + c + f' + if''}
+  scatter reset
+  --{Remove current atomic form factors.}
+  scatter ?
+  --{Print info about current atomic form factors.}
+  associate <xray-object> <atom-selection>
+  --{Associate a reciprocal space object with the specified atoms.
+     Default: associate fcalc ( not hydrogen ).
+     Multiple associate statements are permitted.}
+  associate reset
+  --{Remove all associate definitions.}
+  aselection=<atom-selection>
+  --{Selected atoms with f' enabled.}
+  method=direct|fft
+  --{Use direct summation or fast Fourier transform. Default=fft}
+  target=( <xray-expression> )
+  --{Crystallographic target specification.}
+  dtarget(<xray-object>)=( <xray-expression> )
+  --{Define derivative of target with respect to object.}
+  monitor=( <xray-expression> )
+  --{Refinement monitor expression.}
+  tselection=( <xray-expression> )
+  --{Target selection expression.}
+  cvselection=( <xray-expression> )
+  --{cross-validation selection expression.}
+  lookup=<logical>
+  --{Use lookup tables for cos, sin, exp.}
+  fft {<xray-fft-statement>} end
+  --{Set parameters for fft method.}
+  tolerance=<real>
+  --{Tolerance (in Angstroms) for recalculating structure factors used
+     in target calculation. If tolerance is exceeded, structure factors
+     are re-calculated during calls to energy.
+     Recommended: 0.0 for minimization and 0.2 for dynamics.}
+  wa=<real>
+  --{Overall weight for target function.}
+  do <xray-do-statement>
+  --{Manipulates crystallographic objects.}
+  show <xray-show-statement>
+  --{Show properties of crystallographic objects.}
+  flip
+  --{Flip all friedel mates.}
+  declare <xray-declare-statement> end
+  --{Declare crystallographic objects.}
+  undeclare <xray-undeclare-statement> end
+  --{Undeclare crystallographic objects.}
+  rename <xray-rename-statement> end
+  --{Rename crystallographic objects.}
+  query <xray-query-statement> end
+  --{Query crystallographic objects.}
+  group <xray-group-statement> end
+  --{Groups crystallographic objects.}
+  ungroup <xray-ungroup-statement> end
+  --{Ungroups crystallographic objects.}
+  generate <real> <real>
+  --{Generate additional reflections to produce a full asymmetric unit
+     of reflections for the specified resolution range.}
+  delete <xray-delete-statement> end
+  --{Delete reflections.}
+  expand
+  --{Expand all reflections and symmetry operations to P1.}
+  unexpand
+  --{Un-does the expand statement. This is only possible if 
+     reflections and/or symmetry operations were not altered since
+     the last expand statement.}
+  anomalous=<logical>
+  --{Non-anomalous / anomalous data.}
+  friedel_average
+  --{Performs averaging of all friedel mates.}
+  mapresolution <real>
+  --{High resolution limit for maps and FFT method.}
+  bins=<integer>
+  --{Number of reciprocal space bins. Default=8
+     Declares a symbol $bin_number.}
+  binresolution <real> <real>
+  --{Resolution limits of reciprocal space binning.
+     declares symbols $bin_resolution_low and $bin_resolution_high.}
+  print target
+  --{Print the current value of the crystallographic target.
+     Also defines symbols: $target, $test_target, $monitor and $test_monitor.}
+  predict <xray-predict-statement> end
+  --{Predict crystallographic data.}
+  write reflection {<xray-write-reflection-statement>} end
+  --{Write reflection data.}
+  write map {<xray-write-map-statement>} end
+  --{Write map.}
+  write mask {<xray-write-mask-statement>} end
+  --{Write mask.}
+  read map {<xray-read-map-statement>} end
+  --{Read map.}
+  read mask {<xray-read-mask-statement>} end
+  --{Read mask.}
+  mask {<xray-mask-statement>} end
+  --{Compute a mask.}
+  optimize overall {<xray-optimize-overall-statement>} end
+  --{Optimize an overall B-factor.}
+  optimize group {<xray-optimize-group-statement>} end
+  --{Optimize group B-factors or group occupancies.}
+  optimize bfactor {<xray-optimize-bfactor-statement>} end
+  --{Optimize individual (restrained) isotropic B-factors.}
+  special {<xray-special-statement>} end
+  --{Obtain information about special positions.}
+  fmap {<xray-fmap-statement>} end
+  --{Preparation of flagmap for smf, imf, search tsmap, psearch and lidens.}
+  smf {<xray-smf-statement>} end
+  --{Compute Symmetry Minimum Function.}
+  imf {<xray-imf-statement>} end
+  --{Compute Image-seeking Minimum Function.}
+  mapyard {<xray-mapyard-statement>} end
+  --{Stores and restores real-space objects in P1.}
+  search {<xray-search-statement>} end
+  --{Rotation and translation searches for molecular replacement.}
+  psearch {<xray-psearch-statement>} end
+  --{Peak search in P1 map with symmetry relations as defined with fmap.}
+  lidens {<xray-lidens-statement>} end
+  --{Determine density values in P1 map by linear interpolation.}
+  histogram {<xray-histogram-statement>} end
+  --{Histogram matching.}
+  peakpick {<xray-peakpick-statement>} end
+  --{Pick peaks from a map.}
+  average {<xray-average-statement>} end
+  --{Average real-space object using mask and non-crystallographic symmetry.}
+  multiscale {<xray-multiscale-statement>} end
+  --{Scaling of structure factors to one another.}
+  statistics {<xray-statistics-statement>} end
+  --{Print resolution-wise statistics about reciprocal space objects.}
+  skeletonize {<xray-skeletonize-statement>} end
+  --{Skeletonization of real space object.}
+  proximity {<xray-proximity-statement>} end
+  --{Calculate real space objects containing atom object information.}

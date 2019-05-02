@@ -1,0 +1,679 @@
+          ============================================================
+          |                                                          |
+          |            Crystallography & NMR System (CNS)            |
+          |                         CNSsolve                         |
+          |                                                          |
+          ============================================================
+           Version: 1.3
+           Status: General release
+          ============================================================
+           Written by: A.T.Brunger, P.D.Adams, G.M.Clore, W.L.DeLano,
+                       P.Gros, R.W.Grosse-Kunstleve,J.-S.Jiang,J.M.Krahn,
+                       J.Kuszewski, M.Nilges, N.S.Pannu, R.J.Read,
+                       L.M.Rice, G.F.Schroeder, T.Simonson, G.L.Warren.
+           Copyright (c) 1997-2010 Yale University
+          ============================================================
+           Running on machine: lewis4-r710-login-node223 (x86_64/Linux,64-bit)
+                               with 16 threads
+           Program started by: oeow39
+           Program started at: 16:08:09 on 05-Jul-2018
+          ============================================================
+
+ FFT3C: Using FFTPACK4.1
+
+ CNSsolve>remarks TESTFIRS.INP 
+ CNSsolve>remarks test the analytic first derivatives for standard potentials 
+ CNSsolve> 
+ CNSsolve>topology @CNS_TOPPAR:protein.top end 
+ ASSFIL: file protein.top opened.
+ RTFRDR>remarks file toppar/protein.top 
+ RTFRDR>remarks   protein topology with polar hydrogens 
+ RTFRDR> 
+ RTFRDR>! 
+ RTFRDR>! Please cite the following reference when using these parameters: 
+ RTFRDR>! Engh, R.A. and  Huber, R. (1991). Accurate Bond and 
+ RTFRDR>!  Angle Parameters for X-ray Protein-Structure Refinement, 
+ RTFRDR>!  Acta Cryst. A47, 392-400. 
+ RTFRDR>! 
+ RTFRDR>! 
+ RTFRDR> 
+ RTFRDR>set message ? end eval ($old_message=$result) set echo ? end eval ($old_echo=$result) 
+ MESSage=NORM
+ EVALUATE: symbol $OLD_MESSAGE set to "NORM" (string)
+ ECHO=TRUE {ON}
+ EVALUATE: symbol $OLD_ECHO set to TRUE (logical)
+ RTFRDR>set message=off echo=off end 
+ RTFRDR> 
+ RTFRDR> 
+ RTFRDR> end 
+ CNSsolve>parameter @CNS_TOPPAR:protein.param end 
+ ASSFIL: file protein.param opened.
+ PARRDR>remarks file toppar/protein.param 
+ PARRDR>remarks   protein parameters with Lennard-Jones van der Waals parameters 
+ PARRDR>remarks   for crystallographic structure determination 
+ PARRDR> 
+ PARRDR>! 
+ PARRDR>! Please cite the following reference when using these parameters: 
+ PARRDR>! Engh, R.A. and  Huber, R. (1991). Accurate Bond and 
+ PARRDR>!  Angle Parameters for X-ray Protein-Structure Refinement, 
+ PARRDR>!  Acta Cryst. A47, 392-400. 
+ PARRDR>! 
+ PARRDR>! 
+ PARRDR> 
+ PARRDR>set message ? end eval ($old_message=$result) set echo ? end eval ($old_echo=$result) 
+ MESSage=NORM
+ EVALUATE: symbol $OLD_MESSAGE set to "NORM" (string)
+ ECHO=TRUE {ON}
+ EVALUATE: symbol $OLD_ECHO set to TRUE (logical)
+ PARRDR>set message=off echo=off end 
+ PARRDR> 
+ PARRDR> end 
+ CNSsolve> 
+ CNSsolve>segment 
+ SEGMENT>  name=tryp 
+ SEGMENT>  chain 
+ CHAIN>     @CNS_TOPPAR:protein.link 
+ ASSFIL: file protein.link opened.
+ CHAIN>remarks file toppar/protein.link 
+ CHAIN>remarks 
+ CHAIN>remarks this is a macro to define standard protein peptide bonds 
+ CHAIN>remarks and termini to generate a protein sequence. 
+ CHAIN> 
+ CHAIN>set message ? end eval ($old_message=$result) set echo ? end eval ($old_echo=$result) 
+ MESSage=NORM
+ EVALUATE: symbol $OLD_MESSAGE set to "NORM" (string)
+ ECHO=TRUE {ON}
+ EVALUATE: symbol $OLD_ECHO set to TRUE (logical)
+ CHAIN>set message=off echo=off end 
+ CHAIN>     sequence 
+ SEQUENCE>        TRP 
+ SEQUence-element (terminate with END) =     end 
+ SEGMNT:     1 residues were inserted into segment "TRYP"
+ CHAIN>  end 
+ SEGMENT>end 
+ Status of internal molecular topology database:
+ -> NATOM=         19(MAXA=     1000000)  NBOND=         20(MAXB=     1000000)
+ -> NTHETA=        30(MAXT=     2000000)  NGRP=           3(MAXGRP=   1000000)
+ -> NPHI=          10(MAXP=     2000000)  NIMPHI=        15(MAXIMP=   1000000)
+ -> NNB=            0(MAXNB=    1000000) 
+ CNSsolve> 
+ CNSsolve>coor 
+ COOR>ATOM      1  HT1 TRP     1       0.101   0.574  -1.385  1.00  0.00      TRYP 
+ COOR>ATOM      2  HT2 TRP     1       1.711   0.436  -1.904  1.00  0.00      TRYP 
+ CNSsolve> 
+ CNSsolve>coor copy end 
+ COOR: selected main coordinates copied to comp
+ CNSsolve> 
+ CNSsolve>{* c-dielectric, shifting *} 
+ CNSsolve>{* ====================== *} 
+ CNSsolve>parameter 
+ PARRDR>  nbonds 
+ NBDSET>     atom cdie shift eps=1.0 
+ NBDSET>     cutnb=30.0 ctonnb=6.0 ctofnb=8.0 
+ NBDSET>     nbxmod=5 vswitch 
+ NBDSET>  end 
+ PARRDR>end 
+ CNSsolve> 
+ CNSsolve> 
+ CNSsolve>test first selection= ( all ) step=0.000001 tol=0.0 end 
+ SELRPN:     19 atoms have been selected out of     19
+ NBONDS: generating intra-molecular exclusion list with mode= 5
+ MAKINB: mode   5 found     50 exclusions and     29 interactions(1-4)
+ NBONDS: found       92 intra-atom interactions
+ TESTFD: Parameters: STEP=   0.00000  MASSweighting=F
+ TESTFD: The following first derivatives differ by more than TOL=    0.000000
+
+  DIM.         ATOM                 ANALYTIC        FINITE-DIFF     DEVIATION
+    1 X ( TRYP 1    TRP  CB  )     -10.289597     -10.289597       0.000000
+    1 Y ( TRYP 1    TRP  CB  )      35.738304      35.738304       0.000000
+    1 Z ( TRYP 1    TRP  CB  )     138.185698     138.185698       0.000000
+    2 X ( TRYP 1    TRP  CG  )     376.887552     376.887552       0.000000
+    2 Y ( TRYP 1    TRP  CG  )    -348.880389    -348.880389       0.000000
+    2 Z ( TRYP 1    TRP  CG  )    -510.777950    -510.777950       0.000000
+    3 X ( TRYP 1    TRP  CD2 )     211.609067     211.609067       0.000001
+    3 Y ( TRYP 1    TRP  CD2 )    -270.170515    -270.170514       0.000001
+    3 Z ( TRYP 1    TRP  CD2 )    -544.558255    -544.558256       0.000001
+    4 X ( TRYP 1    TRP  CE2 )    -389.071729    -389.071730       0.000001
+    4 Y ( TRYP 1    TRP  CE2 )     408.921593     408.921593       0.000000
+    4 Z ( TRYP 1    TRP  CE2 )     869.851435     869.851435       0.000000
+    5 X ( TRYP 1    TRP  CE3 )    -251.034517    -251.034516       0.000001
+    5 Y ( TRYP 1    TRP  CE3 )     208.300265     208.300265       0.000000
+    5 Z ( TRYP 1    TRP  CE3 )     167.385679     167.385679       0.000001
+    6 X ( TRYP 1    TRP  CD1 )      -8.101018      -8.101018       0.000000
+    6 Y ( TRYP 1    TRP  CD1 )      15.299174      15.299175       0.000000
+    6 Z ( TRYP 1    TRP  CD1 )     252.624751     252.624751       0.000000
+    7 X ( TRYP 1    TRP  NE1 )      -1.168116      -1.168116       0.000000
+    7 Y ( TRYP 1    TRP  NE1 )      15.976135      15.976135       0.000000
+    7 Z ( TRYP 1    TRP  NE1 )    -582.100409    -582.100409       0.000000
+    8 X ( TRYP 1    TRP  HE1 )     -42.461057     -42.461057       0.000000
+    8 Y ( TRYP 1    TRP  HE1 )     -31.295787     -31.295787       0.000000
+    8 Z ( TRYP 1    TRP  HE1 )      -0.540705      -0.540705       0.000000
+    9 X ( TRYP 1    TRP  CZ2 )      95.241245      95.241245       0.000000
+    9 Y ( TRYP 1    TRP  CZ2 )     -30.790807     -30.790807       0.000000
+    9 Z ( TRYP 1    TRP  CZ2 )     179.619677     179.619678       0.000001
+   10 X ( TRYP 1    TRP  CZ3 )      76.100050      76.100049       0.000000
+   10 Y ( TRYP 1    TRP  CZ3 )     -36.318680     -36.318680       0.000000
+   10 Z ( TRYP 1    TRP  CZ3 )      80.192575      80.192575       0.000000
+   11 X ( TRYP 1    TRP  CH2 )     -73.807569     -73.807569       0.000000
+   11 Y ( TRYP 1    TRP  CH2 )      40.344452      40.344452       0.000000
+   11 Z ( TRYP 1    TRP  CH2 )     -38.194783     -38.194783       0.000000
+   12 X ( TRYP 1    TRP  C   )     -13.647986     -13.647986       0.000000
+   12 Y ( TRYP 1    TRP  C   )     122.242589     122.242589       0.000000
+   12 Z ( TRYP 1    TRP  C   )      26.363809      26.363808       0.000000
+   13 X ( TRYP 1    TRP  O   )       8.844409       8.844409       0.000000
+   13 Y ( TRYP 1    TRP  O   )     -45.491638     -45.491638       0.000000
+   13 Z ( TRYP 1    TRP  O   )      83.694925      83.694925       0.000000
+   14 X ( TRYP 1    TRP  OXT )      -7.915213      -7.915213       0.000000
+   14 Y ( TRYP 1    TRP  OXT )     -28.056490     -28.056490       0.000000
+   14 Z ( TRYP 1    TRP  OXT )    -105.139281    -105.139281       0.000000
+   15 X ( TRYP 1    TRP  HT1 )       2.188747       2.188747       0.000000
+   15 Y ( TRYP 1    TRP  HT1 )     -14.784468     -14.784468       0.000000
+   15 Z ( TRYP 1    TRP  HT1 )     -10.413892     -10.413892       0.000000
+   16 X ( TRYP 1    TRP  HT2 )       6.047423       6.047423       0.000000
+   16 Y ( TRYP 1    TRP  HT2 )      -6.185821      -6.185821       0.000000
+   16 Z ( TRYP 1    TRP  HT2 )      -5.927964      -5.927964       0.000000
+   17 X ( TRYP 1    TRP  N   )     -32.501157     -32.501157       0.000000
+   17 Y ( TRYP 1    TRP  N   )      13.507194      13.507194       0.000000
+   17 Z ( TRYP 1    TRP  N   )       2.508968       2.508968       0.000000
+   18 X ( TRYP 1    TRP  HT3 )       4.501634       4.501634       0.000000
+   18 Y ( TRYP 1    TRP  HT3 )      -8.903116      -8.903116       0.000000
+   18 Z ( TRYP 1    TRP  HT3 )      -3.383102      -3.383102       0.000000
+   19 X ( TRYP 1    TRP  CA  )      48.577832      48.577832       0.000000
+   19 Y ( TRYP 1    TRP  CA  )     -39.451994     -39.451994       0.000000
+   19 Z ( TRYP 1    TRP  CA  )       0.608825       0.608825       0.000000
+ TESTFD: A total of     0 elements were within the tolerance
+ CNSsolve> 
+ CNSsolve> 
+ CNSsolve>{* r-dielectric, switching *} 
+ CNSsolve>{* ======================= *} 
+ CNSsolve>parameter 
+ PARRDR>  nbonds 
+ NBDSET>     atom rdie switch eps=1.0 
+ NBDSET>     cutnb=30.0 ctonnb=6.0 ctofnb=8.0 
+ NBDSET>     nbxmod=5 vswitch 
+ NBDSET>  end 
+ PARRDR>end 
+ CNSsolve> 
+ CNSsolve> 
+ CNSsolve>test first selection= ( all ) step=0.000001 tol=0.0 end 
+ SELRPN:     19 atoms have been selected out of     19
+ NBONDS: generating intra-molecular exclusion list with mode= 5
+ MAKINB: mode   5 found     50 exclusions and     29 interactions(1-4)
+ NBONDS: found       92 intra-atom interactions
+ TESTFD: Parameters: STEP=   0.00000  MASSweighting=F
+ TESTFD: The following first derivatives differ by more than TOL=    0.000000
+
+  DIM.         ATOM                 ANALYTIC        FINITE-DIFF     DEVIATION
+    1 X ( TRYP 1    TRP  CB  )     -10.289597     -10.289597       0.000000
+    1 Y ( TRYP 1    TRP  CB  )      35.738304      35.738304       0.000000
+    1 Z ( TRYP 1    TRP  CB  )     138.185698     138.185698       0.000000
+    2 X ( TRYP 1    TRP  CG  )     376.899108     376.899108       0.000000
+    2 Y ( TRYP 1    TRP  CG  )    -349.220217    -349.220217       0.000000
+    2 Z ( TRYP 1    TRP  CG  )    -510.988285    -510.988285       0.000000
+    3 X ( TRYP 1    TRP  CD2 )     212.039489     212.039490       0.000001
+    3 Y ( TRYP 1    TRP  CD2 )    -269.526091    -269.526091       0.000001
+    3 Z ( TRYP 1    TRP  CD2 )    -544.571922    -544.571923       0.000001
+    4 X ( TRYP 1    TRP  CE2 )    -389.591238    -389.591239       0.000001
+    4 Y ( TRYP 1    TRP  CE2 )     408.950528     408.950528       0.000000
+    4 Z ( TRYP 1    TRP  CE2 )     869.907064     869.907065       0.000000
+    5 X ( TRYP 1    TRP  CE3 )    -251.208587    -251.208586       0.000001
+    5 Y ( TRYP 1    TRP  CE3 )     208.127429     208.127429       0.000000
+    5 Z ( TRYP 1    TRP  CE3 )     167.598778     167.598779       0.000001
+    6 X ( TRYP 1    TRP  CD1 )      -7.979739      -7.979739       0.000000
+    6 Y ( TRYP 1    TRP  CD1 )      15.584724      15.584724       0.000000
+    6 Z ( TRYP 1    TRP  CD1 )     252.933866     252.933866       0.000000
+    7 X ( TRYP 1    TRP  NE1 )      -5.258568      -5.258568       0.000000
+    7 Y ( TRYP 1    TRP  NE1 )      16.135328      16.135329       0.000000
+    7 Z ( TRYP 1    TRP  NE1 )    -582.846738    -582.846737       0.000000
+    8 X ( TRYP 1    TRP  HE1 )     -39.357993     -39.357993       0.000000
+    8 Y ( TRYP 1    TRP  HE1 )     -32.091652     -32.091652       0.000000
+    8 Z ( TRYP 1    TRP  HE1 )       0.129050       0.129050       0.000000
+    9 X ( TRYP 1    TRP  CZ2 )      95.241245      95.241245       0.000000
+    9 Y ( TRYP 1    TRP  CZ2 )     -30.790807     -30.790807       0.000000
+    9 Z ( TRYP 1    TRP  CZ2 )     179.619677     179.619678       0.000001
+   10 X ( TRYP 1    TRP  CZ3 )      76.100050      76.100049       0.000000
+   10 Y ( TRYP 1    TRP  CZ3 )     -36.318680     -36.318680       0.000000
+   10 Z ( TRYP 1    TRP  CZ3 )      80.192575      80.192575       0.000000
+   11 X ( TRYP 1    TRP  CH2 )     -73.807569     -73.807569       0.000000
+   11 Y ( TRYP 1    TRP  CH2 )      40.344452      40.344452       0.000000
+   11 Z ( TRYP 1    TRP  CH2 )     -38.194783     -38.194783       0.000000
+   12 X ( TRYP 1    TRP  C   )     -13.757599     -13.757599       0.000000
+   12 Y ( TRYP 1    TRP  C   )     122.981534     122.981534       0.000000
+   12 Z ( TRYP 1    TRP  C   )      27.020230      27.020230       0.000000
+   13 X ( TRYP 1    TRP  O   )      12.927468      12.927468       0.000000
+   13 Y ( TRYP 1    TRP  O   )     -52.674047     -52.674047       0.000000
+   13 Z ( TRYP 1    TRP  O   )      81.220225      81.220225       0.000000
+   14 X ( TRYP 1    TRP  OXT )      -5.759565      -5.759565       0.000000
+   14 Y ( TRYP 1    TRP  OXT )     -33.158535     -33.158535       0.000000
+   14 Z ( TRYP 1    TRP  OXT )    -112.196534    -112.196534       0.000000
+   15 X ( TRYP 1    TRP  HT1 )       1.693698       1.693698       0.000000
+   15 Y ( TRYP 1    TRP  HT1 )     -10.709592     -10.709592       0.000000
+   15 Z ( TRYP 1    TRP  HT1 )      -6.257559      -6.257559       0.000000
+   16 X ( TRYP 1    TRP  HT2 )       2.456119       2.456119       0.000000
+   16 Y ( TRYP 1    TRP  HT2 )      -2.427240      -2.427240       0.000000
+   16 Z ( TRYP 1    TRP  HT2 )      -2.113645      -2.113645       0.000000
+   17 X ( TRYP 1    TRP  N   )     -31.306280     -31.306280       0.000000
+   17 Y ( TRYP 1    TRP  N   )      11.583760      11.583760       0.000000
+   17 Z ( TRYP 1    TRP  N   )       1.333406       1.333406       0.000000
+   18 X ( TRYP 1    TRP  HT3 )       1.998946       1.998946       0.000000
+   18 Y ( TRYP 1    TRP  HT3 )      -3.071698      -3.071698       0.000000
+   18 Z ( TRYP 1    TRP  HT3 )      -1.395921      -1.395921       0.000000
+   19 X ( TRYP 1    TRP  CA  )      48.960611      48.960611       0.000000
+   19 Y ( TRYP 1    TRP  CA  )     -39.457499     -39.457499       0.000000
+   19 Z ( TRYP 1    TRP  CA  )       0.424816       0.424816       0.000000
+ TESTFD: A total of     0 elements were within the tolerance
+ CNSsolve> 
+ CNSsolve>{* repel option  *} 
+ CNSsolve>{* ============  *} 
+ CNSsolve>flags exclude * include vdw end 
+ CNSsolve> 
+ CNSsolve>parameter 
+ PARRDR>  nbonds 
+ NBDSET>     atom repel=0.9 rexponent=2 irexponent=2  rconst=110. 
+ NBDSET> end 
+ PARRDR>end 
+ CNSsolve> 
+ CNSsolve> 
+ CNSsolve>test first selection= ( all ) step=0.000001 tol=0.0 end 
+ SELRPN:     19 atoms have been selected out of     19
+ NBONDS: generating intra-molecular exclusion list with mode= 5
+ MAKINB: mode   5 found     50 exclusions and     29 interactions(1-4)
+ NBONDS: found       92 intra-atom interactions
+ TESTFD: Parameters: STEP=   0.00000  MASSweighting=F
+ TESTFD: The following first derivatives differ by more than TOL=    0.000000
+
+  DIM.         ATOM                 ANALYTIC        FINITE-DIFF     DEVIATION
+    1 X ( TRYP 1    TRP  CB  )     470.839925     470.839926       0.000001
+    1 Y ( TRYP 1    TRP  CB  )    -597.985730    -597.985730       0.000000
+    1 Z ( TRYP 1    TRP  CB  )   -1360.811049   -1360.811049       0.000000
+    2 X ( TRYP 1    TRP  CG  )   -1057.381922   -1057.381922       0.000000
+    2 Y ( TRYP 1    TRP  CG  )    -321.103372    -321.103372       0.000000
+    2 Z ( TRYP 1    TRP  CG  )    -156.292529    -156.292530       0.000001
+    3 X ( TRYP 1    TRP  CD2 )    2586.854820    2586.854821       0.000001
+    3 Y ( TRYP 1    TRP  CD2 )   -2476.899022   -2476.899022       0.000001
+    3 Z ( TRYP 1    TRP  CD2 )   -3792.510497   -3792.510496       0.000001
+    4 X ( TRYP 1    TRP  CE2 )   -1796.517032   -1796.517033       0.000001
+    4 Y ( TRYP 1    TRP  CE2 )     222.677531     222.677531       0.000000
+    4 Z ( TRYP 1    TRP  CE2 )   -4806.437900   -4806.437901       0.000000
+    5 X ( TRYP 1    TRP  CE3 )    2684.771709    2684.771710       0.000001
+    5 Y ( TRYP 1    TRP  CE3 )   -1606.138235   -1606.138236       0.000000
+    5 Z ( TRYP 1    TRP  CE3 )    3103.141380    3103.141381       0.000001
+    6 X ( TRYP 1    TRP  CD1 )    -427.717636    -427.717636       0.000000
+    6 Y ( TRYP 1    TRP  CD1 )      53.384691      53.384691       0.000000
+    6 Z ( TRYP 1    TRP  CD1 )     -33.669482     -33.669482       0.000000
+    7 X ( TRYP 1    TRP  NE1 )       0.000000       0.000000       0.000000
+    7 Y ( TRYP 1    TRP  NE1 )       0.000000       0.000000       0.000000
+    7 Z ( TRYP 1    TRP  NE1 )       0.000000       0.000000       0.000000
+    8 X ( TRYP 1    TRP  HE1 )       0.000000       0.000000       0.000000
+    8 Y ( TRYP 1    TRP  HE1 )       0.000000       0.000000       0.000000
+    8 Z ( TRYP 1    TRP  HE1 )       0.000000       0.000000       0.000000
+    9 X ( TRYP 1    TRP  CZ2 )   -3781.962956   -3781.962957       0.000001
+    9 Y ( TRYP 1    TRP  CZ2 )    2316.432355    2316.432355       0.000000
+    9 Z ( TRYP 1    TRP  CZ2 )    -945.091629    -945.091629       0.000000
+   10 X ( TRYP 1    TRP  CZ3 )    1796.517032    1796.517033       0.000001
+   10 Y ( TRYP 1    TRP  CZ3 )    -222.677531    -222.677531       0.000000
+   10 Z ( TRYP 1    TRP  CZ3 )    4806.437900    4806.437901       0.000000
+   11 X ( TRYP 1    TRP  CH2 )   -2586.854820   -2586.854821       0.000001
+   11 Y ( TRYP 1    TRP  CH2 )    2476.899022    2476.899022       0.000001
+   11 Z ( TRYP 1    TRP  CH2 )    3792.510497    3792.510498       0.000001
+   12 X ( TRYP 1    TRP  C   )       0.000000       0.000000       0.000000
+   12 Y ( TRYP 1    TRP  C   )       0.000000       0.000000       0.000000
+   12 Z ( TRYP 1    TRP  C   )       0.000000       0.000000       0.000000
+   13 X ( TRYP 1    TRP  O   )     805.385004     805.385004       0.000000
+   13 Y ( TRYP 1    TRP  O   )   -1130.965150   -1130.965150       0.000000
+   13 Z ( TRYP 1    TRP  O   )    -235.425722    -235.425723       0.000000
+   14 X ( TRYP 1    TRP  OXT )       0.000000       0.000000       0.000000
+   14 Y ( TRYP 1    TRP  OXT )       0.000000       0.000000       0.000000
+   14 Z ( TRYP 1    TRP  OXT )       0.000000       0.000000       0.000000
+   15 X ( TRYP 1    TRP  HT1 )       0.000000       0.000000       0.000000
+   15 Y ( TRYP 1    TRP  HT1 )       0.000000       0.000000       0.000000
+   15 Z ( TRYP 1    TRP  HT1 )       0.000000       0.000000       0.000000
+   16 X ( TRYP 1    TRP  HT2 )       0.000000       0.000000       0.000000
+   16 Y ( TRYP 1    TRP  HT2 )       0.000000       0.000000       0.000000
+   16 Z ( TRYP 1    TRP  HT2 )       0.000000       0.000000       0.000000
+   17 X ( TRYP 1    TRP  N   )     299.645532     299.645532       0.000000
+   17 Y ( TRYP 1    TRP  N   )    1445.070419    1445.070419       0.000000
+   17 Z ( TRYP 1    TRP  N   )     396.147819     396.147819       0.000000
+   18 X ( TRYP 1    TRP  HT3 )       0.000000       0.000000       0.000000
+   18 Y ( TRYP 1    TRP  HT3 )       0.000000       0.000000       0.000000
+   18 Z ( TRYP 1    TRP  HT3 )       0.000000       0.000000       0.000000
+   19 X ( TRYP 1    TRP  CA  )    1006.420343    1006.420342       0.000001
+   19 Y ( TRYP 1    TRP  CA  )    -158.694980    -158.694979       0.000000
+   19 Z ( TRYP 1    TRP  CA  )    -767.998787    -767.998787       0.000000
+ TESTFD: A total of     0 elements were within the tolerance
+ CNSsolve> 
+ CNSsolve>parameter 
+ PARRDR>  nbonds 
+ NBDSET>     atom repel=0.9 rexponent=4 irexponent=1  rconst=110. 
+ NBDSET> end 
+ PARRDR>end 
+ CNSsolve> 
+ CNSsolve> 
+ CNSsolve>test first selection= ( all ) step=0.000001 tol=0.0 end 
+ SELRPN:     19 atoms have been selected out of     19
+ NBONDS: generating intra-molecular exclusion list with mode= 5
+ MAKINB: mode   5 found     50 exclusions and     29 interactions(1-4)
+ NBONDS: found       92 intra-atom interactions
+ TESTFD: Parameters: STEP=   0.00000  MASSweighting=F
+ TESTFD: The following first derivatives differ by more than TOL=    0.000000
+
+  DIM.         ATOM                 ANALYTIC        FINITE-DIFF     DEVIATION
+    1 X ( TRYP 1    TRP  CB  )       0.645664       0.645664       0.000000
+    1 Y ( TRYP 1    TRP  CB  )      -0.753451      -0.753451       0.000000
+    1 Z ( TRYP 1    TRP  CB  )      -1.689278      -1.689278       0.000000
+    2 X ( TRYP 1    TRP  CG  )      -1.061809      -1.061809       0.000000
+    2 Y ( TRYP 1    TRP  CG  )      -0.322448      -0.322448       0.000000
+    2 Z ( TRYP 1    TRP  CG  )      -0.156947      -0.156947       0.000000
+    3 X ( TRYP 1    TRP  CD2 )      80.059219      80.059219       0.000000
+    3 Y ( TRYP 1    TRP  CD2 )     -76.656254     -76.656254       0.000000
+    3 Z ( TRYP 1    TRP  CD2 )    -117.372426    -117.372426       0.000000
+    4 X ( TRYP 1    TRP  CE2 )     -52.411497     -52.411497       0.000000
+    4 Y ( TRYP 1    TRP  CE2 )       6.496383       6.496383       0.000000
+    4 Z ( TRYP 1    TRP  CE2 )    -140.222776    -140.222776       0.000000
+    5 X ( TRYP 1    TRP  CE3 )      70.696259      70.696259       0.000000
+    5 Y ( TRYP 1    TRP  CE3 )     -42.984091     -42.984091       0.000000
+    5 Z ( TRYP 1    TRP  CE3 )      19.672798      19.672798       0.000000
+    6 X ( TRYP 1    TRP  CD1 )      -0.034141      -0.034141       0.000000
+    6 Y ( TRYP 1    TRP  CD1 )       0.004261       0.004261       0.000000
+    6 Z ( TRYP 1    TRP  CD1 )      -0.002688      -0.002688       0.000000
+    7 X ( TRYP 1    TRP  NE1 )       0.000000       0.000000       0.000000
+    7 Y ( TRYP 1    TRP  NE1 )       0.000000       0.000000       0.000000
+    7 Z ( TRYP 1    TRP  NE1 )       0.000000       0.000000       0.000000
+    8 X ( TRYP 1    TRP  HE1 )       0.000000       0.000000       0.000000
+    8 Y ( TRYP 1    TRP  HE1 )       0.000000       0.000000       0.000000
+    8 Z ( TRYP 1    TRP  HE1 )       0.000000       0.000000       0.000000
+    9 X ( TRYP 1    TRP  CZ2 )     -71.437129     -71.437129       0.000000
+    9 Y ( TRYP 1    TRP  CZ2 )      43.754864      43.754864       0.000000
+    9 Z ( TRYP 1    TRP  CZ2 )     -17.851743     -17.851743       0.000000
+   10 X ( TRYP 1    TRP  CZ3 )      52.411497      52.411497       0.000000
+   10 Y ( TRYP 1    TRP  CZ3 )      -6.496383      -6.496383       0.000000
+   10 Z ( TRYP 1    TRP  CZ3 )     140.222776     140.222776       0.000000
+   11 X ( TRYP 1    TRP  CH2 )     -80.059219     -80.059219       0.000000
+   11 Y ( TRYP 1    TRP  CH2 )      76.656254      76.656254       0.000000
+   11 Z ( TRYP 1    TRP  CH2 )     117.372426     117.372426       0.000000
+   12 X ( TRYP 1    TRP  C   )       0.000000       0.000000       0.000000
+   12 Y ( TRYP 1    TRP  C   )       0.000000       0.000000       0.000000
+   12 Z ( TRYP 1    TRP  C   )       0.000000       0.000000       0.000000
+   13 X ( TRYP 1    TRP  O   )       2.284128       2.284128       0.000000
+   13 Y ( TRYP 1    TRP  O   )      -3.387998      -3.387998       0.000000
+   13 Z ( TRYP 1    TRP  O   )      -0.722992      -0.722992       0.000000
+   14 X ( TRYP 1    TRP  OXT )       0.000000       0.000000       0.000000
+   14 Y ( TRYP 1    TRP  OXT )       0.000000       0.000000       0.000000
+   14 Z ( TRYP 1    TRP  OXT )       0.000000       0.000000       0.000000
+   15 X ( TRYP 1    TRP  HT1 )       0.000000       0.000000       0.000000
+   15 Y ( TRYP 1    TRP  HT1 )       0.000000       0.000000       0.000000
+   15 Z ( TRYP 1    TRP  HT1 )       0.000000       0.000000       0.000000
+   16 X ( TRYP 1    TRP  HT2 )       0.000000       0.000000       0.000000
+   16 Y ( TRYP 1    TRP  HT2 )       0.000000       0.000000       0.000000
+   16 Z ( TRYP 1    TRP  HT2 )       0.000000       0.000000       0.000000
+   17 X ( TRYP 1    TRP  N   )      -1.222245      -1.222245       0.000000
+   17 Y ( TRYP 1    TRP  N   )       3.710435       3.710435       0.000000
+   17 Z ( TRYP 1    TRP  N   )       0.879946       0.879946       0.000000
+   18 X ( TRYP 1    TRP  HT3 )       0.000000       0.000000       0.000000
+   18 Y ( TRYP 1    TRP  HT3 )       0.000000       0.000000       0.000000
+   18 Z ( TRYP 1    TRP  HT3 )       0.000000       0.000000       0.000000
+   19 X ( TRYP 1    TRP  CA  )       0.129272       0.129272       0.000000
+   19 Y ( TRYP 1    TRP  CA  )      -0.021573      -0.021573       0.000000
+   19 Z ( TRYP 1    TRP  CA  )      -0.129096      -0.129096       0.000000
+ TESTFD: A total of     0 elements were within the tolerance
+ CNSsolve> 
+ CNSsolve>parameter 
+ PARRDR>  nbonds 
+ NBDSET>     atom repel=0.9 rexponent=2 irexponent=2  rconst=110. 
+ NBDSET> end 
+ PARRDR>end 
+ CNSsolve> 
+ CNSsolve> 
+ CNSsolve>test first selection= ( all ) step=0.000001 tol=0.0 end 
+ SELRPN:     19 atoms have been selected out of     19
+ NBONDS: generating intra-molecular exclusion list with mode= 5
+ MAKINB: mode   5 found     50 exclusions and     29 interactions(1-4)
+ NBONDS: found       92 intra-atom interactions
+ TESTFD: Parameters: STEP=   0.00000  MASSweighting=F
+ TESTFD: The following first derivatives differ by more than TOL=    0.000000
+
+  DIM.         ATOM                 ANALYTIC        FINITE-DIFF     DEVIATION
+    1 X ( TRYP 1    TRP  CB  )     470.839925     470.839926       0.000001
+    1 Y ( TRYP 1    TRP  CB  )    -597.985730    -597.985730       0.000000
+    1 Z ( TRYP 1    TRP  CB  )   -1360.811049   -1360.811049       0.000000
+    2 X ( TRYP 1    TRP  CG  )   -1057.381922   -1057.381922       0.000000
+    2 Y ( TRYP 1    TRP  CG  )    -321.103372    -321.103372       0.000000
+    2 Z ( TRYP 1    TRP  CG  )    -156.292529    -156.292530       0.000001
+    3 X ( TRYP 1    TRP  CD2 )    2586.854820    2586.854821       0.000001
+    3 Y ( TRYP 1    TRP  CD2 )   -2476.899022   -2476.899022       0.000001
+    3 Z ( TRYP 1    TRP  CD2 )   -3792.510497   -3792.510496       0.000001
+    4 X ( TRYP 1    TRP  CE2 )   -1796.517032   -1796.517033       0.000001
+    4 Y ( TRYP 1    TRP  CE2 )     222.677531     222.677531       0.000000
+    4 Z ( TRYP 1    TRP  CE2 )   -4806.437900   -4806.437901       0.000000
+    5 X ( TRYP 1    TRP  CE3 )    2684.771709    2684.771710       0.000001
+    5 Y ( TRYP 1    TRP  CE3 )   -1606.138235   -1606.138236       0.000000
+    5 Z ( TRYP 1    TRP  CE3 )    3103.141380    3103.141381       0.000001
+    6 X ( TRYP 1    TRP  CD1 )    -427.717636    -427.717636       0.000000
+    6 Y ( TRYP 1    TRP  CD1 )      53.384691      53.384691       0.000000
+    6 Z ( TRYP 1    TRP  CD1 )     -33.669482     -33.669482       0.000000
+    7 X ( TRYP 1    TRP  NE1 )       0.000000       0.000000       0.000000
+    7 Y ( TRYP 1    TRP  NE1 )       0.000000       0.000000       0.000000
+    7 Z ( TRYP 1    TRP  NE1 )       0.000000       0.000000       0.000000
+    8 X ( TRYP 1    TRP  HE1 )       0.000000       0.000000       0.000000
+    8 Y ( TRYP 1    TRP  HE1 )       0.000000       0.000000       0.000000
+    8 Z ( TRYP 1    TRP  HE1 )       0.000000       0.000000       0.000000
+    9 X ( TRYP 1    TRP  CZ2 )   -3781.962956   -3781.962957       0.000001
+    9 Y ( TRYP 1    TRP  CZ2 )    2316.432355    2316.432355       0.000000
+    9 Z ( TRYP 1    TRP  CZ2 )    -945.091629    -945.091629       0.000000
+   10 X ( TRYP 1    TRP  CZ3 )    1796.517032    1796.517033       0.000001
+   10 Y ( TRYP 1    TRP  CZ3 )    -222.677531    -222.677531       0.000000
+   10 Z ( TRYP 1    TRP  CZ3 )    4806.437900    4806.437901       0.000000
+   11 X ( TRYP 1    TRP  CH2 )   -2586.854820   -2586.854821       0.000001
+   11 Y ( TRYP 1    TRP  CH2 )    2476.899022    2476.899022       0.000001
+   11 Z ( TRYP 1    TRP  CH2 )    3792.510497    3792.510498       0.000001
+   12 X ( TRYP 1    TRP  C   )       0.000000       0.000000       0.000000
+   12 Y ( TRYP 1    TRP  C   )       0.000000       0.000000       0.000000
+   12 Z ( TRYP 1    TRP  C   )       0.000000       0.000000       0.000000
+   13 X ( TRYP 1    TRP  O   )     805.385004     805.385004       0.000000
+   13 Y ( TRYP 1    TRP  O   )   -1130.965150   -1130.965150       0.000000
+   13 Z ( TRYP 1    TRP  O   )    -235.425722    -235.425723       0.000000
+   14 X ( TRYP 1    TRP  OXT )       0.000000       0.000000       0.000000
+   14 Y ( TRYP 1    TRP  OXT )       0.000000       0.000000       0.000000
+   14 Z ( TRYP 1    TRP  OXT )       0.000000       0.000000       0.000000
+   15 X ( TRYP 1    TRP  HT1 )       0.000000       0.000000       0.000000
+   15 Y ( TRYP 1    TRP  HT1 )       0.000000       0.000000       0.000000
+   15 Z ( TRYP 1    TRP  HT1 )       0.000000       0.000000       0.000000
+   16 X ( TRYP 1    TRP  HT2 )       0.000000       0.000000       0.000000
+   16 Y ( TRYP 1    TRP  HT2 )       0.000000       0.000000       0.000000
+   16 Z ( TRYP 1    TRP  HT2 )       0.000000       0.000000       0.000000
+   17 X ( TRYP 1    TRP  N   )     299.645532     299.645532       0.000000
+   17 Y ( TRYP 1    TRP  N   )    1445.070419    1445.070419       0.000000
+   17 Z ( TRYP 1    TRP  N   )     396.147819     396.147819       0.000000
+   18 X ( TRYP 1    TRP  HT3 )       0.000000       0.000000       0.000000
+   18 Y ( TRYP 1    TRP  HT3 )       0.000000       0.000000       0.000000
+   18 Z ( TRYP 1    TRP  HT3 )       0.000000       0.000000       0.000000
+   19 X ( TRYP 1    TRP  CA  )    1006.420343    1006.420342       0.000001
+   19 Y ( TRYP 1    TRP  CA  )    -158.694980    -158.694979       0.000000
+   19 Z ( TRYP 1    TRP  CA  )    -767.998787    -767.998787       0.000000
+ TESTFD: A total of     0 elements were within the tolerance
+ CNSsolve> 
+ CNSsolve>parameter 
+ PARRDR>  nbonds 
+ NBDSET>     atom repel=0.9 rexponent=2 irexponent=1  rconst=110. 
+ NBDSET> end 
+ PARRDR>end 
+ CNSsolve> 
+ CNSsolve> 
+ CNSsolve>test first selection= ( all ) step=0.000001 tol=0.0 end 
+ SELRPN:     19 atoms have been selected out of     19
+ NBONDS: generating intra-molecular exclusion list with mode= 5
+ MAKINB: mode   5 found     50 exclusions and     29 interactions(1-4)
+ NBONDS: found       92 intra-atom interactions
+ TESTFD: Parameters: STEP=   0.00000  MASSweighting=F
+ TESTFD: The following first derivatives differ by more than TOL=    0.000000
+
+  DIM.         ATOM                 ANALYTIC        FINITE-DIFF     DEVIATION
+    1 X ( TRYP 1    TRP  CB  )      10.725596      10.725596       0.000000
+    1 Y ( TRYP 1    TRP  CB  )     -13.742576     -13.742576       0.000000
+    1 Z ( TRYP 1    TRP  CB  )     -31.319286     -31.319286       0.000000
+    2 X ( TRYP 1    TRP  CG  )     -28.465358     -28.465358       0.000000
+    2 Y ( TRYP 1    TRP  CG  )      -8.644296      -8.644296       0.000000
+    2 Z ( TRYP 1    TRP  CG  )      -4.207489      -4.207489       0.000000
+    3 X ( TRYP 1    TRP  CD2 )      78.105363      78.105363       0.000000
+    3 Y ( TRYP 1    TRP  CD2 )     -74.785448     -74.785448       0.000000
+    3 Z ( TRYP 1    TRP  CD2 )    -114.507937    -114.507937       0.000000
+    4 X ( TRYP 1    TRP  CE2 )     -53.738139     -53.738139       0.000000
+    4 Y ( TRYP 1    TRP  CE2 )       6.660820       6.660820       0.000000
+    4 Z ( TRYP 1    TRP  CE2 )    -143.772100    -143.772100       0.000000
+    5 X ( TRYP 1    TRP  CE3 )      85.207195      85.207195       0.000000
+    5 Y ( TRYP 1    TRP  CE3 )     -49.538934     -49.538934       0.000000
+    5 Z ( TRYP 1    TRP  CE3 )      70.532284      70.532284       0.000000
+    6 X ( TRYP 1    TRP  CD1 )      -9.316340      -9.316340       0.000000
+    6 Y ( TRYP 1    TRP  CD1 )       1.162800       1.162800       0.000000
+    6 Z ( TRYP 1    TRP  CD1 )      -0.733372      -0.733372       0.000000
+    7 X ( TRYP 1    TRP  NE1 )       0.000000       0.000000       0.000000
+    7 Y ( TRYP 1    TRP  NE1 )       0.000000       0.000000       0.000000
+    7 Z ( TRYP 1    TRP  NE1 )       0.000000       0.000000       0.000000
+    8 X ( TRYP 1    TRP  HE1 )       0.000000       0.000000       0.000000
+    8 Y ( TRYP 1    TRP  HE1 )       0.000000       0.000000       0.000000
+    8 Z ( TRYP 1    TRP  HE1 )       0.000000       0.000000       0.000000
+    9 X ( TRYP 1    TRP  CZ2 )    -106.340997    -106.340997       0.000000
+    9 Y ( TRYP 1    TRP  CZ2 )      65.133300      65.133300       0.000000
+    9 Z ( TRYP 1    TRP  CZ2 )     -26.574027     -26.574027       0.000000
+   10 X ( TRYP 1    TRP  CZ3 )      53.738139      53.738139       0.000000
+   10 Y ( TRYP 1    TRP  CZ3 )      -6.660820      -6.660820       0.000000
+   10 Z ( TRYP 1    TRP  CZ3 )     143.772100     143.772100       0.000000
+   11 X ( TRYP 1    TRP  CH2 )     -78.105363     -78.105363       0.000000
+   11 Y ( TRYP 1    TRP  CH2 )      74.785448      74.785448       0.000000
+   11 Z ( TRYP 1    TRP  CH2 )     114.507937     114.507937       0.000000
+   12 X ( TRYP 1    TRP  C   )       0.000000       0.000000       0.000000
+   12 Y ( TRYP 1    TRP  C   )       0.000000       0.000000       0.000000
+   12 Z ( TRYP 1    TRP  C   )       0.000000       0.000000       0.000000
+   13 X ( TRYP 1    TRP  O   )      26.788565      26.788565       0.000000
+   13 Y ( TRYP 1    TRP  O   )     -38.127382     -38.127382       0.000000
+   13 Z ( TRYP 1    TRP  O   )      -7.986782      -7.986782       0.000000
+   14 X ( TRYP 1    TRP  OXT )       0.000000       0.000000       0.000000
+   14 Y ( TRYP 1    TRP  OXT )       0.000000       0.000000       0.000000
+   14 Z ( TRYP 1    TRP  OXT )       0.000000       0.000000       0.000000
+   15 X ( TRYP 1    TRP  HT1 )       0.000000       0.000000       0.000000
+   15 Y ( TRYP 1    TRP  HT1 )       0.000000       0.000000       0.000000
+   15 Z ( TRYP 1    TRP  HT1 )       0.000000       0.000000       0.000000
+   16 X ( TRYP 1    TRP  HT2 )       0.000000       0.000000       0.000000
+   16 Y ( TRYP 1    TRP  HT2 )       0.000000       0.000000       0.000000
+   16 Z ( TRYP 1    TRP  HT2 )       0.000000       0.000000       0.000000
+   17 X ( TRYP 1    TRP  N   )       2.880490       2.880490       0.000000
+   17 Y ( TRYP 1    TRP  N   )      46.594893      46.594893       0.000000
+   17 Z ( TRYP 1    TRP  N   )      12.306171      12.306171       0.000000
+   18 X ( TRYP 1    TRP  HT3 )       0.000000       0.000000       0.000000
+   18 Y ( TRYP 1    TRP  HT3 )       0.000000       0.000000       0.000000
+   18 Z ( TRYP 1    TRP  HT3 )       0.000000       0.000000       0.000000
+   19 X ( TRYP 1    TRP  CA  )      18.520850      18.520850       0.000000
+   19 Y ( TRYP 1    TRP  CA  )      -2.837804      -2.837804       0.000000
+   19 Z ( TRYP 1    TRP  CA  )     -12.017499     -12.017499       0.000000
+ TESTFD: A total of     0 elements were within the tolerance
+ CNSsolve> 
+ CNSsolve>igroup interaction ( chemical O* ) ( chemical N* ) end 
+ SELRPN:      2 atoms have been selected out of     19
+ SELRPN:      2 atoms have been selected out of     19
+ CNSsolve> 
+ CNSsolve>do (x=4.) ( chemical O* ) 
+ SELRPN:      2 atoms have been selected out of     19
+ CNSsolve>do (y=4.) ( chemical O* ) 
+ SELRPN:      2 atoms have been selected out of     19
+ CNSsolve>do (z=4.) ( chemical O* ) 
+ SELRPN:      2 atoms have been selected out of     19
+ CNSsolve> 
+ CNSsolve>do (x=5.) ( chemical N* ) 
+ SELRPN:      2 atoms have been selected out of     19
+ CNSsolve>do (y=4.) ( chemical N* ) 
+ SELRPN:      2 atoms have been selected out of     19
+ CNSsolve>do (z=4.) ( chemical N* ) 
+ SELRPN:      2 atoms have been selected out of     19
+ CNSsolve> 
+ CNSsolve>parameter 
+ PARRDR>  nbonds 
+ NBDSET> 
+ NBDSET>     atom repel=0.89 rexponent=2 irexponent=1  rconst=110. cutnb=20. 
+ NBDSET> end 
+ PARRDR>end 
+ CNSsolve> 
+ CNSsolve> 
+ CNSsolve>parameter 
+ PARRDR>  NONBONDED ( chemical O* ) 0.6469   2.8509       0.6469  2.8509 
+ SELRPN:      2 atoms have been selected out of     19
+ PARRDR>  nonbonded ( chemical N* )  0.2384    2.8509      0.2384  2.8509 
+ SELRPN:      2 atoms have been selected out of     19
+ PARRDR>end 
+ CNSsolve>energy end 
+ NBONDS: generating intra-molecular exclusion list with mode= 5
+ MAKINB: mode   5 found      0 exclusions and      2 interactions(1-4)
+ %atoms "TRYP-1   -TRP -NE1 " and "TRYP-1   -TRP -O   " only  1.00 A apart
+ %atoms "TRYP-1   -TRP -NE1 " and "TRYP-1   -TRP -OXT " only  1.00 A apart
+ NBONDS: found        2 intra-atom interactions
+ NBONDS: found        2 nonbonded violations
+ --------------- cycle=     1 --------------------------------------------------
+ | Etotal =1502.685   grad(E)=215.404    E(VDW )=1502.685                      |
+ -------------------------------------------------------------------------------
+ CNSsolve> 
+ CNSsolve>parameter 
+ PARRDR>  nbfix ( chemical O* ) ( chemical N* ) 1000000. 10.  1000000. 10. 
+ SELRPN:      2 atoms have been selected out of     19
+ SELRPN:      2 atoms have been selected out of     19
+ PARRDR>end 
+ CNSsolve>energy end 
+ --------------- cycle=     2 --------------------------------------------------
+ | Etotal =10539.563  grad(E)=298.391    E(VDW )=10539.563                     |
+ -------------------------------------------------------------------------------
+ CNSsolve> 
+ CNSsolve>do ( chemical=N) ( chemical N* ) 
+ Assuming literal string "N"
+ SELRPN:      2 atoms have been selected out of     19
+ CNSsolve>do (chemical=O) ( chemical O* ) 
+ Assuming literal string "O"
+ SELRPN:      2 atoms have been selected out of     19
+ CNSsolve> 
+ CNSsolve>delete selection=( not (chemical O or chemical N ) ) end 
+ SELRPN:     15 atoms have been selected out of     19
+ SCRATC-warning: Pairs of Interacting Groups erased.
+ Status of internal molecular topology database:
+ -> NATOM=          4(MAXA=     1000000)  NBOND=          0(MAXB=     1000000)
+ -> NTHETA=         0(MAXT=     2000000)  NGRP=           3(MAXGRP=   1000000)
+ -> NPHI=           0(MAXP=     2000000)  NIMPHI=         0(MAXIMP=   1000000)
+ -> NNB=            0(MAXNB=    1000000) 
+ CNSsolve>igroup interaction ( chemical O* ) ( chemical N* ) end 
+ SELRPN:      2 atoms have been selected out of      4
+ SELRPN:      2 atoms have been selected out of      4
+ CNSsolve> 
+ CNSsolve>parameter 
+ PARRDR>   reset 
+ PARRDR>  NONBONDED O  0.6469   2.8509       0.6469  2.8509 
+ PARRDR>  nonbonded N  0.2384    2.8509      0.2384  2.8509 
+ PARRDR>end 
+ CNSsolve> 
+ CNSsolve>energy end 
+ NBONDS: generating intra-molecular exclusion list with mode= 5
+ MAKINB: Ran out of space. RESIZING
+ MAKINB: mode   5 found      0 exclusions and      0 interactions(1-4)
+ %atoms "TRYP-1   -TRP -NE1 " and "TRYP-1   -TRP -O   " only  1.00 A apart
+ %atoms "TRYP-1   -TRP -NE1 " and "TRYP-1   -TRP -OXT " only  1.00 A apart
+ %atoms "TRYP-1   -TRP -O   " and "TRYP-1   -TRP -N   " only  1.00 A apart
+ %atoms "TRYP-1   -TRP -OXT " and "TRYP-1   -TRP -N   " only  1.00 A apart
+ NBONDS: found        4 intra-atom interactions
+ NBONDS: found        4 nonbonded violations
+ --------------- cycle=     3 --------------------------------------------------
+ | Etotal =1502.685   grad(E)=469.461    E(VDW )=1502.685                      |
+ -------------------------------------------------------------------------------
+ CNSsolve> 
+ CNSsolve>parameter 
+ PARRDR>  nbfix O N  1000000. 10.  1000000. 10. 
+ PARRDR>end 
+ CNSsolve> 
+ CNSsolve>energy end 
+ --------------- cycle=     4 --------------------------------------------------
+ | Etotal =10539.563  grad(E)=650.327    E(VDW )=10539.563                     |
+ -------------------------------------------------------------------------------
+ CNSsolve> 
+ CNSsolve> 
+ CNSsolve>stop 
+          ============================================================
+           Maximum dynamic memory allocation:     8255416 bytes
+           Maximum dynamic memory overhead:           880 bytes
+           Program started at: 16:08:09 on 05-Jul-2018
+           Program stopped at: 16:08:09 on 05-Jul-2018
+           CPU time used:       0.0372 seconds
+          ============================================================

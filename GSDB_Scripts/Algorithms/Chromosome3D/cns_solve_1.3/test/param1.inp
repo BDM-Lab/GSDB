@@ -1,0 +1,354 @@
+remark   param1.inp
+remark   ========
+remark  
+remark   test for atom-based parameter lookup 
+remark   Thomas Simonson, June 91.
+
+
+topology
+   residue test
+   atom a  type=a  charge=0.0   mass=1.0 end
+   atom b  type=b  charge=0.0   mass=1.0 end
+   atom c  type=c  charge=0.0   mass=1.0 end
+   atom d  type=d  charge=0.0   mass=1.0 end
+   atom e  type=e  charge=0.0   mass=1.0 end
+   atom f  type=f  charge=0.0   mass=1.0 end
+   atom g  type=g  charge=0.0   mass=1.0 end
+   atom h  type=h  charge=0.0   mass=1.0 end
+   atom i  type=i  charge=0.0   mass=1.0 end
+   atom j  type=j  charge=0.0   mass=1.0 end
+   atom k  type=k  charge=0.0   mass=1.0 end
+   atom l  type=l  charge=0.0   mass=1.0 end
+   atom m  type=m  charge=0.0   mass=1.0 end
+   atom n  type=n  charge=0.0   mass=1.0 end
+
+   bond a    b
+   bond c    d   !permutation
+
+   angle c    b    a  !permutation
+   angle a    b    d
+
+
+   dihedral d    c    b    a  !permutation
+
+   dihedral a    b    c    e  !
+   dihedral a    b    c    e  ! {* double *}
+
+   dihedral a    f    g    b    {* WILDCARD-match *}
+
+   
+   improper d    c    b    a  !permutation
+
+   improper a    b    c    e  !
+   improper a    b    c    e  ! {* DOUBLE *}
+
+   improper f    a    b    g  ! {* WILDCARD-match *}
+   improper a    h    i    j  !
+   improper a    b    k    l  !
+   improper a    m    n    b  ! 
+   acceptor b none
+   acceptor c g
+   donor e a 
+   donor i d 
+   end
+end !topology
+
+segment
+  name=test
+  molecule number=1 name=test end
+end
+
+coor
+ATOM      1  A   TEST    1       0.000   0.000   2.000  1.00  0.00      TEST
+ATOM      2  B   TEST    1       1.000   0.000   1.000  1.00  0.00      TEST
+ATOM      3  C   TEST    1      -1.000   1.000   0.000  1.00  0.00      TEST
+ATOM      4  D   TEST    1       2.000   1.000   0.000  1.00  0.00      TEST
+ATOM      5  E   TEST    1       0.000   1.000   0.000  1.00  0.00      TEST
+ATOM      6  F   TEST    1       1.000   1.000   0.000  1.00  0.00      TEST
+ATOM      7  G   TEST    1       0.000  -1.000   0.000  1.00  0.00      TEST
+ATOM      8  H   TEST    1       1.000  -1.000   0.000  1.00  0.00      TEST
+ATOM      9  I   TEST    1      -1.000  -1.000   0.000  1.00  0.00      TEST
+ATOM     10  J   TEST    1       2.000   2.000   0.000  1.00  0.00      TEST
+ATOM     11  K   TEST    1       3.000   3.000   0.000  1.00  0.00      TEST
+ATOM     12  L   TEST    1       4.000   2.000   0.000  1.00  0.00      TEST
+ATOM     13  M   TEST    1       5.000   1.000   0.000  1.00  0.00      TEST
+ATOM     14  N   TEST    1       6.000   1.000   0.000  1.00  0.00      TEST
+END
+
+{* test error messages for missing parameters *}
+set abort=off end
+energy end
+
+parameter
+   BOND A    B      100.0       1.0
+   BOND (name D)    (name C)      200.0       2.0
+
+   ANGLE (name A)    (name B)    (name C)      50.0     100.0
+   ANGLE A    B    D      60.0     120.0
+
+
+   DIHEDRAL (name A)  (name B)  (name C)  (name D)  80.0   3   0.0
+
+   DIHEDRAL (name A)  (name B)  (name C)  (name E)  multiple  2
+                                                    70.0   1   0.0 !
+                                                    40.0   0   0.0 ! {* double *}
+
+   DIHEDRAL (all)  (name F)  (name G)  (all)        30.0   4   180.0 
+
+   
+   IMPROPER A    B    C    D        80.0       0       120.0
+
+   IMPROPER (name A) (name B) (name C) (name E)  multiple 2
+                                                 70.0  0  120.0 !
+                                                 40.0  0  120.0 ! {* double *}
+
+   IMPROPER F    X    X    G        30.0       2      -90.0 ! {* wildcards *}
+   IMPROPER X    H    I    J        10.0       0      180.0 !
+   IMPROPER (all) (all) (name K) (name L)   20.0       3      180.0 !
+   IMPROPER X    M    N    X        30.0       0      180.0 !
+
+   NONBONDED A  0.1  1.0  0.1 1.0
+   NONBONDED B  0.1  1.0  0.1 1.0
+   NONBONDED (name B)  0.1  1.0  0.1 1.0
+   NONBONDED C  0.1  1.0  0.1 1.0
+   NONBONDED D  0.1  1.0  0.1 1.0
+   NONBONDED E  0.1  1.0  0.1 1.0
+   NONBONDED F  0.1  1.0  0.1 1.0
+   NONBONDED G  0.1  1.0  0.1 1.0
+   NONBONDED H  0.1  1.0  0.1 1.0
+   NONBONDED I  0.1  1.0  0.1 1.0
+   NONBONDED J  0.1  1.0  0.1 1.0
+   NONBONDED K  0.1  1.0  0.1 1.0
+   NONBONDED L  0.1  1.0  0.1 1.0
+   NONBONDED M  0.1  1.0  0.1 1.0
+   NONBONDED N  0.1  1.0  0.1 1.0
+
+   ?
+
+   verbose
+
+end !parameter
+
+
+parameter 
+   nbonds end
+end
+
+energy end
+
+pick bond (name c) (name d) energy
+pick impr (name a) (name h) (name i) (name j) energy
+
+delete sele=(name b or name e) end
+
+pick bond (name c) (name d) energy
+pick impr (name a) (name h) (name i) (name j) energy
+
+!=================================================
+remarks second test structure
+
+delete sele=(all) end
+parameters reset end
+
+
+topology  @CNS_TOPPAR:protein.top end
+parameter @CNS_TOPPAR:protein.param end
+parameter
+  nbonds
+     atom cdie shift eps=1.0
+     cutnb=100.0
+     nbxmod=5 vswitch 
+  end
+end
+
+segment
+  name=tryp
+  chain
+     @CNS_TOPPAR:protein.link
+     sequence
+        TRP
+     end
+  end
+end
+
+coor
+ATOM      1  HT1 TRP     1       0.101   0.574  -1.385  1.00  0.00      TRYP
+ATOM      2  HT2 TRP     1       1.711   0.436  -1.904  1.00  0.00      TRYP
+ATOM      3  N   TRP     1       1.067   0.302  -1.101  1.00  0.00      TRYP
+ATOM      4  HT3 TRP     1       1.080  -0.689  -0.791  1.00  0.00      TRYP
+ATOM      5  CA  TRP     1       1.472   1.192   0.027  1.00  0.00      TRYP
+ATOM      6  CB  TRP     1       2.696   2.026  -0.348  1.00  0.00      TRYP
+ATOM      7  CG  TRP     1       3.922   1.169  -0.679  1.00  0.00      TRYP
+ATOM      8  CD2 TRP     1       4.295   0.679  -1.890  1.00  0.00      TRYP
+ATOM      9  CE2 TRP     1       5.424  -0.010  -1.601  1.00  0.00      TRYP
+ATOM     10  CE3 TRP     1       3.769   0.774  -3.155  1.00  0.00      TRYP
+ATOM     11  CD1 TRP     1       4.813   0.775   0.290  1.00  0.00      TRYP
+ATOM     12  NE1 TRP     1       5.727   0.046  -0.320  1.00  0.00      TRYP
+ATOM     13  HE1 TRP     1       6.094  -0.743   0.127  1.00  0.00      TRYP
+ATOM     14  CZ2 TRP     1       6.138  -0.677  -2.563  1.00  0.00      TRYP
+ATOM     15  CZ3 TRP     1       4.472   0.108  -4.148  1.00  0.00      TRYP
+ATOM     16  CH2 TRP     1       5.636  -0.605  -3.856  1.00  0.00      TRYP
+ATOM     17  C   TRP     1       0.280   2.113   0.309  1.00  0.00      TRYP
+ATOM     18  O   TRP     1      -0.402   2.481  -0.636  1.00  0.00      TRYP
+ATOM     19  OXT TRP     1      -0.106   2.192   1.459  1.00  0.00      TRYP
+END
+
+energy end
+
+parameter
+   
+   BOND (chem C)    (chem C)      450.0       1.38  
+   BOND (chem C)    (chem CH1E)   405.0       1.52
+
+
+   ANGLE (chem C)    (chem C)    (chem C)       70.0     106.5
+   ANGLE (chem C)    (chem C)    (chem CH2E)    65.0     126.5
+   ANGLE (chem C)    (chem CH1E) (chem CH1E)    70.0     110.0
+
+   DIHEdral (all)    (chem C)    (chem CH1E) (all)        0.0       3       0.0
+
+   IMPRoper (chem C)    (all)    (all)    (chem C)       25.0       0       0.0
+
+   NONBONDED (chem C)         0.1200    3.7418      0.1   3.3854
+   NONBONDED (chem CH2E)      0.1142    3.9823      0.1   3.3854  !!!!!
+   NONBONDED (chem CH1E)      0.0486    4.2140      0.1   3.3854
+
+end
+
+print bonds
+print angles
+print dihedrals
+print impropers
+
+pick bond (chem C) (chem CH1E ) geom
+pick bond (chem C) (chem CH2E ) geom
+
+pick angle (chem C) (chem CH1E ) (chem CH1E ) geom
+pick angle (chem C) (chem CH1E ) (chem CH2E ) geom
+
+parameter ? end
+
+energy end
+
+parameter
+
+   BOND (chem C)    (chem CH2E)   405.0       1.52   
+
+   ANGLE (chem C)    (chem CH1E) (chem CH2E)    70.0     109.5
+
+   DIHEdral (all)    (chem C)    (chem CH2E) (all)        0.0       3       0.0
+
+   IMPRoper (chem C)    (all)    (all)    (chem CH2E)    90.0       0       0.0
+
+   NONBONDED (chem CH2E)      0.1142    3.9823      0.1   3.3854
+   NONBonded (chem NH1)         0.2384    2.8509      0.2384   2.8509
+   NONBONDED (chem C)         0.1200    3.7418      0.1   3.3854
+
+end
+
+print bonds
+print angles
+print dihedrals
+print impropers
+
+pick bond (chem C) (chem CH1E ) geom
+pick bond (chem C) (chem CH2E ) geom
+
+pick angle (chem C) (chem CH1E ) (chem CH1E ) geom
+pick angle (chem C) (chem CH1E ) (chem CH2E ) geom
+
+parameter ?  end
+
+energy end
+
+parameter
+  reset
+  bonds ( all ) ( all )  300. 1.
+  angles ( all ) ( all ) ( all ) 300. 60.
+  impropers ( all ) ( all ) ( all ) ( all ) 100. 1 0. 
+  dihedrals ( all ) ( all ) ( all ) ( all ) 100. 1 0.
+  nonbonded ( chemical c* )  0.1 4. 0.1 4.
+  nonbonded ( not ( chemical c* ) ) 0.1 3. 0.1 3. 
+end
+
+parameter 
+   ? verbose
+end
+
+energy end
+
+parameter
+  bonds ( all ) ( all )  600. 1.
+  angles ( all ) ( all ) ( all ) 600. 60.
+  impropers ( all ) ( all ) ( all ) ( all ) 200. 1 0. 
+  dihedrals ( all ) ( all ) ( all ) ( all ) 200. 1 0.
+  nonbonded ( chemical c* )  0.2 4. 0.2 4.
+  nonbonded ( not ( chemical c* ) ) 0.2 3. 0.2 3. 
+end
+
+parameter 
+   ? verbose
+end
+
+energy end
+
+parameter
+  nonbonded ( chemical c )  0.3 4. 0.3 4.
+  nbfix ( chemical c ) ( not ( chemical c* ) ) 40. 50. 60. 70.
+end
+
+parameter 
+   ?  verbose
+end 
+
+energy end
+
+{ test TOKEn features }
+flags exclude vdw pvdw end
+
+parameter
+
+   BOND (chem C*)    (chem C*)   50000.0       90.   
+
+   ANGLE (chem C*)    (chem C*) (chem C*)    50000.  90.  UB 50000. 90.
+
+   DIHEdral (all)    (chem C*)    (chem C*) (all)       50000.       9       90.
+
+   IMPRoper (chem C*)    (all)    (all)    (chem C*)    50000.       9       90.
+
+   verbose 
+
+   BOND (chem C*)    (chem C*)   TOKEN      10.   
+
+   ANGLE (chem C*)    (chem C*) (chem C*)   TOKEN  10.  UB TOKEN TOKEN
+
+   DIHEdral (all)    (chem C*)    (chem C*) (all)       TOKEN       8       TOKEN 
+
+   IMPRoper (chem C*)    (all)    (all)    (chem C*)   TOKEN       7       TOKEN
+
+   verbose
+
+   BOND (chem C*)    (chem C*)   40000. TOKEN     
+
+   ANGLE (chem C*)    (chem C*) (chem C*)  40000.  TOKEN UB TOKEN TOKEN
+
+   DIHEdral (all)    (chem C*)    (chem C*) (all)     40000.   TOKEN       TOKEN 
+
+   IMPRoper (chem C*)    (all)    (all)    (chem C*)  40000.    TOKEN      TOKEN
+
+   verbose
+
+   ANGLE (chem C*)    (chem C*) (chem C*)  TOKEN  TOKEN UB 40000. TOKEN
+
+   DIHEdral (all)    (chem C*)    (chem C*) (all)    TOKEN   TOKEN       10. 
+
+   IMPRoper (chem C*)    (all)    (all)    (chem C*)  TOKEN   TOKEN     3.
+
+   verbose
+
+   ANGLE (chem C*)    (chem C*) (chem C*)  TOKEN  TOKEN UB TOKEN 10. 
+
+   verbose
+end
+
+stop

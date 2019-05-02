@@ -1,0 +1,571 @@
+###############################################################################
+# Parameter names matched in common.idb:
+#     a
+#     b
+#     c
+#     alpha
+#     beta
+#     gamma
+#     anom_library
+#     coordinate_infile
+#     coordinate_infile_\d+
+#     fft_memory
+#     high_res
+#     low_res
+#     obs_f
+#     obs_fom
+#     obs_i
+#     obs_pa
+#     obs_pb
+#     obs_pc
+#     obs_pd
+#     obs_phase
+#     obs_rms
+#     obs_sigf
+#     obs_sigi
+#     obs_type
+#     coordinate_outfile
+#     parameter_infile_\d+
+#     reflection_infile_\d+
+#     reflection_infile
+#     sg
+#     sigma_cut
+#     structure_infile
+#     structure_infile_\d+
+#     test_flag
+#     output_root
+#     ncs_mask_infile
+#     solvent_mask_infile
+#     ncs_infile
+#     list_outfile
+#     atom_select
+#     write_map
+#     map_format
+#     map_mode
+#     xmax
+#     xmin
+#     ymax
+#     ymin
+#     zmax
+#     zmin
+#     structure_outfile
+#     bins
+#     mask_outfile
+#     reflection_outfile
+#     u
+#     v
+#     grid
+#     sitedatabase_infile
+#     sitedatabase_infile.\d+
+#     sitedatabase_outfile
+#     sitedatabase_outfile.\d+
+#     merge_inout
+###############################################################################
+#
+vars: delete.\d+
+info: Integer or pair of integers separated by a comma. The site with
+the given index is deleted. If a pair A,B is given, all sites with
+indices from A to B inclusive are deleted.
+#
+vars: averaging
+info: Flag. If <tt>true</tt>, NCS averaging is performed as the first
+density modification step. NCS averaging works at any resolution, and
+in very favorable cases can even lead to a near ab-initio solution.
+#
+vars: truncation
+info: Flag. If <tt>true</tt>, density truncation is performed (after
+NCS averaging, if requested, and before solvent flattening or
+solvent flipping).
+#
+vars: prot_to_solv
+info: Expected ratio of macromolecular and solvent density levels.
+#
+vars: trunc_min trunc_max
+info: Fraction below or above which density points will be truncated.
+If negative the low fraction for truncation will be determined
+automatically. Values in the range 0.3 to 0.4 are reasonable
+#
+vars: solvent_mod
+info: Flag. If <tt>true</tt>, solvent flattening or solvent flipping
+will be perfomed.
+#
+vars: solvent_method
+info: Choice of solvent density modification method.  Either flatten
+the solvent or apply solvent flipping in a manner similar to Solomon.
+In general, solvent flipping is more powerful than solvent flattening.
+#
+vars: scale_flip
+info: Scale flipping factor by the ratio of the variance of the
+macromolecular density after and before density truncation used in
+Solomon to account for the effect of density truncation on the flipping
+procedure.
+#
+vars: solvent_adjust
+info: Flag. If <tt>true</tt>, the solvent level is adjusted to match
+the expected ratio of macromolecular and solvent densities.
+#
+vars: mask_sol_type
+info: Choice of type of solvent mask. The possible choices are:
+<pre>
+    rms        -  automatically generate a mask (updated every cycle)
+    averaging  -  generate the mask from the NCS mask and operators
+    o-mask     -  read a mask from a file
+</pre>
+#
+vars: solcon
+info: A number between zero and one defining the solvent content of the
+crystal. Required for automatic mask generation. The task file
+<tt>xtal_util/matthews_coef.inp</tt> can be used to estimate the solvent
+content.
+#
+vars: start_ave_radius finish_ave_radius
+info: Sphere radius (&Aring;) for calculating the root-mean-square
+(rms) deviation of the density. The final radius should be the high
+resolution limit to which the experimental phases are reliable. The
+sphere radius will be slowly decreased from the starting to the
+finishing radius over the course of the density modification.
+
+#
+vars: initial_steps shrink_steps final_steps
+info: The sphere radius for calculating the root-mean-square (rms)
+deviation of the density will be slowly decreased from the starting to
+the finishing radius over the course of the density modification.
+The reduction of the sphere radius is governed by the three
+parameters:
+<pre>
+    initial_steps  -  Number of steps of initial density modification
+                      using the starting radius for the rms mask.
+    shrink_steps   -  Number of steps during which the rms mask radius
+		      is shrunk from the starting radius to the
+		      finishing radius.
+		      This is also the stage at which phase extension
+		      will be performed if selected.
+    final_steps    -  Number of steps of final density modification
+                      using the finishing radius for the rms mask.
+</pre>
+#
+vars: phase_extend
+info: Flag. If <tt>true</tt>, phase extension is perfomed.
+#
+vars: initial_highres
+info: Starting high resolution limit for phase extension in &Aring;.
+Phases will be extended starting from this resolution to the final high
+resolution while the solvent mask is shrunk.
+#
+vars: memory
+info: Flag. If <tt>true</tt>, the memory requirement for NCS averaging
+will be reduced. This will result in increased CPU time.
+#
+vars: out_f out_fom out_p[abcd]
+info: <tt>out_f</tt> is the name of the complex reciprocal space array with observed amplitudes
+and any missing data replaced by structure factors computed from the
+density modified map, combined with density modified centroid phases.
+This array can be used to make maps, but should <strong>not</strong> be
+used in refinement or further modification procedures because it
+contains recontructed data which were not experimentally observed.
+<p>
+<tt>out_fom</tt> is the name of the real reciprocal space array
+with the figures-of-merit associated with the centroid phases in
+<tt>out_f</tt>.
+<p>
+<tt>out_pa</tt>, <tt>out_pb</tt>, <tt>out_pc</tt>, and <tt>out_pd</tt>
+are reciprocal space arrays with Hendrickson-Lattman coefficients
+A,B,C,D, defining the phase probability distribution after density
+modification.
+#
+vars: write_mask
+info: Flag. If <tt>true</tt>, the automatically generated solvent mask
+is written to a file. Only applies if the solvent mask is generated
+automatically.
+#
+vars: sitedatabase_entries
+info: Number of new sites to be added to the site database file.
+#
+vars: derivative_name
+info: Derivative name for new sites.
+#
+vars: derivative_type
+info: Chemical type of the heavy atoms sites to be added. This type is
+used to determine the form factors from the CNS scattering library
+file.
+#
+vars: f_nat s_nat
+info: Name of reciprocal space array with amplitudes or estimated
+standard deviations (sigmas) of the native dataset.
+#
+vars: prior[a-d]
+info: Name of reciprocal space arry with Hendrickson-Lattman coefficients A, B, C, or D for prior phase probability distributions.
+#
+vars: testcv
+info: Name of the integer reciprocal space array containing flags for
+the test set for cross-validation. The test set is needed for the
+computation of the free R-value.
+#
+vars: f_\d+ s_\d+ site_segid_\d+ anom_\d+
+info: For each derivative dataset to be used in the isomorphous-replacement
+refinement, the following group of parameters must be defined:
+<p>
+<ul>
+  <li>The name of the reciprocal space amplitude array.
+  <li>The name of the reciprocal space sigma array.
+  <li>The derivative name (as it appears in the site database file).<br>
+      If the site database file was created by the
+      <tt>heavy_search.inp</tt> task file, then the derivative name
+      will be the same as the chemical type of the sites.
+  <li>A flag for anomalous signal. If <tt>true</tt>, the anomalous
+      signal of the dataset is used.
+</ul>
+#
+vars: low_res_phase high_res_phase
+info: Low resolution or high resolution limit (minimum Bragg spacing
+or d-spacing) for phased reflections in &Aring; units.
+#
+vars: cut_f_nat
+info: |F| / sigma(F) amplitude cutoff for native data. Reflections with
+a signal-to-noise ratio |F| / Sigma(F) &lt; cutoff will be rejected.
+#
+vars: cut_f_\d+
+info: |F| / sigma(F) amplitude cutoff for an individual dataset.
+Reflections with a signal-to-noise ratio |F| / Sigma(F) &lt; cutoff
+will be rejected.
+#
+vars: cut_iso_df_\d+
+info: |delta F| / sigma(delta F) amplitude cutoff for isomorphous
+differences.  Reflections with a signal-to-noise ratio |delta F| /
+Sigma(delta F) &lt; cutoff will be rejected.
+#
+vars: cut_anom_df_\d+
+info: |delta F| / sigma(delta F) amplitude cutoff for anomalous
+differences.  Reflections with a signal-to-noise ratio |delta F| /
+Sigma(delta F) &lt; cutoff will be rejected.
+#
+vars: low_res_\d+ high_res_\d+
+info: Low resolution or high resolution limit (minimum Bragg spacing or
+d-spacing) for an individual dataset in &Aring; units. For the
+individual dataset, only the reflections in the given range will be
+used in the phase refinement, but all reflections within overall limits
+will be phased regardless of the individual cutoffs.
+#
+vars: max_iso_df_\d+
+info: Root-mean-square outlier cutoff for isomorphous differences.
+Reflections with |delta F| &gt; <tt>max_iso_df</tt> * rms(|delta F|)
+will be rejected. This means, reflections with very large isomorphous
+differences will be rejected.
+#
+vars: max_anom_df_\d+
+info: Root-mean-square outlier cutoff for anomalous differences.
+Reflections with |delta F| &gt; <tt>max_iso_df</tt> * rms(|delta F|)
+will be rejected. This means, reflections with very large anomalous
+differences will be rejected.
+#
+vars: initial_bvalue
+info: Initial B-factor assigned to all atoms before starting the
+refinement. If set to -1 then the original values from the site
+database file(s) are used.
+#
+vars: initial_qvalue
+info: Initial occupancy assigned to all atoms before starting the
+refinement. If set to -1 then the original values from the site
+database file(s) are used.
+#
+vars: sirmir_method mad_method
+info: Choice of heavy atom refinement method. Possible
+choices are:
+<p>
+<ul>
+  <li>&quot;maxlike&quot; - Maximum likelihood method.
+  <li>&quot;chisquare&quot; - Traditional Chi^2 method.
+</ul>
+#
+vars: sirmir_kscale sirmir_bscale mad_kscale mad_bscale
+info: Overall k-scaling and B-scaling is used to compensate for
+systematic errors caused by differences between crystals and data
+collection conditions. The scaling and the B-factors are obtained by
+least-squares minimization. <tt>kscale</tt> is normally set to
+&quot;<tt>yes</tt>&quot;, and <tt>bscale</tt> is set to
+&quot;<tt>anisotropic</tt>&quot;.
+#
+vars: sirmir_kscale_ano
+info: Flag. If set to <tt>&quot;yes&quot;</tt>, K-scaling for anomalous
+lack-of-closure expressions (LOC) is performed.
+#
+vars: sirmir_bscale_ano
+info: Choice of overall B-factor correction for anomalous
+lack-of-closure expressions (LOC). The current model and the observed
+data will compared and used to derive an overall correction.
+<UL>
+<LI>isotropic: applies an isotropic correction to the current model.
+<LI>anisotropic: applies the isotropic component of the correction to
+the model and the anisotropic component is applied to the observed data.
+<LI>anisotropic_fixed_isotropic: applies only the anisotropic component of
+the correction to the data, the isotropic component is not applied to the
+model.
+</UL> 
+#
+vars: sirmir_xstep
+info: Number of positional refinement steps for isomorphous
+lack-of-closure expressions (LOC).
+#
+vars: mad_xstep
+info: Number of positional refinement steps.
+#
+vars: sirmir_bstep
+info: Number of isotropic B-factor refinement steps for isomorphous
+lack-of-closure expressions (LOC).
+#
+vars: mad_bstep
+info: Number of isotropic B factor refinement steps. Heavy atom groups
+will have an overall group B-factor refined, unless the refinement of
+individual atomic B-values for each atom in a group has been
+selected. All other atoms will have individual B-factors refined.
+#
+vars: sirmir_bindgroup mad_bindgroup
+info: Flag. If <tt>true</tt>, atomic B-factors are refined individually
+for each atom in a group.
+#
+vars: sirmir_qstep
+info: Number of occupancy refinement steps for isomorphous
+lack-of-closure expressions (LOC).
+#
+vars: mad_qstep
+info: Number of individual occupancy refinement steps. Heavy atom
+groups will have an overall group occupancy refined. Do not use if
+individual f' and f'' are refined.
+#
+vars: sirmir_fpstep
+info: Number of f' refinement steps for isomorphous
+lack-of-closure expressions (LOC).
+#
+vars: mad_fpstep
+info: Number of f' refinement steps.
+#
+vars: sirmir_fdpstep_ano
+info: Number of f'' refinement steps for anomalous
+lack-of-closure expressions (LOC).
+#
+vars: mad_fdpstep
+info: Number of f'' refinement steps.
+#
+vars: sirmir_kstep
+info: Number of scale factor refinement steps for isomorphous
+lack-of-closure expressions (LOC).
+#
+vars: sirmir_kstep_ano
+info: Number of scale factor refinement steps for anomalous
+lack-of-closure expressions (LOC).
+#
+vars: mad_kstep
+info: Number of scale factor refinement steps.
+#
+vars: sirmir_bmin mad_bmin
+info: Minimum b-factor allowed. B-factors which refine to a smaller
+value are reset to this value.
+#
+vars: sirmir_bmax mad_bmax
+info: Maximum b-factor allowed. B-factors which refine to a larger
+value are reset to this value.
+#
+vars: sirmir_qmin mad_qmin
+info: Minimum occupancy allowed. Occupancies which refine to a smaller
+value are reset to this value.
+#
+vars: sirmir_qmax mad_qmax
+info: Maximum occupancy allowed. Occupancies which refine to a larger
+value are reset to this value.
+#
+vars: sirmir_fpmin mad_fpmin
+info: Minimum f' allowed. f' which refine to a smaller
+value are reset to this value.
+#
+vars: sirmir_fpmax mad_fpmax
+info: Maximum f' allowed. f' which refine to a larger
+value are reset to this value.
+#
+vars: sirmir_fdpmin mad_fdpmin
+info: Minimum f'' allowed. f'' which refine to a smaller
+value are reset to this value.
+#
+vars: sirmir_fdpmax mad_fdpmax
+info: Maximum f'' allowed. f'' which refine to a larger
+value are reset to this value.
+#
+vars: sirmir_macrocycle mad_macrocycle
+info: Number of refinement macro cycles. In each macrocycle
+coordinates, B-factors, occupancies and f'/f'' (depending on the
+parameters selected for refinement) are refined for all atoms.
+#
+vars: sirmir_phistep mad_phistep
+info: Integration step size (in degrees) for phase centroid and
+figure of merit calculation.
+#
+vars: sirmir_tolerance mad_tolerance
+info: Convergence criterion for iterating the estimated model error
+&lt;H<sup>2</sup>&lt;. The same criterion is used for convergence of
+the gradients during minimization.
+#
+vars: sirmir_cutoff mad_cutoff
+info: Sigma lack-of-closure (LOC) cutoff for automatic outlier
+detection.
+#
+vars: sum_method
+info: Choice of summation method for structure factor calculation. For
+small numbers of sites, the <tt>&quot;direct&quot;</tt> summation
+method is more efficient. For large numbers (more than about 10), the
+Fast Fourier Transform (FFT) method may be more efficient.
+#
+vars: fft_grid
+info: Resolution of the grid for Fast Fourier Transformations (FFT),
+relative to the high resolution limit in reciprocal space (e.g. of the
+diffraction data). In general, the resolution of the grid should be 1/3
+to 1/4 of the high resolution in reciprocal space. For example, given
+<tt>fft_grid=0.333</tt>, if the high resolution limit of the
+diffraction data is 3&Aring;, the grid spacing is about 1&Aring; in
+each dimension.
+#
+vars: p[a-d]_name
+info: Output reciprocal space array with Hendrickson-Lattman
+coefficients for the combined derivative phase probability distribution
+(WITHOUT including prior phase information).
+#
+vars: centroid_phase_name
+info: Output complex reciprocal space array with refined centriod
+phases and native amplitudes. Prior phase information is included.
+#
+vars: fom_name
+info: Output reciprocal space array with figures of merit corresponding
+to the centriod phases.
+#
+vars: gradient_map gradient_maps
+info: Flag. If <tt>true</tt>, structure factors for gradient maps are
+computed. The <tt>xtal_util/fourier_map.inp</tt> task file can be used
+to generate the gradient maps by Fourier transformation. Gradient maps
+are a powerful tool for the completion or correction of a heavy atom
+structure. Positive peaks in gradient map may indicate missing sites.
+Negative peaks may indicate incorrectly placed sites.
+#
+vars: weight
+info: Flag. If <tt>true</tt>, a statistical weighting by diffraction
+ratios of the datasets is carried out. For this, the reflections are
+grouped into resolution shells. If <tt>false</tt>, the unit weights are
+used.
+#
+vars: n_wave
+info: Number wavelengths to be averaged.
+#
+vars: f_w_\d+ s_w_\d+
+info: Name of input reciprocal space array with amplitudes or estimated
+standard devitations for a given wavelength. The type of an amplitude
+array can be either <tt>&quot;real&quot;</tt> or
+<tt>&quot;complex&quot;</tt>. The <tt>&quot;sigma&quot;</tt> array is
+always <tt>&quot;real&quot;</tt>.
+#
+vars: f_ave s_ave
+info: Name of output reciprocal space array with averaged amplitudes or
+estimated standard devitations.
+#
+vars: fp_w_\d+
+info: Initial guessed, theoretical or experimental f' for given
+dataset. Normally f' is refined. In this case it is only important
+that f' is in the right order of magnitude.
+#
+vars: fdp_w_\d+
+info: Initial guessed, theoretical or experimental f'' for given
+dataset. Normally f'' is refined. In this case it is only important
+that f'' is in the right order of magnitude.
+#
+vars: cut_disp_df_\d+
+info: |delta F| / sigma(delta F) amplitude cutoff for dispersive
+difference data.  Reflections with a signal-to-noise ratio |delta F| /
+Sigma(delta F) &lt; cutoff will be rejected.
+#
+vars: max_disp_df_\d+
+info: Root-mean-square outlier cutoff for dispersive differences.
+Reflections with |delta F| &gt; <tt>max_disp_df</tt> * rms(|delta F|)
+will be rejected. This means, reflections with very large dispersive
+differences will be rejected.
+#
+vars: common_work_set
+info: Flag.  If <tt>true</tt> then all cutoff criteria are combined to
+produce a common working set for the heavy-atom refinement, otherwise
+each lack-of-closure expression (LOC) has its own selection according
+to the specified criteria.
+#
+vars: ref_wave
+info: Index of reference wavelength. The index of a wavelength is given
+by its position in the table of names of the reciprocal space arryas
+with the amplitudes and estimated standard deviations. Usually, a
+remote wavelength (with small anomalous signal) is used.
+#
+vars: mad_fpconst
+info: Flag. If <tt>true</tt>, f' and f'' will be constrained to be
+equal for all atoms at a particular wavelength. Otherwise f' and f''
+will be refined individually for each atom and wavelength.
+#
+vars: mad_cen360
+info: Flag for centric phase probability distributions. If
+<tt>&quot;yes&quot;</tt> uses full 0...360 degree range for the phase
+probability distribution of centric reflections in the case of
+anomalous data. If <tt>&quot;no&quot;</tt>, only the centric phase
+choices are allowed regardless of the presence of an anomalous signal
+at the reference wavelength. <tt>&quot;yes&quot;</tt> is useful if the
+reference wavelength has a very strong anomalous signal and the phase
+will thus deviate from the centric phase choices.
+#
+vars: theta\d+_min theta\d+_max theta\d+_inc
+info: Rotation parameters for optimization of NCS operators.  The
+realspace Euler angles are defined by theta1, theta2 and theta3.  For
+each angle, a minimum, a maximum and a step size must be given.  A
+three-dimensional search for the three rotation parameters is
+performed first followed by a three-dimensional search for the three
+translation parameters to find improved NCS operators.
+#
+vars: d[xyz]_min d[xyz]_max d[xyz]_inc
+info: Translation parameters for optimization of NCS operators.  The
+realspace translations in the orthogonal coordinate system are defined
+by dx, dy and dz in &Aring; units.  For each dimension, a minimum, a
+maximum and a step size must be given. A three-dimensional search for
+the three rotation parameters is performed first followed by a
+three-dimensional search for the three translation parameters to find
+improved NCS operators.
+#
+vars: np_phistep
+info: Phase step for integration of phase probability
+distributions. This is used in obtaining centroid phases and
+figures-of-merit from a phase probability distribution.
+#
+vars: derivative.\d+
+info: Name of derivative as defined in an input site database file.
+#
+vars: action
+info: Choice of type of transformation.
+<ul>
+  <li>&quot;orth_to_frac&quot;
+      - Convert input orthogonal to output fractional coordinates.
+  <li>&quot;frac_to_orth&quot;
+      - Convert input fractional to output orthogonal coordinates.
+</ul>
+#
+vars: mask_method
+info: Choice of mask generation method.
+<ul>
+  <li>&quot;wang-leslie&quot;
+      - Wang-Leslie method. Fast by less accurate.
+  <li>&quot;rms&quot;
+      - Real space root-mean-square (RMS) method. Slow but accurate.
+</ul>
+#
+vars: ave_radius
+info: Sphere radius in &Aring; units for calculation of average
+(Wang-Leslie method) or standard deviation of density (root-mean-square
+(RMS) method). For the Wang-Leslie method this should be approximately
+twice the highest resolution limit of the experimental phases. For the
+RMS method this should be approximately the highest resolution limit of
+the experimental phases.
+#
+vars: mask_type
+info: Choice of output mask format.
+<ul>
+  <li>&quot;cns&quot; - The mask will be in <tt>CNS</tt> format.
+  <li>&quot;omask&quot; - The mask will be in compressed <tt>O</tt> format.
+</ul>
+#

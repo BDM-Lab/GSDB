@@ -1,0 +1,361 @@
+<?xml version="1.0" ?>
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml">
+<head>
+<title>cns_import_cif - Import CIF paramters for use in CNS</title>
+<meta http-equiv="content-type" content="text/html; charset=utf-8" />
+<link rev="made" href="mailto:root@localhost" />
+</head>
+
+<body style="background-color: white">
+
+
+<!-- INDEX BEGIN -->
+<div name="index">
+<p><a name="__index__"></a></p>
+
+<ul>
+
+	<li><a href="#name">NAME</a></li>
+	<li><a href="#synopsis">SYNOPSIS</a></li>
+	<li><a href="#description">DESCRIPTION</a></li>
+	<li><a href="#details">DETAILS</a></li>
+	<ul>
+
+		<li><a href="#cif_monomer_overview">CIF MONOMER OVERVIEW</a></li>
+		<li><a href="#residue_properties">RESIDUE PROPERTIES</a></li>
+		<li><a href="#atom_properties">ATOM PROPERTIES</a></li>
+		<li><a href="#bonds">BONDS</a></li>
+		<li><a href="#angles">ANGLES</a></li>
+		<li><a href="#torsions">TORSIONS</a></li>
+		<li><a href="#chirality">CHIRALITY</a></li>
+		<li><a href="#planarity">PLANARITY</a></li>
+		<li><a href="#van_der_waals">VAN DER WAALS</a></li>
+	</ul>
+
+	<li><a href="#bugs">BUGS</a></li>
+	<li><a href="#author">AUTHOR</a></li>
+</ul>
+
+<hr name="index" />
+</div>
+<!-- INDEX END -->
+
+<p>
+</p>
+<hr />
+<h1><a name="name">NAME</a></h1>
+<p>cns_import_cif - Import CIF paramters for use in CNS</p>
+<p>
+</p>
+<hr />
+<h1><a name="synopsis">SYNOPSIS</a></h1>
+<p>cns_import_cif [OPTIONS] [--] FILE [FILE ...]</p>
+<pre>
+ Standard Options:
+   --help                  Print a brief help message.
+   --man                   Print the man page.</pre>
+<pre>
+   --no-hydrogen[=COMP_ID] Ignore hydrogens [for CIF identifier COMP_ID].
+   --no-vdw                Do not write VdW parameters. (Default: yes)
+   --no-repulsive          Write standard VdW force-field parameters.
+                           (Default: repulsive VdW; see VAN DER WAALS)
+   --energy-lib=FILE       Use FILE for type-based VdW parameters.
+   --write-pdb             Write a PDB coordinate file, if the CIF data
+                           included coordinates. (Default: no)
+   --write-inp             Write a CNS input file to validate the result.
+   --write-odb             Write a minimal O connectivity file. (Default: no)
+   --rename OLD=NEW        Rename CIF 3-letter code OLD to NEW.
+   --outfile COMP_ID=NAME  Define the output filename base for COMP_ID.
+                           (Default is to use the CIF comp_id.)
+   --output-prefix=PREFIX  Prefix all output files with PREFIX; If it is
+                           a directory, include the path separator.
+   --no-flat-well-chiral   Use standard multiplicity-1 chiral impropers.
+                           Default: use impropers with multiplicity of 2,
+                           giving a nearly flat energy well near equilibrium.
+                           (See the man sub-heading CHIRALITY.)</pre>
+<pre>
+ Advanced Options:
+   --energy-types          Use CIF 'type_energy' for the CHEMical type.
+                           (Default: use the element name and formal charge.)
+   --chiral-xyz            Derive chiral restraint angles from reference
+                           coordinates. (Default: use bonds and angles.)
+                           reliable to derive chiral restraint angles.
+   --no-chiral             Ignore chirality restraints. (Default: define
+                           improper torsions for defined chiral centers.)
+   --no-extra-chiral       Do not add extra inferred chiralities.
+   --chiral-constant=CONST Use CONST for the chirality improper constant
+                           (default=100)
+   --extra-chiral-constant=CONST
+                           Use CONST for additional inferred chirality
+                           impropers (default=50)
+   --guessed-chiral-constant=CONST
+                           Use CONST for chirality impropers where the
+                           target angle is guessed (default=30)
+   --no-plane              Ignore planarity restraints. (Default: convert
+                           planare groups into improper dihedrals.)
+   --planarity-scale=SCALE Set planarity constants derived from:
+                           ESD(angle) = SCALE * ESD(plane)
+                           (default=2)
+   --max-constant=CONST    Maximum value for any constant. (default=1000)
+   --check                 Process files and print warnings, but do not
+                           write any output files.
+   --dump-cns-energy       Dump the internal 'cns_energy' CIF parameters.
+   --invoke-cns            Execute CNS with the generated INP file.
+                           If a PDB is not written, it will attempt to
+                           auto-build all coordinates.
+                           (Implies --write-pdb --write-pdb)
+   --build=SELECT          CNS selection string to define atoms to build. 
+                           (default='not known')
+   --flip-torsions[=ID]    A few CIF parameter files have reversed torsion
+                           angles. Try this if minimization produces severe
+                           distorsions or high energies.
+   --cns-list=FILE         If given, the generated CNS input scripts write a
+                           one-line summary to FILE. Useful for batch imports.</pre>
+<p>
+</p>
+<hr />
+<h1><a name="description">DESCRIPTION</a></h1>
+<p><strong>cns_import_cif</strong> will read the given CIF files, and convert monomer
+defintions into topology and parameter files for use in CNS. All
+restraints are atom-based to avoid conflicts with existing chemical-type
+names.</p>
+<p>
+</p>
+<hr />
+<h1><a name="details">DETAILS</a></h1>
+<p>
+</p>
+<h2><a name="cif_monomer_overview">CIF MONOMER OVERVIEW</a></h2>
+<p><strong>Monomer</strong> descriptions are defined in CCP4. They are not part of the formal
+mmCIF standard, but are closely related to the standard <strong>Component</strong> definitions.
+(See <a href="http://www.wwpdb.org/ccd.html">http://www.wwpdb.org/ccd.html</a>) The terms <strong>Monomer</strong> and <strong>Component</strong> are
+used here to distinguish the two types of CIF data. In both types, an entry
+can be either a polymeric &quot;residue&quot;, or a single non-polymeric molecule.</p>
+<p>CIF defines ideal values and expected standard deviations. The restraint
+target and energy constant can be estimated from these values, but the
+relationships are often inexact due to correlations among restraints.
+In crystallographic refinement, this approximation is normally sufficient.</p>
+<p>Monomer descriptions do not include mass or VdW information. These are assumed
+to be based on the element, and require additional data. These can be derived
+from a CCP4/PHENIX CIF energy library, a CNS CIF energy library, or use
+built-in defaults. When the default repulsive VdW function is used, the
+parameters are fairly generic, and this should produce good results.</p>
+<p>The monomer format stores residue description properties in the CIF data
+block <code>data_comp_list</code>, and all other properties in the data block
+<code>data_comp_COMP_ID</code>. <em>COMP_ID</em> is the unique identifier, which is normally the
+3-letter resName abbreviation. The component descriptions are all contained in
+the data block <code>data_COMP_ID</code>. The data summaries below only describe
+the elements used by this program.</p>
+<p>
+</p>
+<h2><a name="residue_properties">RESIDUE PROPERTIES</a></h2>
+<p>Monomer library data:
+  data_comp_list
+  _chem_comp.id                  # Unique COMP_ID
+  _chem_comp.three_letter_code   # 1-3 letter resName, usually the COMP_ID
+  _chem_comp.name                # Full compound name (length may be truncted)</p>
+<p>Component library data:
+  data_COMP_ID
+  _chem_comp.id
+  _chem_comp.three_letter_code
+  _chem_comp.name</p>
+<p>Current monomer libraries define <code>name</code> as a fixed-length string of 36 characters.</p>
+<p>The <code>id</code> is normally the same as <code>three_letter_code</code>, but sometimes differs for
+variants of the same residue name. Eventually, we will run out of 3-letter codes,
+so it is a bad choice for the unique id.</p>
+<p>Ideally, <code>name</code> should match <code>HETNAM</code> or <code>HETSYN</code> names defined in the PDB file.</p>
+<p>
+</p>
+<h2><a name="atom_properties">ATOM PROPERTIES</a></h2>
+<pre>
+  data_comp_COMP_ID
+  _chem_comp_atom.atom_id             # Atom name
+  _chem_comp_atom.type_symbol         # Element symbol
+  _chem_comp_atom.charge              # Formal charge
+  _chem_comp_atom.partial_charge  *   # Partial charge
+  _chem_comp_atom.type_energy  *      # Force-field type
+  _chem_comp_atom.x *                 # Reference coordinates
+  _chem_comp_atom.y *
+  _chem_comp_atom.z *
+  * Only in Monomer data</pre>
+<pre>
+  data_energy
+  _lib_atom.type                      # Force-field type
+  _lib_atom.weight                    # Atomic mass (au)
+  _lib_atom.vdw_radius                # Hard-sphere VdW radius
+  _lib_atom.element                   # Element symbol</pre>
+<p>Component files can supply coordinates as model_Cartn_[xyz] or 
+pdbx_model_Cartn_[xyz]_ideal. Monomer coordinates are often non-ideal,
+and cannot reliably be used to determine geometry parameters.</p>
+<p>Monomer <code>type_energy</code> is the force-field atom type, equivalent
+to the CNS <code>CHEMical</code> property. To avoid conflicts with standard CNS
+parameter files, this program generates atom-based parameters, and
+the CHEMical types are not used for geometric parameterization.
+However, it is used to define X-ray scatter factors. By defaut, this
+program defines the CHEMical type as the element name, with a formal-charge
+suffix for ions (i.e. &quot;C&quot; or &quot;Fe+3&quot;).</p>
+<p>The <strong>--energy-types</strong> may be given if you want to use the <code>type_energy</code>
+for the CHEMical type. You should verify that these names will work correclty
+with the CNS scatter library (<em class="file">$CNS_XRAYLIB/scatter.lib</em>). This option
+is unlikely to be useful unless you are trying to import an entire forcefield.</p>
+<p>
+</p>
+<h2><a name="bonds">BONDS</a></h2>
+<pre>
+  data_comp_COMP_ID
+  _chem_comp_bond.atom_id_1
+  _chem_comp_bond.atom_id_2
+  _chem_comp_bond.value_dist
+  _chem_comp_bond.value_dist_esd</pre>
+<p>
+</p>
+<h2><a name="angles">ANGLES</a></h2>
+<pre>
+  data_comp_COMP_ID
+  _chem_comp_angle.atom_id_1
+  _chem_comp_angle.atom_id_2
+  _chem_comp_angle.atom_id_3
+  _chem_comp_angle.value_angle
+  _chem_comp_angle.value_angle_esd</pre>
+<p>Bond and angle definitions are imported with the statistical approximation
+used by the CNS LEARn utility:</p>
+<pre>
+  Kb = Kboltz * T / (2 * value_dist_esd**2)     where T=298.0</pre>
+<p>
+</p>
+<h2><a name="torsions">TORSIONS</a></h2>
+<pre>
+  data_comp_COMP_ID
+  _chem_comp_tor.id
+  _chem_comp_tor.atom_id_1
+  _chem_comp_tor.atom_id_2
+  _chem_comp_tor.atom_id_3
+  _chem_comp_tor.atom_id_4
+  _chem_comp_tor.value_angle
+  _chem_comp_tor.value_angle_esd
+  _chem_comp_tor.period</pre>
+<p>Torsions are converted to dihedral restraints, with a restraint constant based
+on the ESD, as for bonds and angles. When the period is zero, the CIF torsion
+definition is equivalent to CNS dihedrals. If period is greater than zero,
+there is a 180 degree difference, due to the opposite sign in the restraint
+equations:</p>
+<pre>
+  CNS:  Kphi * (1 + cos(n*phi + Kd))
+  CIF:  Kphi * (1 - cos(n*phi + Kd))</pre>
+<p>Currently, CIF files do not support multiple dihedrals.</p>
+<p>
+</p>
+<h2><a name="chirality">CHIRALITY</a></h2>
+<pre>
+  data_comp_COMP_ID
+  _chem_comp_chir.id
+  _chem_comp_chir.atom_id_centre
+  _chem_comp_chir.atom_id_1
+  _chem_comp_chir.atom_id_2
+  _chem_comp_chir.atom_id_3</pre>
+<p>The chiral volume is defined by:
+   vector(centre,1) .dot. (vector(centre,2) .cross. vector(centre,3)) / 6</p>
+<p>CIF defines only the sign is defined, so the division by 6 is dropped.
+CNS chirality restraints for atoms I,J,K,L are defined as an improper torsion
+angle between planes (I,J,K) and (J,K,L), where atom I is
+typically the chiral atom. CNS improper atoms are assigned in the same order
+as (centre,1,2,3), resulting in the same sign as the chiral volume.</p>
+<p>The flat-well chiral restraints utilize a 2-term torsion restraint.
+This results in a nearly flat energy well for about 5 degrees on either
+side of the equilibrium. This avoids distortions due to an inexact term
+derived from the CIF input data, and also avoids artifacts due to the
+asymmetric nature of improper torsions. When impropers are printed,
+there will be two sets of statistics for the same four atoms. The second
+term has a negative energy constant, and is complimentary to the
+first term near the equilibrium.</p>
+<p>CIF Monomers define additional atom chiral classifications.
+<code>cross0</code> through <code>cross6</code> define bipyramidal geometries. Atoms
+(1,centre,2) define a linear bond angle. There are zero to six additional
+atoms in a plane with the centre atom, perpendicular to the (1,2)
+vector, and define a positive chiral volume. Note that cross0 and cross1
+are not actually chiral.</p>
+<p>Cross geometries are expanded to normal chiral centers as follows:</p>
+<p>For all n=(1,Ncross-1),
+ vector(centre,2) .dot. (vector(centre,n+2) .cross. vector(centre,n+3)) &gt; 0</p>
+<p>and, if Ncross &gt; 1:
+ vector(centre,2) .dot. (vector(centre,Ncross+2) .cross. vector(centre,3)) &gt; 0</p>
+<p>
+</p>
+<h2><a name="planarity">PLANARITY</a></h2>
+<pre>
+  data_comp_COMP_ID
+  _chem_comp_plane_atom.plane_id        # Identifier for a given plane group.
+  _chem_comp_plane_atom.atom_id         # Name of an atom within this group.
+  _chem_comp_plane_atom.dist_esd        # ESD to the fitted plane for this atom</pre>
+<p>Plane groups are converted to dihedral and improper restraints. Improper
+restraints are defined for all tringonal-planar atoms within the group.
+Dihedral restraints are defined for all proper torsions contained in the
+plane group. Planar dihedral restraints are written as impropers. Technically,
+an improper is defined as a torsion that is not along actual bonds, but it is
+a common convention to instead define an improper as any inflexible torsion.
+The flexibiltiy distinction is more meaningful in terms of RMSDs, torsion-angle
+dynamics, and atom-building procedures.</p>
+<p>
+</p>
+<h2><a name="van_der_waals">VAN DER WAALS</a></h2>
+<pre>
+  data_energy            # REFMAC/PHENIX/etc.
+  _lib_atom.vdw_radius
+  _lib_vdw.atom_type_1
+  _lib_vdw.atom_type_2
+  _lib_vdw.energy_min    # Emin minimum of energy parameter (adjusted vdw_radius)
+  _lib_vdw.radius_min    # Rmin radius of the minimum of energy parameter
+  _lib_vdw.H_flag        # undefined or 'h'    -- if 'h', it is for the united-atom form</pre>
+<pre>
+  data_cns_energy           # CNS library, defined specifically for this program
+  _lib_element.element
+  _lib_element.vdw_radius   # VdW radius, adjusted for repulsive VdW restraints
+  _lib_element.vdw_epsilon
+  _lib_element.vdw_sigma
+  _lib_element.vdw_epsilon_14
+  _lib_element.vdw_sigma_14</pre>
+<p>VdW parameters are not explicitly defined in CIF files. They are defined in
+an implementation-dependent manner. Further investigation is required to
+accurately reproduce restraints as applied by other programs. VdW parameterization
+is an inexact science, in part because they are often adjusted to account
+for implicit electrostatic effects or implicit hydrogens.</p>
+<p>You can also exclude VdW parameters from the output file, and rely on existing
+parameters for CHEMical types that match the element name in the protein,
+DNA/RNA and ion parameter files. Currently, the internal parameter files
+have essentially the same values as CNS, but using only one set of parameters
+a given element. There are no sub-types for polar hydrogens or sp2 carbons.
+(This may be fixed in the next release.)</p>
+<p>The CCP4 energy library defines pair-wise VdW parameters. CNS uses mixing
+rules, where the energy is computed using the average of parameters from each
+pair. The VdW parameters are derived as follows, taking the first result:</p>
+<p>1) If there is a <code>_lib_element.element</code> entry matching the element name,
+epsilon and sigma values in CNS form are taken directly.
+(The <code>energy_cns</code> block is only used by this program, and the format
+is subject to change.)</p>
+<p>2) If <code>_lib_vdw.atom_type_1</code> matches the atom type, and <code>_lib_vdw.atom_type_1</code> is
+undefined, the energy_min and radius_min are converted to epsilon and sigma.</p>
+<p>3) If <code>_lib_vdw.atom_type_1</code> and <code>_lib_vdw.atom_type_1</code> both match the atom type,
+the energy_min and radius_min are converted to epsilon and sigma.</p>
+<p>4) If <code>_lib_atom.vdw_radius</code> is defined, sigma is set to <code>vdw_radius</code> multiplied by
+<strong>VDW_RADIUS_SCALE</strong>, and epsilon is set to <strong>VDW_RADIUS_EPSILON</strong>. (These parameters are
+currently fixed in the source code at VDW_RADIUS_SCALE=0.9 and VDW_RADIUS_EPSILON=0.01.)</p>
+<p>5) A last-resort generic default is used. (Currently, this is fixed in the source code
+at epsilon=0.01 and sigma=2.3)</p>
+<p>
+</p>
+<hr />
+<h1><a name="bugs">BUGS</a></h1>
+<p>Handling of Van der Waals parameters needs to be improved. Proper repulsive VdW needs
+separate terms for polar versus non-polar hydrogens, and for sp2 versus sp3 carbons.
+In order to reproduce restraints as applied by other programs, further investigation
+is needed into VdW implementations, and how the 1-4 terms affect torsion angles.</p>
+<p>
+</p>
+<hr />
+<h1><a name="author">AUTHOR</a></h1>
+<p>Joseph M. Krahn &lt;<a href="mailto:krahn@niehs.nih.gov">krahn@niehs.nih.gov</a>&gt;</p>
+
+</body>
+
+</html>

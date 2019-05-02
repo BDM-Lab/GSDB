@@ -1,0 +1,70 @@
+#!/bin/csh -f
+#
+# architecture specific setup file for CNSsolve
+#
+# written by: Axel Brunger, Ralf Grosse-Kunstleve and Paul Adams
+#
+# copyright Yale University
+#
+# fft library
+# use CNS code by default
+if ( ! $?CNS_FFTDIR ) then
+  setenv CNS_FFTDIR ""
+endif
+if ( ! $?CNS_FFTLIB ) then
+  setenv CNS_FFTLIB ""
+endif
+#
+# redefine CNS_FFTLIB only if the CNS_DEC_DXML environmental variable is set
+#
+if ( $?CNS_DEC_DXML ) then
+  if ( -e /usr/lib/libdxml.a || \
+       -e /usr/lib/libdxml.so ) then
+    setenv CNS_FFTLIB "-ldxml"
+  endif
+endif
+#
+# set the architecture (EV) flag
+#
+if ( ! -e /usr/sbin/psrinfo ) then
+  setenv CNS_DEC_EV ""
+else
+  switch (`/usr/sbin/psrinfo -v | grep EV | uniq | awk '{print $3}' | sed 's/[A-z]*//g'`)
+  case 4:
+    setenv CNS_DEC_EV ev4
+    breaksw
+  case 5:
+    setenv CNS_DEC_EV ev5
+    breaksw
+  case 5.6:
+    setenv CNS_DEC_EV ev56
+    breaksw
+  case 6:
+    setenv CNS_DEC_EV ev6
+    breaksw
+  case 6.7:
+    setenv CNS_DEC_EV ev67
+    breaksw
+  case 6.8:
+    setenv CNS_DEC_EV ev67
+    breaksw
+  default:
+    setenv CNS_DEC_EV host
+  endsw
+endif
+#
+# set backslash option - depends on compiler version
+#
+setenv CNS_DEC_BACKSLASH "-assume backslash"
+set vers = (`f77 -what | & sed -n 's/^.* V\([0-9]\)\.\([0-9]\)[A-z]*-.*/\1 \2/p' | head -1`)
+if ( $#vers == 2 ) then
+  if ( $vers[1]$vers[2] > 52 ) then
+    setenv CNS_DEC_BACKSLASH ""
+  endif
+endif
+#
+#
+# machine architecture string for C preprocessor
+#
+setenv CNS_ARCH_TYPE DEC_ALPHA_OSF
+#

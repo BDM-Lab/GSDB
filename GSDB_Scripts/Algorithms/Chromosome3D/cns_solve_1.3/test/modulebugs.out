@@ -1,0 +1,336 @@
+          ============================================================
+          |                                                          |
+          |            Crystallography & NMR System (CNS)            |
+          |                         CNSsolve                         |
+          |                                                          |
+          ============================================================
+           Version: 1.3
+           Status: General release
+          ============================================================
+           Written by: A.T.Brunger, P.D.Adams, G.M.Clore, W.L.DeLano,
+                       P.Gros, R.W.Grosse-Kunstleve,J.-S.Jiang,J.M.Krahn,
+                       J.Kuszewski, M.Nilges, N.S.Pannu, R.J.Read,
+                       L.M.Rice, G.F.Schroeder, T.Simonson, G.L.Warren.
+           Copyright (c) 1997-2010 Yale University
+          ============================================================
+           Running on machine: lewis4-r710-login-node223 (x86_64/Linux,64-bit)
+                               with 16 threads
+           Program started by: oeow39
+           Program started at: 16:08:03 on 05-Jul-2018
+          ============================================================
+
+ FFT3C: Using FFTPACK4.1
+
+ CNSsolve>remarks file: modulebugs.inp 
+ CNSsolve> 
+ CNSsolve>set abort=off end 
+ CNSsolve> 
+ CNSsolve> 
+ CNSsolve>!====================================================================== 
+ CNSsolve>! bug with define and with multiple line parameters when calling 
+ CNSsolve>! a module and the multi-line parameter is referenced on the same 
+ CNSsolve>! line as the module invocation 
+ CNSsolve> 
+ CNSsolve>set display=moduletest.dat end 
+ ASSFIL: file moduletest.dat opened.
+ CNSsolve>literal module ( &p1 ) 
+ CNSsolve>literal &p1 ! embedded 
+ CNSsolve>set display=OUTPUT end 
+ CNSsolve>close moduletest.dat end 
+ CNSsolve> 
+ CNSsolve>eval ($test=10) 
+ EVALUATE: symbol $TEST set to    10.0000     (real)
+ CNSsolve> 
+ CNSsolve>define ( 
+ DEFINE>&pp2 = energy 
+ PP2=end  ; 
+ DEFINE>) 
+ CNSsolve> 
+ CNSsolve>!----------------------------- 
+ CNSsolve>! the following is OK 
+ CNSsolve>&pp2 
+ --------------- cycle=     1 --------------------------------------------------
+ | Etotal =0.000      grad(E)=0.000      E(BOND)=0.000      E(ANGL)=0.000      |
+ | E(DIHE)=0.000      E(IMPR)=0.000      E(VDW )=0.000      E(ELEC)=0.000      |
+ -------------------------------------------------------------------------------
+ CNSsolve> 
+ CNSsolve>!----------------------------- 
+ CNSsolve>! the next call is OK 
+ CNSsolve>@moduletest.dat ( 
+ ASSFIL: file moduletest.dat opened.
+ CNSsolve>module ( &p1 ) 
+ MODULE-INVOCATION>     p1 = &pp2 ; ) 
+ &_2_P1 set to &_1_PP2 
+ CNSsolve>&p1 ! embedded 
+ --------------- cycle=     2 --------------------------------------------------
+ | Etotal =0.000      grad(E)=0.000      E(BOND)=0.000      E(ANGL)=0.000      |
+ | E(DIHE)=0.000      E(IMPR)=0.000      E(VDW )=0.000      E(ELEC)=0.000      |
+ -------------------------------------------------------------------------------
+ CNSsolve> 
+ CNSsolve>!----------------------------- 
+ CNSsolve>! the next call is not OK 
+ CNSsolve>@moduletest.dat ( p1 = &pp2 ; ) 
+ ASSFIL: file moduletest.dat opened.
+ CNSsolve>module ( &p1 ) 
+ &_2_P1 set to &_1_PP2 
+ CNSsolve>&p1 ! embedded 
+ --------------- cycle=     3 --------------------------------------------------
+ | Etotal =0.000      grad(E)=0.000      E(BOND)=0.000      E(ANGL)=0.000      |
+ | E(DIHE)=0.000      E(IMPR)=0.000      E(VDW )=0.000      E(ELEC)=0.000      |
+ -------------------------------------------------------------------------------
+ CNSsolve> 
+ CNSsolve> 
+ CNSsolve>!====================================================================== 
+ CNSsolve>! bug with parenthesis right after module filename 
+ CNSsolve> 
+ CNSsolve>!----------------------- 
+ CNSsolve>! this is OK 
+ CNSsolve>@moduletest.dat (p1=display hello;) 
+ ASSFIL: file moduletest.dat opened.
+ CNSsolve>module ( &p1 ) 
+ &_2_P1 set to display hello 
+ CNSsolve>&p1 ! embedded 
+hello ! embedded
+ CNSsolve> 
+ CNSsolve>!--------------------------- 
+ CNSsolve>! the next call is not OK 
+ CNSsolve>@moduletest.dat(p1=display hello;) 
+ ASSFIL: file moduletest.dat opened.
+ CNSsolve>module ( &p1 ) 
+ &_2_P1 set to display hello 
+ CNSsolve>&p1 ! embedded 
+hello ! embedded
+ CNSsolve> 
+ CNSsolve> 
+ CNSsolve>! 
+ CNSsolve> 
+ CNSsolve>!====================================================================== 
+ CNSsolve>! bug with indexed module parameters 
+ CNSsolve>! ==================================================================== 
+ CNSsolve>! indexed module parameters 
+ CNSsolve> 
+ CNSsolve>! 
+ CNSsolve>! works OK - ignore the error message about the ttuuii symbol 
+ CNSsolve> 
+ CNSsolve>set display=moduletest2.dat end 
+ ASSFIL: file moduletest2.dat opened.
+ CNSsolve>literal module ( 
+ CNSsolve>literal     test_1=1; 
+ CNSsolve>literal     test_2=2; 
+ CNSsolve>literal     test_3=3; 
+ CNSsolve>literal     test_4=4; 
+ CNSsolve>literal      ) 
+ CNSsolve>literal 
+ CNSsolve>literal     evaluate ($ttuuii=3) 
+ CNSsolve>literal     @moduletest.dat ( 
+ CNSsolve>literal           p1=&test_$ttuuii ; 
+ CNSsolve>literal               ) 
+ CNSsolve>literal  display  &test_$ttuuii    !!should be literal 33 
+ CNSsolve>literal 
+ CNSsolve>literal     evaluate ($ttuuii=2) 
+ CNSsolve>literal     @moduletest.dat ( 
+ CNSsolve>literal           p1=&test_$ttuuii ; 
+ CNSsolve>literal               ) 
+ CNSsolve>literal  display  &test_$ttuuii    !!should be literal 22 
+ CNSsolve>literal 
+ CNSsolve> 
+ CNSsolve>close moduletest2.dat end 
+ VCLOSE: Display file reset to OUTPUT.
+ CNSsolve>set display=OUTPUT end 
+ CNSsolve> 
+ CNSsolve>@moduletest2.dat ( 
+ ASSFIL: file moduletest2.dat opened.
+ CNSsolve>module ( 
+ MODULE-DECLARATION>    test_1=1; 
+ MODULE-DECLARATION>    test_2=2; 
+ MODULE-DECLARATION>    test_3=3; 
+ MODULE-DECLARATION>    test_4=4; 
+ MODULE-DECLARATION>     ) 
+ MODULE-INVOCATION>   test_1=display 11; 
+ &_2_TEST_1 set to display 11 
+ MODULE-INVOCATION>   test_2=display 22; 
+ &_2_TEST_2 set to display 22 
+ MODULE-INVOCATION>   test_3=display 33; 
+ &_2_TEST_3 set to display 33 
+ MODULE-INVOCATION>   test_4=display 44; 
+ &_2_TEST_4 set to display 44 
+ MODULE-INVOCATION>     ) 
+ CNSsolve> 
+ CNSsolve>    evaluate ($ttuuii=3) 
+ EVALUATE: symbol $TTUUII set to    3.00000     (real)
+ CNSsolve>    @moduletest.dat ( 
+ ASSFIL: file moduletest.dat opened.
+ CNSsolve>module ( &p1 ) 
+ MODULE-INVOCATION>          p1=&test_$ttuuii ; 
+ &_3_P1 set to &_2_TEST_$_2_TTUUII 
+ MODULE-INVOCATION>              ) 
+ CNSsolve>&p1 ! embedded 
+33 ! embedded
+ CNSsolve> display  &test_$ttuuii    !!should be literal 33 
+ display 33    !!should be literal 33
+ CNSsolve> 
+ CNSsolve>    evaluate ($ttuuii=2) 
+ EVALUATE: symbol $TTUUII set to    2.00000     (real)
+ CNSsolve>    @moduletest.dat ( 
+ ASSFIL: file moduletest.dat opened.
+ CNSsolve>module ( &p1 ) 
+ MODULE-INVOCATION>          p1=&test_$ttuuii ; 
+ &_3_P1 set to &_2_TEST_$_2_TTUUII 
+ MODULE-INVOCATION>              ) 
+ CNSsolve>&p1 ! embedded 
+22 ! embedded
+ CNSsolve> display  &test_$ttuuii    !!should be literal 22 
+ display 22    !!should be literal 22
+ CNSsolve> 
+ CNSsolve> 
+ CNSsolve> 
+ CNSsolve>! 
+ CNSsolve> 
+ CNSsolve> 
+ CNSsolve>! 
+ CNSsolve>! doesn't work within loops 
+ CNSsolve> 
+ CNSsolve>set display=moduletest2.dat end 
+ ASSFIL: file moduletest2.dat opened.
+ CNSsolve>literal module ( 
+ CNSsolve>literal     test_1=1; 
+ CNSsolve>literal     test_2=2; 
+ CNSsolve>literal     test_3=3; 
+ CNSsolve>literal     test_4=4; 
+ CNSsolve>literal      ) 
+ CNSsolve>literal 
+ CNSsolve>literal  eval ($count=1) 
+ CNSsolve>literal  while ($count < 5 ) loop main 
+ CNSsolve>literal     display  >>>>> $count    &test_$count 
+ CNSsolve>literal     @moduletest.dat ( 
+ CNSsolve>literal           p1=&test_$count ; 
+ CNSsolve>literal               ) 
+ CNSsolve>literal     evaluate ($count=$count+1) 
+ CNSsolve>literal  end loop main 
+ CNSsolve>literal  display  &test_$count    !!3 
+ CNSsolve>literal 
+ CNSsolve> 
+ CNSsolve>close moduletest2.dat end 
+ VCLOSE: Display file reset to OUTPUT.
+ CNSsolve>set display=OUTPUT end 
+ CNSsolve> 
+ CNSsolve>@moduletest2.dat ( 
+ ASSFIL: file moduletest2.dat opened.
+ CNSsolve>module ( 
+ MODULE-DECLARATION>    test_1=1; 
+ MODULE-DECLARATION>    test_2=2; 
+ MODULE-DECLARATION>    test_3=3; 
+ MODULE-DECLARATION>    test_4=4; 
+ MODULE-DECLARATION>     ) 
+ MODULE-INVOCATION>   test_1=display 11; 
+ &_2_TEST_1 set to display 11 
+ MODULE-INVOCATION>   test_2=display 22; 
+ &_2_TEST_2 set to display 22 
+ MODULE-INVOCATION>   test_3=display 33; 
+ &_2_TEST_3 set to display 33 
+ MODULE-INVOCATION>   test_4=display 44; 
+ &_2_TEST_4 set to display 44 
+ MODULE-INVOCATION>     ) 
+ CNSsolve> 
+ CNSsolve> eval ($count=1) 
+ EVALUATE: symbol $COUNT set to    1.00000     (real)
+ CNSsolve> while ($count < 5 ) loop main 
+ NEXTCD: condition evaluated as true
+ CNSsolve>    display  >>>>> $count    &test_$count 
+ >>>>> 1    display 11
+ CNSsolve>    @moduletest.dat ( 
+ ASSFIL: file moduletest.dat opened.
+ CNSsolve>module ( &p1 ) 
+ MODULE-INVOCATION>          p1=&test_$count ; 
+ &_3_P1 set to &_2_TEST_$_2_COUNT 
+ MODULE-INVOCATION>              ) 
+ CNSsolve>&p1 ! embedded 
+11 ! embedded
+ CNSsolve>    evaluate ($count=$count+1) 
+ EVALUATE: symbol $COUNT set to    2.00000     (real)
+ CNSsolve> end loop main 
+ CNSsolve> while ($count < 5 ) loop main 
+ NEXTCD: condition evaluated as true
+ CNSsolve>    display  >>>>> $count    &test_$count 
+ >>>>> 2    display 22
+ CNSsolve>     
+ CNSsolve>module ( &p1 ) 
+ MODULE-INVOCATION> ( 
+ MODULE-INVOCATION>          p1=&test_$count ; 
+ &_3_P1 set to &_2_TEST_$_2_COUNT 
+ MODULE-INVOCATION>              ) 
+ CNSsolve> 
+ CNSsolve>&p1 ! embedded 
+22 ! embedded
+ CNSsolve> 
+ CNSsolve> 
+ CNSsolve>    evaluate ($count=$count+1) 
+ EVALUATE: symbol $COUNT set to    3.00000     (real)
+ CNSsolve> end loop main 
+ CNSsolve> while ($count < 5 ) loop main 
+ NEXTCD: condition evaluated as true
+ CNSsolve>    display  >>>>> $count    &test_$count 
+ >>>>> 3    display 33
+ CNSsolve>     
+ CNSsolve>module ( &p1 ) 
+ MODULE-INVOCATION> ( 
+ MODULE-INVOCATION>          p1=&test_$count ; 
+ &_3_P1 set to &_2_TEST_$_2_COUNT 
+ MODULE-INVOCATION>              ) 
+ CNSsolve> 
+ CNSsolve>&p1 ! embedded 
+33 ! embedded
+ CNSsolve> 
+ CNSsolve> 
+ CNSsolve>    evaluate ($count=$count+1) 
+ EVALUATE: symbol $COUNT set to    4.00000     (real)
+ CNSsolve> end loop main 
+ CNSsolve> while ($count < 5 ) loop main 
+ NEXTCD: condition evaluated as true
+ CNSsolve>    display  >>>>> $count    &test_$count 
+ >>>>> 4    display 44
+ CNSsolve>     
+ CNSsolve>module ( &p1 ) 
+ MODULE-INVOCATION> ( 
+ MODULE-INVOCATION>          p1=&test_$count ; 
+ &_3_P1 set to &_2_TEST_$_2_COUNT 
+ MODULE-INVOCATION>              ) 
+ CNSsolve> 
+ CNSsolve>&p1 ! embedded 
+44 ! embedded
+ CNSsolve> 
+ CNSsolve> 
+ CNSsolve>    evaluate ($count=$count+1) 
+ EVALUATE: symbol $COUNT set to    5.00000     (real)
+ CNSsolve> end loop main 
+ CNSsolve> while ($count < 5 ) loop main 
+ NEXTCD: condition evaluated as false
+ CNSsolve>    display  >>>>> $count    &test_$count 
+ CNSsolve>     
+ CNSsolve>module ( &p1 ) 
+ CNSsolve> ( 
+ CNSsolve>          p1=&test_$count ; 
+ CNSsolve>              ) 
+ CNSsolve> 
+ CNSsolve>&p1 ! embedded 
+ CNSsolve> 
+ CNSsolve> 
+ CNSsolve>    evaluate ($count=$count+1) 
+ CNSsolve> end loop main 
+ CNSsolve> display  &test_$count    !!3 
+ &test_5    !!3
+ CNSsolve> 
+ CNSsolve> 
+ CNSsolve> 
+ CNSsolve>! 
+ CNSsolve> 
+ CNSsolve> 
+ CNSsolve> 
+ CNSsolve>stop 
+          ============================================================
+           Maximum dynamic memory allocation:     8201488 bytes
+           Maximum dynamic memory overhead:           208 bytes
+           Program started at: 16:08:03 on 05-Jul-2018
+           Program stopped at: 16:08:03 on 05-Jul-2018
+           CPU time used:       0.0086 seconds
+          ============================================================

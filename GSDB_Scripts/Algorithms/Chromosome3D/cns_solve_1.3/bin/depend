@@ -1,0 +1,24 @@
+#!/bin/csh -f
+#
+# script to produce the .inc dependencies of Fortran .f files
+# the argument list is a list of files
+#
+# written by: Paul Adams 20-10-98
+#
+# copyright Yale University
+#
+echo " "
+echo "# source file dependencies"
+echo " "
+/bin/ls $argv[1-$#argv] | awk '{print $1"^:",$1}' | sed -e 's/.f^/.o/'
+echo " "
+echo "# include file dependencies"
+echo " "
+#
+foreach file ( $argv[1-$#argv] )
+  set inc=`sed -n "s/^ *INCLUDE *'\(.*\.inc\)' */\1/p" $file | sort | uniq`
+  if ( "$inc" != "" ) then
+    echo "${file:r}.o": "$inc"; echo ""
+  endif
+end
+#

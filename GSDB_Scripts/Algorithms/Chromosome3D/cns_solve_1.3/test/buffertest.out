@@ -1,0 +1,357 @@
+          ============================================================
+          |                                                          |
+          |            Crystallography & NMR System (CNS)            |
+          |                         CNSsolve                         |
+          |                                                          |
+          ============================================================
+           Version: 1.3
+           Status: General release
+          ============================================================
+           Written by: A.T.Brunger, P.D.Adams, G.M.Clore, W.L.DeLano,
+                       P.Gros, R.W.Grosse-Kunstleve,J.-S.Jiang,J.M.Krahn,
+                       J.Kuszewski, M.Nilges, N.S.Pannu, R.J.Read,
+                       L.M.Rice, G.F.Schroeder, T.Simonson, G.L.Warren.
+           Copyright (c) 1997-2010 Yale University
+          ============================================================
+           Running on machine: lewis4-r710-login-node223 (x86_64/Linux,64-bit)
+                               with 16 threads
+           Program started by: oeow39
+           Program started at: 16:07:45 on 05-Jul-2018
+          ============================================================
+
+ FFT3C: Using FFTPACK4.1
+
+ CNSsolve> 
+ CNSsolve>! test buffer handling routines 
+ CNSsolve> 
+ CNSsolve>buffer test 
+ BUFFER> 
+ BUFFER>   display item1 
+ BUFFER>   dump 
+item1
+ BUFFER>   reset 
+ BUFFER>   dump 
+ BUFFER>   display item2 
+ BUFFER>   literal $notevaluated 
+ BUFFER>   concat  item4 
+ BUFFER>   concat  item 
+ BUFFER>   concat 5 
+ BUFFER>   flush 
+item2
+$notevaluated item4 item5
+ BUFFER> 
+ BUFFER>! check handling of empty buffer 
+ BUFFER> 
+ BUFFER>   flush 
+ BUFFER>   dump 
+ BUFFER>   reset 
+ BUFFER> 
+ BUFFER>end 
+ CNSsolve> 
+ CNSsolve>! check persistency 
+ CNSsolve> 
+ CNSsolve>buffer test2 
+ BUFFER>   display a line from test2 
+ BUFFER>end 
+ CNSsolve> 
+ CNSsolve>buffer test 
+ BUFFER>   display line one 
+ BUFFER>end 
+ CNSsolve> 
+ CNSsolve>buffer test 
+ BUFFER>   display line two 
+ BUFFER>   dump 
+line one
+line two
+ BUFFER>end 
+ CNSsolve> 
+ CNSsolve>buffer test 
+ BUFFER>   concat  2 dos deu 10 ! 
+ BUFFER>   dump 
+line one
+line two 2 dos deu 10 !
+ BUFFER>   reset 
+ BUFFER>   dump 
+ BUFFER>end 
+ CNSsolve> 
+ CNSsolve>buffer test2 
+ BUFFER>   flush 
+a line from test2
+ BUFFER>end 
+ CNSsolve> 
+ CNSsolve>! check from command. 
+ CNSsolve> 
+ CNSsolve>buffer from1 
+ BUFFER>   from buffer from1 
+ BUFFER>   dump 
+ BUFFER>   display hello 
+ BUFFER>   dump 
+hello
+ BUFFER>   from buffer from1 
+ BUFFER>   dump 
+hello
+hello
+ BUFFER>   display hello2 
+ BUFFER>   dump 
+hello
+hello
+hello2
+ BUFFER>   from buffer from1 
+ BUFFER>   dump 
+hello
+hello
+hello2
+hello
+hello
+hello2
+ BUFFER>end 
+ CNSsolve> 
+ CNSsolve>buffer from2 
+ BUFFER>   display This is the top of the buffer 
+ BUFFER>   from buffer from1 
+ BUFFER>   display This is the middle 
+ BUFFER>   from buffer from1 
+ BUFFER>   display This is the end. 
+ BUFFER>   dump 
+This is the top of the buffer
+hello
+hello
+hello2
+hello
+hello
+hello2
+This is the middle
+hello
+hello
+hello2
+hello
+hello
+hello2
+This is the end.
+ BUFFER>   reset 
+ BUFFER>end 
+ CNSsolve> 
+ CNSsolve>buffer from3 
+ BUFFER>   display Just this twice 
+ BUFFER>   from buffer from2 
+ BUFFER>   from buffer from3 
+ BUFFER>   dump 
+Just this twice
+Just this twice
+ BUFFER>end 
+ CNSsolve> 
+ CNSsolve>! check redirection 
+ CNSsolve> 
+ CNSsolve>set display = buffertest.dat end 
+ ASSFIL: file buffertest.dat opened.
+ CNSsolve> 
+ CNSsolve>buffer test3 
+ BUFFER>   display display It works! 
+ BUFFER>   to output 
+ BUFFER>   dump 
+display It works!
+ BUFFER>   to display 
+ BUFFER>   dump 
+ BUFFER>   to file buffertest2.dat 
+ ASSFIL: file buffertest2.dat opened.
+ BUFFER>   flush 
+ BUFFER>end 
+ CNSsolve> 
+ CNSsolve> 
+ CNSsolve>set display = OUTPUT end 
+ CNSsolve> 
+ CNSsolve>close buffertest.dat end 
+ CNSsolve>close buffertest2.dat end 
+ CNSsolve> 
+ CNSsolve>@buffertest.dat 
+ ASSFIL: file buffertest.dat opened.
+ CNSsolve>display It works! 
+It works!
+ CNSsolve> 
+ CNSsolve>@buffertest2.dat 
+ ASSFIL: file buffertest2.dat opened.
+ CNSsolve>display It works! 
+It works!
+ CNSsolve> 
+ CNSsolve>! check output to remarks buffer 
+ CNSsolve> 
+ CNSsolve>struc 
+ STRUcture>data_cns_mtf 
+ REMARKS FILENAME="/data/rwgk/test/tmp.mtf"
+ REMARKS DATE:18-Nov-98  14:16:59       created by user: rwgk
+ REMARKS VERSION:0.4a
+ Status of internal molecular topology database:
+ -> NATOM=          3(MAXA=     1000000)  NBOND=          0(MAXB=     1000000)
+ -> NTHETA=         0(MAXT=     2000000)  NGRP=           2(MAXGRP=   1000000)
+ -> NPHI=           0(MAXP=     2000000)  NIMPHI=         0(MAXIMP=   1000000)
+ -> NNB=            0(MAXNB=    1000000) 
+ STRUcture> 
+ STRUcture>end 
+ CNSsolve> 
+ CNSsolve>coor 
+ COOR>ATOM      1  CA  LYS     1       8.000   8.000   8.000  1.00 15.00 
+ COOR>ATOM      2  CA  LYS     2       1.400   6.200  18.000  1.00 15.00 
+ CNSsolve> 
+ CNSsolve>buffer test 
+ BUFFER>  to remarks 
+ BUFFER>  display new remarks 
+ BUFFER>  dump 
+ BUFFER>end 
+ CNSsolve> 
+ CNSsolve>write coor end 
+REMARK FILENAME="OUTPUT"
+REMARK new remarks
+REMARK DATE:05-Jul-2018  16:07:45       created by user: oeow39
+REMARK VERSION:1.3
+ATOM      1  CA  LYS     1       8.000   8.000   8.000  1.00 15.00          
+ATOM      2  CA  LYS     2       1.400   6.200  18.000  1.00 15.00          
+ATOM      3  CA  LYS     3       2.400   9.200  16.000  1.00 15.00          
+END
+ CNSsolve> 
+ CNSsolve>buffer test 
+ BUFFER>  display more remarks 
+ BUFFER>  dump 
+ BUFFER>end 
+ CNSsolve> 
+ CNSsolve>write coor end 
+REMARK FILENAME="OUTPUT"
+REMARK new remarks
+REMARK more remarks
+REMARK DATE:05-Jul-2018  16:07:45       created by user: oeow39
+REMARK VERSION:1.3
+ATOM      1  CA  LYS     1       8.000   8.000   8.000  1.00 15.00          
+ATOM      2  CA  LYS     2       1.400   6.200  18.000  1.00 15.00          
+ATOM      3  CA  LYS     3       2.400   9.200  16.000  1.00 15.00          
+END
+ CNSsolve> 
+ CNSsolve>buffer test 
+ BUFFER>   dump 
+ BUFFER>end 
+ CNSsolve> 
+ CNSsolve>! check remarks accumulate mode 
+ CNSsolve> 
+ CNSsolve>set remarks = accumulate end 
+ CNSsolve> 
+ CNSsolve>buffer test 
+ BUFFER>   reset 
+ BUFFER>   display even more remarks! 
+ BUFFER>   dump 
+ BUFFER>   dump 
+ BUFFER>end 
+ CNSsolve> 
+ CNSsolve>write coor end 
+REMARK FILENAME="OUTPUT"
+REMARK new remarks
+REMARK more remarks
+REMARK even more remarks!
+REMARK even more remarks!
+REMARK DATE:05-Jul-2018  16:07:45       created by user: oeow39
+REMARK VERSION:1.3
+ATOM      1  CA  LYS     1       8.000   8.000   8.000  1.00 15.00          
+ATOM      2  CA  LYS     2       1.400   6.200  18.000  1.00 15.00          
+ATOM      3  CA  LYS     3       2.400   9.200  16.000  1.00 15.00          
+END
+ CNSsolve> 
+ CNSsolve>! check handling of loops 
+ CNSsolve> 
+ CNSsolve>buffer count_to_5 
+ BUFFER>   display Watch me count: 
+ BUFFER>end 
+ CNSsolve> 
+ CNSsolve>eval ( $cnt = 1 ) 
+ EVALUATE: symbol $CNT set to    1.00000     (real)
+ CNSsolve>while ( $cnt le 5 ) loop main 
+ NEXTCD: condition evaluated as true
+ CNSsolve>   buffer count_to_5 
+ BUFFER>      concat  $cnt[F5.2] 
+ BUFFER>   end 
+ CNSsolve>   eval ( $cnt = $cnt + 1 ) 
+ EVALUATE: symbol $CNT set to    2.00000     (real)
+ CNSsolve>end loop main 
+ CNSsolve>while ( $cnt le 5 ) loop main 
+ NEXTCD: condition evaluated as true
+ CNSsolve>   buffer count_to_5 
+ BUFFER>      concat  $cnt[F5.2] 
+ BUFFER>   end 
+ CNSsolve>   eval ( $cnt = $cnt + 1 ) 
+ EVALUATE: symbol $CNT set to    3.00000     (real)
+ CNSsolve>end loop main 
+ CNSsolve>while ( $cnt le 5 ) loop main 
+ NEXTCD: condition evaluated as true
+ CNSsolve>   buffer count_to_5 
+ BUFFER>      concat  $cnt[F5.2] 
+ BUFFER>   end 
+ CNSsolve>   eval ( $cnt = $cnt + 1 ) 
+ EVALUATE: symbol $CNT set to    4.00000     (real)
+ CNSsolve>end loop main 
+ CNSsolve>while ( $cnt le 5 ) loop main 
+ NEXTCD: condition evaluated as true
+ CNSsolve>   buffer count_to_5 
+ BUFFER>      concat  $cnt[F5.2] 
+ BUFFER>   end 
+ CNSsolve>   eval ( $cnt = $cnt + 1 ) 
+ EVALUATE: symbol $CNT set to    5.00000     (real)
+ CNSsolve>end loop main 
+ CNSsolve>while ( $cnt le 5 ) loop main 
+ NEXTCD: condition evaluated as true
+ CNSsolve>   buffer count_to_5 
+ BUFFER>      concat  $cnt[F5.2] 
+ BUFFER>   end 
+ CNSsolve>   eval ( $cnt = $cnt + 1 ) 
+ EVALUATE: symbol $CNT set to    6.00000     (real)
+ CNSsolve>end loop main 
+ CNSsolve>while ( $cnt le 5 ) loop main 
+ NEXTCD: condition evaluated as false
+ CNSsolve>   buffer count_to_5 
+ CNSsolve>      concat  $cnt[F5.2] 
+ CNSsolve>   end 
+ CNSsolve>   eval ( $cnt = $cnt + 1 ) 
+ CNSsolve>end loop main 
+ CNSsolve> 
+ CNSsolve>buffer count_to_5 
+ BUFFER>   to file buffertest.dat 
+ ASSFIL: file buffertest.dat opened.
+ BUFFER>   flush 
+ BUFFER>end 
+ CNSsolve> 
+ CNSsolve>! now check some error conditions 
+ CNSsolve> 
+ CNSsolve>set abort = off end 
+ CNSsolve> 
+ CNSsolve>buffer test 
+ BUFFER>   reset 
+ BUFFER>   display this is a super duper long line 
+ BUFFER>   concat  that will exceed TITMAX by a significant margin 
+ BUFFER>   concat  so long as TITMAX hasn't been played with 
+ BUFFER>   concat  so long as TITMAX hasn't been played with 
+ BUFFER>   concat  so long as TITMAX hasn't been played with 
+ BUFFER>   concat  so long as TITMAX hasn't been played with 
+ BUFFER>   concat  so long as TITMAX hasn't been played with 
+ BUFFER>   dump 
+ %BUFFER error encountered: line too long -- exceeded TITMAX
+   (CNS is in mode: SET ABORT=OFF END)
+ BUFFER>end 
+ CNSsolve> 
+ CNSsolve>write coor end 
+REMARK FILENAME="OUTPUT"
+REMARK new remarks
+REMARK more remarks
+REMARK even more remarks!
+REMARK even more remarks!
+REMARK DATE:05-Jul-2018  16:07:45       created by user: oeow39
+REMARK VERSION:1.3
+REMARK this is a super duper long line that will exceed TITMAX by a significant margin so long as TITMAX hasn't been played with so long as TITMAX hasn't been played with so long as TITMAX hasn't been played with so long as TITMAX hasn't been played with so long
+REMARK DATE:05-Jul-2018  16:07:45       created by user: oeow39
+ATOM      1  CA  LYS     1       8.000   8.000   8.000  1.00 15.00          
+ATOM      2  CA  LYS     2       1.400   6.200  18.000  1.00 15.00          
+ATOM      3  CA  LYS     3       2.400   9.200  16.000  1.00 15.00          
+END
+ CNSsolve> 
+ CNSsolve>stop 
+          ============================================================
+           Maximum dynamic memory allocation:     8201488 bytes
+           Maximum dynamic memory overhead:           208 bytes
+           Program started at: 16:07:45 on 05-Jul-2018
+           Program stopped at: 16:07:45 on 05-Jul-2018
+           CPU time used:       0.0086 seconds
+          ============================================================

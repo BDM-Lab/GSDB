@@ -1,0 +1,656 @@
+{+ file: optimize_ncsop.inp +}
+{+ directory: xtal_phase +}
+{+ description: Improve NCS operators for density averaging +}
+{+ authors: Axel T. Brunger and Paul D. Adams +}
+{+ copyright: Yale University +}
+
+{- Guidelines for using this file:
+   - all strings must be quoted by double-quotes
+   - logical variables (true/false) must not be quoted
+   - do not remove any evaluate statements from the file -}
+
+{- begin block parameter definition -} define(
+
+{====================== crystallographic data ========================}
+
+{* space group *}
+{* use International Table conventions with subcripts substituted
+   by parenthesis *}
+{===>} sg="P4(1)2(1)2";
+
+{* unit cell parameters in Angstroms and degrees *}
+{+ table: rows=1 "cell" cols=6 "a" "b" "c" "alpha" "beta" "gamma" +}
+{===>} a=101.4;
+{===>} b=101.4;
+{===>} c=199.5;
+{===>} alpha=90;
+{===>} beta=90;
+{===>} gamma=90;
+
+{* reflection file *}
+{===>} reflection_infile="eg1_abcd.cv";
+
+{* reciprocal space array containing observed amplitudes: required *}
+{===>} obs_f="fobs";
+
+{* reciprocal space array containing sigma values for amplitudes: required *}
+{===>} obs_sigf="sigma";
+
+{* reciprocal space array containing observed intensities: optional *}
+{* may be used for reflection rejection *}
+{===>} obs_i="";
+
+{* reciprocal space array containing sigma values for intensities: optional *}
+{* may be used for reflection rejection *}
+{===>} obs_sigi="";
+
+{* experimental phase probability distribution: required *}
+{* required for phase combination *}
+{* reciprocal space arrays with Hendrickson-Lattman coefficients A,B,C,D *}
+{+ table: rows=1 "HL coefficients" cols=4 "A" "B" "C" "D" +}
+{===>} obs_pa="pa";
+{===>} obs_pb="pb";
+{===>} obs_pc="pc";
+{===>} obs_pd="pd";
+
+{* resolution limits for improvement *}
+{+ table: rows=1 "resolution" cols=2 "lowest" "highest" +}
+{===>} low_res=500.0;
+{===>} high_res=5.0;
+
+{* apply rejection criteria to amplitudes or intensities *}
+{+ choice: "amplitude" "intensity" +}
+{===>} obs_type="amplitude";
+
+{* Observed data cutoff criteria: applied to amplitudes or intensities *}
+{* reflections with magnitude(Obs)/sigma < &sigma_cut are rejected. *}
+{===>} sigma_cut=0.0;
+
+{* rms outlier cutoff: applied to amplitudes or intensities *}
+{* reflections with magnitude(Obs) > &obs_rms*rms(Obs) will be rejected *}
+{===>} obs_rms=10000;
+
+{================== non-crystallographic symmetry ====================}
+
+{* NCS-restraints/constraints file *}
+{* only strict NCS is allowed *}
+{* see auxiliary/ncs.def *}
+{===>} ncs_infile="eg1_ncs_strict.def";
+
+{============================== mask =================================}
+
+{* O mask file *}
+{* the mask should cover the primary molecule - the other NCS masks
+   will be generated from this and the NCS operators *}
+{===>} ncs_mask_infile="eg1.mask";
+
+{======================== search parameters ==========================}
+
+{* rotation parameters *}
+{* theta1, theta2 and theta3 define realspace Euler angles.
+   maximum, minimum and increment size are required for each angle *}
+{+ table: rows=3 "theta1" "theta2" "theta3" 
+          cols=3 "minimum" "maximum" "increment" +}
+
+{===>} theta1_min=-0.1;
+{===>} theta1_max=0.1;
+{===>} theta1_inc=0.1;
+
+{===>} theta2_min=-0.1;
+{===>} theta2_max=0.1;
+{===>} theta2_inc=0.1;
+
+{===>} theta3_min=-0.1;
+{===>} theta3_max=0.1;
+{===>} theta3_inc=0.1;
+
+{* translation parameters *}
+{* dx, dy, dz define realspace translations in orthogonal Angstroms.
+   maximum, minimum and increment size are required for each translation *}
+{+ table: rows=3 "dx" "dy" "dz" 
+          cols=3 "minimum" "maximum" "increment" +}
+
+{===>} dx_min=-0.5;
+{===>} dx_max=0.5;
+{===>} dx_inc=0.5;
+
+{===>} dy_min=-0.5;
+{===>} dy_max=0.5;
+{===>} dy_inc=0.5;
+
+{===>} dz_min=-0.5;
+{===>} dz_max=0.5;
+{===>} dz_inc=0.5;
+
+{* grid spacing as a fraction of the highest resolution limit *}
+{===>} grid=0.25;
+
+{* memory allocation for FFT calculation *}
+{* this will be determined automatically if a negative value is given
+   otherwise the specified number of words will be allocated *}
+{===>} fft_memory=-1;
+
+{* phase step for integration of combined phase probability *}
+{===>} np_phistep=5;
+
+{=========================== output files ============================}
+
+{* output listing file *}
+{===>} list_outfile="optimize_ncs.list";
+
+{===========================================================================}
+{         things below this line do not normally need to be changed         }
+{===========================================================================}
+
+ ) {- end block parameter definition -}
+
+ checkversion 1.3
+
+ evaluate ($log_level=quiet)
+
+ xray
+
+   @CNS_XTALLIB:spacegroup.lib (sg=&sg;)
+
+   a=&a b=&b c=&c  alpha=&alpha beta=&beta gamma=&gamma
+
+   binresolution &low_res &high_res
+   mapresolution &high_res
+
+   generate &low_res &high_res
+
+   reflection @&reflection_infile end
+
+   declare name=fobsold domain=reciprocal type=complex end
+   declare name=testold domain=reciprocal type=integer end
+
+   do (fobsold=&STRIP%obs_f) (all)
+
+   {- check that all data arrays are well-defined -}
+   set echo=off end
+
+   if ( &BLANK%obs_f = true ) then
+      display 
+      display  *********************************************************
+      display  Error: required observed amplitude array is not specified
+      display  *********************************************************
+      display
+      abort
+   else
+      query name=&STRIP%obs_f domain=reciprocal end
+      if ( $object_exist = false ) then
+          display 
+          display  **************************************************************
+          display  Error: required observed amplitude array &obs_f does not exist
+          display  **************************************************************
+          display
+          abort
+       end if
+    {- note: this array can be of any type -}
+    end if
+
+    if ( &BLANK%obs_sigf = true ) then
+      display 
+      display  *****************************************************
+      display  Error: required observed sigma array is not specified
+      display  *****************************************************
+      display
+      abort
+    else
+       query name=&STRIP%obs_sigf domain=reciprocal end
+       if ( $object_exist = false ) then
+          display 
+          display  *************************************************************
+          display  Error: required observed sigma array &obs_sigf does not exist
+          display  *************************************************************
+          display
+          abort
+       end if
+       if ( $object_type # "REAL" ) then
+          display 
+          display  **********************************************************************
+          display  Error: required observed sigma array &obs_sigf has the wrong data type
+          display  **********************************************************************
+          display
+          abort
+       end if
+   end if
+
+   @@CNS_XTALMODULE:check_abcd (pa=&obs_pa;
+                               pb=&obs_pb;
+                               pc=&obs_pc;
+                               pd=&obs_pd;)
+
+   if ( &BLANK%obs_i = false ) then
+     query name=&STRIP%obs_i domain=reciprocal end
+     if ( $object_exist = true ) then
+       do (iobs_orig=&STRIP%obs_i) (all)
+     else
+        display 
+        display  ********************************************
+        display  Error: intensity array &obs_i does not exist
+        display  ********************************************
+        display
+        abort
+     end if
+   end if
+   if ( &BLANK%obs_sigi = false ) then
+     query name=&STRIP%obs_sigi domain=reciprocal end
+     if ( $object_exist = true ) then
+       do (sigi_orig=&STRIP%obs_sigi) (all)
+     else
+        display 
+        display  *****************************************************
+        display  Error: intensity sigma array &obs_sigi does not exist
+        display  *****************************************************
+        display
+        abort     
+     end if
+   end if
+
+   set echo=on end
+   
+   if ( &obs_type = "intensity" ) then
+     evaluate ($reject_obs=&obs_i)
+     evaluate ($reject_sig=&obs_sigi)
+   else
+     evaluate ($reject_obs=&obs_f)
+     evaluate ($reject_sig=&obs_sigf)
+   end if
+
+   declare name=ref_active domain=reciprocal type=integer end
+   declare name=tst_active domain=reciprocal type=integer end
+
+   do (ref_active=0) ( all )
+   do (ref_active=1) ( ( $STRIP%reject_sig # 0 ) and
+                      ( &low_res >= d >= &high_res ) )
+
+   statistics overall
+     completeness
+     selection=( ref_active=1 )
+   end
+   evaluate ($total_compl=$expression1)
+
+   show sum(1) ( ref_active=1 )
+   evaluate ($total_read=$select)
+   evaluate ($total_theor=int(1./$total_compl * $total_read))
+
+   show rms (amplitude($STRIP%reject_obs)) ( ref_active=1 )
+   evaluate ($obs_high=$result*&obs_rms)
+   show min (amplitude($STRIP%reject_obs)) ( ref_active=1 )
+   evaluate ($obs_low=$result)
+
+   do (ref_active=0) ( all )
+   do (ref_active=1)
+                  ( ( amplitude($STRIP%reject_obs) > &sigma_cut*$STRIP%reject_sig ) and
+                    ( $STRIP%reject_sig # 0 ) and
+                    ( $obs_low <= amplitude($STRIP%reject_obs) <= $obs_high ) and
+                    ( &low_res >= d >= &high_res ) )
+
+   do (tst_active=0) (all)
+   do (tst_active=1) (none)
+
+   show sum(1) ( ref_active=1 and tst_active=0 )
+   evaluate ($total_work=$select)
+   show sum(1) ( ref_active=1 and tst_active=1 )
+   evaluate ($total_test=$select)
+   evaluate ($total_used=$total_work+$total_test)
+
+   evaluate ($unobserved=$total_theor-$total_read)
+   evaluate ($rejected=$total_read-$total_used)
+   evaluate ($per_unobs=100*($unobserved/$total_theor))
+   evaluate ($per_reject=100*($rejected/$total_theor))
+   evaluate ($per_used=100*($total_used/$total_theor))
+   evaluate ($per_work=100*($total_work/$total_theor))
+   evaluate ($per_test=100*($total_test/$total_theor))
+
+   tselection=( ref_active=1 )
+
+   cvselection=( none )
+
+   method=FFT          
+   
+   fft
+     grid=&grid
+     if ( &fft_memory < 0 ) then
+       automemory=true
+     else
+       memory=&fft_memory
+     end if
+   end
+
+ end                  
+
+ if ( &BLANK%ncs_infile = false ) then
+    inline @&ncs_infile
+ end if
+
+ ncs strict ? end
+
+ evaluate ($1=1)
+ evaluate ($2=2)
+ evaluate ($3=3)
+ evaluate ($4=4)
+
+ evaluate ($num_op=1)
+ evaluate ($done=false)
+ while ( $done = false ) loop ncsop
+   if ( $exist_ncsop_$num_op_$1_$1 # true ) then
+     evaluate ($done=true)
+     evaluate ($num_op=$num_op-1)
+   else
+     evaluate ($num_op=$num_op+1)
+   end if
+ end loop ncsop
+
+ if ( $log_level = verbose ) then
+   set message=normal echo=on end
+ else
+   set message=off echo=off end
+ end if
+
+ xray
+   declare name=m      domain=reci type=complex end  {(fom_obs, phi_obs)}
+   declare name=fcomb  domain=reci type=complex end  {combined FOM*Fo,phi}
+   declare name=map    domain=real           end  {density map}
+   declare name=dm_fom domain=reci type=real end
+   declare name=maptmp domain=real           end  {density map}
+
+   @CNS_XTALMODULE:getfom ( pa=&STRIP%obs_pa;
+                           pb=&STRIP%obs_pb;
+                           pc=&STRIP%obs_pc;
+                           pd=&STRIP%obs_pd;
+                           m=m;
+                           phistep=&np_phistep; )
+
+   do (dm_fom=0) (all)
+   do (dm_fom=amplitude(m)) 
+      ( (abs(&STRIP%obs_pa) > 0 or abs(&STRIP%obs_pb) > 0 or 
+         abs(&STRIP%obs_pc) > 0 or abs(&STRIP%obs_pd) > 0) )
+
+   do (fcomb=0) (all)
+   do (fcomb=combine( dm_fom amplitude(&STRIP%obs_f), phase (m) )) (dm_fom > 0)
+
+   do (map=ft(fcomb)) (&low_res >= d >= &high_res and dm_fom > 0)
+
+   declare name=mask domain=real end
+   read mask
+     to=mask
+     type=omask
+     input=&ncs_mask_infile
+   end
+
+ end
+
+ set display=&list_outfile end
+ display ======================== Summary of density averaging ========================
+ display
+ display input data ---->
+ display >>> resolution: &low_res - &high_res
+ display >>> sg= &STRIP%sg a= &a b= &b c= &c alpha= &alpha beta= &beta gamma= &gamma
+ display >>> reflection file= &STRIP%reflection_infile
+ display >>> NCS-strict file= &STRIP%ncs_infile
+ display >>> number of NCS operators= $num_op
+ display >>> NCS mask for primary molecule read from: &STRIP%ncs_mask_infile
+ display
+ display data usage ---->
+ if ( &obs_type = "intensity" ) then
+   display >>> reflections with Iobs/sigma_I < &sigma_cut rejected
+   display >>> reflections with Iobs > &obs_rms * rms(Iobs) rejected
+ else
+   display >>> reflections with |Fobs|/sigma_F < &sigma_cut rejected
+   display >>> reflections with |Fobs| > &obs_rms * rms(Fobs) rejected
+ end if
+ display >>> theoretical total number of refl. in resol. range:    $total_theor[I6] ( 100.0 % )
+ display >>> number of unobserved reflections (no entry):          $unobserved[I6] ( $per_unobs[f5.1] % )
+ display >>> number of reflections rejected:                       $rejected[I6] ( $per_reject[f5.1] % )
+ display >>> total number of reflections used:                     $total_used[I6] ( $per_used[f5.1] % )
+ display >>> number of reflections in working set:                 $total_work[I6] ( $per_work[f5.1] % )
+ display
+ set display=OUTPUT end
+ 
+ evaluate ($ncsop=2)
+ while ($ncsop <= $num_op) loop ncs
+
+   set display=&list_outfile end
+
+   display
+   display =================================================================== 
+   display
+   display >>> initial matrix for operator $ncsop
+   display     matrix= ( $ncsop_$ncsop_$1_$1 $ncsop_$ncsop_$1_$2 $ncsop_$ncsop_$1_$3 )
+   display             ( $ncsop_$ncsop_$2_$1 $ncsop_$ncsop_$2_$2 $ncsop_$ncsop_$2_$3 )
+   display             ( $ncsop_$ncsop_$3_$1 $ncsop_$ncsop_$3_$2 $ncsop_$ncsop_$3_$3 )
+   display
+   display >>> initial translation for operator $ncsop
+   display     vector= ( $ncsop_$ncsop_$1_$4 $ncsop_$ncsop_$2_$4 $ncsop_$ncsop_$3_$4 )
+
+   set display=OUTPUT end
+
+   coord
+     matrix=
+       ( $ncsop_$ncsop_$1_$1 $ncsop_$ncsop_$1_$2 $ncsop_$ncsop_$1_$3 )
+       ( $ncsop_$ncsop_$2_$1 $ncsop_$ncsop_$2_$2 $ncsop_$ncsop_$2_$3 )
+       ( $ncsop_$ncsop_$3_$1 $ncsop_$ncsop_$3_$2 $ncsop_$ncsop_$3_$3 )
+   end
+   evaluate ($euler_$ncsop_$1=$theta1)
+   evaluate ($euler_$ncsop_$2=$theta2)
+   evaluate ($euler_$ncsop_$3=$theta3)
+   evaluate ($ncsop=$ncsop+1)
+ end loop ncs
+
+ evaluate ($ncsop=2)
+ while ($ncsop <= $num_op) loop aver
+
+   xray
+     do (maptmp=map) (all)
+     average
+       from=maptmp
+       group
+         mask=mask
+         euler=( 0 0 0 )
+         translation=( 0 0 0 )
+       end
+       group
+         euler=
+           ( $euler_$ncsop_$1 $euler_$ncsop_$2 $euler_$ncsop_$3 )
+         translation=
+           ( $ncsop_$ncsop_$1_$4 $ncsop_$ncsop_$2_$4 $ncsop_$ncsop_$3_$4 )
+       end
+     end
+   end
+
+   evaluate ($startcc_$ncsop=$av_corr)
+   evaluate ($bestcc_$ncsop=$av_corr)
+   evaluate ($bestt1_$ncsop=0.0)
+   evaluate ($bestt2_$ncsop=0.0)
+   evaluate ($bestt3_$ncsop=0.0)
+   evaluate ($bestdx_$ncsop=0.0)
+   evaluate ($bestdy_$ncsop=0.0)
+   evaluate ($bestdz_$ncsop=0.0)
+
+   set display=&list_outfile end
+  
+   display >>> starting correlation for 1 -> $ncsop[i3] $av_corr[f6.4]
+   
+   set display=OUTPUT end
+
+   evaluate ($ncsop=$ncsop+1)
+
+ end loop aver
+
+ set display=&list_outfile end
+
+ display
+ display =================================================================== 
+ display 
+ display  NCS_op     theta1   theta2   theta3     CC
+ display
+   
+ set display=OUTPUT end
+
+ evaluate ($t1=&theta1_min)
+ while ( $t1 <= &theta1_max ) loop t1
+   evaluate ($t2=&theta2_min)
+   while ( $t2 <= &theta2_max ) loop t2
+     evaluate ($t3=&theta3_min)
+     while ( $t3 <= &theta3_max ) loop t3
+
+       evaluate ($ncsop=2)
+       while ($ncsop <= $num_op) loop aver
+
+         evaluate ($ncstmp_1=$euler_$ncsop_$1 + $t1)
+         evaluate ($ncstmp_2=$euler_$ncsop_$2 + $t2)
+         evaluate ($ncstmp_3=$euler_$ncsop_$3 + $t3)
+
+         xray
+           do (maptmp=map) (all)
+           average
+             from=maptmp
+             group
+               mask=mask
+               euler=( 0 0 0 )
+               translation=( 0 0 0 )
+             end
+             group
+               euler=
+                 ( $ncstmp_$1 $ncstmp_$2 $ncstmp_$3 )
+               translation=
+                 ( $ncsop_$ncsop_$1_$4 $ncsop_$ncsop_$2_$4 $ncsop_$ncsop_$3_$4 )
+             end
+           end
+         end
+
+         if ( $av_corr > $bestcc_$ncsop ) then
+           evaluate ($bestcc_$ncsop=$av_corr)
+           evaluate ($bestt1_$ncsop=$t1)
+           evaluate ($bestt2_$ncsop=$t2)
+           evaluate ($bestt3_$ncsop=$t3)
+         end if
+
+         set display=&list_outfile end
+  
+         display 1 -> $ncsop[i3]  $t1[f8.4] $t2[f8.4] $t3[f8.4] $av_corr[f8.4]
+
+         set display=OUTPUT end
+
+         evaluate ($ncsop=$ncsop+1)
+
+       end loop aver
+       evaluate ($t3=$t3+&theta3_inc)
+     end loop t3
+     evaluate ($t2=$t2+&theta2_inc)
+   end loop t2
+   evaluate ($t1=$t1+&theta1_inc)
+ end loop t1
+
+ set display=&list_outfile end
+  
+ display
+ display =================================================================== 
+ display
+
+ display  NCS_op       dx       dy       dz       CC
+
+ evaluate ($dx=&dx_min)
+ while ( $dx <= &dx_max ) loop dx
+   evaluate ($dy=&dy_min)
+   while ( $dy <= &dy_max ) loop dy
+     evaluate ($dz=&dz_min)
+     while ( $dz <= &dz_max ) loop dz
+
+       evaluate ($ncsop=2)
+       while ($ncsop <= $num_op) loop aver
+
+         evaluate ($ncstmp_1=$euler_$ncsop_$1 + $bestt1_$ncsop)
+         evaluate ($ncstmp_2=$euler_$ncsop_$2 + $bestt2_$ncsop)
+         evaluate ($ncstmp_3=$euler_$ncsop_$3 + $bestt3_$ncsop)
+         evaluate ($ncstmp_4=$ncsop_$ncsop_$1_$4 + $dx)
+         evaluate ($ncstmp_5=$ncsop_$ncsop_$2_$4 + $dy)
+         evaluate ($ncstmp_6=$ncsop_$ncsop_$3_$4 + $dz)
+
+         xray
+           do (maptmp=map) (all)
+           average
+             from=maptmp
+             group
+               mask=mask
+               euler=( 0 0 0 )
+               translation=( 0 0 0 )
+             end
+             group
+               euler=
+                 ( $ncstmp_1 $ncstmp_2 $ncstmp_3 )
+               translation=
+                 ( $ncstmp_4 $ncstmp_5 $ncstmp_6 )
+             end
+           end
+         end
+
+         if ($av_corr > $bestcc_$ncsop) then
+           evaluate ($bestcc_$ncsop=$av_corr)
+           evaluate ($bestdx_$ncsop=$dx)
+           evaluate ($bestdy_$ncsop=$dy)
+           evaluate ($bestdz_$ncsop=$dz)
+         end if
+
+         set display=&list_outfile end
+  
+         display 1 -> $ncsop[i3]  $dx[f8.4] $dy[f8.4] $dz[f8.4] $av_corr[f8.4]
+
+         set display=OUTPUT end
+
+         evaluate ($ncsop=$ncsop+1)
+
+       end loop aver
+       evaluate ($dz=$dz+&dz_inc)
+     end loop dz
+     evaluate ($dy=$dy+&dy_inc)
+   end loop dy
+   evaluate ($dx=$dx+&dx_inc)
+ end loop dx
+
+ evaluate ($ncsop=2)
+ while ($ncsop <= $num_op) loop aver
+
+   set display=&list_outfile end
+
+   evaluate ($ncstmp_1=$euler_$ncsop_$1 + $bestt1_$ncsop)
+   evaluate ($ncstmp_2=$euler_$ncsop_$2 + $bestt2_$ncsop)
+   evaluate ($ncstmp_3=$euler_$ncsop_$3 + $bestt3_$ncsop)
+
+   coord
+     euler=( $ncstmp_1 $ncstmp_2 $ncstmp_3 )
+   end
+
+   evaluate ($ncstmp_4=$ncsop_$ncsop_$1_$4+$bestdx_$ncsop)
+   evaluate ($ncstmp_5=$ncsop_$ncsop_$2_$4+$bestdy_$ncsop)
+   evaluate ($ncstmp_6=$ncsop_$ncsop_$3_$4+$bestdz_$ncsop)
+  
+   display
+   display =================================================================== 
+   display
+   display >>> optimized matrix for operator $ncsop
+   display >>> correlation coefficient= $bestcc_$ncsop
+   display     matrix= ( $rot_1_1[f9.6] $rot_1_2[f9.6] $rot_1_3[f9.6] )
+   display             ( $rot_2_1[f9.6] $rot_2_2[f9.6] $rot_2_3[f9.6] )
+   display             ( $rot_3_1[f9.6] $rot_3_2[f9.6] $rot_3_3[f9.6] )
+   display
+   display >>> optimized translation for operator $ncsop
+   display >>> correlation coefficient= $bestcc_$ncsop
+   display     vector= ( $ncstmp_4[f12.6] $ncstmp_5[f12.6] $ncstmp_6[f12.6] )
+
+   set display=OUTPUT end
+
+   evaluate ($ncsop=$ncsop+1)
+
+ end loop aver
+
+ set display=&list_outfile end
+  
+ display
+ display =================================================================== 
+
+ stop
+
+

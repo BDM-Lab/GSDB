@@ -1,0 +1,92 @@
+! Module file: printanophasingpower
+!
+! CNS module
+! **********
+!
+! Authors: Piet Gros and Axel T. Brunger
+!
+! copyright Yale University
+!
+! Function: 
+! Print statistics on the anomalous 
+!    phasing power <2Fh''>/<lack-of-closure>
+!
+! Requirements:
+! 1. This module can only be called from xray
+! 2. probability must be precomputed
+!
+
+module {PRINTANOPHASINGPOWER}
+(
+   &text="";            {identifying text}
+   &table="";           {identifying text for table}
+   &epsilon="yes";      {"yes" | "no", use epsilon weighting in summing variances}
+   &fh;                 {heavy atom structure factors}
+   &var;                {lack-of-closure variance}
+   &sel=(all);          {structure factor selection}
+   &output=OUTPUT;      {output filename}
+)
+
+checkversion 1.3
+
+set display=&output end
+
+evaluate ($pp_tiny=1E-9)
+		{*print data*}
+
+
+if (&epsilon="yes") then
+
+   display                        anomalous phasing power
+   display                        -----------------------
+   display                        sqrt<2Fh''^2>/sqrt<var_loc^2>
+   if (&text # "") then
+      display &text
+   end if
+   
+   bins ? evaluate ($old_bins=$result) 
+   statistics 
+      (sqrt(save( abs((&fh-friedel(conjugate(&fh))))^2 ))/max($pp_tiny,sqrt(save(&var))))
+      sele=( friedel_pair(&sel) and acentric )
+      output=&output
+   end 
+   bins=1
+   statistics 
+      (sqrt(save(abs((&fh-friedel(conjugate(&fh))))^2))/max($pp_tiny,sqrt(save(&var))))
+      sele=( friedel_pair(&sel) and acentric )
+      output=&output
+   end 
+   if (&table # "") then
+      display TAB: &table anomalous phasingpower= $expression1[F7.3]
+   end if
+   bins=$old_bins
+   
+else
+
+   display                        anomalous phasing power
+   display                        -----------------------
+   display                        sqrt<2Fh''^2>/sqrt<var_loc^2>
+   if (&text # "") then
+      display &text
+   end if
+   
+   bins ? evaluate ($old_bins=$result) 
+   statistics 
+      (sqrt(ave(abs((&fh-friedel(conjugate(&fh))))^2))/max($pp_tiny,sqrt(ave(&var))))
+      sele=( friedel_pair(&sel) and acentric )
+      output=&output
+   end 
+   bins=1
+   statistics 
+      (sqrt(ave(abs((&fh-friedel(conjugate(&fh))))^2))/max($pp_tiny,sqrt(ave(&var))))
+      sele=( friedel_pair(&sel) and acentric )
+      output=&output
+   end 
+   bins=$old_bins   
+   if (&table # "") then
+      display TAB: &table anomalous phasingpower= $expression1[F7.3]
+   end if
+
+end if
+
+

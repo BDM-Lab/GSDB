@@ -1,0 +1,227 @@
+<HTML>
+<HEAD>
+   <TITLE>Crystallography & NMR System</TITLE>
+</HEAD>
+<BODY BGCOLOR=#8ebf8e>
+
+<HR WIDTH="100%"></P>
+
+<H2>CNS task file syntax</H2>
+
+<HR WIDTH="100%"></P>
+
+<H3><U>Task file overview</U></H3>
+
+<P>All CNS task files have a well defined syntax. This enables them to
+be converted to HTML forms format for editing. The overall layout of
+each file is as follows:</P>
+
+<TABLE ALIGN=CENTER BORDER=2>
+<TR ALIGN=CENTER><TD>Header information</TD></TR>
+<TR ALIGN=CENTER><TD>Input parameters</TD></TR>
+<TR ALIGN=CENTER><TD>Body of the file</TD></TR>
+</TABLE>
+
+<H3><U>The header</U></H3>
+
+<P>The header section provides some information about the identity of
+the file, it uses and the authors. The format is as follows:</P>
+
+<PRE>
+{+ file: minimize.inp +}
+{+ directory: xtal_refine +}
+{+ description: Crystallographic conjugate gradient minimization refinement +}
+{+ comment: Multiple cycles of refinement can be performed +}
+{+ authors: Axel T. Brunger, and Paul D. Adams +}
+{+ copyright: Yale University +}
+
+{+ reference: A.T. Brunger, The Free R Value: a Novel Statistical
+              Quantity for Assessing the Accuracy of Crystal Structures,
+              Nature 355, 472-474 (1992) +}
+{+ reference: N.S. Pannu and R.J. Read, Improved structure refinement
+              through maximum likelihood, Acta Cryst. A52, 659-668 (1996) +}
+{+ reference: P.D. Adams, N.S. Pannu, R.J. Read and A.T. Brunger,
+              Cross-validated Maximum Likelihood Enhances Crystallographic
+              Simulated Annealing Refinement, Proc. Natl. Acad. Sci. USA
+              94, 5018-5023 (1997) +}
+</PRE>
+
+<H3><U>The input parameters</U></H3>
+
+<P>The input parameter section is the section that should be modified
+by the user for his/her particular problem. The format is as
+follows:</P>
+
+<PRE>
+{============ initial B-factor and bulk solvent corrections ==========}
+
+{* initial B-factor correction *}
+{+ choice: "no" "isotropic" "anisotropic" "anisotropic_fixed_isotropic" +}
+{===>} bscale="anisotropic";
+
+{* lower resolution limit for B-factor correction *}
+{* the correction can only be calculated using data truncated at a
+   lower resolution limit of between 8 and 6 A. The correction will be
+   applied to all reflections *}
+{===>} low_res_bscale=6.0;
+
+{* bulk solvent correction *}
+{* a mask is required around the molecule(s). The region
+   outside this mask is the solvent region *}
+{+ choice: true false +}
+{===>} bulk_sol=true;
+
+{* bulk solvent mask file *}
+{* mask will be read from O type mask file if a name is given
+   otherwise calculated from coordinates of selected atoms *}
+{===>} bulk_mask_infile="";
+
+{* solvent density level *}
+{* if negative, determined automatically
+   if positive, fixed at value given *}
+{===>} sol_k=-1;
+
+{* solvent B-factor *}
+{* if negative, determined automatically
+   if positive, fixed at value given *}
+{===>} sol_b=-1;
+
+{========================== atom selection ===========================}
+
+{* select atoms to be included in refinement *}
+{* this should include all conformations if multiple conformations are used *}
+{===>} atom_select=(known and not hydrogen);
+
+</PRE>
+
+<H3><U>Body of the file</U></H3>
+
+<P>The body of the file is in the CNS language and performs the
+appropriate commands needed. Although it does not usually require
+modification by the user it can be.</P>
+
+<H3><U>CNS markup syntax</U></H3>
+
+<TABLE ALIGN=CENTER BORDER=2 BGCOLOR=#DFDFDF>
+<TR><TD ALIGN=CENTER COLSPAN=2><I>Header information</I></TD></TR>
+<TR><TD><B>Syntax</B></TD><TD><B>Purpose</B></TD></TR>
+<TR><TD>{+ file: file.inp +}</TD><TD>Name of file</TD></TR>
+<TR><TD>{+ directory: directory +}</TD><TD>Location of file in CNS distribution</TD></TR>
+<TR><TD>{+ description: .... +}</TD><TD>Text describing task file</TD></TR>
+<TR><TD>{+ comment: .... +}</TD><TD>Comments about the task file</TD></TR>
+<TR><TD>{+ authors: John Smith, and Joe Bloggs +}</TD><TD>Authors of task file</TD></TR>
+<TR><TD>{+ copyright: Yale University +}</TD><TD>Copyright statement</TD></TR>
+<TR><TD>{+ reference: .... +}</TD><TD>Reference to relevant publication</TD></TR>
+<TR></TR>
+<TR><TD ALIGN=CENTER COLSPAN=2><I>Input parameters</I></TD></TR>
+<TR><TD><B>Syntax</B></TD><TD><B>Purpose</B></TD></TR>
+<TR><TD>{======== ..... ========}</TD><TD>Section title</TD></TR>
+<TR><TD>{* .... *}</TD><TD>Text comment (can be broken over several lines)</TD></TR>
+<TR><TD>{===>} infile="file";</TD><TD>Input parameter</TD></TR>
+<TR><TD>{+ table: rows=1 "resolution" cols=2 "lowest" "highest" +}</TD><TD>Table</TD></TR>
+<TR><TD>{+ choice: true false +}</TD><TD>Choice for following parameter</TD></TR>
+<TR><TD>
+<PRE>{+ list: mlf: ....
+         mli: .... +}</PRE></TD><TD>Formatted list</TD></TR>
+</TABLE>
+
+<H3><U>Table syntax</U></H3>
+
+<P>The table markup syntax allows tables of input parameters to be
+generated in the HTML interface:</P>
+
+<FORM ACTION="" NAME=f1 METHOD=POST>
+<TABLE ALIGN=CENTER BGCOLOR=WHITE BORDER=1 WIDTH="75%">
+  <TR><TH>&nbsp;</TH><TH>amplitude array</TH><TH>sigma array</TH>    </TR>
+  <TR ALIGN=CENTER><TH>1</TH><TD>
+    <INPUT NAME=f_w_1_quote VALUE="f_w1" SIZE=10 >
+    </TD><TD>
+    <INPUT NAME=s_w_1_quote VALUE="s_w1" SIZE=10 >
+    </TD></TR>
+  <TR ALIGN=CENTER><TH>2</TH><TD>    <INPUT NAME=f_w_2_quote VALUE="f_w2" SIZE=10 >
+    </TD><TD>
+    <INPUT NAME=s_w_2_quote VALUE="s_w2" SIZE=10 >
+    </TD></TR>
+  <TR ALIGN=CENTER><TH>3</TH><TD>    <INPUT NAME=f_w_3_quote VALUE="f_w3" SIZE=10 >
+    </TD><TD>
+    <INPUT NAME=s_w_3_quote VALUE="s_w3" SIZE=10 >
+    </TD></TR>
+  <TR ALIGN=CENTER><TH>4</TH><TD>    <INPUT NAME=f_w_4_quote VALUE="f_w4" SIZE=10 >
+    </TD><TD>
+    <INPUT NAME=s_w_4_quote VALUE="s_w4" SIZE=10 >
+    </TD></TR>
+  <TR ALIGN=CENTER><TH>5</TH><TD>    <INPUT NAME=f_w_5_quote VALUE="" SIZE=10 >
+    </TD><TD>
+    <INPUT NAME=s_w_5_quote VALUE="" SIZE=10 >
+    </TD></TR>
+</TABLE>
+</FORM>
+
+<P>The table syntax requires that the number of rows and columns is defined:</P>
+
+<PRE>{+ table: rows=1 cols=2 +}</PRE>
+
+<P>In addition the rows and columns can be given labels:</P>
+
+<PRE>{+ table: rows=1 "label" cols=2 "label" "label" +}</PRE>
+
+<P>If the number of rows or columns is large numerical labels can
+automatically be generated by the <TT>numbered</TT> keyword:</P>
+
+<PRE>{+ table: rows=1 numbered cols=2 "label" "label" +}</PRE>
+
+<P>It is important that the correct number of rows and columns is
+given for the following variables, otherwise the format of the HTML
+form page in the interface will be incorrect.</P>
+
+<H3><U>Input parameter choices</U></H3>
+
+<P>The choices available for input parameters are denoted by:</P>
+
+<PRE>{+ choice: "choice1" "choice2" "choice3" +}</PRE>
+
+<P>If an empty input is required as a choice this is denoted by:</P>
+
+<PRE>{+ choice: "choice1" "" +}</PRE>
+
+<P>If a user defined input file is required as a choice this is
+denoted by:</P>
+
+<PRE>{+ choice: "choice1" user_file +}</PRE>
+
+<P>This will generate a compound input field:</P>
+
+<FORM ACTION="" NAME=f2 METHOD=POST>
+<TABLE ALIGN=CENTER BGCOLOR=WHITE BORDER=1 WIDTH="75%">
+ <TR><TD  ALIGN=RIGHT>
+    <B> anomalous f' f'' library file </B><BR>
+    <I> If a file is not specified, no anomalous contribution will be included </I>
+    </TD><TD COLSPAN=2>
+    <SELECT NAME=anom_library_quote>
+    <OPTION>CNS_XRAYLIB:anom_cu.lib</OPTION>
+    <OPTION>CNS_XRAYLIB:anom_mo.lib</OPTION>
+    <OPTION SELECTED>_NONE_</OPTION>
+    </SELECT>
+    <BR>
+    Other: <INPUT TYPE=CHECKBOX NAME=anom_library_quote_OTHERFLAG VALUE=1>
+           <INPUT TYPE=TEXT NAME="anom_library_quote_OTHERVAL" VALUE="" SIZE=28>
+    </TD></TR>
+</TABLE>
+</FORM>
+
+<H3><U>Input parameter naming</U></H3>
+
+<P>Input parameters which are used to identify input or output files
+should use names of the form [text]_infile or
+[text]_infile_[number]. This enables the CNS HTML interface to
+recognize the parameter as a file and generate a large enough input
+field.</P>
+
+<HR WIDTH="100%"></P>
+
+<A HREF="../../text.html">Back to tutorials</A>&nbsp;&nbsp;
+
+<HR WIDTH="100%"></P>
+   
+</BODY>
+</HTML>

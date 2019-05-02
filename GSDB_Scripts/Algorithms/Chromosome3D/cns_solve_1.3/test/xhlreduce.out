@@ -1,0 +1,1246 @@
+          ============================================================
+          |                                                          |
+          |            Crystallography & NMR System (CNS)            |
+          |                         CNSsolve                         |
+          |                                                          |
+          ============================================================
+           Version: 1.3
+           Status: General release
+          ============================================================
+           Written by: A.T.Brunger, P.D.Adams, G.M.Clore, W.L.DeLano,
+                       P.Gros, R.W.Grosse-Kunstleve,J.-S.Jiang,J.M.Krahn,
+                       J.Kuszewski, M.Nilges, N.S.Pannu, R.J.Read,
+                       L.M.Rice, G.F.Schroeder, T.Simonson, G.L.Warren.
+           Copyright (c) 1997-2010 Yale University
+          ============================================================
+           Running on machine: lewis4-r710-login-node223 (x86_64/Linux,64-bit)
+                               with 16 threads
+           Program started by: oeow39
+           Program started at: 16:08:27 on 05-Jul-2018
+          ============================================================
+
+ FFT3C: Using FFTPACK4.1
+
+ CNSsolve>remarks  test_red_exp  -- test reduction and expansion of 
+ CNSsolve>remarks      phase probability distributions 
+ CNSsolve> 
+ CNSsolve>eval ($high_res=2.5 ) 
+ EVALUATE: symbol $HIGH_RES set to    2.50000     (real)
+ CNSsolve>eval ($low_res=1000. ) 
+ EVALUATE: symbol $LOW_RES set to    1000.00     (real)
+ CNSsolve> 
+ CNSsolve>structure 
+ STRUcture>data_cns_mtf 
+ REMARKS FILENAME="/data/rwgk/test/tmp.mtf"
+ REMARKS  TOPH19.pep -MACRO for protein sequence
+ REMARKS DATE:18-Nov-98  14:17:53       created by user: rwgk
+ REMARKS VERSION:0.4a
+ Status of internal molecular topology database:
+ -> NATOM=        681(MAXA=     1000000)  NBOND=        695(MAXB=     1000000)
+ -> NTHETA=      1002(MAXT=     2000000)  NGRP=          80(MAXGRP=   1000000)
+ -> NPHI=         390(MAXP=     2000000)  NIMPHI=       336(MAXIMP=   1000000)
+ -> NNB=            0(MAXNB=    1000000) 
+ STRUcture> 
+ STRUcture>end 
+ CNSsolve> 
+ CNSsolve>coor 
+ COOR>REMARK FILENAME="" 
+ COOR>REMARK  TOPH19.pep -MACRO for protein sequence 
+ COOR>REMARK DATE:11-Nov-93  11:27: 5       created by user: luke 
+ COOR>ATOM      1  CB  ASP     1       4.722  41.951  12.585  1.00 57.69 
+ COOR>ATOM      2  CG  ASP     1       5.404  40.926  13.500  1.00 60.30 
+ CNSsolve> 
+ CNSsolve> 
+ CNSsolve>structure 
+ STRUcture>data_cns_mtf 
+ REMARKS FILENAME="/data/rwgk/test/tmp.mtf"
+ REMARKS file heavy_atoms.inp   -- produces structure file for heavy atoms
+ REMARKS DATE:18-Nov-98  14:17:53       created by user: rwgk
+ REMARKS VERSION:0.4a
+ Status of internal molecular topology database:
+ -> NATOM=        685(MAXA=     1000000)  NBOND=        695(MAXB=     1000000)
+ -> NTHETA=      1002(MAXT=     2000000)  NGRP=          81(MAXGRP=   1000000)
+ -> NPHI=         390(MAXP=     2000000)  NIMPHI=       336(MAXIMP=   1000000)
+ -> NNB=            0(MAXNB=    1000000) 
+ STRUcture> 
+ STRUcture>end 
+ CNSsolve> 
+ CNSsolve>coor 
+ COOR>REMARK FILENAME="" 
+ COOR>REMARK file heavy_atoms.inp   -- produces structure file for heavy atoms 
+ COOR>REMARK DATE:23-Feb-94  18: 7: 6       created by user: brunger 
+ COOR>ATOM      1  H   H       1      28.435  19.129  16.510  1.00 15.00      IRCL 
+ COOR>ATOM      2  H   H       2      29.221  18.856  17.445  1.00 15.00      PTCL 
+ CNSsolve> 
+ CNSsolve>delete  sele=( hydrogen ) end 
+ SELRPN:    123 atoms have been selected out of    685
+ Status of internal molecular topology database:
+ -> NATOM=        562(MAXA=     1000000)  NBOND=        572(MAXB=     1000000)
+ -> NTHETA=       785(MAXT=     2000000)  NGRP=          81(MAXGRP=   1000000)
+ -> NPHI=         349(MAXP=     2000000)  NIMPHI=       254(MAXIMP=   1000000)
+ -> NNB=            0(MAXNB=    1000000) 
+ CNSsolve> 
+ CNSsolve>xray 
+ XRAY>   declare name=fobs type=complex domain=reciprocal end 
+ XDECLARE: Object FOBS has been declared.
+ XRAY>   declare name=fpart domain=reciprocal type=complex end 
+ XDECLARE: Object FPART has been declared.
+ XRAY>   declare name=fcalc domain=reciprocal type=complex end 
+ XDECLARE: Object FCALC has been declared.
+ XRAY>   declare name=fom domain=reciprocal type=real end 
+ XDECLARE: Object FOM has been declared.
+ XRAY>   declare name=weight domain=reciprocal type=real end 
+ XDECLARE: Object WEIGHT has been declared.
+ XRAY>   declare name=sigma domain=reciprocal type=real end 
+ XDECLARE: Object SIGMA has been declared.
+ XRAY>   declare name=test domain=reciprocal type=integer end 
+ XDECLARE: Object TEST has been declared.
+ XRAY> 
+ XRAY> 
+ XRAY>{===>} 
+ XRAY>   a=61.76 b=40.73 c=26.74 alpha=90.0 beta=90.0 gamma=90.0     {*Unit cell.*} 
+ XRAY> 
+ XRAY>{===>} 
+ XRAY>   eval ($SG="P2(1)2(1)2(1)") 
+ EVALUATE: symbol $SG set to "P2(1)2(1)2(1)" (string)
+ XRAY>   @CNS_XTALLIB:spacegroup.lib  (sg=$sg) 
+ ASSFIL: file spacegroup.lib opened.
+ XRAY>! file  libraries/xtal/spacegroup.lib 
+ XRAY>! library of symmetry operators for CNS 
+ XRAY>! Automatically generated with SgInfo Version 2.00a13 
+ XRAY> 
+ XRAY>module 
+ MODULE-DECLARATION>( 
+ MODULE-DECLARATION>  &sg=$sg; 
+ MODULE-DECLARATION>  &sgparam=$sgparam; 
+ MODULE-DECLARATION>) 
+ &_2_SG set to $_1_SG 
+ XRAY> 
+ XRAY>set message ? end 
+ MESSage=NORM
+ XRAY>evaluate ($message_old=$result) 
+ EVALUATE: symbol $MESSAGE_OLD set to "NORM" (string)
+ XRAY>set echo ? end 
+ ECHO=TRUE {ON}
+ XRAY>evaluate ($echo_old=$result) 
+ EVALUATE: symbol $ECHO_OLD set to TRUE (logical)
+ XRAY>set echo=off message=off end 
+SYMMETRY: found symmetry operators for space group P2(1)2(1)2(1) in library
+ XRAY> 
+ XRAY> 
+ XRAY>   anomalous=false 
+ XRAY> 
+ XRAY> 
+ XRAY>   SCATter ( chemical C* ) 
+ SELRPN:    345 atoms have been selected out of    562
+ SCATTER_A1=      2.31000 20.8439 1.02000 10.2075 1.58860 .568700 .865000 51.6512 .215600 
+ XRAY>   SCATter ( chemical N* ) 
+ SELRPN:     93 atoms have been selected out of    562
+ SCATTER_A1=      12.2126 .005700 3.13220 9.89330 2.01250 28.9975 1.16630 .582600 -11.529 
+ XRAY>   SCATter ( chemical O* ) 
+ SELRPN:    116 atoms have been selected out of    562
+ SCATTER_A1=      3.04850 13.2771 2.28680 5.70110 1.54630 .323900 .867000 32.9089 .250800 
+ XRAY>   SCATter ( chemical S* ) 
+ SELRPN:      4 atoms have been selected out of    562
+ SCATTER_A1=      6.90530 1.46790 5.20340 22.2151 1.43790 .253600 1.58630 56.1720 .866900 
+ XRAY>   SCATter ( chemical P* ) 
+ SELRPN:      0 atoms have been selected out of    562
+ SCATTER_A1=      6.43450 1.90670 4.17910 27.1570 1.78000 0.52600 1.49080 68.1645 1.11490 
+ XRAY>   SCATter ( chemical FE* ) 
+ SELRPN:      0 atoms have been selected out of    562
+ SCATTER_A1=      11.1764 4.61470 7.38630 0.30050 3.39480 11.6729 0.07240 38.5566 0.97070 
+ XRAY> 
+ XRAY>    eval ( $fprime=-5.79) 
+ EVALUATE: symbol $FPRIME set to   -5.79000     (real)
+ XRAY>    eval ( $fdprime=5.891) 
+ EVALUATE: symbol $FDPRIME set to    5.89100     (real)
+ XRAY>    eval ( $eeee=$fprime+10.472 ) 
+ EVALUATE: symbol $EEEE set to    4.68200     (real)
+ XRAY> 
+ XRAY>    SCATter ( segid "RECL" or segid "RE3C" )  { for Re } 
+ SELRPN:      2 atoms have been selected out of    562
+ SCATTER_A1=  28.762100    1.671910   15.718900    9.092270   14.556400    0.350500    5.441740   52.086098 
+ SCATTER_C=      $eeee   IMAG $fdprime 
+ XRAY> 
+ XRAY> 
+ XRAY>    eval ( $fprime=-5.391) 
+ EVALUATE: symbol $FPRIME set to   -5.39100     (real)
+ XRAY>    eval ( $fdprime=6.566) 
+ EVALUATE: symbol $FDPRIME set to    6.56600     (real)
+ XRAY>    eval ( $eeee=$fprime+8.279030 ) 
+ EVALUATE: symbol $EEEE set to    2.88803     (real)
+ XRAY> 
+ XRAY>    SCATter ( segid "IRCL" )  { for IR+3} 
+ SELRPN:      1 atoms have been selected out of    562
+ SCATTER_A1=    30.415600    1.343230   15.862000    7.109090   13.614500    0.204633    5.820080 
+ SCATTER_B4=            20.325399    $eeee IMAG $fdprime 
+ XRAY> 
+ XRAY> 
+ XRAY>    eval ( $fprime=-5.233) 
+ EVALUATE: symbol $FPRIME set to   -5.23300     (real)
+ XRAY>    eval ( $fdprime=6.925) 
+ EVALUATE: symbol $FDPRIME set to    6.92500     (real)
+ XRAY>    eval ( $eeee=$fprime+9.853290 ) 
+ EVALUATE: symbol $EEEE set to    4.62029     (real)
+ XRAY> 
+ XRAY>    SCATter ( segid "PTCL" )  { for PT+2 } 
+ SELRPN:      1 atoms have been selected out of    562
+ SCATTER_A1=  29.842899    1.329270   16.722401    7.389790   13.215300    0.263297    6.352340   22.942600 
+ SCATTER_C=        $eeee   fdp $fdprime 
+ XRAY> 
+ XRAY>    eval ($lr=10000.) 
+ EVALUATE: symbol $LR set to    10000.0     (real)
+ XRAY>    eval ($hr=1.8) 
+ EVALUATE: symbol $HR set to    1.80000     (real)
+ XRAY>    binresolution $lr $hr 
+ XRAY>    mapresolution $hr 
+ XRAY>    tselection=( $hr <= d <= $lr ) 
+ XRAY> 
+ XRAY>    generate 10000. 1.8 
+ XGENER: generating reflections to produce a full set
+         for the specified resolution range.
+ XGENE2:     6656 new reflections have been generated.
+ XRAY>    do (fobs=1) ( all ) 
+ XSFAL: allocating space for complex reciprocal space object.
+ Total of      6656 structure factor elements were selected.
+ XRAY>    do (weight=1) ( all ) 
+ XSFAL: allocating space for real reciprocal space object.
+ Total of      6656 structure factor elements were selected.
+ XRAY> 
+ XRAY> 
+ XRAY>    associate fcalc ( segid " " ) 
+ SELRPN:    558 atoms have been selected out of    562
+ XRAY> 
+ XRAY>    method=fft 
+ XRAY> 
+ XRAY> 
+ XRAY>    predict 
+ PREDict>      mode=reciprocal 
+ PREDict>      to=fcalc 
+ PREDict>      selection=( $hr <= d <= $lr ) 
+ Total of      6656 structure factor elements were selected.
+ PREDict>      atomselection=( segid " "  ) 
+ SELRPN:    558 atoms have been selected out of    562
+ PREDict>   end 
+ FCALC: #scatt.=    558 #anomalous=   0 #special pos.=  0 occupancies=1
+ XSFAL: allocating space for complex reciprocal space object.
+ XFFT: using grid [ 108,  72,  64] and sublattice [ 108( 109),  72(  73),   4]
+ XRAY> 
+ XRAY>    do (fobs=fcalc) ( amplitude(fobs) > 0.01 ) 
+ Total of      6656 structure factor elements were selected.
+ XRAY>    do (fom=1) ( amplitude(fobs) > 0.01 ) 
+ XSFAL: allocating space for real reciprocal space object.
+ Total of      6656 structure factor elements were selected.
+ XRAY> 
+ XRAY>    associate fcalc ( segid " " or segid "RECL" ) 
+ SELRPN:    559 atoms have been selected out of    562
+ XRAY> 
+ XRAY>    predict 
+ PREDict>      mode=reciprocal 
+ PREDict>      to=fcalc 
+ PREDict>      selection=( $hr <= d <= $lr ) 
+ Total of      6656 structure factor elements were selected.
+ PREDict>      atomselection=( segid " "  or segid "RECL" ) 
+ SELRPN:    559 atoms have been selected out of    562
+ PREDict>   end 
+ FCALC: #scatt.=    559 #anomalous=   0 #special pos.=  0 occupancies=1
+ XFFT: using grid [ 108,  72,  64] and sublattice [ 108( 109),  72(  73),   4]
+ XRAY> 
+ XRAY>    declare name=recl type=real domain=reciprocal end 
+ XDECLARE: Object RECL has been declared.
+ XRAY> 
+ XRAY>    do (RECL=amplitude(fcalc)) ( all ) 
+ XSFAL: allocating space for real reciprocal space object.
+ Total of      6656 structure factor elements were selected.
+ XRAY> 
+ XRAY>end 
+ CNSsolve> 
+ CNSsolve>xray 
+ XRAY>   declare domain=reci type=real name=null end 
+ XDECLARE: Object NULL has been declared.
+ XRAY>   declare domain=reci type=comp name=m end 
+ XDECLARE: Object M has been declared.
+ XRAY>   declare domain=reci type=comp name=mm end 
+ XDECLARE: Object MM has been declared.
+ XRAY>   declare domain=reci type=comp name=mmm end 
+ XDECLARE: Object MMM has been declared.
+ XRAY>   declare domain=reci type=comp name=ww end 
+ XDECLARE: Object WW has been declared.
+ XRAY>   declare domain=reci type=comp name=www end 
+ XDECLARE: Object WWW has been declared.
+ XRAY>   declare domain=reci type=real name=PA_RECL end 
+ XDECLARE: Object PA_RECL has been declared.
+ XRAY>   declare domain=reci type=real name=PB_RECL end 
+ XDECLARE: Object PB_RECL has been declared.
+ XRAY>   declare domain=reci type=real name=PC_RECL end 
+ XDECLARE: Object PC_RECL has been declared.
+ XRAY>   declare domain=reci type=real name=PD_RECL end 
+ XDECLARE: Object PD_RECL has been declared.
+ XRAY>   group 
+ GROUp>     type=hl object=pa_recl object=pb_recl object=pc_recl object=pd_recl 
+ GROUp>   end 
+ XRAY> 
+ XRAY>   declare domain=reci type=real name=PA end 
+ XDECLARE: Object PA has been declared.
+ XRAY>   declare domain=reci type=real name=PB end 
+ XDECLARE: Object PB has been declared.
+ XRAY>   declare domain=reci type=real name=PC end 
+ XDECLARE: Object PC has been declared.
+ XRAY>   declare domain=reci type=real name=PD end 
+ XDECLARE: Object PD has been declared.
+ XRAY>   do (null=0) (all) 
+ XSFAL: allocating space for real reciprocal space object.
+ Total of      6656 structure factor elements were selected.
+ XRAY>end 
+ CNSsolve> 
+ CNSsolve> 
+ CNSsolve>xray {* get Fh *} 
+ XRAY> 
+ XRAY>    associate fcalc  (segid "RECL" ) {select atoms} 
+ SELRPN:      1 atoms have been selected out of    562
+ XRAY> 
+ XRAY>    method=direct 
+ XRAY> 
+ XRAY>    predict 
+ PREDict>      mode=reciprocal 
+ PREDict>      to=fcalc 
+ PREDict>      selection=( $hr <= d <= $lr ) 
+ Total of      6656 structure factor elements were selected.
+ PREDict>      atomselection=( segid "RECL"  ) 
+ SELRPN:      1 atoms have been selected out of    562
+ PREDict>   end 
+ FCALC: #scatt.=      1 #anomalous=   0 #special pos.=  0 occupancies=1
+ XRAY> 
+ XRAY>end 
+ CNSsolve> 
+ CNSsolve>xray 
+ XRAY>    declare name=s_recl type=real domain=reciprocal end 
+ XDECLARE: Object S_RECL has been declared.
+ XRAY>    declare name=vloi type=real domain=reciprocal end 
+ XDECLARE: Object VLOI has been declared.
+ XRAY> 
+ XRAY>    do (sigma=0.01 * (amplitude(fobs) * gauss (1.0) )) ( all ) 
+ XSFAL: allocating space for real reciprocal space object.
+ Total of      6656 structure factor elements were selected.
+ XRAY>    do (s_recl=0.01 * (amplitude(recl) * gauss (1.0) )) ( all ) 
+ XSFAL: allocating space for real reciprocal space object.
+ Total of      6656 structure factor elements were selected.
+ XRAY>    do (vloi=0.001) ( all ) 
+ XSFAL: allocating space for real reciprocal space object.
+ Total of      6656 structure factor elements were selected.
+ XRAY> 
+ XRAY>    anomalous=true 
+ XPARSE: expanding data set (h,k,l)->{(h,k,l),(-h,-k,-l)}
+ XEXPFR2:     5417 new reflections have been generated.
+ XREDUC: some reflection(s) converted to CNS standard asymm. unit.
+ XRAY> 
+ XRAY>    set message=off end 
+ XRAY>    set echo=off end 
+ XRAY> 
+ XRAY>anomalous=false 
+ XPARSE: data will be reduced to hemisphere.          Anomalous signal will be lost.
+ XAVEFRIED: Friedel mates of all recipr. space obj. will be averaged.
+    (also operates on phases and HL coefficients)
+ XREDUC: some reflection(s) converted to CNS standard asymm. unit.
+ XREDU2: multiple instances found for some reflections.
+ XREDU2: deleting redundant reflections.
+ XREDU2:     5417 reflections have been deleted.
+ XREDU2: sorting all reflections.
+ XRAY> 
+ XRAY>set message=off end 
+ XRAY>set echo=off end 
+ XRAY> 
+ XRAY>show (m) (abs(phase(m)-phase(mm))>0.001 or abs(amplitude(m)-amplitude(mm))>0.001 ) 
+ Total of         0 elements were selected.
+ XRAY>show (mm) (abs(phase(m)-phase(mm))>0.001 or abs(amplitude(m)-amplitude(mm))>0.001 ) 
+ Total of         0 elements were selected.
+ XRAY> 
+ XRAY>set message=off end 
+ XRAY>set echo=off end 
+ XRAY> 
+ XRAY>show (m) ((abs(phase(m)-phase(ww))>0.001 or abs(amplitude(m)-amplitude(ww))>0.001 ) and d > 10) 
+ [H=    1 K=    0 L=    1]  Amplitude=       1.0000  Phase=      90.0000
+ [H=    3 K=    0 L=    1]  Amplitude=       1.0000  Phase=     270.0000
+ [H=    5 K=    0 L=    1]  Amplitude=       1.0000  Phase=     270.0000
+ [H=    1 K=    1 L=    1]  Amplitude=       1.0000  Phase=     320.0000
+ [H=    2 K=    1 L=    1]  Amplitude=       0.9984  Phase=     193.1502
+ [H=    3 K=    1 L=    1]  Amplitude=       1.0000  Phase=      72.5000
+ [H=    4 K=    1 L=    1]  Amplitude=       1.0000  Phase=     262.5000
+ [H=    5 K=    1 L=    1]  Amplitude=       1.0000  Phase=     257.5000
+ [H=    0 K=    2 L=    1]  Amplitude=       1.0000  Phase=       0.0000
+ [H=    1 K=    2 L=    1]  Amplitude=       1.0000  Phase=     112.5000
+ [H=    2 K=    2 L=    1]  Amplitude=       0.9710  Phase=     212.3821
+ [H=    3 K=    2 L=    1]  Amplitude=       1.0000  Phase=     257.5000
+ [H=    4 K=    2 L=    1]  Amplitude=       1.0000  Phase=     115.0000
+ [H=    1 K=    3 L=    1]  Amplitude=       1.0000  Phase=     337.5000
+ [H=    2 K=    3 L=    1]  Amplitude=       1.0000  Phase=     135.0000
+ [H=    3 K=    3 L=    1]  Amplitude=       1.0000  Phase=     240.0000
+ [H=    1 K=    0 L=    2]  Amplitude=       1.0000  Phase=     180.0000
+ [H=    3 K=    0 L=    2]  Amplitude=       1.0000  Phase=       0.0000
+ [H=    0 K=    1 L=    2]  Amplitude=       1.0000  Phase=     270.0000
+ [H=    1 K=    1 L=    2]  Amplitude=       1.0000  Phase=     147.5000
+ [H=    2 K=    1 L=    2]  Amplitude=       1.0000  Phase=      55.0000
+ [H=    3 K=    1 L=    2]  Amplitude=       1.0000  Phase=      80.0000
+ [H=    1 K=    2 L=    2]  Amplitude=       1.0000  Phase=     330.0000
+ [H=    2 K=    2 L=    2]  Amplitude=       1.0000  Phase=     167.5000
+ Total of        24 elements were selected.
+ XRAY>show (ww) (( abs(phase(m)-phase(ww))>0.001 or abs(amplitude(m)-amplitude(ww))>0.001 ) and d > 10) 
+ [H=    1 K=    0 L=    1]  Amplitude=       1.0000  Phase=     270.0000
+ [H=    3 K=    0 L=    1]  Amplitude=       1.0000  Phase=      90.0000
+ [H=    5 K=    0 L=    1]  Amplitude=       1.0000  Phase=      90.0000
+ [H=    1 K=    1 L=    1]  Amplitude=       0.6088  Phase=       0.0000
+ [H=    2 K=    1 L=    1]  Amplitude=       1.0000  Phase=     270.0000
+ [H=    3 K=    1 L=    1]  Amplitude=       1.0000  Phase=       0.0000
+ [H=    4 K=    1 L=    1]  Amplitude=       1.0000  Phase=     270.0000
+ [H=    5 K=    1 L=    1]  Amplitude=       1.0000  Phase=       0.0000
+ [H=    0 K=    2 L=    1]  Amplitude=       1.0000  Phase=     180.0000
+ [H=    1 K=    2 L=    1]  Amplitude=       1.0000  Phase=       0.0000
+ [H=    2 K=    2 L=    1]  Amplitude=       1.0000  Phase=     270.0000
+ [H=    3 K=    2 L=    1]  Amplitude=       1.0000  Phase=     180.0000
+ [H=    4 K=    2 L=    1]  Amplitude=       0.8870  Phase=      90.0000
+ [H=    1 K=    3 L=    1]  Amplitude=       1.0000  Phase=       0.0000
+ [H=    2 K=    3 L=    1]  Amplitude=       0.3827  Phase=      90.0000
+ [H=    3 K=    3 L=    1]  Amplitude=       1.0000  Phase=     180.0000
+ [H=    1 K=    0 L=    2]  Amplitude=       1.0000  Phase=       0.0000
+ [H=    3 K=    0 L=    2]  Amplitude=       1.0000  Phase=     180.0000
+ [H=    0 K=    1 L=    2]  Amplitude=       1.0000  Phase=      90.0000
+ [H=    1 K=    1 L=    2]  Amplitude=       1.0000  Phase=      90.0000
+ [H=    2 K=    1 L=    2]  Amplitude=       1.0000  Phase=     180.0000
+ [H=    3 K=    1 L=    2]  Amplitude=       0.9962  Phase=      90.0000
+ [H=    1 K=    2 L=    2]  Amplitude=       1.0000  Phase=     270.0000
+ [H=    2 K=    2 L=    2]  Amplitude=       1.0000  Phase=     180.0000
+ Total of        24 elements were selected.
+ XRAY> 
+ XRAY>   do (pa=pa_recl) ( all ) 
+ Total of      6656 structure factor elements were selected.
+ XRAY>   do (pb=pb_recl) ( all ) 
+ Total of      6656 structure factor elements were selected.
+ XRAY>   do (pc=pc_recl) ( all ) 
+ Total of      6656 structure factor elements were selected.
+ XRAY>   do (pd=pd_recl) ( all ) 
+ Total of      6656 structure factor elements were selected.
+ XRAY> 
+ XRAY> 
+ XRAY>anomalous=true 
+ XPARSE: expanding data set (h,k,l)->{(h,k,l),(-h,-k,-l)}
+ XEXPFR2:     5417 new reflections have been generated.
+ XREDUC: some reflection(s) converted to CNS standard asymm. unit.
+ XRAY> 
+ XRAY>set message=off end 
+ XRAY>set echo=off end 
+ XRAY> 
+ XRAY>show (m) (abs(phase(m)-phase(mmm))>0.001 or abs(amplitude(m)-amplitude(mmm))>0.001 ) 
+ Total of         0 elements were selected.
+ XRAY>show (mmm) (abs(phase(m)-phase(mmm))>0.001 or abs(amplitude(m)-amplitude(mmm))>0.001 ) 
+ Total of         0 elements were selected.
+ XRAY> 
+ XRAY>show (mm) (abs(phase(mm)-phase(mmm))>0.001 or abs(amplitude(mm)-amplitude(mmm))>0.001 ) 
+ Total of         0 elements were selected.
+ XRAY>show (mmm) (abs(phase(mm)-phase(mmm))>0.001 or abs(amplitude(mm)-amplitude(mmm))>0.001 ) 
+ Total of         0 elements were selected.
+ XRAY> 
+ XRAY>set message=off end 
+ XRAY>set echo=off end 
+ XRAY> 
+ XRAY>show (m) ((abs(phase(m)-phase(www))>0.001 or abs(amplitude(m)-amplitude(www))>0.001 ) and d > 10) 
+ [H=    1 K=    0 L=   -1]  Amplitude=       1.0000  Phase=     270.0000
+ [H=    3 K=    0 L=   -1]  Amplitude=       1.0000  Phase=      90.0000
+ [H=    5 K=    0 L=   -1]  Amplitude=       1.0000  Phase=      90.0000
+ [H=    0 K=    2 L=   -1]  Amplitude=       1.0000  Phase=     180.0000
+ [H=    1 K=    0 L=   -2]  Amplitude=       1.0000  Phase=       0.0000
+ [H=    3 K=    0 L=   -2]  Amplitude=       1.0000  Phase=     180.0000
+ [H=    0 K=    1 L=   -2]  Amplitude=       1.0000  Phase=      90.0000
+ [H=    1 K=    1 L=   -1]  Amplitude=       1.0000  Phase=      40.0000
+ [H=    2 K=    1 L=   -1]  Amplitude=       0.9984  Phase=     346.8498
+ [H=    3 K=    1 L=   -1]  Amplitude=       1.0000  Phase=     287.5000
+ [H=    4 K=    1 L=   -1]  Amplitude=       1.0000  Phase=     277.5000
+ [H=    5 K=    1 L=   -1]  Amplitude=       1.0000  Phase=     102.5000
+ [H=    1 K=    2 L=   -1]  Amplitude=       1.0000  Phase=     247.5000
+ [H=    2 K=    2 L=   -1]  Amplitude=       0.9710  Phase=     327.6179
+ [H=    3 K=    2 L=   -1]  Amplitude=       1.0000  Phase=     102.5000
+ [H=    4 K=    2 L=   -1]  Amplitude=       1.0000  Phase=      65.0000
+ [H=    1 K=    3 L=   -1]  Amplitude=       1.0000  Phase=      22.5000
+ [H=    2 K=    3 L=   -1]  Amplitude=       1.0000  Phase=      45.0000
+ [H=    3 K=    3 L=   -1]  Amplitude=       1.0000  Phase=     120.0000
+ [H=    1 K=    1 L=   -2]  Amplitude=       1.0000  Phase=      32.5000
+ [H=    2 K=    1 L=   -2]  Amplitude=       1.0000  Phase=     305.0000
+ [H=    3 K=    1 L=   -2]  Amplitude=       1.0000  Phase=     100.0000
+ [H=    1 K=    2 L=   -2]  Amplitude=       1.0000  Phase=     210.0000
+ [H=    2 K=    2 L=   -2]  Amplitude=       1.0000  Phase=     192.5000
+ Total of        24 elements were selected.
+ XRAY>show (www) ((abs(phase(m)-phase(www))>0.001 or abs(amplitude(m)-amplitude(www))>0.001 )  and d > 10) 
+ [H=    1 K=    0 L=   -1]  Amplitude=       1.0000  Phase=      90.0000
+ [H=    3 K=    0 L=   -1]  Amplitude=       1.0000  Phase=     270.0000
+ [H=    5 K=    0 L=   -1]  Amplitude=       1.0000  Phase=     270.0000
+ [H=    0 K=    2 L=   -1]  Amplitude=       1.0000  Phase=       0.0000
+ [H=    1 K=    0 L=   -2]  Amplitude=       1.0000  Phase=     180.0000
+ [H=    3 K=    0 L=   -2]  Amplitude=       1.0000  Phase=       0.0000
+ [H=    0 K=    1 L=   -2]  Amplitude=       1.0000  Phase=     270.0000
+ [H=    1 K=    1 L=   -1]  Amplitude=       1.0000  Phase=     320.0000
+ [H=    2 K=    1 L=   -1]  Amplitude=       0.9984  Phase=     193.1502
+ [H=    3 K=    1 L=   -1]  Amplitude=       1.0000  Phase=      72.5000
+ [H=    4 K=    1 L=   -1]  Amplitude=       1.0000  Phase=     262.5000
+ [H=    5 K=    1 L=   -1]  Amplitude=       1.0000  Phase=     257.5000
+ [H=    1 K=    2 L=   -1]  Amplitude=       1.0000  Phase=     112.5000
+ [H=    2 K=    2 L=   -1]  Amplitude=       0.9710  Phase=     212.3821
+ [H=    3 K=    2 L=   -1]  Amplitude=       1.0000  Phase=     257.5000
+ [H=    4 K=    2 L=   -1]  Amplitude=       1.0000  Phase=     115.0000
+ [H=    1 K=    3 L=   -1]  Amplitude=       1.0000  Phase=     337.5000
+ [H=    2 K=    3 L=   -1]  Amplitude=       1.0000  Phase=     135.0000
+ [H=    3 K=    3 L=   -1]  Amplitude=       1.0000  Phase=     240.0000
+ [H=    1 K=    1 L=   -2]  Amplitude=       1.0000  Phase=     147.5000
+ [H=    2 K=    1 L=   -2]  Amplitude=       1.0000  Phase=      55.0000
+ [H=    3 K=    1 L=   -2]  Amplitude=       1.0000  Phase=      80.0000
+ [H=    1 K=    2 L=   -2]  Amplitude=       1.0000  Phase=     330.0000
+ [H=    2 K=    2 L=   -2]  Amplitude=       1.0000  Phase=     167.5000
+ Total of        24 elements were selected.
+ XRAY> 
+ XRAY>show (mm) ((abs(phase(mm)-phase(www))>0.001 or abs(amplitude(mm)-amplitude(www))>0.001 ) and d > 10) 
+ [H=    1 K=    0 L=   -1]  Amplitude=       1.0000  Phase=     270.0000
+ [H=    3 K=    0 L=   -1]  Amplitude=       1.0000  Phase=      90.0000
+ [H=    5 K=    0 L=   -1]  Amplitude=       1.0000  Phase=      90.0000
+ [H=    0 K=    2 L=   -1]  Amplitude=       1.0000  Phase=     180.0000
+ [H=    1 K=    0 L=   -2]  Amplitude=       1.0000  Phase=       0.0000
+ [H=    3 K=    0 L=   -2]  Amplitude=       1.0000  Phase=     180.0000
+ [H=    0 K=    1 L=   -2]  Amplitude=       1.0000  Phase=      90.0000
+ [H=    1 K=    1 L=   -1]  Amplitude=       1.0000  Phase=      40.0000
+ [H=    2 K=    1 L=   -1]  Amplitude=       0.9984  Phase=     346.8498
+ [H=    3 K=    1 L=   -1]  Amplitude=       1.0000  Phase=     287.5000
+ [H=    4 K=    1 L=   -1]  Amplitude=       1.0000  Phase=     277.5000
+ [H=    5 K=    1 L=   -1]  Amplitude=       1.0000  Phase=     102.5000
+ [H=    1 K=    2 L=   -1]  Amplitude=       1.0000  Phase=     247.5000
+ [H=    2 K=    2 L=   -1]  Amplitude=       0.9710  Phase=     327.6179
+ [H=    3 K=    2 L=   -1]  Amplitude=       1.0000  Phase=     102.5000
+ [H=    4 K=    2 L=   -1]  Amplitude=       1.0000  Phase=      65.0000
+ [H=    1 K=    3 L=   -1]  Amplitude=       1.0000  Phase=      22.5000
+ [H=    2 K=    3 L=   -1]  Amplitude=       1.0000  Phase=      45.0000
+ [H=    3 K=    3 L=   -1]  Amplitude=       1.0000  Phase=     120.0000
+ [H=    1 K=    1 L=   -2]  Amplitude=       1.0000  Phase=      32.5000
+ [H=    2 K=    1 L=   -2]  Amplitude=       1.0000  Phase=     305.0000
+ [H=    3 K=    1 L=   -2]  Amplitude=       1.0000  Phase=     100.0000
+ [H=    1 K=    2 L=   -2]  Amplitude=       1.0000  Phase=     210.0000
+ [H=    2 K=    2 L=   -2]  Amplitude=       1.0000  Phase=     192.5000
+ Total of        24 elements were selected.
+ XRAY>show (www) ((abs(phase(mm)-phase(www))>0.001 or abs(amplitude(mm)-amplitude(www))>0.001 ) and d > 10) 
+ [H=    1 K=    0 L=   -1]  Amplitude=       1.0000  Phase=      90.0000
+ [H=    3 K=    0 L=   -1]  Amplitude=       1.0000  Phase=     270.0000
+ [H=    5 K=    0 L=   -1]  Amplitude=       1.0000  Phase=     270.0000
+ [H=    0 K=    2 L=   -1]  Amplitude=       1.0000  Phase=       0.0000
+ [H=    1 K=    0 L=   -2]  Amplitude=       1.0000  Phase=     180.0000
+ [H=    3 K=    0 L=   -2]  Amplitude=       1.0000  Phase=       0.0000
+ [H=    0 K=    1 L=   -2]  Amplitude=       1.0000  Phase=     270.0000
+ [H=    1 K=    1 L=   -1]  Amplitude=       1.0000  Phase=     320.0000
+ [H=    2 K=    1 L=   -1]  Amplitude=       0.9984  Phase=     193.1502
+ [H=    3 K=    1 L=   -1]  Amplitude=       1.0000  Phase=      72.5000
+ [H=    4 K=    1 L=   -1]  Amplitude=       1.0000  Phase=     262.5000
+ [H=    5 K=    1 L=   -1]  Amplitude=       1.0000  Phase=     257.5000
+ [H=    1 K=    2 L=   -1]  Amplitude=       1.0000  Phase=     112.5000
+ [H=    2 K=    2 L=   -1]  Amplitude=       0.9710  Phase=     212.3821
+ [H=    3 K=    2 L=   -1]  Amplitude=       1.0000  Phase=     257.5000
+ [H=    4 K=    2 L=   -1]  Amplitude=       1.0000  Phase=     115.0000
+ [H=    1 K=    3 L=   -1]  Amplitude=       1.0000  Phase=     337.5000
+ [H=    2 K=    3 L=   -1]  Amplitude=       1.0000  Phase=     135.0000
+ [H=    3 K=    3 L=   -1]  Amplitude=       1.0000  Phase=     240.0000
+ [H=    1 K=    1 L=   -2]  Amplitude=       1.0000  Phase=     147.5000
+ [H=    2 K=    1 L=   -2]  Amplitude=       1.0000  Phase=      55.0000
+ [H=    3 K=    1 L=   -2]  Amplitude=       1.0000  Phase=      80.0000
+ [H=    1 K=    2 L=   -2]  Amplitude=       1.0000  Phase=     330.0000
+ [H=    2 K=    2 L=   -2]  Amplitude=       1.0000  Phase=     167.5000
+ Total of        24 elements were selected.
+ XRAY> 
+ XRAY>show (pa_recl) (h=4 and k=4 and l=0) 
+ [H=    4 K=    4 L=    0]      -30.3143
+ Total of         1 elements were selected.
+ XRAY>show (pb_recl) (h=4 and k=4 and l=0) 
+ [H=    4 K=    4 L=    0]        0.0000
+ Total of         1 elements were selected.
+ XRAY>show (pc_recl) (h=4 and k=4 and l=0) 
+ [H=    4 K=    4 L=    0]        0.0000
+ Total of         1 elements were selected.
+ XRAY>show (pd_recl) (h=4 and k=4 and l=0) 
+ [H=    4 K=    4 L=    0]        0.0000
+ Total of         1 elements were selected.
+ XRAY> 
+ XRAY>expand 
+ XEXPA2:    36149 new reflections have been generated.
+ XRAY: data expanded and symmetry reset to P1.
+ XRAY> 
+ XRAY>set message=off end 
+ XRAY>set echo=off end 
+ XRAY> 
+ XRAY>show (m) (abs(phase(m)-phase(mmm))>0.001 or abs(amplitude(m)-amplitude(mmm))>0.1 ) 
+ Total of         0 elements were selected.
+ XRAY>show (pa_recl) (abs(phase(m)-phase(mmm))>0.001 or abs(amplitude(m)-amplitude(mmm))>0.1 ) 
+ Total of         0 elements were selected.
+ XRAY>show (pb_recl) (abs(phase(m)-phase(mmm))>0.001 or abs(amplitude(m)-amplitude(mmm))>0.1 ) 
+ Total of         0 elements were selected.
+ XRAY>show (pc_recl) (abs(phase(m)-phase(mmm))>0.001 or abs(amplitude(m)-amplitude(mmm))>0.1 ) 
+ Total of         0 elements were selected.
+ XRAY>show (pd_recl) (abs(phase(m)-phase(mmm))>0.001 or abs(amplitude(m)-amplitude(mmm))>0.1 ) 
+ Total of         0 elements were selected.
+ XRAY>show (mmm) (abs(phase(m)-phase(mmm))>0.001 or abs(amplitude(m)-amplitude(mmm))>0.1) 
+ Total of         0 elements were selected.
+ XRAY> 
+ XRAY>end 
+ CNSsolve> 
+ CNSsolve>xray 
+ XRAY> {===>} 
+ XRAY>   eval ($SG="P2(1)2(1)2(1)") 
+ EVALUATE: symbol $SG set to "P2(1)2(1)2(1)" (string)
+ XRAY>   @CNS_XTALLIB:spacegroup.lib  (sg=$sg) 
+ ASSFIL: file spacegroup.lib opened.
+ XRAY>! file  libraries/xtal/spacegroup.lib 
+ XRAY>! library of symmetry operators for CNS 
+ XRAY>! Automatically generated with SgInfo Version 2.00a13 
+ XRAY> 
+ XRAY>module 
+ MODULE-DECLARATION>( 
+ MODULE-DECLARATION>  &sg=$sg; 
+ MODULE-DECLARATION>  &sgparam=$sgparam; 
+ MODULE-DECLARATION>) 
+ &_2_SG set to $_1_SG 
+ XRAY> 
+ XRAY>set message ? end 
+ MESSage=NORM
+ XRAY>evaluate ($message_old=$result) 
+ EVALUATE: symbol $MESSAGE_OLD set to "NORM" (string)
+ XRAY>set echo ? end 
+ ECHO=TRUE {ON}
+ XRAY>evaluate ($echo_old=$result) 
+ EVALUATE: symbol $ECHO_OLD set to TRUE (logical)
+ XRAY>set echo=off message=off end 
+SYMMETRY: found symmetry operators for space group P2(1)2(1)2(1) in library
+ XRAY> 
+ XRAY> 
+ XRAY>   anomalous=false 
+ XPARSE: data will be reduced to hemisphere.          Anomalous signal will be lost.
+ XREDUC: some reflection(s) converted to CNS standard asymm. unit.
+ XREDU2: multiple instances found for some reflections.
+ XREDU2: deleting redundant reflections.
+ XREDU2:    36149 reflections have been deleted.
+ XREDU2: sorting all reflections.
+ XAVEFRIED: Friedel mates of all recipr. space obj. will be averaged.
+    (also operates on phases and HL coefficients)
+ XREDUC: some reflection(s) converted to CNS standard asymm. unit.
+ XREDU2: multiple instances found for some reflections.
+ XREDU2: deleting redundant reflections.
+ XREDU2:     5417 reflections have been deleted.
+ XREDU2: sorting all reflections.
+ XRAY> 
+ XRAY> 
+ XRAY>   anomalous=true 
+ XPARSE: expanding data set (h,k,l)->{(h,k,l),(-h,-k,-l)}
+ XEXPFR2:     5417 new reflections have been generated.
+ XREDUC: some reflection(s) converted to CNS standard asymm. unit.
+ XRAY> 
+ XRAY> 
+ XRAY>set message=off end 
+ XRAY>set echo=off end 
+ XRAY> 
+ XRAY>   declare name=m_old type=complex domain=reciprocal end 
+ XDECLARE: Object M_OLD has been declared.
+ XRAY>   do (m_old=www) ( all ) 
+ XSFAL: allocating space for complex reciprocal space object.
+ Total of     12073 structure factor elements were selected.
+ XRAY>   do (m=www) ( all ) 
+ Total of     12073 structure factor elements were selected.
+ XRAY> 
+ XRAY>   write reflection m_old sele=( all ) output=xhlreduce.dat end 
+ Total of     12073 structure factor elements were selected.
+ ASSFIL: file xhlreduce.dat opened.
+ XRAY>   undeclare name=m_old domain=reciprocal end 
+ Object M_OLD                has been undeclared.
+ XRAY> 
+ XRAY>show (m) ((abs(phase(m)-phase(www))>0.001 or abs(amplitude(m)-amplitude(www))>0.001 ) and d > 10) 
+ Total of         0 elements were selected.
+ XRAY>show (www) ((abs(phase(m)-phase(www))>0.001 or abs(amplitude(m)-amplitude(www))>0.001 )  and d > 10) 
+ Total of         0 elements were selected.
+ XRAY> 
+ XRAY>   do (pa=pa_recl) ( all ) 
+ Total of     12073 structure factor elements were selected.
+ XRAY>   do (pb=pb_recl) ( all ) 
+ Total of     12073 structure factor elements were selected.
+ XRAY>   do (pc=pc_recl) ( all ) 
+ Total of     12073 structure factor elements were selected.
+ XRAY>   do (pd=pd_recl) ( all ) 
+ Total of     12073 structure factor elements were selected.
+ XRAY> 
+ XRAY>   friedel_average 
+ XAVEFRIED: Friedel mates of all recipr. space obj. will be averaged.
+    (also operates on phases and HL coefficients)
+ XRAY> 
+ XRAY>set message=off end 
+ XRAY>set echo=off end 
+ XRAY> 
+ XRAY>show (m) ((abs(phase(m)-phase(www))>0.001 or abs(amplitude(m)-amplitude(www))>0.001 ) and d > 10) 
+ Total of         0 elements were selected.
+ XRAY>show (www) ((abs(phase(m)-phase(www))>0.001 or abs(amplitude(m)-amplitude(www))>0.001 )  and d > 10) 
+ Total of         0 elements were selected.
+ XRAY> 
+ XRAY>set message=off end 
+ XRAY>set echo=off end 
+ XRAY> 
+ XRAY>show (m) ((abs(phase(m)-phase(ww))>0.001 or abs(amplitude(m)-amplitude(ww))>0.001 ) and d > 10) 
+ [H=    1 K=    1 L=    1]  Amplitude=       1.0000  Phase=     320.0000
+ [H=    2 K=    1 L=    1]  Amplitude=       0.9984  Phase=     193.1502
+ [H=    3 K=    1 L=    1]  Amplitude=       1.0000  Phase=      72.5000
+ [H=    4 K=    1 L=    1]  Amplitude=       1.0000  Phase=     262.5000
+ [H=    5 K=    1 L=    1]  Amplitude=       1.0000  Phase=     257.5000
+ [H=    1 K=    2 L=    1]  Amplitude=       1.0000  Phase=     112.5000
+ [H=    2 K=    2 L=    1]  Amplitude=       0.9710  Phase=     212.3821
+ [H=    3 K=    2 L=    1]  Amplitude=       1.0000  Phase=     257.5000
+ [H=    4 K=    2 L=    1]  Amplitude=       1.0000  Phase=     115.0000
+ [H=    1 K=    3 L=    1]  Amplitude=       1.0000  Phase=     337.5000
+ [H=    2 K=    3 L=    1]  Amplitude=       1.0000  Phase=     135.0000
+ [H=    3 K=    3 L=    1]  Amplitude=       1.0000  Phase=     240.0000
+ [H=    1 K=    1 L=    2]  Amplitude=       1.0000  Phase=     147.5000
+ [H=    2 K=    1 L=    2]  Amplitude=       1.0000  Phase=      55.0000
+ [H=    3 K=    1 L=    2]  Amplitude=       1.0000  Phase=      80.0000
+ [H=    1 K=    2 L=    2]  Amplitude=       1.0000  Phase=     330.0000
+ [H=    2 K=    2 L=    2]  Amplitude=       1.0000  Phase=     167.5000
+ [H=    1 K=    1 L=   -1]  Amplitude=       1.0000  Phase=      40.0000
+ [H=    2 K=    1 L=   -1]  Amplitude=       0.9984  Phase=     346.8498
+ [H=    3 K=    1 L=   -1]  Amplitude=       1.0000  Phase=     287.5000
+ [H=    4 K=    1 L=   -1]  Amplitude=       1.0000  Phase=     277.5000
+ [H=    5 K=    1 L=   -1]  Amplitude=       1.0000  Phase=     102.5000
+ [H=    1 K=    2 L=   -1]  Amplitude=       1.0000  Phase=     247.5000
+ [H=    2 K=    2 L=   -1]  Amplitude=       0.9710  Phase=     327.6179
+ [H=    3 K=    2 L=   -1]  Amplitude=       1.0000  Phase=     102.5000
+ [H=    4 K=    2 L=   -1]  Amplitude=       1.0000  Phase=      65.0000
+ [H=    1 K=    3 L=   -1]  Amplitude=       1.0000  Phase=      22.5000
+ [H=    2 K=    3 L=   -1]  Amplitude=       1.0000  Phase=      45.0000
+ [H=    3 K=    3 L=   -1]  Amplitude=       1.0000  Phase=     120.0000
+ [H=    1 K=    1 L=   -2]  Amplitude=       1.0000  Phase=      32.5000
+ [H=    2 K=    1 L=   -2]  Amplitude=       1.0000  Phase=     305.0000
+ [H=    3 K=    1 L=   -2]  Amplitude=       1.0000  Phase=     100.0000
+ [H=    1 K=    2 L=   -2]  Amplitude=       1.0000  Phase=     210.0000
+ [H=    2 K=    2 L=   -2]  Amplitude=       1.0000  Phase=     192.5000
+ Total of        34 elements were selected.
+ XRAY>show (ww) ((abs(phase(m)-phase(ww))>0.001 or abs(amplitude(m)-amplitude(ww))>0.001 )  and d > 10) 
+ [H=    1 K=    1 L=    1]  Amplitude=       0.6088  Phase=     360.0000
+ [H=    2 K=    1 L=    1]  Amplitude=       1.0000  Phase=     270.0000
+ [H=    3 K=    1 L=    1]  Amplitude=       1.0000  Phase=       0.0000
+ [H=    4 K=    1 L=    1]  Amplitude=       1.0000  Phase=     270.0000
+ [H=    5 K=    1 L=    1]  Amplitude=       1.0000  Phase=       0.0000
+ [H=    1 K=    2 L=    1]  Amplitude=       1.0000  Phase=       0.0000
+ [H=    2 K=    2 L=    1]  Amplitude=       1.0000  Phase=     270.0000
+ [H=    3 K=    2 L=    1]  Amplitude=       1.0000  Phase=     180.0000
+ [H=    4 K=    2 L=    1]  Amplitude=       0.8870  Phase=      90.0000
+ [H=    1 K=    3 L=    1]  Amplitude=       1.0000  Phase=       0.0000
+ [H=    2 K=    3 L=    1]  Amplitude=       0.3827  Phase=      90.0000
+ [H=    3 K=    3 L=    1]  Amplitude=       1.0000  Phase=     180.0000
+ [H=    1 K=    1 L=    2]  Amplitude=       1.0000  Phase=      90.0000
+ [H=    2 K=    1 L=    2]  Amplitude=       1.0000  Phase=     180.0000
+ [H=    3 K=    1 L=    2]  Amplitude=       0.9962  Phase=      90.0000
+ [H=    1 K=    2 L=    2]  Amplitude=       1.0000  Phase=     270.0000
+ [H=    2 K=    2 L=    2]  Amplitude=       1.0000  Phase=     180.0000
+ [H=    1 K=    1 L=   -1]  Amplitude=       0.6088  Phase=     360.0000
+ [H=    2 K=    1 L=   -1]  Amplitude=       1.0000  Phase=     270.0000
+ [H=    3 K=    1 L=   -1]  Amplitude=       1.0000  Phase=       0.0000
+ [H=    4 K=    1 L=   -1]  Amplitude=       1.0000  Phase=     270.0000
+ [H=    5 K=    1 L=   -1]  Amplitude=       1.0000  Phase=       0.0000
+ [H=    1 K=    2 L=   -1]  Amplitude=       1.0000  Phase=       0.0000
+ [H=    2 K=    2 L=   -1]  Amplitude=       1.0000  Phase=     270.0000
+ [H=    3 K=    2 L=   -1]  Amplitude=       1.0000  Phase=     180.0000
+ [H=    4 K=    2 L=   -1]  Amplitude=       0.8870  Phase=      90.0000
+ [H=    1 K=    3 L=   -1]  Amplitude=       1.0000  Phase=       0.0000
+ [H=    2 K=    3 L=   -1]  Amplitude=       0.3827  Phase=      90.0000
+ [H=    3 K=    3 L=   -1]  Amplitude=       1.0000  Phase=     180.0000
+ [H=    1 K=    1 L=   -2]  Amplitude=       1.0000  Phase=      90.0000
+ [H=    2 K=    1 L=   -2]  Amplitude=       1.0000  Phase=     180.0000
+ [H=    3 K=    1 L=   -2]  Amplitude=       0.9962  Phase=      90.0000
+ [H=    1 K=    2 L=   -2]  Amplitude=       1.0000  Phase=     270.0000
+ [H=    2 K=    2 L=   -2]  Amplitude=       1.0000  Phase=     180.0000
+ Total of        34 elements were selected.
+ XRAY> 
+ XRAY>reflection @xhlreduce.dat end 
+ ASSFIL: file xhlreduce.dat opened.
+ REFLection> NREFlection=     12073 
+ REFLection: data will be merged with existing data.
+ REFLection> ANOMalous=TRUE { equiv. to HERMitian=FALSe} 
+ REFLection> DECLare NAME=M_OLD                  DOMAin=RECIprocal   TYPE=COMP END 
+ XDECLARE: Object M_OLD has been declared.
+ REFLection> INDE     2    0    0 M_OLD=     1.000     0.000 
+ XSFAL: allocating space for complex reciprocal space object.
+ XRRR2:        0 new h,k,l indices have been added.
+ XRAY> 
+ XRAY>show (m) (not ( abs(phase(m)-phase(m_old))<0.001 or abs(phase(m)-phase(m_old))-360<0.001 ) 
+ SHOW                or abs(amplitude(m)-amplitude(m_old))>0.1 ) 
+ Total of         0 elements were selected.
+ XRAY> 
+ XRAY> 
+ XRAY>anomalous=false 
+ XPARSE: data will be reduced to hemisphere.          Anomalous signal will be lost.
+ XAVEFRIED: Friedel mates of all recipr. space obj. will be averaged.
+    (also operates on phases and HL coefficients)
+ XREDUC: some reflection(s) converted to CNS standard asymm. unit.
+ XREDU2: multiple instances found for some reflections.
+ XREDU2: deleting redundant reflections.
+ XREDU2:     5417 reflections have been deleted.
+ XREDU2: sorting all reflections.
+ XRAY> 
+ XRAY>write reflection sele=( 4 >= d >= 3.95  ) end 
+ Total of        20 structure factor elements were selected.
+ NREFlection=        20
+ ANOMalous=FALSe { equiv. to HERMitian=TRUE}
+ DECLare NAME=FOBS                   DOMAin=RECIprocal   TYPE=COMP END
+ DECLare NAME=FCALC                  DOMAin=RECIprocal   TYPE=COMP END
+ DECLare NAME=FOM                    DOMAin=RECIprocal   TYPE=REAL END
+ DECLare NAME=WEIGHT                 DOMAin=RECIprocal   TYPE=REAL END
+ DECLare NAME=SIGMA                  DOMAin=RECIprocal   TYPE=REAL END
+ DECLare NAME=RECL                   DOMAin=RECIprocal   TYPE=REAL END
+ DECLare NAME=NULL                   DOMAin=RECIprocal   TYPE=REAL END
+ DECLare NAME=M                      DOMAin=RECIprocal   TYPE=COMP END
+ DECLare NAME=MM                     DOMAin=RECIprocal   TYPE=COMP END
+ DECLare NAME=MMM                    DOMAin=RECIprocal   TYPE=COMP END
+ DECLare NAME=WW                     DOMAin=RECIprocal   TYPE=COMP END
+ DECLare NAME=WWW                    DOMAin=RECIprocal   TYPE=COMP END
+ DECLare NAME=PA_RECL                DOMAin=RECIprocal   TYPE=REAL END
+ DECLare NAME=PB_RECL                DOMAin=RECIprocal   TYPE=REAL END
+ DECLare NAME=PC_RECL                DOMAin=RECIprocal   TYPE=REAL END
+ DECLare NAME=PD_RECL                DOMAin=RECIprocal   TYPE=REAL END
+ DECLare NAME=PA                     DOMAin=RECIprocal   TYPE=REAL END
+ DECLare NAME=PB                     DOMAin=RECIprocal   TYPE=REAL END
+ DECLare NAME=PC                     DOMAin=RECIprocal   TYPE=REAL END
+ DECLare NAME=PD                     DOMAin=RECIprocal   TYPE=REAL END
+ DECLare NAME=S_RECL                 DOMAin=RECIprocal   TYPE=REAL END
+ DECLare NAME=VLOI                   DOMAin=RECIprocal   TYPE=REAL END
+ DECLare NAME=M_OLD                  DOMAin=RECIprocal   TYPE=COMP END
+ GROUp  TYPE=HL  
+     OBJEct=PA_RECL             
+     OBJEct=PB_RECL             
+     OBJEct=PC_RECL             
+     OBJEct=PD_RECL             
+ END
+ INDE     3   10    0 FOBS=    52.046    90.000 FCALC=    60.318    90.000
+                   FOM=     1.000 WEIGHT=     1.000 SIGMA=     0.253
+                   RECL=   112.446 NULL=     0.000 M=     1.000    90.000
+                   MM=     1.000    90.000 MMM=     1.000    90.000
+                   WW=     1.000    90.000 WWW=     1.000    90.000
+                   PA_RECL=     0.000 PB_RECL=    0.542607E+07
+                   PC_RECL=     0.000 PD_RECL=     0.000 PA=     0.000
+                   PB=    0.542607E+07 PC=     0.000 PD=     0.000
+                   S_RECL=     0.139 VLOI=     0.001 M_OLD=     1.000    90.000
+ INDE    15    2    1 FOBS=   223.497   287.437 FCALC=   116.644   282.753
+                   FOM=     1.000 WEIGHT=     1.000 SIGMA=    -0.571
+                   RECL=   340.026 NULL=     0.000 M=     0.999   281.140
+                   MM=     0.999   281.140 MMM=     0.999   281.140
+                   WW=     1.000     0.000 WWW=     0.999   281.140
+                   PA_RECL=    0.129566E+07 PB_RECL=   -0.572442E+07
+                   PC_RECL=    0.132628E+07 PD_RECL=    0.632797E+06
+                   PA=    0.129566E+07 PB=     0.000 PC=    0.132628E+07
+                   PD=     0.000 S_RECL=     1.870 VLOI=     0.001
+                   M_OLD=     0.999   281.140
+ INDE    11    7    1 FOBS=   194.513    31.449 FCALC=    62.368   121.914
+                   FOM=     1.000 WEIGHT=     1.000 SIGMA=     2.450
+                   RECL=   203.802 NULL=     0.000 M=     1.000   212.500
+                   MM=     1.000   212.500 MMM=     1.000   212.500
+                   WW=     1.000     0.000 WWW=     1.000   212.500
+                   PA_RECL= 14645.160 PB_RECL=-23515.603
+                   PC_RECL=    0.390682E+06 PD_RECL=    0.794953E+06
+                   PA= 14645.160 PB=     0.000 PC=    0.390682E+06 PD=     0.000
+                   S_RECL=     1.585 VLOI=     0.001 M_OLD=     1.000   212.500
+ INDE     7    9    1 FOBS=   154.852    54.108 FCALC=    75.925   153.771
+                   FOM=     1.000 WEIGHT=     1.000 SIGMA=    -0.638
+                   RECL=   160.651 NULL=     0.000 M=     1.000    55.000
+                   MM=     1.000    55.000 MMM=     1.000    55.000
+                   WW=     0.259     0.000 WWW=     1.000    55.000
+                   PA_RECL=    0.803527E+06 PB_RECL=   -0.395897E+06
+                   PC_RECL=   -0.815423E+06 PD_RECL=    0.106110E+07
+                   PA=    0.803527E+06 PB=     0.000 PC=   -0.815423E+06
+                   PD=     0.000 S_RECL=    -3.811 VLOI=     0.001
+                   M_OLD=     1.000    55.000
+ INDE     2   10    1 FOBS=    67.345   305.169 FCALC=   106.329    20.697
+                   FOM=     1.000 WEIGHT=     1.000 SIGMA=    -0.078
+                   RECL=   139.480 NULL=     0.000 M=     1.000   305.000
+                   MM=     1.000   305.000 MMM=     1.000   305.000
+                   WW=     1.000    90.000 WWW=     1.000   305.000
+                   PA_RECL=    0.621988E+06 PB_RECL=    0.234992E+06
+                   PC_RECL=   -0.494245E+06 PD_RECL=   -0.435641E+06
+                   PA=     0.000 PB=    0.234992E+06 PC=   -0.494245E+06
+                   PD=     0.000 S_RECL=     1.625 VLOI=     0.001
+                   M_OLD=     1.000   305.000
+ INDE     3   10    1 FOBS=   121.118   301.559 FCALC=    74.289    37.216
+                   FOM=     1.000 WEIGHT=     1.000 SIGMA=     0.627
+                   RECL=   135.741 NULL=     0.000 M=     1.000   132.500
+                   MM=     1.000   132.500 MMM=     1.000   132.500
+                   WW=     0.301   180.000 WWW=     1.000   132.500
+                   PA_RECL=   -0.342658E+06 PB_RECL=   -0.260245E+06
+                   PC_RECL=   -0.294711E+06 PD_RECL=   -0.105786E+07
+                   PA=   -0.342658E+06 PB=     0.000 PC=   -0.294711E+06
+                   PD=     0.000 S_RECL=    -2.319 VLOI=     0.001
+                   M_OLD=     1.000   132.500
+ INDE     6    9    2 FOBS=   165.660   289.333 FCALC=   102.584    65.461
+                   FOM=     1.000 WEIGHT=     1.000 SIGMA=    -0.072
+                   RECL=   116.031 NULL=     0.000 M=     1.000   290.000
+                   MM=     1.000   290.000 MMM=     1.000   290.000
+                   WW=     1.000   180.000 WWW=     1.000   290.000
+                   PA_RECL=   -0.642285E+07 PB_RECL=   -0.140680E+08
+                   PC_RECL=    0.351269E+07 PD_RECL=   -0.405213E+07
+                   PA=   -0.642285E+07 PB=     0.000 PC=    0.351269E+07
+                   PD=     0.000 S_RECL=    -0.071 VLOI=     0.001
+                   M_OLD=     1.000   290.000
+ INDE    14    0    3 FOBS=   345.439    90.000 FCALC=   141.192   270.000
+                   FOM=     1.000 WEIGHT=     1.000 SIGMA=    -4.126
+                   RECL=   204.080 NULL=     0.000 M=     1.000    90.000
+                   MM=     1.000    90.000 MMM=     1.000    90.000
+                   WW=     1.000    90.000 WWW=     1.000    90.000
+                   PA_RECL=     0.000 PB_RECL=    0.399174E+08
+                   PC_RECL=     0.000 PD_RECL=     0.000 PA=     0.000
+                   PB=    0.399174E+08 PC=     0.000 PD=     0.000
+                   S_RECL=    -3.261 VLOI=     0.001 M_OLD=     1.000    90.000
+ INDE     9    7    3 FOBS=   103.543   273.359 FCALC=   170.028   357.952
+                   FOM=     1.000 WEIGHT=     1.000 SIGMA=     1.469
+                   RECL=   207.421 NULL=     0.000 M=     1.000    82.500
+                   MM=     1.000    82.500 MMM=     1.000    82.500
+                   WW=     0.087     0.000 WWW=     1.000    82.500
+                   PA_RECL=    0.693711E+06 PB_RECL=-24806.166
+                   PC_RECL=   -0.179638E+07 PD_RECL=    0.128637E+06
+                   PA=    0.693711E+06 PB=     0.000 PC=   -0.179638E+07
+                   PD=     0.000 S_RECL=    -0.752 VLOI=     0.001
+                   M_OLD=     1.000    82.500
+ INDE     7    8    3 FOBS=   241.101    52.655 FCALC=    48.727    96.879
+                   FOM=     1.000 WEIGHT=     1.000 SIGMA=     3.117
+                   RECL=   278.148 NULL=     0.000 M=     1.000    52.500
+                   MM=     1.000    52.500 MMM=     1.000    52.500
+                   WW=     1.000   180.000 WWW=     1.000    52.500
+                   PA_RECL=   -0.153328E+06 PB_RECL=    0.127099E+07
+                   PC_RECL=    0.433176E+06 PD_RECL=    0.106057E+06
+                   PA=   -0.153328E+06 PB=     0.000 PC=    0.433176E+06
+                   PD=     0.000 S_RECL=     1.628 VLOI=     0.001
+                   M_OLD=     1.000    52.500
+ INDE     3    9    3 FOBS=   184.481   280.356 FCALC=    70.278   198.640
+                   FOM=     1.000 WEIGHT=     1.000 SIGMA=    -1.301
+                   RECL=   206.704 NULL=     0.000 M=     1.000   280.000
+                   MM=     1.000   280.000 MMM=     1.000   280.000
+                   WW=     0.174   180.000 WWW=     1.000   280.000
+                   PA_RECL=   -0.539747E+06 PB_RECL=   -0.182061E+06
+                   PC_RECL=   -0.782576E+06 PD_RECL=   -0.595718E+06
+                   PA=   -0.539747E+06 PB=     0.000 PC=   -0.782576E+06
+                   PD=     0.000 S_RECL=     0.317 VLOI=     0.001
+                   M_OLD=     1.000   280.000
+ INDE    12    2    4 FOBS=   116.585    77.420 FCALC=   142.079    89.656
+                   FOM=     1.000 WEIGHT=     1.000 SIGMA=     1.333
+                   RECL=   257.380 NULL=     0.000 M=     1.000    77.500
+                   MM=     1.000    77.500 MMM=     1.000    77.500
+                   WW=     1.000     0.000 WWW=     1.000    77.500
+                   PA_RECL= 24382.202 PB_RECL=    0.405895E+07
+                   PC_RECL=    0.103539E+07 PD_RECL=-12439.643 PA= 24382.202
+                   PB=     0.000 PC=    0.103539E+07 PD=     0.000
+                   S_RECL=    -0.346 VLOI=     0.001 M_OLD=     1.000    77.500
+ INDE    11    4    4 FOBS=   156.633   270.391 FCALC=    15.000   296.788
+                   FOM=     1.000 WEIGHT=     1.000 SIGMA=    -0.246
+                   RECL=   170.211 NULL=     0.000 M=     0.902   289.885
+                   MM=     0.902   289.885 MMM=     0.902   289.885
+                   WW=     1.000   270.000 WWW=     0.902   289.885
+                   PA_RECL= 76988.307 PB_RECL=   -0.152491E+06
+                   PC_RECL= 28283.234 PD_RECL= 38328.385 PA=     0.000
+                   PB=   -0.152491E+06 PC= 28283.234 PD=     0.000
+                   S_RECL=    -0.822 VLOI=     0.001 M_OLD=     0.902   289.885
+ INDE    10    5    4 FOBS=   193.315   197.701 FCALC=    64.161   288.188
+                   FOM=     1.000 WEIGHT=     1.000 SIGMA=     0.511
+                   RECL=   203.191 NULL=     0.000 M=     1.000   197.500
+                   MM=     1.000   197.500 MMM=     1.000   197.500
+                   WW=     1.000   180.000 WWW=     1.000   197.500
+                   PA_RECL= -9412.054 PB_RECL= 28646.419
+                   PC_RECL=    0.749981E+06 PD_RECL=    0.552467E+06
+                   PA= -9412.054 PB=     0.000 PC=    0.749981E+06 PD=     0.000
+                   S_RECL=    -1.462 VLOI=     0.001 M_OLD=     1.000   197.500
+ INDE     3    8    4 FOBS=    52.285   136.185 FCALC=   180.412   180.305
+                   FOM=     1.000 WEIGHT=     1.000 SIGMA=     0.520
+                   RECL=   221.182 NULL=     0.000 M=     1.000   137.500
+                   MM=     1.000   137.500 MMM=     1.000   137.500
+                   WW=     1.000   270.000 WWW=     1.000   137.500
+                   PA_RECL=   -0.131490E+07 PB_RECL= -6993.571
+                   PC_RECL=   -0.454678E+06 PD_RECL= -4836.728 PA=     0.000
+                   PB= -6993.571 PC=   -0.454678E+06 PD=     0.000
+                   S_RECL=    -0.064 VLOI=     0.001 M_OLD=     1.000   137.500
+ INDE    10    2    5 FOBS=   370.932     9.992 FCALC=    97.752   126.933
+                   FOM=     1.000 WEIGHT=     1.000 SIGMA=    -3.360
+                   RECL=   338.047 NULL=     0.000 M=     1.000    10.000
+                   MM=     1.000    10.000 MMM=     1.000    10.000
+                   WW=     1.000   270.000 WWW=     1.000    10.000
+                   PA_RECL=    0.313273E+07 PB_RECL=   -0.416747E+07
+                   PC_RECL=    0.799133E+06 PD_RECL=    0.276235E+07
+                   PA=     0.000 PB=   -0.416747E+07 PC=    0.799133E+06
+                   PD=     0.000 S_RECL=    -4.928 VLOI=     0.001
+                   M_OLD=     1.000    10.000
+ INDE     7    5    5 FOBS=   139.273   163.798 FCALC=    76.295   147.565
+                   FOM=     1.000 WEIGHT=     1.000 SIGMA=     1.677
+                   RECL=   213.690 NULL=     0.000 M=     1.000   132.602
+                   MM=     1.000   132.602 MMM=     1.000   132.602
+                   WW=     1.000   180.000 WWW=     1.000   132.602
+                   PA_RECL=   -0.200718E+07 PB_RECL=    0.127550E+07
+                   PC_RECL=   -0.262448E+06 PD_RECL=    0.559488E+06
+                   PA=   -0.200718E+07 PB=     0.000 PC=   -0.262448E+06
+                   PD=     0.000 S_RECL=     3.510 VLOI=     0.001
+                   M_OLD=     1.000   132.602
+ INDE     5    6    5 FOBS=   402.864   166.278 FCALC=   106.620   163.226
+                   FOM=     1.000 WEIGHT=     1.000 SIGMA=    -0.328
+                   RECL=   509.491 NULL=     0.000 M=     1.000   163.148
+                   MM=     1.000   163.148 MMM=     1.000   163.148
+                   WW=     1.000   180.000 WWW=     1.000   163.148
+                   PA_RECL=   -0.680539E+07 PB_RECL=    0.205129E+07
+                   PC_RECL=   -0.148082E+07 PD_RECL=    0.981917E+06
+                   PA=   -0.680539E+07 PB=     0.000 PC=   -0.148082E+07
+                   PD=     0.000 S_RECL=     3.491 VLOI=     0.001
+                   M_OLD=     1.000   163.148
+ INDE     7    0    6 FOBS=   363.667     0.000 FCALC=    41.341   180.000
+                   FOM=     1.000 WEIGHT=     1.000 SIGMA=    -9.299
+                   RECL=   322.270 NULL=     0.000 M=     1.000     0.000
+                   MM=     1.000     0.000 MMM=     1.000     0.000
+                   WW=     1.000     0.000 WWW=     1.000     0.000
+                   PA_RECL=    0.342278E+07 PB_RECL=     0.000
+                   PC_RECL=     0.000 PD_RECL=     0.000 PA=   -0.342278E+07
+                   PB=     0.000 PC=     0.000 PD=     0.000 S_RECL=     0.162
+                   VLOI=     0.001 M_OLD=     1.000     0.000
+ INDE     7    1    6 FOBS=   352.165    13.875 FCALC=    73.064   120.098
+                   FOM=     1.000 WEIGHT=     1.000 SIGMA=     2.182
+                   RECL=   339.082 NULL=     0.000 M=     1.000    15.000
+                   MM=     1.000    15.000 MMM=     1.000    15.000
+                   WW=     0.500   270.000 WWW=     1.000    15.000
+                   PA_RECL=    0.806977E+06 PB_RECL=   -0.139224E+07
+                   PC_RECL=    0.715511E+06 PD_RECL=    0.124912E+07
+                   PA=     0.000 PB=   -0.139224E+07 PC=    0.715511E+06
+                   PD=     0.000 S_RECL=    -1.027 VLOI=     0.001
+                   M_OLD=     1.000    15.000
+ XRAY> 
+ XRAY>flip 
+ XRAY> 
+ XRAY>write reflection selection=( 4 >= d >= 3.95 ) end 
+ XREDUC: some reflection(s) converted to CNS standard asymm. unit.
+ Total of        20 structure factor elements were selected.
+ NREFlection=        20
+ ANOMalous=FALSe { equiv. to HERMitian=TRUE}
+ DECLare NAME=FOBS                   DOMAin=RECIprocal   TYPE=COMP END
+ DECLare NAME=FCALC                  DOMAin=RECIprocal   TYPE=COMP END
+ DECLare NAME=FOM                    DOMAin=RECIprocal   TYPE=REAL END
+ DECLare NAME=WEIGHT                 DOMAin=RECIprocal   TYPE=REAL END
+ DECLare NAME=SIGMA                  DOMAin=RECIprocal   TYPE=REAL END
+ DECLare NAME=RECL                   DOMAin=RECIprocal   TYPE=REAL END
+ DECLare NAME=NULL                   DOMAin=RECIprocal   TYPE=REAL END
+ DECLare NAME=M                      DOMAin=RECIprocal   TYPE=COMP END
+ DECLare NAME=MM                     DOMAin=RECIprocal   TYPE=COMP END
+ DECLare NAME=MMM                    DOMAin=RECIprocal   TYPE=COMP END
+ DECLare NAME=WW                     DOMAin=RECIprocal   TYPE=COMP END
+ DECLare NAME=WWW                    DOMAin=RECIprocal   TYPE=COMP END
+ DECLare NAME=PA_RECL                DOMAin=RECIprocal   TYPE=REAL END
+ DECLare NAME=PB_RECL                DOMAin=RECIprocal   TYPE=REAL END
+ DECLare NAME=PC_RECL                DOMAin=RECIprocal   TYPE=REAL END
+ DECLare NAME=PD_RECL                DOMAin=RECIprocal   TYPE=REAL END
+ DECLare NAME=PA                     DOMAin=RECIprocal   TYPE=REAL END
+ DECLare NAME=PB                     DOMAin=RECIprocal   TYPE=REAL END
+ DECLare NAME=PC                     DOMAin=RECIprocal   TYPE=REAL END
+ DECLare NAME=PD                     DOMAin=RECIprocal   TYPE=REAL END
+ DECLare NAME=S_RECL                 DOMAin=RECIprocal   TYPE=REAL END
+ DECLare NAME=VLOI                   DOMAin=RECIprocal   TYPE=REAL END
+ DECLare NAME=M_OLD                  DOMAin=RECIprocal   TYPE=COMP END
+ GROUp  TYPE=HL  
+     OBJEct=PA_RECL             
+     OBJEct=PB_RECL             
+     OBJEct=PC_RECL             
+     OBJEct=PD_RECL             
+ END
+ INDE     3   10    0 FOBS=    52.046   270.000 FCALC=    60.318   270.000
+                   FOM=     1.000 WEIGHT=     1.000 SIGMA=     0.253
+                   RECL=   112.446 NULL=     0.000 M=     1.000   270.000
+                   MM=     1.000   270.000 MMM=     1.000   270.000
+                   WW=     1.000   270.000 WWW=     1.000   270.000
+                   PA_RECL=     0.000 PB_RECL=   -0.542607E+07
+                   PC_RECL=     0.000 PD_RECL=     0.000 PA=     0.000
+                   PB=    0.542607E+07 PC=     0.000 PD=     0.000
+                   S_RECL=     0.139 VLOI=     0.001 M_OLD=     1.000   270.000
+ INDE    15    2    1 FOBS=   223.497    72.563 FCALC=   116.644    77.247
+                   FOM=     1.000 WEIGHT=     1.000 SIGMA=    -0.571
+                   RECL=   340.026 NULL=     0.000 M=     0.999    78.860
+                   MM=     0.999    78.860 MMM=     0.999    78.860
+                   WW=     1.000     0.000 WWW=     0.999    78.860
+                   PA_RECL=    0.129566E+07 PB_RECL=    0.572442E+07
+                   PC_RECL=    0.132628E+07 PD_RECL=   -0.632797E+06
+                   PA=    0.129566E+07 PB=     0.000 PC=    0.132628E+07
+                   PD=     0.000 S_RECL=     1.870 VLOI=     0.001
+                   M_OLD=     0.999    78.860
+ INDE    11    7    1 FOBS=   194.513   328.551 FCALC=    62.368   238.086
+                   FOM=     1.000 WEIGHT=     1.000 SIGMA=     2.450
+                   RECL=   203.802 NULL=     0.000 M=     1.000   147.500
+                   MM=     1.000   147.500 MMM=     1.000   147.500
+                   WW=     1.000     0.000 WWW=     1.000   147.500
+                   PA_RECL= 14645.160 PB_RECL= 23515.603
+                   PC_RECL=    0.390682E+06 PD_RECL=   -0.794953E+06
+                   PA= 14645.160 PB=     0.000 PC=    0.390682E+06 PD=     0.000
+                   S_RECL=     1.585 VLOI=     0.001 M_OLD=     1.000   147.500
+ INDE     7    9    1 FOBS=   154.852   305.892 FCALC=    75.925   206.229
+                   FOM=     1.000 WEIGHT=     1.000 SIGMA=    -0.638
+                   RECL=   160.651 NULL=     0.000 M=     1.000   305.000
+                   MM=     1.000   305.000 MMM=     1.000   305.000
+                   WW=     0.259     0.000 WWW=     1.000   305.000
+                   PA_RECL=    0.803527E+06 PB_RECL=    0.395897E+06
+                   PC_RECL=   -0.815423E+06 PD_RECL=   -0.106110E+07
+                   PA=    0.803527E+06 PB=     0.000 PC=   -0.815423E+06
+                   PD=     0.000 S_RECL=    -3.811 VLOI=     0.001
+                   M_OLD=     1.000   305.000
+ INDE     2   10    1 FOBS=    67.345    54.831 FCALC=   106.329   339.303
+                   FOM=     1.000 WEIGHT=     1.000 SIGMA=    -0.078
+                   RECL=   139.480 NULL=     0.000 M=     1.000    55.000
+                   MM=     1.000    55.000 MMM=     1.000    55.000
+                   WW=     1.000   270.000 WWW=     1.000    55.000
+                   PA_RECL=    0.621988E+06 PB_RECL=   -0.234992E+06
+                   PC_RECL=   -0.494245E+06 PD_RECL=    0.435641E+06
+                   PA=     0.000 PB=    0.234992E+06 PC=   -0.494245E+06
+                   PD=     0.000 S_RECL=     1.625 VLOI=     0.001
+                   M_OLD=     1.000    55.000
+ INDE     3   10    1 FOBS=   121.118    58.441 FCALC=    74.289   322.784
+                   FOM=     1.000 WEIGHT=     1.000 SIGMA=     0.627
+                   RECL=   135.741 NULL=     0.000 M=     1.000   227.500
+                   MM=     1.000   227.500 MMM=     1.000   227.500
+                   WW=     0.301   180.000 WWW=     1.000   227.500
+                   PA_RECL=   -0.342658E+06 PB_RECL=    0.260245E+06
+                   PC_RECL=   -0.294711E+06 PD_RECL=    0.105786E+07
+                   PA=   -0.342658E+06 PB=     0.000 PC=   -0.294711E+06
+                   PD=     0.000 S_RECL=    -2.319 VLOI=     0.001
+                   M_OLD=     1.000   227.500
+ INDE     6    9    2 FOBS=   165.660    70.667 FCALC=   102.584   294.539
+                   FOM=     1.000 WEIGHT=     1.000 SIGMA=    -0.072
+                   RECL=   116.031 NULL=     0.000 M=     1.000    70.000
+                   MM=     1.000    70.000 MMM=     1.000    70.000
+                   WW=     1.000   180.000 WWW=     1.000    70.000
+                   PA_RECL=   -0.642285E+07 PB_RECL=    0.140680E+08
+                   PC_RECL=    0.351269E+07 PD_RECL=    0.405213E+07
+                   PA=   -0.642285E+07 PB=     0.000 PC=    0.351269E+07
+                   PD=     0.000 S_RECL=    -0.071 VLOI=     0.001
+                   M_OLD=     1.000    70.000
+ INDE    14    0    3 FOBS=   345.439   270.000 FCALC=   141.192    90.000
+                   FOM=     1.000 WEIGHT=     1.000 SIGMA=    -4.126
+                   RECL=   204.080 NULL=     0.000 M=     1.000   270.000
+                   MM=     1.000   270.000 MMM=     1.000   270.000
+                   WW=     1.000   270.000 WWW=     1.000   270.000
+                   PA_RECL=     0.000 PB_RECL=   -0.399174E+08
+                   PC_RECL=     0.000 PD_RECL=     0.000 PA=     0.000
+                   PB=    0.399174E+08 PC=     0.000 PD=     0.000
+                   S_RECL=    -3.261 VLOI=     0.001 M_OLD=     1.000   270.000
+ INDE     9    7    3 FOBS=   103.543    86.641 FCALC=   170.028     2.048
+                   FOM=     1.000 WEIGHT=     1.000 SIGMA=     1.469
+                   RECL=   207.421 NULL=     0.000 M=     1.000   277.500
+                   MM=     1.000   277.500 MMM=     1.000   277.500
+                   WW=     0.087     0.000 WWW=     1.000   277.500
+                   PA_RECL=    0.693711E+06 PB_RECL= 24806.166
+                   PC_RECL=   -0.179638E+07 PD_RECL=   -0.128637E+06
+                   PA=    0.693711E+06 PB=     0.000 PC=   -0.179638E+07
+                   PD=     0.000 S_RECL=    -0.752 VLOI=     0.001
+                   M_OLD=     1.000   277.500
+ INDE     7    8    3 FOBS=   241.101   307.345 FCALC=    48.727   263.121
+                   FOM=     1.000 WEIGHT=     1.000 SIGMA=     3.117
+                   RECL=   278.148 NULL=     0.000 M=     1.000   307.500
+                   MM=     1.000   307.500 MMM=     1.000   307.500
+                   WW=     1.000   180.000 WWW=     1.000   307.500
+                   PA_RECL=   -0.153328E+06 PB_RECL=   -0.127099E+07
+                   PC_RECL=    0.433176E+06 PD_RECL=   -0.106057E+06
+                   PA=   -0.153328E+06 PB=     0.000 PC=    0.433176E+06
+                   PD=     0.000 S_RECL=     1.628 VLOI=     0.001
+                   M_OLD=     1.000   307.500
+ INDE     3    9    3 FOBS=   184.481    79.644 FCALC=    70.278   161.360
+                   FOM=     1.000 WEIGHT=     1.000 SIGMA=    -1.301
+                   RECL=   206.704 NULL=     0.000 M=     1.000    80.000
+                   MM=     1.000    80.000 MMM=     1.000    80.000
+                   WW=     0.174   180.000 WWW=     1.000    80.000
+                   PA_RECL=   -0.539747E+06 PB_RECL=    0.182061E+06
+                   PC_RECL=   -0.782576E+06 PD_RECL=    0.595718E+06
+                   PA=   -0.539747E+06 PB=     0.000 PC=   -0.782576E+06
+                   PD=     0.000 S_RECL=     0.317 VLOI=     0.001
+                   M_OLD=     1.000    80.000
+ INDE    12    2    4 FOBS=   116.585   282.580 FCALC=   142.079   270.344
+                   FOM=     1.000 WEIGHT=     1.000 SIGMA=     1.333
+                   RECL=   257.380 NULL=     0.000 M=     1.000   282.500
+                   MM=     1.000   282.500 MMM=     1.000   282.500
+                   WW=     1.000     0.000 WWW=     1.000   282.500
+                   PA_RECL= 24382.202 PB_RECL=   -0.405895E+07
+                   PC_RECL=    0.103539E+07 PD_RECL= 12439.643 PA= 24382.202
+                   PB=     0.000 PC=    0.103539E+07 PD=     0.000
+                   S_RECL=    -0.346 VLOI=     0.001 M_OLD=     1.000   282.500
+ INDE    11    4    4 FOBS=   156.633    89.609 FCALC=    15.000    63.212
+                   FOM=     1.000 WEIGHT=     1.000 SIGMA=    -0.246
+                   RECL=   170.211 NULL=     0.000 M=     0.902    70.115
+                   MM=     0.902    70.115 MMM=     0.902    70.115
+                   WW=     1.000    90.000 WWW=     0.902    70.115
+                   PA_RECL= 76988.307 PB_RECL=    0.152491E+06
+                   PC_RECL= 28283.234 PD_RECL=-38328.385 PA=     0.000
+                   PB=   -0.152491E+06 PC= 28283.234 PD=     0.000
+                   S_RECL=    -0.822 VLOI=     0.001 M_OLD=     0.902    70.115
+ INDE    10    5    4 FOBS=   193.315   162.299 FCALC=    64.161    71.812
+                   FOM=     1.000 WEIGHT=     1.000 SIGMA=     0.511
+                   RECL=   203.191 NULL=     0.000 M=     1.000   162.500
+                   MM=     1.000   162.500 MMM=     1.000   162.500
+                   WW=     1.000   180.000 WWW=     1.000   162.500
+                   PA_RECL= -9412.054 PB_RECL=-28646.419
+                   PC_RECL=    0.749981E+06 PD_RECL=   -0.552467E+06
+                   PA= -9412.054 PB=     0.000 PC=    0.749981E+06 PD=     0.000
+                   S_RECL=    -1.462 VLOI=     0.001 M_OLD=     1.000   162.500
+ INDE     3    8    4 FOBS=    52.285   223.815 FCALC=   180.412   179.695
+                   FOM=     1.000 WEIGHT=     1.000 SIGMA=     0.520
+                   RECL=   221.182 NULL=     0.000 M=     1.000   222.500
+                   MM=     1.000   222.500 MMM=     1.000   222.500
+                   WW=     1.000    90.000 WWW=     1.000   222.500
+                   PA_RECL=   -0.131490E+07 PB_RECL=  6993.571
+                   PC_RECL=   -0.454678E+06 PD_RECL=  4836.728 PA=     0.000
+                   PB= -6993.571 PC=   -0.454678E+06 PD=     0.000
+                   S_RECL=    -0.064 VLOI=     0.001 M_OLD=     1.000   222.500
+ INDE    10    2    5 FOBS=   370.932   350.008 FCALC=    97.752   233.067
+                   FOM=     1.000 WEIGHT=     1.000 SIGMA=    -3.360
+                   RECL=   338.047 NULL=     0.000 M=     1.000   350.000
+                   MM=     1.000   350.000 MMM=     1.000   350.000
+                   WW=     1.000    90.000 WWW=     1.000   350.000
+                   PA_RECL=    0.313273E+07 PB_RECL=    0.416747E+07
+                   PC_RECL=    0.799133E+06 PD_RECL=   -0.276235E+07
+                   PA=     0.000 PB=   -0.416747E+07 PC=    0.799133E+06
+                   PD=     0.000 S_RECL=    -4.928 VLOI=     0.001
+                   M_OLD=     1.000   350.000
+ INDE     7    5    5 FOBS=   139.273   196.202 FCALC=    76.295   212.435
+                   FOM=     1.000 WEIGHT=     1.000 SIGMA=     1.677
+                   RECL=   213.690 NULL=     0.000 M=     1.000   227.398
+                   MM=     1.000   227.398 MMM=     1.000   227.398
+                   WW=     1.000   180.000 WWW=     1.000   227.398
+                   PA_RECL=   -0.200718E+07 PB_RECL=   -0.127550E+07
+                   PC_RECL=   -0.262448E+06 PD_RECL=   -0.559488E+06
+                   PA=   -0.200718E+07 PB=     0.000 PC=   -0.262448E+06
+                   PD=     0.000 S_RECL=     3.510 VLOI=     0.001
+                   M_OLD=     1.000   227.398
+ INDE     5    6    5 FOBS=   402.864   193.722 FCALC=   106.620   196.774
+                   FOM=     1.000 WEIGHT=     1.000 SIGMA=    -0.328
+                   RECL=   509.491 NULL=     0.000 M=     1.000   196.852
+                   MM=     1.000   196.852 MMM=     1.000   196.852
+                   WW=     1.000   180.000 WWW=     1.000   196.852
+                   PA_RECL=   -0.680539E+07 PB_RECL=   -0.205129E+07
+                   PC_RECL=   -0.148082E+07 PD_RECL=   -0.981917E+06
+                   PA=   -0.680539E+07 PB=     0.000 PC=   -0.148082E+07
+                   PD=     0.000 S_RECL=     3.491 VLOI=     0.001
+                   M_OLD=     1.000   196.852
+ INDE     7    0    6 FOBS=   363.667     0.000 FCALC=    41.341   180.000
+                   FOM=     1.000 WEIGHT=     1.000 SIGMA=    -9.299
+                   RECL=   322.270 NULL=     0.000 M=     1.000     0.000
+                   MM=     1.000     0.000 MMM=     1.000     0.000
+                   WW=     1.000     0.000 WWW=     1.000     0.000
+                   PA_RECL=    0.342278E+07 PB_RECL=     0.000
+                   PC_RECL=     0.000 PD_RECL=     0.000 PA=   -0.342278E+07
+                   PB=     0.000 PC=     0.000 PD=     0.000 S_RECL=     0.162
+                   VLOI=     0.001 M_OLD=     1.000     0.000
+ INDE     7    1    6 FOBS=   352.165   346.125 FCALC=    73.064   239.902
+                   FOM=     1.000 WEIGHT=     1.000 SIGMA=     2.182
+                   RECL=   339.082 NULL=     0.000 M=     1.000   345.000
+                   MM=     1.000   345.000 MMM=     1.000   345.000
+                   WW=     0.500    90.000 WWW=     1.000   345.000
+                   PA_RECL=    0.806977E+06 PB_RECL=    0.139224E+07
+                   PC_RECL=    0.715511E+06 PD_RECL=   -0.124912E+07
+                   PA=     0.000 PB=   -0.139224E+07 PC=    0.715511E+06
+                   PD=     0.000 S_RECL=    -1.027 VLOI=     0.001
+                   M_OLD=     1.000   345.000
+ XRAY> 
+ XRAY>end 
+ CNSsolve> 
+ CNSsolve>stop 
+          ============================================================
+           Maximum dynamic memory allocation:    36963728 bytes
+           Maximum dynamic memory overhead:          1984 bytes
+           Program started at: 16:08:27 on 05-Jul-2018
+           Program stopped at: 16:08:28 on 05-Jul-2018
+           CPU time used:      14.6024 seconds
+          ============================================================

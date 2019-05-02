@@ -1,0 +1,127 @@
+! Module file: rotares
+!
+! CNS MODULE
+! **********
+!
+! Author: M. Nilges
+!   converted to a module by Gregory L. Warren
+!
+! copyright Yale University
+!
+! version 02/10/98
+!
+! Function:
+!          swaps specified atoms and checks if 
+!          rms is decreased
+!
+! Requirements:
+!              
+!
+!
+
+module {rotares}
+( 
+)
+
+checkversion 1.3
+
+set message ? end
+evaluate ($message_old=$result)
+set echo ? end
+evaluate ($echo_old=$result)
+if ( $log_level = verbose ) then
+  set echo=on message=normal end
+else
+  set echo=off message=off end
+end if
+
+evaluate ($oldrms=0)
+evaluate ($newrms=0)
+
+for $id in id ( (resn TYR or resn PHE or resn GLU) and name ca ) loop rotr
+
+  show element (resid) ( id $id )
+  evaluate ($resid = $result)
+
+  coor rms end
+  evaluate ($oldrms=$result)
+
+  coor rotate sele= (resid $resid and 
+                    (name %G* or name %D* or name %E* or name %H*))
+       center (head (resid $resid and name cg) )
+       axis (head (resid $resid and name cg)
+             tail (resid $resid and name cb)) 180
+  end
+
+  coor rms end
+  evaluate ($newrms=$result)
+
+  if ($newrms > $oldrms) then
+    coor rotate sele= (resid $resid and 
+                      (name %G* or name %D* or name %E* or name %H*))
+       center (head (resid $resid and name cg) )
+       axis (head (resid $resid and name cg)
+             tail (resid $resid and name cb)) 180
+    end
+  end if
+
+end loop rotr
+
+for $id in id ( (resn ASP) and name ca ) loop rotr
+
+  show element (resid) ( id $id )
+  evaluate ($resid = $result)
+
+  coor rms end
+  evaluate ($oldrms=$result)
+
+  coor rotate sele= (resid $resid and (name %G* or name %D*))
+       center (head (resid $resid and name cb) )
+       axis (head (resid $resid and name cb)
+             tail (resid $resid and name ca)) 180
+  end
+
+
+  coor rms end
+  evaluate ($newrms=$result)
+
+  if ($newrms > $oldrms) then
+    coor rotate sele= (resid $resid and (name %G* or name %D*))
+       center (head (resid $resid and name cb) )
+       axis (head (resid $resid and name cb)
+             tail (resid $resid and name ca)) 180
+    end
+  end if
+
+end loop rotr
+
+
+for $id in id ( (resn ARG) and name ca ) loop rotr
+
+  show element (resid) ( id $id )
+  evaluate ($resid = $result)
+
+  coor rms end
+  evaluate ($oldrms=$result)
+
+  coor rotate sele= (resid $resid and (name %Z* or name %H*))
+       center (head (resid $resid and name cz) )
+       axis (head (resid $resid and name cz)
+             tail (resid $resid and name ne)) 180
+  end
+
+
+  coor rms end
+  evaluate ($newrms=$result)
+
+  if ($newrms > $oldrms) then
+    coor rotate sele= (resid $resid and (name %Z* or name %H*))
+       center (head (resid $resid and name cz) )
+       axis (head (resid $resid and name cz)
+             tail (resid $resid and name ne)) 180
+    end
+  end if
+
+end loop rotr
+
+set message=$message_old echo=$echo_old end

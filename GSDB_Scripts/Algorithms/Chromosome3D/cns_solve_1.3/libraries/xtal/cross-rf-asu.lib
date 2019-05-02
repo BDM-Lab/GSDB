@@ -1,0 +1,89 @@
+! file:  libraries/xtal/cross-rf-asu.lib
+! Library of asymmetric units for cross-rotation functions
+
+! Authors: Jian-Sheng Jiang and Axel T. Brunger
+! 
+! Reference:
+! Rao, S.N., Jih, J.-H. and Hartsuck, J.A., Acta Cryst. (1980). A36, 878-884.
+!  "Rotation-Function Space Groups".
+!
+
+module ( &laue_class;
+         &rfparam = $rfparam )
+
+set message ? end
+evaluate ($message_old_aslib=$result)
+set echo ? end
+evaluate ($echo_old_aslib=$result)
+set echo=off message=off end
+
+ checkversion 1.3
+
+
+{ defaults }
+evaluate ($tmmin=0.0)
+evaluate ($t2min=0.0)
+evaluate ($tpmin=0.0)
+evaluate ($tmmax=360.0)
+evaluate ($t2max=90.0)
+evaluate ($tpmax=720.0)
+
+{ according to the Laue class }
+if (&laue_class = "-1") then
+  evaluate ($tmmax=360.0)
+  evaluate ($t2max=180.0)
+  evaluate ($tpmax=720.0)
+elseif (&laue_class = "2/m") then
+!  { default the "b" axis unique } 
+  evaluate ($tmmax=360.0)
+  evaluate ($t2max=90.0)
+  evaluate ($tpmax=720.0)
+!  if ($unique = "c" ) then
+!    evaluate ($tmmax=180.0)
+!    evaluate ($t2max=180.0)
+!    evaluate ($tpmax=720.0)
+!  end if
+elseif (&laue_class = "mmm") then
+  evaluate ($tmmax=180.0)
+  evaluate ($t2max=90.0)
+  evaluate ($tpmax=720.0)
+elseif (&laue_class = "4/m") then
+  evaluate ($tmmax=90.0)
+  evaluate ($t2max=180.0)
+  evaluate ($tpmax=720.0)
+elseif (&laue_class = "4/mmm") then
+  evaluate ($tmmax=90.0)
+  evaluate ($t2max=90.0)
+  evaluate ($tpmax=720.0)
+elseif (&laue_class = "-3") then
+  evaluate ($tmmax=120.0)
+  evaluate ($t2max=180.0)
+  evaluate ($tpmax=720.0)
+elseif (&laue_class = "-3m") then
+  evaluate ($tmmax=120.0)
+  evaluate ($t2max=90.0)
+  evaluate ($tpmax=720.0)
+elseif (&laue_class = "6/m") then
+  evaluate ($tmmax=60.0)
+  evaluate ($t2max=180.0)
+  evaluate ($tpmax=720.0)
+elseif (&laue_class = "6/mmm") then
+  evaluate ($tmmax=60.0)
+  evaluate ($t2max=90.0)
+  evaluate ($tpmax=720.0)
+end if
+
+display         asymmetric unit| tmmin=$tmmin[F5.1], tmmax=$tmmax[F5.1]
+display         for rotation   | t2min=$t2min[F5.1], t2max=$t2max[F5.1]
+display         function       | tpmin=$tpmin[F5.1], tpmax=$tpmax[F5.1]
+
+evaluate (&rfparam.tmmin = $tmmin)
+evaluate (&rfparam.t2min = $t2min)
+evaluate (&rfparam.tpmin = $tpmin)
+evaluate (&rfparam.tmmax = $tmmax)
+evaluate (&rfparam.t2max = $t2max)
+evaluate (&rfparam.tpmax = $tpmax)
+
+set message=$message_old_aslib echo=$echo_old_aslib end
+
+

@@ -1,0 +1,276 @@
+! Module file: locrefine
+!
+! CNS module
+! **********
+!
+! Author: Axel T. Brunger
+!
+! copyright Yale University
+!
+! Function:
+! Refine parameters for lack-of-closure expression
+!
+! Requirements:
+! 1. This module can only be called from the main level.
+
+module {locrefine}
+(
+   &table;        {identifying text for tabulation}
+   &method;       {"maxlike" "chisquare" "anomaxlike" "anochisquare }
+   &messages;     {"normal" | "all" | "off"}
+   &phistep;      {integration step size}
+   &cen360;       { TRUE | FALSE (type logical); if TRUE: full 0...360 phase prob. distr. for centrics }
+   &tolerance;    { minimization tolerance }   
+
+   &kstep;        {number of scale factor minimization steps}		
+   &kscale;       { "yes" | "no" linear scaling}
+   &bscale;       { "no", "isotropic",  "anisotropic" }  
+   &xstep;        {number of coordinate minimization steps}
+   &bstep;        {number of B-factor minimization steps}
+   &bindgroup;    {refine individual B-values for each atom in a group}
+   &qstep;        {number of occupancy factor minimization steps}
+   &fpstep;       {number of fprime minimization steps}
+   &fdpstep;      {number of fdprime mimimization steps}
+   &bmin;         {minimum B}
+   &bmax;         {maximum B}
+   &qmin;         {minimum q}
+   &qmax;         {minimum q}
+   &fpmin;        {minimum f'}
+   &fpmax;        {maximum f'}  
+   &fdpmin;       {minimum f''}
+   &fdpmax;       {maximum f''}
+   &qmaxshift;    {maximum q-shift}
+   &fpmaxshift;   {maximum fp-shift}
+   &fdpmaxshift;  {maximum fdp-shift}
+   &bmaxshift;    {maximum b-shift}
+
+   &fp;           {native data (|F| and phase if present)}
+   &sp;           {native sigma on F}
+   &hp;           {selection of heavy atoms of native}
+   &h;            {selection of heavy atoms of derivative}
+   &hfix;         {heavy atoms whose parameters are not refined}
+   &fph;          {name of derivative data array (|F| and dummy phase)} 
+   &sph;          {name of derivative's sigma on F }
+   &target_set;   {selection for refinement and scaling target (must be subset of phase_set)}
+   &free_set;     {selection for cross-validation (must be subset of phase_set)}
+   &phase_set;    {selection for all phased reflections}
+
+   &pppa;         {parent prob: Hendrickson and Lattman A array}
+   &pppb;         {parent prob: Hendrickson and Lattman B array}
+   &pppc;         {parent prob: Hendrickson and Lattman C array}
+   &pppd;         {parent prob: Hendrickson and Lattman D array}
+
+   &fop="";       { additional structure factor array that the scaling is applied to }
+   &fop2="";      { additional structure factor array that the scaling is applied to }
+   &gradient_map; {output: gradient map structure factor }
+   &vloc;         {lack-of-closure variance}
+   &bad;          {outlier selection}
+)
+
+checkversion 1.3
+
+evaluate ($rd_tolerance=max(0.0000001,&tolerance))
+
+xray
+   declare name=fh type=complex        domain=reciprocal end
+   declare name=pk type=real           domain=reciprocal end
+   declare name=fcalc_nat type=complex domain=reciprocal end
+   
+   @@CNS_XTALMODULE:normalizeprobability ( 
+      messages=&messages;
+      sel=(all); 
+      pk=pk;
+      pa=&pppa;pb=&pppb;pc=&pppc;pd=&pppd;
+      phistep=&phistep;
+      cen360=&cen360;)  	    
+end
+
+{ Check if scale factor minimization is required }
+{ ---------------------------------------------- }
+evaluate ($rd_scale="false") 
+if (&kscale # "no") then
+   evaluate  ($rd_scale="true")
+end if
+if (&bscale # "no") then
+   evaluate  ($rd_scale="true")
+end if
+if (&kstep=0) then
+   evaluate ($rd_scale="false") 
+end if     
+if ($rd_scale="true") then
+
+   { Minimization of scale factor of fph }
+   { ----------------------------------- }
+   xray
+      predict { compute fcalcs for derivative heavy atoms }
+         to=fcalc mode=reciprocal 
+         selection=( &phase_set ) 
+         atomselection=( &h ) 
+      end
+   end
+
+   show sum ( &hp ) ( &hp )
+   if ($select>0) then
+      xray
+         predict { compute fcalcs for native heavy atoms }
+            to=fcalc_nat mode=reciprocal 
+            selection=( &phase_set ) 
+            atomselection=( &hp ) 
+         end
+         do (fcalc=fcalc-fcalc_nat) ( &phase_set ) 
+      end
+   end if
+   
+   xray
+      { We have to temporarily swap the roles of fph and fcalc in order to }
+      { refine the scale factor of fph. 				   }
+      do (fh=fcalc) ( all )
+      do (fcalc=combine(amplitude(&fph),0)) ( all )
+   end
+
+   @@CNS_XTALMODULE:definescaletarget
+	    (
+	    method=&method; 
+	    messages=&messages; 
+
+	    sel=(&target_set and &bad=0);	  {structure factor selection}
+
+	    fh=fh;		   {specify heavy atom structure factor array}
+	    fp=&fp;		   {native data  }
+	    fph=fcalc;  	   {derivative data }
+	    var=&vloc;  	    {loc variance}   
+
+	    pk=pk;		   {Hendrickson and Lattman K array}
+	    pa=&pppa;		   {Hendrickson and Lattman A array}
+	    pb=&pppb;		   {Hendrickson and Lattman B array}
+	    pc=&pppc;		   {Hendrickson and Lattman C array}
+	    pd=&pppd;		   {Hendrickson and Lattman D array}
+
+	    phistep=&phistep;	      {size of phase steps in integration}
+
+	    cen360=&cen360;
+	    )
+
+   xray  
+      evaluate ($text="scale | " +  &quote%fph + "  | to | " + &quote%fp + " + Fh |")	       
+      @CNS_XTALMODULE:scaleftarget2( 
+		  text=$text;
+		  table=&table;
+		  messages=&messages;
+		  kscale=&kscale; 
+		  bscale=&bscale; 
+		  kstep=&kstep;
+		  apply="all";
+		  tolerance=$rd_tolerance;
+		  sel=(&target_set and &bad=0);
+		  f=&fph;
+		  s=&sph;
+		  fop=&fop;
+		  fop2=&fop2;) { note: scale factor applied to all four struct. fact.}
+      { Restore fcalc }
+      do (fcalc=fh) ( all )
+   end
+end if
+
+{ Define the target function for refinement of heavy atom parameters. }
+{ ------------------------------------------------------------------- }
+@@CNS_XTALMODULE:definehtarget (   
+   messages=&messages;  	   
+   method=&method;    
+   sel=(&target_set and &bad=0);
+   phistep=&phistep;	   
+   fp=&fp;h=&h;hp=&hp;hfix=&hfix;fph=&fph;var=&vloc;
+   fcalc_nat=fcalc_nat;
+   phase_set=&phase_set; 
+   pk=pk;pa=&pppa;pb=&pppb;pc=&pppc;pd=&pppd; 
+   cen360=&cen360;
+   )
+
+if (&xstep > 0) then
+
+   { Positional minimization. }
+   { ------------------------ }
+
+   @CNS_XTALMODULE:coordinaterefine( 
+      table=&table;
+      messages=&messages;
+      tolerance=$rd_tolerance;
+      step=&xstep;      
+      h=&h;
+      hfix=&hfix;
+      )
+end if
+
+{ B, Q, f', f'' minimization }
+{ -------------------------- }
+@CNS_XTALMODULE:bqfpfdprefine( 
+   table=&table;
+   messages=&messages;
+   tolerance=$rd_tolerance;
+   h=&h;
+   hfix=&hfix;
+   bstep=&bstep;
+   bindgroup=&bindgroup;
+   qstep=&qstep;
+   fpstep=&fpstep;
+   fdpstep=&fdpstep;
+   bmin=&bmin;
+   bmax=&bmax;
+   qmin=&qmin;
+   qmax=&qmax;
+   fpmin=&fpmin;
+   fpmax=&fpmax;
+   fdpmin=&fdpmin;
+   fdpmax=&fdpmax;   
+   qmaxshift=&qmaxshift;  
+   fpmaxshift=&fpmaxshift;  
+   fdpmaxshift=&fdpmaxshift; 
+   bmaxshift=&bmaxshift;  
+)
+
+if (&gradient_map # "") then
+   xray   
+      predict 
+	 mode=dtarget(fcalc)
+	 to=&&gradient_map 
+	 selection=( &target_set and &bad=0 ) 
+	 atomselection=( &h ) 
+      end
+   end
+end if
+
+if (&table # "") then	       {fill table with model}
+   for $1 in id (&h) loop atoms   {parameters}
+      show (x) (id $1)
+      evaluate ($x=$result)
+      show (y) (id $1)
+      evaluate ($y=$result)
+      show (z) (id $1)
+      evaluate ($z=$result)
+      show (b) (id $1)
+      evaluate ($b=$result)
+      show (q) (id $1)
+      evaluate ($q=$result)
+      show (scatter_fp) ( id $1)
+      evaluate ($fp=$result)
+      show (scatter_fdp) ( id $1)
+      evaluate ($fdp=$result)	  
+      show element (segid ) (id $1)
+      evaluate ($segid=$result)
+      show element (resid ) (id $1)
+      evaluate ($resid=$result)
+      show element (name ) (id $1)
+      evaluate ($name=$result)
+display TAB: &table atom=($segid $resid $name) (x,y,z,b,q,fp,fdp)= \
+$x[F9.2] $y[F9.2] $z[F9.2] $b[F9.2] $q[F5.2] $fp[F7.2] $fdp[F7.2]
+   end loop atoms
+end if
+
+xray
+   undeclare name=fcalc_nat domain=reciprocal end
+   undeclare name=pk domain=reciprocal end
+   undeclare name=fh domain=reciprocal end
+end
+
+
+

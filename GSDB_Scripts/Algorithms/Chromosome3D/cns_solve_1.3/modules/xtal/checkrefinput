@@ -1,0 +1,294 @@
+! Module file: checkrefinput
+!
+! CNS module
+! **********
+!
+! Authors: Axel Brunger and Paul Adams
+!
+! copyright Yale University
+!
+! Function:
+!    Checks the required input reciprocal space arrays
+!
+! Requirements:
+!    Needs to be called within xray
+
+module {checkrefinput}
+
+(
+  &reftarget="residual"; {string}
+  &obs_f;                {reciprocal space array}
+  &obs_sigf;             {reciprocal space array}
+  &test_set;             {reciprocal space array}
+  &obs_pa;               {reciprocal space array}
+  &obs_pb;               {reciprocal space array}
+  &obs_pc;               {reciprocal space array}
+  &obs_pd;               {reciprocal space array}
+  &obs_phase;            {reciprocal space array}
+  &obs_fom;              {reciprocal space array}
+  &obs_w;                {reciprocal space array}
+  &obs_i;                {reciprocal space array}
+  &obs_sigi;             {reciprocal space array}
+)
+
+set message ? end
+evaluate ($message_old_cri=$result)
+set echo ? end
+evaluate ($echo_old_cri=$result)
+if ( $log_level = verbose ) then
+  set echo=on message=normal end
+else
+  set echo=off message=off end
+end if
+
+checkversion 1.3
+
+{- arrays required for all targets -}
+
+
+if (&obs_f = "") then
+  display 
+  display  *********************************************************
+  display  Error: required observed amplitude array is not specified
+  display  *********************************************************
+  display
+  abort
+else
+  evaluate ($local_obs_f=&obs_f) 
+  query name=$$local_obs_f domain=reciprocal end
+  if ( $object_exist = false ) then
+    display 
+    display  **************************************************************
+    display  Error: required observed amplitude array &obs_f does not exist
+    display  **************************************************************
+    display
+    abort
+  end if
+  {- note: this array can be of any type -}
+end if
+
+if (&obs_sigf = "") then
+  display 
+  display  *****************************************************
+  display  Error: required observed sigma array is not specified
+  display  *****************************************************
+  display
+  abort
+else
+   evaluate ($local_obs_sigf=&obs_sigf)
+   query name=$$local_obs_sigf domain=reciprocal end
+   if ( $object_exist = false ) then
+     display 
+     display  *************************************************************
+     display  Error: required observed sigma array &obs_sigf does not exist
+     display  *************************************************************
+     display
+     abort
+   end if
+   if ( $object_type # "REAL" ) then
+     display 
+     display  **********************************************************************
+     display  Error: required observed sigma array &obs_sigf has the wrong data type
+     display  **********************************************************************
+     display
+     abort
+   end if
+end if
+
+if ( &BLANK%test_set = false ) then
+   evaluate ($local_test_set=&test_set)
+   query name=$$local_test_set domain=reciprocal end
+   if ( $object_exist = false ) then
+     display 
+     display  **********************************************
+     display  Error: test set array &test_set does not exist
+     display  **********************************************
+     display
+     abort
+   end if
+   {- test set array can be integer or real -}
+   if ( $object_type = "COMPLEX" ) then
+     display 
+     display  *******************************************************
+     display  Error: test set array &test_set has the wrong data type
+     display  *******************************************************
+     display
+     abort
+   end if
+end if
+
+if (&reftarget="mli") then
+
+  if ( &obs_i = "" ) then
+  
+    evaluate ($local_obs_i="iobs_r")
+    evaluate (&obs_i=$local_obs_i)
+    evaluate ($local_obs_f=&obs_f)
+
+    declare name=$$local_obs_i domain=reciprocal type=real end
+    do ($$local_obs_i=amplitude($$local_obs_f)^2) (all)
+    display Warning: intensity array has not been specified.  
+    display          intensities have been created from &obs_f
+  else
+    evaluate ($local_obs_i=&obs_i) 
+  end if
+  query name=$$local_obs_i domain=reciprocal end
+  if ( $object_exist = false ) then
+    display 
+    display  ***************************************************
+    display  Error: intensity array $$local_obs_i does not exist
+    display  ***************************************************
+    display
+    abort
+  end if
+  if ( $object_type # "REAL" ) then
+    display 
+    display  ************************************************************
+    display  Error: intensity array $$local_obs_i has the wrong data type
+    display  ************************************************************
+    display
+    abort
+  end if
+
+  if ( &obs_sigi = "" ) then
+  
+    evaluate ($local_obs_sigi="sigi_r")
+    evaluate (&obs_sigi=$local_obs_sigi)
+    evaluate ($local_obs_sigf=&obs_sigf)
+    
+    declare name=$$local_obs_sigi domain=reciprocal type=real end
+    do ($$local_obs_sigi=$$local_obs_sigf*sqrt(4 $$local_obs_i + 2 $$local_obs_sigf^2)) (all)
+    display Warning: intensity sigma array has not been specified.  
+    display          sigma array has been created from &obs_sigf
+  else
+     evaluate ($local_obs_sigi=&obs_sigi) 
+  end if
+  query name=$$local_obs_sigi domain=reciprocal end
+  if ( $object_exist = false ) then
+    display 
+    display  ************************************************************
+    display  Error: intensity sigma array $$local_obs_sigi does not exist
+    display  ************************************************************
+    display
+    abort
+  end if
+  if ( $object_type # "REAL" ) then
+    display 
+    display  *********************************************************************
+    display  Error: intensity sigma array $$local_obs_sigi has the wrong data type
+    display  *********************************************************************
+    display
+    abort
+  end if
+  
+end if
+
+evaluate ($check_obs_w=false) 
+if (&reftarget="residual") then
+  evaluate ($check_obs_w=true) 
+end if
+if (&reftarget="vector") then
+  evaluate ($check_obs_w=true) 
+end if
+
+if ($check_obs_w=true) then  
+  if ( &obs_w = "" ) then
+  
+    evaluate ($local_obs_w="weight_r")
+    evaluate (&obs_w=$local_obs_w)
+  
+    declare name=$$local_obs_w domain=reciprocal type=real end
+    do ($$local_obs_w=1.0) (all)
+    display weight for residual target set to 1.0 for all reflections
+  else
+    evaluate ($local_obs_w=&obs_w) 
+  end if
+    
+  query name=$$local_obs_w domain=reciprocal end
+  if ( $object_exist = false ) then
+    display 
+    display  ************************************************
+    display  Error: weight array $$local_obs_w does not exist
+    display  ************************************************
+    display
+    abort
+  end if
+  if ( $object_type # "REAL" ) then
+    display 
+    display  *********************************************************
+    display  Error: weight array $$local_obs_w has the wrong data type
+    display  *********************************************************
+    display
+    abort
+  end if
+end if
+
+evaluate ($check_obs_phase=false) 
+if (&reftarget="vector") then
+  evaluate ($check_obs_phase=true) 
+end if
+if (&reftarget="mixed") then
+  evaluate ($check_obs_phase=true) 
+end if
+
+if ($check_obs_phase=true) then  
+  if (&obs_phase = "") then
+    display 
+    display  ************************************************
+    display  Error: experimental phase array is not specified
+    display  ************************************************
+    display
+    abort
+  else
+     evaluate ($local_obs_phase=&obs_phase)
+     query name=$$local_obs_phase domain=reciprocal end
+     if ( $object_exist = false ) then
+       display 
+       display  *********************************************************
+       display  Error: experimental phase array &obs_phase does not exist
+       display  *********************************************************
+       display
+       abort
+     end if
+     if ( $object_type # "COMPLEX" ) then
+       display 
+       display  ******************************************************************
+       display  Error: experimental phase array &obs_phase has the wrong data type
+       display  ******************************************************************
+       display
+       abort
+     end if
+   end if
+end if
+
+if (&reftarget="mixed") then
+  if (&obs_fom = "") then
+    display 
+    display  **********************************************************
+    display  Error: experimental figure of merit array is not specified
+    display  **********************************************************
+    display
+    abort
+  else
+     evaluate ($local_obs_fom=&obs_fom)
+     query name=$$local_obs_fom domain=reciprocal end
+     if ( $object_exist = false ) then
+       display 
+       display  *****************************************************************
+       display  Error: experimental figure of merit array &obs_fom does not exist
+       display  *****************************************************************
+       display
+       abort
+     end if
+   end if
+end if 
+
+if (&reftarget="mlhl") then  
+  @@CNS_XTALMODULE:check_abcd (pa=&obs_pa;
+                              pb=&obs_pb;
+                              pc=&obs_pc;
+                              pd=&obs_pd;)
+end if
+
+
+set message=$message_old_cri echo=$echo_old_cri end

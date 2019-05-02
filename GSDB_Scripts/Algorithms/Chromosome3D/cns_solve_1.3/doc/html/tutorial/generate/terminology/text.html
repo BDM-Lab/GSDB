@@ -1,0 +1,68 @@
+<HTML>
+<HEAD>
+   <TITLE>Crystallography & NMR System</TITLE>
+</HEAD>
+<BODY BGCOLOR=#8ebf8e>
+
+<HR>
+
+<h2>The term &quot;generate&quot; explained</h2>
+
+<HR>
+
+<P>CNS reads the coordinate (PDB) file twice:</P>
+
+<PRE>
+
+ segment
+   chain
+     @@CNS_TOPPAR:protein.link
+     coordinates @@file.pdb     <--- first read
+   end
+ end
+
+ coordinates @@file.pdb    <--- second read
+
+</PRE>
+
+<P>In the first pass, only the residue names are read, from which it
+generates an internal list of the atoms which should be present and
+how they are connected (by using the topology files in the
+library/toppar directory). After this internal molecular topology has
+been constructed the coordinates are read a second time. At this point
+the coordinate records must match the internal topology for the
+coordinates to be read in. If there are inconsistencies in the atom
+naming but not the residue naming in a coordinate file then the first
+pass will succeed (as the residue names are correct). However, the
+second stage where the coordinates themselves are read will fail for
+some atoms. The following message will be obtained for those
+atoms:</P>
+
+<PRE>
+ %READC-ERR: atom 1HOE 74   LEU  OT   not found in molecular structure
+</PRE>
+
+<P>If there are some atoms that are not present in the input
+coordinate file or are incorrectly named (compared to the CNS topology
+library) then there will be coordinates missing for some atoms. This
+will be reported after the coordinates have been read for the second
+time:</P>
+
+<PRE>
+ %READC-WRN: still    170 missing coordinates (in selected subset)
+</PRE>
+
+<P>Coordinates (X,Y,Z) for these atoms must either be generated or the
+atoms deleted. For crystallographic applications in general the
+missing atoms are hydrogens which are deleted prior to writing out the
+final molecular topology information.</P>
+
+<hr>
+
+<A HREF="../../text.html">Back to tutorials</A>&nbsp;&nbsp;
+<A HREF="../molecular_topol/text.html">Next section</A>
+
+<HR WIDTH="100%"></P>
+
+</BODY>
+</HTML>

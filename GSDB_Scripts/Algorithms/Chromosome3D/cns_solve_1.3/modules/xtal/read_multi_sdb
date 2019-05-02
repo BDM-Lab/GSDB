@@ -1,0 +1,68 @@
+! Module file: read_multi_sdb
+!
+! CNS module
+! **********
+!
+! Authors: Axel Brunger and Paul Adams
+!
+! copyright Yale University
+!
+! Function:
+!    Read a set of site database files and extract the information
+!    which is added to internal topology and coordinate databases
+!
+! Requirements:
+!    The filegroup must have the form xxxx.<number>
+
+module {read_multi_sdb}
+
+(
+&filegroup;
+&use_array;
+&fix_array;
+&sg_expected;
+&sg_read;
+)
+
+ set message ? end
+ evaluate ($message_old=$result)
+ set echo ? end
+ evaluate ($echo_old=$result)
+ if ( $log_level = verbose ) then
+   set echo=on message=normal end
+ else
+   set echo=off message=off end
+ end if
+
+ set display=? end
+ evaluate ($curr_display=$result)
+
+ checkversion 1.3
+
+ eval($sgex = &sg_expected)
+
+ evaluate ($count=1)
+ evaluate ($done=false)
+ while ( $done = false ) loop sdb
+   if ( &EXIST%filegroup.$count = true ) then
+     if (&filegroup.$count # "") then
+       @CNS_XTALMODULE:read_sdb (file=&filegroup.$count;
+                                 siteinfo=$siteinfo.$count;
+                                 sg_expected=$sgex;
+                                 sg_read=$sgrd;)
+       if ($BLANK%sgex = true) then
+         eval($sgex = $sgrd)
+       end if
+       @CNS_XTALMODULE:sdb_to_coord (site=$siteinfo.$count;
+                                     use_array=&use_array;
+                                     fix_array=&fix_array;)
+     end if
+   else
+     evaluate ($done=true)
+   end if
+   evaluate ($count=$count+1)
+ end loop sdb
+
+ eval(&sg_read = $sgex)
+
+ set message=$message_old echo=$echo_old end

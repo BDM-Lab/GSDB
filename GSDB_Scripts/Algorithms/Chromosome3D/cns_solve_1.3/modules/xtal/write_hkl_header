@@ -1,0 +1,46 @@
+! Module file: write_hkl_header
+!
+! CNS module
+! **********
+!
+! Authors: Axel Brunger
+!
+! copyright Yale University
+!
+! Function:
+!    Write out a reflection file header
+!    containing information about unit cell 
+!    and space group.
+!
+!    The header is written to the DISPLAY unit
+!
+! Requirements:
+!    Needs to be called from main level
+
+module {write_hkl_header}
+
+(
+  &sg;
+  &sgparam;
+)
+
+ xray
+     display  remark a= $xrcell_1 b= $xrcell_2 c= $xrcell_3 alpha= $xrcell_4 beta= $xrcell_5 gamma= $xrcell_6 sg= &sg
+ 
+     evaluate ($symop=1)
+     while ($symop <= $symmetry) loop symop
+        display  remark symop $SYMMETRY_OP_$symop  
+       evaluate ($symop=$symop+1)
+     end loop symop
+
+     {- get Hermann-Mauguin symbol -}
+     @@CNS_XTALMODULE:pdbgetsgname
+     (   
+        sg=$sgparam.sg_number;  
+        sgname=$sg_pdb; 
+     )
+
+     display CRYST1 $XRCELL_1[f8.3] $XRCELL_2[f8.3] $XRCELL_3[f8.3] \
+$XRCELL_4[f6.2] $XRCELL_5[f6.2] $XRCELL_6[f6.2] $sg_pdb[a10]  
+
+ end

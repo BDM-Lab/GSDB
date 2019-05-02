@@ -1,0 +1,138 @@
+! Module file: check_abcd
+!
+! CNS module
+! ************
+!
+! Authors: Axel Brunger and Paul Adams
+!
+! copyright Yale University
+!
+! Function:
+!    Checks for presence of requested Hendrickson-Lattman arrays
+!    Checks that arrays belong to the same HL group
+!
+! Requirements:
+!    Needs to be called within xray
+
+module {check_abcd}
+
+(
+  &pa=pa;                {reciprocal space array}
+  &pb=pb;                {reciprocal space array}
+  &pc=pc;                {reciprocal space array}
+  &pd=pd;                {reciprocal space array}
+)
+
+set message ? end
+evaluate ($c_message_old=$result)
+set echo ? end
+evaluate ($c_echo_old=$result)
+if ( $log_level = verbose ) then
+  set echo=on message=normal end
+else
+  set echo=off message=off end
+end if
+
+evaluate ($hl_coff=true)
+evaluate ($hl_group=true)
+evaluate ($hl_group_id=0)
+
+if (&pa = "") then
+   evaluate ($object_exist=false)
+else
+   evaluate ($local_pa=&pa)
+   query name=$$local_pa domain=reciprocal end
+end if
+if ( $object_exist = false ) then
+  evaluate ($hl_coff=false)
+else
+   if ( $object_type # "REAL" ) then
+     evaluate ($hl_coff=false)
+   end if
+   if ( $object_group <= 0 ) then
+     evaluate ($hl_group=false)
+   else
+     evaluate ($hl_group_id=$object_group)
+   end if
+end if
+
+if (&pb = "") then
+   evaluate ($object_exist=false)
+else
+   evaluate ($local_pb=&pb)
+   query name=$$local_pb domain=reciprocal end
+end if
+if ( $object_exist = false ) then
+  evaluate ($hl_coff=false)
+else
+   if ( $object_type # "REAL" ) then
+     evaluate ($hl_coff=false)
+   end if
+   if ( $object_group <= 0 ) then
+     evaluate ($hl_group=false)
+   else
+     if ( $object_group # $hl_group_id ) then
+       evaluate ($hl_group=false)
+     end if
+   end if
+end if
+
+if (&pc = "") then
+   evaluate ($object_exist=false)
+else
+   evaluate ($local_pc=&pc)
+   query name=$$local_pc domain=reciprocal end
+end if
+if ( $object_exist = false ) then
+  evaluate ($hl_coff=false)
+else
+  if ( $object_type # "REAL" ) then
+     evaluate ($hl_coff=false)
+   end if
+   if ( $object_group <= 0 ) then
+     evaluate ($hl_group=false)
+   else
+     if ( $object_group # $hl_group_id ) then
+       evaluate ($hl_group=false)
+     end if
+   end if
+end if
+
+if (&pd = "") then
+   evaluate ($object_exist=false)
+else
+   evaluate ($local_pd=&pd)
+   query name=$$local_pd domain=reciprocal end
+end if
+if ( $object_exist = false ) then
+  evaluate ($hl_coff=false)
+else 
+   if ( $object_type # "REAL" ) then
+     evaluate ($hl_coff=false)
+   end if
+   if ( $object_group <= 0 ) then
+     evaluate ($hl_group=false)
+   else
+     if ( $object_group # $hl_group_id ) then
+       evaluate ($hl_group=false)
+     end if
+   end if
+end if
+
+if ( $hl_coff = false ) then
+  display  Error: Hendrickson-Lattman coefficients ( &pa , &pb , &pc, &pd )
+  display         not specified, undefined, or have the wrong data type
+  display         for observed data.  These must be properly defined.
+  abort
+else
+   if ( $hl_group = false ) then
+     display  Error: Hendrickson-Lattman coefficients ( &pa , &pb , &pc , &pd )
+     display         have not been assigned to a group, or to the same group.
+     display         This must be done to allow reindexing of reflections.
+     display         Check your reflection file to make sure the GROUp statement
+     display         is included.  
+     abort
+   end if
+end if
+
+set message=$c_message_old echo=$c_echo_old end

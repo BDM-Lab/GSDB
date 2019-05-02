@@ -1,0 +1,86 @@
+! Module file: minimizecoordinates
+!
+! CNS module
+! **********
+!
+! Authors: Piet Gros and Axel T. Brunger
+!
+! copyright Yale University
+!
+! Function:
+! Minimize coordinates
+!
+! Requirements:
+! 0. definetarget must be called before this module. 
+! 1. This module can only be called from the main level.
+! 2. Target and derivative function have to be defined fully
+!    see module definetarget
+! 3. When using the table option, it is assumed old parameters 
+!    x, y, z are stored in REFX, REFY and REFZ resp. Refined
+!    positions will be stored in these arrays on exit.
+! 
+
+module {minimizecoordinates}
+(
+   &table="";          {identifying text for tabulation}
+   &messages="normal"; {set verbosity "normal" | "all" | "off"}
+   &step=10;           {number of steps in minimization}
+   &h=(all);         {atom selection contributing to Fcalc}  
+   &hfix=(not(all));    {atom subselection of &h whose parameters are not refined}
+   &tolerance=0.0001;  {tolerance for conjugate gradient minimizer}
+)
+
+checkversion 1.3
+
+{* set fixed atoms *}
+fix
+  selection=(not &h or &hfix)
+end
+
+show sum ( x ) ( not (tag and &h and not(&hfix)) and (&h and not(&hfix) ))
+if ($select>0) then
+   display TAB: &table groups present -- groups will be refined as rigid bodies.  
+   minimize rigid
+      for $aa in id (tag and &h and not(&hfix)) loop bref
+         group=(byresidue ( id $aa ) ) 
+      end loop bref 
+      nstep=&step 
+      drop=10.
+      tolerance=&tolerance
+   end
+else
+   display TAB: &table individual site refinement
+   minimize lbfgs
+      nstep=&step 
+!!!      drop=10.
+      tolgradient=&tolerance
+   end
+end if
+
+
+{*fill table*}
+
+if (&table # "") then                                {fill table with shift}
+   for $1 in id (&h and not(&hfix)) loop minc_shift {parameters}
+      show (x-refx) (id $1)
+      evaluate ($x=$result)
+      show (y-refy) (id $1)
+      evaluate ($y=$result)
+      show (z-refz) (id $1)
+      evaluate ($z=$result)
+      show element (segid ) (id $1)
+      evaluate ($segid=$result)
+      show element (resid ) (id $1)
+      evaluate ($resid=$result)
+      show element (name ) (id $1)
+      evaluate ($name=$result)
+display TAB: &table atom=($segid $resid $name) coord.-shift (dx,dy,dz)= $x[F9.2] $y[F9.2] $z[F9.2]
+   end loop minc_shift
+end if
+
+{*update stored coordinates*}
+
+do (refx=x) (&h)
+do (refy=y) (&h)
+do (refz=z) (&h)
+

@@ -1,0 +1,270 @@
+! Module file: bqfpfdprefine
+!
+! CNS module
+! **********
+!
+! Authors: Piet Gros and Axel T. Brunger
+!
+! copyright Yale University
+!
+! Function:
+! Refines B-factors, occupancies, f' and f'' values against
+! generalized target function.  
+!
+! Requirements:
+! 0. definetarget must be called before this module. 
+! 1. This module can only be called from the main level.
+! 2. Target and derivative function have to be defined fully
+!    see module definetarget
+! 
+
+module {bqfpfdprefine}
+(
+   &table;         {identifying text for tabulation}
+   &messages;      {set verbosity "normal" | "all" | "off" }
+   &tolerance;     {tolerance for gradient}
+
+   &h;             {atom selection contributing to Fcalc}  
+   &hfix;          {atom subselection of &h whose parameters are not refined}
+   
+   &bstep;         { if > 0 then B-refinement is carried out }
+   &bindgroup;     {true: refine individual B-values for each atom in a group }
+   &qstep;         { if > 0 then Q-refinement is carried out }
+   &fpstep;        { if # 0 then f'-refinement is carried out }
+   &fdpstep;       { if # 0 then f''-refinement is carried out }
+
+   &bmin;          {minimum B-factor (Ang^2)}
+   &bmax;          {maximum B-factor (Ang^2)}
+   &qmin;          {minimum occupancy factor}
+   &qmax;          {maximum occupancy factor}
+   &fpmin;         {minimum fprime}
+   &fpmax;         {maximum fprime}
+   &fdpmin;        {minimum fprime}
+   &fdpmax;        {maximum fprime}
+   &qmaxshift;     {maximum q-shift}
+   &fpmaxshift;    {maximum fp-shift}
+   &fdpmaxshift;   {maximum fdp-shift}
+   &bmaxshift;     {maximum b-shift}
+)
+
+checkversion 1.3
+
+do (store1=b) (&h)  {- store starting parameters -}
+do (store2=q) (&h)   
+do (store7=scatter_fp) ( &h)
+do (store8=scatter_fdp) ( &h)
+
+
+{- number of steps is maximum of all individual steps -}
+evaluate ($minimize_all_step=max(&qstep,&bstep,abs(&fpstep),abs(&fdpstep)))
+
+{- set fixed atoms -}
+fix
+  selection=(not &h or &hfix)
+end
+
+@CNS_XTALMODULE:get_subgroups (selection=(&h and not(&hfix));
+                               subgroups=$subtype;)
+
+if ($minimize_all_step>0) then
+   
+   show sum ( x ) ( not (tag and &h and not(&hfix)) and (&h and not(&hfix) ))
+   if ($select>0) then
+      display TAB: &table groups present -- parameters will be grouped.  
+   else
+      display TAB: &table individual site refinement
+   end if
+
+   xray                           
+      optimize group
+         method=lbfgs
+         nstep=$minimize_all_step    
+         drop=10.
+         tolerance=&tolerance
+         bmin=&bmin
+         bmax=&bmax
+         qmin=&qmin
+         qmax=&qmax
+         fdpmin=&fdpmin
+         fdpmax=&fdpmax
+         fpmin=&fpmin
+         fpmax=&fpmax
+   
+         if (&bstep>0) then
+            for $aa in id (tag and &h and not(&hfix)) loop bref          
+               B=(byresidue ( id $aa ) ) 
+            end loop bref 
+         end if
+   
+         if (&qstep>0) then
+            for $aa in id (tag and &h and not(&hfix)) loop qref          
+               Q=(byresidue ( id $aa) ) 
+            end loop qref 
+         end if
+   
+         evaluate ($counter=1)
+         while ( $counter <= $subtype.num ) loop sub
+
+           if (&fpstep>0) then
+             fp=( chemical $subtype.type.$counter and
+                ( &h and not(&hfix) ) )
+           end if
+   
+           if (&fdpstep>0) then
+             fdp=( chemical $subtype.type.$counter and
+                 ( &h and not(&hfix) ) )
+           end if
+  
+           if (&fpstep<0) then
+             for $aa in id (tag and &h and not(&hfix)) loop fpre 
+               fp=( chemical $subtype.type.$counter and
+                  ( byresidue ( id $aa) ) )
+             end loop fpre 
+           end if
+
+           if (&fdpstep<0) then
+             for $aa in id (tag and &h and not(&hfix)) loop fdpr 
+               fdp=( chemical $subtype.type.$counter and
+                   ( byresidue ( id $aa) ) )
+             end loop fdpr 
+           end if
+
+           evaluate ($counter=$counter+1)
+         end loop sub
+
+      end
+   end
+
+   if ( &bstep > 0 ) then
+     if ( &bindgroup = true ) then
+       show sum (x) ( not (tag and &h and not(&hfix)) and (&h and not(&hfix) ))
+       if ($select>0) then
+         display TAB: &table bindgroup=true, performing individual B-value refinement.
+         xray
+           optimize bfactors
+             method=lbfgs
+             nstep=$minimize_all_step    
+             drop=10.
+             tolerance=&tolerance
+             bmin=&bmin
+             bmax=&bmax
+           end
+         end
+       end if
+     end if
+   end if
+						   
+   if (&bstep>0) then
+      if (&table # "") then                            {fill table with shift}
+         for $1 in id (&h and not(&hfix)) loop minb_shift  {parameters}
+            show (b-store1) (id $1)
+            evaluate ($b=$result)
+            
+            {* limit maximum b shift *}
+            evaluate ($babs=abs($b))
+            if ($babs>&bmaxshift) then
+                evaluate ($b=sign($b)* &bmaxshift)
+                do (b=store1+$b) ( id $1 ) 
+            end if
+  
+            show element (segid ) (id $1)
+            evaluate ($segid=$result)
+            show element (resid ) (id $1)
+            evaluate ($resid=$result)
+            show element (name ) (id $1)
+            evaluate ($name=$result)
+            display TAB: &table atom=($segid $resid $name) b-shift= $b[F9.2]
+         end loop minb_shift
+      end if
+      
+      {*update stored B-factors*}
+      
+      do (store1=b) (&h)
+   end if
+   
+ 
+   if (&qstep>0) then
+      if (&table # "") then
+         for $1 in id (&h and not(&hfix)) loop minq_shift
+            show (q-store2) (id $1)
+            evaluate ($q=$result)
+   
+            {* limit maximum q shift *}
+            evaluate ($qabs=abs($q))
+            if ($qabs>&qmaxshift) then
+                evaluate ($q=sign($q)* &qmaxshift)
+                do (q=store2+$q) ( id $1 ) 
+            end if
+  
+            show element (segid ) (id $1)
+            evaluate ($segid=$result)
+            show element (resid ) (id $1)
+            evaluate ($resid=$result)
+            show element (name ) (id $1)
+            evaluate ($name=$result)
+            display TAB: &table atom=($segid $resid $name) q-shift= $q[F9.2]
+         end loop minq_shift
+      end if
+      
+      {*update stored Qs *}
+      
+      do (store2=q) (&h)
+   end if
+   
+   if (&fpstep # 0) then
+      if (&table # "") then
+         for $1 in id (&h and not(&hfix)) loop fp_shift
+            show (scatter_fp-store7) (id $1)
+            evaluate ($q=$result)
+
+            {* limit maximum fp shift *}
+            evaluate ($qabs=abs($q))
+            if ($qabs>&fpmaxshift) then
+                evaluate ($q=sign($q)* &fpmaxshift)
+                do (scatter_fp=store7+$q) ( id $1 ) 
+            end if
+
+            show element (segid ) (id $1)
+            evaluate ($segid=$result)
+            show element (resid ) (id $1)
+            evaluate ($resid=$result)
+            show element (name ) (id $1)
+            evaluate ($name=$result)
+            display TAB: &table atom=($segid $resid $name) fp-shift= $q[F9.2]
+         end loop fp_shift
+      end if
+      
+      {*update stored FPs *}
+      
+      do (store7=scatter_fp) (&h)
+   end if
+   
+   if (&fdpstep # 0) then
+      if (&table # "") then
+         for $1 in id (&h and not(&hfix)) loop fdp_shift
+            show (scatter_fdp-store8) (id $1)
+            evaluate ($q=$result)
+
+            {* limit maximum fdp shift *}
+            evaluate ($qabs=abs($q))
+            if ($qabs>&fdpmaxshift) then
+                evaluate ($q=sign($q)* &fdpmaxshift)
+                do (scatter_fdp=store8+$q) ( id $1 ) 
+            end if
+
+            show element (segid ) (id $1)
+            evaluate ($segid=$result)
+            show element (resid ) (id $1)
+            evaluate ($resid=$result)
+            show element (name ) (id $1)
+            evaluate ($name=$result)
+            display TAB: &table atom=($segid $resid $name) fdp-shift= $q[F9.2]
+         end loop fdp_shift
+      end if
+      
+      {*update stored FDPs *}
+      
+      do (store8=scatter_fdp) (&h)
+   end if
+
+end if

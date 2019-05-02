@@ -1,0 +1,95 @@
+remarks  test NOE restraints facility
+remarks  
+
+topology @CNS_TOPPAR:protein.top end
+parameter @CNS_TOPPAR:protein.param end
+
+segment
+   name=mol1
+   molecule  name=lys number=1 end
+end
+segment
+   name=mol2
+   molecule name=lys number=1 end
+end
+
+delete selection=( not ( name nz or name hz* or name ce )) end
+
+coor
+remarks test
+ATOM      1  CE  LYS     1      -0.484   1.367   0.000  1.00  0.00      MOL1
+ATOM      2  NZ  LYS     1       0.000   0.000   0.000  1.00  0.00      MOL1
+ATOM      3  HZ1 LYS     1       1.040   0.000   0.000  1.00  0.00      MOL1
+ATOM      4  HZ2 LYS     1      -0.346  -0.491   0.849  1.00  0.00      MOL1
+ATOM      5  HZ3 LYS     1      -0.346  -0.491  -0.849  1.00  0.00      MOL1
+ATOM      6  CE  LYS     1      -0.484   1.367   0.000  1.00  0.00      MOL2
+ATOM      7  NZ  LYS     1       0.000   0.000   0.000  1.00  0.00      MOL2
+ATOM      8  HZ1 LYS     1       1.040   0.000   0.000  1.00  0.00      MOL2
+ATOM      9  HZ2 LYS     1      -0.346  -0.491   0.849  1.00  0.00      MOL2
+ATOM     10  HZ3 LYS     1      -0.346  -0.491  -0.849  1.00  0.00      MOL2
+END
+
+coor rotate   angle=180.0   selection=( segid mol2 )  vector=( 0.0 0.0 1.0) end
+
+coor translate vector=( 1.0 0.0 0.0 ) dist=5.0  selection=( segid mol2 ) end
+
+
+flags  exclude * include noe   end
+
+noe
+  reset
+  nrestraints=100
+  temperature=300.0
+  class one
+end
+
+
+
+{* test NOE PREDict facility *}
+{* ========================= *}
+noe
+
+
+   assign ( atom mol1 1 hz* ) ( atom mol2 1 hz*)  4.0  0.08 0.17
+
+   print thres=-1
+   outden
+end
+
+coor translate vector=( 0.5 0.0 0.0 ) dist=3.0  selection=( segid mol2 ) end
+
+noe 
+   den init
+   outden
+end
+
+coor translate vector=( 1.0 0.0 0.0 ) dist=3.0  selection=( segid mol2 ) end
+
+
+noe
+   print thres=-1
+
+   den update gamma=0.4 kappa=0.3
+   
+   print thres=-1
+
+   den update gamma=0.4 kappa=0.3
+   
+   print thres=-1
+
+   den update gamma=0.4 kappa=0.3
+   
+   print thres=-1
+   
+   den update gamma=1 kappa=1
+   
+   print thres=-1
+   
+   outden
+   
+end
+
+stop
+
+
+   

@@ -1,0 +1,106 @@
+remarks file: xasymm.inp 
+
+evaluate ($low=76.0)
+evaluate ($high=9.)
+                                             
+xray
+   declare name=fobs type=complex domain=reciprocal end
+   declare name=fpart domain=reciprocal type=complex end
+   declare name=fcalc domain=reciprocal type=complex end
+ 
+   A=185.1 B=185.1 C=185.1 ALPHA=90.0 BETA=90.0 GAMMA=90.0
+
+   evaluate ($sg=I432) { space group No. 211 }
+  symmetry=( X,Y,Z )
+  symmetry=( -X,-Y,Z )
+  symmetry=( -X,Y,-Z )
+  symmetry=( X,-Y,-Z )
+  symmetry=( Z,X,Y )
+  symmetry=( Z,-X,-Y )
+  symmetry=( -Z,-X,Y )
+  symmetry=( -Z,X,-Y )
+  symmetry=( Y,Z,X )
+  symmetry=( -Y,Z,-X )
+  symmetry=( Y,-Z,-X )
+  symmetry=( -Y,-Z,X )
+  symmetry=( Y,X,-Z )
+  symmetry=( -Y,-X,-Z )
+  symmetry=( Y,-X,Z )
+  symmetry=( -Y,X,Z )
+  symmetry=( X,Z,-Y )
+  symmetry=( -X,Z,Y )
+  symmetry=( -X,-Z,-Y )
+  symmetry=( X,-Z,Y )
+  symmetry=( Z,Y,-X )
+  symmetry=( Z,-Y,X )
+  symmetry=( -Z,Y,X )
+  symmetry=( -Z,-Y,-X )
+  symmetry=( 1/2+X,1/2+Y,1/2+Z )
+  symmetry=( 1/2-X,1/2-Y,1/2+Z )
+  symmetry=( 1/2-X,1/2+Y,1/2-Z )
+  symmetry=( 1/2+X,1/2-Y,1/2-Z )
+  symmetry=( 1/2+Z,1/2+X,1/2+Y )
+  symmetry=( 1/2+Z,1/2-X,1/2-Y )
+  symmetry=( 1/2-Z,1/2-X,1/2+Y )
+  symmetry=( 1/2-Z,1/2+X,1/2-Y )
+  symmetry=( 1/2+Y,1/2+Z,1/2+X )
+  symmetry=( 1/2-Y,1/2+Z,1/2-X )
+  symmetry=( 1/2+Y,1/2-Z,1/2-X )
+  symmetry=( 1/2-Y,1/2-Z,1/2+X )
+  symmetry=( 1/2+Y,1/2+X,1/2-Z )
+  symmetry=( 1/2-Y,1/2-X,1/2-Z )
+  symmetry=( 1/2+Y,1/2-X,1/2+Z )
+  symmetry=( 1/2-Y,1/2+X,1/2+Z )
+  symmetry=( 1/2+X,1/2+Z,1/2-Y )
+  symmetry=( 1/2-X,1/2+Z,1/2+Y )
+  symmetry=( 1/2-X,1/2-Z,1/2-Y )
+  symmetry=( 1/2+X,1/2-Z,1/2+Y )
+  symmetry=( 1/2+Z,1/2+Y,1/2-X )
+  symmetry=( 1/2+Z,1/2-Y,1/2+X )
+  symmetry=( 1/2-Z,1/2+Y,1/2+X )
+  symmetry=( 1/2-Z,1/2-Y,1/2-X )
+   asymm=( 0<=x <=1/2
+     and  0<=y<=1/2
+     and  0<=z<=1/4
+     and  z<=min(x,1/2-x,y,1/2-y) )
+
+
+
+   SCATter ( chemical C* ) 
+      2.31000 20.8439 1.02000 10.2075 1.58860 .568700 .865000 51.6512 .215600
+   SCATter ( chemical N* )
+      12.2126 .005700 3.13220 9.89330 2.01250 28.9975 1.16630 .582600 -11.529
+   SCATter ( chemical O* )
+      3.04850 13.2771 2.28680 5.70110 1.54630 .323900 .867000 32.9089 .250800
+   SCATter ( chemical S* )
+      6.90530 1.46790 5.20340 22.2151 1.43790 .253600 1.58630 56.1720 .866900
+   SCATter ( chemical P* )
+      6.43450 1.90670 4.17910 27.1570 1.78000 0.52600 1.49080 68.1645 1.11490
+   SCATter ( chemical FE* )
+      11.1764 4.61470 7.38630 0.30050 3.39480 11.6729 0.07240 38.5566 0.97070
+
+   SCATTER ( CHEMICAL XC* )
+   15.6348 -.00740 7.95180 0.60890 8.43720 10.3116 0.85370 25.9905 -14.875
+
+   nreflections=20000
+ 
+   binresolution $low $high
+   mapresolution $high
+   tselection=( $high <= d <= $low and 10000. >= amplitude(fobs)>=0.1 ) 
+
+   do (fcalc=10.) ( all )
+    ?
+   method=fft   lookup=false 
+   fft memory=50000   end
+
+
+   set message=all end
+   declare name=map1  domain=real end
+   do (map1=ft(fcalc)) ( all )
+
+end
+
+
+stop
+
+

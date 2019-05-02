@@ -1,0 +1,105 @@
+<HTML>
+<HEAD>
+   <TITLE>Crystallography & NMR System</TITLE>
+</HEAD>
+<BODY BGCOLOR=#8ebf8e>
+
+<HR WIDTH="100%"></P>
+
+<H2>Refinement by simulated annealing</H2>
+
+<HR WIDTH="100%"></P>
+
+<P>The hemihedral twinning is directly incorporated into the
+refinement target - i.e. the data are not detwinned. The least squares
+crystallographic target used is:</P>
+
+<PRE>
+  target = ( Fo - k( sqrt [(1-alpha)Fc^2 + (alpha)Fc'^2] ) )^2
+</PRE>
+
+<P>where alpha is the twinning fraction (between 0 and 0.5) and Fc'
+denotes application of the twinning operator. The scale factor k
+between observed and calculated data remains fixed during a refinement
+cycle and is only recalculated when the value for the weight between
+crystallographic and geometric terms is updated. The twinning fraction
+alpha also remains fixed during refinement. Note that only hemihedral
+(2-fold) twinning is currently permitted.</P>
+
+<P>The structure used in this tutorial is that of a double mutant
+(D97A,E99A) of the general diffusion porin from <I>Rhodopseudomonas
+blastica</I> (B.Schmid, L.Maveyraud, M.Kromer, G.E.Schulz "Porin
+mutants with new channel properties", Protein Science <B>7</B>,
+1603-1611). The deposited refined model (7prn) and the structure
+factors (r7prnsf) were obtained directly from the Protein Data
+Bank. The twinning of the data had previously been identified
+(T.O.Yeates, B.C.Fam "Protein crystals and their evil twins",
+Structure <B>7</B>, 25-29). Comparison of the original model and that
+after refinement with the twinning included shows negligible changes
+in the protein structure.</P>
+
+<P>This structure has been previously refined against the data without
+the twinning taken into account. Therefore, the refinement is begun
+with simulated annealing using torsion angle dynamics, to remove the
+bias to the original test set (and improve the model if possible). The
+use of torsion angle dynamics reduces the number of parameters being
+refined and hence reduces the degree of overfitting of the data. For
+an initial model with relatively large errors (due to manual building
+or misplaced atoms) a starting temperature of 5000K is recommended instead of the 3000K used in this example. The <tt>refine_twin.inp</tt> task
+file includes a specified number of macrocycles of geometry minimization, then simulated annealing, followed by positional minimization and B-factor refinement. In this example, two macro cycles are performed. Multiple refinement trials can be performed, each with
+different initial velocities for the molecular dynamics. It can be
+useful to run 5 or 10 trials if the there are some serious errors in
+the model - greater variation is usually seen in these areas. The
+structure factors from the multiple models can also be averaged to
+reduce the noise in the electron density maps (see the CNS task file
+<tt>model_map_twin.inp</tt>). The refinement is performed
+with the CNS task file <TT>refine_twin.inp</TT>:</P>
+
+<PRE>
+      cns_solve &lt; <A HREF="refine_twin.inp">refine_twin.inp</A> &gt; refine_twin.out
+</PRE>
+
+
+<P>The result of the refinement is a new coordinate file
+(refine_twin.pdb). In the majority of CNS refinement task files information
+about the refinement procedure is written out at the top of the output
+coordinate file (as REMARK statements):</P>
+
+<PRE>REMARK coordinates from twinned data positional and B-factor refinement<br>REMARK twinning operator= h,-h-k,-l  twinning fraction= 0.304<br>REMARK cycles= 2<br>REMARK refinement resolution: 500.0 - 2.25 A<br>REMARK starting twinned r= 0.1962 twinned free_r= 0.1945<br>REMARK final    twinned r= 0.1566 twinned free_r= 0.1856<br>REMARK<br>REMARK  BIN RESOLUTION RANGE  COMPL.  NWORK   NFREE  RWORK  RFREE<br>REMARK    1  500.01 -    4.85 0.968    2122     202 0.1383 0.1865<br>REMARK    2    4.85 -    3.85 0.991    2154     212 0.1203 0.1537<br>REMARK    3    3.85 -    3.36 0.998    2178     227 0.1325 0.1537<br>REMARK    4    3.36 -    3.05 1.000    2156     243 0.1470 0.1948<br>REMARK    5    3.05 -    2.83 1.000    2151     225 0.1742 0.1934<br>REMARK    6    2.83 -    2.67 1.000    2242     189 0.1885 0.2159<br>REMARK    7    2.67 -    2.53 1.000    2174     191 0.2018 0.2067<br>REMARK    8    2.53 -    2.42 1.000    2117     277 0.2160 0.1994<br>REMARK    9    2.42 -    2.33 1.000    2184     240 0.2189 0.2362<br>REMARK   10    2.33 -    2.25 0.997    2220     186 0.2030 0.2393<br>REMARK<br>REMARK rmsd bonds= 0.007237  rmsd angles=  1.30392<br>REMARK B rmsd for bonded mainchain atoms=  1.244  target= 1.5<br>REMARK B rmsd for bonded sidechain atoms=  1.748  target= 2.0<br>REMARK B rmsd for angle mainchain atoms=  2.147  target= 2.0<br>REMARK B rmsd for angle sidechain atoms=  2.643  target= 2.5<br>REMARK target= twin_lsq  final wa= 263725<br>REMARK final rweight=  0.0821 (with wa= 263725)<br>REMARK md-method= torsion  annealing schedule= slowcool<br>REMARK starting temperature= 3000  total md steps= 60 * 6  seed= 82364<br>REMARK positional (xyz) minimization steps= 50<br>REMARK restrained B-factor steps= 50  mode= individual<br>REMARK sg= R3 a= 104.400 b= 104.400 c= 124.250 alpha= 90 beta= 90 gamma= 120<br>REMARK parameter file 1  : CNS_TOPPAR:protein_rep.param<br>REMARK parameter file 2  : CNS_TOPPAR:dna-rna_rep.param<br>REMARK parameter file 3  : CNS_TOPPAR:water_rep.param<br>REMARK parameter file 4  : CNS_TOPPAR:ion.param<br>REMARK parameter file 5  : CNS_TOPPAR:carbohydrate.param<br>REMARK molecular structure file: automatic<br>REMARK topology file 1  : CNS_TOPPAR:protein.top<br>REMARK topology file 2  : CNS_TOPPAR:dna-rna.top<br>REMARK topology file 3  : CNS_TOPPAR:water.top<br>REMARK topology file 4  : CNS_TOPPAR:ion.top<br>REMARK topology file 5  : CNS_TOPPAR:carbohydrate.top<br>REMARK linkage file 1  : CNS_TOPPAR:protein.link<br>REMARK linkage file 2  : CNS_TOPPAR:dna-rna-pho.link<br>REMARK input coordinates: porin.pdb<br>REMARK reflection file 1 : porin.cv<br>REMARK ncs= none<br>REMARK Anisotropic B-factor tensor Ucart of atomic model without isotropic component :<br>REMARK   B11=   1.957 B22=   1.957 B33=  -3.915<br>REMARK   B12=   0.000 B13=   0.000 B23=   0.000<br>REMARK Isotropic component added to coordinate array B:    0.599<br>REMARK bulk solvent: probe radius=1, shrink value=1<br>REMARK bulk solvent: density level= 0.38 e/A^3, B-factor= 44.5337 A^2<br>REMARK reflections with |Fobs|/sigma_F &lt; 0.0 rejected<br>REMARK reflections with |Fobs| &gt; 10000 * rms(Fobs) rejected<br>REMARK reflections with |Fobs|[h,-h-k,-l] = 0 rejected<br>REMARK fft gridding factor = 0.3333, B factor offset = 0.425362 A^2, Elimit = 8<br>REMARK theoretical total number of refl. in resol. range:     23999 ( 100.0 % )<br>REMARK number of unobserved reflections (no entry or |F|=0):     66 (   0.3 % )<br>REMARK number of reflections rejected:                           43 (   0.2 % )<br>REMARK total number of reflections used:                      23890 (  99.5 % )<br>REMARK number of reflections in working set:                  21698 (  90.4 % )<br>REMARK number of reflections in test set:                      2192 (   9.1 % )<br>CRYST1  104.400  104.400  124.250  90.00  90.00 120.00 R 3       <br>REMARK FILENAME=&quot;refine_twin.pdb&quot;<br>REMARK DATE:30-Dec-2009  17:14:49       created by user: brunger<br>REMARK VERSION:1.3<br>ATOM      1  CB  MET A   1       9.313  57.677  19.240  1.00 35.16      A   <br>ATOM      2  CG  MET A   1       7.964  57.084  18.845  1.00 41.37      A   <br>ATOM      3  SD  MET A   1       8.109  55.413  18.114  1.00 50.06      A   <br>ATOM      4  CE  MET A   1       9.697  55.577  17.170  1.00 45.39      A   </PRE>
+
+<P>This information provides a summary of the refinement and also a
+record of the input data and parameters used to generate this
+structure.</P>
+
+<P>The next step is to locate the water
+molecules which can be seen in a Fo-Fc or in a gradient map. 2Fo-Fc and Fo-Fc maps are by default written by the <tt>refine_twin.inp</tt> job (see files <tt>refine_twin_2fofc.map</tt>, <tt>refine_twin_fofc.map</tt>, <tt>refine_twin.hkl</tt>). The is gradient map is
+calculated using the CNS task file <TT>gradient_map_twin.inp</TT>:</P>
+<PRE>
+      cns_solve &lt; <A HREF="gradient_map_twin.inp">gradient_map_twin.inp</A> &gt; gradient_map_twin.out
+</PRE>
+<P>The electron density map clearly shows many water molecules (or
+  possibly ions). The advantage of the gradient map is that it does not
+require that the data be detwinned prior to map calculation.</P>
+
+<TABLE ALIGN=CENTER>
+<TR>
+<TD ALIGN=CENTER><IMG SRC="gradient.jpeg"
+    HEIGHT=371 WIDTH=406></TD>
+</TR>
+<TR>
+<TD ALIGN=CENTER>Gradient map (at 8 sigma).</TD>
+</TR>
+</TABLE>
+
+<BR><A HREF="tutorial.csh">Script to run this tutorial</A>
+
+<HR WIDTH="100%"></P>
+
+<A HREF="../../text.html">Back to tutorials</A>&nbsp;&nbsp;
+<A HREF="../model_stats/text.html">Previous section</A>&nbsp;&nbsp;
+<A HREF="../water_pick/text.html">Next section</A>
+
+<HR WIDTH="100%"></P>
+   
+</BODY>
+</HTML>

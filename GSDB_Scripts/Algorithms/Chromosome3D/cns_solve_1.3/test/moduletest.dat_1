@@ -1,0 +1,23 @@
+module ( &m1; &m2; &p; )
+
+if ( &m1.cols ne &m2.rows ) then
+  display MATRIX DIMENSION MISMATCH &m1.cols != &m2.rows
+else
+eval ( $a = 1 )
+while ( $a le &m1.rows ) loop a
+   eval ( $b = 1 )
+   while ( $b le &m2.cols ) loop b
+      eval ( $z = 1 )
+      eval ( $sum = 0 )
+      while ( $z le &m1.cols ) loop z
+         eval ( $sum = $sum + &m1.ij.$a.$z * &m2.ij.$z.$b )
+         eval ( $z = $z + 1 )
+      end loop z
+      eval ( &p.ij.$a.$b = $sum )
+      eval ( $b = $b + 1 )
+   end loop b
+   eval ( $a = $a + 1 )
+end loop a
+eval ( &p.rows = &m1.rows )
+eval ( &p.cols = &m2.cols )
+end if

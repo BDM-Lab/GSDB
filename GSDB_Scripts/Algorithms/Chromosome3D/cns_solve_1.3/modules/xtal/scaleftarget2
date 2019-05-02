@@ -1,0 +1,313 @@
+! Module file: scaleftarget2
+!
+! CNS module
+! **********
+!
+! Authors: Piet Gros and Axel T. Brunger
+!
+! copyright Yale University
+!
+! Function:
+! Linear (k) and non-linear (k,B) scaling of structure-factor 
+! amplitudes fcalc using target and dtarget
+!
+! Requirements:
+! This module can only be used from within xray.
+!
+! remarks:
+! 1. The scaling operation will be applied to all structure factor arrays 
+!    (f, fop, fop2, fop3, and s). 
+!
+
+module {scaleftarget2}
+(
+   &text="";            {identifying text}
+   &table="";           {identifying text for table}
+   &messages="normal"; {set verbosity "normal" | "all" | "off"}  
+   &kscale="yes";      {"yes" | "no" scaling                         }
+   &bscale="no";       {"no" | "isotropic" | "anisotropic" B scaling }  
+   &kstep=20;          { Number of minimization steps.               }
+   &apply="all";       {apply scale factor to "all" | "selection" | "none" } 
+   &tolerance=0.0001;  {tolerance for conjugate gradient minimizer}
+   &sel=(all);         {structure factor selection for minimization. }
+   &f="";   {name of structure factor array -- scaling will be applied }
+   &s="";   {name of structure factor array -- scaling will be applied }
+   &fop=""; {name of structure factor array -- scaling will be applied }
+   &fop2="";{name of structure factor array -- scaling will be applied }
+   &fop3="";{name of structure factor array -- scaling will be applied }
+)
+
+checkversion 1.3
+
+{ Initialize }
+
+!
+! modifications: 
+!                perform anisotropic scaling in P1 to avoid issues with symmetry constraints
+!                removed fixed-isotropic-anisotropic scaling
+!                convert Ucif to Ucart for print / display
+! ATB 6/29/2006
+!
+
+if (&blank%text = false) then
+   display SCALEFTARGET: &text
+end if
+
+{ Initialize scale factors }
+evaluate ($kscale=1.) 
+evaluate ($bscale=0.)
+evaluate ($b_11=0.)
+evaluate ($b_22=0.)
+evaluate ($b_33=0.)
+evaluate ($b_12=0.)
+evaluate ($b_13=0.)
+evaluate ($b_23=0.)
+
+if (&kstep>0) then
+   if (&kscale = "yes") then
+      if (&bscale = "no") then
+         optimize overall kscale=true bscale=false anisotropic=false
+               nstep=&kstep drop=10 
+               tolerance=&tolerance
+         end
+         evaluate ($bscale=0) 
+      elseif (&bscale = "isotropic") then
+         optimize overall kscale=true bscale=true anisotropic=false
+               isotropic=true nstep=&kstep drop=10 
+               tolerance=&tolerance
+         end
+      elseif (&bscale = "anisotropic") then
+         expand
+         do (fcalc=complex(amplitude(fcalc),0)) ( all )  ! ensure that the phases of this array are all zero since definescaletarget expects that Fcalc is a real number
+         optimize overall kscale=true bscale=true anisotropic=true
+               isotropic=true nstep=&kstep drop=10 
+               tolerance=&tolerance
+               restrictions=none
+         end
+         unexpand
+       else
+         display SCALEFTARGET: BSCALE=&bscale  scaling option not implemented
+      end if
+   elseif (&kscale = "no") then
+      if (&bscale = "no") then
+         evaluate ($bscale=0) 
+      elseif (&bscale = "isotropic") then
+         optimize overall kscale=false bscale=true anisotropic=false
+               isotropic=true nstep=&kstep drop=10 
+               tolerance=&tolerance
+         end
+      elseif (&bscale = "anisotropic") then
+         expand
+         do (fcalc=complex(amplitude(fcalc),0)) ( all )  ! ensure that the phases of this array are all zero since definescaletarget expects that Fcalc is a real number
+         optimize overall kscale=false bscale=true anisotropic=true
+               isotropic=true nstep=&kstep drop=10 
+               tolerance=&tolerance
+               restrictions=none
+         end
+         unexpand
+      else
+            display SCALEFTARGET: BSCALE=&bscale  scaling option not implemented
+            abort
+       end if
+      else
+         display SCALEFTARGET: KSCALE=&kscale  scaling option not implemented
+         abort
+   end if
+
+   if (&bscale = "anisotropic") then
+      evaluate ($do_aniso=true)
+   else
+      evaluate ($do_aniso=false) 
+   end if
+
+   if ($do_aniso = false) then		
+      if (&apply = "all") then 
+         do (&f=$kscale*exp(-$bscale*s*s/4.0)*&f) (all)	
+      elseif (&apply = "selection") then
+         do (&f=$kscale*exp(-$bscale*s*s/4.0)*&f) (&sel)	
+      end if
+      
+      if (&blank%s = false) then   
+         if (&apply = "all") then   
+            do (&strip%s=$kscale*exp(-$bscale*s*s/4.0)*&strip%s) (all)	
+         elseif (&apply = "selection") then
+            do (&strip%s=$kscale*exp(-$bscale*s*s/4.0)*&strip%s) (&sel)	
+         end if
+      end if
+      
+      if (&blank%fop = false) then  
+         if (&apply = "all") then   
+            do (&strip%fop=$kscale*exp(-$bscale*s*s/4.0)*&strip%fop) (all)	
+         elseif (&apply = "selection") then
+            do (&strip%fop=$kscale*exp(-$bscale*s*s/4.0)*&strip%fop) (&sel)	
+         end if
+      end if
+      
+      if (&blank%fop2 = false) then  
+         if (&apply = "all") then   
+            do (&strip%fop2=$kscale*exp(-$bscale*s*s/4.0)*&strip%fop2) (all)	
+         elseif (&apply = "selection") then
+            do (&strip%fop2=$kscale*exp(-$bscale*s*s/4.0)*&strip%fop2) (&sel)	
+         end if
+      end if
+      
+      if (&blank%fop3 = false) then  
+         if (&apply = "all") then   
+            do (&strip%fop3=$kscale*exp(-$bscale*s*s/4.0)*&strip%fop3) (all)	
+         elseif (&apply = "selection") then
+            do (&strip%fop3=$kscale*exp(-$bscale*s*s/4.0)*&strip%fop3) (&sel)	
+         end if
+      end if
+      
+      if (&messages = "all") then        {print}
+         display SCALEFTARGET: k= $kscale   B= $bscale
+      end if
+      
+      if (&blank%table = false) then
+         display TAB: &table k= $kscale  B= $bscale
+      end if
+   
+   else
+      if (&apply = "all") then 
+            do (&f=$kscale*exp(-( $b_11*h*h*$astar*$astar
+                                 +$b_22*k*k*$bstar*$bstar
+                                 +$b_33*l*l*$cstar*$cstar
+                             +2.0*$b_12*h*k*$astar*$bstar
+                             +2.0*$b_13*h*l*$astar*$cstar
+                             +2.0*$b_23*k*l*$bstar*$cstar)/4.0)*&f) ( all )
+      elseif (&apply = "selection") then
+            do (&f=$kscale*exp(-( $b_11*h*h*$astar*$astar
+                                 +$b_22*k*k*$bstar*$bstar
+                                 +$b_33*l*l*$cstar*$cstar
+                             +2.0*$b_12*h*k*$astar*$bstar
+                             +2.0*$b_13*h*l*$astar*$cstar
+                             +2.0*$b_23*k*l*$bstar*$cstar)/4.0)*&f) ( &sel )
+      end if
+      
+      if (&blank%s = false) then  
+         if (&apply = "all") then   
+               do (&strip%s=$kscale*exp(-( $b_11*h*h*$astar*$astar
+                                 +$b_22*k*k*$bstar*$bstar
+                                 +$b_33*l*l*$cstar*$cstar
+                             +2.0*$b_12*h*k*$astar*$bstar
+                             +2.0*$b_13*h*l*$astar*$cstar
+                             +2.0*$b_23*k*l*$bstar*$cstar)/4.0)*&strip%s) ( all )
+         elseif (&apply = "selection") then
+               do (&s=$kscale*exp(-( $b_11*h*h*$astar*$astar
+                                 +$b_22*k*k*$bstar*$bstar
+                                 +$b_33*l*l*$cstar*$cstar
+                             +2.0*$b_12*h*k*$astar*$bstar
+                             +2.0*$b_13*h*l*$astar*$cstar
+                             +2.0*$b_23*k*l*$bstar*$cstar)/4.0)*&s) ( &sel )
+         end if
+      end if
+      
+      if (&blank%fop = false) then 
+         if (&apply = "all") then   
+            do (&strip%fop=$kscale*exp(-( $b_11*h*h*$astar*$astar
+                                 +$b_22*k*k*$bstar*$bstar
+                                 +$b_33*l*l*$cstar*$cstar
+                             +2.0*$b_12*h*k*$astar*$bstar
+                             +2.0*$b_13*h*l*$astar*$cstar
+                             +2.0*$b_23*k*l*$bstar*$cstar)/4.0)*&strip%fop) ( all )
+         elseif (&apply = "selection") then
+            do (&strip%fop=$kscale*exp(-( $b_11*h*h*$astar*$astar
+                                 +$b_22*k*k*$bstar*$bstar
+                                 +$b_33*l*l*$cstar*$cstar
+                             +2.0*$b_12*h*k*$astar*$bstar
+                             +2.0*$b_13*h*l*$astar*$cstar
+                             +2.0*$b_23*k*l*$bstar*$cstar)/4.0)*&strip%fop) ( &sel )
+         end if
+      end if
+      
+      if (&blank%fop2 = false) then   
+         if (&apply = "all") then   
+               do (&strip%fop2=$kscale*exp(-( $b_11*h*h*$astar*$astar
+                                 +$b_22*k*k*$bstar*$bstar
+                                 +$b_33*l*l*$cstar*$cstar
+                             +2.0*$b_12*h*k*$astar*$bstar
+                             +2.0*$b_13*h*l*$astar*$cstar
+                             +2.0*$b_23*k*l*$bstar*$cstar)/4.0)*&strip%fop2) ( all )
+         elseif (&apply = "selection") then
+               do (&strip%fop2=$kscale*exp(-( $b_11*h*h*$astar*$astar
+                                 +$b_22*k*k*$bstar*$bstar
+                                 +$b_33*l*l*$cstar*$cstar
+                             +2.0*$b_12*h*k*$astar*$bstar
+                             +2.0*$b_13*h*l*$astar*$cstar
+                             +2.0*$b_23*k*l*$bstar*$cstar)/4.0)*&strip%fop2) ( &sel )
+         end if
+      end if
+      
+      if (&blank%fop3 = false) then
+         if (&apply = "all") then   
+               do (&strip%fop3=$kscale*exp(-( $b_11*h*h*$astar*$astar
+                                 +$b_22*k*k*$bstar*$bstar
+                                 +$b_33*l*l*$cstar*$cstar
+                             +2.0*$b_12*h*k*$astar*$bstar
+                             +2.0*$b_13*h*l*$astar*$cstar
+                             +2.0*$b_23*k*l*$bstar*$cstar)/4.0)*&strip%fop3) ( all )
+         elseif (&apply = "selection") then
+               do (&strip%fop3=$kscale*exp(-( $b_11*h*h*$astar*$astar
+                                 +$b_22*k*k*$bstar*$bstar
+                                 +$b_33*l*l*$cstar*$cstar
+                             +2.0*$b_12*h*k*$astar*$bstar
+                             +2.0*$b_13*h*l*$astar*$cstar
+                             +2.0*$b_23*k*l*$bstar*$cstar)/4.0)*&strip%fop3) ( &sel )
+         end if
+      end if
+
+      {- convert to Ucif to Ucart for print / display - modification 7/9/2006 -}
+      evaluate ($bcif_1_1=$B_11)
+      evaluate ($bcif_1_2=$B_12)
+      evaluate ($bcif_1_3=$B_13)
+
+      evaluate ($bcif_2_1=$B_12)
+      evaluate ($bcif_2_2=$B_22)
+      evaluate ($bcif_2_3=$B_23)
+
+      evaluate ($bcif_3_1=$B_13)
+      evaluate ($bcif_3_2=$B_23)
+      evaluate ($bcif_3_3=$B_33)
+
+      evaluate ($nmat_1=$astar)
+      evaluate ($nmat_2=$bstar)
+      evaluate ($nmat_3=$cstar)
+    
+      {- convert Ucif to Ucart -}
+      for $ui in ( 1 2 3 ) loop uco1
+         for $ul in ( 1 2 3 ) loop uco2
+            evaluate ($sum=0)
+            for $uj in ( 1 2 3 ) loop uco3
+               for $uk in ( 1 2 3 ) loop uco4
+                  evaluate ( $sum = $sum + $xrintr_$ui_$uj * $nmat_$uj * $Bcif_$uj_$uk * $nmat_$uk * $xrintr_$ul_$uk )
+               end loop uco4
+            end loop uco3
+            evaluate ($bcart_$ui_$ul = $sum)
+         end loop uco2
+      end loop uco1
+
+      evaluate ($b_11=$bcart_1_1)
+      evaluate ($b_22=$bcart_2_2)
+      evaluate ($b_33=$bcart_3_3)
+      evaluate ($b_12=$bcart_1_2)
+      evaluate ($b_13=$bcart_1_3)
+      evaluate ($b_23=$bcart_2_3)
+      
+      {- end modification -}
+    
+      if (&messages = "all") then        {print}
+   display  SCALEFTARGET: k= $kscale[F8.3]  Ucif: B11=$b_11[F8.3] B22=$b_22[F8.3] B33=$b_33[F8.3] \
+B12=$b_12[F8.3] B13=$b_13[F8.3] B23=$b_23[F8.3] 
+      end if
+      
+      if (&blank%table = false) then
+   display TAB: &table k= $kscale[F8.3] Ucif: B11=$b_11[F8.3] B22=$b_22[F8.3] \
+B33=$b_33[F8.3] B12=$b_12[F8.3] B13=$b_13 B23=$b_23[F8.3]
+      end if
+   
+   end if
+
+else
+      display SCALEFTARGET: no scaling performed (kstep=0). 
+end if
+

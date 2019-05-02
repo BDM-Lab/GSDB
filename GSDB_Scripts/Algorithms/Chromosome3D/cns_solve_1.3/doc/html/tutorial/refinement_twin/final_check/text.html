@@ -1,0 +1,204 @@
+<HTML>
+<HEAD>
+   <TITLE>Crystallography & NMR System</TITLE>
+</HEAD>
+<BODY BGCOLOR=#8ebf8e>
+
+<HR WIDTH="100%"></P>
+
+<H2>Checking the model statistics and maps</H2>
+
+<HR WIDTH="100%"></P>
+   
+<P>The model statistics are checked (as at the start of refinement) in
+order to check the model geometry and fit to the experimental
+diffraction data. In this example the CNS task file
+<TT>model_stats_twin_final.inp</TT> is used to analyze the model
+geometry and diffraction statistics (the <tt>model_stats_twin_final.inp</tt> file is taken from the <tt>model_stats_twin.inp</tt> input file, i.e., the only differences are the particular input parameter settings): :</P>
+
+<PRE>
+      cns_solve &lt; <A HREF="model_stats_twin_final.inp">model_stats_twin_final.inp</A> &gt; model_stats_twin_final.out
+</PRE>
+
+<P>The output listing file (<A
+HREF="model_stats_twin_final.list">model_stats_twin_final.list</A>) contains a
+variety of information which is self-explanatory. Important things to
+note are:<P>
+
+<pre>================================== summary ==================================</pre>
+<pre>resolution range: 500.0 - 2.25 A
+   Twinned R-values:
+   initial                                        r= 0.2926 free_r= 0.2097
+   after B-factor and/or bulk solvent correction  r= 0.1387 free_r= 0.1619</pre>
+<P>R-values versus resolution:</P>
+
+<pre>============================= twinned R-values ===============================
+ </pre>
+<pre>=======&gt; R-values with |Fobs|/sigma cutoff= 0.0</pre>
+<pre> Test set (test = 1):</pre>
+<pre> #bin | resolution range | #refl | 
+   1   4.85  500.01        202      0.1737
+   2   3.85    4.85        212      0.1387
+   3   3.36    3.85        227      0.1320
+   4   3.05    3.36        243      0.1591
+   5   2.83    3.05        225      0.1617
+   6   2.67    2.83        189      0.1842
+   7   2.53    2.67        191      0.1825
+   8   2.42    2.53        277      0.1786
+   9   2.33    2.42        240      0.2050
+  10   2.25    2.33        186      0.2022</pre>
+<pre> Working set:</pre>
+<pre> #bin | resolution range | #refl | 
+   1   4.85  500.01       2122      0.1313
+   2   3.85    4.85       2154      0.1105
+   3   3.36    3.85       2178      0.1119
+   4   3.05    3.36       2156      0.1278
+   5   2.83    3.05       2151      0.1514
+   6   2.67    2.83       2242      0.1614
+   7   2.53    2.67       2174      0.1765
+   8   2.42    2.53       2117      0.1828
+   9   2.33    2.42       2184      0.1950
+  10   2.25    2.33       2220      0.1808</pre>
+<PRE>&nbsp;</PRE>
+
+<P>This distribution of R-values is reasonable - there is no dramatic
+increase in R-value (in particular free R-value) as resolution
+increases. If there were resolution shells with R-values significantly
+higher than the rest this might indicate possible problems with the
+data processing (ice rings for example). However, the R-values
+indicate the fit to the experimental data and should not be
+manipulated by removing data - in particular by the use of sigma
+cutoffs to exclude weak data.</P>
+
+<P>The overall geometry:</P>
+
+<PRE>rmsd bonds= 0.007258 with 1 bond violations &gt; 0.05<br>rmsd angles=  1.30382 with 6 angle violations &gt;  8.0<br>rmsd dihedrals= 26.92080 with 0 angle violations &gt;  60.0<br>rmsd improper=  0.63043 with 2 angle violations &gt;  3.0</PRE>
+
+<P>These overall statistics look very good. It is worth checking the
+outlying angle and improper deviations in the detailed geometry
+analysis (below).</P>
+
+<P>The geometry in detail:</P>
+
+<pre>================================= geometry ===================================</pre>
+<pre>=======&gt; bond violations</pre>
+<pre> (atom-i        |atom-j        )    dist.   equil.   delta    energy   const. </pre>
+<pre> (A    1    SD  |A    1    CE  )    1.855    1.791    0.064    0.689  170.066</pre>
+<pre>=======&gt; angle violations</pre>
+<pre> (atom-i        |atom-j        |atom-k        )  angle    equil.     delta    energy  const. </pre>
+<pre> (A    8    N   |A    8    CA  |A    8    C   )  103.857  112.500   -8.643    5.258  231.085
+ (A    53   N   |A    53   CA  |A    53   C   )  103.123  111.200   -8.077    4.926  247.886
+ (A    91   N   |A    91   CA  |A    91   C   )  120.903  111.200    9.703    7.109  247.886
+ (A    214  N   |A    214  CA  |A    214  C   )   98.809  111.200  -12.391   11.594  247.886
+ (A    241  N   |A    241  CA  |A    241  C   )  102.930  111.200   -8.270    5.165  247.886
+ (A    271  N   |A    271  CA  |A    271  C   )  102.425  111.200   -8.775    5.814  247.886</pre>
+<pre>=======&gt; improper angle violations</pre>
+<pre> (atom-i        |atom-j        |atom-k        |atom-L        )    angle    equil.   delta    energy   const.   period</pre>
+<pre> (A    102  CA  |A    102  N   |A    102  C   |A    102  CB  )   32.148   35.264    3.116    2.218  750.000   0
+ (A    130  CG  |A    130  CD1 |A    130  CD2 |A    130  CB  )    3.039    0.000   -3.039    2.110  750.000   0</pre>
+<pre>=======&gt; dihedral angle violations</pre>
+<pre> (atom-i        |atom-j        |atom-k        |atom-L        )    angle    equil.   delta    energy   const.   period</pre>
+<pre>&nbsp;</pre>
+
+<P>Specific problems with the model geometry can be identified
+here. The angle deviation all occur at N-CA-C angles. Based on high
+resolution structures this angle is flexible, so small deviations for
+some of these angles are tolerated.</P>
+
+<P>Non-trans peptide bonds:</P>
+
+<PRE>
+============================ non-trans peptides ==============================
+
+there are no distorted or cis- peptide planes
+</PRE>
+
+<P>The presence of non-trans peptides, unless they are proline
+residues, will cause problems in refinement. They can be identified,
+and an appropriate parameter file created using the CNS task file
+<TT>general/cis_peptide.inp</TT>. The parameter file generated is read
+into subsequent refinement task files.</P>
+
+<P>Statistics about detwinning of the data:</P>
+
+<PRE>
+================================ detwinning ==================================
+
+data detwinned with: F_detwin   = (Fo^2 - alpha*[Fo^2 + Fo'^2])/(1 - 2*alpha)
+                     Fo'[h,k,l] = Fo[h,-h-k,-l]
+                     alpha      = 0.304
+
+reflections rejected (I_detwin <= 0): 683
+                         working set: 626
+                            test set: 57
+
+</PRE>
+
+<P>The detwinning algorithm depends on whether the twinning is perfect
+or partial. Some reflections are rejected during the detwinning
+procedure because the resultant intensity is less than zero.</P>
+
+<P>Detwinned R-values:</P>
+<pre>============================ detwinned R-values ==============================</pre>
+<pre>resolution range: 500.0 - 2.25 A
+   R-values:
+   after detwinning  r= 0.2004 free_r= 0.2191</pre>
+<pre>&nbsp;
+</pre>
+
+<P>The R-values after detwinning are in greater in magnitude than the
+twinned R-values.</P>
+
+<P>After analysis of the geometry and fit to the experimental data
+electron density maps should be checked. Cross-validated, sigma-A weighted
+2Fo-Fc and gradient maps are calculated (the <tt>gradient_map_twin_final.inp</tt> file is taken from the <tt>gradient_map_twin.inp</tt> input file, i.e., the only differences are the particular input parameter settings, likewise for <tt>model_map_twin.inp</tt>): :</P>
+
+<PRE>
+      cns_solve &lt; <A HREF="gradient_map_twin_final.inp">gradient_map_twin_final.inp</A> &gt; gradient_map_twin_final.out 
+      cns_solve &lt; <A HREF="model_map_twin_final.inp">model_map_twin_final.inp</A> &gt; model_map_twin_final.out 
+</PRE>
+<P>Analysis of the gradient map and cross-validated sigma-A weighted
+  2Fo-Fc map shows that an ordered water molecule is still missing (not
+  shown). Also, there is electron density in the regions (around residue Tyr 121) where a
+  lipid/detergent molecule was identified in the original structure
+  refined without twinning (7prn), and a lipid/detergent molecule seen
+in the wild-type structure (1prn):</P>
+
+<TABLE ALIGN=CENTER>
+<TR>
+<TD ALIGN=CENTER><IMG SRC="final_grad.jpeg"
+    HEIGHT=371 WIDTH=406></TD>
+</TR>
+<TR>
+<TD ALIGN=CENTER>Cross-validated Sigma-A weighted 2Fo-Fc map in blue (at 1.5 sigma).<BR>
+                 Gradient map in red (3 sigma).<BR>
+                 The coordinates for the wild-type structure (1prn) are shown.<BR>
+                 Density is seen for a lipid/detergent molecule (also seen in 7prn).</TD>
+</TR>
+</TABLE>
+
+<P>
+
+<TABLE ALIGN=CENTER>
+<TR>
+<TD ALIGN=CENTER><IMG SRC="final_2fofc.jpeg"
+    HEIGHT=371 WIDTH=406></TD>
+</TR>
+<TR>
+<TD ALIGN=CENTER>Cross-validated Sigma-A weighted 2Fo-Fc map in blue (at 1.0 sigma).<BR>
+                 The coordinates for the wild-type structure (1prn) are shown.<BR>
+                 Putative density for a lipid/detergent molecule.</TD>
+</TR>
+</TABLE>
+
+<BR><A HREF="tutorial.csh">Script to run this tutorial</A>
+
+<HR WIDTH="100%"></P>
+
+<A HREF="../../text.html">Back to tutorials</A>&nbsp;&nbsp;
+<A HREF="../water_pick/text.html">Previous section</A>&nbsp;&nbsp;
+
+<HR WIDTH="100%"></P>
+   
+</BODY>
+</HTML>

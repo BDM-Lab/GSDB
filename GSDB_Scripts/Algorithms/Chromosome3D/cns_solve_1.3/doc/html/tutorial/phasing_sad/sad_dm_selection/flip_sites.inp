@@ -1,0 +1,113 @@
+{+ file: flip_sites.inp +}
+{+ directory: xtal_phase +}
+{+ description: Flip heavy atom sites +}
+{+ comment:
+        - Operates on CNS heavy atom site database (sdb) files.
+        - For enantiomorphic space groups, the space group name
+          will change.
+        - Refer to the CNS on-line tutorial for more information. +}
+{+ authors: R.W. Grosse-Kunstleve and P.D. Adams +}
+{+ copyright: Yale University +}
+
+{- Guidelines for using this file:
+   - all strings must be quoted by double-quotes
+   - logical variables (true/false) are not quoted
+   - do not remove any evaluate statements from the file -}
+
+{- begin block parameter definition -} define(
+
+{====================== crystallographic data ========================}
+
+{* space group *}
+{* use International Table conventions with subscripts substituted
+   by parenthesis *}
+{===>} sg="P6";
+
+{* unit cell parameters in Angstroms and degrees *}
+{+ table: rows=1 "cell" cols=6 "a" "b" "c" "alpha" "beta" "gamma" +}
+{===>} a=116.097;
+{===>} b=116.097;
+{===>} c=44.175;
+{===>} alpha=90;
+{===>} beta=90;
+{===>} gamma=120;
+
+{=========================== input file ==============================}
+
+{* input site database file *}
+{===>} sitedatabase_infile.1="sad_eight_sites.sdb";
+
+{=========================== output file =============================}
+
+{* output site database file *}
+{===>} sitedatabase_outfile="sad_eight_sites_flipped.sdb";
+
+{===========================================================================}
+{        things below this line do not normally need to be changed          }
+{===========================================================================}
+
+ ) {- end block parameter definition -}
+
+ checkversion 1.3
+
+ evaluate ($log_level=quiet)
+
+@CNS_XTALMODULE:read_multi_sdb (filegroup=&sitedatabase_infile;
+                                use_array=store3;
+                                fix_array=store4;
+                                sg_expected=&sg;
+                                sg_read=$sg_read;)
+
+xray
+  a=&a b=&b c=&c  alpha=&alpha beta=&beta gamma=&gamma
+  @CNS_XTALLIB:spacegroup.lib(sg=&sg; sgparam=$sgparam;)
+end
+
+buffer comment
+  reset
+  display Sites from file &sitedatabase_infile.1 were flipped.
+end
+
+if ($sgparam.InvCentre_x = "VOID") then
+  do (x=-x) (all)
+  do (y=-y) (all)
+  do (z=-z) (all)
+  buffer comment
+    display Centre of inversion was at the origin.
+  end
+else
+  coordinates fractionalize end
+  do (x=-x+2*$sgparam.InvCentre_x) (all)
+  do (y=-y+2*$sgparam.InvCentre_y) (all)
+  do (z=-z+2*$sgparam.InvCentre_z) (all)
+  coordinates orthogonalize end
+  buffer comment
+    display Centre of inversion was at $sgparam.InvCentre_x $sgparam.InvCentre_y $sgparam.InvCentre_z (fractional coordinates).
+  end
+end if
+
+eval($sg_write = &sg)
+if ($sgparam.enantiomorph_group # "VOID") then
+  eval($sg_write = $sgparam.enantiomorph_group)
+  eval($sg_tmp = """ + $sg_write + """)
+  buffer comment
+    display Enantiomorphic space group was switched.
+    display     Old space group: &QUOTE%sg
+    display     New space group: $QUOTE%sg_tmp
+  end
+end if
+
+@CNS_XTALMODULE:coord_to_sdb (sitedb=$allsites;
+                              use_array=store3;
+                              fix_array=store4;
+                              selection=(all);)
+
+@CNS_XTALMODULE:write_cns_header (output=&sitedatabase_outfile;
+                                  description="CNS heavy atom site database";
+                                  buffer=comment;)
+
+@CNS_XTALMODULE:write_sdb (sitedb=$allsites;
+                           sg=$sg_write;
+                           output=&sitedatabase_outfile;)
+
+stop

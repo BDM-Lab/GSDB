@@ -1,0 +1,108 @@
+! Module file: printfom
+!
+! CNS module
+! **********
+!
+! Authors: Piet Gros and Axel T. Brunger
+!
+! copyright Yale University
+!
+! Function: 
+! Print statistics on the figure-of-merit
+!
+! Requirements:
+! 1. This module can only be called from xray
+! 2. probability must be precomputed
+!
+
+module {printfom}
+(
+   &text="";        {identifying text}
+   &table="";       {identifying text for table}
+   &epsilon="yes";  {"yes" | "no", use epsilon weighting in summing variances}
+
+   &m;              {array with complex fom}
+   &sel=(all);      {selection of structure factors}
+   &output=OUTPUT;  {output filename}
+)
+
+checkversion 1.3
+
+set display=&output end
+
+declare domain=reci type=real name=centr end 
+
+do (centr=0) (acentric)
+do (centr=1) (centric)
+
+evaluate ($pp_tiny=1E-9)
+
+
+if (&epsilon="yes") then
+
+   display                                     figure-of-merit
+   display                                     ---------------
+   display                                     centrics  acentrics    all
+   if (&text # "") then
+      display &&text
+   end if
+   
+   bins ? evaluate ($old_bin=$result) 
+   statistics 
+      output=&output
+      (save(abs(centr* &m))/max($pp_tiny,save(centr)))
+      (save(abs((1-centr)* &m))/max($pp_tiny,save(1-centr)))
+      (save(abs(&m)))
+      sele=(&sel)
+   end
+   bins=1
+   statistics 
+       output=&output
+         (save(abs(centr* &m))/max($pp_tiny,save(centr)))
+         (save(abs((1-centr)* &m))/max($pp_tiny,save(1-centr)))
+         (save(abs(&m)))
+      sele=(&sel)
+   end
+   bins=$old_bin
+   
+   if (&table # "") then
+      display TAB: &table fom(centric)= $expression1[F6.3]  fom(acentric)=$expression2[F6.3]  \
+fom(all)=$expression3[F6.3]
+   end if
+
+else
+
+   display                                     figure-of-merit
+   display                                     ---------------
+   display                                     centrics  acentrics    all
+   if (&text # "") then
+      display &&text
+   end if
+   
+   bins ? evaluate ($old_bin=$result) 
+   statistics 
+     output=&output
+      (ave(abs(centr* &m))/max($pp_tiny,ave(centr)))
+      (ave(abs((1-centr)* &m))/max($pp_tiny,ave(1-centr)))
+      (ave(abs(&m)))
+      sele=(&sel)
+   end
+   bins=1
+   statistics 
+      output=&output
+      (ave(abs(centr* &m))/max($pp_tiny,ave(centr)))
+      (ave(abs((1-centr)* &m))/max($pp_tiny,ave(1-centr)))
+      (ave(abs(&m)))
+      sele=(&sel)
+   end
+   bins=$old_bin
+   
+   if (&table # "") then
+      display TAB: &table fom(centric)= $expression1[F6.3]  fom(acentric)=$expression2[F6.3]  \
+fom(all)=$expression3[F6.3]
+   end if
+
+end if
+
+undeclare domain=reci name=centr end 
+

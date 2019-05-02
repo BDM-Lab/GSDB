@@ -1,0 +1,76 @@
+! Module file: substractmeasurementerror
+!
+! CNS module
+! **********
+!
+! Authors: Piet Gros and Axel T. Brunger
+!
+! copyright Yale University
+!
+! Function:
+! Substract measurement errors, as is needed for the computation of
+! the individual lack-of-isomorphism
+!
+! Requirements:
+! 1. This module can only be used from within xray.
+! 2. For anomalous differences ANOMalous must be TRUE and, thus, the
+!    arrays of domain=reciprocal (like structure factors) contain both
+!    the (+) and the (-) elements.
+! 
+
+module {substractmeasurementerror}
+(
+   &anomalous="no";     {"yes" | "no", anomalous data}
+
+   &messages="normal";  {set verbosity "normal" | "all" | "off"}
+
+   &sel=(all);          {structure factor selection}
+
+   &var;                {variance array}
+   &sp=null;            {measurement error of native data}
+   &sph=null;           {measurement error of derivative data}
+)
+
+checkversion 1.3
+
+declare domain=reci type=real name=selected end  {selected reflections}
+
+if (&anomalous = "yes") then  {*set flags for Bijvoet pairs*}
+   do (selected=0) ( all )
+   do (selected=1) ( friedel_pair(&sel) and acentric )
+elseif (&anomalous = "no") then
+   do (selected=0) (all)
+   do (selected=1) (&sel)
+else
+   display SUBSTRACTMEASUREMENTERROR-ERR: anomalous flag &anomalous not defined
+end if
+
+{*substract measurement variances*}
+
+do (&var=&var-&sp^2-&sph^2) (selected=1)
+if (&anomalous = "yes") then
+   do (&var=&var-friedel(&sp)^2-friedel(&sph)^2) (selected=1)
+end if
+do (&var=max(0,&var)) (selected=1)
+
+if (&messages = "all") then
+   if (&anomalous = "yes") then
+      display SUBSTRACTMEASUREMENTERROR: anomalous standard deviation ("lack-of-isomorphism")
+      display SUBSTRACTMEASUREMENTERROR: expr= sqrt(&var
+      display SUBSTRACTMEASUREMENTERROR:            -&sp(+)^2-&sp(-)^2
+      display SUBSTRACTMEASUREMENTERROR:            -&sph(+)^2-&sph(-)^2
+      display SUBSTRACTMEASUREMENTERROR:           )
+   else
+      display SUBSTRACTMEASUREMENTERROR: individual non-isomorphism estimates 
+      display SUBSTRACTMEASUREMENTERROR: expr= sqrt(&var-&sp^2-&sph^2)
+   end if
+   show min (sqrt(&var)) (selected=1)
+   show max (sqrt(&var)) (selected=1)
+   show ave (sqrt(&var)) (selected=1)
+end if
+
+
+undeclare domain=reci name=selected end  {selected reflections}
+
+
+

@@ -1,0 +1,119 @@
+! Module file: fft_parameter_check
+!
+! Function: determines the optimum setting for the B-factor inflation
+! given the high resolution limit, the gridding factor, and the minimum
+! B-factor of the model.   It also determines the recommended ELIM parameter
+! as a function of the high resolution limit. 
+! 
+! Reference: 
+! 
+! Gerard Bricogne (2001),
+!   International Tables for Crystallography, Volume B, 2001, p. 87
+!
+! CNS module
+! **********
+!
+! Authors: Axel T. Brunger and Paul D. Adams
+!
+! copyright Yale University
+!
+! Requirements:
+! This module can only be used from the main level of CNS. 
+!
+! 08/03/06 ATB
+
+module {fft_parameter_check}
+(
+ &b_min=0;              {input: minimum B-factor of model}                        
+ &d_min=1.0;            {input: high resolution limit}
+ &q_factor=100;         {input: quality factor - 100 for 1% accuracy}
+ &grid=auto;            {input: if "auto" gridding factor is set automatically}
+                        {       otherwise gridding factor set to <number>  }
+ &fft_memory=-1;        {input: fft memory; if "-1" use automatic mode }
+ 
+ &fft_grid=$fft_grid;   {output: fft gridding factor}
+ &fft_b_add=$fft_b_add; {output: fft B addition}
+ &fft_elim=$fft_elim;   {output: fft elimit factor}
+ 
+)
+ 
+ set message ? end
+ evaluate ($message_old=$result)
+ set echo ? end
+ evaluate ($echo_old=$result)
+ if ( $log_level = verbose ) then
+   set echo=on message=normal end
+ else
+   set echo=off message=off end
+ end if
+
+
+
+ checkversion 1.3
+
+ if (&grid=auto) then
+  { - adjust gridding factor such that the absolute grid is at least 1 A -}
+  xray 
+     evaluate (&fft_grid = min ( 0.3333, 1 / &d_min ) ) 
+  end
+ else
+  evaluate (&fft_grid=&grid)
+ end if
+    
+ xray
+    fft grid=&fft_grid end
+ end
+  
+ evaluate ($fft_sigma=1/ ( 2 * &fft_grid) )
+ 
+ evaluate ($fft_b_base=log10(&q_factor) / ( $fft_sigma * ($fft_sigma-1) / &d_min^2) )
+ 
+ evaluate (&fft_b_add=max(0,$fft_b_base-&b_min) )
+  
+ xray
+    fft
+       bscale=&fft_b_add
+    end
+ end
+ 
+ if (&d_min < 0.7 ) then
+    evaluate (&fft_elim=18)
+ elseif (&d_min < 0.8 ) then
+    evaluate (&fft_elim=16) 
+ elseif (&d_min < 0.9 ) then
+    evaluate (&fft_elim=14) 
+ elseif (&d_min < 1.0 ) then
+    evaluate (&fft_elim=12)
+ elseif (&d_min < 1.2 ) then
+    evaluate (&fft_elim=11)
+ elseif (&d_min < 1.5 ) then
+    evaluate (&fft_elim=10) 
+ else
+    evaluate (&fft_elim=8)
+ end if
+ 
+ xray
+    fft
+       elim=&fft_elim
+    end
+    fft
+      if ( &fft_memory < 0 ) then
+       display  fft_parameter_check: using automatic memory option
+       automemory=true
+      else
+       display  fft_parameter_check: memory = &fft_memory
+       memory=&fft_memory
+      end if
+    end
+ end
+
+
+ 
+ display  fft_parameter_check: minimum model B-factor = &b_min  A^2
+ display  fft_parameter_check: high resolution limit = &d_min  A
+ display  fft_parameter_check: fft gridding factor set to &fft_grid
+ display  fft_parameter_check: fft B factor offset set to &fft_b_add  A^2
+ display  fft_parameter_check: fft Elimit factor set to &fft_elim
+  
+ set message=$message_old echo=$echo_old end
+

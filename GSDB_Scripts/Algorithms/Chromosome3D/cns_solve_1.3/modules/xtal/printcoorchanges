@@ -1,0 +1,63 @@
+! Module file: printcoorchanges
+!
+! CNS module
+! **********
+!
+! Authors: Piet Gros and Axel T. Brunger
+!
+! copyright Yale University
+!
+! Function:
+! Print statistics on coordinate, B-factor and/or Q-factor changes
+!
+! Requirements:
+! 1. Macro must be called from main level.
+!
+
+module {printcoorchanges}
+(
+   &text="";          {identifying text}
+   
+   &sel=(all);        {atom selection}
+
+   &showr="no";       {flag for printing coordinate r=(x,y,z) changes}
+   &showb="no";       {flag for printing B-factor changes}
+   &showq="no";       {flag for printing Q-factor changes}
+   &output=OUTPUT;    {output filename}
+)
+
+checkversion 1.3
+
+if (&text # "") then
+   display PRINTCOORCHANGES: &text
+end if
+
+if (&showr = "yes") then
+   display PRINTCOORCHANGES: statistics on coordinate changes
+   display PRINTCOORCHANGES: expr = min(|delta R |); max(|delta R |); <|delta R |>
+   do (dx=(x-xcomp)^2) (&sel)
+   do (dy=(y-ycomp)^2) (&sel)
+   do (dz=(z-zcomp)^2) (&sel)
+   do (dx=sqrt(dx+dy+dz)) (&sel)
+   show min (dx) (&sel)
+   show max (dx) (&sel)
+   show ave (dx) (&sel)
+end if
+
+if (&showb = "yes") then
+   display PRINTCOORCHANGES: statistics on B-factor changes
+   display PRINTCOORCHANGES: expr = min(delta B); max(delta B); <delta B >; <|delta B |>
+   show min (b-bcomp) (&sel)
+   show max (b-bcomp) (&sel)
+   show ave (b-bcomp) (&sel)
+   show ave (abs(b-bcomp)) (&sel)
+end if
+
+if (&showb = "yes") then
+   display PRINTCOORCHANGES: statistics on Q-factor changes
+   display PRINTCOORCHANGES: expr = min(delta Q); max(delta Q); <delta Q >; <|delta Q |>
+   show min (q-qcomp) (&sel)
+   show max (q-qcomp) (&sel)
+   show ave (q-qcomp) (&sel)
+   show ave (abs(q-qcomp)) (&sel)
+end if

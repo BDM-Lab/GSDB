@@ -1,0 +1,41 @@
+! Module file: resetvariances
+!
+! CNS module
+! **********
+!
+! Authors: Piet Gros and Axel T. Brunger
+!
+! copyright Yale University
+!
+! Function:
+! Set small variances to &zerovar to avoid division by zero.
+!
+! Requirements:
+! 1. This module can only be used from within xray.
+! 
+
+module {resetvariances}
+(
+   &resetzero=0.01;     {reset zero variances to &resetzero, to avoid division
+                        by zero}
+
+   &zerovar=0.01;       {smallest significant value. For example, the smallest
+                         digit defined by the diffraction data.}
+
+   &sel=(all);          {structure factor selection for phase set}
+
+   &var;                {variance array}
+)
+
+checkversion 1.3
+
+if (&resetzero # 0) then
+
+   do (&var=&resetzero) (&var < &zerovar and &sel)
+   if ($select > 0) then
+      display RESETVARIANCES-INFO: $select phase-set variances &var of value < &zerovar set to &resetzero
+   end if
+   do (&var=&resetzero) (&var < &zerovar and not (&sel) )
+
+end if
+

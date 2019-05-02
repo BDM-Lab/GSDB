@@ -1,0 +1,118 @@
+! Module file: printlackof
+!
+! CNS module
+! **********
+!
+! Authors: Piet Gros and Axel T. Brunger
+!
+! copyright Yale University
+!
+! Function: 
+! Print statistics on lack-of-closure 
+!
+! Requirements:
+! 1. This module can only be called from xray
+! 2. Data must be precomputed
+!
+
+module {printlackof}
+(
+   &text="";         {identifying text}
+   &table="";        {identifying text for table}
+   &epsilon="yes";   {"yes" | "no", use epsilon weighting in summing variances}
+
+   &varloc;          {array with lack-of-closure variance}
+   &varloi;          {array with lack-of-isomorphism variance}
+   &sel=(all);       {selection of structure factors}
+   &output=OUTPUT;   {output filename}
+)
+
+checkversion 1.3
+
+set display=&output end
+
+declare domain=reci type=real name=centr end 
+
+do (centr=0) (acentric)
+do (centr=1) (centric)
+
+evaluate ($pp_tiny=1E-9)
+
+
+if (&epsilon="yes") then
+
+   display                                     std of lack-of-closure        std of lack-of-isomorphism
+   display                                     ----------------------        --------------------------
+   display                                     loc=<sqrt( var_loc ) >        loi= < sqrt( var_loi ) >
+   display                                     centrics  acentrics    all    centrics  acentrics    all
+   if (&text # "") then
+      display &text
+   end if
+
+   bins ? evaluate ($old_bins=$result) 
+   statistics 
+      (save(centr*sqrt(&varloc))/max($pp_tiny,save(centr)))
+      (save((1-centr)*sqrt(&varloc))/max($pp_tiny,save(1-centr)))
+      (save(sqrt(&varloc)))
+      (save(centr*sqrt(&varloi))/max($pp_tiny,save(centr)))
+      (save((1-centr)*sqrt(&varloi))/max($pp_tiny,save(1-centr)))
+      (save(sqrt(&varloi)))
+      sele=(&sel)
+      output=&output
+   end
+   bins=1
+   statistics 
+      (save(centr*sqrt(&varloc))/max($pp_tiny,save(centr)))
+      (save((1-centr)*sqrt(&varloc))/max($pp_tiny,save(1-centr)))
+      (save(sqrt(&varloc)))
+      (save(centr*sqrt(&varloi))/max($pp_tiny,save(centr)))
+      (save((1-centr)*sqrt(&varloi))/max($pp_tiny,save(1-centr)))
+      (save(sqrt(&varloi)))
+      sele=(&sel)
+      output=&output
+   end
+   bins=$old_bins
+   if (&table # "") then
+      display TAB: &table loc(all)= $expression3[F10.3] loi(all)=$expression6[F10.3]
+   end if
+
+else
+
+   display                                     std of lack-of-closure        std of lack-of-isomorphism
+   display                                     ----------------------        --------------------------
+   display                                     loc=<sqrt( var_loc ) >        loi= < sqrt( var_loi ) >
+   display                                     centrics  acentrics    all    centrics  acentrics    all
+   if (&text # "") then
+      display &text
+   end if
+
+   bins ? evaluate ($old_bins=$result) 
+   statistics 
+      (ave(centr*sqrt(&varloc))/max($pp_tiny,ave(centr)))
+      (ave((1-centr)*sqrt(&varloc))/max($pp_tiny,ave(1-centr)))
+      (ave(sqrt(&varloc)))
+      (ave(centr*sqrt(&varloi))/max($pp_tiny,ave(centr)))
+      (ave((1-centr)*sqrt(&varloi))/max($pp_tiny,ave(1-centr)))
+      (ave(sqrt(&varloi)))
+      sele=(&sel)
+      output=&output
+   end
+   bins=1
+   statistics 
+      (ave(centr*sqrt(&varloc))/max($pp_tiny,ave(centr)))
+      (ave((1-centr)*sqrt(&varloc))/max($pp_tiny,ave(1-centr)))
+      (ave(sqrt(&varloc)))
+      (ave(centr*sqrt(&varloi))/max($pp_tiny,ave(centr)))
+      (ave((1-centr)*sqrt(&varloi))/max($pp_tiny,ave(1-centr)))
+      (ave(sqrt(&varloi)))
+      sele=(&sel)
+      output=&output
+   end
+   bins=$old_bins
+   if (&table # "") then
+      display TAB: &table loc(all)= $expression3[F10.3] loi(all)=$expression6[F10.3]
+   end if
+
+end if
+
+undeclare domain=reci name=centr end 

@@ -1,0 +1,4095 @@
+C======================================================================
+      SUBROUTINE XDOEVAL(RPNMX,RPNN,RPNX,RPN,RPNL,RPNDB,RPNMLT,RPNLEV,
+     &        RPNTYP,RPNDOM,
+     &        VLEVEL,VMAX,NVARS,VSTACK,LSTACK,INDEX,
+     &        XRTR,HPH,HPK,HPL,
+     &        XSFNUM,XSFNAM,XSFTYPE,HPSF,
+     &        HPMULT,HPTYPE,
+     &        HPSTORE,XRMREF,QHERM,XRNSYM,XRMSYM,XRSYTH,
+     &        XRSYMM,XRITSY,MBINS,XBINLOW,XBINHIGH,BINSHELL,
+     &        XRCELL,XRVOL)
+C
+C evaluates an expression stored in Reverse Polish Notation
+C
+C Author: Axel T. Brunger
+C
+C
+      IMPLICIT NONE
+C input/output
+      INCLUDE 'cns.inc'
+      INCLUDE 'heap.inc'
+      INCLUDE 'funct.inc'
+      INCLUDE 'comand.inc'
+      INTEGER RPNMX, RPNN, RPNX
+      CHARACTER*(*) RPN(4,*)
+      INTEGER RPNL(4,*)
+      DOUBLE COMPLEX RPNDB(4,*)
+      INTEGER RPNMLT(*), RPNLEV(*)
+      CHARACTER*2 RPNTYP(*), RPNDOM(*)
+      INTEGER VLEVEL, VMAX, NVARS
+      DOUBLE COMPLEX VSTACK(NVARS,VMAX)
+      LOGICAL LSTACK(NVARS,VMAX)
+      INTEGER INDEX(*)
+      DOUBLE PRECISION XRTR(3,3)
+      INTEGER HPH, HPK, HPL
+      INTEGER XSFNUM
+      CHARACTER*(*) XSFNAM(*), XSFTYPE(*)
+      INTEGER HPSF(*)
+      INTEGER HPMULT
+      INTEGER HPTYPE, HPSTORE, XRMREF
+      LOGICAL QHERM
+      INTEGER XRNSYM, XRMSYM, XRSYTH
+      INTEGER XRSYMM(XRMSYM,3,4), XRITSY(XRMSYM,3,3)
+      INTEGER MBINS
+      DOUBLE PRECISION XBINHIGH, XBINLOW, BINSHELL(*)
+      DOUBLE PRECISION XRCELL(6), XRVOL
+C local
+      INTEGER RPNI, I
+      LOGICAL COND
+C
+C int/add/mult variable stack
+      INTEGER MCOUNT, NCOUNT
+      PARAMETER (MCOUNT=10)
+      DOUBLE PRECISION COUNT(MCOUNT)
+      INTEGER RCOUNT(MCOUNT)
+      CHARACTER*(WDMAX) SCOUNT(MCOUNT)
+C begin
+C
+C initialize int/add/mult variable stack
+      CALL XCOUNT(MCOUNT,NCOUNT,WDMAX,COUNT,SCOUNT,RCOUNT,
+     &            RPNMX,RPNN,RPNX,RPN,RPNL,RPNDB,RPNMLT,RPNLEV)
+C
+C initialize variable stack level
+      VLEVEL=0
+C
+      RPNI=1
+      DO WHILE (RPNI.LE.RPNN)
+C contants
+      IF (RPN(1,RPNI)(1:RPNL(1,RPNI)).EQ.'CONS') THEN
+      CALL XDOCONS(VLEVEL,VMAX,VSTACK,NVARS,
+     &             DBLE(RPNDB(1,RPNI)),DIMAG(RPNDB(1,RPNI)))
+C int/add/mult/max
+      ELSEIF (RPN(1,RPNI)(1:RPNL(1,RPNI)).EQ.'INTEGRATE'.OR.
+     &        RPN(1,RPNI)(1:RPNL(1,RPNI)).EQ.'ADD'.OR.
+     &        RPN(1,RPNI)(1:RPNL(1,RPNI)).EQ.'MAXIMIZE'.OR.
+     &        RPN(1,RPNI)(1:RPNL(1,RPNI)).EQ.'IMAXIMIZE'.OR.
+     &        RPN(1,RPNI)(1:RPNL(1,RPNI)).EQ.'MULTIPLY') THEN
+      CALL XINTSP(MCOUNT,NCOUNT,WDMAX,COUNT,SCOUNT,RCOUNT,
+     &                  RPNMX,RPNN,RPNX,RPN,RPNL,RPNDB,RPNMLT,RPNLEV,
+     &                  RPNI,VLEVEL,VMAX,VSTACK,NVARS)
+C int/add/mult variable
+      ELSEIF (RPN(1,RPNI)(1:RPNL(1,RPNI)).EQ.'_VAR_') THEN
+      CALL XCFIND(MCOUNT,NCOUNT,WDMAX,COUNT,SCOUNT,RCOUNT,
+     &                  RPNMX,RPNN,RPNX,RPN,RPNL,RPNDB,RPNMLT,RPNLEV,
+     &                  RPNI,VLEVEL,VMAX,VSTACK,NVARS)
+C change sign
+      ELSEIF (RPN(1,RPNI)(1:RPNL(1,RPNI)).EQ.'CHS') THEN
+      CALL XDOSIGN(VLEVEL,VMAX,VSTACK,NVARS)
+C plus
+      ELSEIF (RPN(1,RPNI)(1:RPNL(1,RPNI)).EQ.'+') THEN
+      CALL XDOPLUS(VLEVEL,VMAX,VSTACK,NVARS)
+C minus
+      ELSEIF (RPN(1,RPNI)(1:RPNL(1,RPNI)).EQ.'-') THEN
+      CALL XDOMINUS(VLEVEL,VMAX,VSTACK,NVARS)
+C multiply
+      ELSEIF (RPN(1,RPNI)(1:RPNL(1,RPNI)).EQ.'*') THEN
+      CALL XDOMULT(VLEVEL,VMAX,VSTACK,NVARS)
+C divide
+      ELSEIF (RPN(1,RPNI)(1:RPNL(1,RPNI)).EQ.'/') THEN
+      CALL XDODIVI(VLEVEL,VMAX,VSTACK,NVARS)
+C exponentiation
+      ELSEIF (RPN(1,RPNI)(1:RPNL(1,RPNI)).EQ.'^') THEN
+      CALL XDOEXPO(VLEVEL,VMAX,VSTACK,NVARS)
+C functions
+      ELSEIF (RPN(1,RPNI)(1:RPNL(1,RPNI)).EQ.'EXP') THEN
+      CALL XDOEXP(VLEVEL,VMAX,VSTACK,NVARS)
+      ELSEIF (RPN(1,RPNI)(1:RPNL(1,RPNI)).EQ.'LOG') THEN
+      CALL XDOLOG(VLEVEL,VMAX,VSTACK,NVARS)
+      ELSEIF (RPN(1,RPNI)(1:RPNL(1,RPNI)).EQ.'LOG10') THEN
+      CALL XDOLOG10(VLEVEL,VMAX,VSTACK,NVARS)
+      ELSEIF (RPN(1,RPNI)(1:RPNL(1,RPNI)).EQ.'SIN') THEN
+      CALL XDOSIN(VLEVEL,VMAX,VSTACK,NVARS)
+      ELSEIF (RPN(1,RPNI)(1:RPNL(1,RPNI)).EQ.'COS') THEN
+      CALL XDOCOS(VLEVEL,VMAX,VSTACK,NVARS)
+      ELSEIF (RPN(1,RPNI)(1:RPNL(1,RPNI)).EQ.'TAN') THEN
+      CALL XDOTAN(VLEVEL,VMAX,VSTACK,NVARS)
+      ELSEIF (RPN(1,RPNI)(1:RPNL(1,RPNI)).EQ.'TANH') THEN
+      CALL XDOTANH(VLEVEL,VMAX,VSTACK,NVARS)
+      ELSEIF (RPN(1,RPNI)(1:RPNL(1,RPNI)).EQ.'ASIN') THEN
+      CALL XDOASIN(VLEVEL,VMAX,VSTACK,NVARS)
+      ELSEIF (RPN(1,RPNI)(1:RPNL(1,RPNI)).EQ.'ACOS') THEN
+      CALL XDOACOS(VLEVEL,VMAX,VSTACK,NVARS)
+      ELSEIF (RPN(1,RPNI)(1:RPNL(1,RPNI)).EQ.'ATAN') THEN
+      CALL XDOATAN(VLEVEL,VMAX,VSTACK,NVARS)
+      ELSEIF (RPN(1,RPNI)(1:RPNL(1,RPNI)).EQ.'I0') THEN
+      CALL XDOI0(VLEVEL,VMAX,VSTACK,NVARS)
+      ELSEIF (RPN(1,RPNI)(1:RPNL(1,RPNI)).EQ.'I1') THEN
+      CALL XDOI1(VLEVEL,VMAX,VSTACK,NVARS)
+      ELSEIF (RPN(1,RPNI)(1:RPNL(1,RPNI)).EQ.'I1OVERI0') THEN
+      CALL XDOI1I0(VLEVEL,VMAX,VSTACK,NVARS)
+      ELSEIF (RPN(1,RPNI)(1:RPNL(1,RPNI)).EQ.'I1OVERI0INV') THEN
+      CALL XDOI1I0INV(VLEVEL,VMAX,VSTACK,NVARS)
+      ELSEIF (RPN(1,RPNI)(1:RPNL(1,RPNI)).EQ.'SQRT') THEN
+      CALL XDOSQRT(VLEVEL,VMAX,VSTACK,NVARS)
+      ELSEIF (RPN(1,RPNI)(1:RPNL(1,RPNI)).EQ.'SIGN') THEN
+      CALL XDOSIGNF(VLEVEL,VMAX,VSTACK,NVARS)
+      ELSEIF (RPN(1,RPNI)(1:RPNL(1,RPNI)).EQ.'STEP') THEN
+      CALL XDOSTEP(VLEVEL,VMAX,VSTACK,NVARS)
+      ELSEIF (RPN(1,RPNI)(1:RPNL(1,RPNI)).EQ.'INTEGER') THEN
+      CALL XDOINT(VLEVEL,VMAX,VSTACK,NVARS)
+      ELSEIF (RPN(1,RPNI)(1:RPNL(1,RPNI)).EQ.'REAL') THEN
+      CALL XDOREAL(VLEVEL,VMAX,VSTACK,NVARS)
+      ELSEIF (RPN(1,RPNI)(1:RPNL(1,RPNI)).EQ.'IMAG') THEN
+      CALL XDOIMAG(VLEVEL,VMAX,VSTACK,NVARS)
+      ELSEIF (RPN(1,RPNI)(1:RPNL(1,RPNI)).EQ.'ABS') THEN
+      CALL XDOABS(VLEVEL,VMAX,VSTACK,NVARS)
+      ELSEIF (RPN(1,RPNI)(1:RPNL(1,RPNI)).EQ.'AMPLITUDE') THEN
+      CALL XDOABS(VLEVEL,VMAX,VSTACK,NVARS)
+      ELSEIF (RPN(1,RPNI)(1:RPNL(1,RPNI)).EQ.'PHASE') THEN
+      CALL XDOPHAS(VLEVEL,VMAX,VSTACK,NVARS)
+      ELSEIF (RPN(1,RPNI)(1:RPNL(1,RPNI)).EQ.'CONJUGATE') THEN
+      CALL XDOCONJ(VLEVEL,VMAX,VSTACK,NVARS)
+      ELSEIF (RPN(1,RPNI)(1:RPNL(1,RPNI)).EQ.'RANDOM') THEN
+      CALL XDORAND(VLEVEL,VMAX,VSTACK,NVARS)
+      ELSEIF (RPN(1,RPNI)(1:RPNL(1,RPNI)).EQ.'GAUSSIAN') THEN
+      CALL XDOGAUS(VLEVEL,VMAX,VSTACK,NVARS)
+C special one-argument functions
+      ELSEIF (RPN(1,RPNI)(1:RPNL(1,RPNI)).EQ.'NORM') THEN
+      CALL XDONORM(VLEVEL,VMAX,VSTACK,LSTACK,NVARS,INDEX,
+     &         XRNSYM,QHERM,
+     &         XRTR,XRMREF,HPH,HPK,HPL,
+     &         HPMULT,HPTYPE,MBINS,XBINLOW,XBINHIGH,BINSHELL)
+      ELSEIF (RPN(1,RPNI)(1:RPNL(1,RPNI)).EQ.'FRIEDEL') THEN
+      CALL XDOFRIED(VLEVEL,VMAX,VSTACK,LSTACK,NVARS,INDEX,
+     &         XRMREF,HPH,HPK,HPL,HPTYPE,QHERM,XRNSYM,XRMSYM,XRSYTH,
+     &         XRSYMM,XRITSY,RPNTYP(RPNI),RPNDOM(RPNI),1)
+      ELSEIF (RPN(1,RPNI)(1:RPNL(1,RPNI)).EQ.'FRIEDEL_PA') THEN
+      CALL XDOFRIED(VLEVEL,VMAX,VSTACK,LSTACK,NVARS,INDEX,
+     &         XRMREF,HPH,HPK,HPL,HPTYPE,QHERM,XRNSYM,XRMSYM,XRSYTH,
+     &         XRSYMM,XRITSY,RPNTYP(RPNI),RPNDOM(RPNI),2)
+      ELSEIF (RPN(1,RPNI)(1:RPNL(1,RPNI)).EQ.'AVE') THEN
+      CALL XDOSAVE(VLEVEL,VMAX,VSTACK,LSTACK,NVARS,INDEX,
+     &         XRNSYM,QHERM,
+     &         XRTR,XRMREF,HPH,HPK,HPL,
+     &         HPMULT,HPTYPE,MBINS,XBINLOW,XBINHIGH,BINSHELL,1,
+     &         RPNDB(2,RPNI))
+      ELSEIF (RPN(1,RPNI)(1:RPNL(1,RPNI)).EQ.'SAVE') THEN
+      CALL XDOSAVE(VLEVEL,VMAX,VSTACK,LSTACK,NVARS,INDEX,
+     &         XRNSYM,QHERM,
+     &         XRTR,XRMREF,HPH,HPK,HPL,
+     &         HPMULT,HPTYPE,MBINS,XBINLOW,XBINHIGH,BINSHELL,2,
+     &         RPNDB(2,RPNI))
+      ELSEIF (RPN(1,RPNI)(1:RPNL(1,RPNI)).EQ.'SUM') THEN
+      CALL XDOSAVE(VLEVEL,VMAX,VSTACK,LSTACK,NVARS,INDEX,
+     &         XRNSYM,QHERM,
+     &         XRTR,XRMREF,HPH,HPK,HPL,
+     &         HPMULT,HPTYPE,MBINS,XBINLOW,XBINHIGH,BINSHELL,3,
+     &         RPNDB(2,RPNI))
+C=====================================================================
+C #if defined(CNS_SOLVE_COMPILE)
+C=====================================================================
+C remapping function
+      ELSEIF (RPN(1,RPNI)(1:RPNL(1,RPNI)).EQ.'REMAP') THEN
+      CALL XDORMAP(VLEVEL,VMAX,VSTACK,NVARS,RPNDB(1,RPNI),INDEX)
+C=====================================================================
+C #endif
+C=====================================================================
+C distribute function
+      ELSEIF (RPN(1,RPNI)(1:RPNL(1,RPNI)).EQ.'DISTRIBUTE') THEN
+      CALL XDODIST(VLEVEL,VMAX,VSTACK,LSTACK,NVARS,INDEX,
+     &             XRTR,XRMREF,HPH,HPK,HPL,
+     &             MBINS,XBINLOW,XBINHIGH,BINSHELL)
+C special two-argument functions
+      ELSEIF (RPN(1,RPNI)(1:RPNL(1,RPNI)).EQ.'CORR') THEN
+      CALL XDOCORR(VLEVEL,VMAX,VSTACK,LSTACK,NVARS,INDEX,
+     &         XRTR,XRMREF,HPH,HPK,HPL,
+     &         HPMULT,HPTYPE,MBINS,XBINLOW,XBINHIGH,BINSHELL,
+     &         RPNDB(1,RPNI),RPNDB(2,RPNI))
+      ELSEIF (RPN(1,RPNI)(1:RPNL(1,RPNI)).EQ.'RVALUE') THEN
+      CALL XDORVAL(VLEVEL,VMAX,VSTACK,LSTACK,NVARS,INDEX,
+     &         XRTR,XRMREF,HPH,HPK,HPL,HPMULT,
+     &         MBINS,XBINLOW,XBINHIGH,BINSHELL,RPNDB(1,RPNI),
+     &         RPNDB(2,RPNI),RPNDB(3,RPNI))
+      ELSEIF (RPN(1,RPNI)(1:RPNL(1,RPNI)).EQ.'SIGA') THEN
+      CALL XDOSIGMA(VLEVEL,VMAX,VSTACK,LSTACK,NVARS,INDEX,
+     &         XRNSYM,QHERM,
+     &         XRTR,XRMREF,HPH,HPK,HPL,
+     &         HPMULT,HPTYPE,MBINS,XBINLOW,XBINHIGH,BINSHELL)
+      ELSEIF (RPN(1,RPNI)(1:RPNL(1,RPNI)).EQ.'SIGACV') THEN
+      CALL XDOSIGMACV(VLEVEL,VMAX,VSTACK,LSTACK,NVARS,INDEX,
+     &         XRNSYM,QHERM,
+     &         XRTR,XRMREF,HPH,HPK,HPL,
+     &         HPMULT,HPTYPE,MBINS,XBINLOW,XBINHIGH,BINSHELL,
+     &         RPNDB(1,RPNI))
+      ELSEIF (RPN(1,RPNI)(1:RPNL(1,RPNI)).EQ.'SCALE') THEN
+      CALL XDOSCALE(RPNN,RPN,RPNL,RPNLEV,
+     &         RPNI,VLEVEL,VMAX,VSTACK,LSTACK,NVARS,INDEX,
+     &         XRNSYM,QHERM,
+     &         XRTR,XRMREF,HPH,HPK,HPL,
+     &         HPMULT,HPTYPE,
+     &         XSFNUM,XSFNAM,XSFTYPE,HPSF,MBINS,
+     &         XBINLOW,XBINHIGH,BINSHELL,XRCELL,XRVOL)
+      ELSEIF (RPN(1,RPNI)(1:RPNL(1,RPNI)).EQ.'SHAPE') THEN
+      CALL XDOSCALE(RPNN,RPN,RPNL,RPNLEV,
+     &         RPNI,VLEVEL,VMAX,VSTACK,LSTACK,NVARS,INDEX,
+     &         XRNSYM,QHERM,
+     &         XRTR,XRMREF,HPH,HPK,HPL,
+     &         HPMULT,HPTYPE,
+     &         XSFNUM,XSFNAM,XSFTYPE,HPSF,MBINS,
+     &         XBINLOW,XBINHIGH,BINSHELL,XRCELL,XRVOL)
+C
+C two-argument functions
+      ELSEIF (RPN(1,RPNI)(1:RPNL(1,RPNI)).EQ.'MOD') THEN
+      CALL XDOMOD(VLEVEL,VMAX,VSTACK,NVARS)
+      ELSEIF (RPN(1,RPNI)(1:RPNL(1,RPNI)).EQ.'COMPLEX') THEN
+      CALL XDOCOMP(VLEVEL,VMAX,VSTACK,NVARS)
+      ELSEIF (RPN(1,RPNI)(1:RPNL(1,RPNI)).EQ.'COMBINE') THEN
+      CALL XDOCOMB(VLEVEL,VMAX,VSTACK,NVARS)
+C maximum likelihood functions
+      ELSEIF (RPN(1,RPNI)(1:RPNL(1,RPNI)).EQ.'MLF') THEN
+      CALL XDOMLF(VLEVEL,VMAX,VSTACK,NVARS,RPNDB(1,RPNI),INDEX,
+     &            HPTYPE,HPMULT,XRNSYM,QHERM)
+      ELSEIF (RPN(1,RPNI)(1:RPNL(1,RPNI)).EQ.'DMLF') THEN
+      CALL XDODMLF(VLEVEL,VMAX,VSTACK,NVARS,RPNDB(1,RPNI),INDEX,
+     &             HPTYPE,HPMULT,XRNSYM,QHERM)
+      ELSEIF (RPN(1,RPNI)(1:RPNL(1,RPNI)).EQ.'MLFF') THEN
+      CALL XDOMLFF(VLEVEL,VMAX,VSTACK,NVARS,RPNDB(1,RPNI),INDEX,
+     &             HPTYPE,HPMULT,XRNSYM,QHERM)
+      ELSEIF (RPN(1,RPNI)(1:RPNL(1,RPNI)).EQ.'MLVF') THEN
+      CALL XDOMLVF(VLEVEL,VMAX,VSTACK,NVARS,RPNDB(1,RPNI),INDEX,
+     &             HPTYPE,HPMULT,XRNSYM,QHERM)
+      ELSEIF (RPN(1,RPNI)(1:RPNL(1,RPNI)).EQ.'MLI') THEN
+      CALL XDOMLI(VLEVEL,VMAX,VSTACK,NVARS,RPNDB(1,RPNI),INDEX,
+     &            HPTYPE,HPMULT,XRNSYM,QHERM)
+      ELSEIF (RPN(1,RPNI)(1:RPNL(1,RPNI)).EQ.'DMLI') THEN
+      CALL XDODMLI(VLEVEL,VMAX,VSTACK,NVARS,RPNDB(1,RPNI),INDEX,
+     &             HPTYPE,HPMULT,XRNSYM,QHERM)
+      ELSEIF (RPN(1,RPNI)(1:RPNL(1,RPNI)).EQ.'MLHL') THEN
+      CALL XDOMLHL(VLEVEL,VMAX,VSTACK,NVARS,RPNDB(1,RPNI),INDEX,
+     &             HPTYPE,HPMULT,XRNSYM,QHERM)
+      ELSEIF (RPN(1,RPNI)(1:RPNL(1,RPNI)).EQ.'DMLHL') THEN
+      CALL XDODMLHL(VLEVEL,VMAX,VSTACK,NVARS,RPNDB(1,RPNI),INDEX,
+     &             HPTYPE,HPMULT,XRNSYM,QHERM)
+C
+C correlation target functions
+      ELSEIF (RPN(1,RPNI)(1:RPNL(1,RPNI)).EQ.'E2E2') THEN
+      CALL XDOE2E2(VLEVEL,VMAX,VSTACK,NVARS,RPNDB(1,RPNI),INDEX,
+     &             HPTYPE,HPMULT,XRNSYM,QHERM,
+     &             XRTR,HPH,HPK,HPL,MBINS,
+     &             XBINLOW,XBINHIGH,BINSHELL)
+      ELSEIF (RPN(1,RPNI)(1:RPNL(1,RPNI)).EQ.'DE2E2') THEN
+      CALL XDODE2E2(VLEVEL,VMAX,VSTACK,NVARS,RPNDB(1,RPNI),INDEX,
+     &              HPTYPE,HPMULT,XRNSYM,QHERM,
+     &              XRTR,HPH,HPK,HPL,MBINS,
+     &              XBINLOW,XBINHIGH,BINSHELL)
+      ELSEIF (RPN(1,RPNI)(1:RPNL(1,RPNI)).EQ.'E1E1') THEN
+      CALL XDOE1E1(VLEVEL,VMAX,VSTACK,NVARS,RPNDB(1,RPNI),INDEX,
+     &             HPTYPE,HPMULT,XRNSYM,QHERM,
+     &             XRTR,HPH,HPK,HPL,MBINS,
+     &             XBINLOW,XBINHIGH,BINSHELL)
+      ELSEIF (RPN(1,RPNI)(1:RPNL(1,RPNI)).EQ.'DE1E1') THEN
+      CALL XDODE1E1(VLEVEL,VMAX,VSTACK,NVARS,RPNDB(1,RPNI),INDEX,
+     &              HPTYPE,HPMULT,XRNSYM,QHERM,
+     &              XRTR,HPH,HPK,HPL,MBINS,
+     &              XBINLOW,XBINHIGH,BINSHELL)
+      ELSEIF (RPN(1,RPNI)(1:RPNL(1,RPNI)).EQ.'F2F2') THEN
+      CALL XDOF2F2(VLEVEL,VMAX,VSTACK,NVARS,RPNDB(1,RPNI),INDEX,
+     &             HPTYPE,HPMULT,XRNSYM,
+     &             XRTR,HPH,HPK,HPL,MBINS,
+     &             XBINLOW,XBINHIGH,BINSHELL)
+      ELSEIF (RPN(1,RPNI)(1:RPNL(1,RPNI)).EQ.'DF2F2') THEN
+      CALL XDODF2F2(VLEVEL,VMAX,VSTACK,NVARS,RPNDB(1,RPNI),INDEX,
+     &              HPTYPE,HPMULT,XRNSYM,
+     &              XRTR,HPH,HPK,HPL,MBINS,
+     &              XBINLOW,XBINHIGH,BINSHELL)
+      ELSEIF (RPN(1,RPNI)(1:RPNL(1,RPNI)).EQ.'F1F1') THEN
+      CALL XDOF1F1(VLEVEL,VMAX,VSTACK,NVARS,RPNDB(1,RPNI),INDEX,
+     &             HPTYPE,HPMULT)
+      ELSEIF (RPN(1,RPNI)(1:RPNL(1,RPNI)).EQ.'DF1F1') THEN
+      CALL XDODF1F1(VLEVEL,VMAX,VSTACK,NVARS,RPNDB(1,RPNI),INDEX,
+     &              HPTYPE,HPMULT)
+C
+C residual target functions
+      ELSEIF (RPN(1,RPNI)(1:RPNL(1,RPNI)).EQ.'RESI') THEN
+      CALL XDORESI(VLEVEL,VMAX,VSTACK,NVARS,RPNDB(1,RPNI))
+      ELSEIF (RPN(1,RPNI)(1:RPNL(1,RPNI)).EQ.'DRESI') THEN
+      CALL XDODRESI(VLEVEL,VMAX,VSTACK,NVARS,RPNDB(1,RPNI))
+      ELSEIF (RPN(1,RPNI)(1:RPNL(1,RPNI)).EQ.'VECTOR') THEN
+      CALL XDOVECT(VLEVEL,VMAX,VSTACK,NVARS,RPNDB(1,RPNI))
+      ELSEIF (RPN(1,RPNI)(1:RPNL(1,RPNI)).EQ.'DVECTOR') THEN
+      CALL XDODVECT(VLEVEL,VMAX,VSTACK,NVARS,RPNDB(1,RPNI))
+C probability functions
+      ELSEIF (RPN(1,RPNI)(1:RPNL(1,RPNI)).EQ.'GET_FOM') THEN
+      CALL XDOGETFOM(VLEVEL,VMAX,VSTACK,NVARS,RPNDB(1,RPNI),INDEX,
+     & XRMREF,HPH,HPK,HPL,HPTYPE,QHERM,XRNSYM,XRMSYM,XRSYTH,
+     & XRSYMM,XRITSY)
+      ELSEIF (RPN(1,RPNI)(1:RPNL(1,RPNI)).EQ.'GET_NORM') THEN
+      CALL XDOGETNRM(VLEVEL,VMAX,VSTACK,NVARS,RPNDB(1,RPNI),INDEX,
+     & XRMREF,HPH,HPK,HPL,HPTYPE,QHERM,XRNSYM,XRMSYM,XRSYTH,
+     & XRSYMM,XRITSY)
+      ELSEIF (RPN(1,RPNI)(1:RPNL(1,RPNI)).EQ.'GET_ML') THEN
+      CALL XDOGETML(VLEVEL,VMAX,VSTACK,NVARS,RPNDB(1,RPNI),INDEX,
+     & XRMREF,HPH,HPK,HPL,HPTYPE,QHERM,XRNSYM,XRMSYM,XRSYTH,
+     & XRSYMM,XRITSY)
+      ELSEIF (RPN(1,RPNI)(1:RPNL(1,RPNI)).EQ.'GET_DML') THEN
+      CALL XDOGETDML(VLEVEL,VMAX,VSTACK,NVARS,RPNDB(1,RPNI),INDEX,
+     & XRMREF,HPH,HPK,HPL,HPTYPE,QHERM,XRNSYM,XRMSYM,XRSYTH,
+     & XRSYMM,XRITSY)
+      ELSEIF (RPN(1,RPNI)(1:RPNL(1,RPNI)).EQ.'GET_DSML') THEN
+      CALL XDOGETDSML(VLEVEL,VMAX,VSTACK,NVARS,RPNDB(1,RPNI),INDEX,
+     & XRMREF,HPH,HPK,HPL,HPTYPE,QHERM,XRNSYM,XRMSYM,XRSYTH,
+     & XRSYMM,XRITSY)
+       ELSEIF (RPN(1,RPNI)(1:RPNL(1,RPNI)).EQ.'GET_AML') THEN
+      CALL XDOGETAML(VLEVEL,VMAX,VSTACK,NVARS,RPNDB(1,RPNI),INDEX,
+     & XRMREF,HPH,HPK,HPL,HPTYPE,QHERM,XRNSYM,XRMSYM,XRSYTH,
+     & XRSYMM,XRITSY)
+      ELSEIF (RPN(1,RPNI)(1:RPNL(1,RPNI)).EQ.'GET_DAML') THEN
+      CALL XDOGETDAML(VLEVEL,VMAX,VSTACK,NVARS,RPNDB(1,RPNI),INDEX,
+     & XRMREF,HPH,HPK,HPL,HPTYPE,QHERM,XRNSYM,XRMSYM,XRSYTH,
+     & XRSYMM,XRITSY)
+      ELSEIF (RPN(1,RPNI)(1:RPNL(1,RPNI)).EQ.'GET_DSAML') THEN
+      CALL XDOGETDSAML(VLEVEL,VMAX,VSTACK,NVARS,RPNDB(1,RPNI),INDEX,
+     & XRMREF,HPH,HPK,HPL,HPTYPE,QHERM,XRNSYM,XRMSYM,XRSYTH,
+     & XRSYMM,XRITSY)
+C multiple-argument functions
+      ELSEIF (RPN(1,RPNI)(1:RPNL(1,RPNI)).EQ.'MAX') THEN
+      CALL XDOMAX(VLEVEL,VMAX,VSTACK,NVARS,RPNMLT(RPNI))
+      ELSEIF (RPN(1,RPNI)(1:RPNL(1,RPNI)).EQ.'MIN') THEN
+      CALL XDOMIN(VLEVEL,VMAX,VSTACK,NVARS,RPNMLT(RPNI))
+C logical contants
+      ELSEIF (RPN(1,RPNI)(1:RPNL(1,RPNI)).EQ.'TRUE') THEN
+      CALL XDOLCON(VLEVEL,VMAX,LSTACK,NVARS,.TRUE.)
+      ELSEIF (RPN(1,RPNI)(1:RPNL(1,RPNI)).EQ.'FALSE') THEN
+      CALL XDOLCON(VLEVEL,VMAX,LSTACK,NVARS,.FALSE.)
+C logical functions
+      ELSEIF (RPN(1,RPNI)(1:RPNL(1,RPNI)).EQ.'NOT') THEN
+      CALL XDONOT(VLEVEL,VMAX,LSTACK,NVARS)
+C logical operations
+      ELSEIF (RPN(1,RPNI)(1:RPNL(1,RPNI)).EQ.'AND') THEN
+      CALL XDOAND(VLEVEL,VMAX,LSTACK,NVARS)
+      ELSEIF (RPN(1,RPNI)(1:RPNL(1,RPNI)).EQ.'OR') THEN
+      CALL XDOOR(VLEVEL,VMAX,LSTACK,NVARS)
+C relational operators
+      ELSEIF (RPN(1,RPNI)(1:RPNL(1,RPNI)).EQ.'=') THEN
+      CALL XDOEQ(VLEVEL,VMAX,VSTACK,LSTACK,NVARS)
+      ELSEIF (RPN(1,RPNI)(1:RPNL(1,RPNI)).EQ.'#') THEN
+      CALL XDONE(VLEVEL,VMAX,VSTACK,LSTACK,NVARS)
+      ELSEIF (RPN(1,RPNI)(1:RPNL(1,RPNI)).EQ.'>') THEN
+      CALL XDOGT(VLEVEL,VMAX,VSTACK,LSTACK,NVARS)
+      ELSEIF (RPN(1,RPNI)(1:RPNL(1,RPNI)).EQ.'<') THEN
+      CALL XDOLT(VLEVEL,VMAX,VSTACK,LSTACK,NVARS)
+      ELSEIF (RPN(1,RPNI)(1:RPNL(1,RPNI)).EQ.'>=') THEN
+      CALL XDOGE(VLEVEL,VMAX,VSTACK,LSTACK,NVARS)
+      ELSEIF (RPN(1,RPNI)(1:RPNL(1,RPNI)).EQ.'<=') THEN
+      CALL XDOLE(VLEVEL,VMAX,VSTACK,LSTACK,NVARS)
+C Miller indeces
+      ELSEIF (RPN(1,RPNI)(1:RPNL(1,RPNI)).EQ.'H') THEN
+      CALL XDOIT(VLEVEL,VMAX,VSTACK,NVARS,HEAP(HPH),INDEX)
+      ELSEIF (RPN(1,RPNI)(1:RPNL(1,RPNI)).EQ.'K') THEN
+      CALL XDOIT(VLEVEL,VMAX,VSTACK,NVARS,HEAP(HPK),INDEX)
+      ELSEIF (RPN(1,RPNI)(1:RPNL(1,RPNI)).EQ.'L') THEN
+      CALL XDOIT(VLEVEL,VMAX,VSTACK,NVARS,HEAP(HPL),INDEX)
+C multiplicity
+      ELSEIF (RPN(1,RPNI)(1:RPNL(1,RPNI)).EQ.'MULT') THEN
+      CALL XDODIMU(VLEVEL,VMAX,VSTACK,NVARS,HEAP(HPMULT),INDEX,
+     &             QHERM,XRNSYM,XRMSYM,XRSYTH,XRSYMM,XRITSY)
+C epsilon
+      ELSEIF (RPN(1,RPNI)(1:RPNL(1,RPNI)).EQ.'EPSI') THEN
+      CALL XDODEPS(VLEVEL,VMAX,VSTACK,NVARS,HEAP(HPMULT),
+     &             HEAP(HPTYPE),QHERM,XRNSYM,INDEX)
+C reflection type
+      ELSEIF (RPN(1,RPNI)(1:RPNL(1,RPNI)).EQ.'TYPE') THEN
+      CALL XDODI(VLEVEL,VMAX,VSTACK,NVARS,HEAP(HPTYPE),INDEX)
+C centric and acentric reflections
+      ELSEIF (RPN(1,RPNI)(1:RPNL(1,RPNI)).EQ.'ACENTRIC') THEN
+      CALL XDODIC(VLEVEL,VMAX,LSTACK,NVARS,HEAP(HPTYPE),+1,INDEX)
+      ELSEIF (RPN(1,RPNI)(1:RPNL(1,RPNI)).EQ.'CENTRIC') THEN
+      CALL XDODIC(VLEVEL,VMAX,LSTACK,NVARS,HEAP(HPTYPE),-1,INDEX)
+C special store
+      ELSEIF (RPN(1,RPNI)(1:RPNL(1,RPNI)).EQ.'STORE') THEN
+      CALL XDODC(VLEVEL,VMAX,VSTACK,NVARS,HEAP(HPSTORE),INDEX)
+C centric phase
+      ELSEIF (RPN(1,RPNI)(1:RPNL(1,RPNI)).EQ.'CENTRIC_P') THEN
+      CALL XDOCPHAS(VLEVEL,VMAX,VSTACK,LSTACK,NVARS,INDEX,
+     &         XRMREF,HPH,HPK,HPL,HPTYPE,QHERM,XRNSYM,XRMSYM,XRSYTH,
+     &         XRSYMM,XRITSY)
+C s
+      ELSEIF (RPN(1,RPNI)(1:RPNL(1,RPNI)).EQ.'S') THEN
+      CALL XDOS(VLEVEL,VMAX,VSTACK,NVARS,
+     &          HEAP(HPH),HEAP(HPK),HEAP(HPL),INDEX,XRTR)
+C d
+      ELSEIF (RPN(1,RPNI)(1:RPNL(1,RPNI)).EQ.'D') THEN
+      CALL XDOD(VLEVEL,VMAX,VSTACK,NVARS,
+     &          HEAP(HPH),HEAP(HPK),HEAP(HPL),INDEX,XRTR)
+C recall
+      ELSEIF (RPN(1,RPNI)(1:RPNL(1,RPNI)).EQ.'RECALL') THEN
+      VLEVEL=VLEVEL+1
+      ELSE
+C
+C check reciprocal space objects
+      COND=.FALSE.
+      DO I=1,XSFNUM
+      IF (RPN(1,RPNI)(1:RPNL(1,RPNI)).EQ.XSFNAM(I)) THEN
+      COND=.TRUE.
+      IF (HPSF(I).EQ.0) THEN
+      WRITE(6,'(3A)') ' %XDOEVAL-ERR: reciprocal space object ',
+     & RPN(1,RPNI)(1:RPNL(1,RPNI)),' undefined.'
+      CALL WRNDIE(-5,'XDOEVAL','object undefined.')
+      ELSE
+      IF (XSFTYPE(I).EQ.'COMP') THEN
+      CALL XDODC(VLEVEL,VMAX,VSTACK,NVARS,HEAP(HPSF(I)),INDEX)
+CCC      ELSEIF (XSFTYPE(I).EQ.'REAL'.OR.XSFTYPE(I).EQ.'PHAS') THEN
+      ELSEIF (XSFTYPE(I).EQ.'REAL') THEN
+      CALL XDODP(VLEVEL,VMAX,VSTACK,NVARS,HEAP(HPSF(I)),INDEX)
+      ELSEIF (XSFTYPE(I).EQ.'INTE') THEN
+      CALL XDOIT(VLEVEL,VMAX,VSTACK,NVARS,HEAP(HPSF(I)),INDEX)
+      END IF
+      END IF
+      END IF
+      END DO
+C
+      IF (.NOT.COND) THEN
+      WRITE(6,'(2A)') ' %XDOEVAL-ERR: Cannot interpret item ',
+     &                 RPN(1,RPNI)(1:RPNL(1,RPNI))
+      CALL WRNDIE(-5,'XDOEVAL','Cannot interpret item')
+      END IF
+      END IF
+C
+      RPNI=RPNI+1
+C
+      END DO
+C
+      RETURN
+      END
+C======================================================================
+      SUBROUTINE XDOASSN(LHS,LLHS,VLEVEL,VMAX,NVARS,VSTACK,LSTACK,
+     &        INDEX,HPH,HPK,HPL,
+     &        XSFNUM,XSFNAM,XSFTYPE,HPSF,
+     &        HPMULT,HPTYPE,
+     &        HPSTORE,XRMREF)
+C
+C assigns stack value to operand
+C
+C Author: Axel T. Brunger
+C
+C
+      IMPLICIT NONE
+C input/output
+      INCLUDE 'cns.inc'
+      INCLUDE 'heap.inc'
+      CHARACTER*(*) LHS
+      INTEGER LLHS
+      INTEGER VLEVEL, VMAX, NVARS
+      DOUBLE COMPLEX VSTACK(NVARS,VMAX)
+      LOGICAL LSTACK(NVARS,VMAX)
+      INTEGER INDEX(NVARS)
+      INTEGER HPH, HPK, HPL
+      INTEGER XSFNUM
+      CHARACTER*(*) XSFNAM(*), XSFTYPE(*)
+      INTEGER HPSF(*)
+      INTEGER HPMULT
+      INTEGER HPTYPE, HPSTORE, XRMREF
+C local
+      INTEGER I
+      LOGICAL COND
+C begin
+C
+C check reciprocal space objects
+      COND=.FALSE.
+      DO I=1,XSFNUM
+      IF (LHS(1:LLHS).EQ.XSFNAM(I)) THEN
+      COND=.TRUE.
+C
+C allocate space for object if required
+      IF (HPSF(I).EQ.0) CALL XSFAL(HPSF(I),XRMREF,XSFTYPE(I))
+C
+C copy stack into object
+      IF (XSFTYPE(I).EQ.'COMP') THEN
+      CALL XDOADC(VLEVEL,VMAX,VSTACK,NVARS,HEAP(HPSF(I)),INDEX)
+      ELSEIF (XSFTYPE(I).EQ.'REAL') THEN
+      CALL XDOADP(VLEVEL,VMAX,VSTACK,NVARS,HEAP(HPSF(I)),INDEX)
+      ELSEIF (XSFTYPE(I).EQ.'INTE') THEN
+      CALL XDOAIT(VLEVEL,VMAX,VSTACK,NVARS,HEAP(HPSF(I)),INDEX)
+      END IF
+      END IF
+      END DO
+C
+C special store
+      IF (.NOT.COND.AND.LHS(1:LLHS).EQ.'STORE') THEN
+      CALL XDOADC(VLEVEL,VMAX,VSTACK,NVARS,HEAP(HPSTORE),INDEX)
+C
+      ELSEIF (.NOT.COND) THEN
+      WRITE(6,'(2A)') ' %XDOASSN-ERR: Cannot interpret item ',
+     &                 LHS(1:LLHS)
+      CALL WRNDIE(-5,'XDOASSN','Cannot interpret item')
+      END IF
+C
+      RETURN
+      END
+C======================================================================
+      SUBROUTINE XDOPLUS(VLEVEL,VMAX,VSTACK,N)
+C
+C Addition.
+C
+C Author: Axel T. Brunger
+C
+C
+      IMPLICIT NONE
+C I/O
+      INTEGER VLEVEL, VMAX, N
+      DOUBLE COMPLEX VSTACK(N,*)
+C local
+      INTEGER I
+C begin
+      VLEVEL=VLEVEL-1
+      DO I=1,N
+      VSTACK(I,VLEVEL)=VSTACK(I,VLEVEL)+VSTACK(I,VLEVEL+1)
+      END DO
+      RETURN
+      END
+C======================================================================
+      SUBROUTINE XDOMINUS(VLEVEL,VMAX,VSTACK,N)
+C
+C Subtraction.
+C
+C Author: Axel T. Brunger
+C
+C
+      IMPLICIT NONE
+C I/O
+      INTEGER VLEVEL, VMAX, N
+      DOUBLE COMPLEX VSTACK(N,*)
+C local
+      INTEGER I
+C begin
+      VLEVEL=VLEVEL-1
+      DO I=1,N
+      VSTACK(I,VLEVEL)=VSTACK(I,VLEVEL)-VSTACK(I,VLEVEL+1)
+      END DO
+      RETURN
+      END
+C======================================================================
+      SUBROUTINE XDOMULT(VLEVEL,VMAX,VSTACK,N)
+C
+C Multiplication.
+C
+C Author: Axel T. Brunger
+C
+C
+      IMPLICIT NONE
+C I/O
+      INTEGER VLEVEL, VMAX, N
+      DOUBLE COMPLEX VSTACK(N,*)
+C local
+      INTEGER I
+C begin
+      VLEVEL=VLEVEL-1
+      DO I=1,N
+      VSTACK(I,VLEVEL)=VSTACK(I,VLEVEL)*VSTACK(I,VLEVEL+1)
+      END DO
+      RETURN
+      END
+C======================================================================
+      SUBROUTINE XDODIVI(VLEVEL,VMAX,VSTACK,N)
+C
+C Division.
+C
+C Author: Axel T. Brunger
+C
+C
+      IMPLICIT NONE
+C I/O
+      INTEGER VLEVEL, VMAX, N
+      DOUBLE COMPLEX VSTACK(N,*)
+C local
+      INTEGER I
+      DOUBLE PRECISION ZERO
+      LOGICAL COND
+      PARAMETER (ZERO=0.0D0)
+C begin
+      VLEVEL=VLEVEL-1
+      COND=.FALSE.
+      DO I=1,N
+      IF (VSTACK(I,VLEVEL+1).EQ.ZERO) THEN
+      COND=.TRUE.
+      ELSE
+      VSTACK(I,VLEVEL)=VSTACK(I,VLEVEL)/VSTACK(I,VLEVEL+1)
+      END IF
+      END DO
+C
+      IF (COND) THEN
+      CALL WRNDIE(-5,'XDODIVI','Divide by zero attempted.')
+      END IF
+      RETURN
+      END
+C======================================================================
+      SUBROUTINE XDOEXPO(VLEVEL,VMAX,VSTACK,N)
+C
+C Exponentiation.
+C
+C Author: Axel T. Brunger
+C
+C
+      IMPLICIT NONE
+C I/O
+      INTEGER VLEVEL, VMAX, N
+      DOUBLE COMPLEX VSTACK(N,*)
+C local
+      INTEGER I
+C parameter
+      DOUBLE PRECISION ZERO, ONE
+      PARAMETER (ZERO=0.0D0, ONE=1.0D0)
+C begin
+      VLEVEL=VLEVEL-1
+      DO I=1,N
+C
+C special case for (0,0)
+      IF (VSTACK(I,VLEVEL).EQ.DCMPLX(ZERO,ZERO)) THEN
+      VSTACK(I,VLEVEL)=DCMPLX(ZERO,ZERO)
+      ELSE
+      VSTACK(I,VLEVEL)=VSTACK(I,VLEVEL)**VSTACK(I,VLEVEL+1)
+      END IF
+      END DO
+      RETURN
+      END
+C======================================================================
+      SUBROUTINE XDOSIGN(VLEVEL,VMAX,VSTACK,N)
+C
+C changes sign.
+C
+C Author: Axel T. Brunger
+C
+C
+      IMPLICIT NONE
+C I/O
+      INTEGER VLEVEL, VMAX, N
+      DOUBLE COMPLEX VSTACK(N,*)
+C local
+      INTEGER I
+C begin
+      DO I=1,N
+      VSTACK(I,VLEVEL)=-VSTACK(I,VLEVEL)
+      END DO
+      RETURN
+      END
+C======================================================================
+      SUBROUTINE XDOCONS(VLEVEL,VMAX,VSTACK,N,VALUE,IVALUE)
+C
+C constant.
+C
+C Author: Axel T. Brunger
+C
+C
+      IMPLICIT NONE
+C I/O
+      INTEGER VLEVEL, VMAX, N
+      DOUBLE COMPLEX VSTACK(N,*)
+      DOUBLE PRECISION VALUE, IVALUE
+C local
+      INTEGER I
+C begin
+      VLEVEL=VLEVEL+1
+      DO I=1,N
+      VSTACK(I,VLEVEL)=DCMPLX(VALUE,IVALUE)
+      END DO
+      RETURN
+      END
+C======================================================================
+      SUBROUTINE XDOMAX(VLEVEL,VMAX,VSTACK,N,MLTARG)
+C
+C MAX function.
+C
+C Author: Axel T. Brunger
+C
+C
+      IMPLICIT NONE
+C I/O
+      INTEGER VLEVEL, VMAX, N
+      DOUBLE COMPLEX VSTACK(N,*)
+      INTEGER MLTARG
+C local
+      INTEGER I, M, MLEVEL
+      DOUBLE PRECISION ZERO
+      PARAMETER (ZERO=0.0D0)
+C begin
+      MLEVEL=VLEVEL-MLTARG+1
+      DO M=1,MLTARG-1
+      DO I=1,N
+      VSTACK(I,MLEVEL)=DCMPLX(
+     &     MAX(DBLE(VSTACK(I,MLEVEL)),DBLE(VSTACK(I,VLEVEL))),ZERO)
+      END DO
+      VLEVEL=VLEVEL-1
+      END DO
+C
+      RETURN
+      END
+C======================================================================
+      SUBROUTINE XDOIMAX(VLEVEL,VMAX,VSTACK,N,COUNT)
+C
+C for IMAXIMIZE function.
+C
+C Author: Axel T. Brunger
+C
+C
+      IMPLICIT NONE
+C I/O
+      INTEGER VLEVEL, VMAX, N
+      DOUBLE COMPLEX VSTACK(N,*)
+      DOUBLE PRECISION COUNT
+C local
+      INTEGER I
+      DOUBLE PRECISION ZERO
+      PARAMETER (ZERO=0.0D0)
+C begin
+      DO I=1,N
+      IF (DBLE(VSTACK(I,VLEVEL-1)).LT.DBLE(VSTACK(I,VLEVEL))) THEN
+      VSTACK(I,VLEVEL-1)=DCMPLX(DBLE(VSTACK(I,VLEVEL)),ZERO)
+      VSTACK(I,VLEVEL-2)=DCMPLX(COUNT,ZERO)
+      END IF
+      END DO
+      VLEVEL=VLEVEL-1
+C
+      RETURN
+      END
+C======================================================================
+      SUBROUTINE XDOMIN(VLEVEL,VMAX,VSTACK,N,MLTARG)
+C
+C MIN function.
+C
+C Author: Axel T. Brunger
+C
+      IMPLICIT NONE
+C I/O
+      INTEGER VLEVEL, VMAX, N
+      DOUBLE COMPLEX VSTACK(N,*)
+      INTEGER MLTARG
+C local
+      INTEGER I, M, MLEVEL
+      DOUBLE PRECISION ZERO
+      PARAMETER (ZERO=0.0D0)
+C begin
+      MLEVEL=VLEVEL-MLTARG+1
+      DO M=1,MLTARG-1
+      DO I=1,N
+      VSTACK(I,MLEVEL)=DCMPLX(
+     &     MIN(DBLE(VSTACK(I,MLEVEL)),DBLE(VSTACK(I,VLEVEL))),ZERO)
+      END DO
+      VLEVEL=VLEVEL-1
+      END DO
+C
+      RETURN
+      END
+C======================================================================
+      SUBROUTINE XDOEXP(VLEVEL,VMAX,VSTACK,N)
+C
+C EXP function.
+C
+C Author: Axel T. Brunger
+C
+      IMPLICIT NONE
+C I/O
+      INCLUDE 'consta.inc'
+      INTEGER VLEVEL, VMAX, N
+      DOUBLE COMPLEX VSTACK(N,*)
+C local
+      INTEGER I
+      DOUBLE PRECISION S180
+      PARAMETER (S180=180.D0)
+C begin
+      DO I=1,N
+      VSTACK(I,VLEVEL)=EXP(VSTACK(I,VLEVEL))
+      END DO
+      RETURN
+      END
+C======================================================================
+      SUBROUTINE XDOLOG(VLEVEL,VMAX,VSTACK,N)
+C
+C natural LOG function.
+C
+C Author: Axel T. Brunger
+C
+      IMPLICIT NONE
+C I/O
+      INCLUDE 'consta.inc'
+      INTEGER VLEVEL, VMAX, N
+      DOUBLE COMPLEX VSTACK(N,*)
+C local
+      INTEGER I
+      LOGICAL COND
+      DOUBLE PRECISION S180, ZERO
+      PARAMETER (S180=180.D0, ZERO=0.0D0)
+C begin
+      COND=.FALSE.
+      DO I=1,N
+      IF (VSTACK(I,VLEVEL).NE.DCMPLX(ZERO,ZERO)) THEN
+      VSTACK(I,VLEVEL)=LOG(VSTACK(I,VLEVEL))
+      ELSE
+      COND=.TRUE.
+      END IF
+      END DO
+      IF (COND) THEN
+      CALL WRNDIE(-5,'XDOLOG','Log(0) undefined.')
+      END IF
+      RETURN
+      END
+C======================================================================
+      SUBROUTINE XDOLOG10(VLEVEL,VMAX,VSTACK,N)
+C
+C LOG10 function.
+C
+C Author: Axel T. Brunger
+C
+      IMPLICIT NONE
+C I/O
+      INCLUDE 'consta.inc'
+      INTEGER VLEVEL, VMAX, N
+      DOUBLE COMPLEX VSTACK(N,*)
+C local
+      INTEGER I
+      LOGICAL COND
+      DOUBLE PRECISION S180, ZERO, TEN
+      PARAMETER (S180=180.D0, ZERO=0.0D0, TEN=10.0D0)
+C begin
+      COND=.FALSE.
+      DO I=1,N
+      IF (VSTACK(I,VLEVEL).NE.DCMPLX(ZERO,ZERO)) THEN
+      VSTACK(I,VLEVEL)=LOG(VSTACK(I,VLEVEL))/LOG(TEN)
+      ELSE
+      COND=.TRUE.
+      END IF
+      END DO
+      IF (COND) THEN
+      CALL WRNDIE(-5,'XDOLOG','Log10(0) undefined.')
+      END IF
+      RETURN
+      END
+C======================================================================
+      SUBROUTINE XDOSIN(VLEVEL,VMAX,VSTACK,N)
+C
+C SIN function (argument is in degrees).
+C
+C Author: Axel T. Brunger
+C
+      IMPLICIT NONE
+C I/O
+      INCLUDE 'consta.inc'
+      INTEGER VLEVEL, VMAX, N
+      DOUBLE COMPLEX VSTACK(N,*)
+C local
+      INTEGER I
+      DOUBLE PRECISION S180
+      PARAMETER (S180=180.D0)
+C begin
+      DO I=1,N
+      VSTACK(I,VLEVEL)=SIN(PI * DBLE(VSTACK(I,VLEVEL))/S180)
+      END DO
+      RETURN
+      END
+C======================================================================
+      SUBROUTINE XDOCOS(VLEVEL,VMAX,VSTACK,N)
+C
+C COS function (argument is in degrees).
+C
+C Author: Axel T. Brunger
+C
+      IMPLICIT NONE
+C I/O
+      INCLUDE 'consta.inc'
+      INTEGER VLEVEL, VMAX, N
+      DOUBLE COMPLEX VSTACK(N,*)
+C local
+      INTEGER I
+      DOUBLE PRECISION S180
+      PARAMETER (S180=180.D0)
+C begin
+      DO I=1,N
+      VSTACK(I,VLEVEL)=COS(PI * DBLE(VSTACK(I,VLEVEL))/S180)
+      END DO
+      RETURN
+      END
+C======================================================================
+      SUBROUTINE XDOTAN(VLEVEL,VMAX,VSTACK,N)
+C
+C TAN function (argument is in degrees).
+C
+C Author: Axel T. Brunger
+C
+      IMPLICIT NONE
+C I/O
+      INCLUDE 'consta.inc'
+      INTEGER VLEVEL, VMAX, N
+      DOUBLE COMPLEX VSTACK(N,*)
+C local
+      INTEGER I
+      DOUBLE PRECISION S180
+      PARAMETER (S180=180.D0)
+C begin
+      DO I=1,N
+      VSTACK(I,VLEVEL)=TAN(PI * DBLE(VSTACK(I,VLEVEL))/S180)
+      END DO
+      RETURN
+      END
+C======================================================================
+      SUBROUTINE XDOTANH(VLEVEL,VMAX,VSTACK,N)
+C
+C TANH function.
+C
+C Author: Axel T. Brunger
+C
+      IMPLICIT NONE
+C I/O
+      INCLUDE 'consta.inc'
+      INTEGER VLEVEL, VMAX, N
+      DOUBLE COMPLEX VSTACK(N,*)
+C local
+      INTEGER I
+      DOUBLE PRECISION S180
+      PARAMETER (S180=180.D0)
+C begin
+      DO I=1,N
+      VSTACK(I,VLEVEL)=TANH(DBLE(VSTACK(I,VLEVEL)))
+      END DO
+      RETURN
+      END
+C======================================================================
+      SUBROUTINE XDOASIN(VLEVEL,VMAX,VSTACK,N)
+C
+C ASIN function (result is in degrees).
+C
+C Author: Axel T. Brunger
+C
+      IMPLICIT NONE
+C I/O
+      INCLUDE 'consta.inc'
+      INTEGER VLEVEL, VMAX, N
+      DOUBLE COMPLEX VSTACK(N,*)
+C local
+      INTEGER I
+      LOGICAL COND
+      DOUBLE PRECISION S180, ONE
+      PARAMETER (S180=180.D0, ONE=1.0D0)
+C begin
+      COND=.FALSE.
+      DO I=1,N
+      IF (DBLE(VSTACK(I,VLEVEL)).GE.-ONE.AND.
+     &    DBLE(VSTACK(I,VLEVEL)).LE.+ONE) THEN
+      VSTACK(I,VLEVEL)=S180*ASIN(DBLE(VSTACK(I,VLEVEL)))/PI
+      ELSE
+      COND=.TRUE.
+      END IF
+      END DO
+      IF (COND) THEN
+      CALL WRNDIE(-5,'XDOASIN',
+     &               'Argument for ASIN outside -1,..+1 range.')
+      END IF
+      RETURN
+      END
+C======================================================================
+      SUBROUTINE XDOACOS(VLEVEL,VMAX,VSTACK,N)
+C
+C ASIN function (result is in degrees).
+C
+C Author: Axel T. Brunger
+C
+      IMPLICIT NONE
+C I/O
+      INCLUDE 'consta.inc'
+      INTEGER VLEVEL, VMAX, N
+      DOUBLE COMPLEX VSTACK(N,*)
+C local
+      LOGICAL COND
+      INTEGER I
+      DOUBLE PRECISION S180, ONE
+      PARAMETER (S180=180.D0, ONE=1.0D0)
+C begin
+      COND=.FALSE.
+      DO I=1,N
+      IF (DBLE(VSTACK(I,VLEVEL)).GE.-ONE.AND.
+     &    DBLE(VSTACK(I,VLEVEL)).LE.+ONE) THEN
+      VSTACK(I,VLEVEL)=S180*ACOS(DBLE(VSTACK(I,VLEVEL)))/PI
+      ELSE
+      COND=.TRUE.
+      END IF
+      END DO
+      IF (COND) THEN
+      CALL WRNDIE(-5,'XDOACOS',
+     &               'Argument for ACOS outside -1,..+1 range.')
+      END IF
+      RETURN
+      END
+C======================================================================
+      SUBROUTINE XDOATAN(VLEVEL,VMAX,VSTACK,N)
+C
+C ASIN function (result is in degrees).
+C
+C Author: Axel T. Brunger
+C
+      IMPLICIT NONE
+C I/O
+      INCLUDE 'consta.inc'
+      INTEGER VLEVEL, VMAX, N
+      DOUBLE COMPLEX VSTACK(N,*)
+C local
+      INTEGER I
+      DOUBLE PRECISION S180
+      PARAMETER (S180=180.D0)
+C begin
+      DO I=1,N
+      VSTACK(I,VLEVEL)=S180*ATAN(DBLE(VSTACK(I,VLEVEL)))/PI
+      END DO
+      RETURN
+      END
+C======================================================================
+      SUBROUTINE XDOSQRT(VLEVEL,VMAX,VSTACK,N)
+C
+C SQRT function.
+C
+C Author: Axel T. Brunger
+C
+      IMPLICIT NONE
+C I/O
+      INCLUDE 'consta.inc'
+      INTEGER VLEVEL, VMAX, N
+      DOUBLE COMPLEX VSTACK(N,*)
+C local
+      INTEGER I
+C begin
+      DO I=1,N
+      VSTACK(I,VLEVEL)=SQRT(VSTACK(I,VLEVEL))
+      END DO
+      RETURN
+      END
+C======================================================================
+      SUBROUTINE XDOSIGNF(VLEVEL,VMAX,VSTACK,N)
+C
+C SIGN function.
+C
+C Author: Axel T. Brunger
+C
+      IMPLICIT NONE
+C I/O
+      INCLUDE 'consta.inc'
+      INTEGER VLEVEL, VMAX, N
+      DOUBLE COMPLEX VSTACK(N,*)
+C local
+      INTEGER I
+      DOUBLE PRECISION ZERO, ONE
+      PARAMETER (ZERO=0.0D0, ONE=1.0D0)
+C begin
+      DO I=1,N
+      IF (DBLE(VSTACK(I,VLEVEL)).GE.ZERO) THEN
+      VSTACK(I,VLEVEL)=DCMPLX(ONE,ZERO)
+      ELSE
+      VSTACK(I,VLEVEL)=DCMPLX(-ONE,ZERO)
+      END IF
+      END DO
+      RETURN
+      END
+C======================================================================
+      SUBROUTINE XDOSTEP(VLEVEL,VMAX,VSTACK,N)
+C
+C STEP function.
+C
+C Author: Axel T. Brunger
+C
+      IMPLICIT NONE
+C I/O
+      INCLUDE 'consta.inc'
+      INTEGER VLEVEL, VMAX, N
+      DOUBLE COMPLEX VSTACK(N,*)
+C local
+      INTEGER I
+      DOUBLE PRECISION ZERO, ONE
+      PARAMETER (ZERO=0.0D0, ONE=1.0D0)
+C begin
+      DO I=1,N
+      IF (DBLE(VSTACK(I,VLEVEL)).GT.ZERO) THEN
+      VSTACK(I,VLEVEL)=DCMPLX(ONE,ZERO)
+      ELSE
+      VSTACK(I,VLEVEL)=DCMPLX(ZERO,ZERO)
+      END IF
+      END DO
+      RETURN
+      END
+C======================================================================
+      SUBROUTINE XDOINT(VLEVEL,VMAX,VSTACK,N)
+C
+C INT function.
+C
+C Author: Axel T. Brunger
+C
+      IMPLICIT NONE
+C I/O
+      INCLUDE 'consta.inc'
+      INTEGER VLEVEL, VMAX, N
+      DOUBLE COMPLEX VSTACK(N,*)
+C local
+      INTEGER I, J
+      DOUBLE PRECISION TEMP
+      DOUBLE PRECISION ZERO
+      PARAMETER (ZERO=0.0D0)
+C begin
+      DO I=1,N
+      J=INT(DBLE(VSTACK(I,VLEVEL)))
+      TEMP=J
+      VSTACK(I,VLEVEL)=DCMPLX(TEMP,ZERO)
+      END DO
+      RETURN
+      END
+C======================================================================
+      SUBROUTINE XDOREAL(VLEVEL,VMAX,VSTACK,N)
+C
+C REAL function.
+C
+C Author: Axel T. Brunger
+C
+      IMPLICIT NONE
+C I/O
+      INCLUDE 'consta.inc'
+      INTEGER VLEVEL, VMAX, N
+      DOUBLE COMPLEX VSTACK(N,*)
+C local
+      INTEGER I
+      DOUBLE PRECISION ZERO
+      PARAMETER (ZERO=0.0D0)
+C begin
+      DO I=1,N
+      VSTACK(I,VLEVEL)=DCMPLX(DBLE(VSTACK(I,VLEVEL)),ZERO)
+      END DO
+      RETURN
+      END
+C======================================================================
+      SUBROUTINE XDOIMAG(VLEVEL,VMAX,VSTACK,N)
+C
+C IMAG function.
+C
+C Author: Axel T. Brunger
+C
+      IMPLICIT NONE
+C I/O
+      INCLUDE 'consta.inc'
+      INTEGER VLEVEL, VMAX, N
+      DOUBLE COMPLEX VSTACK(N,*)
+C local
+      INTEGER I
+      DOUBLE PRECISION ZERO
+      PARAMETER (ZERO=0.0D0)
+C begin
+      DO I=1,N
+      VSTACK(I,VLEVEL)=DCMPLX(DIMAG(VSTACK(I,VLEVEL)),ZERO)
+      END DO
+      RETURN
+      END
+C======================================================================
+      SUBROUTINE XDOABS(VLEVEL,VMAX,VSTACK,N)
+C
+C ABS or AMPLITUDE function.
+C
+C Author: Axel T. Brunger
+C
+      IMPLICIT NONE
+C I/O
+      INCLUDE 'consta.inc'
+      INTEGER VLEVEL, VMAX, N
+      DOUBLE COMPLEX VSTACK(N,*)
+C local
+      INTEGER I
+      DOUBLE PRECISION ZERO
+      PARAMETER (ZERO=0.0D0)
+C begin
+      DO I=1,N
+      VSTACK(I,VLEVEL)=DCMPLX(ABS(VSTACK(I,VLEVEL)),ZERO)
+      END DO
+      RETURN
+      END
+C======================================================================
+      SUBROUTINE XDOPHAS(VLEVEL,VMAX,VSTACK,N)
+C
+C PHASE function.
+C
+C Author: Axel T. Brunger
+C
+      IMPLICIT NONE
+C I/O
+      INCLUDE 'consta.inc'
+      INTEGER VLEVEL, VMAX, N
+      DOUBLE COMPLEX VSTACK(N,*)
+C local
+      INTEGER I
+      DOUBLE PRECISION A, B, PHASE
+      DOUBLE PRECISION ZERO, TWO, THREE, S180
+      PARAMETER (ZERO=0.0D0, TWO=2.0D0, THREE=3.0D0, S180=180.D0)
+C begin
+      DO I=1,N
+      A=DBLE(VSTACK(I,VLEVEL))
+      B=DIMAG(VSTACK(I,VLEVEL))
+      IF (ABS(A).LT.RSMALL.AND.ABS(B).LT.RSMALL) THEN
+      PHASE=ZERO
+      ELSE IF (A.EQ.ZERO.AND.B.GT.ZERO) THEN
+      PHASE=PI/TWO
+      ELSE IF (A.EQ.ZERO.AND.B.LE.ZERO) THEN
+      PHASE=THREE*PI/TWO
+      ELSE
+      PHASE=ATAN2(B,A)+TWO*PI
+      END IF
+      PHASE=MOD(PHASE+RSMALL,TWO*PI)
+      VSTACK(I,VLEVEL)=DCMPLX(PHASE,ZERO)*S180/PI
+      END DO
+      RETURN
+      END
+C======================================================================
+      SUBROUTINE XDOCONJ(VLEVEL,VMAX,VSTACK,N)
+C
+C CONJ function.
+C
+C Author: Axel T. Brunger
+C
+      IMPLICIT NONE
+C I/O
+      INCLUDE 'consta.inc'
+      INTEGER VLEVEL, VMAX, N
+      DOUBLE COMPLEX VSTACK(N,*)
+C local
+      INTEGER I
+C begin
+      DO I=1,N
+      VSTACK(I,VLEVEL)=DCONJG(VSTACK(I,VLEVEL))
+      END DO
+      RETURN
+      END
+C======================================================================
+      SUBROUTINE XDORAND(VLEVEL,VMAX,VSTACK,N)
+C
+C RANDOM function.
+C
+C Author: Axel T. Brunger
+C
+      IMPLICIT NONE
+C I/O
+      INCLUDE 'consta.inc'
+      INCLUDE 'seed.inc'
+      INTEGER VLEVEL, VMAX, N
+      DOUBLE COMPLEX VSTACK(N,*)
+C local
+      INTEGER I
+      DOUBLE PRECISION ZERO, ONE, S1, S3
+      PARAMETER (ZERO=0.0D0, ONE=1.0D0, S1=16807.0D0, S3=314564.D0)
+C begin
+      VLEVEL=VLEVEL+1
+      IF (SEED.LT.ONE)  SEED=S3
+      DO I=1,N
+      SEED=MOD(S1*SEED,D2P31M)
+      VSTACK(I,VLEVEL)=DCMPLX(SEED/D2P31,ZERO)
+      END DO
+      RETURN
+      END
+C======================================================================
+      SUBROUTINE XDOGAUS(VLEVEL,VMAX,VSTACK,N)
+C
+C GAUSS function (zero mean).
+C
+C Author: Axel T. Brunger
+C
+      IMPLICIT NONE
+C I/O
+      INCLUDE 'consta.inc'
+      INCLUDE 'seed.inc'
+      INTEGER VLEVEL, VMAX, N
+      DOUBLE COMPLEX VSTACK(N,*)
+C local
+      INTEGER I, J
+      DOUBLE PRECISION A
+      DOUBLE PRECISION ZERO, ONE, S1, S3, SIX
+      PARAMETER (ZERO=0.0D0, ONE=1.0D0, S1=16807.0D0, S3=314564.D0)
+      PARAMETER (SIX=6.D0)
+C begin
+      IF (SEED.LT.ONE)  SEED=S3
+      DO I=1,N
+      A=ZERO
+      DO J=1,12
+      SEED=MOD(S1*SEED,D2P31M)
+      A=A+SEED/D2P31
+      END DO
+      VSTACK(I,VLEVEL)=DCMPLX((A-SIX)*DBLE(VSTACK(I,VLEVEL)),ZERO)
+      END DO
+      RETURN
+      END
+C======================================================================
+      SUBROUTINE XDOMOD(VLEVEL,VMAX,VSTACK,N)
+C
+C MOD function.
+C
+C Author: Axel T. Brunger
+C
+      IMPLICIT NONE
+C I/O
+      INCLUDE 'consta.inc'
+      INTEGER VLEVEL, VMAX, N
+      DOUBLE COMPLEX VSTACK(N,*)
+C local
+      INTEGER I
+C begin
+      VLEVEL=VLEVEL-1
+      DO I=1,N
+      VSTACK(I,VLEVEL)=MOD(DBLE(VSTACK(I,VLEVEL)),
+     $                     DBLE(VSTACK(I,VLEVEL+1)))
+      END DO
+      RETURN
+      END
+C======================================================================
+      SUBROUTINE XDOCOMP(VLEVEL,VMAX,VSTACK,N)
+C
+C COMPLEX function.
+C
+C Author: Axel T. Brunger
+C
+      IMPLICIT NONE
+C I/O
+      INCLUDE 'consta.inc'
+      INTEGER VLEVEL, VMAX, N
+      DOUBLE COMPLEX VSTACK(N,*)
+C local
+      INTEGER I
+C begin
+      VLEVEL=VLEVEL-1
+      DO I=1,N
+      VSTACK(I,VLEVEL)=DCMPLX(DBLE(VSTACK(I,VLEVEL)),
+     &                        DBLE(VSTACK(I,VLEVEL+1)))
+      END DO
+      RETURN
+      END
+C======================================================================
+      SUBROUTINE XDOCOMB(VLEVEL,VMAX,VSTACK,N)
+C
+C COMBINE function.
+C
+C Author: Axel T. Brunger
+C
+      IMPLICIT NONE
+C I/O
+      INCLUDE 'consta.inc'
+      INTEGER VLEVEL, VMAX, N
+      DOUBLE COMPLEX VSTACK(N,*)
+C local
+      INTEGER I
+      DOUBLE PRECISION PHASE, AMPLT
+      DOUBLE PRECISION S180
+      PARAMETER (S180=180.0D0)
+C begin
+      VLEVEL=VLEVEL-1
+      DO I=1,N
+      AMPLT=DBLE(VSTACK(I,VLEVEL))
+      PHASE=DBLE(VSTACK(I,VLEVEL+1))*PI/S180
+      VSTACK(I,VLEVEL)=AMPLT*DCMPLX(DCOS(PHASE),DSIN(PHASE))
+      END DO
+      RETURN
+      END
+C======================================================================
+      SUBROUTINE XDOLCON(VLEVEL,VMAX,LSTACK,N,LCON)
+C
+C logical constant.
+C
+C Author: Axel T. Brunger
+C
+C
+      IMPLICIT NONE
+C I/O
+      INTEGER VLEVEL, VMAX, N
+      LOGICAL LSTACK(N,*)
+      LOGICAL LCON
+C local
+      INTEGER I
+C begin
+      VLEVEL=VLEVEL+1
+      DO I=1,N
+      LSTACK(I,VLEVEL)=LCON
+      END DO
+      RETURN
+      END
+C======================================================================
+      SUBROUTINE XDONOT(VLEVEL,VMAX,LSTACK,N)
+C
+C logical NOT.
+C
+C Author: Axel T. Brunger
+C
+C
+      IMPLICIT NONE
+C I/O
+      INTEGER VLEVEL, VMAX, N
+      LOGICAL LSTACK(N,*)
+C local
+      INTEGER I
+C begin
+      DO I=1,N
+      LSTACK(I,VLEVEL)=.NOT.LSTACK(I,VLEVEL)
+      END DO
+      RETURN
+      END
+C======================================================================
+      SUBROUTINE XDOAND(VLEVEL,VMAX,LSTACK,N)
+C
+C logical AND.
+C
+C Author: Axel T. Brunger
+C
+C
+      IMPLICIT NONE
+C I/O
+      INTEGER VLEVEL, VMAX, N
+      LOGICAL LSTACK(N,*)
+C local
+      INTEGER I
+C begin
+      VLEVEL=VLEVEL-1
+      DO I=1,N
+      LSTACK(I,VLEVEL)=LSTACK(I,VLEVEL).AND.LSTACK(I,VLEVEL+1)
+      END DO
+      RETURN
+      END
+C======================================================================
+      SUBROUTINE XDOOR(VLEVEL,VMAX,LSTACK,N)
+C
+C logical OR.
+C
+C Author: Axel T. Brunger
+C
+C
+      IMPLICIT NONE
+C I/O
+      INTEGER VLEVEL, VMAX, N
+      LOGICAL LSTACK(N,*)
+C local
+      INTEGER I
+C begin
+      VLEVEL=VLEVEL-1
+      DO I=1,N
+      LSTACK(I,VLEVEL)=LSTACK(I,VLEVEL).OR.LSTACK(I,VLEVEL+1)
+      END DO
+      RETURN
+      END
+C======================================================================
+      SUBROUTINE XDOEQ(VLEVEL,VMAX,VSTACK,LSTACK,N)
+C
+C relation: EQ.
+C
+C Author: Axel T. Brunger
+C
+C
+      IMPLICIT NONE
+C I/O
+      INCLUDE 'consta.inc'
+      INTEGER VLEVEL, VMAX, N
+      DOUBLE COMPLEX VSTACK(N,*)
+      LOGICAL LSTACK(N,*)
+C local
+      INTEGER I
+      DOUBLE PRECISION TOL
+C begin
+      TOL=100.D0*RSMALL
+      VLEVEL=VLEVEL-1
+      DO I=1,N
+      LSTACK(I,VLEVEL)=
+     & ABS(DBLE(VSTACK(I,VLEVEL))-DBLE(VSTACK(I,VLEVEL+1))).LE.TOL
+     & .AND.
+     & ABS(DIMAG(VSTACK(I,VLEVEL))-DIMAG(VSTACK(I,VLEVEL+1))).LE.TOL
+      END DO
+      RETURN
+      END
+C======================================================================
+      SUBROUTINE XDONE(VLEVEL,VMAX,VSTACK,LSTACK,N)
+C
+C relation: NE.
+C
+C Author: Axel T. Brunger
+C
+C
+      IMPLICIT NONE
+C I/O
+      INCLUDE 'consta.inc'
+      INTEGER VLEVEL, VMAX, N
+      DOUBLE COMPLEX VSTACK(N,*)
+      LOGICAL LSTACK(N,*)
+C local
+      INTEGER I
+      DOUBLE PRECISION TOL
+C begin
+      TOL=100.D0*RSMALL
+      VLEVEL=VLEVEL-1
+      DO I=1,N
+      LSTACK(I,VLEVEL)=
+     & ABS(DBLE(VSTACK(I,VLEVEL))-DBLE(VSTACK(I,VLEVEL+1))).GT.TOL
+     & .OR.
+     & ABS(DIMAG(VSTACK(I,VLEVEL))-DIMAG(VSTACK(I,VLEVEL+1))).GT.TOL
+      END DO
+      RETURN
+      END
+C======================================================================
+      SUBROUTINE XDOGT(VLEVEL,VMAX,VSTACK,LSTACK,N)
+C
+C relation: GT.
+C
+C Author: Axel T. Brunger
+C
+C
+      IMPLICIT NONE
+C I/O
+      INCLUDE 'consta.inc'
+      INTEGER VLEVEL, VMAX, N
+      DOUBLE COMPLEX VSTACK(N,*)
+      LOGICAL LSTACK(N,*)
+C local
+      INTEGER I
+      DOUBLE PRECISION TOL
+C begin
+      TOL=100.D0*RSMALL
+      VLEVEL=VLEVEL-1
+      DO I=1,N
+      LSTACK(I,VLEVEL)=
+     &   DBLE(VSTACK(I,VLEVEL))-DBLE(VSTACK(I,VLEVEL+1)).GT.TOL
+      END DO
+      RETURN
+      END
+C======================================================================
+      SUBROUTINE XDOLT(VLEVEL,VMAX,VSTACK,LSTACK,N)
+C
+C relation: LT.
+C
+C Author: Axel T. Brunger
+C
+C
+      IMPLICIT NONE
+C I/O
+      INCLUDE 'consta.inc'
+      INTEGER VLEVEL, VMAX, N
+      DOUBLE COMPLEX VSTACK(N,*)
+      LOGICAL LSTACK(N,*)
+C local
+      INTEGER I
+      DOUBLE PRECISION TOL
+C begin
+      TOL=100.D0*RSMALL
+      VLEVEL=VLEVEL-1
+      DO I=1,N
+      LSTACK(I,VLEVEL)=
+     &   -DBLE(VSTACK(I,VLEVEL))+DBLE(VSTACK(I,VLEVEL+1)).GT.TOL
+      END DO
+      RETURN
+      END
+C======================================================================
+      SUBROUTINE XDOGE(VLEVEL,VMAX,VSTACK,LSTACK,N)
+C
+C relation: GE.
+C
+C Author: Axel T. Brunger
+C
+C
+      IMPLICIT NONE
+C I/O
+      INCLUDE 'consta.inc'
+      INTEGER VLEVEL, VMAX, N
+      DOUBLE COMPLEX VSTACK(N,*)
+      LOGICAL LSTACK(N,*)
+C local
+      INTEGER I
+      DOUBLE PRECISION TOL
+C begin
+      TOL=100.D0*RSMALL
+      VLEVEL=VLEVEL-1
+      DO I=1,N
+      LSTACK(I,VLEVEL)=
+     &   DBLE(VSTACK(I,VLEVEL))-DBLE(VSTACK(I,VLEVEL+1)).GE.-TOL
+      END DO
+      RETURN
+      END
+C======================================================================
+      SUBROUTINE XDOLE(VLEVEL,VMAX,VSTACK,LSTACK,N)
+C
+C relation: LE.
+C
+C Author: Axel T. Brunger
+C
+C
+      IMPLICIT NONE
+C I/O
+      INCLUDE 'consta.inc'
+      INTEGER VLEVEL, VMAX, N
+      DOUBLE COMPLEX VSTACK(N,*)
+      LOGICAL LSTACK(N,*)
+C local
+      INTEGER I
+      DOUBLE PRECISION TOL
+C begin
+      TOL=100.D0*RSMALL
+      VLEVEL=VLEVEL-1
+      DO I=1,N
+      LSTACK(I,VLEVEL)=
+     &   -DBLE(VSTACK(I,VLEVEL))+DBLE(VSTACK(I,VLEVEL+1)).GE.-TOL
+      END DO
+      RETURN
+      END
+C======================================================================
+      SUBROUTINE XDODC(VLEVEL,VMAX,VSTACK,N,ARRAY,INDEX)
+C
+C fill stack with double complex array.
+C
+C Author: Axel T. Brunger
+C
+C
+      IMPLICIT NONE
+C I/O
+      INTEGER VLEVEL, VMAX, N
+      DOUBLE COMPLEX VSTACK(N,*), ARRAY(*)
+      INTEGER INDEX(*)
+C local
+      INTEGER I
+C begin
+      VLEVEL=VLEVEL+1
+      DO I=1,N
+      VSTACK(I,VLEVEL)=ARRAY(INDEX(I))
+      END DO
+      RETURN
+      END
+C======================================================================
+      SUBROUTINE XDODP(VLEVEL,VMAX,VSTACK,N,ARRAY,INDEX)
+C
+C fill stack with double precision array.
+C
+C Author: Axel T. Brunger
+C
+C
+      IMPLICIT NONE
+C I/O
+      INTEGER VLEVEL, VMAX, N
+      DOUBLE COMPLEX VSTACK(N,*)
+      DOUBLE PRECISION ARRAY(*)
+      INTEGER INDEX(*)
+C local
+      INTEGER I
+      DOUBLE PRECISION ZERO
+      PARAMETER (ZERO=0.0D0)
+C begin
+      VLEVEL=VLEVEL+1
+      DO I=1,N
+      VSTACK(I,VLEVEL)=DCMPLX(ARRAY(INDEX(I)),ZERO)
+      END DO
+      RETURN
+      END
+C======================================================================
+      SUBROUTINE XDODI(VLEVEL,VMAX,VSTACK,N,ARRAY,INDEX)
+C
+C fill stack with integer array.
+C
+C Author: Axel T. Brunger
+C
+C
+      IMPLICIT NONE
+C I/O
+      INTEGER VLEVEL, VMAX, N
+      DOUBLE COMPLEX VSTACK(N,*)
+      INTEGER ARRAY(*)
+      INTEGER INDEX(*)
+C local
+      INTEGER I
+      DOUBLE PRECISION TEMP
+      DOUBLE PRECISION ZERO
+      PARAMETER (ZERO=0.0D0)
+C begin
+      VLEVEL=VLEVEL+1
+      DO I=1,N
+      TEMP=ARRAY(INDEX(I))
+      VSTACK(I,VLEVEL)=DCMPLX(TEMP,ZERO)
+      END DO
+      RETURN
+      END
+C======================================================================
+      SUBROUTINE XDODEPS(VLEVEL,VMAX,VSTACK,N,MULT,TYPE,QHERM,XRNSYM,
+     &                   INDEX)
+C
+C Computes epsilon.
+C
+C Author: Axel T. Brunger
+C
+C
+      IMPLICIT NONE
+C I/O
+      INTEGER VLEVEL, VMAX, N
+      DOUBLE COMPLEX VSTACK(N,*)
+      INTEGER MULT(*), TYPE(*)
+      LOGICAL QHERM
+      INTEGER XRNSYM, INDEX(*)
+C local
+      INTEGER I
+      DOUBLE PRECISION TEMP
+      DOUBLE PRECISION ZERO
+      PARAMETER (ZERO=0.0D0)
+C begin
+      VLEVEL=VLEVEL+1
+C
+C compute epsilon from multiplicity and reflection type
+      DO I=1,N
+      IF (TYPE(INDEX(I)).GE.1.AND.QHERM) THEN
+C acentric
+      TEMP=2*XRNSYM/MULT(INDEX(I))
+      ELSE
+C centric or not hermitian symmetry
+      TEMP=XRNSYM/MULT(INDEX(I))
+      END IF
+      VSTACK(I,VLEVEL)=DCMPLX(TEMP,ZERO)
+      END DO
+      RETURN
+      END
+C======================================================================
+      SUBROUTINE XDODIMU(VLEVEL,VMAX,VSTACK,N,MULT,INDEX,
+     &                   QHERM,XRNSYM,XRMSYM,XRSYTH,XRSYMM,XRITSY)
+C
+C Computes multiplicity (note the internal MULTiplicity
+C array needs to be divided by the number of centering
+C operations of the spacegroup).  The resulting multiplicity
+C is the number of distinct reflections resulting from
+C application of spacegroup or Friedel operators to a given
+C reflection.
+C
+C This allows one to compute quantities in P1, e.g., for the
+C R-factor:
+C          R = sumhkl mult |Fobs - Fcalc| / sumhkl mult |Fobs |
+C
+C
+C Author: Axel T. Brunger
+C
+C
+      IMPLICIT NONE
+C I/O
+      INTEGER VLEVEL, VMAX, N
+      DOUBLE COMPLEX VSTACK(N,*)
+      INTEGER MULT(*)
+      INTEGER INDEX(*)
+      LOGICAL QHERM
+      INTEGER XRNSYM, XRMSYM, XRSYTH
+      INTEGER XRSYMM(XRMSYM,3,4), XRITSY(XRMSYM,3,3)
+C local
+      INTEGER I
+      DOUBLE PRECISION TEMP
+      DOUBLE PRECISION ZERO
+      PARAMETER (ZERO=0.0D0)
+      INTEGER ICEN, ISYM
+C
+C begin
+C
+C determine number of centering operations for this spacegroup
+      ICEN=0
+      DO ISYM=1,XRNSYM
+      IF (XRSYMM(1,1,1).EQ.XRSYMM(ISYM,1,1).AND.
+     &    XRSYMM(1,1,2).EQ.XRSYMM(ISYM,1,2).AND.
+     &    XRSYMM(1,1,3).EQ.XRSYMM(ISYM,1,3).AND.
+     &    XRSYMM(1,2,1).EQ.XRSYMM(ISYM,2,1).AND.
+     &    XRSYMM(1,2,2).EQ.XRSYMM(ISYM,2,2).AND.
+     &    XRSYMM(1,2,3).EQ.XRSYMM(ISYM,2,3).AND.
+     &    XRSYMM(1,3,1).EQ.XRSYMM(ISYM,3,1).AND.
+     &    XRSYMM(1,3,2).EQ.XRSYMM(ISYM,3,2).AND.
+     &    XRSYMM(1,3,3).EQ.XRSYMM(ISYM,3,3)) THEN
+      ICEN=ICEN+1
+      END IF
+      END DO
+C
+C begin
+      VLEVEL=VLEVEL+1
+      DO I=1,N
+      TEMP=MULT(INDEX(I))/ICEN
+      VSTACK(I,VLEVEL)=DCMPLX(TEMP,ZERO)
+      END DO
+      RETURN
+      END
+C======================================================================
+      SUBROUTINE XDOIT(VLEVEL,VMAX,VSTACK,N,ARRAY,INDEX)
+C
+C fill stack with integer array.
+C
+C Author: Axel T. Brunger
+C
+C
+      IMPLICIT NONE
+C I/O
+      INTEGER VLEVEL, VMAX, N
+      DOUBLE COMPLEX VSTACK(N,*)
+      INTEGER ARRAY(*), INDEX(*)
+C local
+      INTEGER I
+      DOUBLE PRECISION TEMP
+      DOUBLE PRECISION ZERO
+      PARAMETER (ZERO=0.0D0)
+C begin
+      VLEVEL=VLEVEL+1
+      DO I=1,N
+      TEMP=ARRAY(INDEX(I))
+      VSTACK(I,VLEVEL)=DCMPLX(TEMP,ZERO)
+      END DO
+      RETURN
+      END
+C======================================================================
+      SUBROUTINE XDOS(VLEVEL,VMAX,VSTACK,N,H,K,L,INDEX,XRTR)
+C
+C fill stack with S=sin (theta) /lambda.
+C
+C Author: Axel T. Brunger
+C
+C
+      IMPLICIT NONE
+C I/O
+      INTEGER VLEVEL, VMAX, N
+      DOUBLE COMPLEX VSTACK(N,*)
+      INTEGER H(*), K(*), L(*), INDEX(*)
+      DOUBLE PRECISION XRTR(3,3)
+C local
+      INTEGER I
+      DOUBLE PRECISION TEMP, SSQ
+C parameter
+      DOUBLE PRECISION ZERO
+      PARAMETER (ZERO=0.0D0)
+C begin
+      VLEVEL=VLEVEL+1
+      DO I=1,N
+      SSQ=  (XRTR(1,1)*H(INDEX(I))
+     &     + XRTR(2,1)*K(INDEX(I))
+     &     + XRTR(3,1)*L(INDEX(I)))**2
+     &     +(XRTR(1,2)*H(INDEX(I))
+     &     + XRTR(2,2)*K(INDEX(I))
+     &     + XRTR(3,2)*L(INDEX(I)))**2
+     &     +(XRTR(1,3)*H(INDEX(I))
+     &     + XRTR(2,3)*K(INDEX(I))
+     &     + XRTR(3,3)*L(INDEX(I)))**2
+      TEMP = SQRT(SSQ)
+      VSTACK(I,VLEVEL)=DCMPLX(TEMP,ZERO)
+      END DO
+      RETURN
+      END
+C======================================================================
+      SUBROUTINE XDOD(VLEVEL,VMAX,VSTACK,N,H,K,L,INDEX,XRTR)
+C
+C fill stack with d=1/s
+C
+C Author: Axel T. Brunger
+C
+C
+      IMPLICIT NONE
+C I/O
+      INCLUDE 'consta.inc'
+      INTEGER VLEVEL, VMAX, N
+      DOUBLE COMPLEX VSTACK(N,*)
+      INTEGER H(*), K(*), L(*), INDEX(*)
+      DOUBLE PRECISION XRTR(3,3)
+C local
+      INTEGER I
+      DOUBLE PRECISION TEMP, SSQ
+      DOUBLE PRECISION ZERO, ONE, TWO
+      PARAMETER (ZERO=0.0D0, ONE=1.0D0, TWO=2.0D0)
+C begin
+      VLEVEL=VLEVEL+1
+      DO I=1,N
+      SSQ=  (XRTR(1,1)*H(INDEX(I))
+     &     + XRTR(2,1)*K(INDEX(I))
+     &     + XRTR(3,1)*L(INDEX(I)))**2
+     &     +(XRTR(1,2)*H(INDEX(I))
+     &     + XRTR(2,2)*K(INDEX(I))
+     &     + XRTR(3,2)*L(INDEX(I)))**2
+     &     +(XRTR(1,3)*H(INDEX(I))
+     &     + XRTR(2,3)*K(INDEX(I))
+     &     + XRTR(3,3)*L(INDEX(I)))**2
+      TEMP=SQRT(SSQ)
+      IF (TEMP.LT.RSMALL) THEN
+      TEMP=R4BIG/TWO
+      ELSE
+      TEMP=ONE/TEMP
+      END IF
+      VSTACK(I,VLEVEL)=DCMPLX(TEMP,ZERO)
+      END DO
+      RETURN
+      END
+C======================================================================
+      SUBROUTINE XDOADC(VLEVEL,VMAX,VSTACK,N,ARRAY,INDEX)
+C
+C assign double complex array to stack.
+C
+C Author: Axel T. Brunger
+C
+C
+      IMPLICIT NONE
+C I/O
+      INTEGER VLEVEL, VMAX, N
+      DOUBLE COMPLEX VSTACK(N,*), ARRAY(*)
+      INTEGER INDEX(*)
+C local
+      INTEGER I
+C begin
+      DO I=1,N
+      ARRAY(INDEX(I))=VSTACK(I,VLEVEL)
+      END DO
+      RETURN
+      END
+C======================================================================
+      SUBROUTINE XDOADP(VLEVEL,VMAX,VSTACK,N,ARRAY,INDEX)
+C
+C assign double precision array to stack.
+C
+C Author: Axel T. Brunger
+C
+C
+      IMPLICIT NONE
+C I/O
+      INTEGER VLEVEL, VMAX, N
+      DOUBLE COMPLEX VSTACK(N,*)
+      DOUBLE PRECISION ARRAY(*)
+      INTEGER INDEX(*)
+C local
+      INTEGER I
+      DOUBLE PRECISION ZERO
+      PARAMETER (ZERO=0.0D0)
+C begin
+      DO I=1,N
+      ARRAY(INDEX(I))=DBLE(VSTACK(I,VLEVEL))
+      END DO
+      RETURN
+      END
+C======================================================================
+      SUBROUTINE XDOAIT(VLEVEL,VMAX,VSTACK,N,ARRAY,INDEX)
+C
+C assign integer array to stack.
+C
+C Author: Axel T. Brunger
+C
+C
+      IMPLICIT NONE
+C I/O
+      INTEGER VLEVEL, VMAX, N
+      DOUBLE COMPLEX VSTACK(N,*)
+      INTEGER ARRAY(*), INDEX(*)
+C local
+      INTEGER I
+      DOUBLE PRECISION ZERO
+      PARAMETER (ZERO=0.0D0)
+C begin
+      DO I=1,N
+      ARRAY(INDEX(I))=DBLE(VSTACK(I,VLEVEL))
+      END DO
+      RETURN
+      END
+C======================================================================
+      SUBROUTINE XDOSWAP(VLEVEL,VMAX,VSTACK,LSTACK,N)
+C
+C Performs a swap of the first two stack elements.
+C
+C Author: Axel T. Brunger
+C
+C
+      IMPLICIT NONE
+C I/O
+      INTEGER VLEVEL, VMAX, N
+      DOUBLE COMPLEX VSTACK(N,*)
+      LOGICAL LSTACK(N,*)
+C local
+      INTEGER I
+      DOUBLE COMPLEX TEMP
+      LOGICAL LTEMP
+C begin
+      DO I=1,N
+      TEMP=VSTACK(I,VLEVEL)
+      VSTACK(I,VLEVEL)=VSTACK(I,VLEVEL-1)
+      VSTACK(I,VLEVEL-1)=TEMP
+      LTEMP=LSTACK(I,VLEVEL)
+      LSTACK(I,VLEVEL)=LSTACK(I,VLEVEL-1)
+      LSTACK(I,VLEVEL-1)=LTEMP
+      END DO
+      RETURN
+      END
+C======================================================================
+      SUBROUTINE XDOMAKD(INDEX,START,STOP,NSELE)
+C
+C Author: Axel T. Brunger
+C
+      IMPLICIT NONE
+C input/output
+      INTEGER INDEX(*), START, STOP, NSELE
+C local
+      INTEGER I
+C begin
+      NSELE=0
+      DO I=START,STOP
+      NSELE=NSELE+1
+      INDEX(NSELE)=I
+      END DO
+      RETURN
+      END
+C======================================================================
+      SUBROUTINE XDOMAKV(VLEVEL,VMAX,LSTACK,N,INDEX)
+C
+C reduces the index (as a result of a selection).
+C
+C Author: Axel T. Brunger
+C
+C
+      IMPLICIT NONE
+C I/O
+      INTEGER VLEVEL, VMAX, N
+      LOGICAL LSTACK(N,*)
+      INTEGER INDEX(*)
+C local
+      INTEGER I, NSELE
+C begin
+      NSELE=0
+      DO I=1,N
+      IF (LSTACK(I,VLEVEL)) THEN
+      NSELE=NSELE+1
+      INDEX(NSELE)=INDEX(I)
+      END IF
+      END DO
+C
+      N=NSELE
+      RETURN
+      END
+C======================================================================
+      SUBROUTINE XDODIC(VLEVEL,VMAX,LSTACK,N,ARRAY,M,INDEX)
+C
+C Test for centric (M=-1) or acentric (M=+1) reflections.
+C
+C Author: Axel T. Brunger
+C
+C
+      IMPLICIT NONE
+C I/O
+      INTEGER VLEVEL, VMAX, N
+      LOGICAL LSTACK(N,*)
+      INTEGER ARRAY(*), M
+      INTEGER INDEX(*)
+C local
+      INTEGER I
+C begin
+      VLEVEL=VLEVEL+1
+      IF (M.GE.1) THEN
+      DO I=1,N
+      LSTACK(I,VLEVEL)=ARRAY(INDEX(I)).GE.M
+      END DO
+      ELSE
+      DO I=1,N
+      LSTACK(I,VLEVEL)=ARRAY(INDEX(I)).LE.M
+      END DO
+      END IF
+C
+      RETURN
+      END
+C======================================================================
+      SUBROUTINE XDONORM(VLEVEL,VMAX,VSTACK,LSTACK,N,INDEX,
+     &         XRNSYM,QHERM,
+     &         XRTR,XRMREF,HPH,HPK,HPL,
+     &         HPMULT,HPTYPE,MBINS,XBINLOW,XBINHIGH,BINSHELL)
+C
+C Routine performs normalization of structure factors (commonly
+C referred to as Es).
+C
+C Note: 1. systematic absences are always excluded
+C          (because XREDUC always removes them)
+C       2. epsilon is computed from multiplicity and type (centric
+C          or acentric)
+C
+C       3. this is a special operation, i.e., N has to include
+C          all structure factor elements (see routine XDOSPCL).
+C
+C
+C Author: Axel T. Brunger
+C
+      IMPLICIT NONE
+C I/O
+      INCLUDE 'cns.inc'
+      INCLUDE 'consta.inc'
+      INCLUDE 'heap.inc'
+      INCLUDE 'funct.inc'
+C
+      INTEGER VLEVEL, VMAX, N
+      DOUBLE COMPLEX VSTACK(N,*)
+      LOGICAL LSTACK(N,*)
+      INTEGER INDEX(*)
+      INTEGER XRNSYM
+      LOGICAL QHERM
+      DOUBLE PRECISION XRTR(3,3)
+      INTEGER XRMREF, HPH, HPK, HPL
+      INTEGER HPMULT, HPTYPE
+      INTEGER MBINS
+      DOUBLE PRECISION XBINHIGH, XBINLOW, BINSHELL(*)
+C pointer
+      INTEGER FOBAVG, NUMAVG, ISHELL
+C begin
+C
+C normalize structure factor
+      FOBAVG=ALLHP(IREAL8(MBINS))
+      NUMAVG=ALLHP(IREAL8(MBINS))
+      ISHELL=ALLHP(INTEG4(N))
+      CALL XDONORM2(VLEVEL,VMAX,VSTACK,LSTACK,N,INDEX,
+     &         XRNSYM,QHERM,
+     &         XRTR,XRMREF,HEAP(HPH),
+     &         HEAP(HPK),HEAP(HPL),HEAP(HPMULT),HEAP(HPTYPE),
+     &         MBINS,XBINLOW,XBINHIGH,BINSHELL,HEAP(FOBAVG),
+     &         HEAP(NUMAVG),HEAP(ISHELL))
+      CALL FREHP(ISHELL,INTEG4(N))
+      CALL FREHP(NUMAVG,IREAL8(MBINS))
+      CALL FREHP(FOBAVG,IREAL8(MBINS))
+C
+C
+      RETURN
+      END
+C======================================================================
+      SUBROUTINE XDONORM2(VLEVEL,VMAX,VSTACK,LSTACK,N,INDEX,
+     &         XRNSYM,QHERM,
+     &         XRTR,XRMREF,XRH,XRK,XRL,
+     &         MULT,TYPE,MBINS,XBINLOW,XBINHIGH,BINSHELL,
+     &         FOBAVG,NUMAVG,ISHELL)
+C
+C
+C Author: Axel T. Brunger
+C
+      IMPLICIT NONE
+C I/O
+      INCLUDE 'consta.inc'
+      INCLUDE 'timer.inc'
+      INTEGER VLEVEL, VMAX, N
+      DOUBLE COMPLEX VSTACK(N,*)
+      LOGICAL LSTACK(N,*)
+      INTEGER INDEX(*)
+      INTEGER XRNSYM
+      LOGICAL QHERM
+      DOUBLE PRECISION XRTR(3,3)
+      INTEGER XRMREF, XRH(*), XRK(*), XRL(*)
+      INTEGER MULT(*), TYPE(*)
+      INTEGER MBINS
+      DOUBLE PRECISION XBINHIGH, XBINLOW, BINSHELL(*)
+      DOUBLE PRECISION FOBAVG(*), NUMAVG(*)
+      INTEGER ISHELL(*)
+C local
+      INTEGER REFLCT, IND
+      DOUBLE PRECISION WT, TEMP, EPSILON
+C parameter
+      DOUBLE PRECISION ZERO, ONE, TWO
+      PARAMETER (ZERO=0.0D0, ONE=1.0D0, TWO=2.0D0)
+C begin
+C
+      IF (N.GT.0) THEN
+C
+C preparation and partition reflections into resolution bins
+      CALL XDOBINPP(N,INDEX,XRTR,XRH,XRK,XRL,MBINS,
+     &              XBINLOW,XBINHIGH,BINSHELL,ISHELL)
+C
+C initialize averages
+      DO IND=1,MBINS
+      FOBAVG(IND)=ZERO
+      NUMAVG(IND)=ZERO
+      END DO
+C
+C
+C compute the structure factor averages for each bin
+      DO REFLCT=1,N
+      IF (ISHELL(REFLCT).GT.0) THEN
+C
+C compute epsilon and weight
+      IF (TYPE(INDEX(REFLCT)).GE.1) THEN
+C acentric
+      EPSILON=2*XRNSYM/MULT(INDEX(REFLCT))
+      WT=TWO
+      ELSE
+C centric
+      EPSILON=XRNSYM/MULT(INDEX(REFLCT))
+      WT=ONE
+      END IF
+C
+      TEMP=VSTACK(REFLCT,VLEVEL)
+C
+C accumulate <structure factor>.  Use epsilon.
+      FOBAVG(ISHELL(REFLCT))=FOBAVG(ISHELL(REFLCT))
+     &                       +(WT/EPSILON)*TEMP**2
+      NUMAVG(ISHELL(REFLCT))=NUMAVG(ISHELL(REFLCT))+WT
+C
+C divide structure factor by sqrt(epsilon)
+      TEMP=TEMP/SQRT(EPSILON)
+      VSTACK(REFLCT,VLEVEL)=DCMPLX(TEMP,ZERO)
+      END IF
+      END DO
+C
+C compute average
+      DO IND=1,MBINS
+      IF (NUMAVG(IND).GT.RSMALL
+     &    .AND.ABS(FOBAVG(IND)).GT.RSMALL) THEN
+      FOBAVG(IND)=FOBAVG(IND)/NUMAVG(IND)
+      ELSE
+C
+C set FOBAVG and FCAAVG to one to avoid division by zero
+C (this is ok since the numerators will be zero)
+      FOBAVG(IND)=ONE
+      END IF
+      END DO
+C
+      DO REFLCT=1,N
+      IF (ISHELL(REFLCT).GT.0) THEN
+C
+C normalize structure factor
+      TEMP=VSTACK(REFLCT,VLEVEL)
+      TEMP=TEMP/SQRT(FOBAVG(ISHELL(REFLCT)))
+      VSTACK(REFLCT,VLEVEL)=DCMPLX(TEMP,ZERO)
+      ELSE
+      VSTACK(REFLCT,VLEVEL)=DCMPLX(ZERO,ZERO)
+      END IF
+      END DO
+C
+C
+      END IF
+      RETURN
+      END
+C======================================================================
+      SUBROUTINE XDOSAVE(VLEVEL,VMAX,VSTACK,LSTACK,N,INDEX,
+     &         XRNSYM,QHERM,
+     &         XRTR,XRMREF,HPH,HPK,HPL,
+     &         HPMULT,HPTYPE,MBINS,XBINLOW,XBINHIGH,BINSHELL,
+     &         MODE,VARS2)
+C
+C Routine performs bin-wise averaging (MODE=1 or MODE=2) or
+C summation (MODE=3) of structure factors.  For MODE=3
+C statistical weights are used for the averaging.
+C
+C syntax:
+C mode=1  AVE[OVERALL,BINWISE](x)
+C mode=2  SAVE[OVERALL,BINWISE](x)
+C mode=3  SUM[OVERALL,BINWISE](x)
+C
+C Reference: R.J. Read, Improved Fourier Coefficients
+C            for Maps Using Phases from Partial Structures
+C            with Errors, Acta Cryst A42, 140-149 (1986).
+C
+C Note: 1. this is a special operation, i.e., N has to include
+C          all structure factor elements (see routine XDOSPCL).
+C       2. for MODE=2 the averaging uses epsilon:
+C           < n structure factor / epsilon >
+C          where n is 2 for acentric reflections and 1 for
+C          centric reflections.
+C       3. for MODE=1 normal averaging is performed.
+C
+C
+C Author: Axel T. Brunger
+C
+      IMPLICIT NONE
+C I/O
+      INCLUDE 'cns.inc'
+      INCLUDE 'consta.inc'
+      INCLUDE 'heap.inc'
+      INCLUDE 'funct.inc'
+C
+      INTEGER VLEVEL, VMAX, N
+      DOUBLE COMPLEX VSTACK(N,*)
+      LOGICAL LSTACK(N,*)
+      INTEGER INDEX(*)
+      INTEGER XRNSYM
+      LOGICAL QHERM
+      DOUBLE PRECISION XRTR(3,3)
+      INTEGER XRMREF, HPH, HPK, HPL
+      INTEGER HPMULT, HPTYPE
+      INTEGER MBINS, MODE
+      DOUBLE PRECISION XBINHIGH, XBINLOW, BINSHELL(*)
+      DOUBLE COMPLEX VARS2
+C pointer
+      INTEGER FOBAVG, NUMAVG, ISHELL
+C begin
+C
+C normalize structure factor
+      FOBAVG=ALLHP(ICPLX8(MBINS))
+      NUMAVG=ALLHP(IREAL8(MBINS))
+      ISHELL=ALLHP(INTEG4(N))
+      CALL XDOSAVE2(VLEVEL,VMAX,VSTACK,LSTACK,N,INDEX,
+     &         XRNSYM,QHERM,
+     &         XRTR,XRMREF,HEAP(HPH),
+     &         HEAP(HPK),HEAP(HPL),HEAP(HPMULT),HEAP(HPTYPE),
+     &         MBINS,XBINLOW,XBINHIGH,BINSHELL,MODE,HEAP(FOBAVG),
+     &         HEAP(NUMAVG),HEAP(ISHELL),VARS2)
+      CALL FREHP(ISHELL,INTEG4(N))
+      CALL FREHP(NUMAVG,IREAL8(MBINS))
+      CALL FREHP(FOBAVG,ICPLX8(MBINS))
+C
+C
+      RETURN
+      END
+C======================================================================
+      SUBROUTINE XDOSAVE2(VLEVEL,VMAX,VSTACK,LSTACK,N,INDEX,
+     &         XRNSYM,QHERM,
+     &         XRTR,XRMREF,XRH,XRK,XRL,
+     &         MULT,TYPE,MBINS,XBINLOW,XBINHIGH,BINSHELL,
+     &         MODE,FOBAVG,NUMAVG,ISHELL,VARS2)
+C
+C
+C Author: Axel T. Brunger
+C
+      IMPLICIT NONE
+C I/O
+      INCLUDE 'consta.inc'
+      INCLUDE 'timer.inc'
+      INTEGER VLEVEL, VMAX, N
+      DOUBLE COMPLEX VSTACK(N,*)
+      LOGICAL LSTACK(N,*)
+      INTEGER INDEX(*)
+      INTEGER XRNSYM
+      LOGICAL QHERM
+      DOUBLE PRECISION XRTR(3,3)
+      INTEGER XRMREF, XRH(*), XRK(*), XRL(*)
+      INTEGER MULT(*), TYPE(*)
+      INTEGER MBINS, MODE
+      DOUBLE PRECISION XBINHIGH, XBINLOW, BINSHELL(*)
+      DOUBLE COMPLEX FOBAVG(*)
+      DOUBLE PRECISION NUMAVG(*)
+      INTEGER ISHELL(*)
+      DOUBLE COMPLEX VARS2
+C local
+      INTEGER REFLCT, IND, LMBINS
+      DOUBLE PRECISION WT, EPSILON
+      DOUBLE COMPLEX TEMP
+C parameter
+      DOUBLE PRECISION ZERO, ONE, TWO
+      PARAMETER (ZERO=0.0D0, ONE=1.0D0, TWO=2.0D0)
+C begin
+C
+C
+C check for OVERALL flag (BINWISE is the default)
+      IF (DBLE(VARS2).GT.ZERO) THEN
+      LMBINS=MBINS
+      ELSE
+      LMBINS=1
+      END IF
+C
+      IF (N.GT.0) THEN
+C
+C partition reflections into resolution bins
+      IF (LMBINS.GT.1) THEN
+      CALL XDOBINPP(N,INDEX,XRTR,XRH,XRK,XRL,MBINS,
+     &              XBINLOW,XBINHIGH,BINSHELL,ISHELL)
+      ELSE
+      CALL XDOBINPO(N,INDEX,XRTR,XRH,XRK,XRL,MBINS,
+     &              XBINLOW,XBINHIGH,BINSHELL,ISHELL)
+      END IF
+C
+C initialize averages
+      DO IND=1,LMBINS
+      FOBAVG(IND)=ZERO
+      NUMAVG(IND)=ZERO
+      END DO
+C
+C
+C compute the structure factor averages for each bin
+      DO REFLCT=1,N
+      IF (ISHELL(REFLCT).GT.0) THEN
+C
+      IF (MODE.EQ.1.OR.MODE.EQ.3) THEN
+C
+C normal averaging or summation
+      WT=ONE
+      EPSILON=ONE
+      ELSEIF (MODE.EQ.2) THEN
+C
+C statistical weighting
+C compute epsilon and weight
+      IF (TYPE(INDEX(REFLCT)).GE.1.AND.QHERM) THEN
+C acentric
+      EPSILON=2*XRNSYM/MULT(INDEX(REFLCT))
+      WT=TWO
+      ELSE
+C centric or not hermitian symmetry
+      EPSILON=XRNSYM/MULT(INDEX(REFLCT))
+      WT=ONE
+      END IF
+      END IF
+C
+      TEMP=VSTACK(REFLCT,VLEVEL)
+C
+C accumulate <structure factor>.
+      FOBAVG(ISHELL(REFLCT))=FOBAVG(ISHELL(REFLCT))+(WT/EPSILON)*TEMP
+      NUMAVG(ISHELL(REFLCT))=NUMAVG(ISHELL(REFLCT))+WT
+C
+      END IF
+      END DO
+C
+C compute average if required (MODE 1 or MODE 2)
+      IF (MODE.EQ.1.OR.MODE.EQ.2) THEN
+      DO IND=1,LMBINS
+      IF (NUMAVG(IND).GT.RSMALL) THEN
+      FOBAVG(IND)=FOBAVG(IND)/NUMAVG(IND)
+      ELSE
+      FOBAVG(IND)=ZERO
+      END IF
+      END DO
+      END IF
+C
+      DO REFLCT=1,N
+C
+C store average in stack.
+      IF (ISHELL(REFLCT).GT.0) THEN
+      VSTACK(REFLCT,VLEVEL)=FOBAVG(ISHELL(REFLCT))
+      ELSE
+      VSTACK(REFLCT,VLEVEL)=DCMPLX(ZERO,ZERO)
+      END IF
+      END DO
+C
+      END IF
+C
+      RETURN
+      END
+C======================================================================
+      SUBROUTINE XDOCORR(VLEVEL,VMAX,VSTACK,LSTACK,N,INDEX,
+     &         XRTR,XRMREF,HPH,HPK,HPL,
+     &         HPMULT,HPTYPE,MBINS,XBINLOW,XBINHIGH,BINSHELL,
+     &         VARS1,VARS2)
+C
+C Routine computes bin-wise correlation coefficients
+C between structure factors.
+C
+C Syntax: CORR[OVERALL,BINWISE](a,b)
+C
+C Note:    This is a special operation, i.e., N has to include
+C          all structure factor elements (see routine XDOSPCL).
+C
+C
+C Author: Axel T. Brunger
+C
+      IMPLICIT NONE
+C I/O
+      INCLUDE 'cns.inc'
+      INCLUDE 'consta.inc'
+      INCLUDE 'heap.inc'
+      INCLUDE 'funct.inc'
+C
+      INTEGER VLEVEL, VMAX, N
+      DOUBLE COMPLEX VSTACK(N,*)
+      LOGICAL LSTACK(N,*)
+      INTEGER INDEX(*)
+      DOUBLE PRECISION XRTR(3,3)
+      INTEGER XRMREF, HPH, HPK, HPL
+      INTEGER HPMULT, HPTYPE
+      INTEGER MBINS
+      DOUBLE PRECISION XBINHIGH, XBINLOW, BINSHELL(*)
+      DOUBLE COMPLEX VARS1, VARS2
+C pointer
+      INTEGER CI, CJ, CII, CJJ, CIJ, WSUM, ISHELL
+C begin
+C
+      CI=ALLHP(IREAL8(MBINS))
+      CII=ALLHP(IREAL8(MBINS))
+      CJ=ALLHP(IREAL8(MBINS))
+      CJJ=ALLHP(IREAL8(MBINS))
+      CIJ=ALLHP(IREAL8(MBINS))
+      WSUM=ALLHP(IREAL8(MBINS))
+      ISHELL=ALLHP(INTEG4(N))
+      CALL XDOCORR2(VLEVEL,VMAX,VSTACK,LSTACK,N,INDEX,
+     &         XRTR,XRMREF,HEAP(HPH),
+     &         HEAP(HPK),HEAP(HPL),HEAP(HPMULT),HEAP(HPTYPE),
+     &         MBINS,XBINLOW,XBINHIGH,BINSHELL,
+     &         HEAP(CI),HEAP(CII),HEAP(CJ),HEAP(CJJ),
+     &         HEAP(CIJ),HEAP(WSUM),HEAP(ISHELL),VARS1,VARS2)
+      CALL FREHP(ISHELL,INTEG4(N))
+      CALL FREHP(WSUM,IREAL8(MBINS))
+      CALL FREHP(CJJ,IREAL8(MBINS))
+      CALL FREHP(CJ,IREAL8(MBINS))
+      CALL FREHP(CIJ,IREAL8(MBINS))
+      CALL FREHP(CII,IREAL8(MBINS))
+      CALL FREHP(CI,IREAL8(MBINS))
+C
+C
+      RETURN
+      END
+C======================================================================
+      SUBROUTINE XDOCORR2(VLEVEL,VMAX,VSTACK,LSTACK,N,INDEX,
+     &         XRTR,XRMREF,XRH,XRK,XRL,
+     &         MULT,TYPE,MBINS,XBINLOW,XBINHIGH,BINSHELL,
+     &         CI,CII,CJ,CJJ,CIJ,WSUM,
+     &         ISHELL,VARS1,VARS2)
+C
+C
+C Author: Axel T. Brunger
+C
+      IMPLICIT NONE
+C I/O
+      INCLUDE 'consta.inc'
+      INCLUDE 'timer.inc'
+      INTEGER VLEVEL, VMAX, N
+      DOUBLE COMPLEX VSTACK(N,*)
+      LOGICAL LSTACK(N,*)
+      INTEGER INDEX(*)
+      DOUBLE PRECISION XRTR(3,3)
+      INTEGER XRMREF, XRH(*), XRK(*), XRL(*)
+      INTEGER MULT(*), TYPE(*)
+      INTEGER MBINS
+      DOUBLE PRECISION XBINHIGH, XBINLOW, BINSHELL(*)
+      DOUBLE PRECISION CI(*), CII(*), CJ(*), CJJ(*), CIJ(*), WSUM(*)
+      INTEGER ISHELL(*)
+      DOUBLE COMPLEX VARS1, VARS2
+C local
+      INTEGER REFLCT, IND, LMBINS
+      DOUBLE PRECISION TEMP1, TEMP2, CSUM, DSUM, WT
+      LOGICAL XQMULT
+C parameter
+      DOUBLE PRECISION ZERO, ONE
+      PARAMETER (ZERO=0.0D0, ONE=1.0D0)
+C begin
+C
+C
+C check for [MULT=TRUE|FALSE] flag (MULT=FALSE is the default)
+      IF (DBLE(VARS1).LT.RSMALL) THEN
+         XQMULT=.FALSE.
+      ELSE
+         XQMULT=.TRUE.
+      END IF
+C
+C check for OVERALL flag (BINWISE is the default)
+      IF (DBLE(VARS2).GT.ZERO) THEN
+      LMBINS=MBINS
+      ELSE
+      LMBINS=1
+      END IF
+C
+      VLEVEL=VLEVEL-1
+C
+      IF (N.GT.0) THEN
+C
+C partition reflections into resolution bins
+      IF (LMBINS.GT.1) THEN
+      CALL XDOBINPP(N,INDEX,XRTR,XRH,XRK,XRL,MBINS,
+     &              XBINLOW,XBINHIGH,BINSHELL,ISHELL)
+      ELSE
+      CALL XDOBINPO(N,INDEX,XRTR,XRH,XRK,XRL,MBINS,
+     &              XBINLOW,XBINHIGH,BINSHELL,ISHELL)
+      END IF
+C
+C initialize averages
+      DO IND=1,LMBINS
+      WSUM(IND)=ZERO
+      CI(IND)=ZERO
+      CJ(IND)=ZERO
+      CII(IND)=ZERO
+      CJJ(IND)=ZERO
+      CIJ(IND)=ZERO
+      END DO
+C
+C
+C compute the structure factor averages for each bin
+      DO REFLCT=1,N
+      IF (ISHELL(REFLCT).GT.0) THEN
+C
+C
+C compute weight
+      IF (XQMULT) THEN
+      WT=MULT(INDEX(REFLCT))
+      ELSE
+      WT=ONE
+      END IF
+C
+      TEMP1=VSTACK(REFLCT,VLEVEL)
+      TEMP2=VSTACK(REFLCT,VLEVEL+1)
+      WSUM(ISHELL(REFLCT))=WSUM(ISHELL(REFLCT))+WT
+      CI(ISHELL(REFLCT))=CI(ISHELL(REFLCT))+WT*TEMP1
+      CJ(ISHELL(REFLCT))=CJ(ISHELL(REFLCT))+WT*TEMP2
+      CII(ISHELL(REFLCT))=CII(ISHELL(REFLCT))+WT*TEMP1**2
+      CJJ(ISHELL(REFLCT))=CJJ(ISHELL(REFLCT))+WT*TEMP2**2
+      CIJ(ISHELL(REFLCT))=CIJ(ISHELL(REFLCT))+WT*TEMP1*TEMP2
+C
+      END IF
+      END DO
+C
+C compute correlation coefficients
+      DO IND=1,LMBINS
+      IF (WSUM(IND).GT.RSMALL) THEN
+      DSUM=(CII(IND)-CI(IND)**2/WSUM(IND))*(CJJ(IND)-
+     &       CJ(IND)**2/WSUM(IND))
+      CSUM=CIJ(IND) - CI(IND)*CJ(IND)/WSUM(IND)
+      IF (DSUM.GT.RSMALL) THEN
+      DSUM=SQRT(DSUM)
+      CI(IND)=CSUM/DSUM
+      ELSE
+      CI(IND)=ZERO
+      END IF
+      ELSE
+      CI(IND)=ZERO
+      END IF
+      END DO
+C
+      DO REFLCT=1,N
+      IF (ISHELL(REFLCT).GT.0) THEN
+C
+C store correlation coefficient in stack
+      VSTACK(REFLCT,VLEVEL)=DCMPLX(CI(ISHELL(REFLCT)),ZERO)
+      ELSE
+      VSTACK(REFLCT,VLEVEL)=DCMPLX(ZERO,ZERO)
+      END IF
+      END DO
+C
+      END IF
+C
+      RETURN
+      END
+C======================================================================
+      SUBROUTINE XDORVAL(VLEVEL,VMAX,VSTACK,LSTACK,N,INDEX,
+     &         XRTR,XRMREF,HPH,HPK,HPL,HPMULT,
+     &         MBINS,XBINLOW,XBINHIGH,BINSHELL,VARS1,VARS2,
+     &         VARS3)
+C
+C Routine computes bin-wise or overall R-value
+C between structure factors.
+C
+C Definition:
+C
+C RVALUE[OVERALL,BINWISE,K=<real>,MULT=<logical>](A,B):=
+C     sum_hkl | |A| - k|B| | / sum_hkl | A |
+C
+C If k is not specified, it will be determined by minimizing
+C the residual between |A| and |B|
+C
+C Note:    This is a special operation, i.e., N has to include
+C          all structure factor elements (see routine XDOSPCL).
+C
+C
+C Author: Axel T. Brunger
+C
+      IMPLICIT NONE
+C I/O
+      INCLUDE 'cns.inc'
+      INCLUDE 'consta.inc'
+      INCLUDE 'heap.inc'
+      INCLUDE 'funct.inc'
+C
+      INTEGER VLEVEL, VMAX, N
+      DOUBLE COMPLEX VSTACK(N,*)
+      LOGICAL LSTACK(N,*)
+      INTEGER INDEX(*)
+      DOUBLE PRECISION XRTR(3,3)
+      INTEGER XRMREF, HPH, HPK, HPL, HPMULT
+      INTEGER MBINS
+      DOUBLE PRECISION XBINHIGH, XBINLOW, BINSHELL(*)
+      DOUBLE COMPLEX VARS1, VARS2, VARS3
+C pointer
+      INTEGER RF, FOSUM, ISHELL
+C begin
+C
+      RF=ALLHP(IREAL8(MBINS))
+      FOSUM=ALLHP(IREAL8(MBINS))
+      ISHELL=ALLHP(INTEG4(N))
+      CALL XDORVAL2(VLEVEL,VMAX,VSTACK,LSTACK,N,INDEX,
+     &         XRTR,XRMREF,HEAP(HPH),HEAP(HPK),HEAP(HPL),
+     &         HEAP(HPMULT),MBINS,XBINLOW,XBINHIGH,BINSHELL,
+     &         HEAP(RF),HEAP(FOSUM),HEAP(ISHELL),VARS1,VARS2,
+     &         VARS3)
+      CALL FREHP(ISHELL,INTEG4(N))
+      CALL FREHP(FOSUM,IREAL8(MBINS))
+      CALL FREHP(RF,IREAL8(MBINS))
+C
+C
+      RETURN
+      END
+C======================================================================
+      SUBROUTINE XDORVAL2(VLEVEL,VMAX,VSTACK,LSTACK,N,INDEX,
+     &         XRTR,XRMREF,XRH,XRK,XRL,MULT,
+     &         MBINS,XBINLOW,XBINHIGH,BINSHELL,
+     &         RF,FOSUM,ISHELL,VARS1,VARS2,VARS3)
+C
+C
+C Author: Axel T. Brunger
+C
+      IMPLICIT NONE
+C I/O
+      INCLUDE 'consta.inc'
+      INCLUDE 'timer.inc'
+      INTEGER VLEVEL, VMAX, N
+      DOUBLE COMPLEX VSTACK(N,*)
+      LOGICAL LSTACK(N,*)
+      INTEGER INDEX(*)
+      DOUBLE PRECISION XRTR(3,3)
+      INTEGER XRMREF, XRH(*), XRK(*), XRL(*), MULT(*)
+      INTEGER MBINS
+      DOUBLE PRECISION XBINHIGH, XBINLOW, BINSHELL(*)
+      DOUBLE PRECISION RF(*), FOSUM(*)
+      INTEGER ISHELL(*)
+      DOUBLE COMPLEX VARS1, VARS2, VARS3
+C local
+      INTEGER REFLCT, IND, LMBINS
+      DOUBLE PRECISION FO2SUM, FC2SUM, FOCSUM
+      DOUBLE PRECISION AFOBS, AFCALC, WT
+C input FFK
+      DOUBLE PRECISION FFK
+C
+      LOGICAL XQMULT
+C parameter
+      DOUBLE PRECISION ZERO, ONE
+      PARAMETER (ZERO=0.0D0, ONE=1.0D0)
+C begin
+C
+C fixed scale flag
+      FFK=DBLE(VARS1)
+C
+C binwise/overall flag
+      IF (DBLE(VARS2).GT.ZERO) THEN
+      LMBINS=MBINS
+      ELSE
+      LMBINS=1
+      END IF
+C
+C check for [MULT=TRUE|FALSE] flag (MULT=FALSE is the default)
+      IF (DBLE(VARS3).LT.RSMALL) THEN
+         XQMULT=.FALSE.
+      ELSE
+         XQMULT=.TRUE.
+      END IF
+C
+      VLEVEL=VLEVEL-1
+C
+      IF (N.GT.0) THEN
+C
+C compute the scale factor if required
+      IF (FFK.LE.ZERO) THEN
+      FO2SUM=ZERO
+      FC2SUM=ZERO
+      FOCSUM=ZERO
+      DO REFLCT=1,N
+C compute weight
+      IF (XQMULT) THEN
+      WT=MULT(INDEX(REFLCT))
+      ELSE
+      WT=ONE
+      END IF
+      AFOBS=ABS(VSTACK(REFLCT,VLEVEL))
+      AFCALC=ABS(VSTACK(REFLCT,VLEVEL+1))
+      FO2SUM=FO2SUM +WT*AFOBS**2
+      FC2SUM=FC2SUM +WT*AFCALC**2
+      FOCSUM=FOCSUM +WT*AFOBS*AFCALC
+      END DO
+C
+      IF (FC2SUM.GT.RSMALL) THEN
+      FFK=FOCSUM/FC2SUM
+      ELSE
+      FFK=ONE
+      END IF
+      END IF
+C
+C
+C partition reflections into resolution bins
+      IF (LMBINS.GT.1) THEN
+      CALL XDOBINPP(N,INDEX,XRTR,XRH,XRK,XRL,MBINS,
+     &              XBINLOW,XBINHIGH,BINSHELL,ISHELL)
+      ELSE
+      CALL XDOBINPO(N,INDEX,XRTR,XRH,XRK,XRL,MBINS,
+     &              XBINLOW,XBINHIGH,BINSHELL,ISHELL)
+      END IF
+C
+C initialize averages
+      DO IND=1,LMBINS
+      RF(IND)=ZERO
+      FOSUM(IND)=ZERO
+      END DO
+C
+      DO REFLCT=1,N
+      IF (XQMULT) THEN
+      WT=MULT(INDEX(REFLCT))
+      ELSE
+      WT=ONE
+      END IF
+      IF (ISHELL(REFLCT).GT.0) THEN
+      AFOBS=ABS(VSTACK(REFLCT,VLEVEL))
+      AFCALC=ABS(VSTACK(REFLCT,VLEVEL+1))
+      RF(ISHELL(REFLCT))=RF(ISHELL(REFLCT)) + WT*ABS(AFOBS- FFK*AFCALC)
+      FOSUM(ISHELL(REFLCT))=FOSUM(ISHELL(REFLCT)) + WT*AFOBS
+      END IF
+      END DO
+C
+      DO IND=1,LMBINS
+      IF (FOSUM(IND).GT.RSMALL) THEN
+      RF(IND)=RF(IND)/FOSUM(IND)
+      ELSE
+      RF(IND)=ONE
+      END IF
+      END DO
+C
+      DO REFLCT=1,N
+      IF (ISHELL(REFLCT).GT.0) THEN
+C store R-value in stack
+      VSTACK(REFLCT,VLEVEL)=DCMPLX(RF(ISHELL(REFLCT)),ZERO)
+      ELSE
+      VSTACK(REFLCT,VLEVEL)=DCMPLX(ZERO,ZERO)
+      END IF
+      END DO
+C
+C
+      END IF
+C
+      RETURN
+      END
+C======================================================================
+      SUBROUTINE XDOI0(VLEVEL,VMAX,VSTACK,N)
+C
+C Computes modified Bessel function of zero order.
+C Reference: ABRAMOWITZ & STEGUN, HANDBOOK OF MATHEMATICAL FUNCTIONS,
+C pp. 378.
+C
+C Author: Axel T. Brunger
+C
+      IMPLICIT NONE
+C I/O
+      INCLUDE 'consta.inc'
+      INTEGER VLEVEL, VMAX, N
+      DOUBLE COMPLEX VSTACK(N,*)
+C local
+      DOUBLE PRECISION T, X
+      INTEGER I
+C parameter
+      DOUBLE PRECISION ZERO
+      PARAMETER (ZERO=0.0D0)
+C begin
+      DO I=1,N
+      X=DBLE(VSTACK(I,VLEVEL))
+C
+      IF (ABS(X)/3.75D0 .LE. 1.0D0) THEN
+      T=(X/3.75D0)**2
+      X=1.0D0+T*(3.5156229D0 +T*(3.0899424D0 +T*(1.2067492D0 +
+     &        T*(0.2659732D0 +T*(0.0360768D0 +T*0.0045813D0 )))))
+      ELSE
+      T=3.75D0/ABS(X)
+      T=    0.39894228D0+T*( 0.01328592D0+
+     &  T*( 0.00225319D0+T*(-0.00157565D0+
+     &  T*( 0.00916281D0+T*(-0.02057706D0+T*( 0.02635537D0+
+     &  T*(-0.01647633D0+T*0.00392377D0)))))))
+      X=T*EXP(ABS(X))/SQRT(ABS(X))
+      END IF
+      VSTACK(I,VLEVEL)=DCMPLX(X,ZERO)
+      END DO
+C
+      RETURN
+      END
+C======================================================================
+      SUBROUTINE XDOI1(VLEVEL,VMAX,VSTACK,N)
+C
+C Computes modified Bessel function of first order.
+C Reference: ABRAMOWITZ & STEGUN, HANDBOOK OF MATHEMATICAL FUNCTIONS,
+C pp. 378.
+C
+C Author: Axel T. Brunger
+C
+      IMPLICIT NONE
+C I/O
+      INCLUDE 'consta.inc'
+      INTEGER VLEVEL, VMAX, N
+      DOUBLE COMPLEX VSTACK(N,*)
+C local
+      INTEGER I
+      DOUBLE PRECISION T, X
+C parameter
+      DOUBLE PRECISION ZERO
+      PARAMETER (ZERO=0.0D0)
+C begin
+      DO I=1,N
+      X=DBLE(VSTACK(I,VLEVEL))
+C
+      IF (ABS(X)/3.75D0 .LE. 1.0D0) THEN
+      T=(X/3.75D0)**2
+      X=X*(0.5D0+T*(0.87890594D0+T*(0.51498869D0+T*(0.15084934D0+
+     &           T*(0.02658733D0+T*(0.00301532D0+T*0.00032411D0))))))
+      ELSE
+      T=3.75D0/ABS(X)
+      T=   (0.39894228D0+T*(-0.03988024D0+
+     &  T*(-0.00362018D0+T*( 0.00163801D0+
+     &  T*(-0.01031555D0+T*( 0.02282967D0+T*(-0.02895312D0+
+     &  T*( 0.01787654D0-T*0.00420059D0))))))))
+      X=T*SIGN(1.0D0,X)*EXP(ABS(X))/SQRT(ABS(X))
+      END IF
+      VSTACK(I,VLEVEL)=DCMPLX(X,ZERO)
+      END DO
+C
+      RETURN
+      END
+C======================================================================
+      SUBROUTINE XDOI1I0(VLEVEL,VMAX,VSTACK,N)
+C
+C Computes I1(x)/I0(x) where I1 and I0 are the modified
+C Bessel function of first order and zero order, respectively.
+C Reference: ABRAMOWITZ & STEGUN, HANDBOOK OF MATHEMATICAL FUNCTIONS,
+C pp. 378.
+C
+C Author: Axel T. Brunger
+C
+      IMPLICIT NONE
+C I/O
+      INCLUDE 'consta.inc'
+      INTEGER VLEVEL, VMAX, N
+      DOUBLE COMPLEX VSTACK(N,*)
+C local
+      INTEGER I
+      DOUBLE PRECISION T, X
+C parameter
+      DOUBLE PRECISION ZERO
+      PARAMETER (ZERO=0.0D0)
+C begin
+      DO I=1,N
+      X=DBLE(VSTACK(I,VLEVEL))
+C
+      IF (ABS(X)/3.75D0 .LE. 1.0D0) THEN
+      T=(X/3.75D0)**2
+      X=X*(0.5D0+T*(0.87890594D0+T*(0.51498869D0+T*(0.15084934D0+
+     &           T*(0.02658733D0+T*(0.00301532D0+T*0.00032411D0))))))/
+     &      (1.0D0+T*(3.5156229D0 +T*(3.0899424D0 +T*(1.2067492D0 +
+     &           T*(0.2659732D0 +T*(0.0360768D0 +T*0.0045813D0 ))))))
+      ELSE
+      T=3.75D0/ABS(X)
+      X=(0.39894228D0+T*(-0.03988024D0+
+     &           T*(-0.00362018D0+T*( 0.00163801D0+
+     &           T*(-0.01031555D0+T*( 0.02282967D0+T*(-0.02895312D0+
+     &           T*( 0.01787654D0-T*0.00420059D0))))))))*SIGN(1.0D0,X)/
+     &    (0.39894228D0+T*( 0.01328592D0+
+     &            T*( 0.00225319D0+T*(-0.00157565D0+
+     &            T*( 0.00916281D0+T*(-0.02057706D0+T*( 0.02635537D0+
+     &            T*(-0.01647633D0+T*0.00392377D0))))))))
+      END IF
+      VSTACK(I,VLEVEL)=DCMPLX(X,ZERO)
+      END DO
+C
+      RETURN
+      END
+C======================================================================
+      SUBROUTINE XDOI1I0INV(VLEVEL,VMAX,VSTACK,N)
+C
+C Computes the inverse of I1(x)/I0(x) where I1 and I0 are the modified
+C Bessel function of first order and zero order, respectively.
+C There is no analytical solution for this so a Newton-type root
+C solution method is used with interpolation between the upper and
+C lower bracket
+C
+C Author: Paul Adams
+C
+      IMPLICIT NONE
+C I/O
+      INCLUDE 'consta.inc'
+      INTEGER VLEVEL, VMAX, N
+      DOUBLE COMPLEX VSTACK(N,*)
+C local
+      INTEGER I
+      DOUBLE PRECISION FOM, FOMMAX, X, FOMCALC, LOWBRAK, HIGHBRAK
+      DOUBLE PRECISION MIDPOINT, FOMLOW, FOMHIGH
+C parameter
+      DOUBLE PRECISION ZERO, ONE, TWO, XHIGH, EPS
+      PARAMETER (ZERO=0.0D0, ONE=1.0D0, TWO=2.0D0, XHIGH=1000)
+      PARAMETER (EPS=1.0D-6)
+C begin
+C
+      CALL XSIM(XHIGH,FOMMAX)
+C
+      DO I=1,N
+C
+      FOM=DBLE(VSTACK(I,VLEVEL))
+C
+      IF (FOM.GE.FOMMAX) THEN
+         X=XHIGH
+      ELSE IF (FOM.LE.ZERO) THEN
+         X=ZERO
+      ELSE
+         LOWBRAK=ZERO
+         HIGHBRAK=XHIGH
+         FOMLOW=ZERO
+         FOMHIGH=FOMMAX
+         MIDPOINT=(LOWBRAK+HIGHBRAK)/TWO
+         CALL XSIM(MIDPOINT,FOMCALC)
+         DO WHILE (ABS(FOMCALC-FOM).GT.EPS)
+            MIDPOINT=(LOWBRAK+HIGHBRAK)/TWO
+            CALL XSIM(MIDPOINT,FOMCALC)
+            IF (FOMCALC.LT.FOM) THEN
+               FOMLOW=FOMCALC
+               LOWBRAK=MIDPOINT
+            ELSE
+               FOMHIGH=FOMCALC
+               HIGHBRAK=MIDPOINT
+            END IF
+         END DO
+         X=LOWBRAK+(HIGHBRAK-LOWBRAK)*(FOM-FOMLOW)/(FOMHIGH-FOMLOW)
+      END IF
+C
+      VSTACK(I,VLEVEL)=DCMPLX(X,ZERO)
+      END DO
+C
+      RETURN
+      END
+C======================================================================
+      SUBROUTINE XCOUNT(MCOUNT,NCOUNT,MXRPNX,COUNT,SCOUNT,RCOUNT,
+     &                  RPNMX,RPNN,RPNX,RPN,RPNL,RPNDB,RPNMLT,RPNLEV)
+C
+C Routine initialize the int/add/mult variable stack
+C
+C Author: Axel T. Brunger
+C
+      IMPLICIT NONE
+C I/O
+      INTEGER MCOUNT, NCOUNT, MXRPNX
+      DOUBLE PRECISION COUNT(*)
+      CHARACTER*(*) SCOUNT(*)
+      INTEGER RCOUNT(*)
+      INTEGER RPNMX, RPNN, RPNX
+      CHARACTER*(*) RPN(4,*)
+      INTEGER RPNL(4,*)
+      DOUBLE COMPLEX RPNDB(4,*)
+      INTEGER RPNMLT(*), RPNLEV(*)
+C local
+C begin
+      IF (RPNX.GT.MXRPNX) THEN
+      CALL WRNDIE(-5,'XCOUNT','RPNX is larger than MXRPNX')
+      END IF
+C
+      NCOUNT=0
+      RETURN
+      END
+C======================================================================
+      SUBROUTINE XCSUM(MCOUNT,NCOUNT,MXRPNX,COUNT,SCOUNT,RCOUNT,
+     &                  RPNMX,RPNN,RPNX,RPN,RPNL,RPNDB,RPNMLT,RPNLEV,
+     &                  RPNI,ICOUNT,ERR,MODE,CURRVAR)
+C
+C Routine goes through the next iteration to
+C compute the integral/multiply/add/max operation.
+C
+C Author: Axel T. Brunger
+C
+      IMPLICIT NONE
+C I/O
+      INCLUDE 'consta.inc'
+      INCLUDE 'timer.inc'
+      INTEGER MCOUNT, NCOUNT, MXRPNX
+      DOUBLE PRECISION COUNT(*)
+      CHARACTER*(*) SCOUNT(*)
+      INTEGER RCOUNT(*)
+      INTEGER RPNMX, RPNN, RPNX
+      CHARACTER*(*) RPN(4,*)
+      INTEGER RPNL(4,*)
+      DOUBLE COMPLEX RPNDB(4,*)
+      INTEGER RPNMLT(*), RPNLEV(*), RPNI, ICOUNT
+      LOGICAL ERR
+      CHARACTER*(*) MODE
+      DOUBLE PRECISION CURRVAR
+C local
+      INTEGER N
+      LOGICAL FOUND
+C begin
+C
+C is the int/add/mult variable on the stack?
+      N=0
+      FOUND=.FALSE.
+      DO WHILE (N.LT.NCOUNT.AND..NOT.FOUND)
+      N=N+1
+      FOUND=RPN(2,RPNI)(1:RPNL(2,RPNI)).EQ.SCOUNT(N)
+      END DO
+C
+      IF (FOUND) THEN
+      ICOUNT=N
+      IF (RCOUNT(ICOUNT).NE.RPNI) THEN
+      WRITE(6,'(2A)')
+     &  ' XCSUM: duplicate nested definition of "',SCOUNT(ICOUNT)
+      CALL WRNDIE(-5,'XCSUM',
+     &  'Duplicate variable definition in int/add/mult.')
+      ERR=.TRUE.
+      END IF
+      ELSE
+C enough space on the int/add/mult variable stack?
+      IF (NCOUNT.GE.MCOUNT) THEN
+      CALL WRNDIE(-5,'XCFIND',
+     &  'Exceeded max. number of int/add/mult variables (MCOUNT).')
+      ERR=.TRUE.
+      ELSE
+      NCOUNT=NCOUNT+1
+      ICOUNT=NCOUNT
+      COUNT(ICOUNT)=DBLE(RPNDB(1,RPNI))
+      CURRVAR=COUNT(ICOUNT)
+      SCOUNT(ICOUNT)=RPN(2,RPNI)(1:RPNL(2,RPNI))
+      RCOUNT(ICOUNT)=RPNI
+C
+      IF (WRNLEV.GE.10) THEN
+      WRITE(6,'(3A,F12.4)')
+     &  ' XCSUM: initial. int/add/mult variable "',SCOUNT(ICOUNT),
+     &  '" to ',COUNT(ICOUNT)
+      END IF
+C
+      END IF
+C
+C
+      END IF
+C
+C check if we have to accumulate result in the int/add/mult
+C variable stack
+C (2nd or higher iterations)
+      IF (COUNT(ICOUNT).GT.DBLE(RPNDB(1,RPNI))+RSMALL) THEN
+      MODE='INTER'
+      ELSE
+      MODE='FIRST'
+      END IF
+C
+C increment int/add/mult variable
+      CURRVAR=COUNT(ICOUNT)
+      COUNT(ICOUNT)=COUNT(ICOUNT)+DBLE(RPNDB(3,RPNI))
+C
+C
+C check upper bound
+      IF (COUNT(ICOUNT).LE.DBLE(RPNDB(2,RPNI))+RSMALL) THEN
+C
+C ok -- carry out next loop iteration -- go backwards
+      N=RPNI
+      FOUND=.FALSE.
+      DO WHILE (RPNI.GT.1.AND..NOT.FOUND)
+      RPNI=RPNI-1
+      FOUND=RPNLEV(RPNI).LT.RPNLEV(N)
+      END DO
+      IF (FOUND) RPNI=RPNI+1
+      RPNI=RPNI-1
+C
+      IF (WRNLEV.GE.10) THEN
+      WRITE(6,'(3A,F12.4)')
+     &  ' XCSUM: increment. int/add/mult variable "',SCOUNT(ICOUNT),
+     &  '"; it is now ',COUNT(ICOUNT)
+C
+      WRITE(6,'(A,I6)') ' XCSUM: jumping back to stack entry ',RPNI+1
+      END IF
+C
+      ELSE
+C
+C end of loop -- free up int/add/mult variable stack
+      IF (WRNLEV.GE.10) THEN
+      WRITE(6,'(3A)')
+     &' XCSUM:freeing-up int/add/mult variable "',SCOUNT(ICOUNT),'"'
+      END IF
+      IF (ICOUNT.EQ.NCOUNT) THEN
+      NCOUNT=NCOUNT-1
+      ELSE
+      SCOUNT(ICOUNT)=' '
+      RCOUNT(ICOUNT)=0
+      END IF
+      IF (MODE.NE.'FIRST') MODE='LAST'
+C
+      END IF
+C
+C
+      RETURN
+      END
+C======================================================================
+      SUBROUTINE XCFIND(MCOUNT,NCOUNT,MXRPNX,COUNT,SCOUNT,RCOUNT,
+     &                  RPNMX,RPNN,RPNX,RPN,RPNL,RPNDB,RPNMLT,RPNLEV,
+     &                  RPNI,VLEVEL,VMAX,VSTACK,NVARS)
+C
+C Routine finds the int/add/mult variables.
+C
+C Author: Axel T. Brunger
+C
+      IMPLICIT NONE
+C I/O
+      INCLUDE 'timer.inc'
+      INTEGER MCOUNT, NCOUNT, MXRPNX
+      DOUBLE PRECISION COUNT(*)
+      CHARACTER*(*) SCOUNT(*)
+      INTEGER RCOUNT(*)
+      INTEGER RPNMX, RPNN, RPNX
+      CHARACTER*(*) RPN(4,*)
+      INTEGER RPNL(4,*)
+      DOUBLE COMPLEX RPNDB(4,*)
+      INTEGER RPNMLT(*), RPNLEV(*), RPNI
+      INTEGER VLEVEL, VMAX, NVARS
+      DOUBLE COMPLEX VSTACK(NVARS,*)
+C local
+      INTEGER N, ICOUNT
+      LOGICAL FOUND, ERR
+C parameter
+      DOUBLE PRECISION ZERO
+      PARAMETER (ZERO=0.0D0)
+C begin
+C
+      ERR=.FALSE.
+C
+      N=0
+      FOUND=.FALSE.
+      DO WHILE (N.LT.NCOUNT.AND..NOT.FOUND)
+      N=N+1
+      FOUND=RPN(2,RPNI)(1:RPNL(2,RPNI)).EQ.SCOUNT(N)
+      END DO
+C
+      IF (FOUND) THEN
+C
+C the variable is in the stack
+C copy the current value
+      ICOUNT=N
+C
+      IF (WRNLEV.GE.10) THEN
+      WRITE(6,'(3A,F12.4)')
+     &  ' XCSUM: using int/add/mult variable "',SCOUNT(ICOUNT),
+     &  '" value= ',COUNT(ICOUNT)
+      END IF
+C
+      ELSE
+C
+C enough space on the int/add/mult variable stack?
+      IF (NCOUNT.GE.MCOUNT) THEN
+      CALL WRNDIE(-5,'XCFIND',
+     &  'Exceeded max. number of int/add/mult variables (MCOUNT).')
+      ERR=.TRUE.
+      ELSE
+      NCOUNT=NCOUNT+1
+      ICOUNT=NCOUNT
+      SCOUNT(ICOUNT)=RPN(2,RPNI)(1:RPNL(2,RPNI))
+      END IF
+C
+C find the int/add/mult that defines the variable
+      N=RPNI-1
+      FOUND=.FALSE.
+      DO WHILE (N.LT.RPNN.AND..NOT.FOUND)
+      N=N+1
+C
+C the counter variable must appear in a int/add/mult definition,
+C the int/add/mult variable's name must match,
+C and the int/add/mult variable must be defined on a higher level
+C than the int/add/mult definition.
+      FOUND=(RPN(1,N)(1:RPNL(1,N)).EQ.'INTEGRATE'.OR.
+     &       RPN(1,N)(1:RPNL(1,N)).EQ.'ADD'.OR.
+     &       RPN(1,N)(1:RPNL(1,N)).EQ.'MAXIMIZE'.OR.
+     &       RPN(1,N)(1:RPNL(1,N)).EQ.'IMAXIMIZE'.OR.
+     &       RPN(1,N)(1:RPNL(1,N)).EQ.'MULTIPLY')
+     &      .AND.RPN(2,N)(1:RPNL(2,N)).EQ.SCOUNT(ICOUNT)
+     &      .AND.RPNLEV(RPNI).GE.RPNLEV(N)
+      END DO
+C
+      IF (.NOT.FOUND) THEN
+      WRITE(6,'(3A)') ' %XCFIND-ERR: int/add/mult variable "',
+     &  SCOUNT(ICOUNT),'" is undefined. '
+      CALL WRNDIE(-5,'XCFIND','Cannot find int/add/mult.')
+      ERR=.TRUE.
+      END IF
+C
+      COUNT(ICOUNT)=DBLE(RPNDB(1,N))
+      RCOUNT(ICOUNT)=N
+C
+      IF (WRNLEV.GE.10) THEN
+      WRITE(6,'(3A,F12.4)')
+     &  ' XCSUM: initial. int/add/mult variable "',SCOUNT(ICOUNT),
+     &  '" to ',COUNT(ICOUNT)
+      END IF
+C
+C
+      END IF
+C
+      IF (.NOT.ERR) THEN
+      CALL XDOCONS(VLEVEL,VMAX,VSTACK,NVARS,COUNT(ICOUNT),ZERO)
+      END IF
+C
+      RETURN
+      END
+C======================================================================
+      SUBROUTINE XDOMULL(VLEVEL,VMAX,VSTACK,N,VALUE,IVALUE)
+C
+C multiply by constant.
+C
+C Author: Axel T. Brunger
+C
+C
+      IMPLICIT NONE
+C I/O
+      INTEGER VLEVEL, VMAX, N
+      DOUBLE COMPLEX VSTACK(N,*)
+      DOUBLE PRECISION VALUE, IVALUE
+C local
+      INTEGER I
+C begin
+      DO I=1,N
+      VSTACK(I,VLEVEL)=VSTACK(I,VLEVEL)*DCMPLX(VALUE,IVALUE)
+      END DO
+      RETURN
+      END
+C======================================================================
+      SUBROUTINE XINTSP(MCOUNT,NCOUNT,MXRPNX,COUNT,SCOUNT,RCOUNT,
+     &                  RPNMX,RPNN,RPNX,RPN,RPNL,RPNDB,RPNMLT,RPNLEV,
+     &                  RPNI,VLEVEL,VMAX,VSTACK,NVARS)
+C
+C Compute integral, sum, product
+C
+C Author: Axel T. Brunger
+C
+      IMPLICIT NONE
+C I/O
+      INTEGER MCOUNT, NCOUNT, MXRPNX
+      DOUBLE PRECISION COUNT(*)
+      CHARACTER*(*) SCOUNT(*)
+      INTEGER RCOUNT(*)
+      INTEGER RPNMX, RPNN, RPNX
+      CHARACTER*(*) RPN(4,*)
+      INTEGER RPNL(4,*)
+      DOUBLE COMPLEX RPNDB(4,*)
+      INTEGER RPNMLT(*), RPNLEV(*), RPNI
+      INTEGER VLEVEL, VMAX, NVARS
+      DOUBLE COMPLEX VSTACK(NVARS,*)
+C local
+      LOGICAL QINT, QPROD, ERR, QMAX, QIMAX, QADD
+      CHARACTER*10 MODE
+      DOUBLE COMPLEX CTEMP
+      INTEGER ICOUNT, I
+      DOUBLE PRECISION CURRVAR
+C parameter
+      DOUBLE PRECISION ZERO, HALF
+      PARAMETER (ZERO=0.0D0, HALF=0.5D0)
+C begin
+      ERR=.FALSE.
+      QINT=RPN(1,RPNI)(1:RPNL(1,RPNI)).EQ.'INTEGRATE'
+      QADD=RPN(1,RPNI)(1:RPNL(1,RPNI)).EQ.'ADD'
+      QPROD=RPN(1,RPNI)(1:RPNL(1,RPNI)).EQ.'MULTIPLY'
+      QMAX=RPN(1,RPNI)(1:RPNL(1,RPNI)).EQ.'MAXIMIZE'
+      QIMAX=RPN(1,RPNI)(1:RPNL(1,RPNI)).EQ.'IMAXIMIZE'
+      CALL XCSUM(MCOUNT,NCOUNT,MXRPNX,COUNT,SCOUNT,RCOUNT,
+     &                  RPNMX,RPNN,RPNX,RPN,RPNL,RPNDB,RPNMLT,RPNLEV,
+     &                  RPNI,ICOUNT,ERR,MODE,CURRVAR)
+      IF (MODE.EQ.'FIRST'.AND..NOT.ERR) THEN
+C
+C for integral divide by two
+      IF (QINT) CALL XDOMULL(VLEVEL,VMAX,VSTACK,NVARS,HALF,ZERO)
+C
+C for IMAXIMIZE we have to store the value of the counter
+      IF (QIMAX) THEN
+      CALL XDOCONS(VLEVEL,VMAX,VSTACK,NVARS,
+     &           CURRVAR,ZERO)
+C swap stack elements.
+      DO I=1,NVARS
+      CTEMP=VSTACK(I,VLEVEL-1)
+      VSTACK(I,VLEVEL-1)=VSTACK(I,VLEVEL)
+      VSTACK(I,VLEVEL)=CTEMP
+      END DO
+      END IF
+C
+      ELSEIF (MODE.EQ.'LAST'.AND..NOT.ERR) THEN
+C
+C for integral divide by two
+      IF (QINT) CALL XDOMULL(VLEVEL,VMAX,VSTACK,NVARS,HALF,ZERO)
+C add/multiply
+      IF (QPROD) THEN
+      CALL XDOMULT(VLEVEL,VMAX,VSTACK,NVARS)
+      ELSEIF (QADD.OR.QINT) THEN
+      CALL XDOPLUS(VLEVEL,VMAX,VSTACK,NVARS)
+      ELSEIF (QMAX) THEN
+      CALL XDOMAX(VLEVEL,VMAX,VSTACK,NVARS,2)
+      ELSEIF (QIMAX) THEN
+      CALL XDOIMAX(VLEVEL,VMAX,VSTACK,NVARS,CURRVAR)
+C push the stack
+      VLEVEL=VLEVEL-1
+      END IF
+C for integral multiply by delta
+      IF (QINT) THEN
+      CALL XDOMULL(VLEVEL,VMAX,VSTACK,NVARS,DBLE(RPNDB(3,RPNI)),ZERO)
+      END IF
+      ELSEIF (.NOT.ERR) THEN
+C
+C add/multiply
+      IF (QPROD) THEN
+      CALL XDOMULT(VLEVEL,VMAX,VSTACK,NVARS)
+      ELSEIF (QADD.OR.QINT) THEN
+      CALL XDOPLUS(VLEVEL,VMAX,VSTACK,NVARS)
+      ELSEIF (QMAX) THEN
+      CALL XDOMAX(VLEVEL,VMAX,VSTACK,NVARS,2)
+      ELSEIF (QIMAX) THEN
+      CALL XDOIMAX(VLEVEL,VMAX,VSTACK,NVARS,CURRVAR)
+      END IF
+      END IF
+      RETURN
+      END
+C======================================================================
+      SUBROUTINE NEXTDX(PROMPT)
+C
+C Same as NEXTDO except that symbol substitutions are
+C performed.
+C Author: Axel T. Brunger
+C =======================
+C
+      IMPLICIT NONE
+C input/output
+      INCLUDE 'cns.inc'
+      INCLUDE 'comand.inc'
+      CHARACTER*(*) PROMPT
+C begin
+C
+C expression mode
+      QEXPRS=.TRUE.
+C
+      CALL NEXTWD(PROMPT)
+C
+C don't add quotes if this was already done (could happen
+C when using SAVEWD).
+      IF (QQUOT.AND.(WD(1:1).NE.'"'.OR.WD(WDLEN:WDLEN).NE.'"')) THEN
+      WD='"'//WD(1:WDLEN)//'"'
+      WDLEN=WDLEN+2
+      END IF
+      QEXPRS=.FALSE.
+      RETURN
+      END
+C======================================================================
+      SUBROUTINE XDOSCALE(RPNN,RPN,RPNL,RPNLEV,
+     &         RPNI,VLEVEL,VMAX,VSTACK,LSTACK,N,INDEX,
+     &         XRNSYM,QHERM,
+     &         XRTR,XRMREF,HPH,HPK,HPL,
+     &         HPMULT,HPTYPE,
+     &         XSFNUM,XSFNAM,XSFTYPE,HPSF,MBINS,
+     &         XBINLOW,XBINHIGH,BINSHELL,XRCELL,XRVOL)
+C
+C Routine computes the SCALE function and the SHAPE function
+C between two structure factor data sets, i.e.
+C
+C   SCALE(X,Y) is a fit of K minimizing [X - K*Y]
+C   SHAPE(X,Y) is a fit of K and B minimizing [X - K*EXP(-B*S^2/4)*Y]
+C
+C Parameters K and B are stored in symbols $K_BIN<i> and $B_BIN<i>
+C
+C Note:    This is a special operation, i.e., N has to include
+C          all selected structure factor elements (see routine XDOSPCL).
+C
+C
+C Authors: J.-S. Jiang and Axel T. Brunger
+C
+      IMPLICIT NONE
+C I/O
+      INCLUDE 'cns.inc'
+      INCLUDE 'consta.inc'
+      INCLUDE 'heap.inc'
+      INCLUDE 'funct.inc'
+C
+      INTEGER RPNN
+      CHARACTER*(*) RPN(4,*)
+      INTEGER RPNL(4,*)
+      INTEGER RPNLEV(*), RPNI
+      INTEGER VLEVEL, VMAX, N
+      DOUBLE COMPLEX VSTACK(N,*)
+      LOGICAL LSTACK(N,*)
+      INTEGER INDEX(*)
+      INTEGER XRNSYM
+      LOGICAL QHERM
+      DOUBLE PRECISION XRTR(3,3)
+      INTEGER XRMREF, HPH, HPK, HPL
+      INTEGER HPMULT, HPTYPE
+      INTEGER XSFNUM
+      CHARACTER*(*) XSFNAM(*), XSFTYPE(*)
+      INTEGER HPSF(*)
+      INTEGER MBINS
+      DOUBLE PRECISION XBINHIGH, XBINLOW, BINSHELL(*)
+      DOUBLE PRECISION XRCELL(6), XRVOL
+C pointer
+      INTEGER XEDNI, BINK, BINB, ISHELL, BINDEX
+C begin
+C
+C
+C allocate space for the selection
+C
+      BINK=ALLHP(IREAL8(MBINS))
+      BINB=ALLHP(IREAL8(MBINS))
+      ISHELL=ALLHP(INTEG4(N))
+      BINDEX=ALLHP(INTEG4(N))
+      XEDNI=ALLHP(INTEG4(XRMREF))
+      CALL XDOSCALE2(RPNN,RPN,RPNL,RPNLEV,
+     &         RPNI,VLEVEL,VMAX,VSTACK,LSTACK,N,INDEX,
+     &         XRNSYM,QHERM,
+     &         XRTR,XRMREF,HPH,HPK,HPL,
+     &         HPMULT,HPTYPE,
+     &         XSFNUM,XSFNAM,XSFTYPE,HPSF,
+     &         HEAP(XEDNI),MBINS,XBINLOW,XBINHIGH,BINSHELL,
+     &         HEAP(BINK),HEAP(BINB),
+     &         HEAP(ISHELL),HEAP(BINDEX),XRCELL,XRVOL)
+      CALL FREHP(XEDNI,INTEG4(XRMREF))
+      CALL FREHP(BINDEX,INTEG4(N))
+      CALL FREHP(ISHELL,INTEG4(N))
+      CALL FREHP(BINB,IREAL8(MBINS))
+      CALL FREHP(BINK,IREAL8(MBINS))
+      RETURN
+      END
+C======================================================================
+      SUBROUTINE XDOSCALE2(RPNN,RPN,RPNL,RPNLEV,
+     &         RPNI,VLEVEL,VMAX,VSTACK,LSTACK,N,INDEX,
+     &         XRNSYM,QHERM,
+     &         XRTR,XRMREF,HPH,HPK,HPL,
+     &         HPMULT,HPTYPE,
+     &         XSFNUM,XSFNAM,XSFTYPE,HPSF,
+     &         XEDNI,MBINS,XBINLOW,XBINHIGH,BINSHELL,
+     &         BINK,BINB,ISHELL,BINDEX,XRCELL,XRVOL)
+C
+C SCALE and SHAPE functions,  see above
+C
+C Authors: J.-S. Jiang and Axel T. Brunger
+C
+      IMPLICIT NONE
+C I/O
+      INCLUDE 'cns.inc'
+      INCLUDE 'consta.inc'
+      INCLUDE 'heap.inc'
+      INCLUDE 'funct.inc'
+      INCLUDE 'timer.inc'
+      INTEGER RPNN
+      CHARACTER*(*) RPN(4,*)
+      INTEGER RPNL(4,*)
+      INTEGER RPNLEV(*), RPNI
+      INTEGER VLEVEL, VMAX, N
+      DOUBLE COMPLEX VSTACK(N,*)
+      LOGICAL LSTACK(N,*)
+      INTEGER INDEX(*)
+      INTEGER XRNSYM
+      LOGICAL QHERM
+      DOUBLE PRECISION XRTR(3,3)
+      INTEGER XRMREF, HPH, HPK, HPL
+      INTEGER HPMULT, HPTYPE
+      INTEGER XSFNUM
+      CHARACTER*(*) XSFNAM(*), XSFTYPE(*)
+      INTEGER HPSF(*)
+      INTEGER XEDNI(*)
+      INTEGER MBINS
+      DOUBLE PRECISION XBINHIGH, XBINLOW, BINSHELL(*)
+      DOUBLE PRECISION BINK(*), BINB(*)
+      INTEGER ISHELL(*), BINDEX(*)
+      DOUBLE PRECISION XRCELL(6), XRVOL
+C local
+      INTEGER REFLCT
+      DOUBLE PRECISION KSCAL(2), BSCAL(2), PARAM(4)
+      DOUBLE COMPLEX ARG(2)
+      DOUBLE PRECISION FOSUM, FO2SUM, FOSUM1, FOSUM2
+      CHARACTER*6 SET(2)
+      LOGICAL ERR
+      INTEGER MAXSET, TGSET
+      INTEGER HPSFSET(2), NNSET(2), TYPESF(2)
+      CHARACTER*4 MODE, UNIF
+      LOGICAL QUPDA
+      INTEGER NCYC, DIAG, FIXMOD
+      DOUBLE PRECISION EPS, KSMIN, BFMIN, BFMAX, KRES
+      DOUBLE PRECISION KINI, BINI
+      DOUBLE PRECISION FFK1, FFK2, FFK
+      DOUBLE PRECISION RVAL, TARG
+      LOGICAL QFFK1, QFFK2, QTLOW, XRFFKQ
+      DOUBLE COMPLEX DUCOMP
+      DOUBLE PRECISION TEMP
+      CHARACTER*32 WD, CTEMP
+      INTEGER WDLEN, WDMAX
+      LOGICAL QVSTACK
+      INTEGER IND, NNBIN, SILENT
+      LOGICAL QANISO, QISO
+      INTEGER MPERSET
+      DOUBLE PRECISION ABCS(3)
+      CHARACTER*4 RESTRC
+C parameters
+      DOUBLE PRECISION MARK, ONE, ZERO, BLARGE
+      PARAMETER (MARK=-9999.D0, ONE=1.0D0, ZERO=0.0D0, BLARGE=500.0D0)
+C begin
+C
+      WDMAX=9
+      WDLEN=9
+C
+C make all defaults
+      QVSTACK=.TRUE.
+      DO REFLCT=1,XRMREF
+      XEDNI(REFLCT)=0
+      END DO
+      FFK1=ZERO
+      FFK2=ZERO
+      FFK=ONE
+      QFFK1=.TRUE.
+      QFFK2=.TRUE.
+      QTLOW=.FALSE.
+      XRFFKQ=.TRUE.
+      SILENT=10
+      QANISO=.FALSE.
+      QISO=.TRUE.
+      MPERSET=2
+      RESTRC=' '
+C
+      MODE='TARG'
+      QUPDA=.TRUE.
+      NCYC=30
+      DIAG=0
+      EPS=0.001D0
+      KSMIN=ZERO
+      BFMIN=-BLARGE
+      BFMAX=BLARGE
+      FIXMOD=0
+      UNIF=' '
+      KINI=ONE
+      BINI=ZERO
+      KRES=ZERO
+C
+      ERR=.FALSE.
+      TGSET=1
+C
+C defaults for the first argument (y)
+      SET(1)='Y'
+      HPSFSET(1)=1
+      TYPESF(1)=1
+      NNSET(1)=1
+      KSCAL(1)=-ONE
+      BSCAL(1)=ZERO
+      PARAM(1)=KSCAL(1)
+      PARAM(2)=BSCAL(1)
+C
+C defaults for the second argument (x)
+      SET(2)='X'
+      HPSFSET(2)=1
+      TYPESF(2)=1
+      NNSET(2)=2
+      KSCAL(2)=ONE
+      BSCAL(2)=ZERO
+C
+C two-argument function only
+      MAXSET=2
+C
+C explain the function
+      IF (WRNLEV.GE.10) THEN
+      IF (RPN(1,RPNI)(1:RPNL(1,RPNI)).EQ.'SCALE') THEN
+      WRITE(6,'(A,A/A)') ' XDOSCALE: result of scaling operation',
+     & ' minimizes [X - SCALE(X,Y)*Y]',
+     & ' XDOSCALE: where SCALE(X,Y) = $K is a constant'
+      ELSE IF (RPN(1,RPNI)(1:RPNL(1,RPNI)).EQ.'SHAPE') THEN
+      WRITE(6,'(A,A/A)') ' XDOSCALE: result of scaling operation',
+     & ' minimizes [X - SHAPE(X,Y)*Y]',
+     & ' XDOSCALE: where SHAPE(X,Y) = $K*EXP(-$B*S^2/4)'
+      END IF
+      END IF
+C
+C check data selection
+      IF (N.LE.0) THEN
+      CALL WRNDIE(-5,'XDOSCALE','number of selected elements is zero')
+      END IF
+C reverse the INDEX array to XEDNI (serial number)
+      DO REFLCT=1,N
+      XEDNI(INDEX(REFLCT))=REFLCT
+      END DO
+C
+C preparation and partition reflections into resolution bins
+      CALL XDOBINPP(N,INDEX,XRTR,HEAP(HPH),HEAP(HPK),HEAP(HPL),
+     &              MBINS,XBINLOW,XBINHIGH,BINSHELL,ISHELL)
+C
+C initialize bin-wise parameters
+      DO IND=1,MBINS
+      BINK(IND)=ONE
+      BINB(IND)=ZERO
+      END DO
+C
+C optimize bin-wise parameters
+      DO IND=1,MBINS
+C
+C pack working indices for each bin
+      NNBIN=0
+      DO REFLCT=1,N
+      IF (ISHELL(REFLCT).EQ.IND) THEN
+      NNBIN=NNBIN+1
+      BINDEX(NNBIN)=INDEX(REFLCT)
+      END IF
+      END DO
+C
+C just skip if the number of reflection is zero in this bin
+      IF (NNBIN.GT.0) THEN
+C
+C determine the scale function directly
+      IF (RPN(1,RPNI)(1:RPNL(1,RPNI)).EQ.'SCALE') THEN
+      PARAM(3)=KSCAL(2)
+      PARAM(4)=BSCAL(2)
+      CALL XSCFFKO(FFK,XRFFKQ,FOSUM,FO2SUM,ERR,
+     &             KRES,FFK1,FFK2,QFFK1,QFFK2,FOSUM1,FOSUM2,
+     &             ARG,PARAM,
+     &             HEAP(HPH),HEAP(HPK),HEAP(HPL),
+     &             NNBIN,BINDEX,
+     &             MAXSET,TGSET,HPSFSET,TYPESF,
+     &             QVSTACK,VLEVEL,VMAX,VSTACK,N,XEDNI,
+     &             QANISO,QISO,MPERSET,ABCS,XRTR)
+      BINK(IND)=FFK
+C
+C determine the shape function by the least-squares minimization
+      ELSE IF (RPN(1,RPNI)(1:RPNL(1,RPNI)).EQ.'SHAPE') THEN
+      KSCAL(2)=MARK
+      BSCAL(2)=MARK
+      CALL XSCALIT(KSCAL,BSCAL,NNBIN,BINDEX,MARK,
+     &             HEAP(HPH),HEAP(HPK),HEAP(HPL),
+     &             MAXSET,TGSET,NNSET,HPSFSET,TYPESF,SET,
+     &             MODE,NCYC,DIAG,EPS,KSMIN,BFMIN,BFMAX,
+     &             FIXMOD,KRES,KINI,BINI,QUPDA,FFK,RVAL,TARG,
+     &             XRFFKQ,FFK1,FFK2,QFFK1,QFFK2,QTLOW,
+     &             QVSTACK,VLEVEL,VMAX,VSTACK,N,XEDNI,
+     &             SILENT,QANISO,QISO,RESTRC,XRTR,XRCELL,XRVOL)
+      BINK(IND)=KSCAL(2)
+      BINB(IND)=BSCAL(2)
+      END IF
+C
+      END IF
+C
+      END DO
+C
+C declare symbols.
+      DO IND=1,MBINS
+      CALL ENCODI(IND,WD,WDMAX,WDLEN)
+      TEMP=BINK(IND)
+      CTEMP='K_BIN'//WD(1:WDLEN)
+      CALL DECLAR(CTEMP(1:WDLEN+5),'DP',' ',DUCOMP,TEMP)
+      TEMP=BINB(IND)
+      CTEMP='B_BIN'//WD(1:WDLEN)
+      CALL DECLAR(CTEMP(1:WDLEN+5),'DP',' ',DUCOMP,TEMP)
+      END DO
+C
+      IF (WRNLEV.GE.5) THEN
+      CTEMP='.'
+      IND=1
+      IF (RPN(1,RPNI)(1:RPNL(1,RPNI)).EQ.'SCALE') THEN
+      IF (MBINS.GT.1) THEN
+      CTEMP=', ..., $K_BIN'//WD(1:WDLEN)
+      IND=WDLEN+13
+      END IF
+      WRITE(6,'(A,A,A)') ' XDOSCALE: ',
+     & ' scale factors are stored in symbols $K_BIN1',
+     & CTEMP(1:WDLEN+13)
+      ELSE IF (RPN(1,RPNI)(1:RPNL(1,RPNI)).EQ.'SHAPE') THEN
+      IF (MBINS.GT.1) THEN
+      CTEMP=', ..., $K_BIN'//WD(1:WDLEN)//', $B_BIN'//WD(1:WDLEN)
+      IND=2*WDLEN+21
+      END IF
+      WRITE(6,'(A,A,A)') ' XDOSCALE: ',
+     & ' scale and B factors are stored in $K_BIN1, $B_BIN1',
+     & CTEMP(1:IND)
+      END IF
+      END IF
+C
+C do we need the overall scale factor for bin-wise scaling?
+      IF (MBINS.EQ.1) THEN
+      CALL DECLAR( 'XSCFFK', 'DP', ' ', DUCOMP, FFK )
+      IF (WRNLEV.GE.5) THEN
+      WRITE(6,'(A)')
+     & ' XDOSCALE: the overall scale is stored in $XSCFFK'
+      END IF
+      END IF
+C
+C store the function values (LHS) in stack
+      CALL XDOSCLUP(VLEVEL,VMAX,VSTACK,LSTACK,N,INDEX,
+     &              XRTR,HEAP(HPH),HEAP(HPK),HEAP(HPL),
+     &              BINK,BINB,ISHELL)
+C
+C
+      RETURN
+      END
+C======================================================================
+      SUBROUTINE XDOBINPP(N,INDEX,XRTR,XRH,XRK,XRL,MBINS,
+     &                   XBINLOW,XBINHIGH,BINSHELL,ISHELL)
+C
+C Creates array that assigns each reflection to a particular
+C resolution-dependent bin.  Reflections that are outside
+C the bin range will be given an index of 0.
+C
+C Author: Axel T. Brunger
+C
+      IMPLICIT NONE
+C I/O
+      INCLUDE 'consta.inc'
+      INCLUDE 'timer.inc'
+      INTEGER N
+      INTEGER INDEX(*)
+      DOUBLE PRECISION XRTR(3,3)
+      INTEGER XRH(*), XRK(*), XRL(*)
+      INTEGER MBINS
+      DOUBLE PRECISION XBINHIGH, XBINLOW, BINSHELL(*)
+      INTEGER ISHELL(*)
+C local
+      INTEGER REFLCT
+      LOGICAL COND, OUTSIDE
+      INTEGER H, K, L, BIN
+      DOUBLE PRECISION SSQ
+C parameters
+      DOUBLE PRECISION ZERO, ONE, TWO, THREE
+      PARAMETER (ZERO=0.0D0, ONE=1.0D0, TWO=2.0D0, THREE=3.0D0)
+C begin
+C
+      IF (XBINLOW.EQ.ZERO.AND.XBINHIGH.EQ.ZERO) THEN
+      CALL WRNDIE(-1,'XDOBINPP',
+     & ' Fatal error -- BINResolution not specified. ')
+      ELSE
+C
+      OUTSIDE=.FALSE.
+C
+C compute shell bin for each reflection
+      DO REFLCT=1,N
+      H=XRH(INDEX(REFLCT))
+      K=XRK(INDEX(REFLCT))
+      L=XRL(INDEX(REFLCT))
+      SSQ=  (XRTR(1,1)*H + XRTR(2,1)*K + XRTR(3,1)*L)**2
+     &    + (XRTR(1,2)*H + XRTR(2,2)*K + XRTR(3,2)*L)**2
+     &    + (XRTR(1,3)*H + XRTR(2,3)*K + XRTR(3,3)*L)**2
+      BIN=1
+      COND=.FALSE.
+      DO WHILE (.NOT.COND.AND.BIN.LE.MBINS)
+      BIN=BIN+1
+      COND= (SSQ.GE.BINSHELL(BIN).AND.SSQ.LE.BINSHELL(BIN-1))
+      END DO
+C
+      IF (COND) THEN
+      ISHELL(REFLCT)=BIN-1
+      ELSE
+      OUTSIDE=.TRUE.
+      ISHELL(REFLCT)=0
+      END IF
+      END DO
+C
+      IF (OUTSIDE) THEN
+      WRITE(6,'(2A)' )
+     & ' XDOBINPP-info: BINResolution range smaller than selection! ',
+     & ' Elements outside range will be 0. '
+      END IF
+C
+      END IF
+C
+      RETURN
+      END
+C======================================================================
+      SUBROUTINE XDOBINPO(N,INDEX,XRTR,XRH,XRK,XRL,MBINS,
+     &                   XBINLOW,XBINHIGH,BINSHELL,ISHELL)
+C
+C Creates array that assigns each reflection to the overall
+C resolution range.  Reflections that are outside
+C the overall bin range will be given an index of 0.
+C
+C
+C Author: Axel T. Brunger
+C
+      IMPLICIT NONE
+C I/O
+      INCLUDE 'consta.inc'
+      INCLUDE 'timer.inc'
+      INTEGER N
+      INTEGER INDEX(*)
+      DOUBLE PRECISION XRTR(3,3)
+      INTEGER XRH(*), XRK(*), XRL(*)
+      INTEGER MBINS
+      DOUBLE PRECISION XBINHIGH, XBINLOW, BINSHELL(*)
+      INTEGER ISHELL(*)
+C local
+      INTEGER REFLCT
+      LOGICAL COND
+      INTEGER H, K, L
+      DOUBLE PRECISION SSQ
+C parameters
+      DOUBLE PRECISION ZERO, ONE, TWO, THREE
+      PARAMETER (ZERO=0.0D0, ONE=1.0D0, TWO=2.0D0, THREE=3.0D0)
+C begin
+C
+C compute shell bin for each reflection
+      DO REFLCT=1,N
+      H=XRH(INDEX(REFLCT))
+      K=XRK(INDEX(REFLCT))
+      L=XRL(INDEX(REFLCT))
+      SSQ=  (XRTR(1,1)*H + XRTR(2,1)*K + XRTR(3,1)*L)**2
+     &    + (XRTR(1,2)*H + XRTR(2,2)*K + XRTR(3,2)*L)**2
+     &    + (XRTR(1,3)*H + XRTR(2,3)*K + XRTR(3,3)*L)**2
+      COND= (SSQ.GE.BINSHELL(MBINS+1).AND.SSQ.LE.BINSHELL(1))
+      IF (COND) THEN
+      ISHELL(REFLCT)=1
+      ELSE
+      ISHELL(REFLCT)=0
+      END IF
+      END DO
+C
+      RETURN
+      END
+C======================================================================
+      SUBROUTINE XDOSCLUP(VLEVEL,VMAX,VSTACK,LSTACK,N,INDEX,
+     &                    XRTR,XRH,XRK,XRL,BINK,BINB,ISHELL)
+C
+C stores scale factors to the left-hand side of stack
+C
+C Authors: J.-S. Jiang and Axel T. Brunger
+C
+      IMPLICIT NONE
+C I/O
+      INTEGER VLEVEL, VMAX, N
+      DOUBLE COMPLEX VSTACK(N,*)
+      LOGICAL LSTACK(N,*)
+      INTEGER INDEX(*)
+      DOUBLE PRECISION XRTR(3,3)
+      INTEGER XRH(*), XRK(*), XRL(*)
+      DOUBLE PRECISION BINK(*), BINB(*)
+      INTEGER ISHELL(*)
+C local
+      INTEGER REFLCT, H, K, L
+      DOUBLE PRECISION SSQ
+C parameters
+      DOUBLE PRECISION QUART, ZERO
+      PARAMETER (QUART=0.25D0, ZERO=0.0D0)
+C begin
+C
+      VLEVEL=VLEVEL-1
+C
+      DO REFLCT=1,N
+      IF (ISHELL(REFLCT).GT.0) THEN
+      H=XRH(INDEX(REFLCT))
+      K=XRK(INDEX(REFLCT))
+      L=XRL(INDEX(REFLCT))
+      SSQ=  (XRTR(1,1)*H + XRTR(2,1)*K + XRTR(3,1)*L)**2
+     &    + (XRTR(1,2)*H + XRTR(2,2)*K + XRTR(3,2)*L)**2
+     &    + (XRTR(1,3)*H + XRTR(2,3)*K + XRTR(3,3)*L)**2
+      VSTACK(REFLCT,VLEVEL)=BINK(ISHELL(REFLCT))
+     &                      *EXP(-BINB(ISHELL(REFLCT))*SSQ*QUART)
+      ELSE
+      VSTACK(REFLCT,VLEVEL)=DCMPLX(ZERO,ZERO)
+      END IF
+      END DO
+C
+      RETURN
+      END
+C
+C =========================================================================
+C
+      SUBROUTINE XDODIST(VLEVEL,VMAX,VSTACK,LSTACK,N,INDEX,
+     &                   XRTR,XRMREF,HPH,HPK,HPL,
+     &                   MBINS,XBINLOW,XBINHIGH,BINSHELL)
+C
+C distribute function.
+C
+C calculate binwise average of all non-zero values in a bin
+C the average is then distributed to all values in that bin.
+C any zero value (empty) bins will be interpolated/extrapolated
+C from surrounding non-zero bins.
+C
+C intended use is for cross-validated sigmaa values.
+C
+C this is a special operation, i.e., N has to include
+C all structure factor elements (see routine XDOSPCL).
+C
+C Author: Paul D. Adams
+C
+      IMPLICIT NONE
+C I/O
+      INCLUDE 'cns.inc'
+      INCLUDE 'consta.inc'
+      INCLUDE 'heap.inc'
+      INCLUDE 'funct.inc'
+C
+      INTEGER VLEVEL, VMAX, N
+      DOUBLE COMPLEX VSTACK(N,*)
+      LOGICAL LSTACK(N,*)
+      INTEGER INDEX(*)
+      DOUBLE PRECISION XRTR(3,3)
+      INTEGER XRMREF, HPH, HPK, HPL
+      INTEGER MBINS
+      DOUBLE PRECISION XBINHIGH, XBINLOW, BINSHELL(*)
+C pointer
+      INTEGER BINAVG, NUMAVG, ISHELL, QFULL
+C begin
+      BINAVG=ALLHP(ICPLX8(MBINS))
+      NUMAVG=ALLHP(IREAL8(MBINS))
+      QFULL=ALLHP(ILOGIC(MBINS))
+      ISHELL=ALLHP(INTEG4(N))
+      CALL XDODIST2(VLEVEL,VMAX,VSTACK,LSTACK,N,INDEX,
+     &              XRTR,XRMREF,HEAP(HPH),HEAP(HPK),HEAP(HPL),
+     &              MBINS,XBINLOW,XBINHIGH,BINSHELL,
+     &              HEAP(BINAVG),HEAP(NUMAVG),HEAP(QFULL),
+     &              HEAP(ISHELL))
+      CALL FREHP(ISHELL,INTEG4(N))
+      CALL FREHP(QFULL,ILOGIC(MBINS))
+      CALL FREHP(NUMAVG,IREAL8(MBINS))
+      CALL FREHP(BINAVG,ICPLX8(MBINS))
+C
+      RETURN
+      END
+C
+C =========================================================================
+C
+      SUBROUTINE XDODIST2(VLEVEL,VMAX,VSTACK,LSTACK,N,INDEX,
+     &                    XRTR,XRMREF,XRH,XRK,XRL,
+     &                    MBINS,XBINLOW,XBINHIGH,BINSHELL,
+     &                    BINAVG,NUMAVG,QFULL,ISHELL)
+C
+C Author: Paul D. Adams
+C
+      IMPLICIT NONE
+C I/O
+      INCLUDE 'consta.inc'
+      INCLUDE 'timer.inc'
+      INTEGER VLEVEL, VMAX, N
+      DOUBLE COMPLEX VSTACK(N,*)
+      LOGICAL LSTACK(N,*)
+      INTEGER INDEX(*)
+      DOUBLE PRECISION XRTR(3,3)
+      INTEGER XRMREF, XRH(*), XRK(*), XRL(*)
+      INTEGER MBINS
+      DOUBLE PRECISION XBINHIGH, XBINLOW, BINSHELL(*)
+      DOUBLE COMPLEX BINAVG(*)
+      DOUBLE PRECISION NUMAVG(*)
+      LOGICAL QFULL(*)
+      INTEGER ISHELL(*)
+C local
+      INTEGER REFLCT, IND, IND1, IND2, NFULL
+      DOUBLE PRECISION W1, W2, ONEBINAVG
+C parameter
+      DOUBLE PRECISION ZERO, ONE
+      PARAMETER (ZERO=0.0D0, ONE=1.0D0)
+C begin
+C
+      IF (N.GT.0) THEN
+C
+C partition reflections into resolution bins
+      IF (MBINS.GT.1) THEN
+      CALL XDOBINPP(N,INDEX,XRTR,XRH,XRK,XRL,MBINS,
+     &              XBINLOW,XBINHIGH,BINSHELL,ISHELL)
+      ELSE
+      CALL XDOBINPO(N,INDEX,XRTR,XRH,XRK,XRL,MBINS,
+     &              XBINLOW,XBINHIGH,BINSHELL,ISHELL)
+      END IF
+C
+C initialize averages
+      DO IND=1,MBINS
+      BINAVG(IND)=ZERO
+      NUMAVG(IND)=ZERO
+      QFULL(IND)=.FALSE.
+      END DO
+      NFULL=0
+      ONEBINAVG=ZERO
+C
+C compute the structure factor averages for each bin
+      DO REFLCT=1,N
+      IF (ISHELL(REFLCT).GT.0) THEN
+      IF (ABS(VSTACK(REFLCT,VLEVEL)).GT.ZERO) THEN
+      BINAVG(ISHELL(REFLCT))=BINAVG(ISHELL(REFLCT)) +
+     &                       VSTACK(REFLCT,VLEVEL)
+      NUMAVG(ISHELL(REFLCT))=NUMAVG(ISHELL(REFLCT)) + ONE
+      END IF
+      END IF
+      END DO
+C
+C compute averages
+      DO IND=1,MBINS
+      IF (NUMAVG(IND).GT.RSMALL) THEN
+      BINAVG(IND)=BINAVG(IND)/NUMAVG(IND)
+      ELSE
+      BINAVG(IND)=ZERO
+      END IF
+      IF (ABS(BINAVG(IND)).GT.RSMALL) THEN
+        QFULL(IND)=.TRUE.
+        ONEBINAVG=BINAVG(IND)
+        NFULL=NFULL+1
+      END IF
+      END DO
+C
+C do interpolation/extrapolation if required
+      IF (NFULL.GT.1) THEN
+        DO IND=1,MBINS
+        IF (.NOT.QFULL(IND)) THEN
+        CALL NAYBRS(QFULL,MBINS,IND,IND1,IND2)
+        W1=DBLE(IND2-IND)/DBLE(IND2-IND1)
+        IF ((IND1.GT.IND).AND.(IND2.GT.IND).AND.
+     &      (ABS(BINAVG(IND1)).GT.ABS(BINAVG(IND2)))) THEN
+        W1=ONE
+        END IF
+        W2=ONE-W1
+        BINAVG(IND)=W1*BINAVG(IND1) + W2*BINAVG(IND2)
+        END IF
+        END DO
+      ELSE
+        DO IND=1,MBINS
+        BINAVG(IND)=ONEBINAVG
+        END DO
+      END IF
+C
+C write bin averages into the reflection stack
+      DO REFLCT=1,N
+      IF (ISHELL(REFLCT).GT.0) THEN
+      VSTACK(REFLCT,VLEVEL)=BINAVG(ISHELL(REFLCT))
+      ELSE
+      VSTACK(REFLCT,VLEVEL)=DCMPLX(ZERO,ZERO)
+      END IF
+      END DO
+C
+      END IF
+C
+      RETURN
+      END
+C =========================================================================

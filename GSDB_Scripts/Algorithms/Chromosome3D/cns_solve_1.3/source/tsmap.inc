@@ -1,0 +1,10 @@
+      INTEGER  PREVUN(3), MSTATU
+      INTEGER  PTRINU
+      INTEGER  PREVVN(3), MSTATV
+      INTEGER  PTRINV
+      COMMON /TSINT/ PREVUN, MSTATU,
+     &               PREVVN, MSTATV
+      COMMON /TSPTR/ PTRINU,
+     &               PTRINV
+      SAVE /TSINT/
+      SAVE /TSPTR/

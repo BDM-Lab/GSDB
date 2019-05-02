@@ -1,0 +1,387 @@
+          ============================================================
+          |                                                          |
+          |            Crystallography & NMR System (CNS)            |
+          |                         CNSsolve                         |
+          |                                                          |
+          ============================================================
+           Version: 1.3
+           Status: General release
+          ============================================================
+           Written by: A.T.Brunger, P.D.Adams, G.M.Clore, W.L.DeLano,
+                       P.Gros, R.W.Grosse-Kunstleve,J.-S.Jiang,J.M.Krahn,
+                       J.Kuszewski, M.Nilges, N.S.Pannu, R.J.Read,
+                       L.M.Rice, G.F.Schroeder, T.Simonson, G.L.Warren.
+           Copyright (c) 1997-2010 Yale University
+          ============================================================
+           Running on machine: lewis4-r710-login-node223 (x86_64/Linux,64-bit)
+                               with 16 threads
+           Program started by: oeow39
+           Program started at: 16:08:09 on 05-Jul-2018
+          ============================================================
+
+ FFT3C: Using FFTPACK4.1
+
+ CNSsolve>remarks file symbols.inp  -- test symbol substitutions 
+ CNSsolve> 
+ CNSsolve>eval ($1=3.4 ) 
+ EVALUATE: symbol $1 set to    3.40000     (real)
+ CNSsolve>display $1 
+3.4
+ CNSsolve>eval ($1=test ) 
+ Assuming literal string "TEST"
+ EVALUATE: symbol $1 set to "TEST" (string)
+ CNSsolve>display $1 
+TEST
+ CNSsolve>eval ($1="test") 
+ EVALUATE: symbol $1 set to "test" (string)
+ CNSsolve>eval ($$1="test") 
+ Assuming literal string "TEST"
+ EVALUATE: symbol TEST set to "test" (string)
+ CNSsolve>display $1 
+test
+ CNSsolve>display $$1 
+test
+ CNSsolve>eval ($1="xray") 
+ EVALUATE: symbol $1 set to "xray" (string)
+ CNSsolve> 
+ CNSsolve>$$1 
+ XRAY>end 
+ CNSsolve> 
+ CNSsolve>eval ($strip%1="test") 
+ Assuming literal string "XRAY"
+ EVALUATE: symbol XRAY set to "test" (string)
+ CNSsolve>display $1 
+xray
+ CNSsolve>display $strip%1 
+xray
+ CNSsolve>eval ($1="xray") 
+ EVALUATE: symbol $1 set to "xray" (string)
+ CNSsolve> 
+ CNSsolve>$strip%1 
+ XRAY>end 
+ CNSsolve> 
+ CNSsolve> 
+ CNSsolve>eval ($2=$1) 
+ EVALUATE: symbol $2 set to "xray" (string)
+ CNSsolve>eval ($2=$1+"test") 
+ EVALUATE: symbol $2 set to "xraytest" (string)
+ CNSsolve>display  $2 
+ xraytest
+ CNSsolve> 
+ CNSsolve>eval ($1=3.4) 
+ EVALUATE: symbol $1 set to    3.40000     (real)
+ CNSsolve>eval ($2=$1+3.4 ) 
+ EVALUATE: symbol $2 set to    6.80000     (real)
+ CNSsolve>display  $2 
+ 6.8
+ CNSsolve> 
+ CNSsolve>eval ($1=(4,3)) 
+ EVALUATE: symbol $1 set to (   4.00000    ,   3.00000    ) (complex)
+ CNSsolve>display   $1 
+  (4,3)
+ CNSsolve> 
+ CNSsolve>eval  ($2=$1+(4,5)) 
+ EVALUATE: symbol $2 set to (   8.00000    ,   8.00000    ) (complex)
+ CNSsolve>display  $2 
+ (8,8)
+ CNSsolve> 
+ CNSsolve>eval ($1=3.4) 
+ EVALUATE: symbol $1 set to    3.40000     (real)
+ CNSsolve> 
+ CNSsolve>display  $1[F10.4]  $1[F4.1]  $1[F12.2] 
+     3.4000   3.4          3.40
+ CNSsolve> 
+ CNSsolve> 
+ CNSsolve>topology @CNS_TOPPAR:protein.top end 
+ ASSFIL: file protein.top opened.
+ RTFRDR>remarks file toppar/protein.top 
+ RTFRDR>remarks   protein topology with polar hydrogens 
+ RTFRDR> 
+ RTFRDR>! 
+ RTFRDR>! Please cite the following reference when using these parameters: 
+ RTFRDR>! Engh, R.A. and  Huber, R. (1991). Accurate Bond and 
+ RTFRDR>!  Angle Parameters for X-ray Protein-Structure Refinement, 
+ RTFRDR>!  Acta Cryst. A47, 392-400. 
+ RTFRDR>! 
+ RTFRDR>! 
+ RTFRDR> 
+ RTFRDR>set message ? end eval ($old_message=$result) set echo ? end eval ($old_echo=$result) 
+ MESSage=NORM
+ EVALUATE: symbol $OLD_MESSAGE set to "NORM" (string)
+ ECHO=TRUE {ON}
+ EVALUATE: symbol $OLD_ECHO set to TRUE (logical)
+ RTFRDR>set message=off echo=off end 
+ RTFRDR> 
+ RTFRDR> 
+ RTFRDR> end 
+ CNSsolve> 
+ CNSsolve> 
+ CNSsolve>segment 
+ SEGMENT>  name=m1 
+ SEGMENT>  chain 
+ CHAIN>     @CNS_TOPPAR:protein.link 
+ ASSFIL: file protein.link opened.
+ CHAIN>remarks file toppar/protein.link 
+ CHAIN>remarks 
+ CHAIN>remarks this is a macro to define standard protein peptide bonds 
+ CHAIN>remarks and termini to generate a protein sequence. 
+ CHAIN> 
+ CHAIN>set message ? end eval ($old_message=$result) set echo ? end eval ($old_echo=$result) 
+ MESSage=NORM
+ EVALUATE: symbol $OLD_MESSAGE set to "NORM" (string)
+ ECHO=TRUE {ON}
+ EVALUATE: symbol $OLD_ECHO set to TRUE (logical)
+ CHAIN>set message=off echo=off end 
+ CHAIN>     sequence ARG end 
+ SEGMNT:     1 residues were inserted into segment "M1  "
+ CHAIN>  end 
+ SEGMENT>end 
+ Status of internal molecular topology database:
+ -> NATOM=         20(MAXA=     1000000)  NBOND=         19(MAXB=     1000000)
+ -> NTHETA=        27(MAXT=     2000000)  NGRP=           3(MAXGRP=   1000000)
+ -> NPHI=          13(MAXP=     2000000)  NIMPHI=         8(MAXIMP=   1000000)
+ -> NNB=            0(MAXNB=    1000000) 
+ CNSsolve> 
+ CNSsolve> 
+ CNSsolve>do (x=1.) ( all ) 
+ SELRPN:     20 atoms have been selected out of     20
+ CNSsolve>do (x=x+$1 ) ( all ) 
+ SELRPN:     20 atoms have been selected out of     20
+ CNSsolve>show element (x) ( all ) 
+ SELRPN:     20 atoms have been selected out of     20
+ ( M1   ARG  1    CB   )    4.4000    
+ ( M1   ARG  1    CG   )    4.4000    
+ ( M1   ARG  1    CD   )    4.4000    
+ ( M1   ARG  1    NE   )    4.4000    
+ ( M1   ARG  1    HE   )    4.4000    
+ ( M1   ARG  1    CZ   )    4.4000    
+ ( M1   ARG  1    NH1  )    4.4000    
+ ( M1   ARG  1    HH11 )    4.4000    
+ ( M1   ARG  1    HH12 )    4.4000    
+ ( M1   ARG  1    NH2  )    4.4000    
+ ( M1   ARG  1    HH21 )    4.4000    
+ ( M1   ARG  1    HH22 )    4.4000    
+ ( M1   ARG  1    C    )    4.4000    
+ ( M1   ARG  1    O    )    4.4000    
+ ( M1   ARG  1    OXT  )    4.4000    
+ ( M1   ARG  1    HT1  )    4.4000    
+ ( M1   ARG  1    HT2  )    4.4000    
+ ( M1   ARG  1    N    )    4.4000    
+ ( M1   ARG  1    HT3  )    4.4000    
+ ( M1   ARG  1    CA   )    4.4000    
+ CNSsolve> 
+ CNSsolve>eval ($2="x") 
+ EVALUATE: symbol $2 set to "x" (string)
+ CNSsolve>do ($$2=$$2 - $1 ) ( all ) 
+ SELRPN:     20 atoms have been selected out of     20
+ CNSsolve>show element (x) ( all ) 
+ SELRPN:     20 atoms have been selected out of     20
+ ( M1   ARG  1    CB   )    1.0000    
+ ( M1   ARG  1    CG   )    1.0000    
+ ( M1   ARG  1    CD   )    1.0000    
+ ( M1   ARG  1    NE   )    1.0000    
+ ( M1   ARG  1    HE   )    1.0000    
+ ( M1   ARG  1    CZ   )    1.0000    
+ ( M1   ARG  1    NH1  )    1.0000    
+ ( M1   ARG  1    HH11 )    1.0000    
+ ( M1   ARG  1    HH12 )    1.0000    
+ ( M1   ARG  1    NH2  )    1.0000    
+ ( M1   ARG  1    HH21 )    1.0000    
+ ( M1   ARG  1    HH22 )    1.0000    
+ ( M1   ARG  1    C    )    1.0000    
+ ( M1   ARG  1    O    )    1.0000    
+ ( M1   ARG  1    OXT  )    1.0000    
+ ( M1   ARG  1    HT1  )    1.0000    
+ ( M1   ARG  1    HT2  )    1.0000    
+ ( M1   ARG  1    N    )    1.0000    
+ ( M1   ARG  1    HT3  )    1.0000    
+ ( M1   ARG  1    CA   )    1.0000    
+ CNSsolve> 
+ CNSsolve>do ($strip%2=$strip%2 - $1 ) ( all ) 
+ SELRPN:     20 atoms have been selected out of     20
+ CNSsolve>show element ($strip%2) ( all ) 
+ SELRPN:     20 atoms have been selected out of     20
+ ( M1   ARG  1    CB   )   -2.4000    
+ ( M1   ARG  1    CG   )   -2.4000    
+ ( M1   ARG  1    CD   )   -2.4000    
+ ( M1   ARG  1    NE   )   -2.4000    
+ ( M1   ARG  1    HE   )   -2.4000    
+ ( M1   ARG  1    CZ   )   -2.4000    
+ ( M1   ARG  1    NH1  )   -2.4000    
+ ( M1   ARG  1    HH11 )   -2.4000    
+ ( M1   ARG  1    HH12 )   -2.4000    
+ ( M1   ARG  1    NH2  )   -2.4000    
+ ( M1   ARG  1    HH21 )   -2.4000    
+ ( M1   ARG  1    HH22 )   -2.4000    
+ ( M1   ARG  1    C    )   -2.4000    
+ ( M1   ARG  1    O    )   -2.4000    
+ ( M1   ARG  1    OXT  )   -2.4000    
+ ( M1   ARG  1    HT1  )   -2.4000    
+ ( M1   ARG  1    HT2  )   -2.4000    
+ ( M1   ARG  1    N    )   -2.4000    
+ ( M1   ARG  1    HT3  )   -2.4000    
+ ( M1   ARG  1    CA   )   -2.4000    
+ CNSsolve> 
+ CNSsolve>display  $exist_2  $exist_1   $exist_3 
+ TRUE  TRUE   FALSE
+ CNSsolve>if ($exist_2=TRUE) then 
+ NEXTCD: condition evaluated as true
+ CNSsolve>end if 
+ CNSsolve> 
+ CNSsolve>if ($exist_57=TRUE) then 
+ NEXTCD: condition evaluated as false
+ CNSsolve>end if 
+ CNSsolve> 
+ CNSsolve>if ($exist_59=FALSE) then 
+ NEXTCD: condition evaluated as true
+ CNSsolve>end if 
+ CNSsolve> 
+ CNSsolve>xray 
+ XRAY>   declare name=fobs type=complex domain=reciprocal end 
+ XDECLARE: Object FOBS has been declared.
+ XRAY> 
+ XRAY>   refl 
+ REFLection>     index 1 2 3 fobs 30. 
+ XSFAL: allocating space for complex reciprocal space object.
+ XRRR2:        1 new h,k,l indices have been added.
+ XRAY> 
+ XRAY>   do (fobs=40. ) ( all ) 
+ Total of         1 structure factor elements were selected.
+ XRAY> 
+ XRAY>   evaluate ($1=3.) 
+ EVALUATE: symbol $1 set to    3.00000     (real)
+ XRAY>   do (fobs=fobs+$1 ) ( all ) 
+ Total of         1 structure factor elements were selected.
+ XRAY>   show (fobs) ( all ) 
+ [H=    1 K=    2 L=    3]  Amplitude=      43.0000  Phase=       0.0000
+ Total of         1 elements were selected.
+ XRAY> 
+ XRAY>   evaluate ($2="fobs") 
+ EVALUATE: symbol $2 set to "fobs" (string)
+ XRAY> 
+ XRAY>   do ($$2=$$2-$1) ( all ) 
+ Total of         1 structure factor elements were selected.
+ XRAY>   show ($$2) ( all ) 
+ [H=    1 K=    2 L=    3]  Amplitude=      40.0000  Phase=       0.0000
+ Total of         1 elements were selected.
+ XRAY> 
+ XRAY>   do ($strip%2=$strip%2-$1) ( all ) 
+ Total of         1 structure factor elements were selected.
+ XRAY>   show ($strip%2) ( all ) 
+ [H=    1 K=    2 L=    3]  Amplitude=      37.0000  Phase=       0.0000
+ Total of         1 elements were selected.
+ XRAY> 
+ XRAY>   evaluate ($1=sqrt(2)*(1,1)) 
+ EVALUATE: symbol $1 set to (   1.41421    ,   1.41421    ) (complex)
+ XRAY> 
+ XRAY>   do ($$2=$1) ( all) 
+ Total of         1 structure factor elements were selected.
+ XRAY>   show (fobs) ( all ) 
+ [H=    1 K=    2 L=    3]  Amplitude=       2.0000  Phase=      45.0000
+ Total of         1 elements were selected.
+ XRAY> 
+ XRAY>   do ($strip%2=$1) ( all) 
+ Total of         1 structure factor elements were selected.
+ XRAY>   show (fobs) ( all ) 
+ [H=    1 K=    2 L=    3]  Amplitude=       2.0000  Phase=      45.0000
+ Total of         1 elements were selected.
+ XRAY> 
+ XRAY>end 
+ CNSsolve> 
+ CNSsolve>xray 
+ XRAY> 
+ XRAY>  wa=56 
+ XRAY>  wa ? 
+ WA=  56.000    
+ XRAY>  display $result 
+56
+ XRAY> 
+ XRAY>  anomalous=false 
+ XRAY>  anomalous ? 
+ ANOMalous=FALSe {OFF}
+ XRAY>  display  $result 
+ FALSE
+ XRAY> 
+ XRAY>  write refl fobs end 
+ NREFlection=         1
+ ANOMalous=FALSe { equiv. to HERMitian=TRUE}
+ DECLare NAME=FOBS                   DOMAin=RECIprocal   TYPE=COMP END
+ INDE     1    2    3 FOBS=     2.000    45.000
+ XRAY> 
+ XRAY>  refl 
+ REFLection>     anomalous=true 
+ REFLection: data will be merged with existing data.
+ XPARSE: expanding data set (h,k,l)->{(h,k,l),(-h,-k,-l)}
+ XEXPFR2:        1 new reflections have been generated.
+ REFLection>  end 
+ XRRR2:        0 new h,k,l indices have been added.
+ XRAY> 
+ XRAY>  anomalous ? 
+ ANOMalous=TRUE {ON}
+ XRAY> 
+ XRAY>  nref ? 
+ NREFlections=     200
+ XRAY>  display $result 
+200
+ XRAY>end 
+ CNSsolve> 
+ CNSsolve>eval ( $cns = "CNS" ) 
+ EVALUATE: symbol $CNS set to "CNS" (string)
+ CNSsolve> 
+ CNSsolve>display $KBOLTZ 
+1.987191E-03
+ CNSsolve>display $EXIST_TIME 
+TRUE
+ CNSsolve>display $EXIST_PI 
+TRUE
+ CNSsolve>display $EXIST__1_PI 
+TRUE
+ CNSsolve>display $EXIST__1_TIME 
+TRUE
+ CNSsolve>display $EXIST_GOD 
+FALSE
+ CNSsolve>display $EXIST_CNS 
+TRUE
+ CNSsolve> 
+ CNSsolve>! long complicated indexed symbols 
+ CNSsolve> 
+ CNSsolve> 
+ CNSsolve>eval ( $num = 10 ) 
+ EVALUATE: symbol $NUM set to    10.0000     (real)
+ CNSsolve> 
+ CNSsolve> 
+ CNSsolve>eval ( $LetUsSeeIfWeCanUse.Very.Long.Complicated.Symbols.NOW = "yes!" ) 
+ EVALUATE: symbol $LETUSSEEIFWECANUSE.VERY.LONG.COMPLICATED.SYMBOLS.NOW set to "yes!" (string)
+ CNSsolve> 
+ CNSsolve>eval ( $LetUsSeeIfWeCanUse.Very.Long.$num.Complex.Symbols.NOW = "fully" ) 
+ EVALUATE: symbol $LETUSSEEIFWECANUSE.VERY.LONG.10.COMPLEX.SYMBOLS.NOW set to "fully" (string)
+ CNSsolve> 
+ CNSsolve>eval ( $LetUsSeeIfWeCanUse.Very.Long.$num.Convoluted.$num.Symbols.NOW = "cool" ) 
+ EVALUATE: symbol $LETUSSEEIFWECANUSE.VERY.LONG.10.CONVOLUTED.10.SYMBOLS.NOW set to "cool" (string)
+ CNSsolve> 
+ CNSsolve> 
+ CNSsolve>display $LetUsSeeIfWeCanUse.Very.Long.Complicated.Symbols.NOW 
+yes!
+ CNSsolve> 
+ CNSsolve>display $LetUsSeeIfWeCanUse.Very.Long.$num.Complex.Symbols.NOW 
+fully
+ CNSsolve> 
+ CNSsolve>display $LetUsSeeIfWeCanUse.Very.Long.$num.Convoluted.$num.Symbols.NOW 
+cool
+ CNSsolve> 
+ CNSsolve> 
+ CNSsolve>eval ( $.$num.$num.$num.$num = "THIS IS ALMOST A VIRTUAL SYMBOL" ) 
+ EVALUATE: symbol $.10.10.10.10 set to "THIS IS ALMOST A VIRTUAL SYMBOL" (string)
+ CNSsolve> 
+ CNSsolve>display $.$num.$num.$num.$num 
+THIS IS ALMOST A VIRTUAL SYMBOL
+ CNSsolve> 
+ CNSsolve> 
+ CNSsolve>stop 
+          ============================================================
+           Maximum dynamic memory allocation:     8201488 bytes
+           Maximum dynamic memory overhead:           592 bytes
+           Program started at: 16:08:09 on 05-Jul-2018
+           Program stopped at: 16:08:09 on 05-Jul-2018
+           CPU time used:       0.0173 seconds
+          ============================================================

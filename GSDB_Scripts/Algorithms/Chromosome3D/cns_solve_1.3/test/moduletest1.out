@@ -1,0 +1,1036 @@
+          ============================================================
+          |                                                          |
+          |            Crystallography & NMR System (CNS)            |
+          |                         CNSsolve                         |
+          |                                                          |
+          ============================================================
+           Version: 1.3
+           Status: General release
+          ============================================================
+           Written by: A.T.Brunger, P.D.Adams, G.M.Clore, W.L.DeLano,
+                       P.Gros, R.W.Grosse-Kunstleve,J.-S.Jiang,J.M.Krahn,
+                       J.Kuszewski, M.Nilges, N.S.Pannu, R.J.Read,
+                       L.M.Rice, G.F.Schroeder, T.Simonson, G.L.Warren.
+           Copyright (c) 1997-2010 Yale University
+          ============================================================
+           Running on machine: lewis4-r710-login-node223 (x86_64/Linux,64-bit)
+                               with 16 threads
+           Program started by: oeow39
+           Program started at: 16:08:03 on 05-Jul-2018
+          ============================================================
+
+ FFT3C: Using FFTPACK4.1
+
+ CNSsolve>set abort = off end 
+ CNSsolve> 
+ CNSsolve>!====================================================================== 
+ CNSsolve>! module with no parameters 
+ CNSsolve> 
+ CNSsolve>set display=moduletest.dat end 
+ ASSFIL: file moduletest.dat opened.
+ CNSsolve>display module () 
+ CNSsolve>display display it works! 
+ CNSsolve>set display=OUTPUT end 
+ CNSsolve>close moduletest.dat end 
+ CNSsolve> 
+ CNSsolve>@moduletest.dat () 
+ ASSFIL: file moduletest.dat opened.
+ CNSsolve>module () 
+ CNSsolve>display it works! 
+it works!
+ CNSsolve> 
+ CNSsolve>!====================================================================== 
+ CNSsolve>! parameter name with or without & 
+ CNSsolve> 
+ CNSsolve>set display=moduletest.dat end 
+ ASSFIL: file moduletest.dat opened.
+ CNSsolve>literal module ( &p1 = (default) ) 
+ CNSsolve>literal display p1: &p1 
+ CNSsolve>set display=OUTPUT end 
+ CNSsolve>close moduletest.dat end 
+ CNSsolve> 
+ CNSsolve>@moduletest.dat ( &p1 = "module parameter"  ) 
+ ASSFIL: file moduletest.dat opened.
+ CNSsolve>module ( &p1 = (default) ) 
+ &_2_P1 set to "module parameter" 
+ CNSsolve>display p1: &p1 
+p1: "module parameter"
+ CNSsolve>@moduletest.dat ( p1 = "module parameter" ) 
+ ASSFIL: file moduletest.dat opened.
+ CNSsolve>module ( &p1 = (default) ) 
+ &_2_P1 set to "module parameter" 
+ CNSsolve>display p1: &p1 
+p1: "module parameter"
+ CNSsolve> 
+ CNSsolve>!====================================================================== 
+ CNSsolve>! recursive parameter 
+ CNSsolve> 
+ CNSsolve>@moduletest.dat ( &p1 = &p1 ) 
+ ASSFIL: file moduletest.dat opened.
+ CNSsolve>module ( &p1 = (default) ) 
+ &_2_P1 set to &_1_P1 
+ CNSsolve>display p1: &p1 
+p1: &_1_P1
+ CNSsolve> 
+ CNSsolve>!====================================================================== 
+ CNSsolve>! message level 
+ CNSsolve> 
+ CNSsolve>set message = off end 
+ CNSsolve>@moduletest.dat ( p1 = "module parameter" ) 
+ CNSsolve>module ( &p1 = (default) ) 
+ CNSsolve>display p1: &p1 
+p1: "module parameter"
+ CNSsolve> 
+ CNSsolve>set message = all end 
+ CNSsolve>@moduletest.dat ( p1 = "module parameter" ) 
+ ASSFIL: file moduletest.dat opened.
+ CNSsolve>module ( &p1 = (default) ) 
+ &_2_P1 set to ( default ) 
+ &_2_P1 set to "module parameter" 
+ CNSsolve>display p1: &p1 
+p1: "module parameter"
+ CNSsolve> 
+ CNSsolve>set message = norm end 
+ CNSsolve>@moduletest.dat ( p1 = "module parameter" ) 
+ ASSFIL: file moduletest.dat opened.
+ CNSsolve>module ( &p1 = (default) ) 
+ &_2_P1 set to "module parameter" 
+ CNSsolve>display p1: &p1 
+p1: "module parameter"
+ CNSsolve> 
+ CNSsolve> 
+ CNSsolve>!====================================================================== 
+ CNSsolve>! undeclared module parameter 
+ CNSsolve> 
+ CNSsolve>@moduletest.dat ( &not_a_parameter = blah ) 
+ ASSFIL: file moduletest.dat opened.
+ CNSsolve>module ( &p1 = (default) ) 
+ %MODULE error encountered: undeclared module parameter: NOT_A_PARAMETER
+   (CNS is in mode: SET ABORT=OFF END)
+ %MODULE error encountered: undeclared module parameter: =
+   (CNS is in mode: SET ABORT=OFF END)
+ %MODULE error encountered: undeclared module parameter: BLAH
+   (CNS is in mode: SET ABORT=OFF END)
+ %MODULE error encountered: module expansion failed.
+   (CNS is in mode: SET ABORT=OFF END)
+ CNSsolve> 
+ CNSsolve>!====================================================================== 
+ CNSsolve>! syntactic errors 
+ CNSsolve> 
+ CNSsolve>@moduletest.dat ( & p1 = blah ) 
+ ASSFIL: file moduletest.dat opened.
+ CNSsolve>module ( &p1 = (default) ) 
+ %DEFMACSET-ERR: parameter name must immediately follow &:
+  ( & 
+    ^
+ &_2_P1 set to blah 
+ CNSsolve>display p1: &p1 
+p1: blah
+ CNSsolve> 
+ CNSsolve>@moduletest.dat p1 = blah 
+ ASSFIL: file moduletest.dat opened.
+ CNSsolve>module ( &p1 = (default) ) 
+ %MODULE-ERR: ( expected but not found.
+ %MODULE error encountered: module expansion failed.
+   (CNS is in mode: SET ABORT=OFF END)
+ %CNSsolve-ERR: unrecognized command:
+  p1 = 
+     ^
+ %CNSsolve-ERR: unrecognized command:
+  p1 = blah 
+       ^^^^
+ CNSsolve> 
+ CNSsolve>@moduletest.dat ( &p1 = ;; ) 
+ ASSFIL: file moduletest.dat opened.
+ CNSsolve>module ( &p1 = (default) ) 
+ &_2_P1 set to  
+ %MODULE error encountered: undeclared module parameter: ;
+   (CNS is in mode: SET ABORT=OFF END)
+ %MODULE error encountered: module expansion failed.
+   (CNS is in mode: SET ABORT=OFF END)
+ CNSsolve> 
+ CNSsolve> 
+ CNSsolve>!====================================================================== 
+ CNSsolve>! loops - both types 
+ CNSsolve> 
+ CNSsolve>eval ( $count = 1 ) 
+ EVALUATE: symbol $COUNT set to    1.00000     (real)
+ CNSsolve>while ( $count le 3 ) loop main 
+ NEXTCD: condition evaluated as true
+ CNSsolve>	@moduletest.dat( 
+ ASSFIL: file moduletest.dat opened.
+ CNSsolve>module ( &p1 = (default) ) 
+ MODULE-INVOCATION>		&p1 = $count 
+ P1=		) 
+ &_2_P1 set to $_1_COUNT 
+ CNSsolve>display p1: &p1 
+p1: 1
+ CNSsolve>	@@moduletest.dat( 
+ ASSFIL: file moduletest.dat opened.
+ CNSsolve>module ( &p1 = (default) ) 
+ MODULE-INVOCATION>		&p1 = $count 
+ P1=		) 
+ &_2_P1 set to $_1_COUNT 
+ CNSsolve>display p1: &p1 
+p1: 1
+ CNSsolve>	eval ( $count = $count + 1 ) 
+ EVALUATE: symbol $COUNT set to    2.00000     (real)
+ CNSsolve>end loop main 
+ CNSsolve>while ( $count le 3 ) loop main 
+ NEXTCD: condition evaluated as true
+ CNSsolve>	 
+ CNSsolve>module ( &p1 = (default) ) 
+ MODULE-INVOCATION>( 
+ MODULE-INVOCATION>		&p1 = $count 
+ P1=		) 
+ &_2_P1 set to $_1_COUNT 
+ CNSsolve> 
+ CNSsolve>display p1: &p1 
+p1: 2
+ CNSsolve> 
+ CNSsolve> 
+ CNSsolve>	@@moduletest.dat( 
+ ASSFIL: file moduletest.dat opened.
+ CNSsolve>module ( &p1 = (default) ) 
+ MODULE-INVOCATION>		&p1 = $count 
+ P1=		) 
+ &_2_P1 set to $_1_COUNT 
+ CNSsolve>display p1: &p1 
+p1: 2
+ CNSsolve>	eval ( $count = $count + 1 ) 
+ EVALUATE: symbol $COUNT set to    3.00000     (real)
+ CNSsolve>end loop main 
+ CNSsolve>while ( $count le 3 ) loop main 
+ NEXTCD: condition evaluated as true
+ CNSsolve>	 
+ CNSsolve>module ( &p1 = (default) ) 
+ MODULE-INVOCATION>( 
+ MODULE-INVOCATION>		&p1 = $count 
+ P1=		) 
+ &_2_P1 set to $_1_COUNT 
+ CNSsolve> 
+ CNSsolve>display p1: &p1 
+p1: 3
+ CNSsolve> 
+ CNSsolve> 
+ CNSsolve>	@@moduletest.dat( 
+ ASSFIL: file moduletest.dat opened.
+ CNSsolve>module ( &p1 = (default) ) 
+ MODULE-INVOCATION>		&p1 = $count 
+ P1=		) 
+ &_2_P1 set to $_1_COUNT 
+ CNSsolve>display p1: &p1 
+p1: 3
+ CNSsolve>	eval ( $count = $count + 1 ) 
+ EVALUATE: symbol $COUNT set to    4.00000     (real)
+ CNSsolve>end loop main 
+ CNSsolve>while ( $count le 3 ) loop main 
+ NEXTCD: condition evaluated as false
+ CNSsolve>	 
+ CNSsolve>module ( &p1 = (default) ) 
+ CNSsolve>( 
+ CNSsolve>		&p1 = $count 
+ CNSsolve>		) 
+ CNSsolve> 
+ CNSsolve>display p1: &p1 
+ CNSsolve> 
+ CNSsolve> 
+ CNSsolve>	@@moduletest.dat( 
+ CNSsolve>		&p1 = $count 
+ CNSsolve>		) 
+ CNSsolve>	eval ( $count = $count + 1 ) 
+ CNSsolve>end loop main 
+ CNSsolve> 
+ CNSsolve>!====================================================================== 
+ CNSsolve>! module with required parameter 
+ CNSsolve> 
+ CNSsolve>set display=moduletest.dat end 
+ ASSFIL: file moduletest.dat opened.
+ CNSsolve>literal module ( &p1 ) 
+ CNSsolve>literal display &p1 
+ CNSsolve>set display=OUTPUT end 
+ CNSsolve>close moduletest.dat end 
+ CNSsolve> 
+ CNSsolve>@moduletest.dat ( &p1 = "this is parameter 1" ) 
+ ASSFIL: file moduletest.dat opened.
+ CNSsolve>module ( &p1 ) 
+ &_2_P1 set to "this is parameter 1" 
+ CNSsolve>display &p1 
+"this is parameter 1"
+ CNSsolve> 
+ CNSsolve>!====================================================================== 
+ CNSsolve>! multiple parameters, parameters referenced within parameters 
+ CNSsolve> 
+ CNSsolve>set display=moduletest.dat end 
+ ASSFIL: file moduletest.dat opened.
+ CNSsolve>literal module ( &p1; p2 = 2.0; &p3 = "three"; &p4 = four; &p5 ; ?) 
+ CNSsolve>literal display 1: &p1 
+ CNSsolve>literal display 2: &p2 
+ CNSsolve>literal display 3: &p3 
+ CNSsolve>literal display 4: &p4 
+ CNSsolve>literal display 5: &p5 
+ CNSsolve>set display=OUTPUT end 
+ CNSsolve>close moduletest.dat end 
+ CNSsolve> 
+ CNSsolve>@moduletest.dat ( &p1 = 1; &p5 = "FIVE") 
+ ASSFIL: file moduletest.dat opened.
+ CNSsolve>module ( &p1; p2 = 2.0; &p3 = "three"; &p4 = four; &p5 ; ?) 
+ Current Define Parameters
+ NOTE: The scope number (#) of &<name> is shown as &_#_<name> 
+ &_2_P5= <value required>
+ &_2_P4= four 
+ &_2_P3= "three" 
+ &_2_P2= 2.0 
+ &_2_P1= <value required>
+ &_2_P1 set to 1 
+ &_2_P5 set to "FIVE" 
+ CNSsolve>display 1: &p1 
+1: 1
+ CNSsolve>display 2: &p2 
+2: 2.0
+ CNSsolve>display 3: &p3 
+3: "three"
+ CNSsolve>display 4: &p4 
+4: four
+ CNSsolve>display 5: &p5 
+5: "FIVE"
+ CNSsolve> 
+ CNSsolve>!====================================================================== 
+ CNSsolve>! symbol list and abort 
+ CNSsolve> 
+ CNSsolve>@moduletest.dat (? *) 
+ ASSFIL: file moduletest.dat opened.
+ CNSsolve>module ( &p1; p2 = 2.0; &p3 = "three"; &p4 = four; &p5 ; ?) 
+ Current Define Parameters
+ NOTE: The scope number (#) of &<name> is shown as &_#_<name> 
+ &_2_P5= <value required>
+ &_2_P4= four 
+ &_2_P3= "three" 
+ &_2_P2= 2.0 
+ &_2_P1= <value required>
+ Current Define Parameters
+ NOTE: The scope number (#) of &<name> is shown as &_#_<name> 
+ &_2_P5= <value required>
+ &_2_P4= four 
+ &_2_P3= "three" 
+ &_2_P2= 2.0 
+ &_2_P1= <value required>
+ MODULE: module expansion aborted.
+ CNSsolve> 
+ CNSsolve>!====================================================================== 
+ CNSsolve>! required parameter(s) not provided 
+ CNSsolve>@moduletest.dat () 
+ ASSFIL: file moduletest.dat opened.
+ CNSsolve>module ( &p1; p2 = 2.0; &p3 = "three"; &p4 = four; &p5 ; ?) 
+ Current Define Parameters
+ NOTE: The scope number (#) of &<name> is shown as &_#_<name> 
+ &_2_P5= <value required>
+ &_2_P4= four 
+ &_2_P3= "three" 
+ &_2_P2= 2.0 
+ &_2_P1= <value required>
+ %MODULE-ERR: required parameter not defined: P5
+ %MODULE-ERR: required parameter not defined: P1
+ %MODULE error encountered: module expansion failed.
+   (CNS is in mode: SET ABORT=OFF END)
+ CNSsolve> 
+ CNSsolve>!====================================================================== 
+ CNSsolve>! nested modules 
+ CNSsolve> 
+ CNSsolve>set display=moduletest2.dat end 
+ ASSFIL: file moduletest2.dat opened.
+ CNSsolve>literal module ( &p1="param1"; &p2 = "param5";) 
+ CNSsolve>literal @moduletest.dat ( p1 = &p1; &p5 = &p2 ; ? ) 
+ CNSsolve>literal @@moduletest.dat ( p1 = &p1; &p5= &p2 ; ? ) 
+ CNSsolve>set display=OUTPUT end 
+ CNSsolve>close moduletest2.dat end 
+ CNSsolve> 
+ CNSsolve>@moduletest2.dat ( ) 
+ ASSFIL: file moduletest2.dat opened.
+ CNSsolve>module ( &p1="param1"; &p2 = "param5";) 
+ CNSsolve>@moduletest.dat ( p1 = &p1; &p5 = &p2 ; ? ) 
+ ASSFIL: file moduletest.dat opened.
+ CNSsolve>module ( &p1; p2 = 2.0; &p3 = "three"; &p4 = four; &p5 ; ?) 
+ Current Define Parameters
+ NOTE: The scope number (#) of &<name> is shown as &_#_<name> 
+ &_3_P5= <value required>
+ &_3_P4= four 
+ &_3_P3= "three" 
+ &_3_P2= 2.0 
+ &_3_P1= <value required>
+ &_2_P2= "param5" 
+ &_2_P1= "param1" 
+ &_3_P1 set to &_2_P1 
+ &_3_P5 set to &_2_P2 
+ Current Define Parameters
+ NOTE: The scope number (#) of &<name> is shown as &_#_<name> 
+ &_3_P5= &_2_P2 
+ &_3_P1= &_2_P1 
+ &_3_P4= four 
+ &_3_P3= "three" 
+ &_3_P2= 2.0 
+ &_2_P2= "param5" 
+ &_2_P1= "param1" 
+ CNSsolve>display 1: &p1 
+1: "param1"
+ CNSsolve>display 2: &p2 
+2: 2.0
+ CNSsolve>display 3: &p3 
+3: "three"
+ CNSsolve>display 4: &p4 
+4: four
+ CNSsolve>display 5: &p5 
+5: "param5"
+ CNSsolve>@@moduletest.dat ( p1 = &p1; &p5= &p2 ; ? ) 
+ ASSFIL: file moduletest.dat opened.
+ CNSsolve>module ( &p1; p2 = 2.0; &p3 = "three"; &p4 = four; &p5 ; ?) 
+ Current Define Parameters
+ NOTE: The scope number (#) of &<name> is shown as &_#_<name> 
+ &_3_P5= <value required>
+ &_3_P4= four 
+ &_3_P3= "three" 
+ &_3_P2= 2.0 
+ &_3_P1= <value required>
+ &_2_P2= "param5" 
+ &_2_P1= "param1" 
+ &_3_P1 set to &_2_P1 
+ &_3_P5 set to &_2_P2 
+ Current Define Parameters
+ NOTE: The scope number (#) of &<name> is shown as &_#_<name> 
+ &_3_P5= &_2_P2 
+ &_3_P1= &_2_P1 
+ &_3_P4= four 
+ &_3_P3= "three" 
+ &_3_P2= 2.0 
+ &_2_P2= "param5" 
+ &_2_P1= "param1" 
+ CNSsolve>display 1: &p1 
+1: "param1"
+ CNSsolve>display 2: &p2 
+2: 2.0
+ CNSsolve>display 3: &p3 
+3: "three"
+ CNSsolve>display 4: &p4 
+4: four
+ CNSsolve>display 5: &p5 
+5: "param5"
+ CNSsolve>@@moduletest2.dat ( ) 
+ ASSFIL: file moduletest2.dat opened.
+ CNSsolve>module ( &p1="param1"; &p2 = "param5";) 
+ CNSsolve>@moduletest.dat ( p1 = &p1; &p5 = &p2 ; ? ) 
+ ASSFIL: file moduletest.dat opened.
+ CNSsolve>module ( &p1; p2 = 2.0; &p3 = "three"; &p4 = four; &p5 ; ?) 
+ Current Define Parameters
+ NOTE: The scope number (#) of &<name> is shown as &_#_<name> 
+ &_3_P5= <value required>
+ &_3_P4= four 
+ &_3_P3= "three" 
+ &_3_P2= 2.0 
+ &_3_P1= <value required>
+ &_2_P2= "param5" 
+ &_2_P1= "param1" 
+ &_3_P1 set to &_2_P1 
+ &_3_P5 set to &_2_P2 
+ Current Define Parameters
+ NOTE: The scope number (#) of &<name> is shown as &_#_<name> 
+ &_3_P5= &_2_P2 
+ &_3_P1= &_2_P1 
+ &_3_P4= four 
+ &_3_P3= "three" 
+ &_3_P2= 2.0 
+ &_2_P2= "param5" 
+ &_2_P1= "param1" 
+ CNSsolve>display 1: &p1 
+1: "param1"
+ CNSsolve>display 2: &p2 
+2: 2.0
+ CNSsolve>display 3: &p3 
+3: "three"
+ CNSsolve>display 4: &p4 
+4: four
+ CNSsolve>display 5: &p5 
+5: "param5"
+ CNSsolve>@@moduletest.dat ( p1 = &p1; &p5= &p2 ; ? ) 
+ ASSFIL: file moduletest.dat opened.
+ CNSsolve>module ( &p1; p2 = 2.0; &p3 = "three"; &p4 = four; &p5 ; ?) 
+ Current Define Parameters
+ NOTE: The scope number (#) of &<name> is shown as &_#_<name> 
+ &_3_P5= <value required>
+ &_3_P4= four 
+ &_3_P3= "three" 
+ &_3_P2= 2.0 
+ &_3_P1= <value required>
+ &_2_P2= "param5" 
+ &_2_P1= "param1" 
+ &_3_P1 set to &_2_P1 
+ &_3_P5 set to &_2_P2 
+ Current Define Parameters
+ NOTE: The scope number (#) of &<name> is shown as &_#_<name> 
+ &_3_P5= &_2_P2 
+ &_3_P1= &_2_P1 
+ &_3_P4= four 
+ &_3_P3= "three" 
+ &_3_P2= 2.0 
+ &_2_P2= "param5" 
+ &_2_P1= "param1" 
+ CNSsolve>display 1: &p1 
+1: "param1"
+ CNSsolve>display 2: &p2 
+2: 2.0
+ CNSsolve>display 3: &p3 
+3: "three"
+ CNSsolve>display 4: &p4 
+4: four
+ CNSsolve>display 5: &p5 
+5: "param5"
+ CNSsolve> 
+ CNSsolve>@@moduletest2.dat ( &p1 = param1;) 
+ ASSFIL: file moduletest2.dat opened.
+ CNSsolve>module ( &p1="param1"; &p2 = "param5";) 
+ &_2_P1 set to param1 
+ CNSsolve>@moduletest.dat ( p1 = &p1; &p5 = &p2 ; ? ) 
+ ASSFIL: file moduletest.dat opened.
+ CNSsolve>module ( &p1; p2 = 2.0; &p3 = "three"; &p4 = four; &p5 ; ?) 
+ Current Define Parameters
+ NOTE: The scope number (#) of &<name> is shown as &_#_<name> 
+ &_3_P5= <value required>
+ &_3_P4= four 
+ &_3_P3= "three" 
+ &_3_P2= 2.0 
+ &_3_P1= <value required>
+ &_2_P1= param1 
+ &_2_P2= "param5" 
+ &_3_P1 set to &_2_P1 
+ &_3_P5 set to &_2_P2 
+ Current Define Parameters
+ NOTE: The scope number (#) of &<name> is shown as &_#_<name> 
+ &_3_P5= &_2_P2 
+ &_3_P1= &_2_P1 
+ &_3_P4= four 
+ &_3_P3= "three" 
+ &_3_P2= 2.0 
+ &_2_P1= param1 
+ &_2_P2= "param5" 
+ CNSsolve>display 1: &p1 
+1: param1
+ CNSsolve>display 2: &p2 
+2: 2.0
+ CNSsolve>display 3: &p3 
+3: "three"
+ CNSsolve>display 4: &p4 
+4: four
+ CNSsolve>display 5: &p5 
+5: "param5"
+ CNSsolve>@@moduletest.dat ( p1 = &p1; &p5= &p2 ; ? ) 
+ ASSFIL: file moduletest.dat opened.
+ CNSsolve>module ( &p1; p2 = 2.0; &p3 = "three"; &p4 = four; &p5 ; ?) 
+ Current Define Parameters
+ NOTE: The scope number (#) of &<name> is shown as &_#_<name> 
+ &_3_P5= <value required>
+ &_3_P4= four 
+ &_3_P3= "three" 
+ &_3_P2= 2.0 
+ &_3_P1= <value required>
+ &_2_P1= param1 
+ &_2_P2= "param5" 
+ &_3_P1 set to &_2_P1 
+ &_3_P5 set to &_2_P2 
+ Current Define Parameters
+ NOTE: The scope number (#) of &<name> is shown as &_#_<name> 
+ &_3_P5= &_2_P2 
+ &_3_P1= &_2_P1 
+ &_3_P4= four 
+ &_3_P3= "three" 
+ &_3_P2= 2.0 
+ &_2_P1= param1 
+ &_2_P2= "param5" 
+ CNSsolve>display 1: &p1 
+1: param1
+ CNSsolve>display 2: &p2 
+2: 2.0
+ CNSsolve>display 3: &p3 
+3: "three"
+ CNSsolve>display 4: &p4 
+4: four
+ CNSsolve>display 5: &p5 
+5: "param5"
+ CNSsolve> 
+ CNSsolve>!====================================================================== 
+ CNSsolve>! embedded commands, multiple line parameters 
+ CNSsolve> 
+ CNSsolve>set display=moduletest.dat end 
+ ASSFIL: file moduletest.dat opened.
+ CNSsolve>literal module ( &p1 ) 
+ CNSsolve>literal &p1 ! embedded 
+ CNSsolve>set display=OUTPUT end 
+ CNSsolve>close moduletest.dat end 
+ CNSsolve> 
+ CNSsolve>@moduletest.dat ( &p1 = energy end 
+ ASSFIL: file moduletest.dat opened.
+ CNSsolve>module ( &p1 ) 
+ P1=eval ( $test = 10.0 ) 
+ P1=display I want my MTV. 
+ P1=$? 
+ P1=display this should be 10: $test; 
+ &_2_P1 set to energy end 
+ eval ( $_1_TEST = 10.0 ) 
+ display I want my MTV. 
+ $_1_? 
+ display this should be 10 : $_1_TEST 
+ MODULE-INVOCATION>) 
+ CNSsolve>&p1 ! embedded 
+ --------------- cycle=     1 --------------------------------------------------
+ | Etotal =0.000      grad(E)=0.000      E(BOND)=0.000      E(ANGL)=0.000      |
+ | E(DIHE)=0.000      E(IMPR)=0.000      E(VDW )=0.000      E(ELEC)=0.000      |
+ -------------------------------------------------------------------------------
+ EVALUATE: symbol $_1_TEST set to    10.0000     (real)
+I want my MTV.
+ Current Symbol Table
+ NOTE: The scope number (#) of $<name> is shown as $_#_<name> 
+ $_1_TEST=   10.0000     (real)
+ $_1_GRAD=   0.00000     (real)
+ $_1_ENER=   0.00000     (real)
+ $_1_ELEC=   0.00000     (real)
+ $_1_VDW=   0.00000     (real)
+ $_1_IMPR=   0.00000     (real)
+ $_1_DIHE=   0.00000     (real)
+ $_1_ANGL=   0.00000     (real)
+ $_1_BOND=   0.00000     (real)
+ $_1_COUNT=   4.00000     (real)
+ $_1_NCS=   1.00000     (real)
+ $_1_EFLAG.VEAN="FALSE" (logical) 
+ $_1_EFLAG.DANI="FALSE" (logical) 
+ $_1_EFLAG.SANI="FALSE" (logical) 
+ $_1_EFLAG.RAMA="FALSE" (logical) 
+ $_1_EFLAG.ONEB="FALSE" (logical) 
+ $_1_EFLAG.PROT="FALSE" (logical) 
+ $_1_EFLAG.CARB="FALSE" (logical) 
+ $_1_EFLAG.COUP="FALSE" (logical) 
+ $_1_EFLAG.ANDB="FALSE" (logical) 
+ $_1_EFLAG.DG="FALSE" (logical) 
+ $_1_EFLAG.PLAN="FALSE" (logical) 
+ $_1_EFLAG.XREF="FALSE" (logical) 
+ $_1_EFLAG.NOE="FALSE" (logical) 
+ $_1_EFLAG.NCS="FALSE" (logical) 
+ $_1_EFLAG.CDIH="FALSE" (logical) 
+ $_1_EFLAG.HARM="FALSE" (logical) 
+ $_1_EFLAG.PELE="FALSE" (logical) 
+ $_1_EFLAG.PVDW="FALSE" (logical) 
+ $_1_EFLAG.ELEC="TRUE" (logical) 
+ $_1_EFLAG.VDW="TRUE" (logical) 
+ $_1_EFLAG.IMPR="TRUE" (logical) 
+ $_1_EFLAG.DIHE="TRUE" (logical) 
+ $_1_EFLAG.ANGL="TRUE" (logical) 
+ $_1_EFLAG.BOND="TRUE" (logical) 
+ $_1_EFLAG.GRAD="FALSE" (logical) 
+ $_1_EFLAG.TEMP="FALSE" (logical) 
+ $_1_EFLAG.ENER="FALSE" (logical) 
+ $_1_EFLAG.TOTK="FALSE" (logical) 
+ $_1_EFLAG.TOTE="FALSE" (logical) 
+ $_1_BIN_NUMBER=   8.00000     (real)
+ $_1_SYMMETRY=   1.00000     (real)
+ $_1_CSTAR=   1.00000     (real)
+ $_1_BSTAR=   1.00000     (real)
+ $_1_ASTAR=   1.00000     (real)
+ $_1_XRINTR_3_3=   1.00000     (real)
+ $_1_XRINTR_3_2=   0.00000     (real)
+ $_1_XRINTR_3_1=   0.00000     (real)
+ $_1_XRINTR_2_3= -0.349148E-14 (real)
+ $_1_XRINTR_2_2=   1.00000     (real)
+ $_1_XRINTR_2_1=   0.00000     (real)
+ $_1_XRINTR_1_3= -0.349148E-14 (real)
+ $_1_XRINTR_1_2= -0.349148E-14 (real)
+ $_1_XRINTR_1_1=   1.00000     (real)
+ $_1_XRTR_3_3=   1.00000     (real)
+ $_1_XRTR_3_2=   0.00000     (real)
+ $_1_XRTR_3_1=   0.00000     (real)
+ $_1_XRTR_2_3=  0.349148E-14 (real)
+ $_1_XRTR_2_2=   1.00000     (real)
+ $_1_XRTR_2_1=   0.00000     (real)
+ $_1_XRTR_1_3=  0.349148E-14 (real)
+ $_1_XRTR_1_2=  0.349148E-14 (real)
+ $_1_XRTR_1_1=   1.00000     (real)
+ $_1_XRCELL_6=   90.0000     (real)
+ $_1_XRCELL_5=   90.0000     (real)
+ $_1_XRCELL_4=   90.0000     (real)
+ $_1_XRCELL_3=   1.00000     (real)
+ $_1_XRCELL_2=   1.00000     (real)
+ $_1_XRCELL_1=   1.00000     (real)
+ $_1_VOLUME=   1.00000     (real)
+ $_1_FP_EPSILON=  0.222045E-15 (real)
+ $_1_CNS_PATCH="0" (string) 
+ $_1_CNS_VERSION="1.3" (string) 
+ $_1_LOG_LEVEL="QUIET" (string) 
+ $_1_SYSTEM="x86_64/Linux" (string) 
+ $_1_NAME="oeow39" (string) 
+ $_1_TIMFAC=  0.488882E-01 (real)
+ $_1_PI=   3.14159     (real)
+ $_1_KBOLTZ=  0.198719E-02 (real)
+this should be 10 : 10 ! embedded
+ CNSsolve> 
+ CNSsolve>!====================================================================== 
+ CNSsolve>! nested calls with multiple line parameters and embedded commands 
+ CNSsolve> 
+ CNSsolve>set display=moduletest2.dat end 
+ ASSFIL: file moduletest2.dat opened.
+ CNSsolve>literal module (&p2) 
+ CNSsolve>literal @moduletest.dat ( p1=&p2; ) 
+ CNSsolve>set display=OUTPUT end 
+ CNSsolve>close moduletest2.dat end 
+ CNSsolve> 
+ CNSsolve>@moduletest2.dat ( &p2 = energy end 
+ ASSFIL: file moduletest2.dat opened.
+ CNSsolve>module (&p2) 
+ P2=eval ( $test = 10.0 ) 
+ P2=display I want my MTV. 
+ P2=$? 
+ P2=display this should be 10: $test; 
+ &_2_P2 set to energy end 
+ eval ( $_1_TEST = 10.0 ) 
+ display I want my MTV. 
+ $_1_? 
+ display this should be 10 : $_1_TEST 
+ MODULE-INVOCATION>) 
+ CNSsolve>@moduletest.dat ( p1=&p2; ) 
+ ASSFIL: file moduletest.dat opened.
+ CNSsolve>module ( &p1 ) 
+ &_3_P1 set to &_2_P2 
+ CNSsolve>&p1 ! embedded 
+ --------------- cycle=     2 --------------------------------------------------
+ | Etotal =0.000      grad(E)=0.000      E(BOND)=0.000      E(ANGL)=0.000      |
+ | E(DIHE)=0.000      E(IMPR)=0.000      E(VDW )=0.000      E(ELEC)=0.000      |
+ -------------------------------------------------------------------------------
+ EVALUATE: symbol $_1_TEST set to    10.0000     (real)
+I want my MTV.
+ Current Symbol Table
+ NOTE: The scope number (#) of $<name> is shown as $_#_<name> 
+ $_1_TEST=   10.0000     (real)
+ $_1_GRAD=   0.00000     (real)
+ $_1_ENER=   0.00000     (real)
+ $_1_ELEC=   0.00000     (real)
+ $_1_VDW=   0.00000     (real)
+ $_1_IMPR=   0.00000     (real)
+ $_1_DIHE=   0.00000     (real)
+ $_1_ANGL=   0.00000     (real)
+ $_1_BOND=   0.00000     (real)
+ $_1_COUNT=   4.00000     (real)
+ $_1_NCS=   1.00000     (real)
+ $_1_EFLAG.VEAN="FALSE" (logical) 
+ $_1_EFLAG.DANI="FALSE" (logical) 
+ $_1_EFLAG.SANI="FALSE" (logical) 
+ $_1_EFLAG.RAMA="FALSE" (logical) 
+ $_1_EFLAG.ONEB="FALSE" (logical) 
+ $_1_EFLAG.PROT="FALSE" (logical) 
+ $_1_EFLAG.CARB="FALSE" (logical) 
+ $_1_EFLAG.COUP="FALSE" (logical) 
+ $_1_EFLAG.ANDB="FALSE" (logical) 
+ $_1_EFLAG.DG="FALSE" (logical) 
+ $_1_EFLAG.PLAN="FALSE" (logical) 
+ $_1_EFLAG.XREF="FALSE" (logical) 
+ $_1_EFLAG.NOE="FALSE" (logical) 
+ $_1_EFLAG.NCS="FALSE" (logical) 
+ $_1_EFLAG.CDIH="FALSE" (logical) 
+ $_1_EFLAG.HARM="FALSE" (logical) 
+ $_1_EFLAG.PELE="FALSE" (logical) 
+ $_1_EFLAG.PVDW="FALSE" (logical) 
+ $_1_EFLAG.ELEC="TRUE" (logical) 
+ $_1_EFLAG.VDW="TRUE" (logical) 
+ $_1_EFLAG.IMPR="TRUE" (logical) 
+ $_1_EFLAG.DIHE="TRUE" (logical) 
+ $_1_EFLAG.ANGL="TRUE" (logical) 
+ $_1_EFLAG.BOND="TRUE" (logical) 
+ $_1_EFLAG.GRAD="FALSE" (logical) 
+ $_1_EFLAG.TEMP="FALSE" (logical) 
+ $_1_EFLAG.ENER="FALSE" (logical) 
+ $_1_EFLAG.TOTK="FALSE" (logical) 
+ $_1_EFLAG.TOTE="FALSE" (logical) 
+ $_1_BIN_NUMBER=   8.00000     (real)
+ $_1_SYMMETRY=   1.00000     (real)
+ $_1_CSTAR=   1.00000     (real)
+ $_1_BSTAR=   1.00000     (real)
+ $_1_ASTAR=   1.00000     (real)
+ $_1_XRINTR_3_3=   1.00000     (real)
+ $_1_XRINTR_3_2=   0.00000     (real)
+ $_1_XRINTR_3_1=   0.00000     (real)
+ $_1_XRINTR_2_3= -0.349148E-14 (real)
+ $_1_XRINTR_2_2=   1.00000     (real)
+ $_1_XRINTR_2_1=   0.00000     (real)
+ $_1_XRINTR_1_3= -0.349148E-14 (real)
+ $_1_XRINTR_1_2= -0.349148E-14 (real)
+ $_1_XRINTR_1_1=   1.00000     (real)
+ $_1_XRTR_3_3=   1.00000     (real)
+ $_1_XRTR_3_2=   0.00000     (real)
+ $_1_XRTR_3_1=   0.00000     (real)
+ $_1_XRTR_2_3=  0.349148E-14 (real)
+ $_1_XRTR_2_2=   1.00000     (real)
+ $_1_XRTR_2_1=   0.00000     (real)
+ $_1_XRTR_1_3=  0.349148E-14 (real)
+ $_1_XRTR_1_2=  0.349148E-14 (real)
+ $_1_XRTR_1_1=   1.00000     (real)
+ $_1_XRCELL_6=   90.0000     (real)
+ $_1_XRCELL_5=   90.0000     (real)
+ $_1_XRCELL_4=   90.0000     (real)
+ $_1_XRCELL_3=   1.00000     (real)
+ $_1_XRCELL_2=   1.00000     (real)
+ $_1_XRCELL_1=   1.00000     (real)
+ $_1_VOLUME=   1.00000     (real)
+ $_1_FP_EPSILON=  0.222045E-15 (real)
+ $_1_CNS_PATCH="0" (string) 
+ $_1_CNS_VERSION="1.3" (string) 
+ $_1_LOG_LEVEL="QUIET" (string) 
+ $_1_SYSTEM="x86_64/Linux" (string) 
+ $_1_NAME="oeow39" (string) 
+ $_1_TIMFAC=  0.488882E-01 (real)
+ $_1_PI=   3.14159     (real)
+ $_1_KBOLTZ=  0.198719E-02 (real)
+this should be 10 : 10 ! embedded
+ CNSsolve> 
+ CNSsolve>!====================================================================== 
+ CNSsolve>! no-longer-a-bug with define and with multiple line parameters 
+ CNSsolve>define ( 
+ DEFINE>&pp2 = energy end 
+ PP2=eval ( $test = 10.0 ) 
+ PP2=display I want my MTV. 
+ PP2= 
+ PP2=display this should be 10: $test; 
+ DEFINE>) 
+ CNSsolve> 
+ CNSsolve>@moduletest.dat ( p1 = &pp2 ; ) 
+ ASSFIL: file moduletest.dat opened.
+ CNSsolve>module ( &p1 ) 
+ &_2_P1 set to &_1_PP2 
+ CNSsolve>&p1 ! embedded 
+ --------------- cycle=     3 --------------------------------------------------
+ | Etotal =0.000      grad(E)=0.000      E(BOND)=0.000      E(ANGL)=0.000      |
+ | E(DIHE)=0.000      E(IMPR)=0.000      E(VDW )=0.000      E(ELEC)=0.000      |
+ -------------------------------------------------------------------------------
+ EVALUATE: symbol $_1_TEST set to    10.0000     (real)
+I want my MTV.
+this should be 10 : 10 ! embedded
+ CNSsolve> 
+ CNSsolve>!====================================================================== 
+ CNSsolve>! parameter name too long 
+ CNSsolve> 
+ CNSsolve>set display=moduletest.dat end 
+ ASSFIL: file moduletest.dat opened.
+ CNSsolve>literal module ( &abcdefghijklmnopqrstuvwxyz = default;) 
+ CNSsolve>literal display &abcdefghijklmnopqrstuvwxyz; 
+ CNSsolve>set display=OUTPUT end 
+ CNSsolve>close moduletest.dat end 
+ CNSsolve> 
+ CNSsolve>@moduletest.dat () 
+ ASSFIL: file moduletest.dat opened.
+ CNSsolve>module ( &abcdefghijklmnopqrstuvwxyz = default;) 
+ CNSsolve>display &abcdefghijklmnopqrstuvwxyz; 
+default;
+ CNSsolve> 
+ CNSsolve>!====================================================================== 
+ CNSsolve>! passing of define variables to module streams 
+ CNSsolve> 
+ CNSsolve>set display=moduletest.dat end 
+ ASSFIL: file moduletest.dat opened.
+ CNSsolve>literal  module ( 
+ CNSsolve>literal     abcd ; 
+ CNSsolve>literal        ) 
+ CNSsolve>literal    display  from module: &abcd 
+ CNSsolve>close moduletest.dat end 
+ VCLOSE: Display file reset to OUTPUT.
+ CNSsolve>set display=OUTPUT end 
+ CNSsolve> 
+ CNSsolve>define ( 
+ DEFINE>   a_1="test_1"; 
+ DEFINE>   a_2="test_2"; 
+ DEFINE>   a_3="test_3"; 
+ DEFINE>   a_4="test_4"; ? 
+ Current Define Parameters
+ NOTE: The scope number (#) of &<name> is shown as &_#_<name> 
+ &_1_A_4= "test_4" 
+ &_1_A_3= "test_3" 
+ &_1_A_2= "test_2" 
+ &_1_A_1= "test_1" 
+ &_1_PP2= energy end 
+ eval ( $_1_TEST = 10.0 ) 
+ display I want my MTV. 
+ display this should be 10 : $_1_TEST 
+ DEFINE>       ) 
+ CNSsolve> 
+ CNSsolve>eval ($1=1) 
+ EVALUATE: symbol $1 set to    1.00000     (real)
+ CNSsolve>while ($1 < 4 ) loop uiop 
+ NEXTCD: condition evaluated as true
+ CNSsolve>   @moduletest.dat ( 
+ ASSFIL: file moduletest.dat opened.
+ CNSsolve> module ( 
+ MODULE-DECLARATION>    abcd ; 
+ MODULE-DECLARATION>       ) 
+ MODULE-INVOCATION>                   abcd=&a_$1; 
+ &_2_ABCD set to &_1_A_$_1_1 
+ MODULE-INVOCATION>                  ) 
+ CNSsolve>   display  from module: &abcd 
+ from module: "test_1"
+ CNSsolve>   evaluate ($1=$1+1) 
+ EVALUATE: symbol $1 set to    2.00000     (real)
+ CNSsolve>end loop uiop 
+ CNSsolve>while ($1 < 4 ) loop uiop 
+ NEXTCD: condition evaluated as true
+ CNSsolve>    
+ CNSsolve> module ( 
+ MODULE-DECLARATION>    abcd ; 
+ MODULE-DECLARATION>       ) 
+ MODULE-INVOCATION> ( 
+ MODULE-INVOCATION>                   abcd=&a_$1; 
+ &_2_ABCD set to &_1_A_$_1_1 
+ MODULE-INVOCATION>                  ) 
+ CNSsolve> 
+ CNSsolve>   display  from module: &abcd 
+ from module: "test_2"
+ CNSsolve> 
+ CNSsolve> 
+ CNSsolve>   evaluate ($1=$1+1) 
+ EVALUATE: symbol $1 set to    3.00000     (real)
+ CNSsolve>end loop uiop 
+ CNSsolve>while ($1 < 4 ) loop uiop 
+ NEXTCD: condition evaluated as true
+ CNSsolve>    
+ CNSsolve> module ( 
+ MODULE-DECLARATION>    abcd ; 
+ MODULE-DECLARATION>       ) 
+ MODULE-INVOCATION> ( 
+ MODULE-INVOCATION>                   abcd=&a_$1; 
+ &_2_ABCD set to &_1_A_$_1_1 
+ MODULE-INVOCATION>                  ) 
+ CNSsolve> 
+ CNSsolve>   display  from module: &abcd 
+ from module: "test_3"
+ CNSsolve> 
+ CNSsolve> 
+ CNSsolve>   evaluate ($1=$1+1) 
+ EVALUATE: symbol $1 set to    4.00000     (real)
+ CNSsolve>end loop uiop 
+ CNSsolve>while ($1 < 4 ) loop uiop 
+ NEXTCD: condition evaluated as false
+ CNSsolve>    
+ CNSsolve> module ( 
+ CNSsolve>    abcd ; 
+ CNSsolve>       ) 
+ CNSsolve> ( 
+ CNSsolve>                   abcd=&a_$1; 
+ CNSsolve>                  ) 
+ CNSsolve> 
+ CNSsolve>   display  from module: &abcd 
+ CNSsolve> 
+ CNSsolve> 
+ CNSsolve>   evaluate ($1=$1+1) 
+ CNSsolve>end loop uiop 
+ CNSsolve> 
+ CNSsolve>! ==================================================================== 
+ CNSsolve>! indexed module parameters 
+ CNSsolve> 
+ CNSsolve>set display=moduletest.dat end 
+ ASSFIL: file moduletest.dat opened.
+ CNSsolve>literal module ( 
+ CNSsolve>literal     test_1=1; 
+ CNSsolve>literal     test_2=2; 
+ CNSsolve>literal     test_3=3; 
+ CNSsolve>literal     test_4=4; ? 
+ CNSsolve>literal      ) 
+ CNSsolve>literal 
+ CNSsolve>literal  display  &test_$yyyy     !!2 
+ CNSsolve>literal  display  &test_$hhhh     !!3 
+ CNSsolve> 
+ CNSsolve>close moduletest.dat end 
+ VCLOSE: Display file reset to OUTPUT.
+ CNSsolve>set display=OUTPUT end 
+ CNSsolve> 
+ CNSsolve>evaluate ($yyyy=2) 
+ EVALUATE: symbol $YYYY set to    2.00000     (real)
+ CNSsolve>evaluate ($hhhh=3) 
+ EVALUATE: symbol $HHHH set to    3.00000     (real)
+ CNSsolve>@moduletest.dat ( 
+ ASSFIL: file moduletest.dat opened.
+ CNSsolve>module ( 
+ MODULE-DECLARATION>    test_1=1; 
+ MODULE-DECLARATION>    test_2=2; 
+ MODULE-DECLARATION>    test_3=3; 
+ MODULE-DECLARATION>    test_4=4; ? 
+ Current Define Parameters
+ NOTE: The scope number (#) of &<name> is shown as &_#_<name> 
+ &_2_TEST_4= 4 
+ &_2_TEST_3= 3 
+ &_2_TEST_2= 2 
+ &_2_TEST_1= 1 
+ &_1_A_4= "test_4" 
+ &_1_A_3= "test_3" 
+ &_1_A_2= "test_2" 
+ &_1_A_1= "test_1" 
+ &_1_PP2= energy end 
+ eval ( $_1_TEST = 10.0 ) 
+ display I want my MTV. 
+ display this should be 10 : $_1_TEST 
+ MODULE-DECLARATION>     ) 
+ MODULE-INVOCATION>   test_1=1; 
+ &_2_TEST_1 set to 1 
+ MODULE-INVOCATION>   test_2=2; 
+ &_2_TEST_2 set to 2 
+ MODULE-INVOCATION>   test_3=3; 
+ &_2_TEST_3 set to 3 
+ MODULE-INVOCATION>   test_4=4; 
+ &_2_TEST_4 set to 4 
+ MODULE-INVOCATION>     ) 
+ CNSsolve> 
+ CNSsolve> display  &test_$yyyy     !!2 
+ 2     !!2
+ CNSsolve> display  &test_$hhhh     !!3 
+ 3     !!3
+ CNSsolve> 
+ CNSsolve>evaluate ($yyyy=1) 
+ EVALUATE: symbol $YYYY set to    1.00000     (real)
+ CNSsolve>evaluate ($hhhh=4) 
+ EVALUATE: symbol $HHHH set to    4.00000     (real)
+ CNSsolve>@moduletest.dat ( 
+ ASSFIL: file moduletest.dat opened.
+ CNSsolve>module ( 
+ MODULE-DECLARATION>    test_1=1; 
+ MODULE-DECLARATION>    test_2=2; 
+ MODULE-DECLARATION>    test_3=3; 
+ MODULE-DECLARATION>    test_4=4; ? 
+ Current Define Parameters
+ NOTE: The scope number (#) of &<name> is shown as &_#_<name> 
+ &_2_TEST_4= 4 
+ &_2_TEST_3= 3 
+ &_2_TEST_2= 2 
+ &_2_TEST_1= 1 
+ &_1_A_4= "test_4" 
+ &_1_A_3= "test_3" 
+ &_1_A_2= "test_2" 
+ &_1_A_1= "test_1" 
+ &_1_PP2= energy end 
+ eval ( $_1_TEST = 10.0 ) 
+ display I want my MTV. 
+ display this should be 10 : $_1_TEST 
+ MODULE-DECLARATION>     ) 
+ MODULE-INVOCATION>   test_1=1; 
+ &_2_TEST_1 set to 1 
+ MODULE-INVOCATION>   test_2=2; 
+ &_2_TEST_2 set to 2 
+ MODULE-INVOCATION>   test_3=3; 
+ &_2_TEST_3 set to 3 
+ MODULE-INVOCATION>   test_4=4; 
+ &_2_TEST_4 set to 4 
+ MODULE-INVOCATION>     ) 
+ CNSsolve> 
+ CNSsolve> display  &test_$yyyy     !!2 
+ 1     !!2
+ CNSsolve> display  &test_$hhhh     !!3 
+ 4     !!3
+ CNSsolve> 
+ CNSsolve> 
+ CNSsolve> 
+ CNSsolve>stop 
+          ============================================================
+           Maximum dynamic memory allocation:     8201488 bytes
+           Maximum dynamic memory overhead:           208 bytes
+           Program started at: 16:08:03 on 05-Jul-2018
+           Program stopped at: 16:08:03 on 05-Jul-2018
+           CPU time used:       0.0229 seconds
+          ============================================================

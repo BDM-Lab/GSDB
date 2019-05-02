@@ -1,0 +1,156 @@
+remarks dgtest2.inp
+remarks test metric matrix distrance geometry module -- 
+remarks    tests on an ALA polypeptide chain 
+remarks John Kuszewski and Axel T. Brunger
+remarks ==================================
+
+!---------------
+! test one:  random four-atom metrization
+!---------------
+
+set timing=on end
+
+structure reset end
+topology reset @CNS_TOPPAR:protein-allhdg5-4.top end
+
+segment
+   name="    "
+   chain
+      @CNS_TOPPAR:protein-allhdg5-4.link
+      sequence ala ala ala ala ala 
+               ala ala ala ala ala
+      end
+end
+end
+
+parameter 
+        @CNS_TOPPAR:protein-allhdg5-4.param 
+        nbonds repel = 0.8 end
+end
+
+set seed = 8787380 end
+
+evaluate ($cpu_start= $cpu)
+mmdg
+        iacc=2. tacc=2. bacc=0.01 pacc=2. 
+        verbose off
+        random 
+        metrize (all) 4
+end
+evaluate ($cpu_time=$cpu-$cpu_start)
+display  CPU-time= $cpu_time
+
+display $embedded
+display $non_met_gap
+display $dgscale
+
+{ make test case more robust by comparing abs. values }
+do (x = abs(x * $dgscale)) (all)
+do (y = abs(y * $dgscale)) (all)
+do (z = abs(z * $dgscale)) (all) 
+
+write coords end
+
+
+set seed = 8787380 end
+
+evaluate ($cpu_start= $cpu)
+mmdg
+        iacc=2. tacc=2. bacc=0.01 pacc=2. 
+        verbose off
+        random 
+        metrize (not all) 0
+end
+evaluate ($cpu_time=$cpu-$cpu_start)
+display  CPU-time= $cpu_time
+
+display $embedded
+display $non_met_gap
+display $dgscale
+
+{ make test case more robust by comparing abs. values }
+do (x = abs(x * $dgscale)) (all)
+do (y = abs(y * $dgscale)) (all)
+do (z = abs(z * $dgscale)) (all) 
+
+write coords end
+
+set seed = 8787380 end
+
+evaluate ($cpu_start= $cpu)
+mmdg
+        iacc=2. tacc=2. bacc=0.01 pacc=2. 
+        verbose off
+        ordered 
+        metrize (all) 1000000
+end
+evaluate ($cpu_time=$cpu-$cpu_start)
+display  CPU-time= $cpu_time
+
+display $embedded
+display $non_met_gap
+display $dgscale
+
+{ make test case more robust by comparing abs. values }
+do (x = abs(x * $dgscale)) (all)
+do (y = abs(y * $dgscale)) (all)
+do (z = abs(z * $dgscale)) (all) 
+
+write coords end
+
+
+
+
+set seed = 8787380 end
+
+evaluate ($cpu_start= $cpu)
+mmdg
+        iacc=2. tacc=2. bacc=0.01 pacc=2. 
+        verbose off
+	storebounds
+end
+evaluate ($cpu_time=$cpu-$cpu_start)
+display  CPU-time= $cpu_time
+
+set seed = 8787380 end
+evaluate ($cpu_start= $cpu)
+mmdg
+        recallbounds
+        ordered 
+        metrize (all) 1000000
+	substructure=( name ca or name n or name c or name o or
+	               name cb* or name cg* ) 
+end
+evaluate ($cpu_time=$cpu-$cpu_start)
+display  CPU-time= $cpu_time
+
+display $embedded
+display $non_met_gap
+display $dgscale
+
+write coords selection=
+         ( name ca or name n or name c or name o or
+	               name cb* or name cg* )end
+
+{* bound smoothing only *}
+set seed = 8787380 end
+evaluate ($cpu_start= $cpu)
+mmdg
+        recallbounds
+        ordered 
+        metrize (not all) 0
+	substructure=( name ca or name n or name c or name o or
+	               name cb* or name cg* ) 
+end
+evaluate ($cpu_time=$cpu-$cpu_start)
+display  CPU-time= $cpu_time
+
+display $embedded
+display $non_met_gap
+display $dgscale
+
+write coords selection=
+         ( name ca or name n or name c or name o or
+	               name cb* or name cg* )end
+
+stop

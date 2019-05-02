@@ -1,0 +1,90 @@
+! Module file: printrano
+!
+! CNS module
+! **********
+!
+! Authors: Piet Gros and Axel T. Brunger
+!
+! copyright Yale University
+!
+! Function: 
+! Print R-factor statistics for AS
+!
+! Requirements:
+! 1. This module can only be called from xray
+! 2. Array &Fp must contain phases
+! 3. For anomalous differences ANOMalous must be TRUE and, thus, the
+!    arrays of domain=reciprocal (like structure factors) contain both
+!    the (+) and the (-) elements.
+!
+
+module {printrano}
+(
+   &text="";          {identifying text}
+   &table="";         {identifying text for table}
+
+   &fp=fobs;          {native data}
+   &fph;              {derivative data}
+   &fh;               {heavy atom structure factors}
+
+   &sel=(all);        {structure factor selection}
+   &output=OUTPUT;    {output filename}
+)
+
+checkversion 1.3
+
+set display=&output end
+
+declare domain=reci type=real name=selected end   {selected bijvoet pairs}
+
+
+do (selected=0) ( all )      {select Bijvoet pairs}
+do (selected=1) ( friedel_pair(&sel) and acentric )
+
+
+display                       Anomalous Kraut R-value
+display                       -----------------------
+display                       |(|fh(+)+fp(+)|-|fh(-)+fp(-)|)
+display                        - (|fph(+)|-|fph(-)|)|  
+display                        /sum|(|fph(+)|-|fph(-)|)|
+display              
+if (&text # "") then
+   display &text
+end if
+
+bins ? evaluate ($old_bins=$result) 
+statistics 
+   (sum
+    (abs
+     (
+      abs(&fh+&fp)-abs(friedel(&fh)+friedel(&fp))
+      -abs(&fph)+abs(friedel(&fph))
+     )
+    )/
+    sum(abs(abs(&fph)-abs(friedel(&fph))))
+   )
+   sele=(selected=1)
+   output=&output
+end 
+bins=1
+statistics 
+   (sum
+    (abs
+     (
+      abs(&fh+&fp)-abs(friedel(&fh)+friedel(&fp))
+      -abs(&fph)+abs(friedel(&fph))
+     )
+    )/
+    sum(abs(abs(&fph)-abs(friedel(&fph))))
+   )
+   sele=(selected=1)
+   output=&output
+end 
+bins=$old_bins
+
+if (&table # "") then
+  display TAB: &table anomalous R-Kraut= $expression1[F5.3]
+end if
+
+undeclare domain=reci name=selected end   {selected bijvoet pairs}
+

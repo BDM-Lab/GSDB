@@ -1,0 +1,118 @@
+! Module file: calcsubener
+!
+! CNS MODULE
+! **********
+!
+! Authors: Gregory L. Warren and Axel T. Brunger
+!
+! copyright Yale University
+!
+! version 02/20/98
+!
+! Function:
+!          Calculate average values for energies
+!
+! Requirements:
+!       Use symbols initilized and used in the macros initave 
+!       and printaccept.             
+!
+!
+
+module {calcsubener}
+(
+   &count=count;             {number of accepted or trial structures}
+   &ener1=ener1;             {INPUT/OUTPUT: average energy values}
+   &ener2=ener2;             {INPUT/OUTPUT: squared average energy values}
+)
+   
+
+checkversion 1.3
+
+set message ? end
+evaluate ($message_old=$result)
+set echo ? end
+evaluate ($echo_old=$result)
+if ( $log_level = verbose ) then
+  set echo=on message=normal end
+else
+  set echo=off message=off end
+end if
+
+   if (&count > 1) then
+      evaluate (&ener2.ovrl=sqrt((&ener2.ovrl-(&ener1.ovrl^2/&count))
+                            /(&count-1)))
+      evaluate (&ener2.bond=sqrt((&ener2.bond-(&ener1.bond^2/&count))
+                            /(&count-1)))
+      evaluate (&ener2.angl=sqrt((&ener2.angl-(&ener1.angl^2/&count))
+                            /(&count-1)))
+      evaluate (&ener2.impr=sqrt((&ener2.impr-(&ener1.impr^2/&count))
+                            /(&count-1)))
+      evaluate (&ener2.vdw =sqrt((&ener2.vdw-(&ener1.vdw^2/&count))
+                            /(&count-1)))
+      evaluate (&ener2.dihe =sqrt((&ener2.dihe-(&ener1.dihe^2/&count))
+                            /(&count-1)))
+      evaluate (&ener2.elec =sqrt((&ener2.elec-(&ener1.elec^2/&count))
+                            /(&count-1)))
+      evaluate (&ener2.harm =sqrt((&ener2.harm-(&ener1.harm^2/&count))
+                            /(&count-1)))
+      evaluate (&ener2.noe =sqrt((&ener2.noe-(&ener1.noe^2/&count))
+                            /(&count-1)))
+      evaluate (&ener2.jcop=sqrt((&ener2.jcop-(&ener1.jcop^2/&count))
+                            /(&count-1)))
+      evaluate (&ener2.oneb=sqrt((&ener2.oneb-(&ener1.oneb^2/&count))
+                            /(&count-1)))
+      evaluate (&ener2.carb=sqrt((&ener2.carb-(&ener1.carb^2/&count))
+                            /(&count-1)))
+      evaluate (&ener2.prot=sqrt((&ener2.prot-(&ener1.prot^2/&count))
+                            /(&count-1)))
+      evaluate (&ener2.dani=sqrt((&ener2.dani-(&ener1.dani^2/&count))
+                            /(&count-1)))
+      evaluate (&ener2.sani=sqrt((&ener2.sani-(&ener1.sani^2/&count))
+                            /(&count-1)))
+      evaluate (&ener2.cdih=sqrt((&ener2.cdih-(&ener1.cdih^2/&count))
+                            /(&count-1)))
+      evaluate (&ener2.plan=sqrt((&ener2.plan-(&ener1.plan^2/&count))
+                            /(&count-1)))
+      evaluate (&ener2.ncs=sqrt((&ener2.ncs-(&ener1.ncs^2/&count))
+                            /(&count-1)))
+   else
+      evaluate (&ener2.ovrl=0.)
+      evaluate (&ener2.bond=0.)
+      evaluate (&ener2.angl=0.)
+      evaluate (&ener2.impr=0.)
+      evaluate (&ener2.vdw =0.)
+      evaluate (&ener2.dihe=0.)
+      evaluate (&ener2.elec=0.)
+      evaluate (&ener2.harm=0.)
+      evaluate (&ener2.noe =0.)
+      evaluate (&ener2.jcop=0.)
+      evaluate (&ener2.oneb=0.)
+      evaluate (&ener2.carb=0.)
+      evaluate (&ener2.prot=0.)
+      evaluate (&ener2.dani=0.)
+      evaluate (&ener2.sani=0.)
+      evaluate (&ener2.cdih=0.)
+      evaluate (&ener2.plan=0.)
+      evaluate (&ener2.ncs =0.)
+   end if			  
+
+   evaluate (&ener1.ovrl=&ener1.ovrl/&count)
+   evaluate (&ener1.bond=&ener1.bond/&count)
+   evaluate (&ener1.angl=&ener1.angl/&count)
+   evaluate (&ener1.impr=&ener1.impr/&count)
+   evaluate (&ener1.vdw =&ener1.vdw/&count)
+   evaluate (&ener1.dihe=&ener1.dihe/&count)
+   evaluate (&ener1.elec=&ener1.elec/&count)
+   evaluate (&ener1.harm=&ener1.harm/&count)
+   evaluate (&ener1.noe =&ener1.noe/&count)
+   evaluate (&ener1.jcop=&ener1.jcop/&count)
+   evaluate (&ener1.oneb=&ener1.oneb/&count)
+   evaluate (&ener1.carb=&ener1.carb/&count)
+   evaluate (&ener1.prot=&ener1.prot/&count)
+   evaluate (&ener1.dani=&ener1.dani/&count)
+   evaluate (&ener1.sani=&ener1.sani/&count)
+   evaluate (&ener1.cdih=&ener1.cdih/&count)
+   evaluate (&ener1.plan=&ener1.plan/&count)
+   evaluate (&ener1.ncs=&ener1.ncs/&count)
+      
+set message=$message_old echo=$echo_old end

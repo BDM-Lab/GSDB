@@ -1,0 +1,93 @@
+#!/bin/csh -f
+#
+# script to automate removal of the CNSsolve HTML interface on
+# a local WWW server - this script makes changes to the CNSsolve installation
+# and should be run by the CNSsolve adminstrator
+#
+# need to know:
+#   location of CNSsolve
+#
+# Written by: Paul Adams 6-2-98
+#
+# copyright Yale University
+#
+# defaults:
+#
+if ( ! $?CNS_SOLVE ) then
+ echo '$CNS_SOLVE variable undefined'
+ echo "please source cns_solve_env"
+ exit 1
+endif
+#
+if ( ! -e $CNS_SOLVE ) then
+ echo "CNSsolve directory does not exist"
+ echo "aboring installation"
+ exit 1
+endif
+#
+set version=`grep -i 'parameter *(cnsversion' $CNS_SOLVE/source/version.inc | cut -d\' -f2`
+set patch=`grep -i 'parameter *(cnspatch' $CNS_SOLVE/source/version.inc | cut -d\' -f2`
+if ( $patch == 0 ) set patch=''
+set version=$version$patch
+#
+echo "=============================================================="
+echo "location of CNSsolve directory is: $CNS_SOLVE"
+echo "version of CNSsolve is: $version"
+echo "=============================================================="
+#
+echo -n "continue with these parameters? [y/n]-> "
+set response=$<
+if ( $response == "y" || $response == "Y" ) then
+ echo "proceeding with CNSsolve HTML interface removal"
+else
+ exit 0
+endif
+#
+if ( -e $CNS_SOLVE/doc/html/local ) then
+ echo "removing directory $CNS_SOLVE/doc/html/local"
+ cd $CNS_SOLVE/doc/html/local
+ foreach dir ( input_files modules libraries utilities ) 
+   /bin/rm -f $CNS_SOLVE/doc/html/local/$dir/*.html
+   /bin/rmdir $CNS_SOLVE/doc/html/local/$dir
+ end
+ foreach file ( *.cgi *.lib )
+   /bin/rm -f $file
+ end
+ cd ..
+ /bin/rmdir $CNS_SOLVE/doc/html/local
+endif
+#
+cd $CNS_SOLVE/doc/html/input_files
+echo "removing old link for $CNS_SOLVE/doc/html/input_files/frame.html"
+/bin/rm -f frame.html
+echo "adding new link from ./frame_dist.html to frame.html"
+/bin/ln -s ./frame_dist.html frame.html 
+#
+cd $CNS_SOLVE/doc/html/modules
+echo "removing old link for $CNS_SOLVE/doc/html/modules/frame.html"
+/bin/rm -f frame.html
+echo "adding new link from ./frame_dist.html to frame.html"
+/bin/ln -s ./frame_dist.html frame.html 
+#
+cd $CNS_SOLVE/doc/html/libraries
+echo "removing old link for $CNS_SOLVE/doc/html/libraries/frame.html"
+/bin/rm -f frame.html
+echo "adding new link from ./frame_dist.html to frame.html"
+/bin/ln -s ./frame_dist.html frame.html 
+#
+cd $CNS_SOLVE/doc/html/utilities
+echo "removing old link for $CNS_SOLVE/doc/html/utilities/text.html"
+/bin/rm -f text.html
+echo "adding new link from ./text_dist.html to text.html"
+/bin/ln -s ./text_dist.html text.html 
+#
+cd $CNS_SOLVE/bin
+echo "removing file $CNS_SOLVE/bin/cns_edit_local"
+/bin/rm -f cns_edit_local
+#
+echo "Completed removal of CNSsolve HTML interface"
+echo ""
+echo "Ask your WWW server administrator to run:"
+echo "  $CNS_SOLVE/bin/www_server_remove"
+echo "to remove the CNSsolve HTML interface from the local WWW server"
+#

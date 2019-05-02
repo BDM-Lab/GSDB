@@ -1,0 +1,115 @@
+! Module file: molreptarget
+!
+! CNS module
+! **********
+!
+! Authors: Axel Brunger and Paul Adams
+!
+! copyright Yale University
+!
+! Function:
+!    Defines the crystallographic targets for molecular replacement
+!
+! Requirements:
+!    Needs to be called within xray
+
+module {molreptarget}
+(
+  &target="residual";    {string}
+  &mbins=10;             {real}
+  &fobs=fobs;            {reciprocal space array}
+  &sigma=sigma;          {reciprocal space array}
+  &fcalc=fcalc;          {reciprocal space array}
+  &fpart=fpart;          {reciprocal space array}
+  &phase=phase;          {reciprocal space array}
+  &fom=fom;              {reciprocal space array}
+  &sel=(all);            {selection}
+  &statistics=true;      {logical}
+)
+
+set message ? end
+evaluate ($message_old=$result)
+set echo ? end
+evaluate ($echo_old=$result)
+if ( $log_level = verbose ) then
+  set echo=on message=normal end
+else
+  set echo=off message=off end
+end if
+
+checkversion 1.3
+
+bins=&mbins
+
+if ( &target = "residual" ) then
+
+  target=(resi(amplitude(&fobs),(&fcalc+&fpart),1.0))
+  dtarget=(dresi(amplitude(&fobs),(&fcalc+&fpart),1.0))
+  {- define refinement monitor -}
+  {- the R-value -}
+  monitor=(rvalue[overall](&fobs,(&fcalc+&fpart)))
+
+elseif ( &target = "vector" ) then
+
+  query name=&phase domain=reciprocal end
+  if ( $object_exist = false ) then
+    display Error: experimental phase array does not exist
+    abort
+  end if
+
+  target=(vector(combine(amplitude(&fobs),phase(&phase)),
+                (&fcalc+&fpart),1.0))
+  dtarget=(dvector(combine(amplitude(&fobs),phase(&phase)),
+                  (&fcalc+&fpart),1.0))
+  {- define refinement monitor -}
+  {- the vector R-value -}
+  monitor=(sum[overall]
+          (abs(&fobs - sum[overall](amplitude(&fobs)*amplitude(&fcalc+&fpart))
+                      /sum[overall](amplitude(&fcalc+&fpart)^2) (&fcalc+&fpart))
+                      /sum[overall](abs(&fobs))) )
+
+elseif ( &target = "f1f1" ) then
+
+  target=(f1f1(amplitude(&fobs),(&fcalc+&fpart)))
+  dtarget=(df1f1(amplitude(&fobs),(&fcalc+&fpart)))
+  {- define refinement monitor -}
+  {- F correlation -}
+  monitor=(corr[overall](amplitude(&fobs),amplitude(&fcalc+&fpart)))
+
+elseif ( &target = "f2f2" ) then
+
+  target=(f2f2(amplitude(&fobs),(&fcalc+&fpart)))
+  dtarget=(df2f2(amplitude(&fobs),(&fcalc+&fpart)))
+  {- define refinement monitor -}
+  {- F^2 correlation -}
+  monitor=(corr[overall](amplitude(&fobs)^2,amplitude(&fcalc+&fpart)^2))
+
+elseif ( &target = "e1e1" ) then
+
+  target=(e1e1(amplitude(&fobs),(&fcalc+&fpart)))
+  dtarget=(de1e1(amplitude(&fobs),(&fcalc+&fpart)))
+  {- define refinement monitor -}
+  {- E correlation -}
+  monitor=(corr[overall](norm(amplitude(&fobs)),norm(amplitude(&fcalc+&fpart))))
+
+elseif ( &target = "e2e2" ) then
+
+  target=(e2e2(amplitude(&fobs),(&fcalc+&fpart)))
+  dtarget=(de2e2(amplitude(&fobs),(&fcalc+&fpart)))
+  {- define refinement monitor -}
+  {- E^2 correlation -}
+  monitor=(corr[overall](norm(amplitude(&fobs))^2,
+                         norm(amplitude(&fcalc+&fpart))^2 ))
+else
+  
+  display Target-error: unknown target definition, defaulting to residual
+
+  target=(resi(amplitude(&fobs),(&fcalc+&fpart),1.0))
+  dtarget=(dresi(amplitude(&fobs),(&fcalc+&fpart),1.0))
+  {- define refinement monitor -}
+  {- the R-value -}
+  monitor=(rvalue[overall](&fobs,(&fcalc+&fpart)))
+
+end if
+
+set message=$message_old echo=$echo_old end

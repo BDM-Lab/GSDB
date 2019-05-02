@@ -1,0 +1,1693 @@
+!
+! setup.tbl
+! Sets up the selections for the various database energies
+! Works with all.tbl
+!
+! WARNING: this script overwrites the store7, store8, and store9 arrays
+!
+! by John Kuszewski 6/19/96
+! modified from earlier version for PROCHECK database energy
+!
+! modified 11/17/96 JJK for new phi/psi/chi1 dists
+!
+ 
+set message off echo off end
+ 
+!
+! need to select all the residues that immediately preceed a proline
+! in order to designate them "xpr"
+!
+! xpr residues are stored in the store6 array
+!
+
+ do (store6 = 0) (all)
+
+for $count in id (name ca and resn pro) loop database
+    show elem (segid) (id $count)
+   eval ($curSeg = $result)
+    show elem (resid) (id $count)
+   eval ($curRes = decode($result))
+   eval ($prevRes = $curRes - 1)
+    identify (store6) (store6 or (resid $prevRes and segid $curSeg))
+end loop database
+
+
+!
+! get selections for N and C termini
+! 
+! atoms that are in N terminal residues are selected in store7
+! atoms that are in C terminal residues are selected in store8
+! 
+
+ do (store7 = 0) (all)
+ do (store8 = 0) (all)
+
+for $count in id (name ca) loop database
+    show elem (segid) (id $count)
+   eval ($curSeg = $result)
+    show elem (resid) (id $count)
+   eval ($curRes = decode($result))
+   eval ($nextRes = $curRes + 1)
+   eval ($prevRes = $curRes - 1)
+    do (store9 = 1) (all)
+    show sum (store9) (resid $nextRes and segid $curSeg)
+   eval ($nextResExists = $result)
+    show sum (store9) (resid $prevRes and segid $curSeg)
+   eval ($prevResExists = $result)
+   if ($nextResExists = 0) then
+       identify (store7) (store7 or (resid $curRes and segid $curSeg))
+   end if
+   if ($prevResExists = 0) then
+       identity (store8) (store8 or (resid $curRes and segid $curSeg))
+   end if
+end loop database
+
+!
+! ala
+!
+
+for $count in id (name ca and resn ala and not store6) loop database
+
+    show elem (segid) (id $count)
+   eval ($curSeg = $result)
+    show elem (resid) (id $count)
+   eval ($curRes = $result)
+   eval ($nextRes = adjustl(format("I4",decode ($curRes) + 1)))
+   eval ($prevRes = adjustl(format("I4",decode ($curRes) - 1)))
+
+   !
+   ! now deal with BB selections -- 
+   ! phi not defined for N terminal resids, 
+   ! psi not defined for C terminal resids,
+   ! omega not defined for C terminal resids
+   !
+    do (x = x) (segid $curSeg and resid $curRes and (store7 or store8))
+   if ($select < 1) then
+      RAMA 
+      class phi_psi_rest
+      assign 
+         (segid $curSeg and resid $prevRes and name c)
+         (segid $curSeg and resid $curRes and name n)
+         (segid $curSeg and resid $curRes and name ca)
+         (segid $curSeg and resid $curRes and name c)
+         (segid $curSeg and resid $curRes and name n)
+         (segid $curSeg and resid $curRes and name ca)
+         (segid $curSeg and resid $curRes and name c)
+         (segid $curSeg and resid $nextRes and name n)
+      end
+   end if
+
+end loop database
+
+
+!
+! arg
+!
+
+for $count in id (name ca and resn arg and not store6) loop database
+
+    show elem (segid) (id $count)
+   eval ($curSeg = $result)
+    show elem (resid) (id $count)
+   eval ($curRes = $result)
+   eval ($nextRes = adjustl(format("I4",decode ($curRes) + 1)))
+   eval ($prevRes = adjustl(format("I4",decode ($curRes) - 1)))
+
+   !
+   ! now deal with BB selections -- 
+   ! phi not defined for N terminal resids, 
+   ! psi not defined for C terminal resids,
+   ! omega not defined for C terminal resids
+   !
+    do (x = x) (segid $curSeg and resid $curRes and (store7 or store8))
+   if ($select < 1) then
+      RAMA
+      class phi_psi_rest
+      assign
+         (segid $curSeg and resid $prevRes and name c)
+         (segid $curSeg and resid $curRes and name n)
+         (segid $curSeg and resid $curRes and name ca)
+         (segid $curSeg and resid $curRes and name c)
+         (segid $curSeg and resid $curRes and name n)
+         (segid $curSeg and resid $curRes and name ca)
+         (segid $curSeg and resid $curRes and name c)
+         (segid $curSeg and resid $nextRes and name n)
+      end
+      RAMA 
+      class phi_psi_chi1_arg_lys_met_gln_glu
+      assign 
+         (segid $curSeg and resid $prevRes and name c)
+         (segid $curSeg and resid $curRes and name n)
+         (segid $curSeg and resid $curRes and name ca)
+         (segid $curSeg and resid $curRes and name c)
+         (segid $curSeg and resid $curRes and name n)
+         (segid $curSeg and resid $curRes and name ca)
+         (segid $curSeg and resid $curRes and name c)
+         (segid $curSeg and resid $nextRes and name n)
+         (segid $curSeg and resid $curRes and name n)
+         (segid $curSeg and resid $curRes and name ca)
+         (segid $curSeg and resid $curRes and name cb)
+         (segid $curSeg and resid $curRes and name cg)
+      end
+   end if
+
+   RAMA
+   class chi1_chi2_arg_lys_met
+   assign 
+      (segid $curSeg and resid $curRes and name n)
+      (segid $curSeg and resid $curRes and name ca)
+      (segid $curSeg and resid $curRes and name cb)
+      (segid $curSeg and resid $curRes and name cg)
+      (segid $curSeg and resid $curRes and name ca)
+      (segid $curSeg and resid $curRes and name cb)
+      (segid $curSeg and resid $curRes and name cg)
+      (segid $curSeg and resid $curRes and name cd)
+   end   
+
+   RAMA
+   class chi2_chi3_arg
+   assign 
+      (segid $curSeg and resid $curRes and name ca)
+      (segid $curSeg and resid $curRes and name cb)
+      (segid $curSeg and resid $curRes and name cg)
+      (segid $curSeg and resid $curRes and name cd)
+      (segid $curSeg and resid $curRes and name cb)
+      (segid $curSeg and resid $curRes and name cg)
+      (segid $curSeg and resid $curRes and name cd)
+      (segid $curSeg and resid $curRes and name ne)
+   end
+
+   !
+   ! chi1/chi2/chi3
+   !
+   RAMA
+   class chi1_chi2_chi3_arg
+   assign 
+      (segid $curSeg and resid $curRes and name n)
+      (segid $curSeg and resid $curRes and name ca)
+      (segid $curSeg and resid $curRes and name cb)
+      (segid $curSeg and resid $curRes and name cg)
+      (segid $curSeg and resid $curRes and name ca)
+      (segid $curSeg and resid $curRes and name cb)
+      (segid $curSeg and resid $curRes and name cg)
+      (segid $curSeg and resid $curRes and name cd)
+      (segid $curSeg and resid $curRes and name cb)
+      (segid $curSeg and resid $curRes and name cg)
+      (segid $curSeg and resid $curRes and name cd)
+      (segid $curSeg and resid $curRes and name ne)
+   end 
+
+   !
+   ! chi4
+   !
+   RAMA
+   class chi4_arg
+   assign
+      (segid $curSeg and resid $curRes and name cg)
+      (segid $curSeg and resid $curRes and name cd)
+      (segid $curSeg and resid $curRes and name ne)
+      (segid $curSeg and resid $curRes and name cz)
+   end
+
+end loop database
+
+
+!
+! asn
+!
+
+for $count in id (name ca and resn asn and not store6) loop database
+
+    show elem (segid) (id $count)
+   eval ($curSeg = $result)
+    show elem (resid) (id $count)
+   eval ($curRes = $result)
+   eval ($nextRes = adjustl(format("I4",decode ($curRes) + 1)))
+   eval ($prevRes = adjustl(format("I4",decode ($curRes) - 1)))
+
+   !
+   ! now deal with BB selections -- 
+   ! phi not defined for N terminal resids, 
+   ! psi not defined for C terminal resids,
+   ! omega not defined for C terminal resids
+   !
+    do (x = x) (segid $curSeg and resid $curRes and (store7 or store8))
+   if ($select < 1) then
+      RAMA
+      class phi_psi_hbonding
+      assign
+         (segid $curSeg and resid $prevRes and name c)
+         (segid $curSeg and resid $curRes and name n)
+         (segid $curSeg and resid $curRes and name ca)
+         (segid $curSeg and resid $curRes and name c)
+         (segid $curSeg and resid $curRes and name n)
+         (segid $curSeg and resid $curRes and name ca)
+         (segid $curSeg and resid $curRes and name c)
+         (segid $curSeg and resid $nextRes and name n)
+      end
+      RAMA 
+      class phi_psi_chi1_cysred_his_asp_asn
+      assign 
+         (segid $curSeg and resid $prevRes and name c)
+         (segid $curSeg and resid $curRes and name n)
+         (segid $curSeg and resid $curRes and name ca)
+         (segid $curSeg and resid $curRes and name c)
+         (segid $curSeg and resid $curRes and name n)
+         (segid $curSeg and resid $curRes and name ca)
+         (segid $curSeg and resid $curRes and name c)
+         (segid $curSeg and resid $nextRes and name n)
+         (segid $curSeg and resid $curRes and name n)
+         (segid $curSeg and resid $curRes and name ca)
+         (segid $curSeg and resid $curRes and name cb)
+         (segid $curSeg and resid $curRes and name cg)
+      end
+   end if
+
+   !
+   ! chi1/chi2
+   !
+   RAMA
+   class chi1_chi2_asn 
+   assign 
+      (segid $curSeg and resid $curRes and name n)
+      (segid $curSeg and resid $curRes and name ca)
+      (segid $curSeg and resid $curRes and name cb)
+      (segid $curSeg and resid $curRes and name cg)
+      (segid $curSeg and resid $curRes and name ca)
+      (segid $curSeg and resid $curRes and name cb)
+      (segid $curSeg and resid $curRes and name cg)
+! is this right?
+      (segid $curSeg and resid $curRes and name od1)
+   end
+
+end loop database
+
+
+!
+! asp
+!
+
+for $count in id (name ca and resn asp and not store6) loop database
+
+    show elem (segid) (id $count)
+   eval ($curSeg = $result)
+    show elem (resid) (id $count)
+   eval ($curRes = $result)
+   eval ($nextRes = adjustl(format("I4",decode ($curRes) + 1)))
+   eval ($prevRes = adjustl(format("I4",decode ($curRes) - 1)))
+
+   !
+   ! now deal with BB selections -- 
+   ! phi not defined for N terminal resids, 
+   ! psi not defined for C terminal resids,
+   ! omega not defined for C terminal resids
+   !
+    do (x = x) (segid $curSeg and resid $curRes and (store7 or store8))
+   if ($select < 1) then
+      RAMA
+      class phi_psi_hbonding
+      assign
+         (segid $curSeg and resid $prevRes and name c)
+         (segid $curSeg and resid $curRes and name n)
+         (segid $curSeg and resid $curRes and name ca)
+         (segid $curSeg and resid $curRes and name c)
+         (segid $curSeg and resid $curRes and name n)
+         (segid $curSeg and resid $curRes and name ca)
+         (segid $curSeg and resid $curRes and name c)
+         (segid $curSeg and resid $nextRes and name n)
+      end
+      RAMA 
+      class phi_psi_chi1_cysred_his_asp_asn
+      assign 
+         (segid $curSeg and resid $prevRes and name c)
+         (segid $curSeg and resid $curRes and name n)
+         (segid $curSeg and resid $curRes and name ca)
+         (segid $curSeg and resid $curRes and name c)
+         (segid $curSeg and resid $curRes and name n)
+         (segid $curSeg and resid $curRes and name ca)
+         (segid $curSeg and resid $curRes and name c)
+         (segid $curSeg and resid $nextRes and name n)
+         (segid $curSeg and resid $curRes and name n)
+         (segid $curSeg and resid $curRes and name ca)
+         (segid $curSeg and resid $curRes and name cb)
+         (segid $curSeg and resid $curRes and name cg)
+      end
+   end if
+
+   !
+   ! chi1/chi2
+   !
+   RAMA
+   class chi1_chi2_asp 
+   assign 
+      (segid $curSeg and resid $curRes and name n)
+      (segid $curSeg and resid $curRes and name ca)
+      (segid $curSeg and resid $curRes and name cb)
+      (segid $curSeg and resid $curRes and name cg)
+      (segid $curSeg and resid $curRes and name ca)
+      (segid $curSeg and resid $curRes and name cb)
+      (segid $curSeg and resid $curRes and name cg)
+! is this right?
+      (segid $curSeg and resid $curRes and name od1)
+   end
+
+end loop database
+ 
+ 
+!
+! cysox
+!
+ 
+for $count in id (name ca and resn cys and not store6) loop database
+ show sum (x) (byresidue id $count and name hg)
+if ($select = 0) then
+    show elem (segid) (id $count)
+   eval ($curSeg = $result)
+    show elem (resid) (id $count)
+   eval ($curRes = $result)
+   eval ($nextRes = adjustl(format("I4",decode ($curRes) + 1)))
+   eval ($prevRes = adjustl(format("I4",decode ($curRes) - 1)))
+
+   !
+   ! now deal with BB selections -- 
+   ! phi not defined for N terminal resids, 
+   ! psi not defined for C terminal resids,
+   ! omega not defined for C terminal resids
+   !
+    do (x = x) (segid $curSeg and resid $curRes and (store7 or store8))
+   if ($select < 1) then
+      RAMA
+      class phi_psi_rest
+      assign
+         (segid $curSeg and resid $prevRes and name c)
+         (segid $curSeg and resid $curRes and name n)
+         (segid $curSeg and resid $curRes and name ca)
+         (segid $curSeg and resid $curRes and name c)
+         (segid $curSeg and resid $curRes and name n)
+         (segid $curSeg and resid $curRes and name ca)
+         (segid $curSeg and resid $curRes and name c)
+         (segid $curSeg and resid $nextRes and name n)
+      end
+      RAMA 
+      class phi_psi_chi1_cysox
+      assign 
+         (segid $curSeg and resid $prevRes and name c)
+         (segid $curSeg and resid $curRes and name n)
+         (segid $curSeg and resid $curRes and name ca)
+         (segid $curSeg and resid $curRes and name c)
+         (segid $curSeg and resid $curRes and name n)
+         (segid $curSeg and resid $curRes and name ca)
+         (segid $curSeg and resid $curRes and name c)
+         (segid $curSeg and resid $nextRes and name n)
+         (segid $curSeg and resid $curRes and name n)
+         (segid $curSeg and resid $curRes and name ca)
+         (segid $curSeg and resid $curRes and name cb)
+         (segid $curSeg and resid $curRes and name sg)
+      end
+   end if
+
+   !
+   ! chi1/chi2
+   !
+   RAMA
+   class chi1_chi2_cysox
+   assign 
+      (segid $curSeg and resid $curRes and name n)
+      (segid $curSeg and resid $curRes and name ca)
+      (segid $curSeg and resid $curRes and name cb)
+      (segid $curSeg and resid $curRes and name sg)
+      (segid $curSeg and resid $curRes and name ca)
+      (segid $curSeg and resid $curRes and name cb)
+      (segid $curSeg and resid $curRes and name sg)
+      (segid $curSeg and resid $curRes and name hg)
+   end
+end if
+end loop database
+ 
+!
+! cysred
+! 
+ 
+for $count in id (name ca and resn cys and not store6) loop database
+ show sum (x) (byresidue id $count and name hg)
+if ($select = 1) then
+    show elem (segid) (id $count)
+   eval ($curSeg = $result)
+    show elem (resid) (id $count)
+   eval ($curRes = $result)
+   eval ($nextRes = adjustl(format("I4",decode ($curRes) + 1)))
+   eval ($prevRes = adjustl(format("I4",decode ($curRes) - 1)))
+
+   !
+   ! now deal with BB selections -- 
+   ! phi not defined for N terminal resids, 
+   ! psi not defined for C terminal resids,
+   ! omega not defined for C terminal resids
+   !
+    do (x = x) (segid $curSeg and resid $curRes and (store7 or store8))
+   if ($select < 1) then
+      RAMA 
+      class phi_psi_hbonding
+      assign 
+         (segid $curSeg and resid $prevRes and name c)
+         (segid $curSeg and resid $curRes and name n)
+         (segid $curSeg and resid $curRes and name ca)
+         (segid $curSeg and resid $curRes and name c)
+         (segid $curSeg and resid $curRes and name n)
+         (segid $curSeg and resid $curRes and name ca)
+         (segid $curSeg and resid $curRes and name c)
+         (segid $curSeg and resid $nextRes and name n)
+      end
+
+      RAMA
+      class phi_psi_chi1_cysred_his_asp_asn
+      assign
+         (segid $curSeg and resid $prevRes and name c)
+         (segid $curSeg and resid $curRes and name n)
+         (segid $curSeg and resid $curRes and name ca)
+         (segid $curSeg and resid $curRes and name c)
+         (segid $curSeg and resid $curRes and name n)
+         (segid $curSeg and resid $curRes and name ca)
+         (segid $curSeg and resid $curRes and name c)
+         (segid $curSeg and resid $nextRes and name n)
+         (segid $curSeg and resid $curRes and name n)
+         (segid $curSeg and resid $curRes and name ca)
+         (segid $curSeg and resid $curRes and name cb)
+         (segid $curSeg and resid $curRes and name sg)
+      end
+   end if
+end if
+end loop database
+ 
+ 
+!
+! gln
+!
+ 
+for $count in id (name ca and resn gln and not store6) loop database
+
+    show elem (segid) (id $count)
+   eval ($curSeg = $result)
+    show elem (resid) (id $count)
+   eval ($curRes = $result)
+   eval ($nextRes = adjustl(format("I4",decode ($curRes) + 1)))
+   eval ($prevRes = adjustl(format("I4",decode ($curRes) - 1)))
+
+   !
+   ! now deal with BB selections -- 
+   ! phi not defined for N terminal resids, 
+   ! psi not defined for C terminal resids,
+   ! omega not defined for C terminal resids
+   !
+    do (x = x) (segid $curSeg and resid $curRes and (store7 or store8))
+   if ($select < 1) then
+      RAMA 
+      class phi_psi_rest
+      assign 
+         (segid $curSeg and resid $prevRes and name c)
+         (segid $curSeg and resid $curRes and name n)
+         (segid $curSeg and resid $curRes and name ca)
+         (segid $curSeg and resid $curRes and name c)
+         (segid $curSeg and resid $curRes and name n)
+         (segid $curSeg and resid $curRes and name ca)
+         (segid $curSeg and resid $curRes and name c)
+         (segid $curSeg and resid $nextRes and name n)
+      end
+
+      RAMA
+      class phi_psi_chi1_arg_lys_met_gln_glu
+      assign
+         (segid $curSeg and resid $prevRes and name c)
+         (segid $curSeg and resid $curRes and name n)
+         (segid $curSeg and resid $curRes and name ca)
+         (segid $curSeg and resid $curRes and name c)
+         (segid $curSeg and resid $curRes and name n)
+         (segid $curSeg and resid $curRes and name ca)
+         (segid $curSeg and resid $curRes and name c)
+         (segid $curSeg and resid $nextRes and name n)
+         (segid $curSeg and resid $curRes and name n)
+         (segid $curSeg and resid $curRes and name ca)
+         (segid $curSeg and resid $curRes and name cb)
+         (segid $curSeg and resid $curRes and name cg)
+      end
+   end if
+
+   !
+   ! chi1/chi2
+   !
+   RAMA
+   class chi1_chi2_gln_glu
+   assign 
+      (segid $curSeg and resid $curRes and name n)
+      (segid $curSeg and resid $curRes and name ca)
+      (segid $curSeg and resid $curRes and name cb)
+      (segid $curSeg and resid $curRes and name cg)
+      (segid $curSeg and resid $curRes and name ca)
+      (segid $curSeg and resid $curRes and name cb)
+      (segid $curSeg and resid $curRes and name cg)
+      (segid $curSeg and resid $curRes and name cd)
+   end
+
+   !
+   ! chi2/chi3
+   !
+   RAMA
+   class chi2_chi3_gln
+   assign 
+      (segid $curSeg and resid $curRes and name ca)
+      (segid $curSeg and resid $curRes and name cb)
+      (segid $curSeg and resid $curRes and name cg)
+      (segid $curSeg and resid $curRes and name cd)
+      (segid $curSeg and resid $curRes and name cb)
+      (segid $curSeg and resid $curRes and name cg)
+      (segid $curSeg and resid $curRes and name cd)
+! is this right?
+      (segid $curSeg and resid $curRes and name oe1)
+   end
+
+   !
+   ! chi1/chi2/chi3
+   !
+   RAMA
+   class chi1_chi2_chi3_gln
+   assign
+      (segid $curSeg and resid $curRes and name n)
+      (segid $curSeg and resid $curRes and name ca)
+      (segid $curSeg and resid $curRes and name cb)
+      (segid $curSeg and resid $curRes and name cg)
+      (segid $curSeg and resid $curRes and name ca)
+      (segid $curSeg and resid $curRes and name cb)
+      (segid $curSeg and resid $curRes and name cg)
+      (segid $curSeg and resid $curRes and name cd)
+      (segid $curSeg and resid $curRes and name cb)
+      (segid $curSeg and resid $curRes and name cg)
+      (segid $curSeg and resid $curRes and name cd)
+! is this right?
+      (segid $curSeg and resid $curRes and name oe1)
+   end
+
+end loop database
+ 
+ 
+  
+!
+! glu
+!
+ 
+for $count in id (name ca and resn glu and not store6) loop database
+
+    show elem (segid) (id $count)
+   eval ($curSeg = $result)
+    show elem (resid) (id $count)
+   eval ($curRes = $result)
+   eval ($nextRes = adjustl(format("I4",decode ($curRes) + 1)))
+   eval ($prevRes = adjustl(format("I4",decode ($curRes) - 1)))
+
+   !
+   ! now deal with BB selections -- 
+   ! phi not defined for N terminal resids, 
+   ! psi not defined for C terminal resids,
+   ! omega not defined for C terminal resids
+   !
+    do (x = x) (segid $curSeg and resid $curRes and (store7 or store8))
+   if ($select < 1) then
+      RAMA 
+      class phi_psi_rest
+      assign 
+         (segid $curSeg and resid $prevRes and name c)
+         (segid $curSeg and resid $curRes and name n)
+         (segid $curSeg and resid $curRes and name ca)
+         (segid $curSeg and resid $curRes and name c)
+         (segid $curSeg and resid $curRes and name n)
+         (segid $curSeg and resid $curRes and name ca)
+         (segid $curSeg and resid $curRes and name c)
+         (segid $curSeg and resid $nextRes and name n)
+      end
+
+      RAMA
+      class phi_psi_chi1_arg_lys_met_gln_glu
+      assign
+         (segid $curSeg and resid $prevRes and name c)
+         (segid $curSeg and resid $curRes and name n)
+         (segid $curSeg and resid $curRes and name ca)
+         (segid $curSeg and resid $curRes and name c)
+         (segid $curSeg and resid $curRes and name n)
+         (segid $curSeg and resid $curRes and name ca)
+         (segid $curSeg and resid $curRes and name c)
+         (segid $curSeg and resid $nextRes and name n)
+         (segid $curSeg and resid $curRes and name n)
+         (segid $curSeg and resid $curRes and name ca)
+         (segid $curSeg and resid $curRes and name cb)
+         (segid $curSeg and resid $curRes and name cg)
+      end
+   end if
+
+
+   !
+   ! chi1/chi2
+   !
+   RAMA
+   class chi1_chi2_gln_glu
+   assign 
+      (segid $curSeg and resid $curRes and name n)
+      (segid $curSeg and resid $curRes and name ca)
+      (segid $curSeg and resid $curRes and name cb)
+      (segid $curSeg and resid $curRes and name cg)
+      (segid $curSeg and resid $curRes and name ca)
+      (segid $curSeg and resid $curRes and name cb)
+      (segid $curSeg and resid $curRes and name cg)
+      (segid $curSeg and resid $curRes and name cd)
+   end
+
+   !
+   ! chi2/chi3
+   !
+   RAMA
+   class chi2_chi3_glu
+   assign 
+      (segid $curSeg and resid $curRes and name ca)
+      (segid $curSeg and resid $curRes and name cb)
+      (segid $curSeg and resid $curRes and name cg)
+      (segid $curSeg and resid $curRes and name cd)
+      (segid $curSeg and resid $curRes and name cb)
+      (segid $curSeg and resid $curRes and name cg)
+      (segid $curSeg and resid $curRes and name cd)
+! is this right?
+      (segid $curSeg and resid $curRes and name oe1)
+   end
+
+   !
+   ! chi1/chi2/chi3
+   !
+   RAMA
+   class chi1_chi2_chi3_glu
+   assign 
+      (segid $curSeg and resid $curRes and name n)
+      (segid $curSeg and resid $curRes and name ca)
+      (segid $curSeg and resid $curRes and name cb)
+      (segid $curSeg and resid $curRes and name cg)
+      (segid $curSeg and resid $curRes and name ca)
+      (segid $curSeg and resid $curRes and name cb)
+      (segid $curSeg and resid $curRes and name cg)
+      (segid $curSeg and resid $curRes and name cd)
+      (segid $curSeg and resid $curRes and name cb)
+      (segid $curSeg and resid $curRes and name cg)
+      (segid $curSeg and resid $curRes and name cd)
+! is this right?
+      (segid $curSeg and resid $curRes and name oe1)
+   end
+
+end loop database
+ 
+ 
+!
+! gly
+!
+ 
+for $count in id (name ca and resn gly and not store6) loop database
+
+    show elem (segid) (id $count)
+   eval ($curSeg = $result)
+    show elem (resid) (id $count)
+   eval ($curRes = $result)
+   eval ($nextRes = adjustl(format("I4",decode ($curRes) + 1)))
+   eval ($prevRes = adjustl(format("I4",decode ($curRes) - 1)))
+
+   !
+   ! now deal with BB selections -- 
+   ! phi not defined for N terminal resids, 
+   ! psi not defined for C terminal resids,
+   ! omega not defined for C terminal resids
+   !
+    do (x = x) (segid $curSeg and resid $curRes and (store7 or store8))
+   if ($select < 1) then
+      RAMA 
+      class phi_psi_gly
+      assign 
+         (segid $curSeg and resid $prevRes and name c)
+         (segid $curSeg and resid $curRes and name n)
+         (segid $curSeg and resid $curRes and name ca)
+         (segid $curSeg and resid $curRes and name c)
+         (segid $curSeg and resid $curRes and name n)
+         (segid $curSeg and resid $curRes and name ca)
+         (segid $curSeg and resid $curRes and name c)
+         (segid $curSeg and resid $nextRes and name n)
+      end
+   end if
+
+end loop database
+ 
+ 
+!
+! his
+!
+ 
+for $count in id (name ca and resn his and not store6) loop database
+
+    show elem (segid) (id $count)
+   eval ($curSeg = $result)
+    show elem (resid) (id $count)
+   eval ($curRes = $result)
+   eval ($nextRes = adjustl(format("I4",decode ($curRes) + 1)))
+   eval ($prevRes = adjustl(format("I4",decode ($curRes) - 1)))
+
+   !
+   ! now deal with BB selections -- 
+   ! phi not defined for N terminal resids, 
+   ! psi not defined for C terminal resids,
+   ! omega not defined for C terminal resids
+   !
+    do (x = x) (segid $curSeg and resid $curRes and (store7 or store8))
+   if ($select < 1) then
+      RAMA 
+      class phi_psi_hbonding
+      assign 
+         (segid $curSeg and resid $prevRes and name c)
+         (segid $curSeg and resid $curRes and name n)
+         (segid $curSeg and resid $curRes and name ca)
+         (segid $curSeg and resid $curRes and name c)
+         (segid $curSeg and resid $curRes and name n)
+         (segid $curSeg and resid $curRes and name ca)
+         (segid $curSeg and resid $curRes and name c)
+         (segid $curSeg and resid $nextRes and name n)
+      end
+
+      RAMA
+      class phi_psi_chi1_cysred_his_asp_asn
+      assign
+         (segid $curSeg and resid $prevRes and name c)
+         (segid $curSeg and resid $curRes and name n)
+         (segid $curSeg and resid $curRes and name ca)
+         (segid $curSeg and resid $curRes and name c)
+         (segid $curSeg and resid $curRes and name n)
+         (segid $curSeg and resid $curRes and name ca)
+         (segid $curSeg and resid $curRes and name c)
+         (segid $curSeg and resid $nextRes and name n)
+         (segid $curSeg and resid $curRes and name n)
+         (segid $curSeg and resid $curRes and name ca)
+         (segid $curSeg and resid $curRes and name cb)
+         (segid $curSeg and resid $curRes and name cg)
+      end
+   end if
+
+
+   !
+   ! chi1/chi2
+   !
+   RAMA
+   class chi1_chi2_his
+   assign 
+      (segid $curSeg and resid $curRes and name n)
+      (segid $curSeg and resid $curRes and name ca)
+      (segid $curSeg and resid $curRes and name cb)
+      (segid $curSeg and resid $curRes and name cg)
+      (segid $curSeg and resid $curRes and name ca)
+      (segid $curSeg and resid $curRes and name cb)
+      (segid $curSeg and resid $curRes and name cg)
+! is this right?
+      (segid $curSeg and resid $curRes and name nd1)
+   end
+
+end loop database
+ 
+ 
+!
+! ile
+!
+ 
+for $count in id (name ca and resn ile and not store6) loop database
+
+    show elem (segid) (id $count)
+   eval ($curSeg = $result)
+    show elem (resid) (id $count)
+   eval ($curRes = $result)
+   eval ($nextRes = adjustl(format("I4",decode ($curRes) + 1)))
+   eval ($prevRes = adjustl(format("I4",decode ($curRes) - 1)))
+
+   !
+   ! now deal with BB selections -- 
+   ! phi not defined for N terminal resids, 
+   ! psi not defined for C terminal resids,
+   ! omega not defined for C terminal resids
+   !
+    do (x = x) (segid $curSeg and resid $curRes and (store7 or store8))
+   if ($select < 1) then
+      RAMA 
+      class phi_psi_val_ile
+      assign 
+         (segid $curSeg and resid $prevRes and name c)
+         (segid $curSeg and resid $curRes and name n)
+         (segid $curSeg and resid $curRes and name ca)
+         (segid $curSeg and resid $curRes and name c)
+         (segid $curSeg and resid $curRes and name n)
+         (segid $curSeg and resid $curRes and name ca)
+         (segid $curSeg and resid $curRes and name c)
+         (segid $curSeg and resid $nextRes and name n)
+      end
+
+      RAMA
+      class phi_psi_chi1_ile
+      assign
+         (segid $curSeg and resid $prevRes and name c)
+         (segid $curSeg and resid $curRes and name n)
+         (segid $curSeg and resid $curRes and name ca)
+         (segid $curSeg and resid $curRes and name c)
+         (segid $curSeg and resid $curRes and name n)
+         (segid $curSeg and resid $curRes and name ca)
+         (segid $curSeg and resid $curRes and name c)
+         (segid $curSeg and resid $nextRes and name n)
+         (segid $curSeg and resid $curRes and name n)
+         (segid $curSeg and resid $curRes and name ca)
+         (segid $curSeg and resid $curRes and name cb)
+! is this right?
+         (segid $curSeg and resid $curRes and name cg1)
+      end
+   end if
+
+
+   !
+   ! chi1/chi2
+   !
+   RAMA
+   class chi1_chi2_ile
+   assign 
+      (segid $curSeg and resid $curRes and name n)
+      (segid $curSeg and resid $curRes and name ca)
+      (segid $curSeg and resid $curRes and name cb)
+! is this right?
+      (segid $curSeg and resid $curRes and name cg1)
+      (segid $curSeg and resid $curRes and name ca)
+      (segid $curSeg and resid $curRes and name cb)
+! is this right?
+      (segid $curSeg and resid $curRes and name cg1)
+      (segid $curSeg and resid $curRes and (name cd1 or name cd))
+   end
+
+end loop database
+ 
+ 
+!
+! leu
+!
+ 
+for $count in id (name ca and resn leu and not store6) loop database
+
+    show elem (segid) (id $count)
+   eval ($curSeg = $result)
+    show elem (resid) (id $count)
+   eval ($curRes = $result)
+   eval ($nextRes = adjustl(format("I4",decode ($curRes) + 1)))
+   eval ($prevRes = adjustl(format("I4",decode ($curRes) - 1)))
+
+   !
+   ! now deal with BB selections -- 
+   ! phi not defined for N terminal resids, 
+   ! psi not defined for C terminal resids,
+   ! omega not defined for C terminal resids
+   !
+    do (x = x) (segid $curSeg and resid $curRes and (store7 or store8))
+   if ($select < 1) then
+      RAMA 
+      class phi_psi_rest
+      assign 
+         (segid $curSeg and resid $prevRes and name c)
+         (segid $curSeg and resid $curRes and name n)
+         (segid $curSeg and resid $curRes and name ca)
+         (segid $curSeg and resid $curRes and name c)
+         (segid $curSeg and resid $curRes and name n)
+         (segid $curSeg and resid $curRes and name ca)
+         (segid $curSeg and resid $curRes and name c)
+         (segid $curSeg and resid $nextRes and name n)
+      end
+
+      RAMA
+      class phi_psi_chi1_leu
+      assign 
+         (segid $curSeg and resid $prevRes and name c)
+         (segid $curSeg and resid $curRes and name n)
+         (segid $curSeg and resid $curRes and name ca)
+         (segid $curSeg and resid $curRes and name c)
+         (segid $curSeg and resid $curRes and name n)
+         (segid $curSeg and resid $curRes and name ca)
+         (segid $curSeg and resid $curRes and name c)
+         (segid $curSeg and resid $nextRes and name n)
+         (segid $curSeg and resid $curRes and name n)
+         (segid $curSeg and resid $curRes and name ca)
+         (segid $curSeg and resid $curRes and name cb)
+         (segid $curSeg and resid $curRes and name cg)
+      end
+   end if
+
+
+   !
+   ! chi1/chi2
+   !
+   RAMA
+   class chi1_chi2_leu
+   assign 
+      (segid $curSeg and resid $curRes and name n)
+      (segid $curSeg and resid $curRes and name ca)
+      (segid $curSeg and resid $curRes and name cb)
+      (segid $curSeg and resid $curRes and name cg)
+      (segid $curSeg and resid $curRes and name ca)
+      (segid $curSeg and resid $curRes and name cb)
+      (segid $curSeg and resid $curRes and name cg)
+! is this right?
+      (segid $curSeg and resid $curRes and name cd1)
+   end
+
+end loop database
+ 
+ 
+!
+! lys
+!
+ 
+for $count in id (name ca and resn lys and not store6) loop database
+
+    show elem (segid) (id $count)
+   eval ($curSeg = $result)
+    show elem (resid) (id $count)
+   eval ($curRes = $result)
+   eval ($nextRes = adjustl(format("I4",decode ($curRes) + 1)))
+   eval ($prevRes = adjustl(format("I4",decode ($curRes) - 1)))
+
+   !
+   ! now deal with BB selections -- 
+   ! phi not defined for N terminal resids, 
+   ! psi not defined for C terminal resids,
+   ! omega not defined for C terminal resids
+   !
+    do (x = x) (segid $curSeg and resid $curRes and (store7 or store8))
+   if ($select < 1) then
+      RAMA 
+      class phi_psi_rest
+      assign 
+         (segid $curSeg and resid $prevRes and name c)
+         (segid $curSeg and resid $curRes and name n)
+         (segid $curSeg and resid $curRes and name ca)
+         (segid $curSeg and resid $curRes and name c)
+         (segid $curSeg and resid $curRes and name n)
+         (segid $curSeg and resid $curRes and name ca)
+         (segid $curSeg and resid $curRes and name c)
+         (segid $curSeg and resid $nextRes and name n)
+      end
+
+      RAMA
+      class phi_psi_chi1_arg_lys_met_gln_glu
+      assign 
+         (segid $curSeg and resid $prevRes and name c)
+         (segid $curSeg and resid $curRes and name n)
+         (segid $curSeg and resid $curRes and name ca)
+         (segid $curSeg and resid $curRes and name c)
+         (segid $curSeg and resid $curRes and name n)
+         (segid $curSeg and resid $curRes and name ca)
+         (segid $curSeg and resid $curRes and name c)
+         (segid $curSeg and resid $nextRes and name n)
+         (segid $curSeg and resid $curRes and name n)
+         (segid $curSeg and resid $curRes and name ca)
+         (segid $curSeg and resid $curRes and name cb)
+         (segid $curSeg and resid $curRes and name cg)
+      end
+   end if
+
+
+   !
+   ! chi1/chi2
+   !
+   RAMA
+   class chi1_chi2_arg_lys_met
+   assign 
+      (segid $curSeg and resid $curRes and name n)
+      (segid $curSeg and resid $curRes and name ca)
+      (segid $curSeg and resid $curRes and name cb)
+      (segid $curSeg and resid $curRes and name cg)
+      (segid $curSeg and resid $curRes and name ca)
+      (segid $curSeg and resid $curRes and name cb)
+      (segid $curSeg and resid $curRes and name cg)
+      (segid $curSeg and resid $curRes and name cd)
+   end
+
+   !
+   ! chi2/chi3
+   !
+   RAMA
+   class chi2_chi3_lys
+   assign 
+      (segid $curSeg and resid $curRes and name ca)
+      (segid $curSeg and resid $curRes and name cb)
+      (segid $curSeg and resid $curRes and name cg)
+      (segid $curSeg and resid $curRes and name cd)
+      (segid $curSeg and resid $curRes and name cb)
+      (segid $curSeg and resid $curRes and name cg)
+      (segid $curSeg and resid $curRes and name cd)
+      (segid $curSeg and resid $curRes and name ce)
+   end
+
+   !
+   ! chi1/chi2/chi3
+   !
+   RAMA
+   class chi1_chi2_chi3_lys
+   assign 
+      (segid $curSeg and resid $curRes and name n)
+      (segid $curSeg and resid $curRes and name ca)
+      (segid $curSeg and resid $curRes and name cb)
+      (segid $curSeg and resid $curRes and name cg)
+      (segid $curSeg and resid $curRes and name ca)
+      (segid $curSeg and resid $curRes and name cb)
+      (segid $curSeg and resid $curRes and name cg)
+      (segid $curSeg and resid $curRes and name cd)
+      (segid $curSeg and resid $curRes and name cb)
+      (segid $curSeg and resid $curRes and name cg)
+      (segid $curSeg and resid $curRes and name cd)
+      (segid $curSeg and resid $curRes and name ce)
+   end
+
+   !
+   ! chi4
+   !
+   RAMA
+   class chi4_lys
+   assign
+      (segid $curSeg and resid $curRes and name cg)
+      (segid $curSeg and resid $curRes and name cd)
+      (segid $curSeg and resid $curRes and name ce)
+      (segid $curSeg and resid $curRes and name nz)
+   end
+
+end loop database
+ 
+!
+! met
+!
+ 
+for $count in id (name ca and resn met and not store6) loop database
+
+    show elem (segid) (id $count)
+   eval ($curSeg = $result)
+    show elem (resid) (id $count)
+   eval ($curRes = $result)
+   eval ($nextRes = adjustl(format("I4",decode ($curRes) + 1)))
+   eval ($prevRes = adjustl(format("I4",decode ($curRes) - 1)))
+
+   !
+   ! now deal with BB selections -- 
+   ! phi not defined for N terminal resids, 
+   ! psi not defined for C terminal resids,
+   ! omega not defined for C terminal resids
+   !
+    do (x = x) (segid $curSeg and resid $curRes and (store7 or store8))
+   if ($select < 1) then
+      RAMA 
+      class phi_psi_rest
+      assign 
+         (segid $curSeg and resid $prevRes and name c)
+         (segid $curSeg and resid $curRes and name n)
+         (segid $curSeg and resid $curRes and name ca)
+         (segid $curSeg and resid $curRes and name c)
+         (segid $curSeg and resid $curRes and name n)
+         (segid $curSeg and resid $curRes and name ca)
+         (segid $curSeg and resid $curRes and name c)
+         (segid $curSeg and resid $nextRes and name n)
+      end
+
+      RAMA
+      class phi_psi_chi1_arg_lys_met_gln_glu
+      assign 
+         (segid $curSeg and resid $prevRes and name c)
+         (segid $curSeg and resid $curRes and name n)
+         (segid $curSeg and resid $curRes and name ca)
+         (segid $curSeg and resid $curRes and name c)
+         (segid $curSeg and resid $curRes and name n)
+         (segid $curSeg and resid $curRes and name ca)
+         (segid $curSeg and resid $curRes and name c)
+         (segid $curSeg and resid $nextRes and name n)
+         (segid $curSeg and resid $curRes and name n)
+         (segid $curSeg and resid $curRes and name ca)
+         (segid $curSeg and resid $curRes and name cb)
+         (segid $curSeg and resid $curRes and name cg)
+      end
+   end if
+
+
+   !
+   ! chi1/chi2
+   !
+   RAMA
+   class chi1_chi2_arg_lys_met 
+   assign 
+      (segid $curSeg and resid $curRes and name n)
+      (segid $curSeg and resid $curRes and name ca)
+      (segid $curSeg and resid $curRes and name cb)
+      (segid $curSeg and resid $curRes and name cg)
+      (segid $curSeg and resid $curRes and name ca)
+      (segid $curSeg and resid $curRes and name cb)
+      (segid $curSeg and resid $curRes and name cg)
+      (segid $curSeg and resid $curRes and name sd)
+   end
+
+   !
+   ! chi2/chi3
+   !
+   RAMA
+   class chi2_chi3_met 
+   assign 
+      (segid $curSeg and resid $curRes and name ca)
+      (segid $curSeg and resid $curRes and name cb)
+      (segid $curSeg and resid $curRes and name cg)
+      (segid $curSeg and resid $curRes and name sd)
+      (segid $curSeg and resid $curRes and name cb)
+      (segid $curSeg and resid $curRes and name cg)
+      (segid $curSeg and resid $curRes and name sd)
+      (segid $curSeg and resid $curRes and name ce)
+   end
+
+   !
+   ! chi1/chi2/chi3
+   !
+   RAMA
+   class chi1_chi2_chi3_met
+   assign 
+      (segid $curSeg and resid $curRes and name n)
+      (segid $curSeg and resid $curRes and name ca)
+      (segid $curSeg and resid $curRes and name cb)
+      (segid $curSeg and resid $curRes and name cg)
+      (segid $curSeg and resid $curRes and name ca)
+      (segid $curSeg and resid $curRes and name cb)
+      (segid $curSeg and resid $curRes and name cg)
+      (segid $curSeg and resid $curRes and name sd)
+      (segid $curSeg and resid $curRes and name cb)
+      (segid $curSeg and resid $curRes and name cg)
+      (segid $curSeg and resid $curRes and name sd)
+      (segid $curSeg and resid $curRes and name ce)
+   end
+
+end loop database
+ 
+ 
+!
+! phe
+!
+ 
+for $count in id (name ca and resn phe and not store6) loop database
+
+    show elem (segid) (id $count)
+   eval ($curSeg = $result)
+    show elem (resid) (id $count)
+   eval ($curRes = $result)
+   eval ($nextRes = adjustl(format("I4",decode ($curRes) + 1)))
+   eval ($prevRes = adjustl(format("I4",decode ($curRes) - 1)))
+
+   !
+   ! now deal with BB selections -- 
+   ! phi not defined for N terminal resids, 
+   ! psi not defined for C terminal resids,
+   ! omega not defined for C terminal resids
+   !
+    do (x = x) (segid $curSeg and resid $curRes and (store7 or store8))
+   if ($select < 1) then
+      RAMA 
+      class phi_psi_rest
+      assign 
+         (segid $curSeg and resid $prevRes and name c)
+         (segid $curSeg and resid $curRes and name n)
+         (segid $curSeg and resid $curRes and name ca)
+         (segid $curSeg and resid $curRes and name c)
+         (segid $curSeg and resid $curRes and name n)
+         (segid $curSeg and resid $curRes and name ca)
+         (segid $curSeg and resid $curRes and name c)
+         (segid $curSeg and resid $nextRes and name n)
+      end
+
+      RAMA
+      class phi_psi_chi1_phe_tyr_trp
+      assign 
+         (segid $curSeg and resid $prevRes and name c)
+         (segid $curSeg and resid $curRes and name n)
+         (segid $curSeg and resid $curRes and name ca)
+         (segid $curSeg and resid $curRes and name c)
+         (segid $curSeg and resid $curRes and name n)
+         (segid $curSeg and resid $curRes and name ca)
+         (segid $curSeg and resid $curRes and name c)
+         (segid $curSeg and resid $nextRes and name n)
+         (segid $curSeg and resid $curRes and name n)
+         (segid $curSeg and resid $curRes and name ca)
+         (segid $curSeg and resid $curRes and name cb)
+         (segid $curSeg and resid $curRes and name cg)
+      end
+   end if
+
+
+   !
+   ! chi1/chi2
+   !
+   RAMA
+   class chi1_chi2_phe_tyr_trp
+   assign 
+      (segid $curSeg and resid $curRes and name n)
+      (segid $curSeg and resid $curRes and name ca)
+      (segid $curSeg and resid $curRes and name cb)
+      (segid $curSeg and resid $curRes and name cg)
+      (segid $curSeg and resid $curRes and name ca)
+      (segid $curSeg and resid $curRes and name cb)
+      (segid $curSeg and resid $curRes and name cg)
+! is this right?
+      (segid $curSeg and resid $curRes and name cd1)
+   end
+
+end loop database
+ 
+ 
+ 
+!
+! pro
+!
+ 
+for $count in id (name ca and resn pro and not store6 and not store5) loop database
+
+    show elem (segid) (id $count)
+   eval ($curSeg = $result)
+    show elem (resid) (id $count)
+   eval ($curRes = $result)
+   eval ($nextRes = adjustl(format("I4",decode ($curRes) + 1)))
+   eval ($prevRes = adjustl(format("I4",decode ($curRes) - 1)))
+
+   !
+   ! now deal with BB selections -- 
+   ! phi not defined for N terminal resids, 
+   ! psi not defined for C terminal resids,
+   ! omega not defined for C terminal resids
+   !
+    do (x = x) (segid $curSeg and resid $curRes and (store7 or store8))
+   if ($select < 1) then
+      RAMA 
+      class phi_psi_pro
+      assign 
+         (segid $curSeg and resid $prevRes and name c)
+         (segid $curSeg and resid $curRes and name n)
+         (segid $curSeg and resid $curRes and name ca)
+         (segid $curSeg and resid $curRes and name c)
+         (segid $curSeg and resid $curRes and name n)
+         (segid $curSeg and resid $curRes and name ca)
+         (segid $curSeg and resid $curRes and name c)
+         (segid $curSeg and resid $nextRes and name n)
+      end
+
+      RAMA
+      class phi_psi_chi1_pro
+      assign 
+         (segid $curSeg and resid $prevRes and name c)
+         (segid $curSeg and resid $curRes and name n)
+         (segid $curSeg and resid $curRes and name ca)
+         (segid $curSeg and resid $curRes and name c)
+         (segid $curSeg and resid $curRes and name n)
+         (segid $curSeg and resid $curRes and name ca)
+         (segid $curSeg and resid $curRes and name c)
+         (segid $curSeg and resid $nextRes and name n)
+         (segid $curSeg and resid $curRes and name n)
+         (segid $curSeg and resid $curRes and name ca)
+         (segid $curSeg and resid $curRes and name cb)
+         (segid $curSeg and resid $curRes and name cg)
+      end
+   end if
+
+
+end loop database
+ 
+ 
+!
+! ser
+!
+ 
+for $count in id (name ca and resn ser and not store6) loop database
+
+    show elem (segid) (id $count)
+   eval ($curSeg = $result)
+    show elem (resid) (id $count)
+   eval ($curRes = $result)
+   eval ($nextRes = adjustl(format("I4",decode ($curRes) + 1)))
+   eval ($prevRes = adjustl(format("I4",decode ($curRes) - 1)))
+
+   !
+   ! now deal with BB selections -- 
+   ! phi not defined for N terminal resids, 
+   ! psi not defined for C terminal resids,
+   ! omega not defined for C terminal resids
+   !
+    do (x = x) (segid $curSeg and resid $curRes and (store7 or store8))
+   if ($select < 1) then
+      RAMA 
+      class phi_psi_hbonding
+      assign 
+         (segid $curSeg and resid $prevRes and name c)
+         (segid $curSeg and resid $curRes and name n)
+         (segid $curSeg and resid $curRes and name ca)
+         (segid $curSeg and resid $curRes and name c)
+         (segid $curSeg and resid $curRes and name n)
+         (segid $curSeg and resid $curRes and name ca)
+         (segid $curSeg and resid $curRes and name c)
+         (segid $curSeg and resid $nextRes and name n)
+      end
+
+      RAMA
+      class phi_psi_chi1_ser
+      assign 
+         (segid $curSeg and resid $prevRes and name c)
+         (segid $curSeg and resid $curRes and name n)
+         (segid $curSeg and resid $curRes and name ca)
+         (segid $curSeg and resid $curRes and name c)
+         (segid $curSeg and resid $curRes and name n)
+         (segid $curSeg and resid $curRes and name ca)
+         (segid $curSeg and resid $curRes and name c)
+         (segid $curSeg and resid $nextRes and name n)
+         (segid $curSeg and resid $curRes and name n)
+         (segid $curSeg and resid $curRes and name ca)
+         (segid $curSeg and resid $curRes and name cb)
+! is this the right name?
+         (segid $curSeg and resid $curRes and name og)
+      end
+   end if
+
+end loop database
+ 
+ 
+!
+! thr
+!
+ 
+for $count in id (name ca and resn thr and not store6) loop database
+
+    show elem (segid) (id $count)
+   eval ($curSeg = $result)
+    show elem (resid) (id $count)
+   eval ($curRes = $result)
+   eval ($nextRes = adjustl(format("I4",decode ($curRes) + 1)))
+   eval ($prevRes = adjustl(format("I4",decode ($curRes) - 1)))
+
+   !
+   ! now deal with BB selections -- 
+   ! phi not defined for N terminal resids, 
+   ! psi not defined for C terminal resids,
+   ! omega not defined for C terminal resids
+   !
+    do (x = x) (segid $curSeg and resid $curRes and (store7 or store8))
+   if ($select < 1) then
+      RAMA 
+      class phi_psi_hbonding
+      assign 
+         (segid $curSeg and resid $prevRes and name c)
+         (segid $curSeg and resid $curRes and name n)
+         (segid $curSeg and resid $curRes and name ca)
+         (segid $curSeg and resid $curRes and name c)
+         (segid $curSeg and resid $curRes and name n)
+         (segid $curSeg and resid $curRes and name ca)
+         (segid $curSeg and resid $curRes and name c)
+         (segid $curSeg and resid $nextRes and name n)
+      end
+
+      RAMA
+      class phi_psi_chi1_thr
+      assign
+         (segid $curSeg and resid $prevRes and name c)
+         (segid $curSeg and resid $curRes and name n)
+         (segid $curSeg and resid $curRes and name ca)
+         (segid $curSeg and resid $curRes and name c)
+         (segid $curSeg and resid $curRes and name n)
+         (segid $curSeg and resid $curRes and name ca)
+         (segid $curSeg and resid $curRes and name c)
+         (segid $curSeg and resid $nextRes and name n)
+         (segid $curSeg and resid $curRes and name n)
+         (segid $curSeg and resid $curRes and name ca)
+         (segid $curSeg and resid $curRes and name cb)
+! is this the right name?
+         (segid $curSeg and resid $curRes and name og1)
+      end
+   end if
+
+end loop database
+ 
+ 
+ 
+!
+! trp
+!
+ 
+for $count in id (name ca and resn trp and not store6) loop database
+
+    show elem (segid) (id $count)
+   eval ($curSeg = $result)
+    show elem (resid) (id $count)
+   eval ($curRes = $result)
+   eval ($nextRes = adjustl(format("I4",decode ($curRes) + 1)))
+   eval ($prevRes = adjustl(format("I4",decode ($curRes) - 1)))
+
+   !
+   ! now deal with BB selections -- 
+   ! phi not defined for N terminal resids, 
+   ! psi not defined for C terminal resids,
+   ! omega not defined for C terminal resids
+   !
+    do (x = x) (segid $curSeg and resid $curRes and (store7 or store8))
+   if ($select < 1) then
+      RAMA 
+      class phi_psi_rest
+      assign 
+         (segid $curSeg and resid $prevRes and name c)
+         (segid $curSeg and resid $curRes and name n)
+         (segid $curSeg and resid $curRes and name ca)
+         (segid $curSeg and resid $curRes and name c)
+         (segid $curSeg and resid $curRes and name n)
+         (segid $curSeg and resid $curRes and name ca)
+         (segid $curSeg and resid $curRes and name c)
+         (segid $curSeg and resid $nextRes and name n)
+      end
+
+      RAMA
+      class phi_psi_chi1_phe_tyr_trp
+      assign 
+         (segid $curSeg and resid $prevRes and name c)
+         (segid $curSeg and resid $curRes and name n)
+         (segid $curSeg and resid $curRes and name ca)
+         (segid $curSeg and resid $curRes and name c)
+         (segid $curSeg and resid $curRes and name n)
+         (segid $curSeg and resid $curRes and name ca)
+         (segid $curSeg and resid $curRes and name c)
+         (segid $curSeg and resid $nextRes and name n)
+         (segid $curSeg and resid $curRes and name n)
+         (segid $curSeg and resid $curRes and name ca)
+         (segid $curSeg and resid $curRes and name cb)
+         (segid $curSeg and resid $curRes and name cg)
+      end
+   end if
+
+
+   !
+   ! chi1/chi2
+   !
+   RAMA
+   class chi1_chi2_trp
+   assign 
+      (segid $curSeg and resid $curRes and name n)
+      (segid $curSeg and resid $curRes and name ca)
+      (segid $curSeg and resid $curRes and name cb)
+      (segid $curSeg and resid $curRes and name cg)
+      (segid $curSeg and resid $curRes and name ca)
+      (segid $curSeg and resid $curRes and name cb)
+      (segid $curSeg and resid $curRes and name cg)
+! is this right?
+      (segid $curSeg and resid $curRes and name cd1)
+   end
+
+end loop database
+ 
+ 
+ 
+!
+! tyr
+!
+ 
+for $count in id (name ca and resn tyr and not store6) loop database
+
+    show elem (segid) (id $count)
+   eval ($curSeg = $result)
+    show elem (resid) (id $count)
+   eval ($curRes = $result)
+   eval ($nextRes = adjustl(format("I4",decode ($curRes) + 1)))
+   eval ($prevRes = adjustl(format("I4",decode ($curRes) - 1)))
+
+   !
+   ! now deal with BB selections -- 
+   ! phi not defined for N terminal resids, 
+   ! psi not defined for C terminal resids,
+   ! omega not defined for C terminal resids
+   !
+    do (x = x) (segid $curSeg and resid $curRes and (store7 or store8))
+   if ($select < 1) then
+      RAMA 
+      class phi_psi_rest
+      assign 
+         (segid $curSeg and resid $prevRes and name c)
+         (segid $curSeg and resid $curRes and name n)
+         (segid $curSeg and resid $curRes and name ca)
+         (segid $curSeg and resid $curRes and name c)
+         (segid $curSeg and resid $curRes and name n)
+         (segid $curSeg and resid $curRes and name ca)
+         (segid $curSeg and resid $curRes and name c)
+         (segid $curSeg and resid $nextRes and name n)
+      end
+
+      RAMA
+      class phi_psi_chi1_phe_tyr_trp
+      assign
+         (segid $curSeg and resid $prevRes and name c)
+         (segid $curSeg and resid $curRes and name n)
+         (segid $curSeg and resid $curRes and name ca)
+         (segid $curSeg and resid $curRes and name c)
+         (segid $curSeg and resid $curRes and name n)
+         (segid $curSeg and resid $curRes and name ca)
+         (segid $curSeg and resid $curRes and name c)
+         (segid $curSeg and resid $nextRes and name n)
+         (segid $curSeg and resid $curRes and name n)
+         (segid $curSeg and resid $curRes and name ca)
+         (segid $curSeg and resid $curRes and name cb)
+         (segid $curSeg and resid $curRes and name cg)
+      end
+   end if
+
+
+   !
+   ! chi1/chi2
+   !
+   RAMA
+   class chi1_chi2_phe_tyr_trp
+   assign 
+      (segid $curSeg and resid $curRes and name n)
+      (segid $curSeg and resid $curRes and name ca)
+      (segid $curSeg and resid $curRes and name cb)
+      (segid $curSeg and resid $curRes and name cg)
+      (segid $curSeg and resid $curRes and name ca)
+      (segid $curSeg and resid $curRes and name cb)
+      (segid $curSeg and resid $curRes and name cg)
+! is this right?
+      (segid $curSeg and resid $curRes and name cd1)
+   end
+
+end loop database
+ 
+ 
+ 
+!
+! val
+!
+ 
+for $count in id (name ca and resn val and not store6) loop database
+
+    show elem (segid) (id $count)
+   eval ($curSeg = $result)
+    show elem (resid) (id $count)
+   eval ($curRes = $result)
+   eval ($nextRes = adjustl(format("I4",decode ($curRes) + 1)))
+   eval ($prevRes = adjustl(format("I4",decode ($curRes) - 1)))
+
+   !
+   ! now deal with BB selections -- 
+   ! phi not defined for N terminal resids, 
+   ! psi not defined for C terminal resids,
+   ! omega not defined for C terminal resids
+   !
+    do (x = x) (segid $curSeg and resid $curRes and (store7 or store8))
+   if ($select < 1) then
+      RAMA 
+      class phi_psi_val_ile
+      assign 
+         (segid $curSeg and resid $prevRes and name c)
+         (segid $curSeg and resid $curRes and name n)
+         (segid $curSeg and resid $curRes and name ca)
+         (segid $curSeg and resid $curRes and name c)
+         (segid $curSeg and resid $curRes and name n)
+         (segid $curSeg and resid $curRes and name ca)
+         (segid $curSeg and resid $curRes and name c)
+         (segid $curSeg and resid $nextRes and name n)
+      end
+
+      RAMA
+      class phi_psi_chi1_val
+      assign 
+         (segid $curSeg and resid $prevRes and name c)
+         (segid $curSeg and resid $curRes and name n)
+         (segid $curSeg and resid $curRes and name ca)
+         (segid $curSeg and resid $curRes and name c)
+         (segid $curSeg and resid $curRes and name n)
+         (segid $curSeg and resid $curRes and name ca)
+         (segid $curSeg and resid $curRes and name c)
+         (segid $curSeg and resid $nextRes and name n)
+         (segid $curSeg and resid $curRes and name n)
+         (segid $curSeg and resid $curRes and name ca)
+         (segid $curSeg and resid $curRes and name cb)
+! is this right?
+         (segid $curSeg and resid $curRes and name cg1)
+      end
+   end if
+
+end loop database
+ 
+!
+! Xpr--residues that are followed by a proline
+! stored in store6, at the top of this file
+!
+ 
+for $count in id (name ca and store6) loop database
+
+    show elem (segid) (id $count)
+   eval ($curSeg = $result)
+    show elem (resid) (id $count)
+   eval ($curRes = $result)
+   eval ($nextRes = adjustl(format("I4",decode ($curRes) + 1)))
+   eval ($prevRes = adjustl(format("I4",decode ($curRes) - 1)))
+
+   !
+   ! now deal with BB selections -- 
+   ! phi not defined for N terminal resids, 
+   ! psi not defined for C terminal resids,
+   ! omega not defined for C terminal resids
+   !
+    do (x = x) (segid $curSeg and resid $curRes and (store7 or store8))
+   if ($select < 1) then
+      RAMA 
+      class phi_psi_xpr
+      assign 
+         (segid $curSeg and resid $prevRes and name c)
+         (segid $curSeg and resid $curRes and name n)
+         (segid $curSeg and resid $curRes and name ca)
+         (segid $curSeg and resid $curRes and name c)
+         (segid $curSeg and resid $curRes and name n)
+         (segid $curSeg and resid $curRes and name ca)
+         (segid $curSeg and resid $curRes and name c)
+         (segid $curSeg and resid $nextRes and name n)
+      end
+
+      RAMA
+      class phi_psi_chi1_xpr
+      assign 
+         (segid $curSeg and resid $prevRes and name c)
+         (segid $curSeg and resid $curRes and name n)
+         (segid $curSeg and resid $curRes and name ca)
+         (segid $curSeg and resid $curRes and name c)
+         (segid $curSeg and resid $curRes and name n)
+         (segid $curSeg and resid $curRes and name ca)
+         (segid $curSeg and resid $curRes and name c)
+         (segid $curSeg and resid $nextRes and name n)
+         (segid $curSeg and resid $curRes and name n)
+         (segid $curSeg and resid $curRes and name ca)
+         (segid $curSeg and resid $curRes and name cb)
+! this should allow any of the chi1 selections
+         (segid $curSeg and resid $curRes and 
+            (name cg1 or name cg or name sg or name og or name og1))
+      end
+   end if
+ 
+end loop database
+ 
+set message on echo on end
+ 

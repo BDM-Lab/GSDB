@@ -1,0 +1,25 @@
+set message ? end eval ($old_message=$result) set echo ? end eval ($old_echo=$result)
+set message=off echo=off end
+
+bond C    NHHE 1342.404  1.328 ! same as C    NH2
+
+angle CH1E C    NHHE  863.744  116.900 ! same as CH1E C    N
+angle CH2G C    NHHE  440.686  118.200 ! same as CH2G C    N
+angle O    C    NHHE  991.543  122.000 ! same as N    C    O
+
+evaluate ($vdw_radius_N=        3.0)                             {-0.1}
+evaluate ($vdw_radius_N   = $vdw_radius_N    / 2^(1/6))
+evaluate ($vdw_radius14_N   = $vdw_radius_N    -0.3/ 2^(1/6))
+evaluate ($vdw_eps=0.1)
+nonbonded  NHHE  $vdw_eps $vdw_radius_N  $vdw_eps $vdw_radius14_N ! same as NH2
+
+
+bond C    CH3E 1000.000  1.507 ! distance from Corina
+
+angle CH3E C    O     672.465  120.800 ! same as CH1E C    O
+angle CH3E C    NH1   485.856  116.200 ! same as CH1E C    NH1
+angle CH3E C    N     863.744  116.900 ! same as CH1E C    N
+
+evaluate ($kdih_rigid=1250.0)
+
+set message=$old_message echo=$old_echo end

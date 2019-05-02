@@ -1,0 +1,112 @@
+#!/bin/sh
+#
+# Author: Gregory L. Warren 04/08/98
+#
+# copyright Yale University
+#
+# Sort out restraints for a loop region.
+# The sorting is required for NOE data in loop multi-conformer refinement. 
+# Data must exist in a specific format for this awk script to work
+#
+# THERE MUST BE A BLANK LINE SEPARATING ASSIGN STATEMENTS
+# assign ( resid 28 and name hb2) ( resid 18 and name hb1) 4.2 2.4 0.8
+#
+# assign ( resid 28 and name hb2) ( resid 18 and name hb1) 4.2 2.4 0.8
+#
+# NOT
+# assign ( resid 28 and name hb2) ( resid 18 and name hb1) 4.2 2.4 0.8
+# assign ( resid 28 and name hb2) ( resid 18 and name hb1) 4.2 2.4 0.8
+#
+# assignment statements can be on multiple lines
+# ASSIgn ((segid "    " and resid 22   and name HA  ))
+#        ((segid "    " and resid 22   and name HG21)
+#      OR (segid "    " and resid 22   and name HG22)
+#      OR (segid "    " and resid 22   and name HG23))
+#        3.3679    0.7746    0.7746 { previous:     3.4232    0.7873   0.7873 }
+
+
+
+if [ $# -eq 0 ]
+then
+    echo "Enter the restraint file name: "
+    read fname
+fi
+
+awk '
+BEGIN  { cnt = 0; test = 0; test2 = 0; j = 10000; k = 10000;
+       printf "Enter non-loop output name: "
+       getline onlp <"-"
+       printf "Enter loop output name: "
+       getline olp <"-"
+       printf "Enter the loop low residue number: "
+       getline lownum <"-"
+       lownum = lownum - 1;
+       printf "Enter the loop high residue number: "
+       getline highnum <"-"
+       highnum = highnum + 1;
+       }
+
+       {
+        for (i=1; i <= NF; i++ ) {
+           if ( $i ~ /[rR][eE][sS][iI]+/ ) {
+              if ( test2 == 0) {
+                 j = i + 1;
+                 test2++; }
+              else {
+                 k = i + 1; }
+           }
+        }
+             
+
+        if ( j != 10000 || k != 10000 ) {
+           if ( j != 10000 ) {
+	      if ( $j > lownum && $j < highnum ) {
+
+	           cnt++;
+	           test++;
+	           test2=0;
+	           store[cnt] = $0; }
+	      else if ( k != 10000) {
+	         if ( $k > lownum && $k < highnum ) {
+	            cnt++;
+	            test++;
+	            store[cnt] = $0; } 
+	         else {
+	            cnt++;
+                    store[cnt] = $0; } }
+              else {
+	            cnt++;
+	            test2=0;
+                    store[cnt] = $0; } }
+           }
+        else {
+	        cnt++;
+                store[cnt] = $0; } 
+
+
+	if ( $1 ~ /^$/ ) {
+
+		if ( test > 0 ) {
+		for (i = 1; i <= cnt; i++ ) 
+			{ print store[i] >>olp; }
+		cnt = 0; 
+		test = 0;
+		test2 = 0; 
+		j = 10000;
+		k = 10000; }
+
+		else { 
+		for (i = 1; i <= cnt; i++ ) 
+			{ print store[i] >>onlp; }
+		cnt = 0; 
+		test = 0; 
+		test2 = 0; 
+		j = 10000;
+		k = 10000; }
+
+		}
+
+       }
+' $fname
+
+

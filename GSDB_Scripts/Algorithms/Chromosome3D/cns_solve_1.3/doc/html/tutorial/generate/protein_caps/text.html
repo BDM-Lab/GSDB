@@ -1,0 +1,150 @@
+<HTML>
+<HEAD>
+   <TITLE>Crystallography & NMR System</TITLE>
+</HEAD>
+<BODY BGCOLOR=#8ebf8e>
+
+<HR>
+
+<h2>A heterotrimer with N-terminal acetyl and C-terminal amide capping
+    groups, a chlorine ion and water molecules</h2>
+
+<HR>
+
+This tutorial shows how to generate a molecular topology file
+(<tt>.mtf</tt>) and a <tt>CNS</tt> coordinate file (<tt>.pdb</tt>)
+using the <tt>generate.inp</tt> task file, starting with a standard
+coordinate file as obtained from the <tt>PDB</tt>.
+
+<p>
+
+The structure with the <tt>PDB</tt> ID code
+<a href="http://www.rcsb.org/pdb/cgi/explore.cgi?pdbId=1BB1"
+><tt>1bb1</tt></a> is
+a heterotrimer with a few particularities:
+
+<ul>
+<li>The protein chains have N-terminal acetyl and C-terminal amide
+    capping groups. These groups require the use of custom
+    topology and parameter files. The files <tt>capping.top</tt>,
+    <tt>capping.param</tt> and <tt>protein_capping.link</tt>
+    from <a href="../capping/text.html">another tutorial</a> are used.
+
+<p>
+
+<li>The original PDB file includes coordinates for a chlorine ion.
+    This requires the use of the standard topology and parameter
+    files <tt>ion.top</tt> and <tt>ion.param</tt>.
+
+<p>
+
+<li>The original PDB files includes coordinates for a number of
+    water molecules.
+    This requires the use of the standard topology and parameter
+    files <tt>water.top</tt> and <tt>water.param</tt>.
+
+<p>
+
+<li>Some atoms are missing from five residues (residue identifier
+    15 in chain B, residue identifiers 2, 9, 29, and 34 in chain C).
+
+</ul>
+
+<hr>
+
+To conform to the naming conventions adopted in the creation of
+<tt>capping.top</tt>, <tt>capping.param</tt> and
+<tt>protein_capping.link</tt>, a few simple modification must be
+made to the original <tt>PDB</tt> file:
+
+<ul>
+
+<li>The original residue name for the amide group is <tt>NH2</tt> and
+    has to be renamed to <tt>NHH</tt>.
+
+<p>
+
+<li>The original name for the terminal carbon of the acetyl group is
+    <tt>CH3</tt> and has to be renamed to <tt>CA</tt>.
+
+</ul>
+
+<hr>
+
+The <tt>generate.inp</tt> task files also needs to be modified:
+
+<ul>
+<li>The correct name for the <strong>protein coordinate file</strong>
+    must be defined (<a href="1bb1.pdb"><tt>1bb1.pdb</tt></a>).
+
+<p>
+
+<li>The original <tt>PDB</tt> file (like most <tt>PDB</tt> files) does
+    not use segment identifiers (columns 73-76), but only the
+    one-character chain identifiers (column 22). However, <tt>CNS</tt>
+    only uses segment identifiers, and chain identifiers are not used.
+    Therefore it is necessary to convert the chain identifiers to
+    segment identifiers. This is requested by setting the flag labeled
+    <strong>convert chainid to segid if chainid is non-blank</strong>
+    to <tt>true</tt>.
+
+<p>
+
+<li>Because of the presence of the capping groups, the customized
+    linkage file <tt>protein_capping.link</tt> must be used in addition to the standard library file <tt>CNS_TOPPAR:protein.link</tt>.
+
+    <p>
+
+<li>The topology and parameter files for the capping groups are
+    defined as additional <strong> topology and parameter
+  files</strong>.
+</ul>
+
+In <tt>generate.inp</tt>, the standard library topology and parameter
+files for ions and water molecules are included by default. Please note
+that most parameter files are not included by default in the refinement
+task files. In general, the user has to take care that all the
+necessary parameter files are included.
+
+<p>
+
+The command to generate the files <tt>generate_easy.mtf</tt> and
+<tt>generate_easy.pdb</tt> is:
+
+<PRE>
+      cns_solve &lt; <A HREF="generate_easy.inp">generate_easy.inp</A> &gt; generate_easy.out
+</PRE>
+
+In the output file <tt>generate_easy.pdb</tt>, any missing atoms mentioned
+above are excluded, i.e., the selection to build atoms is set to &quot;(none)&quot;. The task file can build unknown atoms by specifying &quot;(not known)&quot;. This feature should be used with caution and the resulting structure carefully checked. <br>
+<p>
+  
+  Inspection of the <tt>generate_easy.pdb</tt> output file shows that the
+  first character of the <tt>CNS</tt> segment identifier is also used as
+  chain identifier.  In <tt>CNS</tt>, segment identifiers can be up to
+  four characters long.  This means, it would be possible to use, for
+  example, the identifiers <tt>ION</tt> and <tt>WAT</tt> instead of just
+  <tt>I</tt> and <tt>W</tt>. However, many other programs (including the
+  graphics program <tt>O</tt>) can only handle the one-character chain
+  identifiers and ignore the segment identifiers. For compatibility, it
+  is therefore frequently much more convenient to use only one-character
+  segment identifiers.
+  
+<HR>
+
+See also: <a href="../tools/text.html"
+          >Tools for building coordinates of hetero compounds</a>
+<hr>
+
+<BR><A HREF="tutorial.csh">Script to run this tutorial</A>
+
+<hr>
+
+<A HREF="../../text.html">Back to tutorials</A>&nbsp;&nbsp;
+<A HREF="../protein_atp/text.html">Previous section</A>&nbsp;&nbsp;
+<A HREF="../dna_simple/text.html">Next section</A>
+
+<HR WIDTH="100%"></P>
+
+</BODY>
+</HTML>

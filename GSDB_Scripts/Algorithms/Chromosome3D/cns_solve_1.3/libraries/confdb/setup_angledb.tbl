@@ -1,0 +1,372 @@
+!
+! setup_angledb.tbl
+! Sets up the selections for the various angle database stuff
+! Works with angledb_expe.tbl
+!
+! WARNING: this script overwrites the store6, store7, and store8 arrays
+!
+! by John Kuszewski 8/5/96
+!
+
+set message off echo off end
+
+!
+! need to select all the residues that immediately preceed a proline
+! in order to designate them "xpr"
+!
+! xpr residues are stored in the store6 array
+!
+
+ do (store6 = 0) (all)
+
+for $count in id (name ca and resn pro) loop database
+    show elem (segid) (id $count)
+   eval ($curSeg = $result)
+    show elem (resid) (id $count)
+   eval ($curRes = decode($result))
+   eval ($prevRes = $curRes - 1)
+    identify (store6) (store6 or (resid $prevRes and segid $curSeg))
+end loop database
+
+
+!
+! get selections for N and C termini
+! 
+! atoms that are in N terminal residues are selected in store7
+! atoms that are in C terminal residues are selected in store8
+! 
+
+ do (store7 = 0) (all)
+ do (store8 = 0) (all)
+
+for $count in id (name ca) loop database
+    show elem (segid) (id $count)
+   eval ($curSeg = $result)
+    show elem (resid) (id $count)
+   eval ($curRes = decode($result))
+   eval ($nextRes = $curRes + 1)
+   eval ($prevRes = $curRes - 1)
+    do (store9 = 1) (all)
+    show sum (store9) (resid $nextRes and segid $curSeg)
+   eval ($nextResExists = $result)
+    show sum (store9) (resid $prevRes and segid $curSeg)
+   eval ($prevResExists = $result)
+   if ($nextResExists = 0) then
+       identify (store7) (store7 or (resid $curRes and segid $curSeg))
+   end if
+   if ($prevResExists = 0) then
+       identity (store8) (store8 or (resid $curRes and segid $curSeg))
+   end if
+end loop database
+
+!
+! gly
+!
+
+for $count in id (name ca and resn gly and not store6) loop database
+
+    show elem (segid) (id $count)
+   eval ($curSeg = $result)
+    show elem (resid) (id $count)
+   eval ($curRes = $result)
+   eval ($nextRes = adjustl(format("I4",decode ($curRes) + 1)))
+   eval ($prevRes = adjustl(format("I4",decode ($curRes) - 1)))
+
+   !
+   ! now deal with BB selections -- 
+   ! phi not defined for N terminal resids, 
+   ! psi not defined for C terminal resids,
+   ! omega not defined for C terminal resids,
+   ! omega0 not defined for N terminal resids
+   !
+    do (x = x) (segid $curSeg and resid $curRes and (store7 or store8))
+   if ($select < 1) then
+      angledb 
+      class phi_psi_tau3_rest
+      assign 
+         (segid $curSeg and resid $prevRes and name c)
+         (segid $curSeg and resid $curRes and name n)
+         (segid $curSeg and resid $curRes and name ca)
+         (segid $curSeg and resid $curRes and name c)
+         (segid $curSeg and resid $curRes and name n)
+         (segid $curSeg and resid $curRes and name ca)
+         (segid $curSeg and resid $curRes and name c)
+         (segid $curSeg and resid $nextRes and name n)
+         (segid $curSeg and resid $curRes and name n)
+         (segid $curSeg and resid $curRes and name ca)
+         (segid $curSeg and resid $curRes and name c)
+      end
+
+      angledb 
+      class phi_psi_omega_gly
+      assign 
+         (segid $curSeg and resid $prevRes and name c)
+         (segid $curSeg and resid $curRes and name n)
+         (segid $curSeg and resid $curRes and name ca)
+         (segid $curSeg and resid $curRes and name c)
+         (segid $curSeg and resid $curRes and name n)
+         (segid $curSeg and resid $curRes and name ca)
+         (segid $curSeg and resid $curRes and name c)
+         (segid $curSeg and resid $nextRes and name n)
+         (segid $curSeg and resid $curRes and name ca)
+         (segid $curSeg and resid $curRes and name c)
+         (segid $curSeg and resid $nextRes and name n)
+         (segid $curSeg and resid $nextRes and name ca)
+      end
+
+      angledb 
+      class phi_psi_omega0_gly
+      assign 
+         (segid $curSeg and resid $prevRes and name c)
+         (segid $curSeg and resid $curRes and name n)
+         (segid $curSeg and resid $curRes and name ca)
+         (segid $curSeg and resid $curRes and name c)
+         (segid $curSeg and resid $curRes and name n)
+         (segid $curSeg and resid $curRes and name ca)
+         (segid $curSeg and resid $curRes and name c)
+         (segid $curSeg and resid $nextRes and name n)
+         (segid $curSeg and resid $curRes and name ca)
+         (segid $curSeg and resid $curRes and name n)
+         (segid $curSeg and resid $prevRes and name c)
+         (segid $curSeg and resid $prevRes and name ca)
+      end
+
+   end if
+
+end loop database
+
+
+!
+! pro
+!
+
+!
+! put some empty selection into store5
+!
+
+ identify (store5) (name junk)
+
+for $count in id (name ca and resn pro and not store6 and not store5) loop database
+
+    show elem (segid) (id $count)
+   eval ($curSeg = $result)
+    show elem (resid) (id $count)
+   eval ($curRes = $result)
+   eval ($nextRes = adjustl(format("I4",decode ($curRes) + 1)))
+   eval ($prevRes = adjustl(format("I4",decode ($curRes) - 1)))
+
+   !
+   ! now deal with BB selections -- 
+   ! phi not defined for N terminal resids, 
+   ! psi not defined for C terminal resids,
+   ! omega not defined for C terminal resids,
+   ! omega0 not defined for N terminal resids
+   !
+    do (x = x) (segid $curSeg and resid $curRes and (store7 or store8))
+   if ($select < 1) then
+      angledb 
+      class phi_psi_tau3_pro
+      assign 
+         (segid $curSeg and resid $prevRes and name c)
+         (segid $curSeg and resid $curRes and name n)
+         (segid $curSeg and resid $curRes and name ca)
+         (segid $curSeg and resid $curRes and name c)
+         (segid $curSeg and resid $curRes and name n)
+         (segid $curSeg and resid $curRes and name ca)
+         (segid $curSeg and resid $curRes and name c)
+         (segid $curSeg and resid $nextRes and name n)
+         (segid $curSeg and resid $curRes and name n)
+         (segid $curSeg and resid $curRes and name ca)
+         (segid $curSeg and resid $curRes and name c)
+      end
+
+      angledb 
+      class phi_psi_omega_pro
+      assign 
+         (segid $curSeg and resid $prevRes and name c)
+         (segid $curSeg and resid $curRes and name n)
+         (segid $curSeg and resid $curRes and name ca)
+         (segid $curSeg and resid $curRes and name c)
+         (segid $curSeg and resid $curRes and name n)
+         (segid $curSeg and resid $curRes and name ca)
+         (segid $curSeg and resid $curRes and name c)
+         (segid $curSeg and resid $nextRes and name n)
+         (segid $curSeg and resid $curRes and name ca)
+         (segid $curSeg and resid $curRes and name c)
+         (segid $curSeg and resid $nextRes and name n)
+         (segid $curSeg and resid $nextRes and name ca)
+      end
+
+      angledb 
+      class phi_psi_omega0_pro
+      assign 
+         (segid $curSeg and resid $prevRes and name c)
+         (segid $curSeg and resid $curRes and name n)
+         (segid $curSeg and resid $curRes and name ca)
+         (segid $curSeg and resid $curRes and name c)
+         (segid $curSeg and resid $curRes and name n)
+         (segid $curSeg and resid $curRes and name ca)
+         (segid $curSeg and resid $curRes and name c)
+         (segid $curSeg and resid $nextRes and name n)
+         (segid $curSeg and resid $curRes and name ca)
+         (segid $curSeg and resid $curRes and name n)
+         (segid $curSeg and resid $prevRes and name c)
+         (segid $curSeg and resid $prevRes and name ca)
+      end
+   end if
+
+end loop database
+
+!
+! Xpr--residues that are followed by a proline
+! stored in store6, at the top of this file
+!
+
+for $count in id (name ca and store6) loop database
+
+    show elem (segid) (id $count)
+   eval ($curSeg = $result)
+    show elem (resid) (id $count)
+   eval ($curRes = $result)
+   eval ($nextRes = adjustl(format("I4",decode ($curRes) + 1)))
+   eval ($prevRes = adjustl(format("I4",decode ($curRes) - 1)))
+
+   !
+   ! now deal with BB selections -- 
+   ! phi not defined for N terminal resids, 
+   ! psi not defined for C terminal resids,
+   ! omega not defined for C terminal resids,
+   ! omega0 not defined for N terminal resids
+   !
+    do (x = x) (segid $curSeg and resid $curRes and (store7 or store8))
+   if ($select < 1) then
+      angledb 
+      class phi_psi_tau3_xpr
+      assign 
+         (segid $curSeg and resid $prevRes and name c)
+         (segid $curSeg and resid $curRes and name n)
+         (segid $curSeg and resid $curRes and name ca)
+         (segid $curSeg and resid $curRes and name c)
+         (segid $curSeg and resid $curRes and name n)
+         (segid $curSeg and resid $curRes and name ca)
+         (segid $curSeg and resid $curRes and name c)
+         (segid $curSeg and resid $nextRes and name n)
+         (segid $curSeg and resid $curRes and name n)
+         (segid $curSeg and resid $curRes and name ca)
+         (segid $curSeg and resid $curRes and name c)
+      end
+
+      angledb 
+      class phi_psi_omega_xpr
+      assign 
+         (segid $curSeg and resid $prevRes and name c)
+         (segid $curSeg and resid $curRes and name n)
+         (segid $curSeg and resid $curRes and name ca)
+         (segid $curSeg and resid $curRes and name c)
+         (segid $curSeg and resid $curRes and name n)
+         (segid $curSeg and resid $curRes and name ca)
+         (segid $curSeg and resid $curRes and name c)
+         (segid $curSeg and resid $nextRes and name n)
+         (segid $curSeg and resid $curRes and name ca)
+         (segid $curSeg and resid $curRes and name c)
+         (segid $curSeg and resid $nextRes and name n)
+         (segid $curSeg and resid $nextRes and name ca)
+      end
+
+      angledb 
+      class phi_psi_omega0_xpr
+      assign 
+         (segid $curSeg and resid $prevRes and name c)
+         (segid $curSeg and resid $curRes and name n)
+         (segid $curSeg and resid $curRes and name ca)
+         (segid $curSeg and resid $curRes and name c)
+         (segid $curSeg and resid $curRes and name n)
+         (segid $curSeg and resid $curRes and name ca)
+         (segid $curSeg and resid $curRes and name c)
+         (segid $curSeg and resid $nextRes and name n)
+         (segid $curSeg and resid $curRes and name ca)
+         (segid $curSeg and resid $curRes and name n)
+         (segid $curSeg and resid $prevRes and name c)
+         (segid $curSeg and resid $prevRes and name ca)
+      end
+   end if
+
+end loop database
+
+!
+! rest     
+!
+
+for $count in id (name ca and not (resn gly or resn pro) and not store6) loop database
+
+    show elem (segid) (id $count)
+   eval ($curSeg = $result)
+    show elem (resid) (id $count)
+   eval ($curRes = $result)
+   eval ($nextRes = adjustl(format("I4",decode ($curRes) + 1)))
+   eval ($prevRes = adjustl(format("I4",decode ($curRes) - 1)))
+
+   !
+   ! now deal with BB selections -- 
+   ! phi not defined for N terminal resids, 
+   ! psi not defined for C terminal resids,
+   ! omega not defined for C terminal resids,
+   ! omega0 not defined for N terminal resids
+   !
+    do (x = x) (segid $curSeg and resid $curRes and (store7 or store8))
+   if ($select < 1) then
+      angledb 
+      class phi_psi_tau3_rest
+      assign 
+         (segid $curSeg and resid $prevRes and name c)
+         (segid $curSeg and resid $curRes and name n)
+         (segid $curSeg and resid $curRes and name ca)
+         (segid $curSeg and resid $curRes and name c)
+         (segid $curSeg and resid $curRes and name n)
+         (segid $curSeg and resid $curRes and name ca)
+         (segid $curSeg and resid $curRes and name c)
+         (segid $curSeg and resid $nextRes and name n)
+         (segid $curSeg and resid $curRes and name n)
+         (segid $curSeg and resid $curRes and name ca)
+         (segid $curSeg and resid $curRes and name c)
+      end
+
+      angledb 
+      class phi_psi_omega_rest
+      assign 
+         (segid $curSeg and resid $prevRes and name c)
+         (segid $curSeg and resid $curRes and name n)
+         (segid $curSeg and resid $curRes and name ca)
+         (segid $curSeg and resid $curRes and name c)
+         (segid $curSeg and resid $curRes and name n)
+         (segid $curSeg and resid $curRes and name ca)
+         (segid $curSeg and resid $curRes and name c)
+         (segid $curSeg and resid $nextRes and name n)
+         (segid $curSeg and resid $curRes and name ca)
+         (segid $curSeg and resid $curRes and name c)
+         (segid $curSeg and resid $nextRes and name n)
+         (segid $curSeg and resid $nextRes and name ca)
+      end
+
+      angledb 
+      class phi_psi_omega0_rest
+      assign 
+         (segid $curSeg and resid $prevRes and name c)
+         (segid $curSeg and resid $curRes and name n)
+         (segid $curSeg and resid $curRes and name ca)
+         (segid $curSeg and resid $curRes and name c)
+         (segid $curSeg and resid $curRes and name n)
+         (segid $curSeg and resid $curRes and name ca)
+         (segid $curSeg and resid $curRes and name c)
+         (segid $curSeg and resid $nextRes and name n)
+         (segid $curSeg and resid $curRes and name ca)
+         (segid $curSeg and resid $curRes and name n)
+         (segid $curSeg and resid $prevRes and name c)
+         (segid $curSeg and resid $prevRes and name ca)
+      end
+
+   end if
+
+end loop database
+
+set message on echo on end

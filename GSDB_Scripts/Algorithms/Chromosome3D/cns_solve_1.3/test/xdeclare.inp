@@ -1,0 +1,499 @@
+REMARKS  xdeclare.INP 
+
+struc 
+data_cns_mtf
+
+_cns_mtf.title
+; FILENAME="/data/rwgk/test/tmp.mtf"
+  DATE:18-Nov-98  14:17:49       created by user: rwgk
+  VERSION:0.4a
+;
+
+loop_
+_cns_mtf_atom.id
+_cns_mtf_atom.segment_id
+_cns_mtf_atom.residue_id
+_cns_mtf_atom.residue_name
+_cns_mtf_atom.atom_name
+_cns_mtf_atom.chemical_type
+_cns_mtf_atom.charge
+_cns_mtf_atom.atom_mass
+1 ' ' '1' 'LYS' 'CA' 'CH1E' 0.250000 13.0190
+2 ' ' '2' 'LYS' 'CA' 'CH1E' 0.250000 13.0190
+3 ' ' '3' 'LYS' 'CA' 'CH1E' 0.250000 13.0190
+-1 ' ' ' ' ' ' ' ' ' ' -1.00000 -1.00000
+
+loop_
+_cns_mtf_bond.id[1]
+_cns_mtf_bond.id[2]
+-1 -1
+
+loop_
+_cns_mtf_angle.id[1]
+_cns_mtf_angle.id[2]
+_cns_mtf_angle.id[3]
+-1 -1 -1
+
+loop_
+_cns_mtf_dihedral.id[1]
+_cns_mtf_dihedral.id[2]
+_cns_mtf_dihedral.id[3]
+_cns_mtf_dihedral.id[4]
+-1 -1 -1 -1
+
+loop_
+_cns_mtf_improper.id[1]
+_cns_mtf_improper.id[2]
+_cns_mtf_improper.id[3]
+_cns_mtf_improper.id[4]
+-1 -1 -1 -1
+
+loop_
+_cns_mtf_explicit_nonbonded_exclusion.inb
+-1
+
+loop_
+_cns_mtf_explicit_nonbonded_exclusion.iblo
+0
+0
+0
+-1
+
+loop_
+_cns_mtf_group_linked_list.first_atom_id
+0
+1
+-1
+
+end
+
+coor 
+ATOM      1  CA  LYS     1       8.000   8.000   8.000  1.00 15.00          
+ATOM      2  CA  LYS     2       1.400   6.200  18.000  1.00 15.00          
+ATOM      3  CA  LYS     3       2.400   9.200  16.000  1.00 15.00          
+END 
+
+                 
+xray 
+  reset 
+  a=16.00 b=16.00 c=8.00 alpha=90.0 beta=100.00 gamma=90.
+  symmetry=(x,y,z)
+  symmetry=(-x,y+1/2,-z)
+
+  asymm=( 0<=x<=1
+     and  0<=y<=1
+     and  0<=z<=1/2 )
+
+  SCATter ( chemical C* ) 
+       2.31000 20.8439 1.02000 10.2075 1.58860 .568700 .865000 51.6512 .215600
+
+  nref=1000
+  
+  evaluate ($lr=10.)
+  evaluate ($hr=5) 
+  binresolution $lr $hr 
+  mapresolution $hr
+  tselection=( $hr <= d <= $lr  ) 
+
+  generate 10. 5. 
+  
+  declare name=fcalc domain=reciprocal type=complex end
+  
+  predict 
+     mode=reciprocal selection=( all ) atomselection=( not hydro ) 
+     to=fcalc
+  end
+ 
+  declare ? end
+  
+  reflection
+     declare name=ttt domain=reciprocal type=complex end
+     declare name=iii domain=reciprocal type=integer end
+     declare name=rrr domain=reciprocal type=real end
+  end
+
+  declare ? end
+ 
+  do (ttt=fcalc) ( all )
+
+  do (iii=1) ( all )
+  do (rrr=2) ( all )
+
+  show (ttt) ( 10. >= d >= 8 )
+  write refl sele=( 10. >= d >= 8 ) fcalc ttt iii rrr end
+
+
+  show ave (ttt) ( all )
+  show ave (fcalc) ( all )
+
+  declare name=mmm domain=real end
+
+  declare ? end
+ 
+  do (mmm=ft(fcalc)) ( all )
+
+  show max (mmm) ( all )
+
+  declare name=xphas  domain=reciprocal  type=complex end
+
+  show elem (rrr) ( all )
+  show elem (iii) ( all )
+  undeclare name=ttt domain=reciprocal end
+  declare ? end
+  show elem (rrr) ( all )
+  show elem (iii) ( all )
+  undeclare name=rrr domain=reciprocal end
+  undeclare name=iii domain=reciprocal end
+  declare ? end
+
+  declare name=ttt domain=reciprocal type=complex end
+  declare name=iii domain=reciprocal type=integer end
+  declare name=rrr domain=reciprocal type=real end
+  
+end
+
+coor translate vector=( 0.1 0. 0. ) sele=( resid 1 ) end
+
+xray
+  symmetry reset
+   a=16.00 b=16.00 c=16.00 alpha=90.0 beta=90.00 gamma=90.
+ 
+  symmetry=( X,Y,Z ) {* test with tetragonal space group P4(3)22 *}
+  symmetry=( -X,-Y,1/2+Z )
+  symmetry=( -Y,X,3/4+Z )
+  symmetry=( Y,-X,1/4+Z )
+  symmetry=( -X,Y,-Z )
+  symmetry=( X,-Y,1/2-Z )
+  symmetry=( Y,X,1/4-Z )
+  symmetry=( -Y,-X,3/4-Z )
+
+  method=direct  lookup=false
+  predict 
+     mode=reciprocal selection=( all ) atomselection=( not hydro ) 
+     to=fcalc
+  end
+  do (xphas=combine(1.,phase(fcalc)))  ( all )
+  do (ttt=fcalc) ( all )
+  do (rrr=amplitude(fcalc)) ( all )
+
+  expand   hermitian=true
+
+end
+
+{* expand model to P1 *}
+do ( segid="1" ) ( all )
+duplicate selection=( segid "1" ) segid="2" end
+coor symmetry=( -X,-Y,1/2+Z ) selection=( segid "2" ) end
+duplicate selection=( segid "1" ) segid="3" end
+coor symmetry=( -Y,X,3/4+Z ) selection=( segid "3" ) end
+duplicate selection=( segid "1" ) segid="4" end
+coor symmetry=( Y,-X,1/4+Z ) selection=( segid "4" ) end
+duplicate selection=( segid "1" ) segid="5" end
+coor symmetry=( -X,Y,-Z ) selection=( segid "5" ) end
+duplicate selection=( segid "1" ) segid="6" end
+coor symmetry=( X,-Y,1/2-Z ) selection=( segid "6" ) end
+duplicate selection=( segid "1" ) segid="7" end
+coor symmetry=( Y,X,1/4-Z ) selection=( segid "7" ) end
+duplicate selection=( segid "1" ) segid="8" end
+coor symmetry=( -Y,-X,3/4-Z ) selection=( segid "8" ) end
+
+xray
+
+  SCATter ( chemical C* ) 
+       2.31000 20.8439 1.02000 10.2075 1.58860 .568700 .865000 51.6512 .215600
+
+
+  predict 
+     mode=reciprocal selection=( all ) atomselection=( not hydro ) 
+     to=fcalc
+  end
+  show (abs(phase(xphas)-phase(fcalc))) ( all )
+  show max (abs(ttt-fcalc)) ( all )
+  show max (abs(rrr-amplitude(fcalc))) ( all )
+
+  symmetry=( X,Y,Z ) {* test with tetragonal space group P4(3)22 *}
+  symmetry=( -X,-Y,1/2+Z )
+  symmetry=( -Y,X,3/4+Z )
+  symmetry=( Y,-X,1/4+Z )
+  symmetry=( -X,Y,-Z )
+  symmetry=( X,-Y,1/2-Z )
+  symmetry=( Y,X,1/4-Z )
+  symmetry=( -Y,-X,3/4-Z )
+
+  associate fcalc ( segid "1" ) 
+  predict 
+     mode=reciprocal selection=( all ) atomselection=( segid "1" ) 
+     to=fcalc
+  end
+  show (abs(phase(xphas)-phase(fcalc))) ( all )
+  show max (abs(ttt-fcalc)) ( all )
+  show max (abs(rrr-amplitude(fcalc))) ( all )
+
+
+  
+  
+end
+
+{ now test map declarations and undeclarations }
+
+xray
+
+   declare name=eee  domain=real   end
+   declare  name=yyy domain=real  end
+   declare  name=ddd domain=real  end
+
+   do (eee=ft(fcalc)) (all )
+   do (ddd=eee) ( all )
+
+   do (yyy=eee) ( all )
+
+   undeclare name=yyy domain=real end
+
+   declare ? end
+   
+   show max (eee-ddd) ( all )
+   undeclare name=eee domain=real end
+   undeclare name=ddd domain=real end
+   declare ? end
+end
+
+xray
+  reset
+  declare ? end
+  
+  refl
+     declare name=fobs domain=reciprocal type=complex end
+     declare name=fcalc domain=reciprocal type=complex end
+     index 1 2 3 fobs 40.0 30.  fcalc 40. 2.
+     index 2 3 4 fobs 10.   7.  fcalc  3. 1.
+  end
+  
+  write reflection sele=( all ) end
+
+  declare name=iii type=real domain=reciprocal end
+  do (iii=33) ( all ) 
+  declare ? end
+    
+  rename old=iii new=rrr domain=reciprocal end
+  declare ? end
+    
+  rename old=fobs new=f_native domain=reciprocal end
+  
+  declare ? end
+  
+  write reflection sele=( all ) end
+ 
+  rename old=rrr new=weight domain=reciprocal end
+  declare ? end
+  write reflection sele=( all ) end
+  
+  rename old=weight new=sigma domain=reciprocal end
+  declare ? end
+  write reflection sele=( all ) end
+  
+  set abort=off end
+  
+  rename old=weight new=fobs domain=reciprocal end
+  
+  declare name=ooo type=real domain=reciprocal end
+  do (ooo=4) ( all )
+  
+  rename old=ooo new=weight domain=reci end
+  
+  declare name=ooo type=real domain=reciprocal end
+
+  query name=ooo domain=reciprocal end
+  
+  display $object_exist $object_type  $object_used
+
+  query name=fcalc domain=reciprocal end
+ 
+  display $object_exist $object_type  $object_used
+
+  query name=fobs domain=reciprocal end
+ 
+  display $object_exist $object_type  $object_used
+ 
+  query name=rer domain=reciprocal end
+  display $object_exist 
+  
+  query name=mapp domain=real end
+  display  $object_exist
+  
+  declare name=mapp domain=real end
+  query name=mapp domain=real end
+  display $object_exist
+  
+
+
+  declare name=pa domain=reciprocal type=real end
+  declare name=pb domain=reciprocal type=real end
+  declare name=pd domain=reciprocal type=real end
+  declare name=pc domain=reciprocal type=real end
+  declare name=fff domain=reciprocal type=complex end
+  declare name=da domain=reciprocal type=real end
+  declare name=db domain=reciprocal type=real end
+  declare name=dd domain=reciprocal type=real end
+  declare name=dc domain=reciprocal type=real end
+  declare name=uuu domain=reciprocal type=integer end
+
+  group 
+    type=hl
+    object=pa
+    object=pb
+    object=pc 
+    object=pd
+ end
+
+  group 
+    type=hl
+    object=da
+    object=db
+    object=dc 
+    object=dd
+ end
+
+
+ group ? end
+
+ do (pa=1) ( all ) 
+ do (pb=2) ( all ) 
+ do (pc=3) ( all ) 
+ do (pd=4) ( all ) 
+
+ do (da=1) ( all ) 
+ do (db=2) ( all ) 
+ do (dc=3) ( all ) 
+ do (dd=4) ( all ) 
+
+ write reflection sele=( all ) end
+
+
+ ungroup name=da name=db name=dc name=dd end
+  
+ group ? end
+
+ write reflection sele=( all ) end
+
+ undeclare name=pa domain=reciprocal end
+
+ group type=hl
+   object=fobs
+   object=pb
+   object=xx
+   object=uu
+ end
+
+ group type=hl
+   object=pb 
+   object=da
+   object=ss
+   object=yy
+ end
+
+ group type=hl
+   object=f_native
+   object=da
+   object=ii
+   object=hh
+ end
+ 
+ group type=hl
+   object=da
+   object=ii
+   object=hh
+ end
+
+
+  declare name=ia domain=reciprocal type=real end
+  declare name=ib domain=reciprocal type=real end
+  declare name=ic domain=reciprocal type=real end
+  declare name=id domain=reciprocal type=real end
+
+  group 
+    type=hl
+    object=ia
+    object=ib
+    object=ic 
+    object=id
+ end
+
+ group ? end
+
+ write reflection sele=( all ) output=xdeclare.dat end
+
+ reset 
+ 
+ reflection @xdeclare.dat end
+
+  group 
+    type=hl
+    object=da
+    object=db
+    object=dc 
+    object=dd
+ end
+ 
+ group ? end 
+  
+ ungroup 
+   name=dc
+ end
+
+ group ? end
+ 
+  group 
+    type=hl
+    object=da
+    object=db
+    object=dc 
+    object=dd
+ end
+
+ ungroup 
+    name = d*
+ end
+ 
+ undeclare name=*a domain=reciprocal end
+ 
+ declare ? end
+ 
+ undeclare name # weight domain=reciprocal end
+ 
+ declare ? end
+ 
+  declare name=ta domain=reciprocal type=real end
+  declare name=tb domain=reciprocal type=real end
+  declare name=tc domain=reciprocal type=real end
+  declare name=td domain=reciprocal type=real end
+
+  declare ? end
+
+  undeclare name=* domain=reciprocal end
+  
+  
+  declare name=eee  domain=real   end
+  declare  name=yyy domain=real  end
+  declare  name=ddd domain=real  end
+
+  declare ? end
+  
+  undeclare name#ddd domain=real end
+  
+  declare ? end
+  
+  undeclare name=* domain=real end
+  
+  declare ? end
+    
+     
+end
+
+
+stop
+
+
+
+  
+
+  

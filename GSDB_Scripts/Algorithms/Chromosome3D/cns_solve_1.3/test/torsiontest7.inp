@@ -1,0 +1,2060 @@
+remark
+remark  TORSIONTEST1
+remark
+remark  tests torsion angle dynamics topology setup
+
+param
+   reset
+remark  file toppar/parallhdg.dna
+remark   geometric energy function parameters for distance geometry and
+remark   simulated annealing for NMR structure calculation. 
+remark
+
+remark  various changes Michael Nilges and John Kuszewski, 1991
+
+set echo off end
+ 
+evaluate ($kbond = 1000)
+evaluate ($kangle = 500)
+evaluate ($kimproper = 500)
+
+
+
+bond H    NA     $kbond    1.0100 ! URA
+bond H    NS     $kbond    1.0100 ! INFERENCE
+bond H    NH3    $kbond    1.04   ! -"- AND DISTANCE FROM PARAM7
+bond H    OH2    $kbond    0.96
+bond H2   N2     $kbond    1.0100 ! Infer.
+bond HO   OH     $kbond    0.9600 ! PARAM7 (IR stretch 3400 cm-1)
+bond HO   OS     $kbond    0.9600
+bond H    CE     $kbond    1.09! CH R0 from RKR K from DEP opt.
+bond H    CF     $kbond    1.09
+bond H    C2     $kbond    1.09
+bond H    C3     $kbond    1.09
+bond H    CH     $kbond    1.09
+bond P    O2     $kbond    1.4800 ! DEP
+bond P    OS     $kbond    1.6100 ! DEP
+bond P    OH     $kbond    1.6100 ! Infer.
+bond OS   C2     $kbond    1.4300 ! DEP
+bond OS   CH     $kbond    1.4300 ! Infer.
+bond O    C      $kbond    1.2290 ! URA
+bond OH   C2     $kbond    1.4300
+bond OH   CH     $kbond    1.4300
+bond C2   CH     $kbond    1.5250
+bond C2   C2     $kbond    1.5250
+bond CH   CH     $kbond    1.5250
+bond C3   CH     $kbond    1.5250
+bond C3   C2     $kbond    1.5250 ! DEP
+bond CB   CB     $kbond    1.3700 ! similar to CF=CF
+bond CA   CB     $kbond    1.4040 ! Infer. from URA
+bond CE   CB     $kbond    1.4040 ! Infer. from URA
+bond C    CB     $kbond    1.4190
+bond CF   C      $kbond    1.4440 ! URA
+bond CF   CA     $kbond    1.4330
+bond CF   CF     $kbond    1.3500 ! URA
+bond C    CS     $kbond    1.4440
+bond CS   C3     $kbond    1.5250
+bond CS   CF     $kbond    1.3430
+bond NS   CH     $kbond    1.4750
+bond NS   CB     $kbond    1.3740
+bond NS   CE     $kbond    1.3710
+bond NS   C      $kbond    1.3830
+bond NS   CF     $kbond    1.3650
+bond NC   CB     $kbond    1.3540
+bond NC   CE     $kbond    1.3240
+bond NC   CA     $kbond    1.3390
+bond NC   C      $kbond    1.3580
+bond N2   CA     $kbond    1.3330
+bond NB   CB     $kbond    1.3910
+bond NB   CE     $kbond    1.3040
+bond NA   CA     $kbond    1.3810
+bond NA   C      $kbond    1.3880
+bond NH2E CH     $kbond    1.49   !        FROM PARAM3
+bond BR   CS     $kbond    1.880
+ 
+angle H    CE   NC      $kangle     120.0
+angle H    CE   CB      $kangle     120.0
+angle H    CA   NC      $kangle     120.0
+angle H    CE   NS      $kangle     120.0  ! atb 6/6/92
+angle H    CE   NB      $kangle     120.0  ! atb 6/6/92
+angle H    CF   CA      $kangle     120.0
+angle H    CF   CF      $kangle     120.0
+angle H    CF   NS      $kangle     120.0
+angle H    CF   CS      $kangle     120.0
+angle H    CF   C       $kangle     120.0
+angle H    C3   CS      $kangle     109.47
+angle H    C3   CH      $kangle     109.47
+angle H    C3   OS      $kangle     109.47    ! FOR DMP
+angle H    C3   H       $kangle     109.47
+angle H    CH   H       $kangle     109.47
+angle H    CH   C3      $kangle     109.47
+angle H    CH   CH      $kangle     109.47
+angle H    CH   C2      $kangle     109.47
+angle H    CH   OS      $kangle     109.47
+angle H    CH   OH      $kangle     109.47
+angle H    CH   NS      $kangle     109.47
+angle H    CH   NH2E    $kangle     109.47
+angle H    C2   CH      $kangle     109.47
+angle H    C2   C2      $kangle     109.47
+angle H    C2   C3      $kangle     109.47
+angle H    C2   OS      $kangle     109.47
+angle H    C2   OH      $kangle     109.47
+angle H    C2   H       $kangle     109.47
+angle P    OS   C2      $kangle  120.5000   ! DEP
+angle P    OS   C3      $kangle  120.5000   ! Guess (inferred from P-OS-C2) /LN
+angle CH   OS   CH      $kangle  111.5000
+angle P    OS   CH      $kangle  120.5000
+angle HO   OS   CH      $kangle  107.3000
+angle HO   OS   C2      $kangle  107.3000
+angle HO   OH   CH      $kangle  107.3000
+angle HO   OH   C2      $kangle  107.3000
+angle HO   OH   P       $kangle  107.3000
+angle OS   P    OS      $kangle  102.6000  ! DEP
+angle OH   P    OS      $kangle  102.6000
+angle OS   P    O2      $kangle  108.2300  ! DEP
+angle OH   P    O2      $kangle  108.2300
+angle O2   P    O2      $kangle  119.9000  ! DEP
+angle C    NA   H       $kangle  116.5000  ! URA
+angle C    NA   C       $kangle  126.4000  ! URA
+angle CA   NA   H       $kangle  119.3000  ! Infer.
+angle CA   NA   C       $kangle  125.2000  ! Infer.
+angle CB   NB   CE      $kangle  103.8000
+angle CB   NC   CE      $kangle  111.0000
+angle CA   NC   CE      $kangle  118.6000
+angle CE   NC   CE      $kangle  118.6000
+angle C    NC   CA      $kangle  120.5000
+angle CA   NC   CB      $kangle  112.2000
+angle CA   N2   H2      $kangle  120.0000
+angle H2   N2   H2      $kangle  120.0000
+angle CH   NS   CB      $kangle  125.8000
+angle CH   NS   CE      $kangle  128.8000
+angle CB   NS   CE      $kangle  105.4000  ! Infer.
+angle C    NS   CH      $kangle  117.6000
+angle CF   NS   CH      $kangle  121.2000
+angle C    NS   CF      $kangle  121.6000  ! Infer.
+angle C    NS   H       $kangle  119.3000
+angle CB   NS   H       $kangle  119.3000
+angle CE   NS   H       $kangle  119.3000
+angle CF   NS   H       $kangle  119.3000
+angle H    NH3  H       $kangle     109.5    ! FROM PARAM7
+angle H    NH3  C2      $kangle     109.5
+angle C2   NH3  C2      $kangle     109.5
+angle NS   C    O       $kangle  120.9000
+angle NA   C    O       $kangle  120.6000
+angle CB   C    O       $kangle  128.8000
+angle NC   C    O       $kangle  122.5000
+angle CF   C    O       $kangle  125.3000
+angle CS   C    O       $kangle  125.3000
+angle CF   C    NA      $kangle  114.1000
+angle CS   C    NA      $kangle  114.1000
+angle NS   C    NA      $kangle  115.4000
+angle CB   C    NA      $kangle  111.3000
+angle NS   C    NC      $kangle  118.6000
+angle N2   CA   NB      $kangle  118.3000
+angle N2   CA   NC      $kangle  119.8000
+angle CB   CA   NC      $kangle  117.3000
+angle CB   CE   NC      $kangle  117.3000
+angle CB   CA   N2      $kangle  123.5000
+angle CF   CA   NC      $kangle  121.5000
+angle N2   CA   CF      $kangle  120.1000
+angle NC   CA   NA      $kangle  123.3000
+angle N2   CA   NA      $kangle  116.0000
+angle CB   CB   NS      $kangle  106.2000
+angle NC   CB   NS      $kangle  126.0000
+angle NC   CB   CB      $kangle  127.7000
+angle CA   CB   NB      $kangle  132.4000
+angle CE   CB   NB      $kangle  132.4000
+angle CA   CB   CB      $kangle  117.3000
+angle CE   CB   CB      $kangle  117.3000
+angle CB   CB   NB      $kangle  110.4000
+angle C    CB   NB      $kangle  130.0000
+angle C    CB   CB      $kangle  119.2000
+angle NC   CE   NC      $kangle  129.1000
+angle NB   CE   NS      $kangle  120.000   ! atb 6/6/92
+angle NS   CF   CF      $kangle  121.2000
+angle NA   CF   CF      $kangle  121.2000  ! URA
+angle CA   CF   CF      $kangle  117.0000  ! DEP infer.
+angle CS   CF   NS      $kangle  121.2000
+angle C    CF   CF      $kangle  120.7000
+angle C2   CH   OS      $kangle  111.0000
+angle C2   CH   OH      $kangle  111.0000
+angle CH   CH   OH      $kangle  111.0000
+angle C2   CH   CH      $kangle  111.0000
+angle CH   CH   CH      $kangle  111.0000
+angle CH   CH   OS      $kangle  111.0000
+angle C3   CH   OS      $kangle  111.0000
+angle OS   CH   NS      $kangle  111.0000
+angle C2   CH   NS      $kangle  111.0000
+angle CH   CH   NS      $kangle  111.0000
+angle C2   CH   NH2E    $kangle  111.0000  !    GUESSED BY INFERENCE
+angle CH   CH   NH2E    $kangle  111.0000  !    GUESSED BY INFERENCE
+angle OS   CH   NH2E    $kangle  111.0000  !    GUESSED BY INFERENCE
+angle C3   CH   CH      $kangle  111.0000  !    ADDED WITHOUT CHECKING
+angle OS   C2   C3      $kangle  111.0000  !    DEP
+angle OS   C2   CH      $kangle  112.0000
+angle OH   C2   CH      $kangle  112.0000
+angle CH   C2   CH      $kangle  112.0000
+angle C2   C2   NH3     $kangle     109.5    ! FROM PARAM7
+angle C2   C2   C2      $kangle     110.0    ! FROM PARAM7
+angle C2   C2   C3      $kangle     112.0
+angle C    CS   C3      $kangle  119.7000
+angle C    CS   CF      $kangle  120.7000
+angle C3   CS   CF      $kangle  119.7000
+angle BR   CS   CF      $kangle  119.7000
+angle BR   CS   CA      $kangle  119.7000
+ 
+ 
+dihedral X    C2   CH   X        1.5000    3    0.0000
+dihedral X    C2   C2   X        1.6000    3    0.0000   ! PARAM7
+dihedral X    CH   CH   X        1.5000    3    0.0000
+dihedral X    CH   OS   X        0.5000    3    0.0000
+dihedral X    CH   OH   X        0.5000    3    0.0000
+dihedral X    C2   OH   X        0.5000    3    0.0000
+dihedral X    C2   OS   X        0.5000    3    0.0000
+dihedral X    OS   P    X        0.7500    3    0.0000
+dihedral X    OH   P    X        0.7500    3    0.0000
+dihedral X    CH   NS   X        0.3000    2    0.0000
+dihedral X    C2   NH3  X        0.6       3    0.0   !SPERMINE,E/BOND 3 BONDS
+! dihedral X    CA   N2   X        6.0000    2  180.0 !converted to impropers
+! dihedral X    NS   CE   X        7.0       2  180.0 !ATB
+! dihedral X    NS   CF   X        7.0       2  180.0 !
+! dihedral X    NC   CE   X        7.0       2  180.0 !
+! dihedral X    CF   CF   X        8.0       2  180.0 !
+dihedral X    CS   C3   X        0.5       3    0.0  ! METHYL E/3 PER BOND
+dihedral X    OS   C3   X        0.5       3    0.0  ! METHYL E/3 PER BOND
+ 
+! "WILMA OLSON SUGAR MODEL":
+dihedral OH   CH   CH   CH       0.5000    2    0.0000 ! ONLY AS GAUCHE
+dihedral C3   CH   CH   OS       0.2       2    0.0    ! FOR C5' WHICH IS A C3 I
+! N MODEL
+dihedral OS   CH   CH   OS       0.5000    2    0.0000 !
+dihedral OS   CH   CH   OS       1.4000    3    0.0000 !
+dihedral OS   CH   CH   CH       0.5000    2    0.0000 !
+dihedral OS   CH   CH   CH       1.4000    3    0.0000
+dihedral OH   CH   CH   OS       0.5000    2    0.0000 !
+dihedral OH   CH   CH   OS       1.4000    3    0.0000 !
+dihedral OS   CH   C2   CH       0.5000    2    0.0000 !
+dihedral OS   CH   C2   CH       0.5000    3    0.0000 ! DECR from 1.4
+dihedral OS   CH   CH   C2       0.2000    2    0.0000 ! DECR FROM 0.5
+dihedral OS   CH   CH   C2       1.0000    3    0.0000 ! decr from 1.4
+!
+! OUT OF THE SUGAR
+dihedral OS   P    OS   C2       0.7500    3    0.0000
+dihedral OS   P    OS   C2       0.7500    2    0.0000
+dihedral OS   P    OS   C3       0.7500    3    0.0000 ! Added by inference
+dihedral OS   P    OS   C3       0.7500    2    0.0000 ! Added by inference
+dihedral OS   P    OS   CH       0.7500    3    0.0000
+dihedral OS   P    OS   CH       0.7500    2    0.0000
+ 
+! Keeping purine rings parallel (from PARAM6):
+improper CE   CB   CB   NC     $kimproper       0   180.00
+improper CE   CB   CB   CE     $kimproper       0   180.00
+improper CE   CB   CB   CA     $kimproper       0   180.00
+improper CE   CB   CB   NA     $kimproper       0   180.00
+improper NC   CB   CB   NB     $kimproper       0   180.00
+improper CA   CB   CB   NS     $kimproper       0   180.00
+improper CE   CB   CB   NS     $kimproper       0   180.00
+improper C    CB   CB   NS     $kimproper       0   180.00
+
+! chiral centers in the sugar ring
+improper H    CH   OS   NS      $kimproper   0 -65.0000  !c1'
+improper H    C2   OS   NS      $kimproper   0 -65.0000 !added(dna),ATB
+improper H    CH   CH   OH      $kimproper   0  65.0000  !c2'
+improper H    CH   CH   OS      $kimproper   0  65.0000  !c3'
+improper H    CH   C2   OH      $kimproper   0  65.0000 !added(dna),ATB
+improper H    CH   C2   OS      $kimproper   0  65.0000 !added(dna),ATB
+improper H    C2   CH   OS      $kimproper   0  65.0000  !c4'
+improper H    CH   CH   H       $kimproper   0 120.0000  !c2', c5'
+
+improper H    X    X    CE      $kimproper 0   0.0000 !added for h's in
+improper H    X    X    CF      $kimproper 0   0.0000 !base planes (GMC)
+improper C2   X    X    CH      $kimproper 0  35.2600
+improper C3   X    X    CH      $kimproper 0  35.2600 ! ADDED WITHOUT CHECKING
+improper OH   X    X    CH      $kimproper 0  35.2600
+improper OS   X    X    CH      $kimproper 0  35.2600
+improper CH   OS   C2   NS      $kimproper 0  35.2600
+improper CH   OS   CH   NS      $kimproper 0  35.2600
+improper CH   OS   C2   NH2E    $kimproper 0  35.2600
+improper CH   OS   CH   NH2E    $kimproper 0  35.2600
+improper H    X    X    NA      $kimproper 0   0.0000  ! URA
+improper H    X    X    NS      $kimproper 0   0.0000  ! INFERENCE
+improper H2   X    X    N2      $kimproper 0   0.0000
+improper C    X    X    CB      $kimproper 0   0.0000  ! PLANAR IMPROPERS FROM URA
+! FIT
+improper C    X    X    CS      $kimproper 0   0.0000  !  (OR INFERRED FROM IT)
+improper C    X    X    CF      $kimproper 0   0.0000
+improper C    X    X    O       $kimproper 0   0.0000  ! URA
+improper C    X    X    NC      $kimproper 0   0.0000
+improper C    X    X    NS      $kimproper 0   0.0000
+improper CA   X    X    CB      $kimproper 0   0.0000
+improper CA   X    X    NC      $kimproper 0   0.0000
+improper CE   X    X    NC      $kimproper 0   0.0000
+improper CA   X    X    N2      $kimproper 0   0.0000
+improper CA   X    X    NS      $kimproper 0   0.0000
+improper CB   X    X    CE      $kimproper 0   0.0000
+improper CB   X    X    NA      $kimproper 0   0.0000
+improper CB   X    X    NB      $kimproper 0   0.0000
+improper CB   X    X    NC      $kimproper 0   0.0000
+improper CB   X    X    NS      $kimproper 0   0.0000
+improper CF   X    X    NC      $kimproper 0   0.0000
+improper CF   X    X    NA      $kimproper 0   0.0000
+improper CH   X    X    NS      $kimproper 0   0.0000 !increased from 40
+improper C3   X    X    CS      $kimproper 0   0.0000 !to 80 for planarity
+improper NB   X    X    NS      $kimproper 0   0.0000
+improper BR   X    X    CS      $kimproper 0   0.0000
+
+improper X    CA   N2   X       $kimproper    2  180.0  !converted to impropers
+improper X    NS   CE   X       $kimproper    2  180.0  !with large energy
+improper X    NS   CF   X       $kimproper    2  180.0  !ATB
+improper X    NC   CE   X       $kimproper    2  180.0  !
+improper X    CF   CF   X       $kimproper    2  180.0  !
+ 
+{* chiral improper included for H5'/H5'' and H2'/H2'' def., according to *}
+{* Wijmenga, Mooren and Hilbers in NMR of nucl. acids, (Ed. Roberts) *}
+improper H    OS   H    CH      $kimproper   0  65.0000
+improper H    OH   H    CH      $kimproper   0  65.0000
+improper H    CH   CH   H       $kimproper   0  65.0000
+improper H5'  O5'  H5'' C4'     $kimproper   0  65.0000
+improper H2'  C3'  C1'  H2''    $kimproper   0  65.0000
+
+! Taken from Rossky Karplus and Rahman BIOPOLY (1979)
+! 0.05 ADDED TO RADII TO IMPROVE ON NUCL.ACID STACKING/LN
+!
+!                  eps     sigma       eps(1:4) sigma(1:4)
+NONBonded  BR      0.8000   3.5636      0.8000   3.5636
+NONBonded  C       0.0900   3.2970      0.0900   3.2970
+NONBonded  C2      0.0900   3.2970      0.0900   3.2970
+NONBonded  C3      0.0900   3.2970      0.0900   3.2970
+NONBonded  CA      0.0900   3.2970      0.0900   3.2970
+NONBonded  CB      0.0900   3.2970      0.0900   3.2970
+NONBonded  CE      0.0900   3.2970      0.0900   3.2970
+NONBonded  CF      0.0900   3.2970      0.0900   3.2970
+NONBonded  CH      0.0900   3.2970      0.0900   3.2970
+NONBonded  CS      0.0900   3.2970      0.0900   3.2970
+NONBonded  H       0.0045   2.6160      0.0045   2.6160
+NONBonded  H2      0.0045   1.6040      0.0045   1.6040
+!
+! give it the same as th Hn from RKR
+NONBonded  HO      0.0045   1.6040      0.0045   1.6040
+NONBonded  MG      0.2000   2.8509      0.2000   2.8509   ! G U E S S
+NONBonded  N2      0.1600   2.8591      0.1600   2.8591
+NONBonded  NA      0.1600   2.8591      0.1600   2.8591
+NONBonded  NB      0.1600   2.8591      0.1600   2.8591
+NONBonded  NC      0.1600   2.8591      0.1600   2.8591
+!
+! THIS STILL IS AN EXTENDED ATOM
+NONBonded  NH2E    0.1600   3.0291      0.1600   3.0291
+NONBonded  NH3     0.1600   2.8591      0.1600   2.8591
+NONBonded  NS      0.1600   2.8591      0.1600   2.8591
+NONBonded  O       0.2304   2.7290      0.2304   2.7290
+NONBonded  O2      0.2304   2.7290      0.2304   2.7290
+NONBonded  OH      0.2304   2.5508      0.2304   2.5508
+NONBonded  OS      0.2304   2.7290      0.2304   2.7290
+NONBonded  P       0.5849   3.3854      0.5849   3.3854
+NONBonded  SD      0.3515   2.6727      0.3515   2.6727   ! G U E S S
+ 
+ 
+! NOTE: the NBFIXES include aliphatic hydrogens !!!!!!!!! check !!!
+! the following NBFIXes are for DNA-DNA hydrogen bonding
+! terms
+!                                         ------1-4------
+!                   A           B           A          B
+!           [Kcal/(mol A^12)] [Kcal/(mol A^6)]
+!
+nbfix  HO   O       0.05       0.1      0.05       0.1
+nbfix  HO   O2      0.05       0.1      0.05       0.1
+nbfix  HO   OS      0.05       0.1      0.05       0.1
+nbfix  HO   OH      0.05       0.1      0.05       0.1
+nbfix  HO   NB      0.05       0.1      0.05       0.1
+nbfix  HO   NC      0.05       0.1      0.05       0.1
+ 
+nbfix  H    O       0.05       0.1      0.05       0.1
+nbfix  H    O2      0.05       0.1      0.05       0.1
+nbfix  H    OS      0.05       0.1      0.05       0.1
+nbfix  H    OH      0.05       0.1      0.05       0.1
+nbfix  H    NB      0.05       0.1      0.05       0.1
+nbfix  H    NC      0.05       0.1      0.05       0.1
+ 
+nbfix  H2   O       0.05       0.1      0.05       0.1
+nbfix  H2   O2      0.05       0.1      0.05       0.1
+nbfix  H2   OS      0.05       0.1      0.05       0.1
+nbfix  H2   OH      0.05       0.1      0.05       0.1
+nbfix  H2   NB      0.05       0.1      0.05       0.1
+nbfix  H2   NC      0.05       0.1      0.05       0.1
+ 
+ 
+set echo on end
+end
+
+stru
+   reset
+data_cns_mtf
+
+_cns_mtf.title
+; FILENAME="/data/rwgk/test/tmp.mtf"
+   NUCLEIC ACID PARAMETER FILE CREATION RUN
+   >>>NO WARRANTY EXPRESSED OR IMPLIED<<<
+   ALL HYDROGEN NUCLEIC ACID PARAMETER FILE.
+   DERIVED FROM PARMDNA8. LN and MP 1984
+   H-bond wells made 0.5 kcal deeper to improve basepair energies
+     8/20/84/ln
+   H stretch & bend constants from URACIL normal mode fit.
+   Magnesium (fudge) and spermine included.
+   all references to water removed, ATB, 3-JAN-85
+   ALL IMPROPERS force constants increased to 500 to
+     ensure perfect planes and chirality: GMC 1987
+   DIHEDRAL force constants that keep purin rings parallel
+     increased to 500 (MN 7-NOV-86)
+   includes parameters for purine GMC 1987
+  DATE:18-Nov-98  14:17:47       created by user: rwgk
+  VERSION:0.4a
+;
+
+loop_
+_cns_mtf_atom.id
+_cns_mtf_atom.segment_id
+_cns_mtf_atom.residue_id
+_cns_mtf_atom.residue_name
+_cns_mtf_atom.atom_name
+_cns_mtf_atom.chemical_type
+_cns_mtf_atom.charge
+_cns_mtf_atom.atom_mass
+1 '4TNA' '1' 'GUA' 'H5T' 'HO' 0.250000 1.00800
+2 '4TNA' '1' 'GUA' 'O5\p' 'OH' -0.400000 15.9994
+3 '4TNA' '1' 'GUA' 'C5\p' 'C2' 0.800000E-01 12.0110
+4 '4TNA' '1' 'GUA' 'H5\p' 'H' 0.350000E-01 1.00800
+5 '4TNA' '1' 'GUA' 'H5\p\p' 'H' 0.350000E-01 1.00800
+6 '4TNA' '1' 'GUA' 'C4\p' 'CH' 0.650000E-01 12.0110
+7 '4TNA' '1' 'GUA' 'H4\p' 'H' 0.350000E-01 1.00800
+8 '4TNA' '1' 'GUA' 'O4\p' 'OS' -0.300000 15.9994
+9 '4TNA' '1' 'GUA' 'C1\p' 'CH' 0.165000 12.0110
+10 '4TNA' '1' 'GUA' 'H1\p' 'H' 0.350000E-01 1.00800
+11 '4TNA' '1' 'GUA' 'N9' 'NS' -0.190000 14.0067
+12 '4TNA' '1' 'GUA' 'C4' 'CB' 0.190000 12.0110
+13 '4TNA' '1' 'GUA' 'N3' 'NC' -0.500000 14.0067
+14 '4TNA' '1' 'GUA' 'C2' 'CA' 0.500000 12.0110
+15 '4TNA' '1' 'GUA' 'N2' 'N2' -0.420000 14.0067
+16 '4TNA' '1' 'GUA' 'H21' 'H2' 0.210000 1.00800
+17 '4TNA' '1' 'GUA' 'H22' 'H2' 0.210000 1.00800
+18 '4TNA' '1' 'GUA' 'N1' 'NA' -0.260000 14.0067
+19 '4TNA' '1' 'GUA' 'H1' 'H' 0.260000 1.00800
+20 '4TNA' '1' 'GUA' 'C6' 'C' 0.300000 12.0110
+21 '4TNA' '1' 'GUA' 'O6' 'O' -0.300000 15.9994
+22 '4TNA' '1' 'GUA' 'C5' 'CB' 0.200000E-01 12.0110
+23 '4TNA' '1' 'GUA' 'N7' 'NB' -0.250000 14.0067
+24 '4TNA' '1' 'GUA' 'C8' 'CE' 0.195000 12.0110
+25 '4TNA' '1' 'GUA' 'H8' 'H' 0.350000E-01 1.00800
+26 '4TNA' '1' 'GUA' 'C2\p' 'CH' 0.115000 12.0110
+27 '4TNA' '1' 'GUA' 'H2\p\p' 'H' 0.350000E-01 1.00800
+28 '4TNA' '1' 'GUA' 'O2\p' 'OH' -0.400000 15.9994
+29 '4TNA' '1' 'GUA' 'H2\p' 'HO' 0.250000 1.00800
+30 '4TNA' '1' 'GUA' 'C3\p' 'CH' -0.350000E-01 12.0110
+31 '4TNA' '1' 'GUA' 'H3\p' 'H' 0.350000E-01 1.00800
+32 '4TNA' '1' 'GUA' 'O3\p' 'OS' -0.360000 15.9994
+33 '4TNA' '2' 'CYT' 'P' 'P' 1.20000 30.9740
+34 '4TNA' '2' 'CYT' 'O1P' 'O2' -0.400000 15.9994
+35 '4TNA' '2' 'CYT' 'O2P' 'O2' -0.400000 15.9994
+36 '4TNA' '2' 'CYT' 'O5\p' 'OS' -0.360000 15.9994
+37 '4TNA' '2' 'CYT' 'C5\p' 'C2' -0.700000E-01 12.0110
+38 '4TNA' '2' 'CYT' 'H5\p' 'H' 0.350000E-01 1.00800
+39 '4TNA' '2' 'CYT' 'H5\p\p' 'H' 0.350000E-01 1.00800
+40 '4TNA' '2' 'CYT' 'C4\p' 'CH' 0.650000E-01 12.0110
+41 '4TNA' '2' 'CYT' 'H4\p' 'H' 0.350000E-01 1.00800
+42 '4TNA' '2' 'CYT' 'O4\p' 'OS' -0.300000 15.9994
+43 '4TNA' '2' 'CYT' 'C1\p' 'CH' 0.165000 12.0110
+44 '4TNA' '2' 'CYT' 'H1\p' 'H' 0.350000E-01 1.00800
+45 '4TNA' '2' 'CYT' 'N1' 'NS' -0.190000 14.0067
+46 '4TNA' '2' 'CYT' 'C6' 'CF' 0.155000 12.0110
+47 '4TNA' '2' 'CYT' 'H6' 'H' 0.350000E-01 1.00800
+48 '4TNA' '2' 'CYT' 'C2' 'C' 0.300000 12.0110
+49 '4TNA' '2' 'CYT' 'O2' 'O' -0.300000 15.9994
+50 '4TNA' '2' 'CYT' 'N3' 'NC' -0.280000 14.0067
+51 '4TNA' '2' 'CYT' 'C4' 'CA' 0.280000 12.0110
+52 '4TNA' '2' 'CYT' 'N4' 'N2' -0.420000 14.0067
+53 '4TNA' '2' 'CYT' 'H41' 'H2' 0.210000 1.00800
+54 '4TNA' '2' 'CYT' 'H42' 'H2' 0.210000 1.00800
+55 '4TNA' '2' 'CYT' 'C5' 'CF' -0.350000E-01 12.0110
+56 '4TNA' '2' 'CYT' 'H5' 'H' 0.350000E-01 1.00800
+57 '4TNA' '2' 'CYT' 'C2\p' 'CH' 0.115000 12.0110
+58 '4TNA' '2' 'CYT' 'H2\p\p' 'H' 0.350000E-01 1.00800
+59 '4TNA' '2' 'CYT' 'O2\p' 'OH' -0.400000 15.9994
+60 '4TNA' '2' 'CYT' 'H2\p' 'HO' 0.250000 1.00800
+61 '4TNA' '2' 'CYT' 'C3\p' 'CH' -0.350000E-01 12.0110
+62 '4TNA' '2' 'CYT' 'H3\p' 'H' 0.350000E-01 1.00800
+63 '4TNA' '2' 'CYT' 'O3\p' 'OS' -0.360000 15.9994
+64 '4TNA' '3' 'GUA' 'P' 'P' 1.20000 30.9740
+65 '4TNA' '3' 'GUA' 'O1P' 'O2' -0.400000 15.9994
+66 '4TNA' '3' 'GUA' 'O2P' 'O2' -0.400000 15.9994
+67 '4TNA' '3' 'GUA' 'O5\p' 'OS' -0.360000 15.9994
+68 '4TNA' '3' 'GUA' 'C5\p' 'C2' -0.700000E-01 12.0110
+69 '4TNA' '3' 'GUA' 'H5\p' 'H' 0.350000E-01 1.00800
+70 '4TNA' '3' 'GUA' 'H5\p\p' 'H' 0.350000E-01 1.00800
+71 '4TNA' '3' 'GUA' 'C4\p' 'CH' 0.650000E-01 12.0110
+72 '4TNA' '3' 'GUA' 'H4\p' 'H' 0.350000E-01 1.00800
+73 '4TNA' '3' 'GUA' 'O4\p' 'OS' -0.300000 15.9994
+74 '4TNA' '3' 'GUA' 'C1\p' 'CH' 0.165000 12.0110
+75 '4TNA' '3' 'GUA' 'H1\p' 'H' 0.350000E-01 1.00800
+76 '4TNA' '3' 'GUA' 'N9' 'NS' -0.190000 14.0067
+77 '4TNA' '3' 'GUA' 'C4' 'CB' 0.190000 12.0110
+78 '4TNA' '3' 'GUA' 'N3' 'NC' -0.500000 14.0067
+79 '4TNA' '3' 'GUA' 'C2' 'CA' 0.500000 12.0110
+80 '4TNA' '3' 'GUA' 'N2' 'N2' -0.420000 14.0067
+81 '4TNA' '3' 'GUA' 'H21' 'H2' 0.210000 1.00800
+82 '4TNA' '3' 'GUA' 'H22' 'H2' 0.210000 1.00800
+83 '4TNA' '3' 'GUA' 'N1' 'NA' -0.260000 14.0067
+84 '4TNA' '3' 'GUA' 'H1' 'H' 0.260000 1.00800
+85 '4TNA' '3' 'GUA' 'C6' 'C' 0.300000 12.0110
+86 '4TNA' '3' 'GUA' 'O6' 'O' -0.300000 15.9994
+87 '4TNA' '3' 'GUA' 'C5' 'CB' 0.200000E-01 12.0110
+88 '4TNA' '3' 'GUA' 'N7' 'NB' -0.250000 14.0067
+89 '4TNA' '3' 'GUA' 'C8' 'CE' 0.195000 12.0110
+90 '4TNA' '3' 'GUA' 'H8' 'H' 0.350000E-01 1.00800
+91 '4TNA' '3' 'GUA' 'C2\p' 'CH' 0.115000 12.0110
+92 '4TNA' '3' 'GUA' 'H2\p\p' 'H' 0.350000E-01 1.00800
+93 '4TNA' '3' 'GUA' 'O2\p' 'OH' -0.400000 15.9994
+94 '4TNA' '3' 'GUA' 'H2\p' 'HO' 0.250000 1.00800
+95 '4TNA' '3' 'GUA' 'C3\p' 'CH' -0.350000E-01 12.0110
+96 '4TNA' '3' 'GUA' 'H3\p' 'H' 0.350000E-01 1.00800
+97 '4TNA' '3' 'GUA' 'O3\p' 'OS' -0.360000 15.9994
+98 '4TNA' '4' 'GUA' 'P' 'P' 1.20000 30.9740
+99 '4TNA' '4' 'GUA' 'O1P' 'O2' -0.400000 15.9994
+100 '4TNA' '4' 'GUA' 'O2P' 'O2' -0.400000 15.9994
+101 '4TNA' '4' 'GUA' 'O5\p' 'OS' -0.360000 15.9994
+102 '4TNA' '4' 'GUA' 'C5\p' 'C2' -0.700000E-01 12.0110
+103 '4TNA' '4' 'GUA' 'H5\p' 'H' 0.350000E-01 1.00800
+104 '4TNA' '4' 'GUA' 'H5\p\p' 'H' 0.350000E-01 1.00800
+105 '4TNA' '4' 'GUA' 'C4\p' 'CH' 0.650000E-01 12.0110
+106 '4TNA' '4' 'GUA' 'H4\p' 'H' 0.350000E-01 1.00800
+107 '4TNA' '4' 'GUA' 'O4\p' 'OS' -0.300000 15.9994
+108 '4TNA' '4' 'GUA' 'C1\p' 'CH' 0.165000 12.0110
+109 '4TNA' '4' 'GUA' 'H1\p' 'H' 0.350000E-01 1.00800
+110 '4TNA' '4' 'GUA' 'N9' 'NS' -0.190000 14.0067
+111 '4TNA' '4' 'GUA' 'C4' 'CB' 0.190000 12.0110
+112 '4TNA' '4' 'GUA' 'N3' 'NC' -0.500000 14.0067
+113 '4TNA' '4' 'GUA' 'C2' 'CA' 0.500000 12.0110
+114 '4TNA' '4' 'GUA' 'N2' 'N2' -0.420000 14.0067
+115 '4TNA' '4' 'GUA' 'H21' 'H2' 0.210000 1.00800
+116 '4TNA' '4' 'GUA' 'H22' 'H2' 0.210000 1.00800
+117 '4TNA' '4' 'GUA' 'N1' 'NA' -0.260000 14.0067
+118 '4TNA' '4' 'GUA' 'H1' 'H' 0.260000 1.00800
+119 '4TNA' '4' 'GUA' 'C6' 'C' 0.300000 12.0110
+120 '4TNA' '4' 'GUA' 'O6' 'O' -0.300000 15.9994
+121 '4TNA' '4' 'GUA' 'C5' 'CB' 0.200000E-01 12.0110
+122 '4TNA' '4' 'GUA' 'N7' 'NB' -0.250000 14.0067
+123 '4TNA' '4' 'GUA' 'C8' 'CE' 0.195000 12.0110
+124 '4TNA' '4' 'GUA' 'H8' 'H' 0.350000E-01 1.00800
+125 '4TNA' '4' 'GUA' 'C2\p' 'CH' 0.115000 12.0110
+126 '4TNA' '4' 'GUA' 'H2\p\p' 'H' 0.350000E-01 1.00800
+127 '4TNA' '4' 'GUA' 'O2\p' 'OH' -0.400000 15.9994
+128 '4TNA' '4' 'GUA' 'H2\p' 'HO' 0.250000 1.00800
+129 '4TNA' '4' 'GUA' 'C3\p' 'CH' -0.350000E-01 12.0110
+130 '4TNA' '4' 'GUA' 'H3\p' 'H' 0.350000E-01 1.00800
+131 '4TNA' '4' 'GUA' 'O3\p' 'OS' -0.360000 15.9994
+132 '4TNA' '5' 'ADE' 'P' 'P' 1.20000 30.9740
+133 '4TNA' '5' 'ADE' 'O1P' 'O2' -0.400000 15.9994
+134 '4TNA' '5' 'ADE' 'O2P' 'O2' -0.400000 15.9994
+135 '4TNA' '5' 'ADE' 'O5\p' 'OS' -0.360000 15.9994
+136 '4TNA' '5' 'ADE' 'C5\p' 'C2' -0.700000E-01 12.0110
+137 '4TNA' '5' 'ADE' 'H5\p' 'H' 0.350000E-01 1.00800
+138 '4TNA' '5' 'ADE' 'H5\p\p' 'H' 0.350000E-01 1.00800
+139 '4TNA' '5' 'ADE' 'C4\p' 'CH' 0.650000E-01 12.0110
+140 '4TNA' '5' 'ADE' 'H4\p' 'H' 0.350000E-01 1.00800
+141 '4TNA' '5' 'ADE' 'O4\p' 'OS' -0.300000 15.9994
+142 '4TNA' '5' 'ADE' 'C1\p' 'CH' 0.165000 12.0110
+143 '4TNA' '5' 'ADE' 'H1\p' 'H' 0.350000E-01 1.00800
+144 '4TNA' '5' 'ADE' 'N9' 'NS' -0.190000 14.0067
+145 '4TNA' '5' 'ADE' 'C4' 'CB' 0.190000 12.0110
+146 '4TNA' '5' 'ADE' 'N3' 'NC' -0.260000 14.0067
+147 '4TNA' '5' 'ADE' 'C2' 'CE' 0.225000 12.0110
+148 '4TNA' '5' 'ADE' 'H2' 'H' 0.350000E-01 1.00800
+149 '4TNA' '5' 'ADE' 'N1' 'NC' -0.280000 14.0067
+150 '4TNA' '5' 'ADE' 'C6' 'CA' 0.280000 12.0110
+151 '4TNA' '5' 'ADE' 'N6' 'N2' -0.420000 14.0067
+152 '4TNA' '5' 'ADE' 'H61' 'H2' 0.210000 1.00800
+153 '4TNA' '5' 'ADE' 'H62' 'H2' 0.210000 1.00800
+154 '4TNA' '5' 'ADE' 'C5' 'CB' 0.200000E-01 12.0110
+155 '4TNA' '5' 'ADE' 'N7' 'NB' -0.250000 14.0067
+156 '4TNA' '5' 'ADE' 'C8' 'CE' 0.195000 12.0110
+157 '4TNA' '5' 'ADE' 'H8' 'H' 0.350000E-01 1.00800
+158 '4TNA' '5' 'ADE' 'C2\p' 'CH' 0.115000 12.0110
+159 '4TNA' '5' 'ADE' 'H2\p\p' 'H' 0.350000E-01 1.00800
+160 '4TNA' '5' 'ADE' 'O2\p' 'OH' -0.400000 15.9994
+161 '4TNA' '5' 'ADE' 'H2\p' 'HO' 0.250000 1.00800
+162 '4TNA' '5' 'ADE' 'C3\p' 'CH' -0.350000E-01 12.0110
+163 '4TNA' '5' 'ADE' 'H3\p' 'H' 0.350000E-01 1.00800
+164 '4TNA' '5' 'ADE' 'O3\p' 'OS' -0.360000 15.9994
+165 '4TNA' '6' 'URI' 'P' 'P' 1.20000 30.9740
+166 '4TNA' '6' 'URI' 'O1P' 'O2' -0.400000 15.9994
+167 '4TNA' '6' 'URI' 'O2P' 'O2' -0.400000 15.9994
+168 '4TNA' '6' 'URI' 'O5\p' 'OS' -0.360000 15.9994
+169 '4TNA' '6' 'URI' 'C5\p' 'C2' -0.700000E-01 12.0110
+170 '4TNA' '6' 'URI' 'H5\p' 'H' 0.350000E-01 1.00800
+171 '4TNA' '6' 'URI' 'H5\p\p' 'H' 0.350000E-01 1.00800
+172 '4TNA' '6' 'URI' 'C4\p' 'CH' 0.650000E-01 12.0110
+173 '4TNA' '6' 'URI' 'H4\p' 'H' 0.350000E-01 1.00800
+174 '4TNA' '6' 'URI' 'O4\p' 'OS' -0.300000 15.9994
+175 '4TNA' '6' 'URI' 'C1\p' 'CH' 0.165000 12.0110
+176 '4TNA' '6' 'URI' 'H1\p' 'H' 0.350000E-01 1.00800
+177 '4TNA' '6' 'URI' 'N1' 'NS' -0.190000 14.0067
+178 '4TNA' '6' 'URI' 'C6' 'CF' 0.155000 12.0110
+179 '4TNA' '6' 'URI' 'H6' 'H' 0.350000E-01 1.00800
+180 '4TNA' '6' 'URI' 'C2' 'C' 0.350000 12.0110
+181 '4TNA' '6' 'URI' 'O2' 'O' -0.350000 15.9994
+182 '4TNA' '6' 'URI' 'N3' 'NA' -0.260000 14.0067
+183 '4TNA' '6' 'URI' 'H3' 'H' 0.260000 1.00800
+184 '4TNA' '6' 'URI' 'C4' 'C' 0.300000 12.0110
+185 '4TNA' '6' 'URI' 'O4' 'O' -0.300000 15.9994
+186 '4TNA' '6' 'URI' 'C5' 'CF' -0.350000E-01 12.0110
+187 '4TNA' '6' 'URI' 'H5' 'H' 0.350000E-01 1.00800
+188 '4TNA' '6' 'URI' 'C2\p' 'CH' 0.115000 12.0110
+189 '4TNA' '6' 'URI' 'H2\p\p' 'H' 0.350000E-01 1.00800
+190 '4TNA' '6' 'URI' 'O2\p' 'OH' -0.400000 15.9994
+191 '4TNA' '6' 'URI' 'H2\p' 'HO' 0.250000 1.00800
+192 '4TNA' '6' 'URI' 'C3\p' 'CH' -0.350000E-01 12.0110
+193 '4TNA' '6' 'URI' 'H3\p' 'H' 0.350000E-01 1.00800
+194 '4TNA' '6' 'URI' 'O3\p' 'OS' -0.360000 15.9994
+-1 ' ' ' ' ' ' ' ' ' ' -1.00000 -1.00000
+
+loop_
+_cns_mtf_bond.id[1]
+_cns_mtf_bond.id[2]
+2 3
+3 6
+6 8
+6 30
+8 9
+9 11
+9 26
+11 12
+11 24
+12 13
+12 22
+13 14
+14 15
+14 18
+15 16
+15 17
+18 19
+18 20
+20 21
+20 22
+22 23
+23 24
+26 30
+30 32
+26 28
+28 29
+9 10
+26 27
+30 31
+6 7
+3 4
+3 5
+24 25
+1 2
+33 34
+33 35
+33 36
+36 37
+37 40
+40 42
+40 61
+42 43
+43 45
+43 57
+45 48
+45 46
+48 49
+48 50
+50 51
+51 52
+52 53
+52 54
+51 55
+55 46
+57 61
+61 63
+57 59
+59 60
+43 44
+57 58
+61 62
+40 41
+37 38
+37 39
+55 56
+46 47
+32 33
+64 65
+64 66
+64 67
+67 68
+68 71
+71 73
+71 95
+73 74
+74 76
+74 91
+76 77
+76 89
+77 78
+77 87
+78 79
+79 80
+79 83
+80 81
+80 82
+83 84
+83 85
+85 86
+85 87
+87 88
+88 89
+91 95
+95 97
+91 93
+93 94
+74 75
+91 92
+95 96
+71 72
+68 69
+68 70
+89 90
+63 64
+98 99
+98 100
+98 101
+101 102
+102 105
+105 107
+105 129
+107 108
+108 110
+108 125
+110 111
+110 123
+111 112
+111 121
+112 113
+113 114
+113 117
+114 115
+114 116
+117 118
+117 119
+119 120
+119 121
+121 122
+122 123
+125 129
+129 131
+125 127
+127 128
+108 109
+125 126
+129 130
+105 106
+102 103
+102 104
+123 124
+97 98
+132 133
+132 134
+132 135
+135 136
+136 139
+139 141
+139 162
+141 142
+142 144
+142 158
+144 145
+144 156
+145 146
+145 154
+146 147
+147 149
+149 150
+150 151
+151 152
+151 153
+150 154
+154 155
+155 156
+158 162
+158 160
+160 161
+162 164
+142 143
+158 159
+162 163
+139 140
+136 137
+136 138
+156 157
+147 148
+131 132
+165 166
+165 167
+165 168
+168 169
+169 172
+172 174
+172 192
+174 175
+175 177
+175 188
+177 180
+177 178
+180 181
+180 182
+182 183
+182 184
+184 185
+184 186
+186 178
+188 192
+192 194
+188 190
+190 191
+175 176
+188 189
+192 193
+172 173
+169 170
+169 171
+186 187
+178 179
+164 165
+-1 -1
+
+loop_
+_cns_mtf_angle.id[1]
+_cns_mtf_angle.id[2]
+_cns_mtf_angle.id[3]
+2 3 6
+2 3 4
+2 3 5
+3 6 8
+3 6 30
+3 6 7
+6 3 4
+6 3 5
+8 6 30
+6 8 9
+8 6 7
+6 30 26
+6 30 32
+6 30 31
+30 6 7
+8 9 11
+8 9 26
+8 9 10
+11 9 26
+9 11 12
+9 11 24
+11 9 10
+9 26 30
+9 26 28
+26 9 10
+9 26 27
+12 11 24
+11 12 13
+11 12 22
+11 24 23
+11 24 25
+13 12 22
+12 13 14
+12 22 20
+12 22 23
+13 14 15
+13 14 18
+15 14 18
+14 15 16
+14 15 17
+14 18 19
+14 18 20
+16 15 17
+19 18 20
+18 20 21
+18 20 22
+21 20 22
+20 22 23
+22 23 24
+23 24 25
+26 30 32
+30 26 28
+30 26 27
+26 30 31
+32 30 31
+26 28 29
+28 26 27
+4 3 5
+1 2 3
+34 33 35
+34 33 36
+35 33 36
+33 36 37
+36 37 40
+36 37 38
+36 37 39
+37 40 42
+37 40 61
+37 40 41
+40 37 38
+40 37 39
+42 40 61
+40 42 43
+42 40 41
+40 61 57
+40 61 63
+40 61 62
+61 40 41
+42 43 45
+42 43 57
+42 43 44
+45 43 57
+43 45 48
+43 45 46
+45 43 44
+43 57 61
+43 57 59
+57 43 44
+43 57 58
+48 45 46
+45 48 49
+45 48 50
+45 46 55
+45 46 47
+49 48 50
+48 50 51
+50 51 52
+50 51 55
+51 52 53
+51 52 54
+52 51 55
+53 52 54
+51 55 46
+51 55 56
+46 55 56
+55 46 47
+57 61 63
+61 57 59
+61 57 58
+57 61 62
+63 61 62
+57 59 60
+59 57 58
+38 37 39
+30 32 33
+32 33 34
+32 33 35
+32 33 36
+65 64 66
+65 64 67
+66 64 67
+64 67 68
+67 68 71
+67 68 69
+67 68 70
+68 71 73
+68 71 95
+68 71 72
+71 68 69
+71 68 70
+73 71 95
+71 73 74
+73 71 72
+71 95 91
+71 95 97
+71 95 96
+95 71 72
+73 74 76
+73 74 91
+73 74 75
+76 74 91
+74 76 77
+74 76 89
+76 74 75
+74 91 95
+74 91 93
+91 74 75
+74 91 92
+77 76 89
+76 77 78
+76 77 87
+76 89 88
+76 89 90
+78 77 87
+77 78 79
+77 87 85
+77 87 88
+78 79 80
+78 79 83
+80 79 83
+79 80 81
+79 80 82
+79 83 84
+79 83 85
+81 80 82
+84 83 85
+83 85 86
+83 85 87
+86 85 87
+85 87 88
+87 88 89
+88 89 90
+91 95 97
+95 91 93
+95 91 92
+91 95 96
+97 95 96
+91 93 94
+93 91 92
+69 68 70
+61 63 64
+63 64 65
+63 64 66
+63 64 67
+99 98 100
+99 98 101
+100 98 101
+98 101 102
+101 102 105
+101 102 103
+101 102 104
+102 105 107
+102 105 129
+102 105 106
+105 102 103
+105 102 104
+107 105 129
+105 107 108
+107 105 106
+105 129 125
+105 129 131
+105 129 130
+129 105 106
+107 108 110
+107 108 125
+107 108 109
+110 108 125
+108 110 111
+108 110 123
+110 108 109
+108 125 129
+108 125 127
+125 108 109
+108 125 126
+111 110 123
+110 111 112
+110 111 121
+110 123 122
+110 123 124
+112 111 121
+111 112 113
+111 121 119
+111 121 122
+112 113 114
+112 113 117
+114 113 117
+113 114 115
+113 114 116
+113 117 118
+113 117 119
+115 114 116
+118 117 119
+117 119 120
+117 119 121
+120 119 121
+119 121 122
+121 122 123
+122 123 124
+125 129 131
+129 125 127
+129 125 126
+125 129 130
+131 129 130
+125 127 128
+127 125 126
+103 102 104
+95 97 98
+97 98 99
+97 98 100
+97 98 101
+133 132 134
+133 132 135
+134 132 135
+132 135 136
+135 136 139
+135 136 137
+135 136 138
+136 139 141
+136 139 162
+136 139 140
+139 136 137
+139 136 138
+141 139 162
+139 141 142
+141 139 140
+139 162 158
+139 162 164
+139 162 163
+162 139 140
+141 142 144
+141 142 158
+141 142 143
+144 142 158
+142 144 145
+142 144 156
+144 142 143
+142 158 162
+142 158 160
+158 142 143
+142 158 159
+145 144 156
+144 145 146
+144 145 154
+144 156 155
+144 156 157
+146 145 154
+145 146 147
+145 154 150
+145 154 155
+146 147 149
+146 147 148
+147 149 150
+149 147 148
+149 150 151
+149 150 154
+150 151 152
+150 151 153
+151 150 154
+152 151 153
+150 154 155
+154 155 156
+155 156 157
+162 158 160
+158 162 164
+162 158 159
+158 162 163
+158 160 161
+160 158 159
+164 162 163
+137 136 138
+129 131 132
+131 132 133
+131 132 134
+131 132 135
+166 165 167
+166 165 168
+167 165 168
+165 168 169
+168 169 172
+168 169 170
+168 169 171
+169 172 174
+169 172 192
+169 172 173
+172 169 170
+172 169 171
+174 172 192
+172 174 175
+174 172 173
+172 192 188
+172 192 194
+172 192 193
+192 172 173
+174 175 177
+174 175 188
+174 175 176
+177 175 188
+175 177 180
+175 177 178
+177 175 176
+175 188 192
+175 188 190
+188 175 176
+175 188 189
+180 177 178
+177 180 181
+177 180 182
+177 178 186
+177 178 179
+181 180 182
+180 182 183
+180 182 184
+183 182 184
+182 184 185
+182 184 186
+185 184 186
+184 186 178
+184 186 187
+178 186 187
+186 178 179
+188 192 194
+192 188 190
+192 188 189
+188 192 193
+194 192 193
+188 190 191
+190 188 189
+170 169 171
+162 164 165
+164 165 166
+164 165 167
+164 165 168
+-1 -1 -1
+
+loop_
+_cns_mtf_dihedral.id[1]
+_cns_mtf_dihedral.id[2]
+_cns_mtf_dihedral.id[3]
+_cns_mtf_dihedral.id[4]
+2 3 6 8
+2 3 6 30
+8 9 11 12
+8 9 26 30
+8 9 26 30
+9 26 30 6
+26 30 6 8
+26 30 6 8
+30 6 8 9
+6 8 9 26
+3 6 30 32
+8 6 30 32
+8 9 26 28
+9 26 30 32
+6 30 26 28
+32 30 26 28
+30 26 28 29
+8 6 30 31
+8 9 26 27
+6 8 9 10
+9 8 6 7
+30 6 3 4
+30 6 3 5
+1 2 3 6
+33 36 37 40
+36 37 40 42
+36 37 40 61
+42 43 45 48
+42 43 57 61
+42 43 57 61
+43 57 61 40
+57 61 40 42
+57 61 40 42
+61 40 42 43
+40 42 43 57
+37 40 61 63
+42 40 61 63
+42 43 57 59
+43 57 61 63
+40 61 57 59
+63 61 57 59
+61 57 59 60
+42 40 61 62
+42 43 57 58
+40 42 43 44
+43 42 40 41
+61 40 37 38
+61 40 37 39
+32 33 36 37
+32 33 36 37
+6 30 32 33
+30 32 33 36
+30 32 33 36
+64 67 68 71
+67 68 71 73
+67 68 71 95
+73 74 76 77
+73 74 91 95
+73 74 91 95
+74 91 95 71
+91 95 71 73
+91 95 71 73
+95 71 73 74
+71 73 74 91
+68 71 95 97
+73 71 95 97
+73 74 91 93
+74 91 95 97
+71 95 91 93
+97 95 91 93
+95 91 93 94
+73 71 95 96
+73 74 91 92
+71 73 74 75
+74 73 71 72
+95 71 68 69
+95 71 68 70
+63 64 67 68
+63 64 67 68
+40 61 63 64
+61 63 64 67
+61 63 64 67
+98 101 102 105
+101 102 105 107
+101 102 105 129
+107 108 110 111
+107 108 125 129
+107 108 125 129
+108 125 129 105
+125 129 105 107
+125 129 105 107
+129 105 107 108
+105 107 108 125
+102 105 129 131
+107 105 129 131
+107 108 125 127
+108 125 129 131
+105 129 125 127
+131 129 125 127
+129 125 127 128
+107 105 129 130
+107 108 125 126
+105 107 108 109
+108 107 105 106
+129 105 102 103
+129 105 102 104
+97 98 101 102
+97 98 101 102
+71 95 97 98
+95 97 98 101
+95 97 98 101
+132 135 136 139
+135 136 139 141
+135 136 139 162
+141 142 144 145
+141 142 158 162
+141 142 158 162
+142 158 162 139
+158 162 139 141
+158 162 139 141
+162 139 141 142
+139 141 142 158
+136 139 162 164
+141 139 162 164
+141 142 158 160
+142 158 162 164
+139 162 158 160
+164 162 158 160
+162 158 160 161
+141 139 162 163
+141 142 158 159
+139 141 142 143
+142 141 139 140
+162 139 136 137
+162 139 136 138
+131 132 135 136
+131 132 135 136
+105 129 131 132
+129 131 132 135
+129 131 132 135
+165 168 169 172
+168 169 172 174
+168 169 172 192
+174 175 177 180
+174 175 188 192
+174 175 188 192
+175 188 192 172
+188 192 172 174
+188 192 172 174
+192 172 174 175
+172 174 175 188
+169 172 192 194
+174 172 192 194
+174 175 188 190
+175 188 192 194
+172 192 188 190
+194 192 188 190
+192 188 190 191
+174 172 192 193
+174 175 188 189
+172 174 175 176
+175 174 172 173
+192 172 169 170
+192 172 169 171
+164 165 168 169
+164 165 168 169
+139 162 164 165
+162 164 165 168
+162 164 165 168
+-1 -1 -1 -1
+
+loop_
+_cns_mtf_improper.id[1]
+_cns_mtf_improper.id[2]
+_cns_mtf_improper.id[3]
+_cns_mtf_improper.id[4]
+13 14 15 16
+10 26 8 11
+27 30 9 28
+31 6 26 32
+7 3 30 8
+9 12 24 11
+11 12 22 23
+12 22 23 24
+22 23 24 11
+23 24 11 12
+24 11 12 22
+15 13 18 14
+19 14 20 18
+21 18 22 20
+12 13 14 18
+13 14 18 20
+14 18 20 22
+18 20 22 12
+20 22 12 13
+22 12 13 14
+17 16 14 15
+24 12 22 18
+24 22 12 14
+13 12 22 23
+20 22 12 11
+25 23 11 24
+55 51 52 53
+44 57 42 45
+58 61 43 59
+62 40 57 63
+41 37 61 42
+43 48 46 45
+49 45 50 48
+52 50 55 51
+45 48 50 51
+48 50 51 55
+50 51 55 46
+51 55 46 45
+55 46 45 48
+46 45 48 50
+54 51 53 52
+47 45 55 46
+56 51 46 55
+78 79 80 81
+75 91 73 76
+92 95 74 93
+96 71 91 97
+72 68 95 73
+74 77 89 76
+76 77 87 88
+77 87 88 89
+87 88 89 76
+88 89 76 77
+89 76 77 87
+80 78 83 79
+84 79 85 83
+86 83 87 85
+77 78 79 83
+78 79 83 85
+79 83 85 87
+83 85 87 77
+85 87 77 78
+87 77 78 79
+82 81 79 80
+89 77 87 83
+89 87 77 79
+78 77 87 88
+85 87 77 76
+90 88 76 89
+112 113 114 115
+109 125 107 110
+126 129 108 127
+130 105 125 131
+106 102 129 107
+108 111 123 110
+110 111 121 122
+111 121 122 123
+121 122 123 110
+122 123 110 111
+123 110 111 121
+114 112 117 113
+118 113 119 117
+120 117 121 119
+111 112 113 117
+112 113 117 119
+113 117 119 121
+117 119 121 111
+119 121 111 112
+121 111 112 113
+116 115 113 114
+123 111 121 117
+123 121 111 113
+112 111 121 122
+119 121 111 110
+124 122 110 123
+154 150 151 152
+143 158 141 144
+159 162 142 160
+163 139 158 164
+140 136 162 141
+142 145 156 144
+144 145 154 155
+145 154 155 156
+154 155 156 144
+155 156 144 145
+156 144 145 154
+151 149 154 150
+153 150 152 151
+145 146 147 149
+146 147 149 150
+147 149 150 154
+149 150 154 145
+150 154 145 146
+154 145 146 147
+157 155 144 156
+148 149 146 147
+156 145 154 149
+156 154 145 147
+146 145 154 155
+150 154 145 144
+176 188 174 177
+189 192 175 190
+193 172 188 194
+173 169 192 174
+175 180 178 177
+181 177 182 180
+183 180 184 182
+185 182 186 184
+177 180 182 184
+180 182 184 186
+182 184 186 178
+184 186 178 177
+186 178 177 180
+178 177 180 182
+179 177 186 178
+187 184 178 186
+-1 -1 -1 -1
+
+loop_
+_cns_mtf_explicit_nonbonded_exclusion.inb
+18
+20
+22
+51
+50
+55
+83
+85
+87
+117
+119
+121
+149
+150
+154
+184
+182
+186
+-1
+
+loop_
+_cns_mtf_explicit_nonbonded_exclusion.iblo
+0
+0
+0
+0
+0
+0
+0
+0
+0
+0
+0
+1
+2
+3
+3
+3
+3
+3
+3
+3
+3
+3
+3
+3
+3
+3
+3
+3
+3
+3
+3
+3
+3
+3
+3
+3
+3
+3
+3
+3
+3
+3
+3
+3
+4
+5
+5
+6
+6
+6
+6
+6
+6
+6
+6
+6
+6
+6
+6
+6
+6
+6
+6
+6
+6
+6
+6
+6
+6
+6
+6
+6
+6
+6
+6
+6
+7
+8
+9
+9
+9
+9
+9
+9
+9
+9
+9
+9
+9
+9
+9
+9
+9
+9
+9
+9
+9
+9
+9
+9
+9
+9
+9
+9
+9
+9
+9
+9
+9
+9
+10
+11
+12
+12
+12
+12
+12
+12
+12
+12
+12
+12
+12
+12
+12
+12
+12
+12
+12
+12
+12
+12
+12
+12
+12
+12
+12
+12
+12
+12
+12
+12
+12
+12
+13
+14
+15
+15
+15
+15
+15
+15
+15
+15
+15
+15
+15
+15
+15
+15
+15
+15
+15
+15
+15
+15
+15
+15
+15
+15
+15
+15
+15
+15
+15
+15
+16
+17
+17
+18
+18
+18
+18
+18
+18
+18
+18
+18
+18
+18
+18
+18
+18
+18
+-1
+
+loop_
+_cns_mtf_group_linked_list.first_atom_id
+0
+3
+5
+10
+12
+14
+17
+19
+21
+25
+29
+31
+36
+39
+44
+47
+49
+51
+54
+56
+60
+62
+67
+70
+75
+77
+79
+82
+84
+86
+90
+94
+96
+101
+104
+109
+111
+113
+116
+118
+120
+124
+128
+130
+135
+138
+143
+145
+148
+150
+153
+157
+161
+163
+168
+171
+176
+179
+181
+183
+185
+187
+191
+193
+-1
+
+end
+
+coor
+REMARK FILENAME=""
+REMARK  NUCLEIC ACID PARAMETER FILE CREATION RUN
+REMARK  >>>NO WARRANTY EXPRESSED OR IMPLIED<<<
+REMARK  ALL HYDROGEN NUCLEIC ACID PARAMETER FILE.
+REMARK  DERIVED FROM PARMDNA8. LN and MP 1984
+REMARK  H-bond wells made 0.5 kcal deeper to improve basepair energies
+REMARK    8/20/84/ln
+REMARK  H stretch & bend constants from URACIL normal mode fit.
+REMARK  Magnesium (fudge) and spermine included.
+REMARK  all references to water removed, ATB, 3-JAN-85
+REMARK  ALL IMPROPERS force constants increased to 500 to
+REMARK    ensure perfect planes and chirality: GMC 1987
+REMARK  DIHEDRAL force constants that keep purin rings parallel
+REMARK    increased to 500 (MN 7-NOV-86)
+REMARK  includes parameters for purine GMC 1987
+REMARK DATE: 9-May-94  14:16:23       created by user: luke
+ATOM      1  H5T GUA     1      24.613   3.698  53.632  1.00  0.00      4TNA
+ATOM      2  O5' GUA     1      24.476   4.546  53.204  1.00  0.00      4TNA
+ATOM      3  C5' GUA     1      25.156   5.525  53.978  1.00  0.00      4TNA
+ATOM      4  H5' GUA     1      24.448   6.268  54.345  1.00  0.00      4TNA
+ATOM      5 H5'' GUA     1      25.918   6.016  53.373  1.00  0.00      4TNA
+ATOM      6  C4' GUA     1      25.808   4.801  55.152  1.00  0.00      4TNA
+ATOM      7  H4' GUA     1      25.930   5.496  55.983  1.00  0.00      4TNA
+ATOM      8  O4' GUA     1      24.983   3.707  55.565  1.00  0.00      4TNA
+ATOM      9  C1' GUA     1      25.833   2.612  55.903  1.00  0.00      4TNA
+ATOM     10  H1' GUA     1      25.532   2.182  56.858  1.00  0.00      4TNA
+ATOM     11  N9  GUA     1      25.681   1.623  54.832  1.00  0.00      4TNA
+ATOM     12  C4  GUA     1      26.260   0.388  54.839  1.00  0.00      4TNA
+ATOM     13  N3  GUA     1      27.078  -0.243  55.747  1.00  0.00      4TNA
+ATOM     14  C2  GUA     1      27.481  -1.468  55.532  1.00  0.00      4TNA
+ATOM     15  N2  GUA     1      28.055  -2.114  56.534  1.00  0.00      4TNA
+ATOM     16  H21 GUA     1      28.169  -1.659  57.429  1.00  0.00      4TNA
+ATOM     17  H22 GUA     1      28.379  -3.062  56.404  1.00  0.00      4TNA
+ATOM     18  N1  GUA     1      27.127  -2.122  54.405  1.00  0.00      4TNA
+ATOM     19  H1  GUA     1      27.449  -3.063  54.230  1.00  0.00      4TNA
+ATOM     20  C6  GUA     1      26.336  -1.541  53.483  1.00  0.00      4TNA
+ATOM     21  O6  GUA     1      25.983  -2.159  52.466  1.00  0.00      4TNA
+ATOM     22  C5  GUA     1      25.874  -0.248  53.697  1.00  0.00      4TNA
+ATOM     23  N7  GUA     1      25.012   0.580  52.989  1.00  0.00      4TNA
+ATOM     24  C8  GUA     1      24.865   1.712  53.755  1.00  0.00      4TNA
+ATOM     25  H8  GUA     1      24.230   2.507  53.542  1.00  0.00      4TNA
+ATOM     26  C2' GUA     1      27.282   3.124  55.808  1.00  0.00      4TNA
+ATOM     27 H2'' GUA     1      27.941   2.293  55.555  1.00  0.00      4TNA
+ATOM     28  O2' GUA     1      27.691   3.684  57.045  1.00  0.00      4TNA
+ATOM     29  H2' GUA     1      27.800   4.628  56.909  1.00  0.00      4TNA
+ATOM     30  C3' GUA     1      27.185   4.241  54.785  1.00  0.00      4TNA
+ATOM     31  H3' GUA     1      27.209   3.860  53.766  1.00  0.00      4TNA
+ATOM     32  O3' GUA     1      28.130   5.240  55.163  1.00  0.00      4TNA
+ATOM     33  P   CYT     2      29.640   5.301  54.591  1.00  0.00      4TNA
+ATOM     34  O1P CYT     2      29.605   5.142  53.117  1.00  0.00      4TNA
+ATOM     35  O2P CYT     2      30.307   6.511  55.152  1.00  0.00      4TNA
+ATOM     36  O5' CYT     2      30.332   4.036  55.292  1.00  0.00      4TNA
+ATOM     37  C5' CYT     2      30.763   4.137  56.639  1.00  0.00      4TNA
+ATOM     38  H5' CYT     2      29.910   4.313  57.295  1.00  0.00      4TNA
+ATOM     39 H5'' CYT     2      31.478   4.953  56.745  1.00  0.00      4TNA
+ATOM     40  C4' CYT     2      31.424   2.812  56.982  1.00  0.00      4TNA
+ATOM     41  H4' CYT     2      31.775   2.838  58.014  1.00  0.00      4TNA
+ATOM     42  O4' CYT     2      30.483   1.753  56.828  1.00  0.00      4TNA
+ATOM     43  C1' CYT     2      31.162   0.636  56.248  1.00  0.00      4TNA
+ATOM     44  H1' CYT     2      31.051  -0.234  56.895  1.00  0.00      4TNA
+ATOM     45  N1  CYT     2      30.570   0.343  54.911  1.00  0.00      4TNA
+ATOM     46  C6  CYT     2      29.844   1.264  54.273  1.00  0.00      4TNA
+ATOM     47  H6  CYT     2      29.689   2.241  54.730  1.00  0.00      4TNA
+ATOM     48  C2  CYT     2      30.799  -0.845  54.338  1.00  0.00      4TNA
+ATOM     49  O2  CYT     2      31.777  -1.511  54.728  1.00  0.00      4TNA
+ATOM     50  N3  CYT     2      30.243  -1.143  53.141  1.00  0.00      4TNA
+ATOM     51  C4  CYT     2      29.496  -0.265  52.481  1.00  0.00      4TNA
+ATOM     52  N4  CYT     2      28.782  -0.652  51.425  1.00  0.00      4TNA
+ATOM     53  H41 CYT     2      28.089  -0.033  51.029  1.00  0.00      4TNA
+ATOM     54  H42 CYT     2      28.933  -1.565  51.020  1.00  0.00      4TNA
+ATOM     55  C5  CYT     2      29.284   0.988  53.032  1.00  0.00      4TNA
+ATOM     56  H5  CYT     2      28.693   1.738  52.506  1.00  0.00      4TNA
+ATOM     57  C2' CYT     2      32.637   1.038  56.077  1.00  0.00      4TNA
+ATOM     58 H2'' CYT     2      33.042   0.551  55.190  1.00  0.00      4TNA
+ATOM     59  O2' CYT     2      33.390   0.643  57.211  1.00  0.00      4TNA
+ATOM     60  H2' CYT     2      33.672   1.444  57.660  1.00  0.00      4TNA
+ATOM     61  C3' CYT     2      32.562   2.541  56.002  1.00  0.00      4TNA
+ATOM     62  H3' CYT     2      32.316   2.881  54.997  1.00  0.00      4TNA
+ATOM     63  O3' CYT     2      33.772   3.124  56.479  1.00  0.00      4TNA
+ATOM     64  P   GUA     3      34.558   4.092  55.472  1.00  0.00      4TNA
+ATOM     65  O1P GUA     3      33.579   4.765  54.565  1.00  0.00      4TNA
+ATOM     66  O2P GUA     3      35.617   4.858  56.160  1.00  0.00      4TNA
+ATOM     67  O5' GUA     3      35.361   3.002  54.718  1.00  0.00      4TNA
+ATOM     68  C5' GUA     3      36.430   2.519  55.497  1.00  0.00      4TNA
+ATOM     69  H5' GUA     3      36.120   2.376  56.532  1.00  0.00      4TNA
+ATOM     70 H5'' GUA     3      37.275   3.206  55.462  1.00  0.00      4TNA
+ATOM     71  C4' GUA     3      36.785   1.211  54.865  1.00  0.00      4TNA
+ATOM     72  H4' GUA     3      37.514   0.686  55.483  1.00  0.00      4TNA
+ATOM     73  O4' GUA     3      35.592   0.439  54.762  1.00  0.00      4TNA
+ATOM     74  C1' GUA     3      35.772  -0.434  53.651  1.00  0.00      4TNA
+ATOM     75  H1' GUA     3      35.832  -1.463  54.006  1.00  0.00      4TNA
+ATOM     76  N9  GUA     3      34.630  -0.302  52.717  1.00  0.00      4TNA
+ATOM     77  C4  GUA     3      34.267  -1.271  51.817  1.00  0.00      4TNA
+ATOM     78  N3  GUA     3      34.799  -2.523  51.531  1.00  0.00      4TNA
+ATOM     79  C2  GUA     3      34.329  -3.222  50.500  1.00  0.00      4TNA
+ATOM     80  N2  GUA     3      34.868  -4.421  50.223  1.00  0.00      4TNA
+ATOM     81  H21 GUA     3      35.620  -4.781  50.794  1.00  0.00      4TNA
+ATOM     82  H22 GUA     3      34.522  -4.963  49.444  1.00  0.00      4TNA
+ATOM     83  N1  GUA     3      33.324  -2.722  49.729  1.00  0.00      4TNA
+ATOM     84  H1  GUA     3      32.968  -3.248  48.944  1.00  0.00      4TNA
+ATOM     85  C6  GUA     3      32.769  -1.512  49.984  1.00  0.00      4TNA
+ATOM     86  O6  GUA     3      31.672  -1.220  49.480  1.00  0.00      4TNA
+ATOM     87  C5  GUA     3      33.242  -0.757  51.063  1.00  0.00      4TNA
+ATOM     88  N7  GUA     3      32.895   0.502  51.557  1.00  0.00      4TNA
+ATOM     89  C8  GUA     3      33.780   0.768  52.590  1.00  0.00      4TNA
+ATOM     90  H8  GUA     3      33.797   1.629  53.169  1.00  0.00      4TNA
+ATOM     91  C2' GUA     3      37.054   0.044  52.956  1.00  0.00      4TNA
+ATOM     92 H2'' GUA     3      36.989  -0.131  51.882  1.00  0.00      4TNA
+ATOM     93  O2' GUA     3      38.107  -0.710  53.511  1.00  0.00      4TNA
+ATOM     94  H2' GUA     3      38.624  -0.117  54.060  1.00  0.00      4TNA
+ATOM     95  C3' GUA     3      37.127   1.494  53.426  1.00  0.00      4TNA
+ATOM     96  H3' GUA     3      36.391   2.129  52.938  1.00  0.00      4TNA
+ATOM     97  O3' GUA     3      38.384   2.155  53.317  1.00  0.00      4TNA
+ATOM     98  P   GUA     4      38.845   2.801  51.914  1.00  0.00      4TNA
+ATOM     99  O1P GUA     4      37.683   3.498  51.323  1.00  0.00      4TNA
+ATOM    100  O2P GUA     4      40.096   3.590  52.097  1.00  0.00      4TNA
+ATOM    101  O5' GUA     4      39.194   1.500  51.045  1.00  0.00      4TNA
+ATOM    102  C5' GUA     4      40.265   0.666  51.450  1.00  0.00      4TNA
+ATOM    103  H5' GUA     4      40.164   0.415  52.506  1.00  0.00      4TNA
+ATOM    104 H5'' GUA     4      41.216   1.173  51.286  1.00  0.00      4TNA
+ATOM    105  C4' GUA     4      40.197  -0.601  50.604  1.00  0.00      4TNA
+ATOM    106  H4' GUA     4      41.004  -1.270  50.902  1.00  0.00      4TNA
+ATOM    107  O4' GUA     4      38.950  -1.273  50.773  1.00  0.00      4TNA
+ATOM    108  C1' GUA     4      38.604  -1.895  49.532  1.00  0.00      4TNA
+ATOM    109  H1' GUA     4      38.479  -2.967  49.685  1.00  0.00      4TNA
+ATOM    110  N9  GUA     4      37.351  -1.323  49.033  1.00  0.00      4TNA
+ATOM    111  C4  GUA     4      36.644  -1.838  47.975  1.00  0.00      4TNA
+ATOM    112  N3  GUA     4      36.841  -2.942  47.163  1.00  0.00      4TNA
+ATOM    113  C2  GUA     4      35.922  -3.277  46.268  1.00  0.00      4TNA
+ATOM    114  N2  GUA     4      36.180  -4.264  45.397  1.00  0.00      4TNA
+ATOM    115  H21 GUA     4      37.068  -4.745  45.427  1.00  0.00      4TNA
+ATOM    116  H22 GUA     4      35.486  -4.527  44.711  1.00  0.00      4TNA
+ATOM    117  N1  GUA     4      34.787  -2.572  46.161  1.00  0.00      4TNA
+ATOM    118  H1  GUA     4      34.072  -2.850  45.504  1.00  0.00      4TNA
+ATOM    119  C6  GUA     4      34.556  -1.492  46.905  1.00  0.00      4TNA
+ATOM    120  O6  GUA     4      33.608  -0.742  46.613  1.00  0.00      4TNA
+ATOM    121  C5  GUA     4      35.532  -1.066  47.811  1.00  0.00      4TNA
+ATOM    122  N7  GUA     4      35.590  -0.012  48.720  1.00  0.00      4TNA
+ATOM    123  C8  GUA     4      36.749  -0.186  49.459  1.00  0.00      4TNA
+ATOM    124  H8  GUA     4      37.095   0.443  50.207  1.00  0.00      4TNA
+ATOM    125  C2' GUA     4      39.663  -1.486  48.505  1.00  0.00      4TNA
+ATOM    126 H2'' GUA     4      39.182  -1.276  47.550  1.00  0.00      4TNA
+ATOM    127  O2' GUA     4      40.590  -2.540  48.344  1.00  0.00      4TNA
+ATOM    128  H2' GUA     4      41.436  -2.229  48.675  1.00  0.00      4TNA
+ATOM    129  C3' GUA     4      40.292  -0.239  49.132  1.00  0.00      4TNA
+ATOM    130  H3' GUA     4      39.721   0.659  48.901  1.00  0.00      4TNA
+ATOM    131  O3' GUA     4      41.675  -0.135  48.828  1.00  0.00      4TNA
+ATOM    132  P   ADE     5      42.128   0.884  47.695  1.00  0.00      4TNA
+ATOM    133  O1P ADE     5      41.299   2.111  47.812  1.00  0.00      4TNA
+ATOM    134  O2P ADE     5      43.613   1.004  47.614  1.00  0.00      4TNA
+ATOM    135  O5' ADE     5      41.651   0.035  46.450  1.00  0.00      4TNA
+ATOM    136  C5' ADE     5      42.437  -1.057  46.016  1.00  0.00      4TNA
+ATOM    137  H5' ADE     5      42.566  -1.785  46.817  1.00  0.00      4TNA
+ATOM    138 H5'' ADE     5      43.414  -0.719  45.671  1.00  0.00      4TNA
+ATOM    139  C4' ADE     5      41.635  -1.650  44.871  1.00  0.00      4TNA
+ATOM    140  H4' ADE     5      42.060  -2.608  44.572  1.00  0.00      4TNA
+ATOM    141  O4' ADE     5      40.311  -1.830  45.348  1.00  0.00      4TNA
+ATOM    142  C1' ADE     5      39.448  -1.737  44.231  1.00  0.00      4TNA
+ATOM    143  H1' ADE     5      38.961  -2.699  44.072  1.00  0.00      4TNA
+ATOM    144  N9  ADE     5      38.420  -0.702  44.464  1.00  0.00      4TNA
+ATOM    145  C4  ADE     5      37.254  -0.626  43.760  1.00  0.00      4TNA
+ATOM    146  N3  ADE     5      36.742  -1.384  42.721  1.00  0.00      4TNA
+ATOM    147  C2  ADE     5      35.498  -1.178  42.310  1.00  0.00      4TNA
+ATOM    148  H2  ADE     5      35.104  -1.767  41.481  1.00  0.00      4TNA
+ATOM    149  N1  ADE     5      34.718  -0.263  42.892  1.00  0.00      4TNA
+ATOM    150  C6  ADE     5      35.163   0.493  43.904  1.00  0.00      4TNA
+ATOM    151  N6  ADE     5      34.295   1.168  44.636  1.00  0.00      4TNA
+ATOM    152  H61 ADE     5      34.584   1.575  45.514  1.00  0.00      4TNA
+ATOM    153  H62 ADE     5      33.343   1.277  44.318  1.00  0.00      4TNA
+ATOM    154  C5  ADE     5      36.482   0.343  44.346  1.00  0.00      4TNA
+ATOM    155  N7  ADE     5      37.216   0.950  45.366  1.00  0.00      4TNA
+ATOM    156  C8  ADE     5      38.423   0.272  45.424  1.00  0.00      4TNA
+ATOM    157  H8  ADE     5      39.199   0.470  46.085  1.00  0.00      4TNA
+ATOM    158  C2' ADE     5      40.323  -1.357  43.061  1.00  0.00      4TNA
+ATOM    159 H2'' ADE     5      39.734  -0.862  42.289  1.00  0.00      4TNA
+ATOM    160  O2' ADE     5      40.843  -2.565  42.582  1.00  0.00      4TNA
+ATOM    161  H2' ADE     5      41.773  -2.589  42.819  1.00  0.00      4TNA
+ATOM    162  C3' ADE     5      41.473  -0.661  43.726  1.00  0.00      4TNA
+ATOM    163  H3' ADE     5      41.212   0.337  44.072  1.00  0.00      4TNA
+ATOM    164  O3' ADE     5      42.564  -0.739  42.828  1.00  0.00      4TNA
+ATOM    165  P   URI     6      42.767   0.450  41.759  1.00  0.00      4TNA
+ATOM    166  O1P URI     6      42.670   1.709  42.514  1.00  0.00      4TNA
+ATOM    167  O2P URI     6      43.994   0.174  40.981  1.00  0.00      4TNA
+ATOM    168  O5' URI     6      41.522   0.371  40.752  1.00  0.00      4TNA
+ATOM    169  C5' URI     6      41.479  -0.627  39.741  1.00  0.00      4TNA
+ATOM    170  H5' URI     6      41.519  -1.617  40.194  1.00  0.00      4TNA
+ATOM    171 H5'' URI     6      42.322  -0.504  39.061  1.00  0.00      4TNA
+ATOM    172  C4' URI     6      40.165  -0.455  38.978  1.00  0.00      4TNA
+ATOM    173  H4' URI     6      40.046  -1.272  38.267  1.00  0.00      4TNA
+ATOM    174  O4' URI     6      39.086  -0.468  39.903  1.00  0.00      4TNA
+ATOM    175  C1' URI     6      38.007   0.277  39.351  1.00  0.00      4TNA
+ATOM    176  H1' URI     6      37.168  -0.387  39.145  1.00  0.00      4TNA
+ATOM    177  N1  URI     6      37.600   1.310  40.340  1.00  0.00      4TNA
+ATOM    178  C6  URI     6      38.495   1.800  41.193  1.00  0.00      4TNA
+ATOM    179  H6  URI     6      39.526   1.448  41.158  1.00  0.00      4TNA
+ATOM    180  C2  URI     6      36.338   1.770  40.360  1.00  0.00      4TNA
+ATOM    181  O2  URI     6      35.478   1.251  39.625  1.00  0.00      4TNA
+ATOM    182  N3  URI     6      35.959   2.694  41.269  1.00  0.00      4TNA
+ATOM    183  H3  URI     6      35.003   3.016  41.269  1.00  0.00      4TNA
+ATOM    184  C4  URI     6      36.807   3.194  42.166  1.00  0.00      4TNA
+ATOM    185  O4  URI     6      36.355   3.674  43.222  1.00  0.00      4TNA
+ATOM    186  C5  URI     6      38.121   2.762  42.132  1.00  0.00      4TNA
+ATOM    187  H5  URI     6      38.854   3.168  42.829  1.00  0.00      4TNA
+ATOM    188  C2' URI     6      38.567   0.896  38.063  1.00  0.00      4TNA
+ATOM    189 H2'' URI     6      38.063   1.839  37.851  1.00  0.00      4TNA
+ATOM    190  O2' URI     6      38.326  -0.025  37.025  1.00  0.00      4TNA
+ATOM    191  H2' URI     6      39.175  -0.392  36.766  1.00  0.00      4TNA
+ATOM    192  C3' URI     6      40.066   0.913  38.327  1.00  0.00      4TNA
+ATOM    193  H3' URI     6      40.357   1.714  39.003  1.00  0.00      4TNA
+ATOM    194  O3' URI     6      40.808   0.975  37.109  1.00  0.00      4TNA
+END
+
+set message=all end
+
+delete selection=( resid 2:6 ) end
+write coor end
+
+set message = normal end
+
+set seed = 123456 end
+
+do (vx = maxwell(.3)) ( all )
+do (vy = maxwell(.3)) ( all )
+do (vz = maxwell(.3)) ( all )
+
+do (fbeta = 100.) ( all )
+
+
+dyna tors
+   nstep=10
+   cmremove=false
+   timestep = .001
+   nprint = 1
+   tcoupl=true
+   topology
+      kdihmax=1000
+   end
+end
+
+
+stop

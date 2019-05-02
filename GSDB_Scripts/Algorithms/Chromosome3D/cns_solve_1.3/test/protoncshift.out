@@ -1,0 +1,317 @@
+          ============================================================
+          |                                                          |
+          |            Crystallography & NMR System (CNS)            |
+          |                         CNSsolve                         |
+          |                                                          |
+          ============================================================
+           Version: 1.3
+           Status: General release
+          ============================================================
+           Written by: A.T.Brunger, P.D.Adams, G.M.Clore, W.L.DeLano,
+                       P.Gros, R.W.Grosse-Kunstleve,J.-S.Jiang,J.M.Krahn,
+                       J.Kuszewski, M.Nilges, N.S.Pannu, R.J.Read,
+                       L.M.Rice, G.F.Schroeder, T.Simonson, G.L.Warren.
+           Copyright (c) 1997-2010 Yale University
+          ============================================================
+           Running on machine: lewis4-r710-login-node223 (x86_64/Linux,64-bit)
+                               with 16 threads
+           Program started by: oeow39
+           Program started at: 16:08:05 on 05-Jul-2018
+          ============================================================
+
+ FFT3C: Using FFTPACK4.1
+
+ CNSsolve>remarks file: test_carb.inp 
+ CNSsolve>remarks test file for carbon chemical shift refinement code 
+ CNSsolve>remarks 
+ CNSsolve> 
+ CNSsolve>parameter                                             { set energy parameters } 
+ PARRDR>    @CNS_TOPPAR:protein-allhdg5-4.param 
+ ASSFIL: file protein-allhdg5-4.param opened.
+ PARRDR>remarks file toppar/protein-allhdg5-4.param 
+ PARRDR>remark 
+ PARRDR>remark   for file protein-allhdg-ucl.top  version UCL  date 14-MAR-00 
+ PARRDR>remark   for file protein-allhdg-dih-ucl.top  version UCL  date 07-JUL-01 
+ PARRDR>remark   Geometric energy function parameters for distance geometry and 
+ PARRDR>remark   simulated annealing. 
+ PARRDR>remark   Original author: Michael Nilges, EMBL Heidelberg 
+ PARRDR>remark   Modifications: Mark A. Williams, UCL London 
+ PARRDR>remark   Several modifications for HADDOCK: Alexandre Bonvin, Utrecht Uni 
+ PARRDR>remark   Last modification 8-19-2011 
+ PARRDR> 
+ PARRDR>set message ? end eval ($old_message=$result) set echo ? end eval ($old_echo=$result) 
+ MESSage=NORM
+ EVALUATE: symbol $OLD_MESSAGE set to "NORM" (string)
+ ECHO=TRUE {ON}
+ EVALUATE: symbol $OLD_ECHO set to TRUE (logical)
+ PARRDR>set message=off echo=off end 
+ PARRDR> 
+ PARRDR>    nbonds 
+ NBDSET>        atom  nbxmod -3  tolerance 0.5 
+ NBDSET>        repel 0.75  rcon 4.0  rexp 2  cutnb 4.5 
+ NBDSET>    end 
+ PARRDR>end 
+ %PARRDR-info: duplication of bond HC   NC2 
+ %PARRDR-info: duplication of angle CH2P CH2E HA  
+ CNSsolve> 
+ CNSsolve>structure 
+ STRUcture>data_cns_mtf 
+ REMARKS FILENAME="/data/rwgk/test/tmp.mtf"
+ REMARKS DATE:18-Nov-98  14:17:43       created by user: rwgk
+ REMARKS VERSION:0.4a
+ Status of internal molecular topology database:
+ -> NATOM=         74(MAXA=     1000000)  NBOND=         73(MAXB=     1000000)
+ -> NTHETA=       134(MAXT=     2000000)  NGRP=          28(MAXGRP=   1000000)
+ -> NPHI=          11(MAXP=     2000000)  NIMPHI=        30(MAXIMP=   1000000)
+ -> NNB=           18(MAXNB=    1000000) 
+ STRUcture> 
+ STRUcture>end 
+ CNSsolve>coor 
+ COOR>ATOM      1  N   MET     1      -8.549  -2.707   9.520  1.00  0.73 
+ COOR>ATOM      2  HT1 MET     1      -9.495  -2.716   9.949  1.00  1.32 
+ CNSsolve> 
+ CNSsolve> 
+ CNSsolve>evaluate ($kprot = 0.1)     !proton shifts 
+ EVALUATE: symbol $KPROT set to   0.100000     (real)
+ CNSsolve> 
+ CNSsolve>! 
+ CNSsolve>! Protons_setup.tbl 
+ CNSsolve>! 
+ CNSsolve>! Setup for proton chemical shift refinement 
+ CNSsolve>! 
+ CNSsolve>! starts by doing selections for electric field stuff, 
+ CNSsolve>! then magnetic anisotropy, 
+ CNSsolve>! then ring currents, 
+ CNSsolve>! and finally random coil shifts. 
+ CNSsolve>! 
+ CNSsolve>! Random coil shifts are from Williamson's file random.dat 
+ CNSsolve>! 
+ CNSsolve>! by John Kuszewski Dec 1994 
+ CNSsolve>! 
+ CNSsolve> 
+ CNSsolve>set message off echo off end 
+ CNSsolve> 
+ CNSsolve>protons 
+ PROTONSHIFTS>     potential harmonic 
+using harmonic potential.
+ PROTONSHIFTS>     class alpha 
+ PROTONSHIFTS>     force $kprot 
+Setting force consts for class ALPH     to    0.100
+ PROTONSHIFTS>     potential harmonic 
+using harmonic potential.
+ PROTONSHIFTS>     error 0.3 
+Setting error for class ALPH     to    0.300
+ PROTONSHIFTS>     OBSE (resid 3 and (name HA)) 4.53 
+ SELRPN:      1 atoms have been selected out of     74
+ PROTONSHIFTS>     OBSE (resid 4 and (name HA)) 4.76 
+ SELRPN:      1 atoms have been selected out of     74
+ PROTONSHIFTS>     class methyl 
+ PROTONSHIFTS>     force $kprot 
+Setting force consts for class METH     to    0.100
+ PROTONSHIFTS>     potential harm 
+using harmonic potential.
+ PROTONSHIFTS>     error 0.3 
+Setting error for class METH     to    0.300
+ PROTONSHIFTS>     OBSE (resid 2 and (name HG1#)) 0.86 
+ SELRPN:      3 atoms have been selected out of     74
+ PROTONSHIFTS>     OBSE (resid 2 and (name HG2#)) 0.7 
+ SELRPN:      3 atoms have been selected out of     74
+ PROTONSHIFTS>     class other 
+ PROTONSHIFTS>     force $kprot 
+Setting force consts for class OTHE     to    0.100
+ PROTONSHIFTS>     potential harm 
+using harmonic potential.
+ PROTONSHIFTS>     error 0.3 
+Setting error for class OTHE     to    0.300
+ PROTONSHIFTS>     OBSE (resid 1 and (name HB#)) 2.16 
+ SELRPN:      2 atoms have been selected out of     74
+ PROTONSHIFTS>     OBSE (resid 1 and (name HG#)) 2.58 
+ SELRPN:      2 atoms have been selected out of     74
+ PROTONSHIFTS>     OBSE (resid 2 and (name HB)) 1.95 
+ SELRPN:      1 atoms have been selected out of     74
+ PROTONSHIFTS>     OBSE (resid 3 and (name HB1)) 1.84 
+ SELRPN:      1 atoms have been selected out of     74
+ PROTONSHIFTS>     OBSE (resid 3 and (name HB2)) 1.77 
+ SELRPN:      1 atoms have been selected out of     74
+ PROTONSHIFTS>     OBSE (resid 3 and (name HG#)) 1.36 
+ SELRPN:      2 atoms have been selected out of     74
+ PROTONSHIFTS>     OBSE (resid 3 and (name HD#)) 1.68 
+ SELRPN:      2 atoms have been selected out of     74
+ PROTONSHIFTS>     OBSE (resid 3 and (name HE#)) 2.96 
+ SELRPN:      2 atoms have been selected out of     74
+ PROTONSHIFTS>     OBSE (resid 4 and (name HB#)) 2.02 
+ SELRPN:      2 atoms have been selected out of     74
+ PROTONSHIFTS>     OBSE (resid 4 and (name HG#)) 2.29 
+ SELRPN:      2 atoms have been selected out of     74
+ PROTONSHIFTS>end 
+ CNSsolve> 
+ CNSsolve> 
+ CNSsolve>prot print threshold 0.1 all normsd end 
+The following proton delta shifts are
+greater than the cutoff:
+    (proton)(delta)(calc)(obs)(rcoil)(magn anis)(elec)(ring)
+class ALPH    
+    4   GLN HA   -0.476  4.284  4.760  3.720  0.537  0.028  0.000
+class METH    
+    2   VAL HG11
+    2   VAL HG12
+    2   VAL HG13 -0.102  0.758  0.860  0.960 -0.212  0.010  0.000
+class OTHE    
+    1   MET HB1 
+    1   MET HB2   0.100  2.260  2.160  2.080  0.155  0.025  0.000
+    2   VAL HB    0.222  2.172  1.950  2.130  0.064 -0.022  0.000
+    3   LYS HB2  -0.220  1.550  1.770  1.810 -0.268  0.008  0.000
+    3   LYS HG1 
+    3   LYS HG2  -0.112  1.248  1.360  1.470 -0.271  0.050  0.000
+    4   GLN HB1 
+    4   GLN HB2   0.101  2.121  2.020  2.080  0.070 -0.029  0.000
+    4   GLN HG1 
+    4   GLN HG2   0.270  2.560  2.290  2.380  0.187 -0.006  0.000
+RMS error =           0.179
+Number of violations:     8.000
+ CNSsolve>evaluate ($sprms = $rms) 
+ EVALUATE: symbol $SPRMS set to   0.178802     (real)
+ CNSsolve>evaluate ($spviols = $violations) 
+ EVALUATE: symbol $SPVIOLS set to    8.00000     (real)
+ CNSsolve> 
+ CNSsolve>prot print threshold 0.1 class methyl normsd end 
+The following proton delta shifts are
+greater than the cutoff:
+    (proton)(delta)(calc)(obs)(rcoil)(magn anis)(elec)(ring)
+class METH    
+    2   VAL HG11
+    2   VAL HG12
+    2   VAL HG13 -0.102  0.758  0.860  0.960 -0.212  0.010  0.000
+RMS error =           0.076
+Number of violations:     1.000
+ CNSsolve>evaluate ($b_methyl_rms = $rms) 
+ EVALUATE: symbol $B_METHYL_RMS set to   0.764977E-01 (real)
+ CNSsolve>evaluate ($b_methyl_viols = $violations) 
+ EVALUATE: symbol $B_METHYL_VIOLS set to    1.00000     (real)
+ CNSsolve> 
+ CNSsolve>prot print threshold 0.1 class alpha normsd end 
+The following proton delta shifts are
+greater than the cutoff:
+    (proton)(delta)(calc)(obs)(rcoil)(magn anis)(elec)(ring)
+class ALPH    
+    4   GLN HA   -0.476  4.284  4.760  3.720  0.537  0.028  0.000
+RMS error =           0.337
+Number of violations:     1.000
+ CNSsolve>evaluate ($b_alpha_rms = $rms) 
+ EVALUATE: symbol $B_ALPHA_RMS set to   0.336977     (real)
+ CNSsolve>evaluate ($b_alpha_viols = $violations) 
+ EVALUATE: symbol $B_ALPHA_VIOLS set to    1.00000     (real)
+ CNSsolve> 
+ CNSsolve>prot print threshold 0.1 class other normsd end 
+The following proton delta shifts are
+greater than the cutoff:
+    (proton)(delta)(calc)(obs)(rcoil)(magn anis)(elec)(ring)
+class OTHE    
+    1   MET HB1 
+    1   MET HB2   0.100  2.260  2.160  2.080  0.155  0.025  0.000
+    2   VAL HB    0.222  2.172  1.950  2.130  0.064 -0.022  0.000
+    3   LYS HB2  -0.220  1.550  1.770  1.810 -0.268  0.008  0.000
+    3   LYS HG1 
+    3   LYS HG2  -0.112  1.248  1.360  1.470 -0.271  0.050  0.000
+    4   GLN HB1 
+    4   GLN HB2   0.101  2.121  2.020  2.080  0.070 -0.029  0.000
+    4   GLN HG1 
+    4   GLN HG2   0.270  2.560  2.290  2.380  0.187 -0.006  0.000
+RMS error =           0.144
+Number of violations:     6.000
+ CNSsolve>evaluate ($b_other_rms = $rms) 
+ EVALUATE: symbol $B_OTHER_RMS set to   0.144490     (real)
+ CNSsolve>evaluate ($b_other_viols = $violations) 
+ EVALUATE: symbol $B_OTHER_VIOLS set to    6.00000     (real)
+ CNSsolve> 
+ CNSsolve>flag exclude * include prot end 
+ CNSsolve> 
+ CNSsolve>minimize powells nstep=10 npri=2 end 
+ POWELL: number of degrees of freedom=   222
+ --------------- cycle=     2 ------ stepsize=    0.4071 -----------------------
+ | Etotal =0.036      grad(E)=0.009      E(PROT)=0.036                         |
+ -------------------------------------------------------------------------------
+ --------------- cycle=     4 ------ stepsize=    1.4759 -----------------------
+ | Etotal =0.023      grad(E)=0.009      E(PROT)=0.023                         |
+ -------------------------------------------------------------------------------
+ --------------- cycle=     6 ------ stepsize=    0.8630 -----------------------
+ | Etotal =0.015      grad(E)=0.004      E(PROT)=0.015                         |
+ -------------------------------------------------------------------------------
+ --------------- cycle=     8 ------ stepsize=    1.8755 -----------------------
+ | Etotal =0.012      grad(E)=0.004      E(PROT)=0.012                         |
+ -------------------------------------------------------------------------------
+ --------------- cycle=    10 ------ stepsize=    2.2398 -----------------------
+ | Etotal =0.009      grad(E)=0.003      E(PROT)=0.009                         |
+ -------------------------------------------------------------------------------
+ POWELL: STEP number limit. Normal termination
+ POWELL: Current coordinates set to last minimum
+ CNSsolve> 
+ CNSsolve>prot print threshold 0.1 all normsd end 
+The following proton delta shifts are
+greater than the cutoff:
+    (proton)(delta)(calc)(obs)(rcoil)(magn anis)(elec)(ring)
+class ALPH    
+class METH    
+class OTHE    
+    2   VAL HB    0.117  2.067  1.950  2.130 -0.039 -0.024  0.000
+    4   GLN HG1 
+    4   GLN HG2   0.238  2.528  2.290  2.380  0.155 -0.008  0.000
+RMS error =           0.082
+Number of violations:     2.000
+ CNSsolve>evaluate ($esprms = $rms) 
+ EVALUATE: symbol $ESPRMS set to   0.822389E-01 (real)
+ CNSsolve>evaluate ($espviols = $violations) 
+ EVALUATE: symbol $ESPVIOLS set to    2.00000     (real)
+ CNSsolve> 
+ CNSsolve>prot print threshold 0.1 class methyl normsd end 
+The following proton delta shifts are
+greater than the cutoff:
+    (proton)(delta)(calc)(obs)(rcoil)(magn anis)(elec)(ring)
+class METH    
+RMS error =           0.048
+Number of violations:     0.000
+ CNSsolve>evaluate ($eb_methyl_rms = $rms) 
+ EVALUATE: symbol $EB_METHYL_RMS set to   0.475258E-01 (real)
+ CNSsolve>evaluate ($eb_methyl_viols = $violations) 
+ EVALUATE: symbol $EB_METHYL_VIOLS set to    0.00000     (real)
+ CNSsolve> 
+ CNSsolve>prot print threshold 0.1 class alpha normsd end 
+The following proton delta shifts are
+greater than the cutoff:
+    (proton)(delta)(calc)(obs)(rcoil)(magn anis)(elec)(ring)
+class ALPH    
+RMS error =           0.043
+Number of violations:     0.000
+ CNSsolve>evaluate ($eb_alpha_rms = $rms) 
+ EVALUATE: symbol $EB_ALPHA_RMS set to   0.433933E-01 (real)
+ CNSsolve>evaluate ($eb_alpha_viols = $violations) 
+ EVALUATE: symbol $EB_ALPHA_VIOLS set to    0.00000     (real)
+ CNSsolve> 
+ CNSsolve>prot print threshold 0.1 class other normsd end 
+The following proton delta shifts are
+greater than the cutoff:
+    (proton)(delta)(calc)(obs)(rcoil)(magn anis)(elec)(ring)
+class OTHE    
+    2   VAL HB    0.117  2.067  1.950  2.130 -0.039 -0.024  0.000
+    4   GLN HG1 
+    4   GLN HG2   0.238  2.528  2.290  2.380  0.155 -0.008  0.000
+RMS error =           0.093
+Number of violations:     2.000
+ CNSsolve>evaluate ($eb_other_rms = $rms) 
+ EVALUATE: symbol $EB_OTHER_RMS set to   0.929527E-01 (real)
+ CNSsolve>evaluate ($eb_other_viols = $violations) 
+ EVALUATE: symbol $EB_OTHER_VIOLS set to    2.00000     (real)
+ CNSsolve> 
+ CNSsolve>display $sprms $spviols $b_methyl_rms $b_methyl_viols $b_alpha_rms $b_alpha_viols $b_other_rms $b_other_viols 
+0.178802 8 7.649773E-02 1 0.336977 1 0.14449 6
+ CNSsolve>display $esprms $espviols $eb_methyl_rms $eb_methyl_viols $eb_alpha_rms $eb_alpha_viols $eb_other_rms $eb_other_viols 
+8.223894E-02 2 4.752581E-02 0 4.339331E-02 0 9.29527E-02 2
+ CNSsolve> 
+ CNSsolve>stop 
+          ============================================================
+           Maximum dynamic memory allocation:     8968528 bytes
+           Maximum dynamic memory overhead:           832 bytes
+           Program started at: 16:08:05 on 05-Jul-2018
+           Program stopped at: 16:08:05 on 05-Jul-2018
+           CPU time used:       0.0335 seconds
+          ============================================================

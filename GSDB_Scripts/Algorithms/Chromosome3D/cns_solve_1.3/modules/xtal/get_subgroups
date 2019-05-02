@@ -1,0 +1,61 @@
+! Module file: get_subgroups
+!
+! CNS module
+! **********
+!
+! Authors: Axel Brunger and Paul Adams
+!
+! copyright Yale University
+!
+! Function:
+!    Find subgroups of atom types in the given selection
+!    The type for each subgroup is returned along with the
+!    number of groups in a compound variable.
+!
+! Requirements:
+!    The molecular topology and coordinates are well defined
+!    This can be called only from the main level
+
+module {get_subgroups}
+
+(
+selection;
+subgroups;
+)
+
+set message ? end
+evaluate ($message_old=$result)
+set echo ? end
+evaluate ($echo_old=$result)
+if ( $log_level = verbose ) then
+  set echo=on message=normal end
+else
+  set echo=off message=off end
+end if
+
+set display=? end
+evaluate ($curr_display=$result)
+
+checkversion 1.3
+
+evaluate ($num=0)
+
+for $id in id ( &selection ) loop main
+
+  show (chemical) ( id $id )
+  evaluate ($type=$result)
+
+  if ( &EXIST%subgroups.$type = false ) then
+
+    evaluate ($num=$num+1)
+
+    evaluate (&subgroups.$type=true)
+    evaluate (&subgroups.type.$num=$type)
+
+  end if
+
+end loop main
+
+evaluate (&subgroups.num=$num)
+
+set message=$message_old echo=$echo_old end

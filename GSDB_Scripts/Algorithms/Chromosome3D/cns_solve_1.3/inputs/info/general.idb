@@ -1,0 +1,722 @@
+###############################################################################
+# Parameter names matched in common.idb:
+#     a
+#     b
+#     c
+#     alpha
+#     beta
+#     gamma
+#     coordinate_infile
+#     coordinate_infile_\d+
+#     comp_coordinate_infile
+#     main_coordinate_infile
+#     fft_memory
+#     high_res
+#     coordinate_outfile
+#     parameter_infile_\d+
+#     sg
+#     structure_infile
+#     structure_infile_\d+
+#     output_root
+#     output_root_\d+
+#     restraints_infile
+#     ncs_infile
+#     list_outfile
+#     atom_select
+#     atom_select_\d+
+#     atom_select.\d+
+#     atom_main
+#     minimize_nstep
+#     num_cycles
+#     pdb_o_format
+#     structure_outfile
+#     atom_fixed
+#     atom_harm
+#     atom_rigid
+#     constant_steps
+#     cool_rate
+#     k_harmonic
+#     mask_outfile
+#     md_scheme
+#     md_type
+#     num_trials
+#     rigid_nstep
+#     seed
+#     temperature
+#     torsion_maxbond
+#     torsion_maxchain
+#     torsion_maxlength
+#     torsion_maxtree
+#     r_group_\d+
+#     conf_\d+
+#     grid
+###############################################################################
+#
+vars: num_conf
+info: The number of multiple conformations to make for the selected
+atoms. This can be a maximum of 99. The different conformers are given
+the segment identifiers AC1, AC2 through to ACn.  The original segment
+identifier for the selected atoms will be overwritten by these segids
+(given the name AC1). These segment identifiers can then be used as
+multiple conformation selections in other task files:
+<PRE>
+{* select atoms in alternate conformation 1 *}
+{===>} conf_1=(segid AC1);
+
+{* select atoms in alternate conformation 2 *}
+{===>} conf_2=(segid AC2);
+</PRE>
+#
+vars: probe
+info: The probe radius in &Aring; for calculation of atomic surface
+area. The method of Lee and Richards is used (J. Mol. Biol. 55,
+379-400).
+#
+vars: set_select.\d+
+info: Atom selection defining two sets of atoms which are used for the
+proximity calculation. Any atoms that are within the specified cutoff
+distance between the two sets are listed. An addition overall atom
+selection can be used to limit the calculation to sidechain or
+mainchain atoms only.
+#
+vars: cutoff
+info: The cutoff distance in &Aring; for selection of atoms close to
+one another.  Only atomic interactions between the 2 selected sets of
+atoms which are less than or equal than the specified distance cutoff
+are listed.
+#
+vars: contact_select
+info: Atom selection defining a subset of atoms for which the
+proximity calculation will be performed.  This can be used to limit
+the calculation to sidechain or mainchain atoms only.
+#
+vars: atom_delete
+info: Atom selection defining atoms which are to be deleted from the
+molecular topology and coordinates. This can be used to remove
+specific sidechain atoms or unknown residues. For example:
+<PRE>
+{===>} atom_delete=(resid 71:74);
+</PRE>
+will delete residue 71 through 74 inclusive. Or
+<PRE>
+{===>} atom_delete=(hydrogen);
+</PRE>
+will delete all hydrogen atoms.
+#
+vars: atom_type
+info: Atom selection defining the type of atoms to be used in the
+calculation. This is useful for a distance difference matrix
+calculation to limit the calculation to relevant atoms such as
+alpha-carbons for protein:
+<PRE>
+{===>} atom_type=(name CA);
+</PRE>
+or phosphate backbone atoms for nucleic acids:
+<PRE>
+{===>} atom_type=(name P);
+</PRE>
+#
+vars: symm_op_\d+
+info: Symmetry operator to be applied to coordinates (in fractional
+space). The symmetry operator is defined using the same notation as
+the International Tables. For example:
+<PRE>
+{===>} symm_op_1=(-x+1/2,-y,z+1/2);
+</PRE>
+#
+vars: vector_\d+
+info: Translation vector to be applied to the coordinates (either in
+fractional- or real-space). In real-space the translation is in
+orthogonal &Aring;.
+#
+vars: prot_coordinate_infile_\d+
+info: Input coordinate file in PDB format containing protein
+molecule(s).
+#
+vars: prot_rename_\d+
+info: Flag specifying whether the input protein molecules should have
+their segment identifier renamed. The new segment identifier will be
+applied to all molecules in the input coordinate file.
+#
+vars: prot_segid_\d+ nucl_segid_\d+ water_segid_\d+ carbo_segid_\d+ prost_segid_\d+ lig_segid_\d+ ion_segid_\d+
+info: New segment identifier for the molecules in the input coordinate
+file. This can be a maximum of 4 characters, which will be converted
+to uppercase. The segment identifier is written in columns 73 through
+76 of the output coordinate file.
+#
+vars: prot_convert_\d+ nucl_convert_\d+ water_convert_\d+ carbo_convert_\d+ prost_convert_\d+ lig_convert_\d+ ion_convert_\d+
+info: Flag specifying if the chain identifier present in the input PDB
+file should be copied to the segment identifier column. This will only
+occur if the chain identifier is not blank. This is very useful in
+going in and out of model buliding programs such as O.
+#
+vars: prot_separate_\d+ nucl_separate_\d+ 
+info: Start a new molecular chain when the segment identifier
+changes. This is used to read in several molecules, with different
+chain identifiers or segment identifiers, from the same input
+coordinate file.
+#
+vars: nucl_coordinate_infile_\d+
+info: Input coordinate file in PDB format containing nucleic acid
+molecule(s).
+#
+vars: nucl_rename_\d+
+info: Flag specifying whether the input nucleic acid molecules should
+have their segment identifier renamed. The new segment identifier will
+be applied to all molecules in the input coordinate file.
+#
+vars: water_coordinate_infile_\d+
+info: Input coordinate file in PDB format containing water
+molecule(s).
+#
+vars: water_rename_\d+
+info: Flag specifying whether the input water molecules should have
+their segment identifier renamed. The new segment identifier will be
+applied to all molecules in the input coordinate file.
+#
+vars: carbo_coordinate_infile_\d+
+info: Input coordinate file in PDB format containing carbohydrate
+molecule(s).
+#
+vars: carbo_rename_\d+
+info: Flag specifying whether the input carbohydrate molecules should
+have their segment identifier renamed. The new segment identifier will
+be applied to all molecules in the input coordinate file.
+#
+vars: prost_coordinate_infile_\d+
+info: Input coordinate file in PDB format containing prosthetic group
+molecule(s).
+#
+vars: prost_rename_\d+
+info: Flag specifying whether the input prosthetic group molecules
+should have their segment identifier renamed. The new segment
+identifier will be applied to all molecules in the input coordinate
+file.
+#
+vars: lig_coordinate_infile_\d+
+info: Input coordinate file in PDB format containing ligand
+molecule(s).
+#
+vars: lig_rename_\d+
+info: Flag specifying whether the input ligand molecules should have
+their segment identifier renamed. The new segment identifier will be
+applied to all molecules in the input coordinate file.
+#
+vars: ion_coordinate_infile_\d+
+info: Input coordinate file in PDB format containing ion molecule(s).
+#
+vars: ion_rename_\d+
+info: Flag specifying whether the input ion molecules should have
+their segment identifier renamed. The new segment identifier will be
+applied to all molecules in the input coordinate file.
+#
+vars: ile_cd_becomes
+info: Text string identifying the current name for the delta carbon in
+isoleucine residues in the input PDB file. The PDB definition of the
+isoleucine residue calls the delta carbon CD1, whereas CNS calls this
+atom CD (as there is only one carbon the 1 is redundant). The CNS
+default will be changed to the given text string prior to molecular
+topology generation and coordinate reading.
+#
+vars: ot1_becomes
+info: Text string identifying the current name for one of the terminal
+peptide oxygen atoms in the input PDB file. The PDB definition calls
+this atom O, whereas CNS calls this atom OT1 by default. The CNS
+default will be changed to the given text string prior to molecular
+topology generation and coordinate reading.
+#
+vars: ot2_becomes
+info: Text string identifying the current name for one of the terminal
+peptide oxygen atoms in the input PDB file. The PDB definition calls
+this atom OXT, whereas CNS calls this atom OT2 by default. The CNS
+default will be changed to the given text string prior to molecular
+topology generation and coordinate reading.
+#
+vars: auto_break
+info: Flag specifying whether automatic detection of breaks in the
+protein mainchain should be performed. A user defined distance based
+criteria is used.
+#
+vars: break_cutoff
+info: Cutoff distance in &Aring; for identification of breaks in a
+protein mainchain. The molecular topology is initially generated with
+all consecutive amino acids connected (unless separated by a TER card,
+BREAK card or different segment/chain name). The coordinates are then
+read and the distances between residues checked. If the carbonyl
+carbon of one residue is more than the cutoff distance from the
+peptide nitrogen of the connected residue a break is assigned. The
+peptide linkage between the two residues is removed.
+#
+vars: prot_break_infile
+info: Input CNS topology file defining the removal of a linkage
+between macromolecular groups (in this case the peptide bond between
+amino acids).
+#
+vars: auto_ss
+info: Flag specifying whether automatic detection of disulphide bonds
+in polypeptides should be performed. A user defined distance based
+criteria is used to check all possible disulphide pairs.
+#
+vars: disulphide_dist
+info: Cutoff distance in &Aring; for identification of disulphide
+bonds between cysteine residues. The coordinates are read and the
+distances between all cysteine sulphur atoms checked. Any cysteine
+pairs with sulphurs closer than the cutoff distance are modified by
+application of a disulphide patch.
+#
+vars: ss_use_\d+
+info: Flag specifying whether a disulphide bond should be created
+between the specified residues.
+#
+vars: ss_i_segid_\d+ ss_j_segid_\d+
+info: String specifying the segment identifier for a cysteine in a
+disulphide bond. The segment identifier can be a maximum of 4
+characters. Errors will result if the selected residue does not exist
+or is not a cysteine.
+#
+vars: ss_i_resid_\d+ ss_j_resid_\d+
+info: Number specifying the residue for a cysteine in a disulphide
+bond. This can be a maximum of 4 digits. Errors will result if the
+selected residue does not exist or is not a cysteine.
+#
+vars: dna_sele
+info: Atom selection defining nucleic acid residue which are DNA
+rather than RNA. All nucleic acid residues initially in CNS have plain
+ribose sugars (rather than deoxyribose). Therefore a patch must be
+applied to convert the ribose to deoxyribose (by removal of the oxygen
+atom) for DNA residues. Select those residues which need to have the
+patch applied to make them DNA. The atom selection must specific for
+nucleic acid residues, errors will result if protein or other residue
+types are selected.
+#
+vars: carbo_use_\d+
+info: Flag specifying whether a carbohydrate linkage should be created
+between the specified residues.
+#
+vars: carbo_patch_\d+
+info: String defining the name of the carbohydrate linkage to apply
+between the 2 residues. These are defined in the CNS topology file
+CNS_TOPPAR:carbohydrate.top:<BR>
+<UL>
+<LI>B1N - beta linkage between C1 of sugar to Asparagine ND2.</LI>
+<LI>B12 - beta linkage between C1 of sugar and O2 of another sugar.</LI>
+<LI>B14 - beta linkage between C1 of sugar and O4 of another sugar.</LI>
+<LI>A12 - alpha linkage between C1 of sugar and O2 of another sugar.</LI>
+<LI>A13 - alpha linkage between C1 of sugar and O3 of another sugar.</LI>
+<LI>A14 - alpha linkage between C1 of sugar and O4 of another sugar.</LI>
+<LI>A16 - alpha linkage between C1 of sugar and O6 of another sugar.</LI>
+<LI>A12L - alpha linkage between C1 of L-fucose and O2 of another sugar.</LI>
+<LI>A13L - alpha linkage between C1 of L-fucose and O3 of another sugar.</LI>
+<LI>A16L - alpha linkage between C1 of L-fucose and O6 of another sugar.</LI>
+<LI>A23 - alpha linkage between C2 of sialic acid and O3 of another sugar.</LI>
+<LI>A26 - alpha linkage between C2 of sialic acid and O6 of another sugar.</LI>
+</UL>
+All these linkages are defined as going from - to + (ie. the first
+residue is the - residue and the second residue is the + residue). 
+#
+vars: carbo_i_segid_\d+ carbo_j_segid_\d+
+info: String specifying the segment identifier for a residue in the 
+carbohydrate linkage. The segment identifier can be a maximum of 4
+characters. Errors will result if the selected residue does not exist
+or is of the wrong type. 
+#
+vars: carbo_i_resid_\d+ carbo_j_resid_\d+
+info: Number specifying the residue in the carbohydrate linkage. This
+can be a maximum of 4 digits. Errors will result if the selected
+residue does not exist or is of the wrong type.
+#
+vars: hydrogen_flag
+info: Flag indicating whether hydrogen atoms should be retained in the
+output structure. For most topology files the hydrogens are initially
+added to the molecule topology but are either deleted or retained on
+the basis of this flag. For NMR applications the hydrogens must be
+built (the topology and parameter files contain descriptions for all
+hydrogens). For crystallographic applications the hydrogens are not
+usually required, and the topology and parameter files only contain
+information about polar hydrogens. If no protein hydrogens are
+required then it is possible to use the CNS topology file
+CNS_TOPPAR:protein_nohydrogen.top. Using this file will reduce the
+initial number of atoms created at the molecular topology generation
+stage.
+#
+vars: hydrogen_build
+info: String defining which hydrogen atoms are to be built. If only
+unknown atoms are selected then coordinates are calculated only for
+those hydrogens whose coordinates are unknown. This may include some
+hydrogens in the input coordinate file if there are differences in
+hydrogen atom nomenclature from the CNS topology. If all hydrogen
+atoms are selected then all hydrogen coordinates will be recalculated,
+even if the coordinates are known initially.
+#
+vars: atom_build
+info: Atom selection defining atoms, other than hydrogens, for which
+coordinates should be calculated. A serious of minimization and
+dynamics steps are used to generate the coordinates starting from
+random positions. This requires that at least one coordinate exists
+for each residue in the structure (for example, a full protein
+structure can be built from the alpha-carbons alone). In general this
+option is used to build missing atoms such as terminal oxygens in a
+protein chain. The atoms whose coordinates were generated in this way
+are listed in the output CNS PDB file. The B-values for atoms
+generated this way are set to the average of all atoms with known
+coordinates.
+#
+vars: set_bfactor
+info: Flag specifying whether the B-values for all atoms should be set
+to the same constant value. This in general should only be used at the
+beginning of refinement (for example when generating a molecular
+replacement search model).
+#
+vars: bfactor
+info: B-value in &Aring;^2 to be used for all atoms.
+#
+vars: set_occupancy
+info: Flag specifying whether the occupancy for all atoms should be
+set to the same constant value. This in general should only be used at
+the beginning of refinement.
+#
+vars: occupancy
+info: Occupancy to be used for all atoms.
+#
+vars: prot_topology_infile
+info: Input CNS topology file containing residue definitions for
+proteins. Files available are:<BR>
+<UL>
+<LI>CNS_TOPPAR:protein.top - for calculations with no hydrogen atoms or only exchangeable hydrogen atoms.</LI>
+<LI>CNS_TOPPAR:protein-allhdg5-4.top - for calculations with all hydrogen atoms.</LI>
+</UL>
+#
+vars: prot_link_infile
+info: Input CNS topology file defining the linkage between
+macromolecular groups (in this case the peptide linkage applied
+between amino acids). Files available are:<BR>
+<UL>
+<LI>CNS_TOPPAR:protein.link - for calculations with no hydrogen atoms or only exchangeable hydrogen atoms.</LI>
+<LI>CNS_TOPPAR:protein-allhdg5-4.link - for calculations with all hydrogen atoms.</LI>
+</UL>
+#
+vars: prot_parameter_infile
+info: Input CNS parameter file for protein. The type based geometric
+parameters for bonds, angles, impropers and dihedrals are defined in
+this file. Also defined are the nonbonded parameters for each atom
+type. Files available are:<BR>
+<UL>
+<LI>CNS_TOPPAR:protein_rep.param - uses a repulsive potential. For calculations with no hydrogen atoms or only exchangeable hydrogen atoms.</LI>
+<LI>CNS_TOPPAR:protein.param - uses a Lennard-Jones potential. For calculations with no hydrogen atoms or only exchangeable hydrogen atoms.</LI>
+<LI>CNS_TOPPAR:protein-allhdg5-4.param - for calculations with all hydrogen atoms.</LI>
+</UL>
+#
+vars: nucl_topology_infile
+info: Input CNS topology file containing residue definitions for
+nucleic acids. Files available are:<BR>
+<UL>
+<LI>CNS_TOPPAR:dna-rna.top - For calculations with no hydrogen atoms or only exchangeable hydrogen atoms.</LI>
+<LI>CNS_TOPPAR:dna-rna-allatom-hj-opls.top - for calculations with all hydrogen atoms.</LI>
+</UL>
+#
+vars: nucl_link_infile
+info: Input CNS topology file defining the linkage between
+macromolecular groups (in this case the peptide linkage applied
+between nucleic acids). Files available are:<BR>
+<UL>
+<LI>CNS_TOPPAR:dna-rna.link - can be used with all DNA/RNA topology files.</LI>
+<LI>CNS_TOPPAR:dna-rna-pho.link - defines a 5'-phosphate group.</LI>
+</UL>
+#
+vars: nucl_parameter_infile
+info: Input CNS parameter file for nucleic acids. The type based geometric
+parameters for bonds, angles, impropers and dihedrals are defined in
+this file. Also defined are the nonbonded parameters for each atom
+type. Files available are:<BR>
+<UL>
+<LI>CNS_TOPPAR:dna-rna_rep.param - uses a repulsive potential. For calculations with no hydrogen atoms or only exchangeable hydrogen atoms.</LI>
+<LI>CNS_TOPPAR:dna-rna.param - uses a normal Lennard-Jones potential. for calculations with no hydrogen atoms or only exchangeable hydrogen atoms.</LI>
+<LI>CNS_TOPPAR:dna-rna-allatom-hj-opls.param - for calculations with all hydrogen atoms.</LI>
+</UL>
+#
+vars: water_topology_infile
+info: Input CNS topology file containing residue definitions for
+water molecules. Files available are:<BR>
+<UL>
+<LI>CNS_TOPPAR:water.top - For calculations with no hydrogen atoms or only exchangeable hydrogen atoms.</LI>
+<LI>CNS_TOPPAR:water-allhdg5-4.top - For calculations with all hydrogen atoms.</LI>
+</UL>
+#
+vars: water_parameter_infile
+info: Input CNS parameter file for waters. The type based geometric
+parameters for bonds, angles, impropers and dihedrals are defined in
+this file. Also defined are the nonbonded parameters for each atom
+type. Files available are:<BR>
+<UL>
+<LI>CNS_TOPPAR:water_rep.param - uses a repulsive potential. For calculations with no hydrogen atoms or only exchangeable hydrogen atoms. </LI>
+<LI>CNS_TOPPAR:water.param - uses a normal Lennard-Jones potential. For calculations with no hydrogen atoms or only exchangeable hydrogen atoms.</LI>
+<LI>CNS_TOPPAR:water-allhdg5-4.param - For calculations with all hydrogen atoms.</LI>
+</UL>
+#
+vars: carbo_topology_infile
+info: Input CNS topology file containing residue definitions for
+carbohydrates. Files available are:<BR>
+<UL>
+<LI>CNS_TOPPAR:carbohydrate.top - For all calculations.</LI>
+</UL>
+#
+vars: carbo_parameter_infile
+info: Input CNS parameter file for carbohydrates. The type based geometric
+parameters for bonds, angles, impropers and dihedrals are defined in
+this file. Also defined are the nonbonded parameters for each atom
+type. Files available are:<BR>
+<UL>
+<LI>CNS_TOPPAR:carbohydrate.param - For all calculations.</LI>
+</UL>
+#
+vars: prost_topology_infile
+info: Input CNS topology file containing residue definitions for
+prostetic groups. No files are currently available.
+#
+vars: prost_parameter_infile
+info: Input CNS parameter file for prostetic groups. The type based
+geometric parameters for bonds, angles, impropers and dihedrals are
+defined in this file. Also defined are the nonbonded parameters for
+each atom type. No files are currently available.
+#
+vars: ligand_topology_infile
+info: Input CNS topology file containing residue definitions for
+ligand molecules. No files are currently available.
+#
+vars: ligand_parameter_infile
+info: Input CNS parameter file for ligand molecules. The type based
+geometric parameters for bonds, angles, impropers and dihedrals are
+defined in this file. Also defined are the nonbonded parameters for
+each atom type. No files are currently available.
+#
+vars: ion_topology_infile
+info: Input CNS topology file containing residue definitions for
+ions. Files available are:<BR>
+<UL>
+<LI>CNS_TOPPAR:ion.top - intended for crystallographic refinement or NMR structure calculation.</LI>
+</UL>
+#
+vars: ion_parameter_infile
+info: Input CNS parameter file for ions. The type based geometric
+parameters for bonds, angles, impropers and dihedrals are defined in
+this file. Also defined are the nonbonded parameters for each atom
+type. Files available are:<BR>
+<UL>
+<LI>CNS_TOPPAR:ion.param - uses a normal Lennard-Jones potential for crystallographic refinement.</LI>
+</UL>
+#
+vars: convert
+info: Flag specifying if the chain identifier present in the input PDB
+file should be copied to the segment identifier column. This will only
+occur if the chain identifier is not blank. This is very useful in
+going in and out of model buliding programs such as O.
+#
+vars: separate
+info: Start a new molecular chain when the segment identifier
+changes. This is used to read in several molecules, with different
+chain identifiers or segment identifiers, from the same input
+coordinate file.
+#
+vars: prot_sequence_infile_\d+
+info: Input file containing a protein sequence in three letter format
+(following the residue naming in the input topology file). The line
+length should not exceed 80 characters. For example:
+<PRE>
+ASP THR THR VAL SER GLU PRO ALA PRO SER CYS VAL THR LEU TYR GLN
+SER TRP ARG TYR SER
+</PRE>
+#
+vars: renumber_\d+
+info: Start the residue numbering for the input sequence at this number.
+#
+vars: nucl_sequence_infile_\d+
+info: Input file containing a nucleic acid sequence in three letter format
+(following the residue naming in the input topology file). The line
+length should not exceed 80 characters. For example:
+<PRE>
+CYT GUA GUA THY ADE CYT GUA GUA THY ADE CYT GUA GUA THY ADE
+CYT GUA GUA THY ADE
+</PRE>
+#
+vars: water_sequence_infile_\d+
+info: Input file containing a water sequence in three letter format
+(following the residue naming in the input topology file). The line
+length should not exceed 80 characters. For example:
+<PRE>
+WAT WAT WAT WAT WAT WAT WAT WAT WAT WAT WAT WAT WAT WAT WAT WAT
+WAT WAT WAT WAT
+</PRE>
+#
+vars: carbo_sequence_infile_\d+
+info: Input file containing a carbohydrate sequence in three letter
+format (following the residue naming in the input topology file). The
+linkage between carbohydrate units must be defined using the mechanism
+available in the input file. The line length should not exceed 80
+characters. For example:
+<PRE>
+GLC GLC GAL MAN MAN MAN
+</PRE>
+#
+vars: prost_sequence_infile_\d+
+info: Input file containing a prosthetic group sequence in three
+letter format (following the residue naming in the input topology
+file). Any linkage between the prosthetic group(s) and other molecules
+must be defined using the patch mechanism available in the input
+file. The line length should not exceed 80 characters. For example:
+<PRE>
+HEME HEME
+</PRE>
+#
+vars: lig_sequence_infile_\d+
+info: Input file containing a ligand molecule sequence in three
+letter format (following the residue naming in the input topology
+file). Any linkage between the ligand(s) and other molecules
+must be defined using the patch mechanism available in the input
+file. The line length should not exceed 80 characters. For example:
+<PRE>
+ATP
+</PRE>
+#
+vars: ion_sequence_infile_\d+
+info: Input file containing an ion molecule sequence in three
+letter format (following the residue naming in the input topology
+file). The line length should not exceed 80 characters. For example:
+<PRE>
+MG2 MG2 CA2
+</PRE>
+#
+vars: atom_ref
+info: Atom selection defining the atoms in the reference molecule.
+#
+vars: atom_ncs_\d+
+info: Atom selection defining atoms which will be compared to the
+defined reference set to obtain an NCS relationship. The atom
+selection must match the atoms selected in the reference atom
+selection. The coordinates are superimposed by the least-squares
+method of Kabsch (Acta Cryst. A32, 922, 1976) and the rotation and
+translation operators listed.
+#
+vars: ignore_name
+info: Flag specifying whether the atom names of the atom selections should be ignored.
+#
+vars: segid_file_\d+
+info: New segment identifier for the input coordinates. The segment
+identifier will be renamed to this string (maximum of 4 characters,
+which are converted to uppercase) prior to writing the merged
+molecular topology and coordinate files. This is apploed to all
+coordinates in the input file.
+#
+vars: resid_inc_\d+
+info: Numerical increment to be added to the input residue
+numbers. This is useful is the output coordinates are to share the
+same segid but start off with the same residue numbering. (for
+example, a second molecule in a dimer could start numbering from
+1000).
+#
+vars: check_overlap
+info: Flag specifying whether the input structures should be checked
+for overlapping atom definitions after merging. Overlaps may occur if
+structures are input with the same segment identifier and residue
+numbering. This check takes some time and can be disabled if it is
+clear that no overlaps may occur.
+#
+vars: use_cryst
+info: Flag specifying whether the crystallographic symmetry should be
+used in the calculations. If so the symmetry related nonbonded
+interactions (Van der Waals and Coulombic) are included in the total
+energy.
+#
+vars: tcontrol
+info: Defines the temperature control method to be used in the
+molecular dynamics simulation. Coupling to a heat bath uses the method
+of Berendsen (J. Chem Phys. 81, 3684-3690, 1984). The velocity scaling
+method scales the atomic velocities to the selected temperature.
+#
+vars: time_step
+info: Time step for molecular dynamics in picoseconds (ps). For
+restrained molecular dynamics (Cartesian dynamics) a time step of
+0.001 or less is recommended. For torsion angle dynamics higher
+temperatures can be used (0.005 or less). The numerical integration
+can become unstable at large time steps or high temperatures.
+#
+vars: nonb_cutoff
+info: Nonbonded cutoff in &Aring; for the calculation of through-space
+interactions. The nonbonded cutoff is usually defined in the input
+parameter file. This can be used to include longer range interactions
+in the calculations. Increasing this will increase the CPU time
+required for the nonbonded calculation (the CPU time will increase
+with the 3rd power of the cutoff distance). A cutoff of 13&Aring; or
+less is recommended for the forcefields supplied with CNS. To obtain
+even vaguely reasonable Coulombic interactions a cutoff of at least
+8&Aring; is recommended.
+#
+vars: dielectric
+info: Dielectric constant for the calculation of Coulombic
+(electrostatic) interactions. This is one by default but may be
+increased to account for the lack of solvent for in vacuo simulations.
+#
+vars: traj_freq
+info: Frequency (in intergration steps) of writing coordinate
+snapshots to a CNS trajectory file. This will only be used if a
+constant temperature dynamics simulation is performed. The trajectory
+will not be written if this value is 0 or less. The trajectory format
+is in binary format.
+#
+vars: atom_select_ref
+info: Atom selection defining atoms in the reference molecule (can be
+all known atoms). The symmetry mates which are within the cutoff
+distance of this molecule are generated and written.
+#
+vars: atom_symmetry
+info: Atom selection defining atoms to which the crystallographic
+symmetry will be applied to generate neighbouring molecules.
+#
+vars: close_cutoff
+info: Cutoff distance in &Aring; for identification of neighbouring
+molecules. If the distance between any atom in the reference and the
+transformed molecule is closer than this then the molecules are
+considered to be neighbours distance.
+#
+vars: matrix_\d+
+info: CNS matrix defining the rotational component of the real-space 
+operator. The matrix format is:
+<PRE>
+( a11 a12 a13 )
+( a21 a22 a23 )
+( a31 a32 a33 )
+</PRE>
+#
+vars: segid_old_\d+
+info: Segment identifier in input molecular structure file. All atoms
+with this segment identifier will be given the new segment identifier.
+#
+vars: segid_new_\d+
+info: New segment identifier for output molecular structure file. All atoms
+with the old segment identifier will be given this new segment identifier.
+#
+vars: coord_fit
+info: Flag indicating that the 2 structures are to be superimposed by
+the least-squares method of Kabsch (Acta Cryst. A32, 922, 1976) prior
+to calculating the RMSD differences. This is useful is the input
+molecules come from different crystal forms.
+#
+vars: close_criteria
+info: Criteria for indentifying closeness between molecules. Closeness
+can be measured by:<BR>
+<UL>
+<LI>The distance between the geometric centres of molecules.</LI>
+<LI>The minimum distance between any atoms in either molecule.</LI>
+<LI>The maximum buried surface area between the molecules.</LI>
+</UL>
+The maximum buried surface area is very useful for indentifying
+possible molecular interfaces (in general a maximum buried surface
+area is expected at a true interface).
+#
+vars: list_info
+info: Determines the level of information to be written to the listing
+file. Listing all information can produce a long listing file.
+#
+vars: list_mode
+info: Determines whether the average or total surface area per residue
+is listed.
+#

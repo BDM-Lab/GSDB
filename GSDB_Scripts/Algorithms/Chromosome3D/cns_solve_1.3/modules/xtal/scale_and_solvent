@@ -1,0 +1,479 @@
+! Module file: scale_and_solvent
+!
+! Function: Computes a bulk solvent model.  
+!           The module also computes an overall (an)-isotropic B-tensor and applies the isotropic component to the
+!           model structure factors, bulk solvent structure factors; the negated modified
+!           B-tensor (-Ucif, with the isotropic component removed) is then applied to the 
+!           observed amplitudes, sigmas, intensities, and their sigmas. 
+!
+! Reference: R.W Grosse-Kunstleve and P.D. Adams, On the handling of atomic isotropic displacement parameters,
+!            J. Appl. Cryst. 35, 477-480 (2002).
+!
+! CNS module
+! **********
+!
+! Authors: Axel T. Brunger and Paul D. Adams
+!
+! copyright Yale University
+!
+!
+! 6/27/2006
+
+module {scale_and_solvent}
+(
+ &bscale="no";         {input: "no" | "isotropic" | "anisotropic" }
+                        
+ &sel=all;             {input: all active structure factors}
+ &sel_test=none;       {input: test set reflections}
+ &atom_select=( all ); {input: atom selection for all atoms that contribute to calculated structure factor}
+ 
+ &bulk_sol=false;      {input: logical flag (true/false) specifying if bulk solvent correction should be computed}
+ &bulk_mask="";        {optional input: mask file for bulk solvent model - it not specified mask will be generated from selected atoms}
+ &bulk_atoms=( all );  {input: atoms used to create solvent mask}
+ 
+ &sol_k=0.3;           {input: fix solvent density level by setting this parameter; set to -9999 if adjustable}
+ &sol_b=50.;           {input: fix solvent B factor by setting this parameter; set to -9999 if adjustable}
+ &solrad=1.0;          {input: solvent radius for bulk solvent model }
+ &shrink=1.0;          {input: shrink factor for bulk solvent model } 
+                         
+ &fcalc_in="";         {input: calculated structure factors - will not be modified}
+ &fcalc_out="";        {output: scaled calculated structure factors - only isotropic b-scaling will be applied} 
+ 
+ &fobs_in="";          {input: observed structure factors - will not be modified}
+ &fobs_out="";         {output: scaled observed structure factors - only inverse of anisotropic part of the B-factor tensor will be applied}
+ 
+ &sigma_in="";         {input: corresponding sigma array - will not be modified}
+ &sigma_out="";        {output: scaled sigma array - only inverse of anisotropic part of the B-factor tensor will be applied}
+ 
+ &iobs_in="";          {optional input: observed intensity data - will not be modified}
+ &iobs_out="";         {optional output: observed intensity data - only inverse of anisotropic part of the B-factor tensor will be applied} 
+ 
+ &sigi_in="";          {optional input: corresponding sigma array - will not be modified}
+ &sigi_out="";         {optional output: name of corresponding sigma array - inverse of anisotropic part of the B-factor tensor will be applied}
+
+ &fpart="";            {output: bulk solvent structure factors - only isotropic b-scaling will be applied to output array}
+ &fpart_previous="";   {optional input/output: previously computed bulk solvent structure factors - no scaling is applied to output array}
+
+ &Baniso_11;           {required output: anisotropic B-tensor (Ucart) for atomic model, with isotropic component removed }
+ &Baniso_22;        
+ &Baniso_33;        
+ &Baniso_12;   
+ &Baniso_13;   
+ &Baniso_23;   
+ &biso;                {required output: isotropic component of the B-tensor}
+
+!note: atomic B array has to be modified outside this module for these atoms !!!!
+  
+ &sol_k_ref;           {required output: refined k_sol of solvent model}
+ &sol_b_ref;           {required output: refined b_sol of solvent model}
+
+)
+ 
+ set message ? end
+ evaluate ($message_old=$result)
+ set echo ? end
+ evaluate ($echo_old=$result)
+ if ( $log_level = verbose ) then
+   set echo=on message=normal end
+ else
+   set echo=off message=off end
+ end if
+
+ checkversion 1.3
+ 
+ evaluate (&Baniso_11=0.0)
+ evaluate (&Baniso_22=0.0)
+ evaluate (&Baniso_33=0.0)
+ evaluate (&Baniso_12=0.0)
+ evaluate (&Baniso_13=0.0)
+ evaluate (&Baniso_23=0.0)
+ evaluate (&biso=0.0)
+
+ evaluate ($sol_fixed=false)
+ if (&sol_k # -9999 ) then
+    if (&sol_b # -9999 ) then
+       evaluate ($sol_fixed=true) 
+     end if 
+  end if
+
+ xray
+     
+   declare name=fbtotal domain=reciprocal type=complex end
+
+   do (&fobs_out=&fobs_in) ( all )
+   do (&sigma_out=&sigma_in) (all)     
+   do (&fcalc_out=&fcalc_in) (all)
+        
+   if ( &iobs_in # "" ) then
+      query name=&iobs_in domain=reciprocal end
+      if ( $object_exist = true ) then
+          do (&iobs_out=&iobs_in) (all)
+      end if
+   end if
+   if ( &sigi_in # "" ) then
+      query name=&sigi_in domain=reciprocal end
+      if ( $object_exist = true ) then
+         do (&sigi_out=&sigi_in) (all)
+      end if
+   end if
+   
+ end
+
+
+ 
+ if ( &bulk_sol = true ) then
+   {- carry out bulk-solvent optimization plus optional isotropic b-factor scaling of model -}
+   
+   {- if applicable take existing FPART to reduce calculation time -}
+
+   xray
+     if ( &fpart_previous # "" ) then     
+        show max ( amplitude ( &fpart_previous ) ) ( all )
+        evaluate ($fpart_max=$result)
+     else
+        evaluate ($fpart_max=0)
+     end if
+     if ($fpart_max = 0) then
+      
+      if ( &bulk_mask # "" ) then
+       declare name=mask domain=real end
+       read mask
+         to=mask
+         input=&bulk_mask
+         type=omask
+       end
+       {- change mask value to zero in protein region -}
+       do (mask=0) (real(mask) <= 0)
+       {- change mask value to one in solvent region -}
+       do (mask=1) (real(mask) >= 1)
+       {- Fourier transformation of the solvent mask and store it in fpart -}
+       do (&fpart=ft(mask)) ( all )
+       undeclare name=mask domain=real end
+      else
+      
+       {- compute a solvent mask and store it in mask -}
+       
+       {- reset the absolute grid size (by default 1/3 of the high resolution limit)        -}
+       {- to be in the range 0.57 < g < 0.9 A                                               -} 
+              
+       {- The lower bound (0.57 A) is the diagonal distance in a square box of 1 A edges.   -}
+       {- This lower bound is used to reduce excessive computation time for very high       -}
+       {- resolution structures.                                                            -}
+       {- The upper bound (0.9 A) makes sure that the shrink calculation has an effect      -}
+       {- for a shrink radius of 1 A or larger.                                             -}
+       {- These bounds are conservative estimates that should also work with non-orthogonal -}
+       {- unit cell geometries.                                                             -}
+
+       mapresolution ? 
+       evaluate ($high_resolution_limit=$result)
+       fft
+         grid ?
+         evaluate ($scale_and_solvent_old_grid=$result)        
+       end
+       evaluate ($current_grid=$high_resolution_limit * $scale_and_solvent_old_grid )
+       if ($current_grid > 0.9 ) then
+          evaluate ($new_grid= 0.9 / $high_resolution_limit)
+          fft 
+            grid=$new_grid
+            display  adjusted grid parameter for solvent mask calculation.  It is now : $new_grid
+          end
+       elseif ($current_grid < 0.57 ) then
+          evaluate ($new_grid= 0.57 / $high_resolution_limit)
+          fft 
+            grid=$new_grid
+            display  adjusted grid parameter for solvent mask calculation.  It is now  : $new_grid
+          end
+       else
+          evaluate ($new_grid=$scale_and_solvent_old_grid) 
+          display  grid parameter for solvent mask calculation : $new_grid      
+       end if
+       
+       declare name=mask domain=real end
+       mask
+         mode=vdw           { use vdw radii                     }
+         solrad=&solrad     { probe radius                      } 
+         shrink=&shrink     { shrink parameter                  } 
+         nshell=1           { the number of shells              }
+         to=mask            { output to the mask map            }
+         selection=( &bulk_atoms ) { atom selection for mask calc.}
+       end
+       {- Fourier transformation of the solvent mask and store it in fpart -}
+       do (&fpart=ft(mask)) ( all )
+       undeclare name=mask domain=real end
+       if ($new_grid # $scale_and_solvent_old_grid) then
+         fft 
+           grid=$scale_and_solvent_old_grid
+         end
+       end if
+      end if
+
+      if ( &fpart_previous # "" ) then    
+         do (&fpart_previous=&fpart) ( all ) 
+      end if
+
+     else
+      do (&fpart=&fpart_previous) ( all )
+     end if 
+
+     {- solvent parameters refinement by the multiscale routine -}
+          
+     if ($sol_fixed=true) then
+        {- don't do anything if both sol_k and sol_b are fixed -}
+        evaluate ($k3=&sol_k)
+        evaluate ($b3=&sol_b)
+        evaluate ($b2=0)
+     else  
+        {- refine the free parameters -}  
+        if (&bscale="no") then
+         multiscale
+           set1=&fobs_in    k1=-1          b1=0
+           set2=&fcalc_in   k2= 1          b2=0
+           set3=&fpart      k3=&sol_k      b3=&sol_b
+           selection=(&sel and not &sel_test) 
+           resk=0    
+           update=false
+           bmin=-900.     
+           bmax=9000.  
+           restrictions=none
+         end
+        else
+         multiscale
+           set1=&fobs_in    k1=-1          b1=0
+           set2=&fcalc_in   k2= 1          b2=-9999
+           set3=&fpart      k3=&sol_k      b3=&sol_b
+           selection=(&sel and not &sel_test) 
+           resk=0    
+           update=false
+           bmin=-900.     
+           bmax=9000.  
+           restrictions=none
+         end
+        end if
+     end if
+     
+     {- compute refined solvent structure factors in FPART -}
+     do (&fpart=$k3*exp(-$b3*s*s/4.0)*&fpart) ( all )
+     do (&fcalc_out=exp(-$b2*s*s/4.0)*&fcalc_in) ( all )
+     evaluate (&biso=$b2)
+     evaluate (&sol_k_ref=$k3) 
+     evaluate (&sol_b_ref=$b3)
+   end
+ else
+ !!! modification ATB 4/29/08
+   xray
+    do ( &fpart=0) ( all )
+   end
+   evaluate (&sol_k_ref=0)
+   evaluate (&sol_b_ref=0)
+ end if
+   
+ {- recompute the overall B scaling between Fobs and Ftotal = Fcalc + Fpart -}
+ 
+ if ( &bscale="isotropic" ) then
+ 
+   xray
+     do (fbtotal=&fcalc_out+&fpart) (all)
+   end
+   xray
+     multiscale
+       anisotropic=false 
+       bmin=-900.
+       bmax=9000.
+       set1=&fobs_in  k1=-1 b1=0  {- use unmodified fobs here -}
+       set2=fbtotal
+       selection=(&sel and not &sel_test)
+       eps=0.00000001
+       ncycle=20
+       restrictions=none
+     end
+   end
+   
+   xray
+     do (&fcalc_out=&fcalc_out*exp(-$b2*s*s/4.0)) (all)
+     do (&fpart=&fpart*exp(-$b2*s*s/4.0)) (all)  
+     evaluate (&sol_b_ref=&sol_b_ref+$b2)       
+   end
+   evaluate (&biso=&biso+$b2)     
+            
+ elseif ( &bscale="anisotropic" ) then
+   xray
+     do (fbtotal=&fcalc_out+&fpart) (all)
+   end
+   {- carry out anisotropic B-factor scaling with the solvent model included -}
+   !
+   ! BEGIN MODIFICATION
+   xray
+     expand
+     multiscale
+       anisotropic=true 
+       bmin=-900.
+       bmax=9000.
+       set1=&fobs_in  k1=-1 b1=0   {- use unmodified fobs here -}
+       set2=fbtotal
+       selection=(&sel and not &sel_test)
+       eps=0.00000001
+       ncycle=20
+       restrictions=none
+     end
+     unexpand
+   end
+ 
+   evaluate ($bcif_1_1=$B2_11)
+   evaluate ($bcif_1_2=$B2_12)
+   evaluate ($bcif_1_3=$B2_13)
+
+   evaluate ($bcif_2_1=$B2_12)
+   evaluate ($bcif_2_2=$B2_22)
+   evaluate ($bcif_2_3=$B2_23)
+
+   evaluate ($bcif_3_1=$B2_13)
+   evaluate ($bcif_3_2=$B2_23)
+   evaluate ($bcif_3_3=$B2_33)
+
+   evaluate ($nmat_1=$astar)
+   evaluate ($nmat_2=$bstar)
+   evaluate ($nmat_3=$cstar)
+
+!   display
+!   display  anisotropic Ucif tensor 
+!   display  $bcif_1_1[F10.4] $bcif_1_2[F10.4] $bcif_1_3[F10.4]
+!   display  $bcif_2_1[F10.4] $bcif_2_2[F10.4] $bcif_2_3[F10.4]
+!   display  $bcif_3_1[F10.4] $bcif_3_2[F10.4] $bcif_3_3[F10.4]
+
+   {- convert Ucif to Ucart -}
+   for $ui in ( 1 2 3 ) loop uco1
+      for $ul in ( 1 2 3 ) loop uco2
+         evaluate ($sum=0)
+         for $uj in ( 1 2 3 ) loop uco3
+            for $uk in ( 1 2 3 ) loop uco4
+               evaluate ( $sum = $sum + $xrintr_$ui_$uj * $nmat_$uj * $Bcif_$uj_$uk * $nmat_$uk * $xrintr_$ul_$uk )
+            end loop uco4
+         end loop uco3
+         evaluate ($bcart_$ui_$ul = $sum)
+      end loop uco2
+   end loop uco1
+
+!   display
+!   display  corresponding Ucart anisotropic tensor 
+!   display  $bcart_1_1[F10.4] $bcart_1_2[F10.4] $bcart_1_3[F10.4]
+!   display  $bcart_2_1[F10.4] $bcart_2_2[F10.4] $bcart_2_3[F10.4]
+!   display  $bcart_3_1[F10.4] $bcart_3_2[F10.4] $bcart_3_3[F10.4]
+
+   evaluate ($btrace=$bcart_1_1 + $bcart_2_2 + $bcart_3_3)
+
+   evaluate ($biso=$btrace/3)
+
+   evaluate ($bcart_1_1=$bcart_1_1 - $biso)
+   evaluate ($bcart_2_2=$bcart_2_2 - $biso)
+   evaluate ($bcart_3_3=$bcart_3_3 - $biso)
+
+   {- Bcart will be passed up with isotropic component removed -}
+
+   evaluate (&Baniso_11=$bcart_1_1)
+   evaluate (&Baniso_22=$bcart_2_2)
+   evaluate (&Baniso_33=$bcart_3_3)
+   evaluate (&Baniso_12=$bcart_1_2)
+   evaluate (&Baniso_13=$bcart_1_3)
+   evaluate (&Baniso_23=$bcart_2_3)
+
+!   display
+!   display  isotropic component Biso = $biso[F10.4]
+
+!   display
+!   display  Ucart - Biso 
+!   display  $bcart_1_1[F10.4] $bcart_1_2[F10.4] $bcart_1_3[F10.4]
+!   display  $bcart_2_1[F10.4] $bcart_2_2[F10.4] $bcart_2_3[F10.4]
+!   display  $bcart_3_1[F10.4] $bcart_3_2[F10.4] $bcart_3_3[F10.4]
+
+   {- convert Ucart to Ucif -}
+   for $ui in ( 1 2 3 ) loop uc11
+      for $ul in ( 1 2 3 ) loop uc12
+         evaluate ($sum=0)
+         for $uj in ( 1 2 3 ) loop uc13
+            for $uk in ( 1 2 3 ) loop uc14
+               evaluate ( $sum = $sum + $xrtr_$ui_$uj * (1/$nmat_$ui) * $Bcart_$uj_$uk * (1/$nmat_$ul) * $xrtr_$ul_$uk )
+            end loop uc14
+         end loop uc13
+         evaluate ($bcif_$ui_$ul = $sum)
+      end loop uc12
+   end loop uc11
+
+!   display
+!   display  corresponding Ucif (with Biso removed)
+!   display  $bcif_1_1[F10.4] $bcif_1_2[F10.4] $bcif_1_3[F10.4]
+!   display  $bcif_2_1[F10.4] $bcif_2_2[F10.4] $bcif_2_3[F10.4]
+!   display  $bcif_3_1[F10.4] $bcif_3_2[F10.4] $bcif_3_3[F10.4]
+
+       
+   {- apply biso to fcalc, fpart -}     
+ 
+   xray
+      do (&fcalc_out=&fcalc_out*exp(-$biso*s*s/4.0)) (all)
+      do (&fpart    =&fpart    *exp(-$biso*s*s/4.0)) ( all )
+      evaluate (&sol_b_ref=&sol_b_ref+$biso) {- MODIFIED - ADDED - 05/16/05 ATB -}
+   end
+
+  {- add this isotropic contribution to the isotropic contribution that was obtained by the solvent model 
+     optimization -}
+   evaluate (&biso=&biso+$biso) 
+       
+   {- apply negative of bcif tensor (with the isotropic component removed) to Fobs, Iobs, Sigma, Isig -}               
+    
+   xray
+     do (&fobs_out=&fobs_in*
+                exp(-( -$bcif_1_1*h*h*$astar*$astar
+                       -$bcif_2_2*k*k*$bstar*$bstar
+                       -$bcif_3_3*l*l*$cstar*$cstar
+                   -2.0*$bcif_1_2*h*k*$astar*$bstar
+                   -2.0*$bcif_1_3*h*l*$astar*$cstar
+                   -2.0*$bcif_2_3*k*l*$bstar*$cstar
+                               )/4.0)) ( all )
+     do (&sigma_out=&sigma_in*exp(-( -$bcif_1_1*h*h*$astar*$astar
+                                     -$bcif_2_2*k*k*$bstar*$bstar
+                                     -$bcif_3_3*l*l*$cstar*$cstar
+                                 -2.0*$bcif_1_2*h*k*$astar*$bstar
+                                 -2.0*$bcif_1_3*h*l*$astar*$cstar
+                                 -2.0*$bcif_2_3*k*l*$bstar*$cstar
+                               )/4.0)) ( all )
+     if ( &iobs_in # "" ) then
+       query name=&iobs_in domain=reciprocal end
+       if ( $object_exist = true ) then
+         do (&iobs_out=&iobs_in*exp(-( -$bcif_1_1*h*h*$astar*$astar
+                                       -$bcif_2_2*k*k*$bstar*$bstar
+                                       -$bcif_3_3*l*l*$cstar*$cstar
+                                   -2.0*$bcif_1_2*h*k*$astar*$bstar
+                                   -2.0*$bcif_1_3*h*l*$astar*$cstar
+                                   -2.0*$bcif_2_3*k*l*$bstar*$cstar
+                                   )/2.0)) ( all )
+       end if
+     end if
+     if ( &sigi_in # "" ) then
+       query name=&sigi_in domain=reciprocal end
+       if ( $object_exist = true ) then
+         do (&sigi_out=&sigi_in*exp(-( -$bcif_1_1*h*h*$astar*$astar
+                                       -$bcif_2_2*k*k*$bstar*$bstar
+                                       -$bcif_3_3*l*l*$cstar*$cstar
+                                   -2.0*$bcif_1_2*h*k*$astar*$bstar
+                                   -2.0*$bcif_1_3*h*l*$astar*$cstar
+                                   -2.0*$bcif_2_3*k*l*$bstar*$cstar
+                                   )/2.0)) ( all )
+       end if
+     end if
+   end
+   
+ end if
+
+ xray
+   undeclare name=fbtotal domain=reciprocal end
+ end
+
+ if ( &bulk_sol = true ) then
+     if ($sol_fixed=true) then
+         display  using fixed solvent parameters: sol_k = &sol_k_ref  sol_b = &sol_b_ref
+     else  
+         display  refined solvent parameters: sol_k = &sol_k_ref  sol_b = &sol_b_ref
+     end if
+ end if
+ 
+ set message=$message_old echo=$echo_old end
+

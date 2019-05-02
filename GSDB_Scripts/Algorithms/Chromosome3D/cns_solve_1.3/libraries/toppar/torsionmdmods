@@ -1,0 +1,73 @@
+! CNS toppar file: torsionmdmods
+!
+! Authors: Axel Brunger and Luke Rice
+!
+! copyright Yale University
+!
+! Function:
+!    Applies various patches to torsion angle dynamics
+!    necessary for certain topologies
+!
+! Requirements:
+!    Needs to be called from torsion topology
+
+
+set message ? end eval ($old_message=$result) set echo ? end eval ($old_echo=$result)
+set message=off echo=off end
+
+checkversion 1.3
+
+
+ {- remove disulfide bond links -}
+ free bond ( resname CYS and name SG ) ( resname CYS and name SG ) 
+ 
+ {- keep prolines as rigid bodies -}
+ fix group ( resn PRO and not (name c or name o) )
+ 
+ {- free a bond in sugar rings to have control over which bond is broken 
+    by torsion topology -}
+ free bond (( resn THY or resn DT or 
+              resn CYT or resn C or resn DC or 
+              resn GUA or resn G or resn DG or
+              resn ADE or resn A or resn DA or
+              resn URI or resn U or
+              resn CMP ) and name C3' ) 
+           (( resn THY or resn DT or 
+              resn CYT or resn C or resn DC or 
+              resn GUA or resn G or resn DG or
+              resn ADE or resn A or resn DA or
+              resn URI or resn U or
+              resn CMP ) and name C4' )
+
+! {- keep nucleic acid bases rigid -}   ! commented out since impropers 
+!                                         are specified for bases in 
+!                                         dna/rna topology/parameter files, ATB 2/26/10
+! fix group ( ( resn THY or resn DT or 
+!               resn CYT or resn C  or resn DC or 
+!               resn GUA or resn G  or resn DG or
+!               resn ADE or resn A  or resn DA or
+!               resn URI or resn U  or
+!               resn CMP )  and not(name c#' or name h#' or name o#p or
+!                                   name o#' or name p or name h#t or name o#t))
+ 
+ {- free a bond in carbohydrates to have control over which bond is broken 
+    by torsion topology -}
+ free bond (( resn GLC or resn BGC or
+              resn GLA or resn GAL or
+              resn MAN or resn BMA or
+              resn NDG or resn A2G or resn NAG or 
+              resn FUC or resn FUL or
+              resn FCA or resn FCB or
+              resn SIA or 
+              resn XYP ) and name C3 ) 
+           (( resn GLC or resn BGC or
+              resn GLA or resn GAL or
+              resn MAN or resn BMA or
+              resn NDG or resn A2G or resn NAG or 
+              resn FUC or resn FUL or
+              resn FCA or resn FCB or
+              resn SIA or 
+              resn XYP ) and name C4 ) 
+
+
+set message=$old_message echo=$old_echo end

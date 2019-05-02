@@ -1,0 +1,572 @@
+###############################################################################
+# Parameter names matched in common.idb:
+#     a
+#     b
+#     c
+#     alpha
+#     beta
+#     gamma
+#     anom_library
+#     bscale
+#     coordinate_infile
+#     coordinate_infile_\d+
+#     fft_memory
+#     grid
+#     high_res
+#     low_res_bscale
+#     low_res
+#     obs_f
+#     obs_fom
+#     obs_i
+#     obs_pa
+#     obs_pb
+#     obs_pc
+#     obs_pd
+#     obs_phase
+#     obs_rms
+#     obs_sigf
+#     obs_sigi
+#     obs_type
+#     obs_w
+#     coordinate_outfile
+#     parameter_infile_\d+
+#     reflection_infile_\d+
+#     reflection_infile
+#     sg
+#     sigma_cut
+#     structure_infile
+#     test_flag
+#     test_set
+#     output_root
+#     bulk_mask_infile
+#     restraints_infile
+#     ncs_infile
+#     list_outfile
+#     atom_select
+#     write_map
+#     atom_main
+#     bulk_sol
+#     map_format
+#     map_mode
+#     sol_b
+#     sol_k
+#     target_bins
+#     xmax
+#     xmin
+#     ymax
+#     ymin
+#     zmax
+#     zmin
+#     asig_main
+#     asig_side
+#     bsig_main
+#     bsig_side
+#     minimize_nstep
+#     num_cycles
+#     pdb_o_format
+#     reftarget
+#     structure_outfile
+#     atom_fixed
+#     atom_harm
+#     atom_map
+#     atom_rigid
+#     bfactor_nstep
+#     constant_steps
+#     cool_rate
+#     k_harmonic
+#     map_cushion
+#     map_scale
+#     map_type
+#     md_scheme
+#     md_type
+#     num_trials
+#     peak_search
+#     reflection_outfile
+#     reset_b
+#     rigid_nstep
+#     seed
+#     temperature
+#     torsion_maxbond
+#     torsion_maxchain
+#     torsion_maxlength
+#     torsion_maxtree
+#     u
+#     v
+#     r_group_\d+
+#     conf_\d+
+###############################################################################
+#
+vars: twin_oper
+info: Hemihedral twinning operator. Possible twin laws for true
+merohedral twinning are:<BR>
+<TABLE ALIGN=CENTER BORDER=2 CELLPADDING=2>
+<TR><TD><B>True point group</B></TD>
+    <TD><B>Twin operation  </B></TD>
+    <TD><B><I>hkl</I> related to</B></TD></TR>
+<TR><TD>3  </TD><TD>2 along a,b      </TD><TD><I>  h,-h-k,-l</I></TD></TR>
+<TR><TD>   </TD><TD>2 along a*,b*    </TD><TD><I>h+k,-k  ,-l</I></TD></TR>
+<TR><TD>   </TD><TD>2 along c        </TD><TD><I> -h,-k  , l</I></TD></TR>
+<TR><TD>4  </TD><TD>2 along a,b,a*,b*</TD><TD><I>  h,-k  ,-l</I></TD></TR>
+<TR><TD>6  </TD><TD>2 along a,b,a*,b*</TD><TD><I>  h,-h-k,-l</I></TD></TR>
+<TR><TD>321</TD><TD>2 along a*,b*,c  </TD><TD><I> -h,-k  , l</I></TD></TR>
+<TR><TD>312</TD><TD>2 along a,b,c    </TD><TD><I> -h,-k  , l</I></TD></TR>
+<TR><TD>23 </TD><TD>4 along a,b,c    </TD><TD><I>  k,-h  , l</I></TD></TR>
+</TABLE>
+[see T.O. Yeates, Detecting and Overcoming crystal twinning,
+Meth. Enzym. 276, 344-358 (1997)]
+#
+vars: twin_frac
+info: The twinning fraction (alpha) for hemihedral twinning. This is
+0.5 for perfect twinning and some number greater than 0.0 and less
+than 0.5 for partial twinning. A partial twinning fraction greater
+than 0.45 makes detwinning of the data for map calculation very
+difficult. In such cases it may be better to treat the data as
+perfectly twinned (T.O. Yeates, Detecting and Overcoming crystal
+twinning, Meth. Enzym. 276, 344-358, 1997). The twinning fraction
+remains constant during refinement but can recalculated using the
+current atomic model is a reference.
+#
+vars: init_min
+info: Initial number of steps of conjugrate gradient energy
+minimization. This minimization is performed with the X-ray energy
+term on and is normally used to correct initial problems with model
+geometry after rebuilding, prior to entering simulated annealing
+refinement. The number of steps of initial minimization should be
+between 10 and 200 depending on the starting model.
+#
+vars: geometry_min
+info: Number of steps of geometry regularization to be performed
+before torsion angle molecular dynamics. This is performed to
+regularize the model geometry such that close to ideal bond lengths
+and angles are obtained. This is necessary because the bond lengths
+and angles are constrained (fixed) during the subsequent dynamics. An
+harmonic restraint is placed on the coordinates so that they do not
+move a significant distance from their starting positions.
+#
+vars: final_dyn
+info: Number of steps of final molecular dynamics. After the simulated
+annealing stage a short molecular dynamics run is performed at low
+temperature (300K). For some parameter sets the atomic radii are
+shrunk slightly during the simulated annealing stage to facilitate the
+crossing of energy barriers. This final dynamics stage uses the normal
+atomic radii.
+#
+vars: final_min
+info: Number of steps of final conjugate gradient energy
+minimization. After the simulated annealing refinement and the final
+low temperature molecular dynamics, energy minimization is
+performed. This final minimization is repeated twice with an update of
+the error model and crystallographic weight between the two.
+#
+vars: wa
+info: Weight between crystallographic and geometric energy terms. The
+crystallographic term is not on an absolute scale and therefore must
+be scaled appropriately to be consistant with the geometric energy
+term (which is on an absolute scale). The gradients arising from both
+energy terms are calculated and the root-mean-squares for each
+calculated. The weight Wa is calculated:
+<UL>
+<LI>Wa = RMSF(geometry)/2*RMSF(Xray)</LI>
+</UL>
+The value of Wa is highly dependent on the crystallographic target
+function. Values in the range of 1 to 50 are expected for the maximum
+likelihood targets. Values of 10000 or more are expected for the least
+squares targets. For the maximum likelihood targets the value of Wa
+decreases as the model improves.  For the least-squares targets the
+value of Wa increases as the model improves.
+#
+vars: bd_group_\d+
+info: Atom selection identifying atoms which form domains
+(eg. separate molecules or subdomains) for domain B-value
+refinement. For each domain or set of atoms selected the overall
+B-value will be refined. Atom selections for different domains should
+be non-overlapping.
+#
+vars: bmin
+info: Minimum B-value allowed during B-value refinement.
+#
+vars: bmax
+info: Maximum B-value allowed during B-value refinement.
+#
+vars: bg_group_\d+
+info: Atom selection identifying atoms which form groups (eg. protein
+mainchain and protein sidechain) for grouped B-value refinement. For
+each residue the overall B-value for each group will be refined.
+#
+vars: rweight
+info: The weight between the crystallographic target and the B-value
+restaints during restrained atomic B-value refinement. If positive the
+weight will be set to that value. If negative the weight will be
+calculated automatically by the program, this is the recommended
+value. Restraints are applied such that bonded atoms and atoms sharing
+a common angle are restrained to have similar B-values. The
+crystallographic term is not on an absolute scale and therefore must
+be scaled to be in the same range as the restraint term. The gradients
+arising from both energy terms are calculated and the
+root-mean-squares for each calculated. The weight is calculated:
+<UL>
+<LI>Rweight = RMSF(B-restraint)/RMSF(Xray)</LI>
+</UL>
+#
+vars: fobs_detwin
+info: Output real reciprocal space array containing the detwinned amplitude
+data. The detwinning algorithm depends on whether the twinning is
+perfect or partial. Partially twinned data can be detwinned directly
+using the twinning operator and the twinning fraction:
+<PRE>
+F_detwin   = (Fo^2 - alpha*[Fo^2 + Fo'^2])/(1 - 2*alpha)
+Fo'[h,k,l] = Fo after application of the twinning operator
+</PRE>
+Perfectly twinned data requires an atomic model be used to provide
+estimates for the unknown detwinned amplitudes:
+<PRE>
+F_detwin   = SQRT[(Fo^2 + Fc^2 + Fc'^2)/2]
+Fc'[h,k,l] = Fc after application of the twinning operator
+</PRE>
+Only those reflections with a positive intensity are written.
+#
+vars: sigma_detwin
+info: Output real reciprocal space array containing the detwinned sigma
+values. Currently these are not calculated, and the original values
+are used.
+#
+vars: test_detwin
+info: Output integer reciprocal space array containing the test set
+(cross validation flags) for the detwinned data. Detwinning often
+results in rejection of some reflections (because the root of a
+negative intensity occurs). The test set for the remaining reflections
+is written to permit easy use of the output reflection file in other
+task files.
+#
+vars: percentage
+info: Percentage of reflections to select for cross validation. A test
+set size of approximately 10% is suggested. The test set should
+contain a minimum of 1000 reflections (2000 is better). For twinned
+data the selection of test set reflections is done such that
+reflections related by the twinning operator always are in the same
+set (either test set or working set). This is essential for correct
+results from the other twinning task files.
+#
+vars: ref_sel
+info: Additional reflection selection for test set generation. A
+subset of reflections can be selected for test set generation, for
+example expanding a test set to higher resolution:
+<PRE>
+  ( 2.5 &gt; d &gt; 1.9 )
+</PRE>
+#
+vars: fill_in
+info: Use amplitudes and phases from the model for missing
+reflections. For any missing data (either unobserved or rejected by
+outlier cutoffs) the model amplitudes and phases are used (this is DFc
+in the case of SigmaA weighting).
+#
+vars: real_r
+info: Calculate real-space R-values and correlation coefficients
+between the current model and the electron density map. After the
+electron density map has been calculated, model density is calculated
+around the atomic model. The real-space correlation coefficient is
+then calculated between the two maps for the density points in the
+vicinity of each residue (a local mask is applied for each residue in
+turn). The correlation coefficient is listed for each residue. The
+real-space R-value listed is 1-correlation.
+#
+vars: atom_real
+info: Atom selection identifying atoms which will be used for
+real-space R-value and correlation coefficient calculations.
+#
+vars: peak_num
+info: The number of positive and negative electron density peaks to be
+picked from the map.
+#
+vars: write_coeff
+info: Write map coefficients as reciprocal space objects. The
+coefficients are written in the reciprocal space object
+<TT>map_coeff</TT>. Fourier transformation of this array gives the
+electron density map:
+<UL>
+<LI>map=FT(map_coeff)</LI>
+</UL>
+Also written are the FOM weighting and phases used for the observed
+data and the scale factor applied to the calculated data.
+#
+vars: print_bins
+info: Number of equal volume resolution bins for reporting reciprocal
+space statistics. Bin limits are calculated such that an approximately
+equal number of reflections are in each bin. A value of 10 is
+suggested for most structures. A larger value may be better if there
+are many reflections (large unit cell or very high resolution).
+#
+vars: bond_thresh
+info: The threshold value in &Aring; for analysis of deviations for
+ideal geometry for bonds. Bonds in the current model which deviate
+more than this from the ideal value will be reported. The ideal values
+are taken from the type-based parameters.
+#
+vars: angle_thresh
+info: The threshold value in degrees for analysis of deviations for
+ideal geometry for angles. Angles in the current model which deviate
+more than this from the ideal value will be reported. The ideal values
+are taken from the type-based parameters.
+#
+vars: dihe_thresh
+info: The threshold value in degrees for analysis of deviations for
+ideal geometry for bonds. Dihedral angles in the current model which
+deviate more than this from the ideal value will be reported. The
+ideal values are taken from the type-based parameters.
+#
+vars: impr_thresh
+info: The threshold value in degrees for analysis of deviations for
+ideal geometry for bonds. Improper angles in the current model which
+deviate more than this from the ideal value will be reported. The
+ideal values are taken from the type-based parameters.
+#
+vars: close
+info: Distance threshold in &Aring; for listing close contacts between
+atoms in the structure. The distances are calculated using the atomic
+centres. Symmetry related distances are also calculated.
+#
+vars: low_err_res
+info: The lower resolution limit in &Aring; for calculation of
+coordinate error using the Luzzati (Luzzati P.V. (1952). Acta
+Cryst. 5, 802-810) and Sigma-A (Read R.J. (1986). Acta Cryst. A42,
+140-149) plots. The suggested value is 5&Aring;. This makes the
+calculation independent of the bulk solvent model.
+#
+vars: luzzati_error_plot
+info: Output file containing the Luzzati error plot (Luzzati
+P.V. (1952). Acta Cryst. 5, 802-810). If cross validation is used
+then two plot files will be generated with the file extensions .plot
+and _cv.plot. The cross validated error plot is the less biased of the
+two. Each file contains the estimated coordinate error and the (free)
+R-value and (free) Luzzati R-value as a function of resolution. The
+files can be used to generate a Luzzati plot with any graph plotting
+program (some editing may be required).
+#
+vars: sigmaa_error_plot
+info: Output file containing the Sigma-A error plot (Read
+R.J. (1986). Acta Cryst. A42, 140-149). If cross validation is used
+then two plot files will be generated with the file extensions .plot
+and _cv.plot. The cross validated error plot is the less biased of the
+two. Each file contains a listing of 1/d, log(Sigma-A) and the ideal
+Sigma-A curve for the calculated coordinate error.
+#
+vars: peak
+info: Minimum interpolated peak for water picking. Any peaks which are
+less than this minimum are discarded. If the map has been scaled then
+this minimum is in sigma units, otherwise it is in electron density
+units if the observed data has been placed on an absolute scale. For
+scaled difference maps a minimum peak height of 3 or greater is
+recommended.
+#
+vars: npeaks
+info: Number of interpolated peaks to be analysed. After peak picking,
+interpolation and sorting the specified top number of peaks are analysed.
+#
+vars: wat_resname
+info: Residue name to be given to picked water molecules. These names
+match the residues defined in the CNS water topology file
+(CNS_TOPPAR:water.top). The possible choices are: TIP, TIP3, WAT and
+HOH. Three letter residue names are preferred by other programs (for
+example O).
+#
+vars: wat_segid
+info: Segment identifier (segid) to be given to the picked water
+molecules. This can be a maximum of 4 characters. Single letters are
+preferred because these can be converted to chain identifiers for
+other programs (for example O). The segid called PEAK is resserved for
+internal use and should not be used. If water molecules are already
+present in the input model with the given segid the newly picked
+waters will be appended with an increased residue number.
+#
+vars: wat_number
+info: Residue number for first newly picked water molecule. If water
+molecules are already present in the input model with the same segid,
+the numbering of newly picked waters will begin after the last
+existing water molecule (for example if residue 100 is a water
+molecule then the new waters will begin at residue 101).
+#
+vars: refine
+info: Flag turning on or off refinement of newly picked water
+molecules. If true the newly picked waters will have their coordinates
+and B-factors refined. The original input model (including any
+previous water molecules) remains fixed during water refinement and is
+output unchanged.
+#
+vars: min
+info: The minimum allowed distance in &Aring; between a water peak and
+any atom in the model. This defines a lower limit to water picking (no
+peaks less than this distance from the molecule will be
+analysed). This lower limit may be exceeded by peaks close to possible
+hydrogen bonding partners.
+#
+vars: max
+info: The maximum allowed distance in &Aring; between a water peak and
+any atom in the model. This defines an upper limit to water picking
+(no peaks greater than this distance from the molecule will be
+analysed). This may exclude distant water molecules (in a second
+hydration shell) in the first round of water picking, but as the first
+hydration shell expands they should be picked in subsequent rounds.
+#
+vars: hmin
+info: The minimum allowed distance in &Aring; between a water peak and
+a possible hydrogen bond acceptor/donor (oxygens or nitrogens). If the
+hydrogen bonding based peak deletion criteria is selected then only
+water peaks which lie within the minimum and maximum hydrogen bonding
+distance from an acceptor/donor are accepted.
+#
+vars: hmax
+info: The maximum allowed distance in &Aring; between a water peak and
+a possible hydrogen bond acceptor/donor (oxygens or nitrogens). If the
+hydrogen bonding based peak deletion criteria is selected then only
+water peaks which lie within the minimum and maximum hydrogen bonding
+distance from an acceptor/donor are accepted.
+#
+vars: peak_select
+info: The distance criteria for peak deletion. In general the hbond
+option should be used when picking water molecules.
+#
+vars: peak_hbond
+info: Use the hydrogen bonding distances as the criteria for
+acceptance. Only water peaks which lie within the minimum and maximum
+hydrogen bonding distance from an acceptor/donor are accepted. This is
+the most conservative option for picking water molecules (as only
+chemically sensible sites will be chosen). This option should be
+disabled if searching for non-water peaks which might not lie close to
+hydrogen bonding acceptor/donor atoms.
+#
+vars: special_dist
+info: Cutoff distance in &Aring; for identifying atoms on special
+positions. Crystallographic symmetry is applied to all putative water
+sites. If application of symmetry results in an atom being within this
+distance of itself it is considered to be on a special position. This
+distance should not be made too large otherwise all molecules will
+appear to lie on special positions. A value of around 0.25 &Aring; is
+suggested.
+#
+vars: peak_special
+info: Flag determining whether waters on special positions are
+retained. In general they should be deleted to ensure that spurious
+electron density peaks on symmetry axes are not selected.
+#
+vars: bfactor_max
+info: Maximum allowed B-value (in &Aring;^2) for picked waters after
+refinement of coordinates and B-values. Any water molecules with
+B-values greater than this maximum are deleted. The absolute value of
+this cutoff will depend on the average B-value for the entire
+molecule, but a value around 50 is appropriate for the majority of
+well ordered structures at medium resolution or better.
+#
+vars: merge_coord
+info: Flag determining whether the newly picked waters will be merged
+with the existing model. If true then the output molecular topology
+and coordinate file will contain the input model plus the new water
+molecules. If false, only newly picked water molecules will be written
+out. It is normally best to merge the new water molecules with the
+existing model to generate files which can go directly into the next
+refinement stage.
+#
+#
+vars: sol_auto
+info: automatic bulk solvent parameter search
+#
+vars: sol_output
+info: optional file with a listing of the results of the automatic bulk solvent grid
+search
+#
+vars: sol_rad
+info: solvent mask parameter
+#
+vars: sol_shrink
+info: solvent mask parameter
+#
+vars: atom_rigid_\d+
+info: atom selections for non-default rigid groups during torsion angle dynamics
+#
+vars: use_den
+info: use DEN?
+#
+vars: den_infile
+info: initial DEN file; if blank, the DEN will be generated automatically from reference coordinates
+#
+vars: den_ref
+info: reference coordinates - always required
+#
+vars: den_atom_select_\d+
+info: select groups of atoms to be included in DEN generation
+#
+vars: den_lower_distance_cutoff
+info: DEN selection criterion 
+#
+vars: den_upper_distance_cutoff
+info: DEN selection criterion 
+#
+vars: den_sequence_separation_limit
+info: DEN selection criterion 
+#
+vars: den_ndistance_ratio
+info: DEN selection criterion 
+#
+vars: den_gamma
+info: DEN gamma, should be between 0 and 1
+#
+vars: den_scale
+info: wden, weight for DEN energy term
+#
+vars: den_kappa
+info: kappa, should be between 0 and 1 (normally set to 0.1)
+#
+vars: relax_ncycle
+info: number of initial relaxation refinement cycles (with gamma and kappa set to zero)
+must be less or equal to the total number of cycles of refinement
+#
+vars: post_ncycle
+info: number of final refinement cycles (with wden set to zero)
+must be less or equal to the total number of cycles of refinement plus initial relaxation cycles
+#
+vars: den_minimum_start
+info: set initial DEN minimum to starting coordinates (normally set to true)
+#
+vars: den_exponent
+info: exponent for DEN distance potential
+#
+vars: geometry_min
+info: number of minimization steps to regularize the geometry prior to molecular dynamics
+#
+vars: full_vdw_cycles
+info: number of final refinement cycles with full van der Waals radii
+initial cycles will use 75% reduced radii
+#
+vars: torsion_infile
+info: torsion-angle MD topology modification file
+#
+vars: bfactor_mode
+info: B-factor minimization mode
+#
+vars: rweight
+info: weight for B-factor bond, angle, and NCS restraints
+#
+vars: bmin
+info: B-factor limit
+#
+vars: bmax
+info: B-factor limit
+#
+vars: bg_group_\d+
+info: define groups for "group" B-factor minimization mode.
+#
+vars: bd_group_\d+
+info: define atom selections of domains for "domain" B-factor minimization mode
+#
+vars: wa
+info: Wa weight for X-ray term
+#
+vars: fill_in
+info: use model amplitudes for unmeasured data
+#
+vars: peak_num
+info: number of peaks to pick from map
+#
+vars: defaults_file
+info: defaults file
+#

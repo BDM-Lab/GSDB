@@ -1,0 +1,141 @@
+<HTML>
+<HEAD>
+   <TITLE>Crystallography & NMR System</TITLE>
+</HEAD>
+<BODY BGCOLOR=#8ebf8e>
+
+<HR WIDTH="100%"></P>
+
+<H2>Electron density maps</H2>
+
+<HR WIDTH="100%">
+<h3>Display of CNS maps
+  
+</h3>
+<P>The CNS electron density map file contains information about the
+  unit cell, indexing of the map, and the actual electron density
+map. Maps written by CNS can be directly read by Coot. </P>
+<P>They can also be read by PyMOL, but the extension &quot;.map&quot; has to be renamed to &quot;.xplor&quot; prior to loading the map into PyMoL. After loading the map into PyMol, the may can be visualized using the isomesh command (e.g., isomesh newmap, &lt;map-object-name&gt;, &lt;contour-level&gt;).</P>
+<P>For O, the maps need to be converted into O format. If you have mapman installed, you can use the command</P>
+<pre>
+   map_to_omap *.map
+</pre>
+<p><br>
+  to convert the CNS maps to a format which can be read into O.</p>
+<HR WIDTH="100%">
+<h3>Format of CNS maps</h3>
+<P>The grid size of the map is determined by the GRID parameter in
+the FFT statement.</P>
+<P>The following lines show the beginning of a typical electron
+density map file:</P>
+
+<PRE>
+       2 !NTITLE 
+ REMARKS FILENAME=""                                                                                                                          
+ REMARKS DATE:18-Jun-98  12:24:08       created by user:                                                                            
+     30       4      12      15       5      10      16       2      12 
+0.40960E+02 0.18650E+02 0.22520E+02 0.90000E+02 0.90770E+02 0.90000E+02 
+ZYX 
+      0 
+-0.97086E+00-0.49927E+00-0.82774E+00-0.13491E+01-0.57034E+00-0.71253E-01 
+-0.19491E+00 0.61017E+00 0.10064E+01-0.22888E+01-0.94020E+00 0.77451E+00 
+ 0.57539E+00-0.31211E-01-0.27430E+00-0.36526E+00 0.34772E+00 0.81884E+00 
+-0.19954E+01-0.10117E+01 0.18038E+01 0.19008E+01 0.11886E+00-0.41646E+00 
+ 0.47560E-01 0.48855E+00 0.57606E+00-0.22320E+00-0.12787E+01 0.47590E+00
+
+....
+
+   -9999
+  0.2044E-09  0.9999E+00
+</PRE>
+
+<P>The following is a FORTRAN example of how to read the formatted
+(QFORM=.TRUE.) or unformatted (QFORM=.FALSE.) version of the electron
+density maps:</P>
+
+<PRE>
+C 
+C read title 
+
+      IF (QFORM) THEN 
+      READ(UNIT,'(/I8)',END=6,ERR=7) NTITLE 
+      IF (NTITLE .LE. 0) THEN 
+      READ( UNIT, '(A)',END=6,ERR=7) 
+      ELSE 
+      DO J = 1, NTITLE 
+      TITLE(J) = ' ' 
+      READ (UNIT, '(A)',END=6,ERR=7) TITLE(J) 
+      ENDDO 
+      ENDIF 
+      ELSE 
+      DO J=1,MXTITL 
+      TITLE(J)=' ' 
+      END DO 
+      READ(UNIT,END=6,ERR=7) NTITLE,(TITLE(J)(1:80),J=1,NTITLE) 
+      END IF 
+C 
+C read sectioning information 
+
+      IF (QFORM) THEN 
+      READ(U,'(9I8)',END=6,ERR=7) 
+     &  NA,AMIN,AMAX,NB,BMIN,BMAX,NC,CMIN,CMAX 
+      ELSE 
+      READ(U,END=6,ERR=7) 
+     &  NA,AMIN,AMAX,NB,BMIN,BMAX,NC,CMIN,CMAX 
+      END IF 
+C 
+C read unit cell constants in angstroms and degrees 
+      IF (QFORM) THEN 
+      READ(U,'(6E12.5)',END=6,ERR=7) (CELL(I),I=1,6) 
+      ELSE 
+      READ(U,END=6,ERR=7) (CELL(I),I=1,6) 
+      END IF 
+      END IF 
+C 
+C read matrix mode 
+      IF (QFORM) THEN 
+      READ(U,'(3A)',END=6,ERR=7) MODE 
+      ELSE 
+      READ(U,END=6,ERR=7) MODE 
+      END IF 
+      IF (MODE.NE.'ZYX') THEN 
+      CALL WRNDIE(-5,'RMAP','error in matrix mode') 
+      GOTO 7 
+      END IF 
+C           
+C read density matrix, c is slowest ("z-sections"). 
+      DO C=CMIN,CMAX 
+C 
+C read next section 
+      IF (QFORM) THEN 
+      READ(U,'(I8)',END=6,ERR=7) KSECT 
+      READ(U,'(6E12.5)',END=6,ERR=7) 
+     &  ((MAP(A,B,C),A=AMIN,AMAX),B=BMIN,BMAX) 
+      ELSE 
+      READ(U,END=6,ERR=7) KSECT 
+      READ(U,END=6,ERR=7) 
+     &  ((MAP(A,B,C),A=AMIN,AMAX),B=BMIN,BMAX) 
+      END IF
+C
+      END DO
+C
+C read average and scale factor for map
+      IF (QFORM) THEN 
+      READ(U,'(I8)',END=6,ERR=7) KSECT
+      READ(U,'(2(E12.4,1X))',END=6,ERR=7) RAVE, RSIGMA
+      ELSE 
+      READ(U,END=6,ERR=7) KSECT
+      READ(U,END=6,ERR=7) RAVE, RSIGMA
+      END IF	
+</PRE>
+
+<HR WIDTH="100%"></P>
+
+<A HREF="../../text.html">Back to tutorials</A>&nbsp;&nbsp;
+<A HREF="../reflections/text.html">Previous section</A>&nbsp;&nbsp;
+<A HREF="../masks/text.html">Next section</A>
+
+<HR WIDTH="100%"></P>
+
+</BODY>
+</HTML>

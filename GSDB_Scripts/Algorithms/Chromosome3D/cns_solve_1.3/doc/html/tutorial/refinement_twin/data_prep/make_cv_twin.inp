@@ -1,0 +1,181 @@
+{+ file: make_cv_twin.inp +}
+{+ directory: xtal_twin +}
+{+ description: Setup test array for cross-validation (free R) using a
+                random selection data with hemihedral twinning  +}
+{+ comment:
+            The test set is defined by 1 in the test set array.
+            The working set is defined by 0 in the test set array.
+            This script MUST be used for refinement of twinned structures.
+            Friedel mates are conserved for anomalous data.
+            The test set array can also be extended if it already 
+            exists in the data set.  In this case, a resolution range
+            or selection should be specified for the generation of 
+            the test set. +}
+{+ authors: Axel T. Brunger and Paul D. Adams +}
+{+ copyright: Yale University +}
+
+{+ reference: A.T. Brunger, The Free R Value: a Novel Statistical 
+              Quantity for Assessing the Accuracy of Crystal Structures, 
+              Nature 355, 472-474 (1992) +}
+ 
+{- Guidelines for using this file:
+   - all strings must be quoted by double-quotes
+   - logical variables (true/false) are not quoted
+   - do not remove any evaluate statements from the file -}
+
+{- begin block parameter definition -} define(
+
+{====================== crystallographic data ========================}
+
+{* space group *}
+{* use International Table conventions with subscripts substituted
+   by parenthesis *}
+{===>} sg="R3";
+
+{* unit cell parameters in Angstroms and degrees *}
+{+ table: rows=1 "cell" cols=6 "a" "b" "c" "alpha" "beta" "gamma" +}
+{===>} a=104.400;
+{===>} b=104.400;
+{===>} c=124.250;
+{===>} alpha=90;
+{===>} beta=90;
+{===>} gamma=120;
+
+{* reciprocal space array containing test set for cross-validation *}
+{* this array will be created if it does not already exist and 
+   defined for the selected reflections.  If it exists the 
+   test set will be (re)defined for the selected reflections. *}
+{===>} test_set="test";
+
+{* reflection file - to which test set array will be added *}
+{===>} reflection_infile="porin.hkl";
+
+{======================= twinning parameters =========================}
+
+{* twinning operation *}
+{===>} twin_oper="h,-h-k,-l";
+
+{======================= test set generation ==========================}
+
+{* To generate a new test set, use the whole resolution range and
+   select all reflections.  To extend a test array (e.g. to a higher 
+   resolution data set), use the xtal_util/merge.inp task file 
+   to merge the test set and the new diffraction data, and then use 
+   this task file to extend the test set. *}
+
+{* percentage of reflections to be used for TEST set - ie. 10% *}
+{===>} percentage=10.0;
+
+{* Resolution limits for generation of test set *}
+{* Normally, the full resolution range (or larger) of observed data
+   should be used. Use a restricted set when extending an existing test
+   array (e.g, to high resolution). *}
+{+ table: rows=1 "resolution" cols=2 "lowest" "highest" +}
+{===>} low_res=500.0;
+{===>} high_res=2.25;
+
+{* Additional selection for generation of test set *}
+{* Normally, select all reflections.  Specify this additional selection 
+   if the test set needs to be expanded for specific subset(s) of 
+   reflections. *}
+{===>} ref_sel=(all);
+
+{=========================== output files ============================}
+
+{* output reflection file *}
+{===>} reflection_outfile="porin.cv";
+
+{===========================================================================}
+{        things below this line do not normally need to be changed          }
+{===========================================================================}
+
+ ) {- end block parameter definition -}
+
+ checkversion 1.3
+
+ evaluate ($log_level=quiet)
+
+ xray
+
+   @CNS_XTALLIB:spacegroup.lib (sg=&sg;sgparam=$sgparam;)
+
+   a=&a b=&b c=&c  alpha=&alpha beta=&beta gamma=&gamma 
+
+   reflection @&reflection_infile end 
+     
+   set echo=off end 
+   if ( &BLANK%test_set = true ) then
+     display 
+     display  ***********************************
+     display  Error: test set array not specified
+     display  ***********************************
+     display
+     abort
+   else
+      query name=&STRIP%test_set domain=reciprocal end
+      if ( $object_exist = false ) then
+         declare name=&STRIP%test_set domain=reciprocal type=integer end
+         do ( &STRIP%test_set = 0 ) ( all )
+      else
+         {- test array can be of type INTEGER or REAL -}
+         if ( $object_type = "COMPLEX" ) then
+            display 
+            display ********************************************************
+            display Error : test set array &test_set has the wrong data type
+            display ********************************************************
+            display
+            abort
+        end if
+      end if
+   end if
+   set echo=on end
+
+   declare name=twin_sel domain=reciprocal type=integer end
+
+   do ( twin_sel=0 ) (all)
+   do ( twin_sel=1 ) ( &low_res >= d >= &high_res and &ref_sel )
+   do ( twin_sel=min(twin_sel,abs(remap[&STRIP%twin_oper](twin_sel))) ) 
+                         ( &low_res >= d >= &high_res and &ref_sel )
+
+   do ( &STRIP%test_set = 0 )
+      ( &low_res >= d >= &high_res and &ref_sel ) 
+   
+   anomalous ?
+   if ($result=FALSE) then
+      do (&STRIP%test_set=int(random()+&percentage/200.)) 
+             ( &low_res >= d >= &high_res and &ref_sel and twin_sel=1 ) 
+   else
+      {- make sure both Friedel mates are included for each test reflection -}
+      do (&STRIP%test_set=int(random()+&percentage/200.))  
+             ( centric  and &low_res >= d >= &high_res and &ref_sel and twin_sel=1 )
+      do (&STRIP%test_set=int(random()+&percentage/400.))  
+             ( acentric and &low_res >= d >= &high_res and &ref_sel and twin_sel=1 )
+      do (&STRIP%test_set=max(&STRIP%test_set,friedel(&STRIP%test_set)))
+             ( acentric and &low_res >= d >= &high_res and &ref_sel and twin_sel=1 ) 
+   end if   
+
+   {- make sure all twin related reflections are in the same set -}
+   do (&STRIP%test_set=max(&STRIP%test_set,
+                           abs(remap[&STRIP%twin_oper](&STRIP%test_set)))) 
+          ( &low_res >= d >= &high_res and &ref_sel and twin_sel=1 )
+
+   undeclare name=twin_sel domain=reciprocal end
+
+   set display=&reflection_outfile end
+
+ end 
+
+ @CNS_XTALMODULE:write_hkl_header (sg=&STRIP%sg;
+                                   sgparam=$sgparam;)
+
+ xray
+
+   write reflection 
+      output=&reflection_outfile
+   end  
+
+   set display=OUTPUT end
+
+ end
+
+ stop

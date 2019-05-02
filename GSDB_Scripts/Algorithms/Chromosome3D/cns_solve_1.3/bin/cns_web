@@ -1,0 +1,63 @@
+#!/bin/csh -f
+#
+# startup CNSsolve interface
+#
+# Written by: Paul Adams
+#
+# copyright Yale University
+#
+set program=$0
+set program=$program:t
+#
+foreach arg ( $argv[*] )
+  switch ( $arg )
+  case -help:
+    echo "usage: $program"
+    exit 0
+  default:
+    echo "$program -> unknown option $arg"
+    echo "usage: $program"
+    exit 1
+  endsw
+end
+#
+set page=$CNS_SOLVE/doc/html/cns_solve.html
+#
+set browser = ''
+which netscape >& /dev/null
+if ( ! $status ) then
+  set browser = 'netscape'
+endif
+which mozilla >& /dev/null
+if ( ! $status ) then
+  set browser = 'mozilla'
+endif
+which firefox >& /dev/null
+if ( ! $status ) then
+  set browser = 'firefox'
+endif
+if ( -d /Applications/Safari.app ) then
+  set browser = 'safari'
+endif
+#
+if ( "$browser" == "" ) then
+  echo "cns_web: no suitable browser found, exiting"
+  rm -f $tmpfile
+  exit 1
+endif
+#
+if ( "$browser" == "safari" ) then
+  osascript -e 'tell application "Safari" \
+      make new document with properties {URL:"file://'$page'"} \
+    end tell' > /dev/null
+else
+  $browser  -height 1000 \
+            -width 700 \
+            -remote "openURL(file:$page,new-window)" >& /dev/null
+#
+  if ( $status != 0 ) then
+    echo 'cns_web: starting' $browser
+    ($browser -height 1000 -width 700 $page &) >& /dev/null
+  endif
+endif
+#

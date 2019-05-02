@@ -1,0 +1,165 @@
+          ============================================================
+          |                                                          |
+          |            Crystallography & NMR System (CNS)            |
+          |                         CNSsolve                         |
+          |                                                          |
+          ============================================================
+           Version: 1.3
+           Status: General release
+          ============================================================
+           Written by: A.T.Brunger, P.D.Adams, G.M.Clore, W.L.DeLano,
+                       P.Gros, R.W.Grosse-Kunstleve,J.-S.Jiang,J.M.Krahn,
+                       J.Kuszewski, M.Nilges, N.S.Pannu, R.J.Read,
+                       L.M.Rice, G.F.Schroeder, T.Simonson, G.L.Warren.
+           Copyright (c) 1997-2010 Yale University
+          ============================================================
+           Running on machine: lewis4-r710-login-node223 (x86_64/Linux,64-bit)
+                               with 16 threads
+           Program started by: oeow39
+           Program started at: 16:08:10 on 05-Jul-2018
+          ============================================================
+
+ FFT3C: Using FFTPACK4.1
+
+ CNSsolve>remarks TIPSTEST1.INP 
+ CNSsolve>remarks This input file tests the minimum image periodic 
+ CNSsolve>remarks boundaries for TIP P molecules. 
+ CNSsolve>remarks By Charles Brooks 
+ CNSsolve>remarks ================= 
+ CNSsolve> 
+ CNSsolve>topology @CNS_TOPPAR:water.top end 
+ ASSFIL: file water.top opened.
+ RTFRDR>remarks file toppar/water.top 
+ RTFRDR>remarks   water topology for crystallographic structure determination 
+ RTFRDR>remarks   based on Jorgensen Tip3p water model 
+ RTFRDR> 
+ RTFRDR>set message ? end eval ($old_message=$result) set echo ? end eval ($old_echo=$result) 
+ MESSage=NORM
+ EVALUATE: symbol $OLD_MESSAGE set to "NORM" (string)
+ ECHO=TRUE {ON}
+ EVALUATE: symbol $OLD_ECHO set to TRUE (logical)
+ RTFRDR>set message=off echo=off end 
+ RTFRDR> 
+ RTFRDR> end 
+ CNSsolve>parameter @CNS_TOPPAR:water.param end 
+ ASSFIL: file water.param opened.
+ PARRDR>remarks file toppar/water.param 
+ PARRDR>remarks   water parameters for structure determination 
+ PARRDR>remarks 
+ PARRDR>remarks   available: Jorgensen TIPS3P model 
+ PARRDR> 
+ PARRDR>set message ? end eval ($old_message=$result) set echo ? end eval ($old_echo=$result) 
+ MESSage=NORM
+ EVALUATE: symbol $OLD_MESSAGE set to "NORM" (string)
+ ECHO=TRUE {ON}
+ EVALUATE: symbol $OLD_ECHO set to TRUE (logical)
+ PARRDR>set message=off echo=off end 
+ PARRDR> 
+ PARRDR> end 
+ CNSsolve>! 
+ CNSsolve>!  Set up a box of 125 water molecules 
+ CNSsolve>! 
+ CNSsolve>segment 
+ SEGMENT>   name=wat 
+ SEGMENT>   molecule 
+ MOLECULE>      name=TIP  number=125 
+ MOLECULE>   end 
+ SEGMENT>end 
+ Status of internal molecular topology database:
+ -> NATOM=        375(MAXA=     1000000)  NBOND=        250(MAXB=     1000000)
+ -> NTHETA=       125(MAXT=     2000000)  NGRP=         125(MAXGRP=   1000000)
+ -> NPHI=           0(MAXP=     2000000)  NIMPHI=         0(MAXIMP=   1000000)
+ -> NNB=            0(MAXNB=    1000000) 
+ CNSsolve> 
+ CNSsolve>coor 
+ COOR>ATOM      1  OH2 TIP     1      -5.760   3.278  -3.470  1.00  0.00      WAT 
+ COOR>ATOM      2  H1  TIP     1      -5.577   3.202  -2.533  1.00  0.00      WAT 
+ CNSsolve> 
+ CNSsolve> 
+ CNSsolve>! 
+ CNSsolve>! 
+ CNSsolve>!  Get the energy of this box without minimum image periodic boundaries 
+ CNSsolve>!  Use the correct cutoff for TIP P model. 
+ CNSsolve>! 
+ CNSsolve>{* right now the energy is computed in ENBOND as well as in ENTIPS *} 
+ CNSsolve> 
+ CNSsolve>parameter 
+ PARRDR>   nbonds 
+ NBDSET>      eps=1.0  cutnb=99.99  cdie   truncation  group 
+ NBDSET>   end 
+ PARRDR>end 
+ CNSsolve>flags   exclude angle bond     end 
+ CNSsolve> 
+ CNSsolve>energy end 
+ NBONDS: generating intra-molecular exclusion list with mode= 5
+ MAKINB: mode   5 found    375 exclusions and      0 interactions(1-4)
+ NBONDS: found    69750 intra-atom interactions
+ --------------- cycle=     1 --------------------------------------------------
+ | Etotal =-820.257   grad(E)=9.853      E(DIHE)=0.000      E(IMPR)=0.000      |
+ | E(VDW )=78.176     E(ELEC)=-898.432                                         |
+ -------------------------------------------------------------------------------
+ CNSsolve> 
+ CNSsolve>energy end 
+ --------------- cycle=     2 --------------------------------------------------
+ | Etotal =-820.257   grad(E)=9.853      E(DIHE)=0.000      E(IMPR)=0.000      |
+ | E(VDW )=78.176     E(ELEC)=-898.432                                         |
+ -------------------------------------------------------------------------------
+ CNSsolve> 
+ CNSsolve> 
+ CNSsolve>! 
+ CNSsolve>!  Now turn on minimum image convention 
+ CNSsolve>!  Use the correct cutoff for TIP P model. 
+ CNSsolve>! 
+ CNSsolve>xray 
+ XRAY>   a=15.5516 b=15.5516 c=15.5516 alpha=90. beta=90. gamma=90. 
+ XRAY>end 
+ CNSsolve>flags 
+ FLAGS>   include pvdw pele 
+ FLAGS>end 
+ CNSsolve>! 
+ CNSsolve>parameter 
+ PARRDR>   nbonds 
+ NBDSET>      cutnb=5.0 
+ NBDSET>   end 
+ PARRDR>end 
+ CNSsolve> 
+ CNSsolve>! 
+ CNSsolve>energy end 
+ NBONDS: generating intra-molecular exclusion list with mode= 5
+ MAKINB: mode   5 found    375 exclusions and      0 interactions(1-4)
+ NBONDS: found     6030 intra-atom interactions
+ NBONDS: found     3348 symmetry-atom interactions
+ --------------- cycle=     3 --------------------------------------------------
+ | Etotal =-1088.046  grad(E)=11.434     E(DIHE)=0.000      E(IMPR)=0.000      |
+ | E(VDW )=97.240     E(ELEC)=-872.921   E(PVDW)=24.902     E(PELE)=-337.267   |
+ -------------------------------------------------------------------------------
+ CNSsolve> 
+ CNSsolve>parameter 
+ PARRDR>   nbonds 
+ NBDSET>       cutnb=7.5 
+ NBDSET>   end 
+ PARRDR>end 
+ CNSsolve>! 
+ CNSsolve>energy end 
+ NBONDS: generating intra-molecular exclusion list with mode= 5
+ MAKINB: mode   5 found    375 exclusions and      0 interactions(1-4)
+ NBONDS: found    16826 intra-atom interactions
+ NBONDS: found    15799 symmetry-atom interactions
+ --------------- cycle=     4 --------------------------------------------------
+ | Etotal =-1178.661  grad(E)=12.144     E(DIHE)=0.000      E(IMPR)=0.000      |
+ | E(VDW )=81.641     E(ELEC)=-773.893   E(PVDW)=9.116      E(PELE)=-495.525   |
+ -------------------------------------------------------------------------------
+ CNSsolve>!!! this result doesn't quite match what a group-group minimum image 
+ CNSsolve>!!! calculation would produce.  The reason lies in the fact that 
+ CNSsolve>!!! the list is generated with the group-group minimum image 
+ CNSsolve>!!! convention but the energies are then computed with an atom-atom 
+ CNSsolve>!!! minimum image convention. 
+ CNSsolve>! 
+ CNSsolve>stop 
+          ============================================================
+           Maximum dynamic memory allocation:     8922160 bytes
+           Maximum dynamic memory overhead:          3680 bytes
+           Program started at: 16:08:10 on 05-Jul-2018
+           Program stopped at: 16:08:10 on 05-Jul-2018
+           CPU time used:       0.0180 seconds
+          ============================================================

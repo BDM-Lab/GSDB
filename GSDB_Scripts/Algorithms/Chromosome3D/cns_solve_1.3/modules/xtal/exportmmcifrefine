@@ -1,0 +1,958 @@
+! Module file: exportmmcifrefine
+!
+! CNS module
+! **********
+!
+! Author:    John Westbrook  
+!            Nucleic Acid Database Project
+!            Department of Chemistry
+!            Rutgers University 
+!            jwest@ndb.rutgers.edu
+!
+! Modified:  Paul Adams and Ralf Grosse-Kunstleve
+!            September, 1998
+!
+! Function:  Produces mmCIF information
+!
+!            This module populates the mmCIF categories describing
+!            the reflection data and refinement.
+!
+! copyright Yale University
+!
+
+module { exportmmcifrefine }
+(
+ &entry_id="cnsmmcif";   
+ &a=1;
+ &b=1;
+ &c=1;
+ &alpha=90;
+ &beta=90;
+ &gamma=90;
+
+ &sg="P1";
+ &sgparam;
+ 
+ &par_1="CNS_TOPPAR:protein_rep.pro";
+ &par_2=" ";
+ &par_3=" ";
+ &par_4=" ";
+ &par_5=" ";
+ &par_6=" ";
+ &par_7=" ";
+ &par_8=" ";
+
+ &top_1="CNS_TOPPAR:protein.top";
+ &top_2=" ";
+ &top_3=" ";
+ &top_4=" ";
+ &top_5=" ";
+ &top_6=" ";
+ &top_7=" ";
+ &top_8=" ";
+
+ &structure_file=" ";
+ &coordinate_file=" ";
+ &coordinate_file_wo_cv=" ";
+ &strict_ncs_file=" ";
+
+ &fobs;
+ &fcalc;
+ &fpart;
+ &sigma;
+ &test;
+ &test_flag;
+ &weight;
+
+ &use_orig_ref;
+ &fobs_orig;
+ &sigma_orig;
+
+ &ref_active;
+ &ref_test;
+ 
+ &anom_library="";
+
+ &cv_method=THROUGHOUT; { NONE|THROUGHOUT|A POSTERIORI }
+ &cv_select=RANDOM;     { RANDOM|SHELLS|SPHERES|EVERYnTH|OTHER }
+
+ &high_res=1;
+ &low_res=100;
+ &low_res_cut=5.;    { for coord. err. est., must be < = low_res}
+ &low_res_wilson=3.; { for Wilson plot, must be < = low_res}
+
+ &mbins=10; { number of equal volume reciprocal space bins }
+
+ &fft_memory=1600000; { memory for FFT calc. }
+
+ &sigcutf=2. ; { sigma cutoff on |F| }
+
+ &f_rms=10000.;  { outlier cutoff, refl. 
+                   with |Fobs| > f_rms*rms(Fobs) will be rejected. }
+
+ &focut_low;
+ &focut_high;
+
+ &bscale="no";      { "no", "isotropic",  or "anisotropic" } 
+ &aniso;            { compound variable containing aniso-B tensor }
+
+ &bulk_sol=false;   { true or false (type: logical). Bulk solvent correction. }
+
+ &bulk_mask="";     { mask for bulk solvent - from file if given, otherwise 
+                      from coords of atoms selected in xray (type: string) }
+ &ksol;             { solvent density level }
+ &bsol;             { solvent B factor }
+ &solrad;           { solvent probe radius -}                                   {- MODIFIED -}
+ &shrink;           { solvent shrink parameter -}                               {- MODIFIED -}
+
+ &bfactor=RESTRAINED; { RESTR or OVERALL or GROUP ! isotropic B-refinement}
+
+ &b_main_sel=( none ); { selection for main chain in B-sig calculations }
+ &bsig_main=1.5 ; { sigma used for restrained B refinement: bonds}
+ &asig_main=2.0;  { sigma used for restrained B refinement: angles}
+
+ &bsig_side=2.0;  { sigma used for restrained B refinement: side bonds}
+ &asig_side=2.5;  { sigma used for restrained B refinement: side angle}
+
+ &all_select=( known and not hydr ); { select all atoms used} 
+ &polymer_select=( not all );        { select all polymer atoms}
+ &water_select=( not all );          { select all water atoms}
+ &nonpolymer_select=( not all );     { select all non-polymer, ligand, 
+                                       heterogen or ions}
+
+ &sel_alt_conf=store6;
+
+ &list="xtal_mmcif.cif";       { output file name}
+ &list_sf="xtal_mmcif-sf.cif"; { output file name for experimental data}
+
+)
+
+checkversion 1.3
+
+set message ? end
+evaluate ($message_old=$result)
+set echo ? end
+evaluate ($echo_old=$result)
+if ( $log_level = verbose ) then
+  set echo=on message=normal end
+else
+  set echo=off message=off end
+end if
+
+evaluate ($display=&list) 
+set display=$display end
+
+{===================================================}
+{- Properties of the full reflection set           -}
+{===================================================}
+
+xray
+
+   show max (d) ( all )
+   evaluate ($low_res_all=$result) 
+   show min (d) ( all )
+   evaluate ($high_res_all=$result) 
+
+   show max (h) ( all )
+   evaluate ($hmax_all=$result)
+   show min (h) ( all )
+   evaluate ($hmin_all=$result)
+
+   show max (k) ( all )
+   evaluate ($kmax_all=$result)
+   show min (h) ( all )
+   evaluate ($kmin_all=$result)
+
+   show max (l) ( all )
+   evaluate ($lmax_all=$result)
+   show min (l) ( all )
+   evaluate ($lmin_all=$result)
+   
+   binresolution $low_res_all $high_res_all
+
+   show sum (1) ( $high_res_all <= d <= $low_res_all )
+   evaluate ($nreflns_all=$result)
+
+   if ( $high_res_all <= 3 ) then
+
+     @CNS_XTALMODULE:wilsonplot
+       (
+         bins=&mbins;          { number of bins for average    }
+         f1=&fobs;
+         sel=( ( &ref_active=1 ) and d <= &low_res_wilson );   {reflections selection}
+         disp=OUTPUT;          { display output filename       }
+         mess=LONG;            { SHORT | LONG display messages }
+         KW=$KW;               { Output: Wilson scale factor   }
+         BW=$BW;               { Output: Wilson B factor       }
+         atom_sel=&all_select;
+       )
+
+   end if
+
+   set display=$display end
+   display # 
+   display # mmCIF Generated by CNS module exportmmcifrefine (V $CNS_VERSION)
+   display #
+   display _reflns.entry_id                     &STRIP%entry_id
+   display _reflns.d_resolution_high            $high_res_all[f6.2]
+   display _reflns.d_resolution_low             $low_res_all[f6.2]    
+   display _reflns.limit_h_max                  $hmax_all    
+   display _reflns.limit_h_min                  $hmin_all       
+   display _reflns.limit_k_max                  $kmax_all       
+   display _reflns.limit_k_min                  $kmin_all       
+   display _reflns.limit_l_max                  $lmax_all       
+   display _reflns.limit_l_min                  $lmin_all    
+   display _reflns.number_all                   $nreflns_all
+   evaluate ($sigcutf = &sigcutf)
+   display _reflns.observed_criterion_sigma_F  $sigcutf[f4.1]
+   evaluate ($focut_low=&focut_low)
+   evaluate ($focut_high=&focut_high)
+   display _reflns.observed_criterion_F_max    $focut_high[f12.2] 
+   display _reflns.observed_criterion_F_min    $focut_low[f12.6] 
+   if ( $high_res_all <= 3 ) then
+     display _reflns.B_iso_Wilson_estimate       $bw[f5.1] 
+   end if
+   set display=OUTPUT end
+
+
+{========================================}
+{- Attributes of refinement             -}
+{========================================}
+
+   show min (d) ( d >= &high_res )
+   evaluate ($eff_high_res=$result-0.0001)
+
+   show max (d) ( d <= &low_res )
+   evaluate ($eff_low_res=$result+0.0001)
+
+   binresolution $eff_low_res $eff_high_res
+   
+   show sum(1) (&ref_active=1)
+   evaluate ($refine_nreflns_obs=$result)
+
+   statistics overall
+     completeness
+     selection=(&ref_active=1) 
+   end
+
+   evaluate ($pc_reflns_obs=($expression1*100))
+
+   evaluate ($refine_nreflns_all=(100/$pc_reflns_obs)*$refine_nreflns_obs)
+
+ end
+  
+ show min (q) (&all_select)
+ evaluate ($occ_min=$result) 
+
+ show max (q) (&all_select)
+ evaluate ($occ_max=$result) 
+
+ show ave ( b ) ( &all_select )
+ evaluate ( $b_iso_mean=$result )
+
+ show min ( b ) ( &all_select )
+ evaluate ( $b_iso_min=$result )
+
+ show max ( b ) ( &all_select )
+ evaluate ( $b_iso_max=$result )
+
+ set display=$display end
+   display #
+   display #
+   display _refine.entry_id                &STRIP%entry_id
+   display _refine.ls_number_reflns_all    $refine_nreflns_all
+   display _refine.ls_number_reflns_obs    $refine_nreflns_obs
+   display _refine.ls_percent_reflns_obs  $pc_reflns_obs[f6.1]
+
+   display _refine.ls_d_res_high         $eff_high_res[f6.2]
+   display _refine.ls_d_res_low          $eff_low_res[f6.2]
+   display _refine.B_iso_min             $b_iso_min[f6.2]
+   display _refine.B_iso_max             $b_iso_max[f6.2]
+   display _refine.B_iso_mean            $b_iso_mean[f6.2]
+   display _refine.occupancy_min         $occ_min[f6.2]
+   display _refine.occupancy_max         $occ_max[f6.2]
+   evaluate ($bscale=&bscale)
+   if ($bscale="anisotropic") then 
+         display _refine.aniso_B[1][1]                      $aniso.11[f6.2]
+         display _refine.aniso_B[2][2]                      $aniso.22[f6.2]
+         display _refine.aniso_B[3][3]                      $aniso.33[f6.2]
+         display _refine.aniso_B[1][2]                      $aniso.12[f6.2]
+         display _refine.aniso_B[1][3]                      $aniso.13[f6.2]
+         display _refine.aniso_B[2][3]                      $aniso.23[f6.2]
+   end if
+
+   evaluate ($weighting=false)
+   if ( &BLANK%weight = false ) then
+     xray
+       query name=&weight domain=reciprocal end
+       if ( $object_exist = true ) then
+         evaluate ($weighting=true)
+       end if
+     end
+   end if
+
+   if ($weighting=true) then
+      display _refine.ls_weighting_details 'CNS resolution-dependent weighting scheme used'
+   end if 
+
+   if (&bulk_sol=true) then
+      display _refine.solvent_model_param_bsol        &bsol
+      display _refine.solvent_model_param_ksol        &ksol
+      {- BEGIN MODIFICTION -}
+      display _refine.solvent_model_param_solrad      &solrad
+      display _refine.solvent_model_param_shrink      &shrink
+      {- END MODIFICATION -}
+      display _refine.solvent_model_details 'CNS bulk solvent model used'
+   end if
+   set display=OUTPUT end
+
+
+{- ================================================ -}
+{- COMPUTE R and FREE R VALUES                      -}
+
+xray
+
+  {- Compute the R and R(free) for reflections within
+     the observation criteria -}
+
+   mbins=1
+   binresolution $eff_low_res $eff_high_res
+
+   {- Test set size and percent of observed -}
+   show sum (1) ( &ref_active=1 and &ref_test=1 )
+   evaluate ($refine_nreflns_test=$result)
+   evaluate ($pc_ref_nreflns_test=100.0*
+                        $refine_nreflns_test/$refine_nreflns_obs)
+
+   {- R values -}
+   statistics overall
+     (sum(amplitude(&fobs)*amplitude(&fcalc+&fpart))
+     /sum(amplitude(&fcalc+&fpart)^2))
+     selection=( &ref_active=1 and &ref_test=0 )
+   end 
+   evaluate ($work_scale=$expression1)
+
+   display working set scale= $work_scale
+
+   statistics overall
+
+     (sum( abs(amplitude(&fobs) - ($work_scale*amplitude(&fcalc+&fpart))))
+            / sum(amplitude(&fobs)) )
+     selection=( &ref_active=1 and &ref_test=0 )
+   end
+   evaluate ($r_value=$expression1)  {- the working R value -} 
+
+   if ( $refine_nreflns_test > 0 ) then
+     statistics overall
+       (sum(amplitude(&fobs)*amplitude(&fcalc+&fpart))
+       /sum(amplitude(&fcalc+&fpart)^2))
+        selection=( &ref_active=1 and &ref_test=1 )
+     end 
+     evaluate ($test_scale=$expression1)
+     display test set scale= $test_scale
+
+     statistics overall
+
+       (sum( abs(amplitude(&fobs) - ($test_scale*amplitude(&fcalc+&fpart))))
+              / sum(amplitude(&fobs)) )
+       selection=( &ref_active=1 and &ref_test=1 )
+     end
+     {- the Free R value -}
+     evaluate ($r_free=$expression1)
+     {- estimated error -}
+     evaluate ($r_free_err=$r_free/sqrt($refine_nreflns_test))
+   else
+     evaluate ($r_free=0.0)
+     evaluate ($r_free_err=0.0) 
+   end if
+end
+
+set display=$display end
+display _refine.ls_R_factor_R_work                $R_value[f6.3]
+if ($refine_nreflns_test > 0) then
+  display _refine.ls_R_factor_R_free                $r_free[f6.3]
+  display _refine.ls_R_factor_R_free_error          $r_free_err[f6.3]
+  display _refine.ls_number_reflns_R_free           $refine_nreflns_test[i6]
+  display _refine.ls_percent_reflns_R_free          $pc_ref_nreflns_test[f5.1]
+end if
+
+{- ======================================================== -}
+{- Miscellaneous refinement information....                 -}
+
+show sum ( 1 ) ( &all_select )
+evaluate ( $natom=$result )
+
+{- protein atoms -}
+show sum ( 1 ) ( &polymer_select )
+evaluate ( $natom_polymer=$result )
+
+{- solvent atoms -}
+show sum ( 1 ) ( &water_select )
+evaluate ( $natom_water=$result )
+
+{- ligand atoms or ions -}
+show sum ( 1 ) ( &nonpolymer_select )
+evaluate ( $natom_nonpolymer=$result )
+
+
+display _refine.details
+display ;
+display  Cross-validation method:
+display  -> &CV_METHOD
+display
+display  Free R value test set selection criteria:
+display   -> &CV_SELECT
+display 
+display  Number of non-hydrogen atoms used in refinement.
+display  Polymer $natom_polymer[i5] Nonpolymer $natom_nonpolymer[i5] Solvent $natom_water[i5]
+display  
+display  CNS Parameter files:
+if (&par_1 # " " ) then
+   evaluate ($par_1=&par_1)
+   evaluate ($t=$par_1-"CNS_TOPPAR:")
+   if ($t # $par_1) then
+     evaluate ($par_1="CNS_TOPPAR/"+$t)
+   end if
+   display   $par_1
+end if
+if (&par_2 # " " ) then
+   evaluate ($par_2=&par_2)
+   evaluate ($t=$par_2-"CNS_TOPPAR:")
+   if ($t # $par_2) then
+     evaluate ($par_2="CNS_TOPPAR/"+$t)
+   end if
+   display   $par_2
+end if
+if (&par_3 # " " ) then
+   evaluate ($par_3=&par_3)
+   evaluate ($t=$par_3-"CNS_TOPPAR:")
+   if ($t # $par_3) then
+     evaluate ($par_3="CNS_TOPPAR/"+$t)
+   end if
+   display   $par_3
+end if
+if (&par_4 # " " ) then
+   evaluate ($par_4=&par_4)
+   evaluate ($t=$par_4-"CNS_TOPPAR:")
+   if ($t # $par_4) then
+     evaluate ($par_4="CNS_TOPPAR/"+$t)
+   end if
+   display   $par_4
+end if
+if (&par_5 # " " ) then
+   evaluate ($par_5=&par_5)
+   evaluate ($t=$par_5-"CNS_TOPPAR:")
+   if ($t # $par_5) then
+     evaluate ($par_5="CNS_TOPPAR/"+$t)
+   end if
+   display   $par_5
+end if
+if (&par_6 # " " ) then
+   evaluate ($par_6=&par_6)
+   evaluate ($t=$par_6-"CNS_TOPPAR:")
+   if ($t # $par_6) then
+     evaluate ($par_6="CNS_TOPPAR/"+$t)
+   end if
+   display   $par_6
+end if
+if (&par_7 # " " ) then
+   evaluate ($par_7=&par_7)
+   evaluate ($t=$par_7-"CNS_TOPPAR:")
+   if ($t # $par_7) then
+     evaluate ($par_7="CNS_TOPPAR/"+$t)
+   end if
+   display   $par_7
+end if
+if (&par_8 # " " ) then
+   evaluate ($par_8=&par_8)
+   evaluate ($t=$par_8-"CNS_TOPPAR:")
+   if ($t # $par_8) then
+     evaluate ($par_8="CNS_TOPPAR/"+$t)
+   end if
+   display   $par_8
+end if
+
+display  CNS Topology files:
+if (&top_1 # " " ) then
+   evaluate ($top_1=&top_1)
+   evaluate ($t=$top_1-"CNS_TOPPAR:")
+   if ($t # $top_1) then
+     evaluate ($top_1="CNS_TOPPAR/"+$t)
+   end if
+   display   $top_1
+end if
+if (&top_2 # " " ) then
+   evaluate ($top_2=&top_2)
+   evaluate ($t=$top_2-"CNS_TOPPAR:")
+   if ($t # $top_2) then
+     evaluate ($top_2="CNS_TOPPAR/"+$t)
+   end if 
+   display   $top_2
+end if
+if (&top_3 # " " ) then
+   evaluate ($top_3=&top_3)
+   evaluate ($t=$top_3-"CNS_TOPPAR:")
+   if ($t # $top_3) then
+     evaluate ($top_3="CNS_TOPPAR/"+$t)
+   end if 
+   display   $top_3
+end if
+if (&top_4 # " " ) then
+   evaluate ($top_4=&top_4)
+   evaluate ($t=$top_4-"CNS_TOPPAR:")
+   if ($t # $top_4) then
+     evaluate ($top_4="CNS_TOPPAR/"+$t)
+   end if
+   display   $top_4
+end if
+if (&top_5 # " " ) then
+   evaluate ($top_5=&top_5)
+   evaluate ($t=$top_5-"CNS_TOPPAR:")
+   if ($t # $top_5) then
+     evaluate ($top_5="CNS_TOPPAR/"+$t)
+   end if
+   display   $top_5
+end if
+if (&top_6 # " " ) then
+   evaluate ($top_6=&top_6)
+   evaluate ($t=$top_6-"CNS_TOPPAR:")
+   if ($t # $top_6) then
+     evaluate ($top_6="CNS_TOPPAR/"+$t)
+   end if
+   display   $top_6
+end if
+if (&top_7 # " " ) then
+   evaluate ($top_7=&top_7)
+   evaluate ($t=$top_7-"CNS_TOPPAR:")
+   if ($t # $top_7) then
+     evaluate ($top_7="CNS_TOPPAR/"+$t)
+   end if
+   display   $top_7
+end if
+if (&top_8 # " " ) then
+   evaluate ($top_8=&top_8)
+   evaluate ($t=$top_8-"CNS_TOPPAR:")
+   if ($t # $top_8) then
+     evaluate ($top_8="CNS_TOPPAR/"+$t)
+   end if
+   display   $top_8
+end if
+
+display ;
+
+
+if ( &mbins > 1) then
+   display #
+   display #
+   display loop_
+   display _refine_ls_shell.d_res_high
+   display _refine_ls_shell.d_res_low 
+   display _refine_ls_shell.number_reflns_all 
+   display _refine_ls_shell.number_reflns_obs
+   display _refine_ls_shell.number_reflns_R_work  
+   display _refine_ls_shell.percent_reflns_obs      
+   display _refine_ls_shell.R_factor_R_work       
+   if ($refine_nreflns_test > 0) then
+      display _refine_ls_shell.R_factor_R_free   
+      display _refine_ls_shell.R_factor_R_free_error
+      display _refine_ls_shell.number_reflns_R_free
+      display _refine_ls_shell.percent_reflns_R_free
+   end if
+
+   set display=OUTPUT end
+   set display=$display end
+
+   xray
+     {- Evaluate over resolution shells -}
+
+     {- Calculate the volume for each shell -}
+     mbins=1
+     evaluate ($vshell=((1.0/$eff_low_res)^3-(1.0/$eff_high_res)^3)/&mbins)
+
+     evaluate ($shell=0)  
+     evaluate ($sh_high_res=$eff_high_res)
+     while ($shell < &mbins) loop 1shells
+        evaluate ($shell = $shell + 1)
+        evaluate ($sh_low_res=1.0/((1.0/$eff_high_res)^3 +
+                     ($vshell*$shell))^(1/3))
+
+        evaluate ($eff_sh_high_res=$sh_high_res-0.0001)
+        evaluate ($eff_sh_low_res=$sh_low_res+0.0001)
+        binresolution $eff_sh_low_res  $eff_sh_high_res
+
+        {- percentage completeness in this bin -}
+        statistics overall
+          completeness
+          selection=($sh_low_res >= d >= $sh_high_res and &ref_active=1) 
+        end
+        evaluate ($sh_pc_reflns=($expression1*100))
+
+        {- Number of reflections in this resolution shell -}
+        {- within the observation criteria-}
+        show sum (1) ($sh_high_res <= d <= $sh_low_res and &ref_active=1 )
+        evaluate ($sh_nreflns_obs=$select)
+
+        {- Number of geometrically observable reflections in 
+           this resolution shell. -}
+        evaluate ($sh_nreflns_all=(100/$sh_pc_reflns)*$sh_nreflns_obs)
+
+        {- Number of reflections in this resolution shell -}
+        {- within the observation criteria (Working set) -}
+        show sum (1) ($sh_high_res <= d <= $sh_low_res and 
+                      &ref_active=1 and &ref_test=0)
+        evaluate ($sh_nreflns_r_work=$select)
+
+        {- Number of reflections in this resolution shell -}
+        {- within the observation criteria (Test set) -}
+        show sum (1) ($sh_high_res <= d <= $sh_low_res and
+                      &ref_active=1 and &ref_test=1)
+        evaluate ($sh_nreflns_r_test=$select)
+
+        {- Compute the R and R(free) for this shell-}
+        mbins=1
+        statistics
+           output=OUTPUT
+           (sum( abs(amplitude(&fobs)-($work_scale*amplitude(&fcalc+&fpart))))
+                 / sum( amplitude(&fobs)) )
+           selection=($sh_high_res <= d <= $sh_low_res and 
+                      &ref_active=1 and &ref_test=0)
+        end
+        evaluate ($sh_r_work=$expression1)  
+
+        if ( $sh_nreflns_r_test > 0 ) then
+           evaluate($sh_pc_nreflns_test=100.0 *
+                       $sh_nreflns_r_test/$sh_nreflns_obs)
+           statistics
+              output=OUTPUT
+              (sum( abs(amplitude(&fobs)-($test_scale*
+                                  amplitude(&fcalc+&fpart))))
+                  / sum( amplitude(&fobs)) )
+              selection=($sh_high_res <= d <= $sh_low_res and 
+                         &ref_active=1 and &ref_test=1)
+           end
+           evaluate ($sh_r_free=$expression1)
+           evaluate ($sh_r_free_err=$sh_R_free/sqrt($sh_nreflns_r_test))
+        else
+          evaluate ($sh_r_free=0.0)
+          evaluate ($sh_r_free_err=0.0) 
+        end if
+        buffer store
+          display $sh_high_res[f6.2] $sh_low_res[f6.2] $sh_nreflns_all[i6] \
+$sh_nreflns_obs[i6] $sh_nreflns_r_work[i6]  \
+$sh_pc_reflns[f5.1] $sh_r_work[f6.3] 
+        end
+        if ($sh_nreflns_r_test > 0) then 
+          buffer store
+            concatenate $sh_r_free[f6.3] $sh_r_free_err[f6.3] \
+$sh_nreflns_r_test[i6] $sh_pc_nreflns_test[f5.1]
+          end
+        end if
+        set display=$display end	
+        buffer store 
+          to=display
+	  flush
+        end
+        set display=OUTPUT end	
+        evaluate ($sh_high_res=$sh_low_res)
+     end loop 1shells
+  end
+end if  
+
+
+set display=$display end	
+{- ================================================ -}
+{- Estimate coordinates error by using Luzzati Plot -}
+
+xray
+   set echo=off end
+   set mess=off end
+
+   @CNS_XTALMODULE:luzzaticoorderr
+     (
+       bins=&mbins;          { number of bins for average    }
+       fobs=&fobs;           { first data set                }
+       fcalc=&fcalc;         { second data set               }
+       fpart=&fpart;         { second data set               }
+       low=&low_res_cut;     { low resolution limit          }
+       high=$eff_high_res;   { high resolution limit         }
+       sel=(&ref_active=1 and &ref_test=0 and &low_res_cut >= d );
+                             { reflections selection         }
+       disp=OUTPUT;          { display output filename       }
+       mess=SHORT;           { SHORT | LONG display messages }
+       ESDERR_LUZ=$esderr_luz;
+                             { Output: symbol for coord. err.}
+     )
+
+   if ( $refine_nreflns_test > 0 ) then
+     {- make sure there are at least 25 reflections in each test bin -}
+     evaluate ($mbins_luzzati=int(min(&mbins,$refine_nreflns_test/25)))
+
+     if ($mbins_luzzati >= 3) then
+    
+        @CNS_XTALMODULE:luzzaticoorderr
+        (
+          bins=$mbins_luzzati;  { number of bins for average    }
+          fobs=&fobs;           { first data set                }
+          fcalc=&fcalc;         { second data set               }
+          fpart=&fpart;
+          low=&low_res_cut;     { low resolution limit          }
+          high=$eff_high_res;   { high resolution limit         }
+          sel=(&ref_active=1 and &ref_test=1 and &low_res_cut >= d );
+                                { reflections selection         }
+          disp=OUTPUT;          { display output filename       }
+          mess=SHORT;           { SHORT | LONG display messages }
+          ESDERR_LUZ=$esderr_luz_cv;  
+                                { Output: symbol for coord. err.}
+        )
+      else
+         evaluate ($esderr_luz_cv=-0.001)
+      end if
+   else
+     evaluate ($esderr_luz_cv=-0.001)
+   end if
+
+   set echo=on end
+   set mess=on end
+
+{- ================================================ -}
+{- Estimate coordinates error by using  SIGMAA      -}
+
+   set echo=off end
+   set mess=off end
+
+   @CNS_XTALMODULE:sigmaacoorderr
+     (
+       bins=&mbins;          { number of bins for output     }
+       fobs=&fobs;           { first data set                }
+       fcalc=&fcalc;         { second data set               }
+       fpart=&fpart;         { second data set               }
+       sel=(&ref_active=1 and &ref_test=0 and &low_res_cut >= d );
+                             { reflections selection         }
+       disp=OUTPUT;          { display output filename       }
+       mess=SHORT;           { SHORT | LONG display messages }
+       ESDERR_SIGMAA=$esderr_sigmaa;  
+                             { Output: symbol for coord. err.}
+     )
+   if ( $refine_nreflns_test > 0 ) then 
+     {- make sure there are at least 25 reflections in each test bin -}     
+     evaluate ($mbins_sigmaa=int(min(&mbins,$refine_nreflns_test/25)))
+     if ($mbins_sigmaa >= 3) then
+         @CNS_XTALMODULE:sigmaacoorderr
+         (
+         bins=$mbins_sigmaa;   { number of bins for output     }
+         fobs=&fobs;           { first data set                }
+         fcalc=&fcalc;         { second data set               }
+         fpart=&fpart;         { second data set               }
+         sel=(&ref_active=1 and &ref_test=1 and &low_res_cut >= d );
+                               { reflections selection         }
+         disp=OUTPUT;          { display output filename       }
+         mess=SHORT;           { SHORT | LONG display messages }
+         ESDERR_SIGMAA=$esderr_sig_cv;  
+                               { Output: symbol for coord. err.}
+         )
+
+     else
+       evaluate ($ESDERR_SIG_CV=-0.001)
+     end if
+
+     set echo=on end
+     set mess=on end
+     
+   else
+     evaluate ($ESDERR_SIG_CV=-0.001)
+
+   end if
+   
+end
+evaluate ($low_res_cut=&low_res_cut)
+
+display #
+display #
+display _refine_analyze.entry_id                        &STRIP%entry_id
+display _refine_analyze.Luzzati_d_res_low_obs           $low_res_cut[f5.2]
+display _refine_analyze.Luzzati_d_res_high_obs          $eff_high_res[f5.2]
+display _refine_analyze.Luzzati_coordinate_error_obs    $esderr_luz[f5.2]
+display _refine_analyze.Luzzati_sigma_a_obs             $esderr_sigmaa[f5.2]
+
+if ($ESDERR_LUZ_CV > 0.0) then
+display _refine_analyze.Luzzati_coordinate_error_free   $esderr_luz_cv[f5.2]
+end if
+if ($ESDERR_SIG_CV > 0.0) then
+display _refine_analyze.Luzzati_sigma_a_free            $esderr_sig_cv[f5.2]
+end if
+
+{ read coordinates after very final refinement without cross-validation }
+if (&coordinate_file_wo_cv # " " ) then
+   coord init end
+   coord @@&coordinate_file_wo_cv
+end if    
+
+{- ============================================== -}
+{- Geometrical r.m.s. deviations from ideality    -}
+
+show max ( &sel_alt_conf ) ( &all_select )
+evaluate ($nalt=$result)
+igroup
+    interaction ( &all_select and not(attr &sel_alt_conf > 0))
+                 ( &all_select and not(attr &sel_alt_conf > 0))
+     evaluate ($alt=1)
+     while ( $alt <= $nalt ) loop alcs
+       interaction ( &all_select and ( attr &sel_alt_conf = $alt or 
+                                       attr &sel_alt_conf = 0 ))
+                 ( store1 and ( attr &sel_alt_conf = $alt ))
+       evaluate ($alt=$alt+1)
+     end loop alcs
+end
+
+print threshold=0.1 bonds
+evaluate ($rmsd_bond=$result)
+
+print threshold=20.0 angles  
+evaluate ($rmsd_angl=$result)
+
+print threshold=30.0 impropers 
+evaluate ($rmsd_impr=$result)
+
+print threshold=60.0 dihedral 
+evaluate ($rmsd_dihe=$result)
+
+xray
+   optimize bfactors nstep=-1  { negative step for analysis only }
+      {- for main-chain atoms -}
+      bsigma=&b_main_sel=&bsig_main
+      asigma=&b_main_sel=&asig_main 
+      {- for side-chain atoms -}
+      bsigma=( not &b_main_sel )=&bsig_side 
+      asigma=( not &b_main_sel )=&asig_side 
+   end
+   evaluate ($brms_main=$brms_bond_1)                                        
+   evaluate ($arms_main=$brms_angl_1)                                        
+   evaluate ($brms_side=$brms_bond_2)                                        
+   evaluate ($arms_side=$brms_angl_2)     
+                                      
+end
+
+display #
+display #
+display loop_
+display _refine_ls_restr.type
+display _refine_ls_restr.dev_ideal
+display _refine_ls_restr.dev_ideal_target
+display  'x_bond_d'           $rmsd_bond[f6.3]    .
+display  'x_angle_deg'        $rmsd_angl[f4.1]    .
+display  'x_torsion_deg'      $rmsd_dihe[f5.1]    .
+display  'x_torsion_impr_deg' $rmsd_impr[f5.2]    .
+
+evaluate ($b_info=FALSE)
+if (&bfactor="RESTRAINED") then
+   if ($natom_polymer > 0) then
+      evaluate ($b_info=TRUE)
+   end if
+end if
+
+if ($b_info=TRUE) then
+   evaluate ($bsig_main=&bsig_main)
+   evaluate ($asig_main=&asig_main)
+   evaluate ($bsig_side=&bsig_side)
+   evaluate ($asig_side=&asig_side)
+   display  'x_mcbond_it'    $brms_main[f6.2]  $bsig_main[f6.2]
+   display  'x_mcangle_it'   $arms_main[f6.2]  $asig_main[f6.2]
+   display  'x_scbond_it'    $brms_side[f6.2]  $bsig_side[f6.2]
+   display  'x_scangle_it'   $arms_side[f6.2]  $asig_side[f6.2]
+
+display #
+display #
+
+!
+!  Need code to differentiate how the model may be applied 
+!  to different classes.  
+!
+   display loop_
+   display _refine_B_iso.class         
+   display _refine_B_iso.treatment     
+   if ($natom_polymer > 0) then
+      display 'polymer' isotropic
+   end if 
+   if ($natom_water  > 0) then
+      display 'water' isotropic
+   end if 
+   if ($natom_nonpolymer > 0) then
+      display 'nonpolymer' isotropic
+   end if 
+
+end if
+
+
+evaluate ($display=&list_sf) 
+set display=$display end
+
+display #
+display #
+evaluate ($db_name=&entry_id + "-sf")
+display data_$db_name
+display #
+
+{* ============================================== *}
+
+xray
+  query name=&STRIP%fobs domain=reciprocal end
+  if ( $object_type = complex ) then
+    eval($valampl=true)
+  else
+    eval($valampl=false)
+  end if
+
+  declare name=const1  domain=reciprocal type=integer end      
+  declare name=refstat domain=reciprocal type=integer end      
+  do (const1=1) (all)             
+  do (refstat=0) (all)
+  do (refstat=1) (&ref_active=1 and &ref_test=0)
+  do (refstat=2) (&ref_active=1 and &ref_test=1)
+  do (refstat=3) (&ref_active=0)
+  do (refstat=4) (d >  &low_res)
+  do (refstat=5) (d < &high_res)
+  write reflection
+    output=$display
+    star label="_refln.index_h"          object=h end
+    star label="_refln.index_k"          object=k end
+    star label="_refln.index_l"          object=l end
+    if ( &use_orig_ref = true ) then
+      star label="_refln.F_meas_au"        object=&STRIP%fobs_orig
+        if ($valampl=true) then
+          value=amplitude end
+        end if
+      end
+      star label="_refln.F_meas_sigma_au"  object=&STRIP%sigma_orig end
+    else
+      star label="_refln.F_meas_au"        object=&STRIP%fobs
+        if ($valampl=true) then
+          value=amplitude end
+        end if
+      end
+      star label="_refln.F_meas_sigma_au"  object=&STRIP%sigma end
+    end if
+    star label="_refln.status"           object=refstat
+      translate
+        0="x"
+        1="o"
+        2="f"
+        3="<"
+        4="l"
+        5="h"
+      end
+    end
+    star label="_refln.wavelength_id"    object=const1 end
+    star label="_refln.crystal_id"       object=const1 end
+    star label="_refln.scale_group_code" object=const1 end
+  end
+  undeclare name=refstat domain=reciprocal end      
+  undeclare name=const1  domain=reciprocal end
+end
+
+display #
+display #
+
+evaluate ($display=&list) 
+set display=$display end   
+
+set message=$message_old echo=$echo_old end

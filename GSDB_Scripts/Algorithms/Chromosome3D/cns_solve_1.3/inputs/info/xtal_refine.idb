@@ -1,0 +1,760 @@
+###############################################################################
+# Parameter names matched in common.idb:
+#     a
+#     b
+#     c
+#     alpha
+#     beta
+#     gamma
+#     anom_library
+#     bscale
+#     coordinate_infile
+#     coordinate_infile_\d+
+#     fft_memory
+#     grid
+#     high_res
+#     low_res_bscale
+#     low_res
+#     obs_f
+#     obs_fom
+#     obs_i
+#     obs_pa
+#     obs_pb
+#     obs_pc
+#     obs_pd
+#     obs_phase
+#     obs_rms
+#     obs_sigf
+#     obs_sigi
+#     obs_type
+#     obs_w
+#     coordinate_outfile
+#     parameter_infile_\d+
+#     reflection_infile_\d+
+#     sg
+#     sigma_cut
+#     structure_infile
+#     test_flag
+#     test_set
+#     output_root
+#     bulk_mask_infile
+#     restraints_infile
+#     ncs_infile
+#     list_outfile
+#     atom_select
+#     write_map
+#     atom_main
+#     bulk_sol
+#     map_format
+#     map_mode
+#     sol_b
+#     sol_k
+#     target_bins
+#     xmax
+#     xmin
+#     ymax
+#     ymin
+#     zmax
+#     zmin
+#     asig_main
+#     asig_side
+#     bsig_main
+#     bsig_side
+#     minimize_nstep
+#     num_cycles
+#     pdb_o_format
+#     reftarget
+#     structure_outfile
+#     atom_fixed
+#     atom_harm
+#     atom_map
+#     atom_rigid
+#     bfactor_nstep
+#     constant_steps
+#     cool_rate
+#     k_harmonic
+#     map_cushion
+#     map_scale
+#     map_type
+#     md_scheme
+#     md_type
+#     num_trials
+#     peak_search
+#     reset_b
+#     rigid_nstep
+#     seed
+#     temperature
+#     torsion_maxbond
+#     torsion_maxchain
+#     torsion_maxlength
+#     torsion_maxtree
+#     u
+#     v
+#     r_group_\d+
+#     conf_\d+
+#     anneal
+###############################################################################
+#
+vars: init_min
+info: Initial number of steps of conjugrate gradient energy
+minimization. This minimization is performed with the X-ray energy
+term on and is normally used to correct initial problems with model
+geometry after rebuilding, prior to entering simulated annealing
+refinement. The number of steps of initial minimization should be
+between 10 and 200 depending on the starting model.
+#
+vars: geometry_min
+info: Number of steps of geometry regularization to be performed
+before torsion angle molecular dynamics. This is performed to
+regularize the model geometry such that close to ideal bond lengths
+and angles are obtained. This is necessary because the bond lengths
+and angles are constrained (fixed) during the subsequent dynamics. An
+harmonic restraint is placed on the coordinates so that they do not
+move a significant distance from their starting positions.
+#
+vars: final_dyn
+info: Number of steps of final molecular dynamics. After the simulated
+annealing stage a short molecular dynamics run is performed at low
+temperature (300K). For some parameter sets the atomic radii are
+shrunk slightly during the simulated annealing stage to facilitate the
+crossing of energy barriers. This final dynamics stage uses the normal
+atomic radii.
+#
+vars: final_min
+info: Number of steps of final conjugate gradient energy
+minimization. After the simulated annealing refinement and the final
+low temperature molecular dynamics, energy minimization is
+performed. This final minimization is repeated twice with an update of
+the error model and crystallographic weight between the two.
+#
+vars: wa
+info: Weight between crystallographic and geometric energy terms. The
+crystallographic term is not on an absolute scale and therefore must
+be scaled appropriately to be consistant with the geometric energy
+term (which is on an absolute scale). The gradients arising from both
+energy terms are calculated and the root-mean-squares for each
+calculated. The weight Wa is calculated:
+<UL>
+<LI>Wa = RMSF(geometry)/2*RMSF(Xray)</LI>
+</UL>
+The value of Wa is highly dependent on the crystallographic target
+function. Values in the range of 1 to 50 are expected for the maximum
+likelihood targets. Values of 10000 or more are expected for the least
+squares targets. For the maximum likelihood targets the value of Wa
+decreases as the model improves.  For the least-squares targets the
+value of Wa increases as the model improves.
+#
+vars: bd_group_\d+
+info: Atom selection identifying atoms which form domains
+(eg. separate molecules or subdomains) for domain B-value
+refinement. For each domain or set of atoms selected the overall
+B-value will be refined. Atom selections for different domains should
+be non-overlapping.
+#
+vars: bmin
+info: Minimum B-value allowed during B-value refinement. 
+#
+vars: bmax
+info: Maximum B-value allowed during B-value refinement.
+#
+vars: bg_group_\d+
+info: Atom selection identifying atoms which form groups (eg. protein
+mainchain and protein sidechain) for grouped B-value refinement. For
+each residue the overall B-value for each group will be refined.
+#
+vars: rweight
+
+info: The weight between the crystallographic target and the B-value
+restaints during restrained atomic B-value refinement. If positive the
+weight will be set to that value. If negative the weight will be
+calculated automatically by the program, this is the recommended
+value. Restraints are applied such that bonded atoms and atoms sharing
+a common angle are restrained to have similar B-values. The
+crystallographic term is not on an absolute scale and therefore must
+be scaled to be in the same range as the restraint term. The gradients
+arising from both energy terms are calculated and the
+root-mean-squares for each calculated. The weight is calculated:
+<UL>
+<LI>Rweight = RMSF(B-restraint)/RMSF(Xray)</LI>
+</UL>
+#
+vars: percent_omit
+info: Maximum percentage of the molecule to be omitted during a
+composite omit map calculation. This value is used to calculate the
+size of an omit cube which is systematically moved around the
+molecule. The calculation of the cube dimensions uses an approximation
+based on macromolecular density and therefore the maximum percentage
+omitted may be slightly bigger or smaller than the input value. The
+percentage omitted will vary greatly for each cube (empty cubes are
+ignored).
+#
+vars: fill_in
+info: Use amplitudes and phases from the model for missing
+reflections. For any missing data (either unobserved or rejected by
+outlier cutoffs) the model amplitudes and phases are used (this is DFc
+in the case of SigmaA weighting).
+#
+vars: mini_steps
+info: Number of conjugate gradient minimization steps.
+#
+vars: refine_low_res
+info: Low resolution limit for simulated annealing omit
+refinement. This must numerically less than or equal to the map
+resolution. In general all data should be included in refinement and
+map calculation. The use of all data requires the application of a
+bulk solvent correction.
+#
+vars: real_r
+info: Calculate real-space R-values and correlation coefficients
+between the current model and the electron density map. After the
+electron density map has been calculated, model density is calculated
+around the atomic model. The real-space correlation coefficient is
+then calculated between the two maps for the density points in the
+vicinity of each residue (a local mask is applied for each residue in
+turn). The correlation coefficient is listed for each residue. The
+real-space R-value listed is 1-correlation.
+#
+vars: peak_num
+info: The number of positive and negative electron density peaks to be
+picked from the map.
+#
+vars: write_coeff
+info: Write map coefficients as reciprocal space objects. The
+coefficients are written in the reciprocal space object
+<TT>map_coeff</TT>. Fourier transformation of this array gives the
+electron density map:
+<UL>
+<LI>map=FT(map_coeff)</LI>
+</UL>
+Also written are the FOM weighting and phases used for the observed
+data and the scale factor applied to the calculated data.
+#
+vars: obs_f1
+info: Reciprocal space object containing observed amplitudes.
+#
+vars: obs_sigf1
+info: Reciprocal space object containing sigma values for observed amplitudes.
+#
+vars: obs_f2
+info: Reciprocal space object containing observed amplitudes.
+#
+vars: obs_sigf2
+info: Reciprocal space object containing sigma values for observed amplitudes.
+#
+vars: anom_group_\d+
+info: Atom selection identifying atoms which have the same anomalous
+scatterer (eg. all seleniums in a structure). For each set of atoms
+selected the values of f' and f'' will be refined. Atom selections for
+different scatterers should be non-overlapping. The refinement of f'
+and f'' requires that anomalous diffraction data be input.
+#
+vars: anom_nstep
+info: Number of steps of f'/f'' conjugate gradient minimization.
+#
+vars: fp_min
+info: Minimum value of f' allowed during f' refinement.
+#
+vars: fp_max
+info: Maximum value of f' allowed during f' refinement.
+#
+vars: fdp_min
+info: Minimum value of f'' allowed during f'' refinement.
+#
+vars: fdp_max
+info: Maximum value of f'' allowed during f'' refinement.
+#
+vars: anomlib_outfile
+info: Output anomalous library file. This will contain the definition
+of f' and f'' for the selected anomalous scatterers. The file has the
+format:
+<PRE>
+  do (scatter_fp=1.15) ( chemical SE )
+  do (scatter_fdp=-5)  ( chemical SE )
+</PRE>
+#
+vars: map_amplitude
+info: Reciprocal space array which contains the amplitudes that will
+be used to calculate the map. This array can be of type real or
+complex. In general the coefficients output from a previous map
+calculation are used, so the array name will be map_coeff.
+#
+vars: map_phase
+info: Reciprocal space array which contains the phases that will be
+used to calculate the map. This array must be of type complex. In
+general the coefficients output from a previous map calculation are
+used, so the array name will be map_coeff.
+#
+vars: map_fom
+info: Reciprocal space array which contains figures of merit for
+weighting the amplitudes. This array must be of type real. This is not
+required when using map coefficients from a previous map calculation,
+but may be used if a figure of merit weighted Fo,phio map is
+calculated.
+#
+vars: map_cover
+info: The radius around the selected atoms in which the map will be
+drawn. A mask is generated around the selected atoms, using atomic
+radii of this size. Any map points outside the mask are set to zero
+prior to writing the map.
+#
+vars: atom_real
+info: Atom selection identifying atoms which will be used for
+real-space R-value and correlation coefficient calculations.
+#
+vars: print_bins
+info: Number of equal volume resolution bins for reporting reciprocal
+space statistics. Bin limits are calculated such that an approximately
+equal number of reflections are in each bin. A value of 10 is
+suggested for most structures. A larger value may be better if there
+are many reflections (large unit cell or very high resolution).
+#
+vars: bond_thresh
+info: The threshold value for analysis of deviations for ideal geometry for
+bonds. Bonds in the current model which deviate more than this from the ideal
+value will be reported. The ideal values are taken from the type-based parameters.
+#
+vars: angle_thresh
+info: The threshold value for analysis of deviations for ideal geometry for
+angles. Angles in the current model which deviate more than this from the ideal
+value will be reported. The ideal values are taken from the type-based parameters.
+#
+vars: dihe_thresh
+info: The threshold value for analysis of deviations for ideal geometry for
+bonds. Dihedral angles in the current model which deviate more than this
+from the ideal value will be reported. The ideal values are taken from the 
+type-based parameters.
+#
+vars: impr_thresh
+info: The threshold value for analysis of deviations for ideal geometry for
+bonds. Improper angles in the current model which deviate more than this
+from the ideal value will be reported. The ideal values are taken from the
+type-based parameters.
+#
+vars: close
+info: Distance threshold in &Aring; for listing close contacts between
+atoms in the structure. The distances are calculated using the atomic
+centres. Symmetry related distances are also calculated.
+#
+vars: low_err_res
+info: The lower resolution limit in &Aring; for calculation of
+coordinate error using the Luzzati (Luzzati P.V. (1952). Acta
+Cryst. 5, 802-810) and Sigma-A (Read R.J. (1986). Acta Cryst. A42,
+140-149) plots. The suggested value is 5&Aring;. This makes the
+calculation independent of the bulk solvent model.
+#
+vars: luzzati_error_plot
+info: Output file containing the Luzzati error plot (Luzzati
+P.V. (1952). Acta Cryst. 5, 802-810). If cross validation is used
+then two plot files will be generated with the file extensions .plot
+and _cv.plot. The cross validated error plot is the less biased of the
+two. Each file contains the estimated coordinate error and the (free)
+R-value and (free) Luzzati R-value as a function of resolution. The
+files can be used to generate a Luzzati plot with any graph plotting
+program (some editing may be required).
+#
+vars: sigmaa_error_plot
+info: Output file containing the Sigma-A error plot (Read
+R.J. (1986). Acta Cryst. A42, 140-149). If cross validation is used
+then two plot files will be generated with the file extensions .plot
+and _cv.plot. The cross validated error plot is the less biased of the
+two. Each file contains a listing of 1/d, log(Sigma-A) and the ideal
+Sigma-A curve for the calculated coordinate error.
+#
+vars: atom_omit
+info: Atom selection identifying atoms which will be omitted from
+simulated annealing and map calculations. The atoms will remain fixed
+during simulated annealing and are excluded from any structure factor
+calculations. Any residues which have an atom within the sphere
+distance (symmetry interactions are also included) of the selected
+atoms are also excluded from structure factor calculations. These
+atoms are harmonically restrained.
+#
+vars: sphere
+info: Cutoff distance in &Aring; around omitted atoms. Any residues
+which have an atom within this distance (symmetry interactions are
+also included) of the omitted atoms are also excluded from structure
+factor calculations. These atoms are harmonically restrained.
+#
+vars: cushion
+info: Cutoff distance in &Aring; around all omitted atoms (including
+residues selected in the neighbourhood of the omitted atoms). Atoms
+within this distance from the omitted atoms are harmonically
+restrained but do contribute to structure factor calculation.
+#
+vars: ncs_group_\d+
+info: Atom selection defining the atoms in a non-crystallographic
+(NCS) group. An NCS group is a set of molecules or domains or atoms
+related by non-crystallographic symmetry. In the case of strict NCS
+there can be only one group. For each NCS group the atom selection
+defines the primary protomer in the asymmetric unit. A mask is
+generated around the atoms selected and used to average the electron
+density map by application of the NCS operators for this group. Multi
+group averaging is only possible if NCS restraints are used (ie. all
+molecules of the asymmetric unit are present in the model).
+#
+vars: mask_infile_\d+
+info: Mask file in compressed O format containing the mask for a
+non-crystallographic (NCS) group. An NCS group is a set of molecules
+or domains or atoms related by non-crystallographic symmetry. In the
+case of strict NCS there can be only one group. For each NCS group the
+mask defines the primary protomer in the asymmetric unit. The mask is
+used to average the electron density map by application of the NCS
+operators for this group. Multi group averaging is only possible if
+NCS restraints are used (ie. all molecules of the asymmetric unit are
+present in the model).
+#
+vars: wa_scale
+info: Range of scale factors to be applied to the weight between
+crystallographic and geometric terms (Wa) during the grid search for
+an optimum weight value. The initial value of Wa is multiplied by each
+scale factor in turn and a short simulated annealing refinement
+performed. The R-values and deviations for ideal geometry can then be
+analysed to find the optimal value for Wa.
+#
+vars: q_group_\d+
+info: Atom selection identifying atoms which form groups for occupancy
+refinement. For each group the overall occupancy for each group will
+be refined. Groups should contain atoms which form a covalent unit,
+for example a complete ligand molecule. Occupany refinement is only
+recommended if a chemical reason exists for a possible difference in
+occupancy between molecules in the asymmetric unit (eg a partially
+occupied ligand site).
+#
+vars: occupancy_nstep
+info: Number of steps of conjugate gradient occupancy minimization.
+#
+vars: qmin
+info: Minimum allowed occupancy during occupancy refinement.
+#
+vars: qmax
+info: Maximum allowed occupancy during occupancy refinement.
+#
+vars: atom_qref
+info: Atom selection defining atoms whose individual occupancy will be
+refine. The selected atoms should be individual atomssuch as water
+molecules - covalently connected atoms should be refined with grouped
+occupancy refinement. Individual occupancy refinement is not
+recommended unless high resolution data are available.
+#
+vars: topology_infile_\d+
+info: Input CNS topology file containing residue definitions.
+#
+vars: prot_link_infile
+info: Input CNS topology file defining the linkage between
+macromolecular groups (in this case the peptide linkage applied
+between amino acids).
+#
+vars: nucl_link_infile
+info: Input CNS topology file defining the linkage between
+macromolecular groups (in this case the phosphate linkage applied
+between nucleotides).
+#
+vars: break_cutoff
+info: Cutoff distance in &Aring; for identification of breaks in a
+protein mainchain. The molecular topology is initially generated with
+all consecutive amino acids connected (unless separated by a TER card,
+BREAK card or different segment/chain name). The coordinates are then
+read and the distances between residues checked. If the carbonyl
+carbon of one residue is more than the cutoff distance from the
+peptide nitrogen of the connected residue a break is assigned. The
+peptide linkage between the two residues is removed.
+#
+vars: prot_break_infile
+info: Input CNS topology file defining the removal of a linkage
+between macromolecular groups (in this case the peptide bond between
+amino acids).
+#
+vars: disulphide_dist
+info: Cutoff distance in &Aring; for identification of disulphide
+bonds between cysteine residues. The coordinates are read and the
+distances between all cysteine sulphur atoms checked. Any cysteine
+pairs with sulphurs closer than the cutoff distance are modified by
+application of a disulphide patch.
+#
+vars: atom_delete
+info: Atom selection defining atoms which are to be deleted from the
+structure after molecular topology generation.
+#
+vars: ile_cd_becomes
+info: Text string identifying the current name for the delta carbon in
+isoleucine residues in the input PDB file. The PDB definition of the
+isoleucine residue calls the delta carbon CD1, whereas CNS calls this
+atom CD (as there is only one carbon the 1 is redundant). The CNS
+default will be changed to the given text string prior to molecular
+topology generation and coordinate reading.
+#
+vars: ot1_becomes
+info: Text string identifying the current name for one of the terminal
+peptide oxygen atoms in the input PDB file. The PDB definition calls
+this atom O, whereas CNS calls this atom OT1 by default. The CNS
+default will be changed to the given text string prior to molecular
+topology generation and coordinate reading.
+#
+vars: ot2_becomes
+info: Text string identifying the current name for one of the terminal
+peptide oxygen atoms in the input PDB file. The PDB definition calls
+this atom OXT, whereas CNS calls this atom OT2 by default. The CNS
+default will be changed to the given text string prior to molecular
+topology generation and coordinate reading.
+#
+vars: map_coeff_\d+
+info: Coefficients for the output electron density map. The type of
+map (Sigma-A weighted, phase combined etc) is set elsewhere. The
+possible options are:
+<UL>
+<LI>gradient: coefficients are -dtarget/dFc</LI>
+<LI>fofc: coefficients are |Fo|-|Fc| phic</LI>
+<LI>2fofc: coefficients are 2|Fo|-|Fc| phic</LI>
+<LI>3fo2fc: coefficients are 3|Fo|-2|Fc| phic</LI>
+</UL>
+#
+vars: defaults_file
+info: A CNS file containing defaults which will override the task file
+input parameters. The format of this defaults file should be the same
+as the header of a CNS task file (see auxiliary/refine.def). This file
+is read after the task file parameters have been read thus overwriting
+them.
+#
+vars: atom_solvent
+info: Atom selection defining solvent molecules which will be moved
+closer to the reference molecule. Crystallographic symmetry (including
+unit cell translations) are applied to obtain the minimum distance
+between each solvent molecule and the reference molecule.
+#
+vars: water_select
+info: Atom selection defining water molecules which will be tested for
+possible deletion. The atoms are omitted from the electron density map
+calculation. The electron density in the region of each selected atom
+is then tested for the deletion criteria.
+#
+vars: min_correl
+info: Minimum allowed real-space correlation allowed at a selected
+water position. A mask is made around each water atom and the
+realspace correlation calculated between the observed electron density
+and the model density. If the average correlation coefficient in the
+mask around the atom is lower than this minimum value the atom is
+deleted.
+#
+vars: min_peak
+info: Minimum allowed peak height allowed at a selected water
+position. A mask is made around each water atom and the maximum peak
+height from the observed electron density within each mask is
+calculated. If the maximum peak height is lower than this minimum
+value the atom is deleted.
+#
+vars: peak
+info: Minimum interpolated peak for water picking. Any peaks which are
+less than this minimum are discarded. If the map has been scaled then
+this minimum is in sigma units, otherwise it is in electron density
+units if the observed data has been placed on an absolute scale. For
+scaled difference maps a minimum peak height of 3 or greater is
+recommended.
+#
+vars: npeaks
+info: Number of interpolated peaks to be analysed. After peak picking,
+interpolation and sorting the specified top number of peaks are analysed.
+#
+vars: wat_resname
+info: Residue name to be given to picked water molecules. These names
+match the residues defined in the CNS water topology file
+(CNS_TOPPAR:water.top). The possible choices are: TIP, TIP3, WAT and
+HOH. Three letter residue names are preferred by other programs (for
+example O).
+#
+vars: wat_segid
+info: Segment identifier (segid) to be given to the picked water
+molecules. This can be a maximum of 4 characters. Single letters are
+preferred because these can be converted to chain identifiers for
+other programs (for example O). The segid called PEAK is resserved for
+internal use and should not be used. If water molecules are already
+present in the input model with the given segid the newly picked
+waters will be appended with an increased residue number.
+#
+vars: wat_number
+info: Residue number for first newly picked water molecule. If water
+molecules are already present in the input model with the same segid,
+the numbering of newly picked waters will begin after the last
+existing water molecule (for example if residue 100 is a water
+molecule then the new waters will begin at residue 101)..
+#
+vars: refine
+info: Flag turning on or off refinement of newly picked water
+molecules. If true the newly picked waters will have their coordinates
+and B-factors refined. The original input model (including any
+previous water molecules) remains fixed during water refinement and is
+output unchanged.
+#
+vars: min
+info: The minimum allowed distance in &Aring; between a water peak and
+any atom in the model. This defines a lower limit to water picking (no
+peaks less than this distance from the molecule will be
+analysed). This lower limit may be exceeded by peaks close to possible
+hydrogen bonding partners.
+#
+vars: max
+info: The maximum allowed distance in &Aring; between a water peak and
+any atom in the model. This defines an upper limit to water picking
+(no peaks greater than this distance from the molecule will be
+analysed). This may exclude distant water molecules (in a second
+hydration shell) in the first round of water picking, but as the first
+hydration shell expands they should be picked in subsequent rounds.
+#
+vars: hmin
+info: The minimum allowed distance in &Aring; between a water peak and
+a possible hydrogen bond acceptor/donor (oxygens or nitrogens). If the
+hydrogen bonding based peak deletion criteria is selected then only
+water peaks which lie within the minimum and maximum hydrogen bonding
+distance from an acceptor/donor are accepted.
+#
+vars: hmax
+info: The maximum allowed distance in &Aring; between a water peak and
+a possible hydrogen bond acceptor/donor (oxygens or nitrogens). If the
+hydrogen bonding based peak deletion criteria is selected then only
+water peaks which lie within the minimum and maximum hydrogen bonding
+distance from an acceptor/donor are accepted.
+#
+vars: peak_select
+info: The distance criteria for peak deletion. In general the hbond
+option should be used when picking water molecules.
+#
+vars: peak_hbond
+info: Use the hydrogen bonding distances as the criteria for
+acceptance. Only water peaks which lie within the minimum and maximum
+hydrogen bonding distance from an acceptor/donor are accepted. This is
+the most conservative option for picking water molecules (as only
+chemically sensible sites will be chosen). This option should be
+disabled if searching for non-water peaks which might not lie close to
+hydrogen bonding acceptor/donor atoms.
+#
+vars: special_dist
+info: Cutoff distance in &Aring; for identifying atoms on special
+positions. Crystallographic symmetry is applied to all putative water
+sites. If application of symmetry results in an atom being within this
+distance of itself it is considered to be on a special position. This
+distance should not be made too large otherwise all molecules will
+appear to lie on special positions. A value of around 0.25 &Aring; is
+suggested.
+#
+vars: peak_special
+info: Flag determining whether waters on special positions are
+retained. In general they should be deleted to ensure that spurious
+electron density peaks on symmetry axes are not selected. 
+#
+vars: bfactor_max
+info: Maximum allowed B-value (in &Aring;^2) for picked waters after
+refinement of coordinates and B-values. Any water molecules with
+B-values greater than this maximum are deleted. The absolute value of
+this cutoff will depend on the average B-value for the entire
+molecule, but a value around 50 is appropriate for the majority of
+well ordered structures at medium resolution or better. 
+#
+vars: merge_coord
+info: Flag determining whether the newly picked waters will be merged
+with the existing model. If true then the output molecular topology
+and coordinate file will contain the input model plus the new water
+molecules. If false, only newly picked water molecules will be written
+out. It is normally best to merge the new water molecules with the
+existing model to generate files which can go directly into the next
+refinement stage.
+#
+#
+vars: sol_auto
+info: automatic bulk solvent parameter search
+#
+vars: sol_output
+info: optional file with a listing of the results of the automatic bulk solvent grid
+search
+#
+vars: sol_rad
+info: solvent mask parameter
+#
+vars: sol_shrink
+info: solvent mask parameter
+#
+vars: atom_rigid_\d+
+info: atom selections for non-default rigid groups during torsion angle dynamics
+#
+vars: use_den
+info: use DEN?
+#
+vars: den_infile
+info: initial DEN file; if blank, the DEN will be generated automatically from reference coordinates
+#
+vars: den_ref
+info: reference coordinates - always required
+#
+vars: den_atom_select_\d+
+info: select groups of atoms to be included in DEN generation
+#
+vars: den_lower_distance_cutoff
+info: DEN selection criterion 
+#
+vars: den_upper_distance_cutoff
+info: DEN selection criterion 
+#
+vars: den_sequence_separation_limit
+info: DEN selection criterion 
+#
+vars: den_ndistance_ratio
+info: DEN selection criterion 
+#
+vars: den_gamma
+info: DEN gamma, should be between 0 and 1
+#
+vars: den_scale
+info: wden, weight for DEN energy term
+#
+vars: den_kappa
+info: kappa, should be between 0 and 1 (normally set to 0.1)
+#
+vars: relax_ncycle
+info: number of initial relaxation refinement cycles (with gamma and kappa set to zero)
+must be less or equal to the total number of cycles of refinement
+#
+vars: post_ncycle
+info: number of final refinement cycles (with wden set to zero)
+must be less or equal to the total number of cycles of refinement plus initial relaxation cycles
+#
+vars: den_minimum_start
+info: set initial DEN minimum to starting coordinates (normally set to true)
+#
+vars: den_exponent
+info: exponent for DEN distance potential
+#
+vars: geometry_min
+info: number of minimization steps to regularize the geometry prior to molecular dynamics
+#
+vars: full_vdw_cycles
+info: number of final refinement cycles with full van der Waals radii
+initial cycles will use 75% reduced radii
+#
+vars: torsion_infile
+info: torsion-angle MD topology modification file
+#
+vars: bfactor_mode
+info: B-factor minimization mode
+#
+vars: rweight
+info: weight for B-factor bond, angle, and NCS restraints
+#
+vars: bmin
+info: B-factor limit
+#
+vars: bmax
+info: B-factor limit
+#
+vars: bg_group_\d+
+info: define groups for "group" B-factor minimization mode.
+#
+vars: bd_group_\d+
+info: define atom selections of domains for "domain" B-factor minimization mode
+#
+vars: wa
+info: Wa weight for X-ray term
+#
+vars: fill_in
+info: use model amplitudes for unmeasured data
+#
+vars: peak_num
+info: number of peaks to pick from map
+#

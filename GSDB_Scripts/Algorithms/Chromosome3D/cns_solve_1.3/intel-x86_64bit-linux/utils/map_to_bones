@@ -1,0 +1,21 @@
+#! /bin/csh -f
+#
+# script to convert a CNS map to O bones file using MAPMAN 
+# MAPMAN must be installed and in your path for this script to work
+# MAPMAN can be obtained from:
+#   http://alpha2.bmc.uu.se/~gerard/manuals/gerard_manuals.html
+#
+# copyright Yale University
+#
+
+foreach f ($*)
+  set mapf = "$f:r"
+  mapman << EOT
+read map $mapf.map x-plor
+bone skel map 1.5 0.5 100
+bone conn $mapf.bones skel 15
+quit
+EOT
+end
+
+exit 0

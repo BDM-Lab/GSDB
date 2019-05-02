@@ -1,0 +1,100 @@
+topology  
+ RESIDUE SOD  ! Sodium Ion 
+ 
+ GROUP  
+       ATOM  SOD   TYPE=SOD  CHARGE=    1.0000  END  
+ !END GROUP
+ 
+ 
+ END {SOD }
+ !-----------------------------------------------------------
+ 
+ RESIDUE CL   ! Chloride Anion 
+ 
+ GROUP  
+       ATOM  CL1   TYPE=CLA  CHARGE=   -1.0000  END  
+ !END GROUP
+ 
+ 
+ END {CL  }
+end
+
+parameter
+ NONBONDED  SOD      .1000   2.7297    .1000   2.7297 ! FROM BENOIT ROUX 
+ NONBONDED  CLA      .1500   4.2763    .1500   4.2763 ! chloride 
+end
+
+segment                                                {*Generate ions     *}
+
+   name="CL- "                              {*This name has to match the   *}
+                                            {*four characters in columns 73*}
+                                            {*through 76 in the coordinate *}
+                                            {*file; in CNS this name is  *}
+                                            {*referred to as SEGId.        *}
+   chain
+   coor
+ATOM      1  CL1 CL      1       1.000   0.000   0.000  0.00  0.00      CL- 
+   end
+   end                                       {*obtain the sequence.        *}
+end
+                                             
+coor
+ATOM      1  CL1 CL      1       1.000   0.000   0.000  0.00  0.00      CL- 
+end
+
+segment                                                {*Generate ions     *}
+
+   name="NA+ "                              {*This name has to match the   *}
+                                            {*four characters in columns 73*}
+                                            {*through 76 in the coordinate *}
+                                            {*file; in CNS this name is  *}
+                                            {*referred to as SEGId.        *}
+   chain
+   coor
+ATOM      1  SOD SOD     1       0.000   0.000   0.000  1.00  0.00      NA+ 
+   end
+   end                                       {*obtain the sequence.        *}
+end
+                                             
+coor
+ATOM      1  SOD SOD     1       0.000   0.000   0.000  1.00  0.00      NA+ 
+end
+
+param
+
+ NBONDS 
+
+! -----NONBONDED-LIST-OPTIONS-------------------------------
+  CUTNB=  13.000 TOLERANCE=    .000 WMIN=   1.500 ATOM   
+  INHIBIT=    .250                                       
+! -----ELECTROSTATIC OPTIONS--------------------------------
+  EPS=   1.000 E14FAC=   1.000 CDIELECTRIC SHIFT SHFO BSHF=4.0
+! -----VAN DER WAALS OPTIONS--------------------------------
+  VSWITCH                                                
+! -----SWITCHING /SHIFTING PARAMETERS-----------------------
+  CTONNB=  10.000 CTOFNB=  12.000                        
+! -----EXCLUSION LIST OPTIONS-------------------------------
+  NBXMOD=   5                                            
+! ----------------------------------------------------------
+
+ END 
+
+end
+
+evaluate ($xx = 1.9)
+
+while ($xx < 14.9) loop ANALYS
+
+	evaluate ($xx = $xx + 0.1)
+        do (x = $xx) (segid "CL- ")
+        energy end
+        show ave (dx) (segid "CL- ")
+        eval ($fx = $result)
+        display $xx	$ener	$fx	$elec	$vdw
+
+end loop ANALYS
+
+stop
+
+
+

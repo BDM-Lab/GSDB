@@ -1,0 +1,469 @@
+REMARKS  XFFTEST.INP
+remarks  test the FFT routines of XRAY 
+
+parameter @CNS_TOPPAR:protein.param end
+
+{* read a ca trace *}
+struc 
+data_cns_mtf
+
+_cns_mtf.title
+; FILENAME="/data/rwgk/test/tmp.mtf"
+  DATE:18-Nov-98  14:17:52       created by user: rwgk
+  VERSION:0.4a
+;
+
+loop_
+_cns_mtf_atom.id
+_cns_mtf_atom.segment_id
+_cns_mtf_atom.residue_id
+_cns_mtf_atom.residue_name
+_cns_mtf_atom.atom_name
+_cns_mtf_atom.chemical_type
+_cns_mtf_atom.charge
+_cns_mtf_atom.atom_mass
+1 ' ' '1' 'LYS' 'CA' 'CH1E' 0.250000 13.0190
+2 ' ' '2' 'LYS' 'CA' 'CH1E' 0.250000 13.0190
+3 ' ' '3' 'LYS' 'CA' 'CH1E' 0.250000 13.0190
+-1 ' ' ' ' ' ' ' ' ' ' -1.00000 -1.00000
+
+loop_
+_cns_mtf_bond.id[1]
+_cns_mtf_bond.id[2]
+-1 -1
+
+loop_
+_cns_mtf_angle.id[1]
+_cns_mtf_angle.id[2]
+_cns_mtf_angle.id[3]
+-1 -1 -1
+
+loop_
+_cns_mtf_dihedral.id[1]
+_cns_mtf_dihedral.id[2]
+_cns_mtf_dihedral.id[3]
+_cns_mtf_dihedral.id[4]
+-1 -1 -1 -1
+
+loop_
+_cns_mtf_improper.id[1]
+_cns_mtf_improper.id[2]
+_cns_mtf_improper.id[3]
+_cns_mtf_improper.id[4]
+-1 -1 -1 -1
+
+loop_
+_cns_mtf_explicit_nonbonded_exclusion.inb
+-1
+
+loop_
+_cns_mtf_explicit_nonbonded_exclusion.iblo
+0
+0
+0
+-1
+
+loop_
+_cns_mtf_group_linked_list.first_atom_id
+0
+1
+-1
+
+end
+
+coor 
+ATOM      1  CA  LYS     1       8.000   8.000   8.000  1.00 15.00          
+ATOM      2  CA  LYS     2       1.400   6.200  18.000  1.00 15.00          
+ATOM      3  CA  LYS     3       2.400   9.200  16.000  1.00 15.00          
+END 
+
+{===================================================================}
+{* test with arbitrary unit cell, P1 space group *}
+{===================================================================}
+
+xray
+   declare name=fobs type=complex domain=reciprocal end
+   declare name=fpart domain=reciprocal type=complex end
+   declare name=fcalc domain=reciprocal type=complex end
+   declare name=fom domain=reciprocal type=real end
+   declare name=weight domain=reciprocal type=real end
+   declare name=sigma domain=reciprocal type=real end
+   declare name=test domain=reciprocal type=integer end
+
+  tselection=( 3 <= d <= 10 )
+  binresolution= 3. 10.
+  mapresolution 3.
+  
+  a=16.2 b=16.5 c=8.2 alpha=81.2  beta=94.5 gamma=100.3
+
+  symmetry=(x,y,z)
+  SCATter ( chemical C* ) 
+       2.31000 20.8439 1.02000 10.2075 1.58860 .568700 .865000 51.6512 .215600
+  method=direct lookup=false
+  nreflections=1000
+  generate  10. 3.
+  mapresolution 3.
+  do (fpart=0) ( all ) 
+   predict 
+      mode=reciprocal 
+      to=fcalc 
+      selection=( all ) 
+      atomselection=( not hydrogen ) 
+   end 
+  do (fobs=fcalc) ( all ) 
+  TOLERANCE=0.0
+  wa=200000.
+  do (fom=1.) ( all )
+end
+coor translate vector=( 1.1  0.8 1.4 ) sele=( resid 1 ) end
+
+flags exclu * inclu xref end  
+energy end
+do ( xcomp = dx ) ( all )
+do ( ycomp = dy ) ( all )
+do ( zcomp = dz ) ( all )
+xray
+   method=fft
+   fft bscale=20.0  memory=50000 prime=5 avoid=2 end      
+end
+energy end
+show elem ( dx )    ( all )
+show elem ( xcomp ) ( all )
+show elem ( dy )    ( all )
+show elem ( ycomp ) ( all )
+show elem ( dz )    ( all )
+show elem ( zcomp ) ( all )
+xray fft memory=250 end end
+energy end
+show elem ( dx ) ( all )
+show elem ( dy ) ( all )
+show elem ( dz ) ( all )
+xray 
+    fft memory=5000 bscale=0.0 end    
+    predict 
+      mode=reciprocal 
+      to=fcalc 
+      selection=( all ) 
+      atomselection=( not hydrogen ) 
+    end 
+    print target
+    fft             bscale=10.0 end   
+    predict 
+      mode=reciprocal 
+      to=fcalc 
+      selection=( all ) 
+      atomselection=( not hydrogen ) 
+    end 
+    print target
+    fft             bscale=20.0 end   
+    predict 
+      mode=reciprocal 
+      to=fcalc 
+      selection=( all ) 
+      atomselection=( not hydrogen ) 
+    end 
+    print target
+    fft elim=10.0 end  
+    predict 
+      mode=reciprocal 
+      to=fcalc 
+      selection=( all ) 
+      atomselection=( not hydrogen ) 
+    end 
+    print target
+    fft elim=3.0 end  
+    predict 
+      mode=reciprocal 
+      to=fcalc 
+      selection=( all ) 
+      atomselection=( not hydrogen ) 
+    end 
+    print target
+    fft elim=10.0 grid=0.25 end 
+    predict 
+      mode=reciprocal 
+      to=fcalc 
+      selection=( all ) 
+      atomselection=( not hydrogen ) 
+    end 
+    print target
+    fft elim=7.00 grid=0.33333333 end
+end
+
+
+{===================================================================}
+{* test with P21 space group *}
+{===================================================================}
+
+xray         
+  reset
+   declare name=fobs type=complex domain=reciprocal end
+   declare name=fpart domain=reciprocal type=complex end
+   declare name=fcalc domain=reciprocal type=complex end
+   declare name=fom domain=reciprocal type=real end
+   declare name=weight domain=reciprocal type=real end
+   declare name=sigma domain=reciprocal type=real end
+   declare name=test domain=reciprocal type=integer end
+
+  a=16.1 b=16.1 c=8.1 alpha=90.  beta=130. gamma=90.0
+
+  symmetry=(x,y,z)
+  symmetry=(-x,y+1/2,-z)
+  SCATter ( chemical C* ) 
+       2.31000 20.8439 1.02000 10.2075 1.58860 .568700 .865000 51.6512 .215600
+  method=direct lookup=false
+  generate 10. 3.
+  mapresolution 3.
+  do (fpart=0) ( all )
+
+  predict 
+      mode=reciprocal 
+      to=fcalc 
+      selection=( all ) 
+      atomselection=( not hydrogen ) 
+  end 
+  do (fobs=fcalc) ( all ) 
+  TOLERANCE=0.0
+  wa=200000.
+  do (fom=1.) ( all )
+end
+coor translate vector=( 1.1  0.8 1.4 ) sele=( resid 1 ) end
+
+flags exclu * inclu xref end  
+energy end
+do ( xcomp = dx ) ( all )
+do ( ycomp = dy ) ( all )
+do ( zcomp = dz ) ( all )
+xray
+   method=fft
+   fft bscale=20.0  memory=50000   prime=5 avoid=2 end      
+end                                                
+energy end
+show elem ( dx )    ( all )
+show elem ( xcomp ) ( all )
+show elem ( dy )    ( all )
+show elem ( ycomp ) ( all )
+show elem ( dz )    ( all )
+show elem ( zcomp ) ( all )
+xray fft memory=250 end end
+energy end
+show elem ( dx ) ( all )
+show elem ( dy ) ( all )
+show elem ( dz ) ( all )
+
+{===============================}
+{*  test with P31c space group *}
+{==============================*}
+                 
+xray 
+  reset 
+   declare name=fobs type=complex domain=reciprocal end
+   declare name=fpart domain=reciprocal type=complex end
+   declare name=fcalc domain=reciprocal type=complex end
+   declare name=fom domain=reciprocal type=real end
+   declare name=weight domain=reciprocal type=real end
+   declare name=sigma domain=reciprocal type=real end
+   declare name=test domain=reciprocal type=integer end
+
+  a=16.00 b=16.00 c=8.00 alpha=90.0 beta=90.00 gamma=120.0
+  symmetry=(x,y,z)
+  symmetry=(-y,x-y,z)
+  symmetry=(y-x,-x,z) 
+!  symmetry=(y,x,1/2+z) 
+!  symmetry=(-x,y-x,1/2+z) 
+!  symmetry=(x-y,-y,1/2+z) 
+  SCATter ( chemical C* ) 
+       2.31000 20.8439 1.02000 10.2075 1.58860 .568700 .865000 51.6512 .215600
+  method=direct lookup=false
+  generate 10. 3. 
+  mapresolution 3.
+  binresolution 10. 3.
+  do (fpart=0) ( all )
+  do (fobs=0) ( all ) 
+  predict 
+      mode=reciprocal 
+      to=fcalc 
+      selection=( all ) 
+      atomselection=( not hydrogen ) 
+  end 
+  write reflection fobs fcalc sele=( all ) end
+  
+  statistics
+    completeness
+    selection=( 3 <= d <= 10 ) 
+      output=OUTPUT
+  end
+  
+  do (fobs=fcalc) ( all ) 
+  TOLERANCE=0.0     
+  wa=200000.
+  do (fom=1.) ( all )
+end
+coor translate vector=( 1.1  0.8 1.4 ) sele=( resid 1 ) end
+
+flags exclu * inclu xref end 
+energy end
+do ( xcomp = dx ) ( all )
+do ( ycomp = dy ) ( all )
+do ( zcomp = dz ) ( all )
+
+xray
+   method=fft
+   fft bscale=20.0  memory=50000  prime=5 avoid=2  end      
+end
+energy end
+show elem ( dx )    ( all )
+show elem ( xcomp ) ( all )
+show elem ( dy )    ( all )
+show elem ( ycomp ) ( all )
+show elem ( dz )    ( all )
+show elem ( zcomp ) ( all )
+xray fft memory=2000 end end
+energy end
+show elem ( dx ) ( all )
+show elem ( dy ) ( all )
+show elem ( dz ) ( all )
+xray fft memory=250 end end
+energy end
+show elem ( dx ) ( all )
+show elem ( dy ) ( all )
+show elem ( dz ) ( all )
+
+
+{* ============================ *}
+{* test with P2(1)3 space group *}
+{* ============================ *}
+xray
+  reset 
+   declare name=fobs type=complex domain=reciprocal end
+   declare name=fpart domain=reciprocal type=complex end
+   declare name=fcalc domain=reciprocal type=complex end
+   declare name=fom domain=reciprocal type=real end
+   declare name=weight domain=reciprocal type=real end
+   declare name=sigma domain=reciprocal type=real end
+   declare name=test domain=reciprocal type=integer end
+
+  a=16.00 b=16.00 c=16.00 alpha=90.0 beta=90.00 gamma=90.0
+  {* space_group=P2(1)3 *}
+  symmetry=(x,y,z)
+  symmetry=(z,x,y)
+  symmetry=(y,z,x)
+  symmetry=(1/2+x,1/2-y,-z)
+  symmetry=(1/2+z,1/2-x,-y)
+  symmetry=(1/2+y,1/2-z,-x)
+  symmetry=(-x,1/2+y,1/2-z)
+  symmetry=(-z,1/2+x,1/2-y)
+  symmetry=(-y,1/2+z,1/2-x)
+  symmetry=(1/2-x,-y,1/2+z)
+  symmetry=(1/2-z,-x,1/2+y)
+  symmetry=(1/2-y,-z,1/2+x)
+  SCATter ( chemical C* )                          
+       2.31000 20.8439 1.02000 10.2075 1.58860 .568700 .865000 51.6512 .215600
+  method=direct lookup=false
+  generate  10. 3.
+  mapresolution 3.
+  binresolution 10. 3.
+  do (fpart=0) ( all )
+  do (fobs=0) ( all ) 
+  predict 
+      mode=reciprocal 
+      to=fcalc 
+      selection=( all ) 
+      atomselection=( not hydrogen ) 
+  end 
+  write reflection fobs fcalc sele=( all ) end
+  statistics
+    completeness
+    selection=( 3 <= d <= 10 ) 
+      output=OUTPUT
+  end
+  do (fobs=fcalc) ( all ) 
+  TOLERANCE=0.0     
+  wa=200000.
+  do (fom=1.) ( all )
+end
+coor translate vector=( 1.1  0.8 1.4 ) sele=( resid 1 ) end
+
+flags exclu * inclu xref end 
+energy end
+do ( xcomp = dx ) ( all )
+do ( ycomp = dy ) ( all )
+do ( zcomp = dz ) ( all )
+
+xray
+   method=fft
+   fft bscale=20.0  memory=50000   prime=5 avoid=2 end      
+end
+energy end
+show elem ( dx )    ( all )
+show elem ( xcomp ) ( all )
+show elem ( dy )    ( all )
+show elem ( ycomp ) ( all )
+show elem ( dz )    ( all )
+show elem ( zcomp ) ( all )
+
+xray fft memory=1000 end end
+energy end
+show elem ( dx ) ( all )
+show elem ( dy ) ( all )
+show elem ( dz ) ( all )
+
+
+{* check sorting of reflections *}
+
+xray 
+    method=FFT
+    
+    evaluate ($lr=7.01)
+    evaluate ($hr=4.01) 
+    binresolution $lr $hr 
+    mapresolution $hr
+    tselection=( $hr <= d <= $lr ) 
+    
+    fft grid=0.15 memory=500000 end 
+    do (fom=1) ( all ) 
+end
+energy end
+show elem ( dx ) ( all )
+show elem ( dy ) ( all )
+show elem ( dz ) ( all )
+
+xray
+    method=direct lookup=false
+end
+energy end
+show elem ( dx ) ( all )
+show elem ( dy ) ( all )
+show elem ( dz ) ( all )
+
+{* check partial turning off phase information *}
+xray
+    evaluate ($lr=6.01)
+    evaluate ($hr=5.01) 
+    binresolution $lr $hr 
+    mapresolution $hr
+    tselection=( $hr <= d <= $lr ) 
+    
+    do (FOM = 0) ( 5.01 <= d <= 6.01 ) 
+    
+    evaluate ($lr=7.01)
+    evaluate ($hr=4.01) 
+    binresolution $lr $hr 
+    mapresolution $hr
+    tselection=( $hr <= d <= $lr ) 
+    
+end
+energy end
+show elem ( dx ) ( all )
+show elem ( dy ) ( all )
+show elem ( dz ) ( all )
+
+xray
+    method=FFT 
+end
+energy end
+show elem ( dx ) ( all )
+show elem ( dy ) ( all )
+show elem ( dz ) ( all )
+
+stop

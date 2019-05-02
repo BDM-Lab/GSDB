@@ -1,0 +1,952 @@
+          ============================================================
+          |                                                          |
+          |            Crystallography & NMR System (CNS)            |
+          |                         CNSsolve                         |
+          |                                                          |
+          ============================================================
+           Version: 1.3
+           Status: General release
+          ============================================================
+           Written by: A.T.Brunger, P.D.Adams, G.M.Clore, W.L.DeLano,
+                       P.Gros, R.W.Grosse-Kunstleve,J.-S.Jiang,J.M.Krahn,
+                       J.Kuszewski, M.Nilges, N.S.Pannu, R.J.Read,
+                       L.M.Rice, G.F.Schroeder, T.Simonson, G.L.Warren.
+           Copyright (c) 1997-2010 Yale University
+          ============================================================
+           Running on machine: lewis4-r710-login-node223 (x86_64/Linux,64-bit)
+                               with 16 threads
+           Program started by: oeow39
+           Program started at: 16:08:09 on 05-Jul-2018
+          ============================================================
+
+ FFT3C: Using FFTPACK4.1
+
+ CNSsolve>remarks TESTCONS 
+ CNSsolve>remarks TEST CASE FOR VARIOUS HARMONIC CONSTRAINTS 
+ CNSsolve>remarks 
+ CNSsolve> 
+ CNSsolve>topology @CNS_TOPPAR:protein.top end 
+ ASSFIL: file protein.top opened.
+ RTFRDR>remarks file toppar/protein.top 
+ RTFRDR>remarks   protein topology with polar hydrogens 
+ RTFRDR> 
+ RTFRDR>! 
+ RTFRDR>! Please cite the following reference when using these parameters: 
+ RTFRDR>! Engh, R.A. and  Huber, R. (1991). Accurate Bond and 
+ RTFRDR>!  Angle Parameters for X-ray Protein-Structure Refinement, 
+ RTFRDR>!  Acta Cryst. A47, 392-400. 
+ RTFRDR>! 
+ RTFRDR>! 
+ RTFRDR> 
+ RTFRDR>set message ? end eval ($old_message=$result) set echo ? end eval ($old_echo=$result) 
+ MESSage=NORM
+ EVALUATE: symbol $OLD_MESSAGE set to "NORM" (string)
+ ECHO=TRUE {ON}
+ EVALUATE: symbol $OLD_ECHO set to TRUE (logical)
+ RTFRDR>set message=off echo=off end 
+ RTFRDR> 
+ RTFRDR> 
+ RTFRDR> end 
+ CNSsolve>parameter @CNS_TOPPAR:protein.param end 
+ ASSFIL: file protein.param opened.
+ PARRDR>remarks file toppar/protein.param 
+ PARRDR>remarks   protein parameters with Lennard-Jones van der Waals parameters 
+ PARRDR>remarks   for crystallographic structure determination 
+ PARRDR> 
+ PARRDR>! 
+ PARRDR>! Please cite the following reference when using these parameters: 
+ PARRDR>! Engh, R.A. and  Huber, R. (1991). Accurate Bond and 
+ PARRDR>!  Angle Parameters for X-ray Protein-Structure Refinement, 
+ PARRDR>!  Acta Cryst. A47, 392-400. 
+ PARRDR>! 
+ PARRDR>! 
+ PARRDR> 
+ PARRDR>set message ? end eval ($old_message=$result) set echo ? end eval ($old_echo=$result) 
+ MESSage=NORM
+ EVALUATE: symbol $OLD_MESSAGE set to "NORM" (string)
+ ECHO=TRUE {ON}
+ EVALUATE: symbol $OLD_ECHO set to TRUE (logical)
+ PARRDR>set message=off echo=off end 
+ PARRDR> 
+ PARRDR> end 
+ CNSsolve> 
+ CNSsolve>segment 
+ SEGMENT>  name=main 
+ SEGMENT>  chain 
+ CHAIN>     @CNS_TOPPAR:protein.link 
+ ASSFIL: file protein.link opened.
+ CHAIN>remarks file toppar/protein.link 
+ CHAIN>remarks 
+ CHAIN>remarks this is a macro to define standard protein peptide bonds 
+ CHAIN>remarks and termini to generate a protein sequence. 
+ CHAIN> 
+ CHAIN>set message ? end eval ($old_message=$result) set echo ? end eval ($old_echo=$result) 
+ MESSage=NORM
+ EVALUATE: symbol $OLD_MESSAGE set to "NORM" (string)
+ ECHO=TRUE {ON}
+ EVALUATE: symbol $OLD_ECHO set to TRUE (logical)
+ CHAIN>set message=off echo=off end 
+ CHAIN>     sequence 
+ SEQUENCE>        TRP 
+ SEQUence-element (terminate with END) =     end 
+ SEGMNT:     1 residues were inserted into segment "MAIN"
+ CHAIN>  end 
+ SEGMENT>end 
+ Status of internal molecular topology database:
+ -> NATOM=         19(MAXA=     1000000)  NBOND=         20(MAXB=     1000000)
+ -> NTHETA=        30(MAXT=     2000000)  NGRP=           3(MAXGRP=   1000000)
+ -> NPHI=          10(MAXP=     2000000)  NIMPHI=        15(MAXIMP=   1000000)
+ -> NNB=            0(MAXNB=    1000000) 
+ CNSsolve> 
+ CNSsolve>coor 
+ COOR>ATOM      1  HT1 TRP     1       0.101   0.574  -1.385  1.00  0.00      MAIN 
+ COOR>ATOM      2  HT2 TRP     1       1.711   0.436  -1.904  1.00  0.00      MAIN 
+ CNSsolve> 
+ CNSsolve>coor copy end 
+ COOR: selected main coordinates copied to comp
+ CNSsolve> 
+ CNSsolve>parameter 
+ PARRDR>  nbonds 
+ NBDSET>     atom cdie shift eps=1.0 
+ NBDSET>          cutnb=30.0 ctonnb=99.0 ctofnb=99.0 
+ NBDSET>     nbxmod 5 vswitch 
+ NBDSET>  end 
+ %NBDSET-ERR: inconsistent CTONNB, CTOFNB given. Reset.
+ %NBDSET-ERR: inconsistent CUTNB, TOLErance, CTOFNB given.  Reset.
+ PARRDR>end 
+ CNSsolve> 
+ CNSsolve> 
+ CNSsolve>{* test fixed atom constraints *} 
+ CNSsolve>{* =========================== *} 
+ CNSsolve> 
+ CNSsolve>{* fix mode or *} 
+ CNSsolve> 
+ CNSsolve>fix selection=( not name O* ) end 
+ SELRPN:     17 atoms have been selected out of     19
+ CNSsolve>igroup 
+ IGROup>   interaction=( name O* )=( prev ) 
+ SELRPN:      2 atoms have been selected out of     19
+ SELRPN:      2 atoms have been selected out of     19
+ IGROup>end 
+ CNSsolve> 
+ CNSsolve>energy end 
+ NBONDS: generating intra-molecular exclusion list with mode= 5
+ MAKINB: mode   5 found      1 exclusions and      0 interactions(1-4)
+ NBONDS: found        0 intra-atom interactions
+ --------------- cycle=     1 --------------------------------------------------
+ | Etotal =0.000      grad(E)=0.000      E(BOND)=0.000      E(ANGL)=0.000      |
+ | E(DIHE)=0.000      E(IMPR)=0.000      E(VDW )=0.000      E(ELEC)=0.000      |
+ -------------------------------------------------------------------------------
+ CNSsolve> 
+ CNSsolve> 
+ CNSsolve>{* fix mode and *} 
+ CNSsolve>fix selection=( not name O* ) end 
+ SELRPN:     17 atoms have been selected out of     19
+ CNSsolve>igroup 
+ IGROup>   interaction=( name O* )=( all ) 
+ SELRPN:      2 atoms have been selected out of     19
+ SELRPN:     19 atoms have been selected out of     19
+ IGROup>end 
+ CNSsolve> 
+ CNSsolve> 
+ CNSsolve>energy end 
+ NBONDS: generating intra-molecular exclusion list with mode= 5
+ MAKINB: mode   5 found      5 exclusions and      4 interactions(1-4)
+ NBONDS: found       26 intra-atom interactions
+ --------------- cycle=     2 --------------------------------------------------
+ | Etotal =-98.141    grad(E)=26.846     E(BOND)=3.012      E(ANGL)=0.188      |
+ | E(DIHE)=0.000      E(IMPR)=7.260      E(VDW )=-0.459     E(ELEC)=-108.142   |
+ -------------------------------------------------------------------------------
+ CNSsolve> 
+ CNSsolve>fix selection=( not all ) end 
+ SELRPN:      0 atoms have been selected out of     19
+ CNSsolve>igroup 
+ IGROup>   interaction=( all )=( all ) 
+ SELRPN:     19 atoms have been selected out of     19
+ SELRPN:     19 atoms have been selected out of     19
+ IGROup>end 
+ CNSsolve> 
+ CNSsolve> 
+ CNSsolve> 
+ CNSsolve>{* test harmonic point constraints *} 
+ CNSsolve>{* =============================== *} 
+ CNSsolve> 
+ CNSsolve>flags exclude * include harm end 
+ CNSsolve> 
+ CNSsolve>restraints harmonic exponent 2 end 
+ CNSsolve>do (refx=x) ( all ) 
+ SELRPN:     19 atoms have been selected out of     19
+ CNSsolve>do (refy=y) ( all ) 
+ SELRPN:     19 atoms have been selected out of     19
+ CNSsolve>do (refz=z) ( all ) 
+ SELRPN:     19 atoms have been selected out of     19
+ CNSsolve>do (harm = 40.0 ) ( type C* ) 
+ SELRPN:     11 atoms have been selected out of     19
+ CNSsolve>show element ( HARM ) ( all ) 
+ SELRPN:     19 atoms have been selected out of     19
+ ( MAIN TRP  1    CB   )    40.000    
+ ( MAIN TRP  1    CG   )    40.000    
+ ( MAIN TRP  1    CD2  )    40.000    
+ ( MAIN TRP  1    CE2  )    40.000    
+ ( MAIN TRP  1    CE3  )    40.000    
+ ( MAIN TRP  1    CD1  )    40.000    
+ ( MAIN TRP  1    NE1  )    0.0000    
+ ( MAIN TRP  1    HE1  )    0.0000    
+ ( MAIN TRP  1    CZ2  )    40.000    
+ ( MAIN TRP  1    CZ3  )    40.000    
+ ( MAIN TRP  1    CH2  )    40.000    
+ ( MAIN TRP  1    C    )    40.000    
+ ( MAIN TRP  1    O    )    0.0000    
+ ( MAIN TRP  1    OXT  )    0.0000    
+ ( MAIN TRP  1    HT1  )    0.0000    
+ ( MAIN TRP  1    HT2  )    0.0000    
+ ( MAIN TRP  1    N    )    0.0000    
+ ( MAIN TRP  1    HT3  )    0.0000    
+ ( MAIN TRP  1    CA   )    40.000    
+ CNSsolve> 
+ CNSsolve> 
+ CNSsolve>test first tol=0.0 sele=( type c ) end 
+ SELRPN:      1 atoms have been selected out of     19
+ TESTFD: Parameters: STEP=   0.00500  MASSweighting=F
+ TESTFD: The following first derivatives differ by more than TOL=    0.000000
+
+  DIM.         ATOM                 ANALYTIC        FINITE-DIFF     DEVIATION
+   12 X ( MAIN 1    TRP  C   )       0.000000       0.000000       0.000000
+   12 Y ( MAIN 1    TRP  C   )       0.000000       0.000000       0.000000
+   12 Z ( MAIN 1    TRP  C   )       0.000000       0.000000       0.000000
+ TESTFD: A total of     0 elements were within the tolerance
+ CNSsolve> 
+ CNSsolve>coor trans vector=(1.0 0.5 1.0 ) end 
+ COOR: translation vector =(     1.000000    0.500000    1.000000 )
+ COOR: selected coordinates translated
+ CNSsolve> 
+ CNSsolve>test first tol=0.0 sele=( type c ) end 
+ SELRPN:      1 atoms have been selected out of     19
+ TESTFD: Parameters: STEP=   0.00500  MASSweighting=F
+ TESTFD: The following first derivatives differ by more than TOL=    0.000000
+
+  DIM.         ATOM                 ANALYTIC        FINITE-DIFF     DEVIATION
+   12 X ( MAIN 1    TRP  C   )      80.000000      80.000000       0.000000
+   12 Y ( MAIN 1    TRP  C   )      40.000000      40.000000       0.000000
+   12 Z ( MAIN 1    TRP  C   )      80.000000      80.000000       0.000000
+ TESTFD: A total of     0 elements were within the tolerance
+ CNSsolve>energy end 
+ --------------- cycle=     3 --------------------------------------------------
+ | Etotal =990.000    grad(E)=52.716     E(HARM)=990.000                       |
+ -------------------------------------------------------------------------------
+ CNSsolve> 
+ CNSsolve> 
+ CNSsolve>coor swap end 
+ COOR: selected coordinates swaped (main<->comp)
+ CNSsolve>coor copy end 
+ COOR: selected main coordinates copied to comp
+ CNSsolve> 
+ CNSsolve> 
+ CNSsolve> 
+ CNSsolve> 
+ CNSsolve> 
+ CNSsolve> 
+ CNSsolve>coor trans vector=  ( 0.1  0.1  0.1 ) sele=( atom main 1 CB ) end 
+ SELRPN:      1 atoms have been selected out of     19
+ COOR: using atom subset.
+ COOR: translation vector =(     0.100000    0.100000    0.100000 )
+ COOR: selected coordinates translated
+ CNSsolve> 
+ CNSsolve> 
+ CNSsolve>{* ================================================================= *} 
+ CNSsolve>{* now test the dihedral angle constraints *} 
+ CNSsolve> 
+ CNSsolve> 
+ CNSsolve>flags exclude * include cdih end 
+ CNSsolve> 
+ CNSsolve>restraints 
+ RESTraints>   dihedral 
+ DIHEDRAL>      assign ( name ca ) ( name cb ) ( name cd2 ) ( name ne1 ) 20.0 120.0 0. 2 
+ SELRPN:      1 atoms have been selected out of     19
+ SELRPN:      1 atoms have been selected out of     19
+ SELRPN:      1 atoms have been selected out of     19
+ SELRPN:      1 atoms have been selected out of     19
+ DIHEDRAL>      assign ( name ht2 ) ( name cd1 ) ( name ce3 ) ( name cz2 ) 10.0 80.0 0. 2 
+ SELRPN:      1 atoms have been selected out of     19
+ SELRPN:      1 atoms have been selected out of     19
+ SELRPN:      1 atoms have been selected out of     19
+ SELRPN:      1 atoms have been selected out of     19
+ DIHEDRAL>      assign ( name cg ) ( name ht2 ) ( name ch2 ) ( name ca ) 5.0 40.0 0. 2 
+ SELRPN:      1 atoms have been selected out of     19
+ SELRPN:      1 atoms have been selected out of     19
+ SELRPN:      1 atoms have been selected out of     19
+ SELRPN:      1 atoms have been selected out of     19
+ DIHEDRAL>end 
+ CNSsolve> 
+ CNSsolve>restraints dihedral ?  end 
+ Total number of dihedral angle restraints=     3
+  overall scale =    1.0000
+ ========================================
+ MAIN 1    TRP  CA  
+ MAIN 1    TRP  CB  
+ MAIN 1    TRP  CD2 
+ MAIN 1    TRP  NE1 
+ Dihedral= -103.118  Energy=  114.150 C=   20.000 Equil=  120.000 Delta= -136.882
+ Range=   0.000 Exponent=  2
+ ========================================
+ MAIN 1    TRP  HT2 
+ MAIN 1    TRP  CD1 
+ MAIN 1    TRP  CE3 
+ MAIN 1    TRP  CZ2 
+ Dihedral= -137.044  Energy=   62.253 C=   10.000 Equil=   80.000 Delta= -142.956
+ Range=   0.000 Exponent=  2
+ ========================================
+ MAIN 1    TRP  CG  
+ MAIN 1    TRP  HT2 
+ MAIN 1    TRP  CH2 
+ MAIN 1    TRP  CA  
+ Dihedral=    9.929  Energy=    1.377 C=    5.000 Equil=   40.000 Delta=   30.071
+ Range=   0.000 Exponent=  2
+ Number of dihedral angle restraints=    3
+ RMS deviation= 115.582
+ CNSsolve> 
+ CNSsolve>print cdih 
+ Total number of dihedral angle restraints=     3
+  overall scale =    1.0000
+ ========================================
+ MAIN 1    TRP  CA  
+ MAIN 1    TRP  CB  
+ MAIN 1    TRP  CD2 
+ MAIN 1    TRP  NE1 
+ Dihedral= -103.118  Energy=  114.150 C=   20.000 Equil=  120.000 Delta= -136.882
+ Range=   0.000 Exponent=  2
+ ========================================
+ MAIN 1    TRP  HT2 
+ MAIN 1    TRP  CD1 
+ MAIN 1    TRP  CE3 
+ MAIN 1    TRP  CZ2 
+ Dihedral= -137.044  Energy=   62.253 C=   10.000 Equil=   80.000 Delta= -142.956
+ Range=   0.000 Exponent=  2
+ ========================================
+ MAIN 1    TRP  CG  
+ MAIN 1    TRP  HT2 
+ MAIN 1    TRP  CH2 
+ MAIN 1    TRP  CA  
+ Dihedral=    9.929  Energy=    1.377 C=    5.000 Equil=   40.000 Delta=   30.071
+ Range=   0.000 Exponent=  2
+ Number of dihedral angle restraints=    3
+ RMS deviation= 115.582
+ CNSsolve>display  $rms  $violations 
+ 115.582  3
+ CNSsolve>print threshold=40. cdih 
+ Total number of dihedral angle restraints=     3
+  overall scale =    1.0000
+ ========================================
+ MAIN 1    TRP  CA  
+ MAIN 1    TRP  CB  
+ MAIN 1    TRP  CD2 
+ MAIN 1    TRP  NE1 
+ Dihedral= -103.118  Energy=  114.150 C=   20.000 Equil=  120.000 Delta= -136.882
+ Range=   0.000 Exponent=  2
+ ========================================
+ MAIN 1    TRP  HT2 
+ MAIN 1    TRP  CD1 
+ MAIN 1    TRP  CE3 
+ MAIN 1    TRP  CZ2 
+ Dihedral= -137.044  Energy=   62.253 C=   10.000 Equil=   80.000 Delta= -142.956
+ Range=   0.000 Exponent=  2
+ Number of dihedral angle restraints=    3
+ Number of violations greater than   40.000:     2
+ RMS deviation= 115.582
+ CNSsolve>display  $rms  $violations 
+ 115.582  2
+ CNSsolve> 
+ CNSsolve>energy end 
+ --------------- cycle=     4 --------------------------------------------------
+ | Etotal =177.781    grad(E)=15.574     E(CDIH)=177.781                       |
+ -------------------------------------------------------------------------------
+ CNSsolve> 
+ CNSsolve>test first tol=0.0 sele=( type CB) step=0.00001 end 
+ SELRPN:      1 atoms have been selected out of     19
+ TESTFD: Parameters: STEP=   0.00001  MASSweighting=F
+ TESTFD: The following first derivatives differ by more than TOL=    0.000000
+
+  DIM.         ATOM                 ANALYTIC        FINITE-DIFF     DEVIATION
+    1 X ( MAIN 1    TRP  CB  )     -33.377472     -33.377472       0.000000
+    1 Y ( MAIN 1    TRP  CB  )      26.519272      26.519272       0.000000
+    1 Z ( MAIN 1    TRP  CB  )     -53.840571     -53.840571       0.000000
+ TESTFD: A total of     0 elements were within the tolerance
+ CNSsolve> 
+ CNSsolve>pick dihedral ( name ca ) ( name cb ) ( name cd2 ) ( name ne1 ) geom 
+ SELRPN:      1 atoms have been selected out of     19
+ SELRPN:      1 atoms have been selected out of     19
+ SELRPN:      1 atoms have been selected out of     19
+ SELRPN:      1 atoms have been selected out of     19
+ GEOM=   -103.118109
+ CNSsolve>pick dihedral ( name ht2 ) ( name cd1 ) ( name ce3 ) ( name cz2 ) geom 
+ SELRPN:      1 atoms have been selected out of     19
+ SELRPN:      1 atoms have been selected out of     19
+ SELRPN:      1 atoms have been selected out of     19
+ SELRPN:      1 atoms have been selected out of     19
+ GEOM=   -137.043502
+ CNSsolve>pick dihedral ( name cg ) ( name ht2 ) ( name ch2 ) ( name ca ) geom 
+ SELRPN:      1 atoms have been selected out of     19
+ SELRPN:      1 atoms have been selected out of     19
+ SELRPN:      1 atoms have been selected out of     19
+ SELRPN:      1 atoms have been selected out of     19
+ GEOM=      9.929005
+ CNSsolve> 
+ CNSsolve>minimize powell nstep=20 step=20 end 
+ POWELL: number of degrees of freedom=    57
+ --------------- cycle=     1 ------ stepsize=    0.0000 -----------------------
+ | Etotal =177.781    grad(E)=15.574     E(CDIH)=177.781                       |
+ -------------------------------------------------------------------------------
+ --------------- cycle=     2 ------ stepsize=    0.0014 -----------------------
+ | Etotal =158.774    grad(E)=14.108     E(CDIH)=158.774                       |
+ -------------------------------------------------------------------------------
+ --------------- cycle=     3 ------ stepsize=    0.0126 -----------------------
+ | Etotal =65.340     grad(E)=6.711      E(CDIH)=65.340                        |
+ -------------------------------------------------------------------------------
+ --------------- cycle=     4 ------ stepsize=    0.0102 -----------------------
+ | Etotal =31.917     grad(E)=4.134      E(CDIH)=31.917                        |
+ -------------------------------------------------------------------------------
+ --------------- cycle=     5 ------ stepsize=    0.0080 -----------------------
+ | Etotal =19.130     grad(E)=2.950      E(CDIH)=19.130                        |
+ -------------------------------------------------------------------------------
+ --------------- cycle=     6 ------ stepsize=    0.0322 -----------------------
+ | Etotal =8.068      grad(E)=1.758      E(CDIH)=8.068                         |
+ -------------------------------------------------------------------------------
+ --------------- cycle=     7 ------ stepsize=    0.0447 -----------------------
+ | Etotal =1.319      grad(E)=0.643      E(CDIH)=1.319                         |
+ -------------------------------------------------------------------------------
+ --------------- cycle=     8 ------ stepsize=    0.0218 -----------------------
+ | Etotal =1.774      grad(E)=1.391      E(CDIH)=1.774                         |
+ -------------------------------------------------------------------------------
+ --------------- cycle=     9 ------ stepsize=    0.0769 -----------------------
+ | Etotal =0.248      grad(E)=0.233      E(CDIH)=0.248                         |
+ -------------------------------------------------------------------------------
+ --------------- cycle=    10 ------ stepsize=    0.0196 -----------------------
+ | Etotal =0.201      grad(E)=0.242      E(CDIH)=0.201                         |
+ -------------------------------------------------------------------------------
+ --------------- cycle=    11 ------ stepsize=    0.0965 -----------------------
+ | Etotal =0.008      grad(E)=0.043      E(CDIH)=0.008                         |
+ -------------------------------------------------------------------------------
+ --------------- cycle=    12 ------ stepsize=    0.0226 -----------------------
+ | Etotal =1.628      grad(E)=1.456      E(CDIH)=1.628                         |
+ -------------------------------------------------------------------------------
+ --------------- cycle=    13 ------ stepsize=    0.0000 -----------------------
+ | Etotal =0.008      grad(E)=0.043      E(CDIH)=0.008                         |
+ -------------------------------------------------------------------------------
+ --------------- cycle=    14 ------ stepsize=    0.0966 -----------------------
+ | Etotal =1.630      grad(E)=1.473      E(CDIH)=1.630                         |
+ -------------------------------------------------------------------------------
+ --------------- cycle=    15 ------ stepsize=    0.0001 -----------------------
+ | Etotal =0.008      grad(E)=0.043      E(CDIH)=0.008                         |
+ -------------------------------------------------------------------------------
+ --------------- cycle=    16 ------ stepsize=    0.0482 -----------------------
+ | Etotal =1.634      grad(E)=1.492      E(CDIH)=1.634                         |
+ -------------------------------------------------------------------------------
+ --------------- cycle=    17 ------ stepsize=    0.0000 -----------------------
+ | Etotal =0.008      grad(E)=0.043      E(CDIH)=0.008                         |
+ -------------------------------------------------------------------------------
+ --------------- cycle=    18 ------ stepsize=    0.0241 -----------------------
+ | Etotal =0.006      grad(E)=0.036      E(CDIH)=0.006                         |
+ -------------------------------------------------------------------------------
+ --------------- cycle=    19 ------ stepsize=    0.0120 -----------------------
+ | Etotal =1.635      grad(E)=1.497      E(CDIH)=1.635                         |
+ -------------------------------------------------------------------------------
+ --------------- cycle=    20 ------ stepsize=    0.0000 -----------------------
+ | Etotal =0.006      grad(E)=0.036      E(CDIH)=0.006                         |
+ -------------------------------------------------------------------------------
+ POWELL: STEP number limit. Normal termination
+ POWELL: Current coordinates set to last minimum
+ CNSsolve> 
+ CNSsolve>restraints dihe reset 
+ DIHEDRAL>      assign ( name ht2 ) ( name cd1 ) ( name ce3 ) ( name cz2 ) 
+ SELRPN:      1 atoms have been selected out of     19
+ SELRPN:      1 atoms have been selected out of     19
+ SELRPN:      1 atoms have been selected out of     19
+ SELRPN:      1 atoms have been selected out of     19
+ force-constant=       1000.0 180.0 20. 4 
+ DIHEDRAL>end 
+ CNSsolve> 
+ CNSsolve>minimize powell nstep=30 step=20 end 
+ POWELL: number of degrees of freedom=    57
+ --------------- cycle=     1 ------ stepsize=    0.0000 -----------------------
+ | Etotal =3544.438   grad(E)=712.857    E(CDIH)=3544.438                      |
+ -------------------------------------------------------------------------------
+ --------------- cycle=     2 ------ stepsize=    0.0000 -----------------------
+ | Etotal =2876.437   grad(E)=623.996    E(CDIH)=2876.437                      |
+ -------------------------------------------------------------------------------
+ --------------- cycle=     3 ------ stepsize=    0.0002 -----------------------
+ | Etotal =362.003    grad(E)=149.915    E(CDIH)=362.003                       |
+ -------------------------------------------------------------------------------
+ --------------- cycle=     4 ------ stepsize=    0.0001 -----------------------
+ | Etotal =101.204    grad(E)=59.114     E(CDIH)=101.204                       |
+ -------------------------------------------------------------------------------
+ --------------- cycle=     5 ------ stepsize=    0.0001 -----------------------
+ | Etotal =25.870     grad(E)=21.430     E(CDIH)=25.870                        |
+ -------------------------------------------------------------------------------
+ --------------- cycle=     6 ------ stepsize=    0.0003 -----------------------
+ | Etotal =18.469     grad(E)=16.747     E(CDIH)=18.469                        |
+ -------------------------------------------------------------------------------
+ --------------- cycle=     7 ------ stepsize=    0.0012 -----------------------
+ | Etotal =3.607      grad(E)=5.018      E(CDIH)=3.607                         |
+ -------------------------------------------------------------------------------
+ --------------- cycle=     8 ------ stepsize=    0.0007 -----------------------
+ | Etotal =0.917      grad(E)=1.812      E(CDIH)=0.917                         |
+ -------------------------------------------------------------------------------
+ --------------- cycle=     9 ------ stepsize=    0.0005 -----------------------
+ | Etotal =0.226      grad(E)=0.637      E(CDIH)=0.226                         |
+ -------------------------------------------------------------------------------
+ --------------- cycle=    10 ------ stepsize=    0.0027 -----------------------
+ | Etotal =0.170      grad(E)=0.515      E(CDIH)=0.170                         |
+ -------------------------------------------------------------------------------
+ --------------- cycle=    11 ------ stepsize=    0.0119 -----------------------
+ | Etotal =0.035      grad(E)=0.157      E(CDIH)=0.035                         |
+ -------------------------------------------------------------------------------
+ --------------- cycle=    12 ------ stepsize=    0.0070 -----------------------
+ | Etotal =0.009      grad(E)=0.057      E(CDIH)=0.009                         |
+ -------------------------------------------------------------------------------
+ --------------- cycle=    13 ------ stepsize=    0.0051 -----------------------
+ | Etotal =0.002      grad(E)=0.020      E(CDIH)=0.002                         |
+ -------------------------------------------------------------------------------
+ --------------- cycle=    14 ------ stepsize=    0.0267 -----------------------
+ | Etotal =0.002      grad(E)=0.016      E(CDIH)=0.002                         |
+ -------------------------------------------------------------------------------
+ --------------- cycle=    15 ------ stepsize=    0.1177 -----------------------
+ | Etotal =0.000      grad(E)=0.005      E(CDIH)=0.000                         |
+ -------------------------------------------------------------------------------
+ --------------- cycle=    16 ------ stepsize=    0.0699 -----------------------
+ | Etotal =0.000      grad(E)=0.002      E(CDIH)=0.000                         |
+ -------------------------------------------------------------------------------
+ --------------- cycle=    17 ------ stepsize=    0.0509 -----------------------
+ | Etotal =0.000      grad(E)=0.001      E(CDIH)=0.000                         |
+ -------------------------------------------------------------------------------
+ --------------- cycle=    18 ------ stepsize=    0.2653 -----------------------
+ | Etotal =0.000      grad(E)=0.001      E(CDIH)=0.000                         |
+ -------------------------------------------------------------------------------
+ --------------- cycle=    19 ------ stepsize=    1.1745 -----------------------
+ | Etotal =0.000      grad(E)=0.000      E(CDIH)=0.000                         |
+ -------------------------------------------------------------------------------
+ --------------- cycle=    20 ------ stepsize=    0.6988 -----------------------
+ | Etotal =0.000      grad(E)=0.000      E(CDIH)=0.000                         |
+ -------------------------------------------------------------------------------
+ POWELL: Gradient converged. Normal termination
+ POWELL: Current coordinates set to last minimum
+ CNSsolve> 
+ CNSsolve>restraints dihe ? reset 
+ Total number of dihedral angle restraints=     1
+  overall scale =    1.0000
+ ========================================
+ MAIN 1    TRP  HT2 
+ MAIN 1    TRP  CD1 
+ MAIN 1    TRP  CE3 
+ MAIN 1    TRP  CZ2 
+ Dihedral=  159.688  Energy=    0.000 C= 1000.000 Equil=  180.000 Delta=    0.312
+ Range=  20.000 Exponent=  4
+ Number of dihedral angle restraints=    1
+ RMS deviation=   0.312
+ DIHEDRAL>      assign ( name ht2 ) ( name cd1 ) ( name ce3 ) ( name cz2 ) 
+ SELRPN:      1 atoms have been selected out of     19
+ SELRPN:      1 atoms have been selected out of     19
+ SELRPN:      1 atoms have been selected out of     19
+ SELRPN:      1 atoms have been selected out of     19
+ force-constant=       1000.0 -100.0 10. 4 
+ DIHEDRAL>end 
+ CNSsolve> 
+ CNSsolve>minimize powell nstep=30 step=20 end 
+ POWELL: number of degrees of freedom=    57
+ --------------- cycle=     1 ------ stepsize=    0.0000 -----------------------
+ | Etotal =6172.983   grad(E)=1370.682   E(CDIH)=6172.983                      |
+ -------------------------------------------------------------------------------
+ --------------- cycle=     2 ------ stepsize=    0.0000 -----------------------
+ | Etotal =4908.196   grad(E)=1162.102   E(CDIH)=4908.196                      |
+ -------------------------------------------------------------------------------
+ --------------- cycle=     3 ------ stepsize=    0.0001 -----------------------
+ | Etotal =969.103    grad(E)=337.383    E(CDIH)=969.103                       |
+ -------------------------------------------------------------------------------
+ --------------- cycle=     4 ------ stepsize=    0.0000 -----------------------
+ | Etotal =306.496    grad(E)=135.598    E(CDIH)=306.496                       |
+ -------------------------------------------------------------------------------
+ --------------- cycle=     5 ------ stepsize=    0.0000 -----------------------
+ | Etotal =92.734     grad(E)=52.344     E(CDIH)=92.734                        |
+ -------------------------------------------------------------------------------
+ --------------- cycle=     6 ------ stepsize=    0.0002 -----------------------
+ | Etotal =70.572     grad(E)=42.370     E(CDIH)=70.572                        |
+ -------------------------------------------------------------------------------
+ --------------- cycle=     7 ------ stepsize=    0.0007 -----------------------
+ | Etotal =16.086     grad(E)=13.499     E(CDIH)=16.086                        |
+ -------------------------------------------------------------------------------
+ --------------- cycle=     8 ------ stepsize=    0.0004 -----------------------
+ | Etotal =4.474      grad(E)=5.036      E(CDIH)=4.474                         |
+ -------------------------------------------------------------------------------
+ --------------- cycle=     9 ------ stepsize=    0.0003 -----------------------
+ | Etotal =1.191      grad(E)=1.825      E(CDIH)=1.191                         |
+ -------------------------------------------------------------------------------
+ --------------- cycle=    10 ------ stepsize=    0.0016 -----------------------
+ | Etotal =0.908      grad(E)=1.485      E(CDIH)=0.908                         |
+ -------------------------------------------------------------------------------
+ --------------- cycle=    11 ------ stepsize=    0.0075 -----------------------
+ | Etotal =0.196      grad(E)=0.464      E(CDIH)=0.196                         |
+ -------------------------------------------------------------------------------
+ --------------- cycle=    12 ------ stepsize=    0.0046 -----------------------
+ | Etotal =0.052      grad(E)=0.170      E(CDIH)=0.052                         |
+ -------------------------------------------------------------------------------
+ --------------- cycle=    13 ------ stepsize=    0.0034 -----------------------
+ | Etotal =0.013      grad(E)=0.060      E(CDIH)=0.013                         |
+ -------------------------------------------------------------------------------
+ --------------- cycle=    14 ------ stepsize=    0.0172 -----------------------
+ | Etotal =0.010      grad(E)=0.049      E(CDIH)=0.010                         |
+ -------------------------------------------------------------------------------
+ --------------- cycle=    15 ------ stepsize=    0.0772 -----------------------
+ | Etotal =0.002      grad(E)=0.015      E(CDIH)=0.002                         |
+ -------------------------------------------------------------------------------
+ --------------- cycle=    16 ------ stepsize=    0.0465 -----------------------
+ | Etotal =0.001      grad(E)=0.005      E(CDIH)=0.001                         |
+ -------------------------------------------------------------------------------
+ --------------- cycle=    17 ------ stepsize=    0.0341 -----------------------
+ | Etotal =0.000      grad(E)=0.002      E(CDIH)=0.000                         |
+ -------------------------------------------------------------------------------
+ --------------- cycle=    18 ------ stepsize=    0.1750 -----------------------
+ | Etotal =0.000      grad(E)=0.002      E(CDIH)=0.000                         |
+ -------------------------------------------------------------------------------
+ --------------- cycle=    19 ------ stepsize=    0.7783 -----------------------
+ | Etotal =0.000      grad(E)=0.000      E(CDIH)=0.000                         |
+ -------------------------------------------------------------------------------
+ --------------- cycle=    20 ------ stepsize=    0.4651 -----------------------
+ | Etotal =0.000      grad(E)=0.000      E(CDIH)=0.000                         |
+ -------------------------------------------------------------------------------
+ --------------- cycle=    21 ------ stepsize=    0.3399 -----------------------
+ | Etotal =0.000      grad(E)=0.000      E(CDIH)=0.000                         |
+ -------------------------------------------------------------------------------
+ POWELL: Gradient converged. Normal termination
+ POWELL: Current coordinates set to last minimum
+ CNSsolve> 
+ CNSsolve>restraints dihe ? reset 
+ Total number of dihedral angle restraints=     1
+  overall scale =    1.0000
+ ========================================
+ MAIN 1    TRP  HT2 
+ MAIN 1    TRP  CD1 
+ MAIN 1    TRP  CE3 
+ MAIN 1    TRP  CZ2 
+ Dihedral= -110.349  Energy=    0.000 C= 1000.000 Equil= -100.000 Delta=    0.349
+ Range=  10.000 Exponent=  4
+ Number of dihedral angle restraints=    1
+ RMS deviation=   0.349
+ DIHEDRAL>      assign ( name ht2 ) ( name cd1 ) ( name ce3 ) ( name cz2 ) 
+ SELRPN:      1 atoms have been selected out of     19
+ SELRPN:      1 atoms have been selected out of     19
+ SELRPN:      1 atoms have been selected out of     19
+ SELRPN:      1 atoms have been selected out of     19
+ force-constant=       1000.0 +20.0 10. 4 
+ DIHEDRAL>end 
+ CNSsolve> 
+ CNSsolve>minimize powell nstep=30 step=20 end 
+ POWELL: number of degrees of freedom=    57
+ --------------- cycle=     1 ------ stepsize=    0.0000 -----------------------
+ | Etotal =19466.394  grad(E)=2509.173   E(CDIH)=19466.394                     |
+ -------------------------------------------------------------------------------
+ --------------- cycle=     2 ------ stepsize=    0.0000 -----------------------
+ | Etotal =17098.834  grad(E)=2231.118   E(CDIH)=17098.834                     |
+ -------------------------------------------------------------------------------
+ --------------- cycle=     3 ------ stepsize=    0.0001 -----------------------
+ | Etotal =5655.574   grad(E)=798.936    E(CDIH)=5655.574                      |
+ -------------------------------------------------------------------------------
+ --------------- cycle=     4 ------ stepsize=    0.0000 -----------------------
+ | Etotal =2410.495   grad(E)=359.260    E(CDIH)=2410.495                      |
+ -------------------------------------------------------------------------------
+ --------------- cycle=     5 ------ stepsize=    0.0000 -----------------------
+ | Etotal =1027.844   grad(E)=162.955    E(CDIH)=1027.844                      |
+ -------------------------------------------------------------------------------
+ --------------- cycle=     6 ------ stepsize=    0.0002 -----------------------
+ | Etotal =816.907    grad(E)=134.737    E(CDIH)=816.907                       |
+ -------------------------------------------------------------------------------
+ --------------- cycle=     7 ------ stepsize=    0.0008 -----------------------
+ | Etotal =222.110    grad(E)=46.344     E(CDIH)=222.110                       |
+ -------------------------------------------------------------------------------
+ --------------- cycle=     8 ------ stepsize=    0.0005 -----------------------
+ | Etotal =71.926     grad(E)=18.679     E(CDIH)=71.926                        |
+ -------------------------------------------------------------------------------
+ --------------- cycle=     9 ------ stepsize=    0.0005 -----------------------
+ | Etotal =22.300     grad(E)=7.366      E(CDIH)=22.300                        |
+ -------------------------------------------------------------------------------
+ --------------- cycle=    10 ------ stepsize=    0.0019 -----------------------
+ | Etotal =16.924     grad(E)=5.974      E(CDIH)=16.924                        |
+ -------------------------------------------------------------------------------
+ --------------- cycle=    11 ------ stepsize=    0.0087 -----------------------
+ | Etotal =3.649      grad(E)=1.868      E(CDIH)=3.649                         |
+ -------------------------------------------------------------------------------
+ --------------- cycle=    12 ------ stepsize=    0.0053 -----------------------
+ | Etotal =0.975      grad(E)=0.689      E(CDIH)=0.975                         |
+ -------------------------------------------------------------------------------
+ --------------- cycle=    13 ------ stepsize=    0.0040 -----------------------
+ | Etotal =0.250      grad(E)=0.247      E(CDIH)=0.250                         |
+ -------------------------------------------------------------------------------
+ --------------- cycle=    14 ------ stepsize=    0.0198 -----------------------
+ | Etotal =0.188      grad(E)=0.199      E(CDIH)=0.188                         |
+ -------------------------------------------------------------------------------
+ --------------- cycle=    15 ------ stepsize=    0.0872 -----------------------
+ | Etotal =0.039      grad(E)=0.061      E(CDIH)=0.039                         |
+ -------------------------------------------------------------------------------
+ --------------- cycle=    16 ------ stepsize=    0.0518 -----------------------
+ | Etotal =0.010      grad(E)=0.022      E(CDIH)=0.010                         |
+ -------------------------------------------------------------------------------
+ --------------- cycle=    17 ------ stepsize=    0.0378 -----------------------
+ | Etotal =0.003      grad(E)=0.008      E(CDIH)=0.003                         |
+ -------------------------------------------------------------------------------
+ --------------- cycle=    18 ------ stepsize=    0.1967 -----------------------
+ | Etotal =0.002      grad(E)=0.006      E(CDIH)=0.002                         |
+ -------------------------------------------------------------------------------
+ --------------- cycle=    19 ------ stepsize=    0.8696 -----------------------
+ | Etotal =0.000      grad(E)=0.002      E(CDIH)=0.000                         |
+ -------------------------------------------------------------------------------
+ --------------- cycle=    20 ------ stepsize=    0.5170 -----------------------
+ | Etotal =0.000      grad(E)=0.001      E(CDIH)=0.000                         |
+ -------------------------------------------------------------------------------
+ --------------- cycle=    21 ------ stepsize=    0.3769 -----------------------
+ | Etotal =0.000      grad(E)=0.000      E(CDIH)=0.000                         |
+ -------------------------------------------------------------------------------
+ --------------- cycle=    22 ------ stepsize=    1.9601 -----------------------
+ | Etotal =0.000      grad(E)=0.000      E(CDIH)=0.000                         |
+ -------------------------------------------------------------------------------
+ --------------- cycle=    23 ------ stepsize=    8.6778 -----------------------
+ | Etotal =0.000      grad(E)=0.000      E(CDIH)=0.000                         |
+ -------------------------------------------------------------------------------
+ POWELL: Gradient converged. Normal termination
+ POWELL: Current coordinates set to last minimum
+ CNSsolve> 
+ CNSsolve>restraints dihe ? reset 
+ Total number of dihedral angle restraints=     1
+  overall scale =    1.0000
+ ========================================
+ MAIN 1    TRP  HT2 
+ MAIN 1    TRP  CD1 
+ MAIN 1    TRP  CE3 
+ MAIN 1    TRP  CZ2 
+ Dihedral=    9.548  Energy=    0.000 C= 1000.000 Equil=   20.000 Delta=    0.452
+ Range=  10.000 Exponent=  4
+ Number of dihedral angle restraints=    1
+ RMS deviation=   0.452
+ DIHEDRAL>      assign ( name ht2 ) ( name cd1 ) ( name ce3 ) ( name cz2 ) 
+ SELRPN:      1 atoms have been selected out of     19
+ SELRPN:      1 atoms have been selected out of     19
+ SELRPN:      1 atoms have been selected out of     19
+ SELRPN:      1 atoms have been selected out of     19
+ force-constant=       1000.0 +180.0 100. 4 
+ DIHEDRAL>end 
+ CNSsolve> 
+ CNSsolve>minimize powell nstep=30 step=20 end 
+ POWELL: number of degrees of freedom=    57
+ --------------- cycle=     1 ------ stepsize=    0.0000 -----------------------
+ | Etotal =2286.079   grad(E)=231.749    E(CDIH)=2286.079                      |
+ -------------------------------------------------------------------------------
+ --------------- cycle=     2 ------ stepsize=    0.0001 -----------------------
+ | Etotal =2062.755   grad(E)=215.062    E(CDIH)=2062.755                      |
+ -------------------------------------------------------------------------------
+ --------------- cycle=     3 ------ stepsize=    0.0007 -----------------------
+ | Etotal =707.526    grad(E)=98.234     E(CDIH)=707.526                       |
+ -------------------------------------------------------------------------------
+ --------------- cycle=     4 ------ stepsize=    0.0007 -----------------------
+ | Etotal =183.451    grad(E)=36.201     E(CDIH)=183.451                       |
+ -------------------------------------------------------------------------------
+ --------------- cycle=     5 ------ stepsize=    0.0005 -----------------------
+ | Etotal =52.815     grad(E)=14.335     E(CDIH)=52.815                        |
+ -------------------------------------------------------------------------------
+ --------------- cycle=     6 ------ stepsize=    0.0019 -----------------------
+ | Etotal =33.976     grad(E)=10.461     E(CDIH)=33.976                        |
+ -------------------------------------------------------------------------------
+ --------------- cycle=     7 ------ stepsize=    0.0054 -----------------------
+ | Etotal =6.306      grad(E)=3.091      E(CDIH)=6.306                         |
+ -------------------------------------------------------------------------------
+ --------------- cycle=     8 ------ stepsize=    0.0029 -----------------------
+ | Etotal =1.565      grad(E)=1.112      E(CDIH)=1.565                         |
+ -------------------------------------------------------------------------------
+ --------------- cycle=     9 ------ stepsize=    0.0021 -----------------------
+ | Etotal =0.379      grad(E)=0.390      E(CDIH)=0.379                         |
+ -------------------------------------------------------------------------------
+ --------------- cycle=    10 ------ stepsize=    0.0122 -----------------------
+ | Etotal =0.283      grad(E)=0.314      E(CDIH)=0.283                         |
+ -------------------------------------------------------------------------------
+ --------------- cycle=    11 ------ stepsize=    0.0537 -----------------------
+ | Etotal =0.056      grad(E)=0.095      E(CDIH)=0.056                         |
+ -------------------------------------------------------------------------------
+ --------------- cycle=    12 ------ stepsize=    0.0309 -----------------------
+ | Etotal =0.014      grad(E)=0.034      E(CDIH)=0.014                         |
+ -------------------------------------------------------------------------------
+ --------------- cycle=    13 ------ stepsize=    0.0222 -----------------------
+ | Etotal =0.003      grad(E)=0.012      E(CDIH)=0.003                         |
+ -------------------------------------------------------------------------------
+ --------------- cycle=    14 ------ stepsize=    0.1190 -----------------------
+ | Etotal =0.003      grad(E)=0.010      E(CDIH)=0.003                         |
+ -------------------------------------------------------------------------------
+ --------------- cycle=    15 ------ stepsize=    0.5203 -----------------------
+ | Etotal =0.001      grad(E)=0.003      E(CDIH)=0.001                         |
+ -------------------------------------------------------------------------------
+ --------------- cycle=    16 ------ stepsize=    0.3068 -----------------------
+ | Etotal =0.000      grad(E)=0.001      E(CDIH)=0.000                         |
+ -------------------------------------------------------------------------------
+ --------------- cycle=    17 ------ stepsize=    0.2227 -----------------------
+ | Etotal =0.000      grad(E)=0.000      E(CDIH)=0.000                         |
+ -------------------------------------------------------------------------------
+ --------------- cycle=    18 ------ stepsize=    1.1688 -----------------------
+ | Etotal =0.000      grad(E)=0.000      E(CDIH)=0.000                         |
+ -------------------------------------------------------------------------------
+ --------------- cycle=    19 ------ stepsize=    5.1628 -----------------------
+ | Etotal =0.000      grad(E)=0.000      E(CDIH)=0.000                         |
+ -------------------------------------------------------------------------------
+ POWELL: Gradient converged. Normal termination
+ POWELL: Current coordinates set to last minimum
+ CNSsolve> 
+ CNSsolve>restraints dihe ? end 
+ Total number of dihedral angle restraints=     1
+  overall scale =    1.0000
+ ========================================
+ MAIN 1    TRP  HT2 
+ MAIN 1    TRP  CD1 
+ MAIN 1    TRP  CE3 
+ MAIN 1    TRP  CZ2 
+ Dihedral=   79.512  Energy=    0.000 C= 1000.000 Equil=  180.000 Delta=    0.488
+ Range= 100.000 Exponent=  4
+ Number of dihedral angle restraints=    1
+ RMS deviation=   0.488
+ CNSsolve> 
+ CNSsolve> 
+ CNSsolve>{* now test the planarity restraints *} 
+ CNSsolve> 
+ CNSsolve>flags exclude * include plan bond angle end 
+ CNSsolve> 
+ CNSsolve>restraints plane 
+ PLANe>     group 
+ PLANe-GROUp>    selection=( name ca or name n  or name ht* ) 
+ SELRPN:      5 atoms have been selected out of     19
+ PLANe-GROUp>       weight=500. 
+ PLANe-GROUp>     end 
+ PLANe>     group 
+ PLANe-GROUp>       selection=( not ( name ca or name n  or name ht* ) ) 
+ SELRPN:     14 atoms have been selected out of     19
+ PLANe-GROUp>       weight=400. 
+ PLANe-GROUp>    end 
+ PLANe>end 
+ CNSsolve> 
+ CNSsolve>mini powell nstep=20 end 
+ POWELL: number of degrees of freedom=    57
+ --------------- cycle=     1 ------ stepsize=    0.0000 -----------------------
+ | Etotal =139152.293 grad(E)=6251.925   E(BOND)=109711.588 E(ANGL)=21786.365  |
+ | E(PLAN)=7654.339                                                            |
+ -------------------------------------------------------------------------------
+ --------------- cycle=     2 ------ stepsize=    0.0000 -----------------------
+ | Etotal =132980.615 grad(E)=6093.109   E(BOND)=104346.696 E(ANGL)=21169.822  |
+ | E(PLAN)=7464.097                                                            |
+ -------------------------------------------------------------------------------
+ --------------- cycle=     3 ------ stepsize=    0.0000 -----------------------
+ | Etotal =84820.412  grad(E)=4630.191   E(BOND)=63859.752  E(ANGL)=15038.935  |
+ | E(PLAN)=5921.725                                                            |
+ -------------------------------------------------------------------------------
+ --------------- cycle=     4 ------ stepsize=    0.0001 -----------------------
+ | Etotal =28286.108  grad(E)=2263.059   E(BOND)=17508.645  E(ANGL)=7321.253   |
+ | E(PLAN)=3456.210                                                            |
+ -------------------------------------------------------------------------------
+ --------------- cycle=     5 ------ stepsize=    0.0001 -----------------------
+ | Etotal =15442.921  grad(E)=1416.006   E(BOND)=9283.122   E(ANGL)=3749.533   |
+ | E(PLAN)=2410.265                                                            |
+ -------------------------------------------------------------------------------
+ --------------- cycle=     6 ------ stepsize=    0.0000 -----------------------
+ | Etotal =15354.584  grad(E)=1313.971   E(BOND)=8839.431   E(ANGL)=4048.979   |
+ | E(PLAN)=2466.174                                                            |
+ -------------------------------------------------------------------------------
+ --------------- cycle=     7 ------ stepsize=    0.0001 -----------------------
+ | Etotal =12127.535  grad(E)=1925.107   E(BOND)=7744.446   E(ANGL)=2337.700   |
+ | E(PLAN)=2045.390                                                            |
+ -------------------------------------------------------------------------------
+ --------------- cycle=     8 ------ stepsize=    0.0000 -----------------------
+ | Etotal =11494.792  grad(E)=1199.912   E(BOND)=7396.854   E(ANGL)=1960.847   |
+ | E(PLAN)=2137.090                                                            |
+ -------------------------------------------------------------------------------
+ --------------- cycle=     9 ------ stepsize=    0.0001 -----------------------
+ | Etotal =8388.971   grad(E)=808.079    E(BOND)=4845.479   E(ANGL)=1669.824   |
+ | E(PLAN)=1873.668                                                            |
+ -------------------------------------------------------------------------------
+ --------------- cycle=    10 ------ stepsize=    0.0000 -----------------------
+ | Etotal =8285.137   grad(E)=884.503    E(BOND)=4544.454   E(ANGL)=1902.481   |
+ | E(PLAN)=1838.202                                                            |
+ -------------------------------------------------------------------------------
+ --------------- cycle=    11 ------ stepsize=    0.0001 -----------------------
+ | Etotal =6096.990   grad(E)=524.885    E(BOND)=3523.758   E(ANGL)=756.339    |
+ | E(PLAN)=1816.893                                                            |
+ -------------------------------------------------------------------------------
+ --------------- cycle=    12 ------ stepsize=    0.0000 -----------------------
+ | Etotal =6059.387   grad(E)=570.281    E(BOND)=3463.080   E(ANGL)=774.465    |
+ | E(PLAN)=1821.841                                                            |
+ -------------------------------------------------------------------------------
+ --------------- cycle=    13 ------ stepsize=    0.0001 -----------------------
+ | Etotal =4940.596   grad(E)=483.932    E(BOND)=2395.740   E(ANGL)=818.516    |
+ | E(PLAN)=1726.340                                                            |
+ -------------------------------------------------------------------------------
+ --------------- cycle=    14 ------ stepsize=    0.0000 -----------------------
+ | Etotal =4870.465   grad(E)=606.385    E(BOND)=2195.147   E(ANGL)=970.184    |
+ | E(PLAN)=1705.133                                                            |
+ -------------------------------------------------------------------------------
+ --------------- cycle=    15 ------ stepsize=    0.0001 -----------------------
+ | Etotal =3365.930   grad(E)=532.010    E(BOND)=935.427    E(ANGL)=827.164    |
+ | E(PLAN)=1603.338                                                            |
+ -------------------------------------------------------------------------------
+ --------------- cycle=    16 ------ stepsize=    0.0000 -----------------------
+ | Etotal =3250.139   grad(E)=675.100    E(BOND)=780.379    E(ANGL)=879.988    |
+ | E(PLAN)=1589.772                                                            |
+ -------------------------------------------------------------------------------
+ --------------- cycle=    17 ------ stepsize=    0.0001 -----------------------
+ | Etotal =3280.155   grad(E)=847.184    E(BOND)=619.457    E(ANGL)=1206.165   |
+ | E(PLAN)=1454.534                                                            |
+ -------------------------------------------------------------------------------
+ --------------- cycle=    18 ------ stepsize=    0.0001 -----------------------
+ | Etotal =2487.294   grad(E)=340.487    E(BOND)=381.005    E(ANGL)=605.571    |
+ | E(PLAN)=1500.718                                                            |
+ -------------------------------------------------------------------------------
+ --------------- cycle=    19 ------ stepsize=    0.0001 -----------------------
+ | Etotal =2172.497   grad(E)=243.876    E(BOND)=236.778    E(ANGL)=546.114    |
+ | E(PLAN)=1389.604                                                            |
+ -------------------------------------------------------------------------------
+ --------------- cycle=    20 ------ stepsize=    0.0001 -----------------------
+ | Etotal =2048.321   grad(E)=361.467    E(BOND)=215.261    E(ANGL)=563.346    |
+ | E(PLAN)=1269.714                                                            |
+ -------------------------------------------------------------------------------
+ POWELL: STEP number limit. Normal termination
+ POWELL: Current coordinates set to last minimum
+ CNSsolve> 
+ CNSsolve>display  $planx[F10.4] $plany[F10.4] $planz[F10.4] 
+     0.2652     0.8868    -0.3785
+ CNSsolve> 
+ CNSsolve>write coordinates end 
+REMARK FILENAME="OUTPUT"
+REMARK file toppar/protein.link
+REMARK this is a macro to define standard protein peptide bonds
+REMARK and termini to generate a protein sequence.
+REMARK DATE:05-Jul-2018  16:08:09       created by user: oeow39
+REMARK VERSION:1.3
+ATOM      1  CB  TRP     1       2.755   1.765   0.073  1.00  0.00      MAIN
+ATOM      2  CG  TRP     1       3.976   1.503  -0.336  1.00  0.00      MAIN
+ATOM      3  CD2 TRP     1       4.169   1.238  -1.687  1.00  0.00      MAIN
+ATOM      4  CE2 TRP     1       4.952   0.104  -1.684  1.00  0.00      MAIN
+ATOM      5  CE3 TRP     1       3.403   1.235  -2.823  1.00  0.00      MAIN
+ATOM      6  CD1 TRP     1       4.990   1.115   0.360  1.00  0.00      MAIN
+ATOM      7  NE1 TRP     1       5.764   0.411  -0.556  1.00  0.00      MAIN
+ATOM      8  HE1 TRP     1       6.363   0.350  -0.242  1.00  0.00      MAIN
+ATOM      9  CZ2 TRP     1       4.407  -0.888  -2.056  1.00  0.00      MAIN
+ATOM     10  CZ3 TRP     1       3.431   0.292  -3.633  1.00  0.00      MAIN
+ATOM     11  CH2 TRP     1       3.974  -0.853  -3.319  1.00  0.00      MAIN
+ATOM     12  C   TRP     1       0.448   1.880  -0.118  1.00  0.00      MAIN
+ATOM     13  O   TRP     1      -0.585   2.228  -0.774  1.00  0.00      MAIN
+ATOM     14  OXT TRP     1       0.423   2.440   1.064  1.00  0.00      MAIN
+ATOM     15  HT1 TRP     1       1.337  -0.019  -1.068  1.00  0.00      MAIN
+ATOM     16  HT2 TRP     1       3.044  -0.724  -1.779  1.00  0.00      MAIN
+ATOM     17  N   TRP     1       2.318  -0.303  -1.339  1.00  0.00      MAIN
+ATOM     18  HT3 TRP     1       1.374  -0.516  -1.524  1.00  0.00      MAIN
+ATOM     19  CA  TRP     1       1.745   0.983  -0.623  1.00  0.00      MAIN
+END
+ CNSsolve> 
+ CNSsolve> 
+ CNSsolve>stop 
+          ============================================================
+           Maximum dynamic memory allocation:     8252216 bytes
+           Maximum dynamic memory overhead:           896 bytes
+           Program started at: 16:08:09 on 05-Jul-2018
+           Program stopped at: 16:08:09 on 05-Jul-2018
+           CPU time used:       0.0286 seconds
+          ============================================================

@@ -1,0 +1,986 @@
+REMARKS  XANOM.INP 
+remarks  test anomalous scattering features, test special positions 
+
+parameter @CNS_TOPPAR:protein.param end
+
+{* read a ca trace *}
+struc 
+data_cns_mtf
+
+_cns_mtf.title
+; FILENAME="/data/rwgk/test/tmp.mtf"
+  DATE:18-Nov-98  14:17:49       created by user: rwgk
+  VERSION:0.4a
+;
+
+loop_
+_cns_mtf_atom.id
+_cns_mtf_atom.segment_id
+_cns_mtf_atom.residue_id
+_cns_mtf_atom.residue_name
+_cns_mtf_atom.atom_name
+_cns_mtf_atom.chemical_type
+_cns_mtf_atom.charge
+_cns_mtf_atom.atom_mass
+1 ' ' '1' 'LYS' 'CA' 'CH1E' 0.250000 13.0190
+2 ' ' '2' 'LYS' 'CA' 'CH1E' 0.250000 13.0190
+3 ' ' '3' 'LYS' 'CA' 'CH1E' 0.250000 13.0190
+-1 ' ' ' ' ' ' ' ' ' ' -1.00000 -1.00000
+
+loop_
+_cns_mtf_bond.id[1]
+_cns_mtf_bond.id[2]
+-1 -1
+
+loop_
+_cns_mtf_angle.id[1]
+_cns_mtf_angle.id[2]
+_cns_mtf_angle.id[3]
+-1 -1 -1
+
+loop_
+_cns_mtf_dihedral.id[1]
+_cns_mtf_dihedral.id[2]
+_cns_mtf_dihedral.id[3]
+_cns_mtf_dihedral.id[4]
+-1 -1 -1 -1
+
+loop_
+_cns_mtf_improper.id[1]
+_cns_mtf_improper.id[2]
+_cns_mtf_improper.id[3]
+_cns_mtf_improper.id[4]
+-1 -1 -1 -1
+
+loop_
+_cns_mtf_explicit_nonbonded_exclusion.inb
+-1
+
+loop_
+_cns_mtf_explicit_nonbonded_exclusion.iblo
+0
+0
+0
+-1
+
+loop_
+_cns_mtf_group_linked_list.first_atom_id
+0
+1
+-1
+
+end
+
+coor 
+ATOM      1  CA  LYS     1       8.000   8.000   8.000  1.00 15.00          
+ATOM      2  CA  LYS     2       1.400   6.200  18.000  1.00 15.00          
+ATOM      3  CA  LYS     3       2.400   9.200  16.000  1.00 15.00          
+END 
+
+
+
+{* atom 1 is anomalous *}
+do ( chemical="FE") ( resid 1 )
+
+{* do  a few tests in P1 *}
+xray 
+  reset 
+  
+   declare name=fobs type=complex domain=reciprocal end
+   declare name=fpart domain=reciprocal type=complex end
+   declare name=fcalc domain=reciprocal type=complex end
+
+  evaluate ($lr=10.)
+  evaluate ($hr=6) 
+  binresolution $lr $hr 
+  mapresolution $hr
+  tselection=( $hr <= d <= $lr  ) 
+
+  a=16.00 b=16.00 c=8.00 alpha=90.0 beta=90.00 gamma=120.0
+
+  hermitian=false
+  symmetry=(x,y,z)
+
+  SCATter ( chemical FE ) 0. 0. 0. 0. 0. 0. 0. 0. 0. IMAG 0.1
+  associate fcalc ( chemical FE ) 
+  asele=( chemical FE ) 
+
+  associate fcalc ( resid 1 ) 
+  method=fft lookup=false
+  fft
+     prime=5 avoid=2 
+  end   
+  nreflections=1000 
+  generate  10. 6. 
+  do (fpart=0) ( all )
+
+  predict 
+      mode=reciprocal 
+      to=fcalc 
+      selection=( all ) 
+      atomselection=( chemical FE  ) 
+  end 
+  write reflection  fcalc  sele=( all ) end
+  SCATter reset
+  SCATter ( chemical FE ) 
+   2.31000 20.8439 1.02 10.2075 1.58860 .568700 .865000 51.651 .2156
+          IMAG 5.0 
+  associate fcalc ( chemical FE ) 
+  asele=( chemical FE  ) 
+  predict 
+      mode=reciprocal 
+      to=fcalc 
+      selection=( all ) 
+      atomselection=( chemical FE  ) 
+  end 
+  write reflection  fcalc  sele=( all ) end
+
+end
+
+{* now use symmetry and make a finite-difference test *}
+xray 
+  reset 
+    declare name=fobs type=complex domain=reciprocal end
+   declare name=fpart domain=reciprocal type=complex end
+   declare name=fcalc domain=reciprocal type=complex end
+ 
+  evaluate ($lr=10.)
+  evaluate ($hr=3) 
+  binresolution $lr $hr 
+  mapresolution $hr
+  tselection=( $hr <= d <= $lr  ) 
+
+  a=16.00 b=16.00 c=8.00 alpha=90.0 beta=90.00 gamma=120.0
+
+  hermitian=false
+  symmetry=(x,y,z)
+  symmetry=(-y,x-y,z)
+  symmetry=(y-x,-x,z) 
+  symmetry=(y,x,1/2+z) 
+  symmetry=(-x,y-x,1/2+z) 
+  symmetry=(x-y,-y,1/2+z)
+ 
+  SCATter ( chemical C* ) 
+ 2.31000 20.8439 1.02 10.2075 1.58860 .568700 .865000 51.651 .2156
+
+  SCATter ( chemical FE ) 
+   2.31000 20.8439 1.02 10.2075 1.58860 .568700 .865000 51.651 .2156
+   IMAG 5.0 
+  associate fcalc (chemical FE ) 
+  asele=( chemical FE ) 
+
+  tolerance=0. 
+  associate fcalc ( all )
+  method=fft lookup=false
+  fft
+     prime=5 avoid=2 
+  end   
+  nreflections=1000 
+  generate  10. 3. 
+  do (fpart=0) ( all )
+
+  predict 
+      mode=reciprocal 
+      to=fcalc 
+      selection=( all ) 
+      atomselection=( all  ) 
+  end 
+  do (fobs=fcalc ) ( all ) 
+end
+
+coor translate vector=( 1.1  0.8 1.4 ) sele=( resid 1 ) end
+coor translate vector=( 1.5  0.2 1.1 ) sele=( resid 2 ) end
+coor translate vector=( 0.5  0.5 1.7 ) sele=( resid 3 ) end
+
+flags exclu * inclu xref end 
+ 
+xray
+   method=fft lookup=false
+end
+test first sele=( all ) step=0.000004 tolerance=0.0 end
+
+xray
+  method=direct lookup=false
+end
+
+test first sele=( all ) step=0.000004 tolerance=0.0 end
+
+{* test density map calculation without hermitian symmetry *}
+{* ======================================================= *}
+{* first without anomalous scatterers *}
+xray 
+  reset 
+   declare name=fobs type=complex domain=reciprocal end
+   declare name=fpart domain=reciprocal type=complex end
+   declare name=fcalc domain=reciprocal type=complex end
+  
+  evaluate ($lr=10.)
+  evaluate ($hr=6) 
+  binresolution $lr $hr 
+  mapresolution $hr
+  tselection=( $hr <= d <= $lr ) 
+
+  a=16.00 b=16.00 c=8.00 alpha=90.0 beta=90.00 gamma=120.0
+
+  hermitian=false
+  symmetry=(x,y,z)
+  symmetry=(-y,x-y,z)
+  symmetry=(y-x,-x,z) 
+  symmetry=(y,x,1/2+z) 
+  symmetry=(-x,y-x,1/2+z) 
+  symmetry=(x-y,-y,1/2+z)
+  
+  SCATter ( chemical C* ) 
+ 2.31000 20.8439 1.02 10.2075 1.58860 .568700 .865000 51.651 .2156
+ 
+  SCATter ( chemical FE ) 
+   2.31000 20.8439 1.02 10.2075 1.58860 .568700 .865000 51.651 .2156
+         
+
+  tolerance=0. 
+  associate fcalc ( all )
+  aselection=( not all )
+  method=fft lookup=false
+  fft
+     prime=5 avoid=2 
+  end   
+  nreflections=1000 
+  generate  10. 6. 
+  do (fpart=0) ( all )
+
+  predict 
+      mode=reciprocal 
+      to=fcalc 
+      selection=( all ) 
+      atomselection=( all ) 
+  end 
+
+  declare name=map1 domain=real end
+  do (map1=ft(fcalc)) ( all ) 
+  
+  write map
+     from=map1
+     extend=unit
+     output=OUTPUT
+  end
+
+  undeclare name=map1 domain=real end
+  
+  hermitian=true 
+  declare name=map1 domain=real end
+  do (map1=ft(fcalc)) ( all ) 
+
+  write map
+     from=map1
+     extend=unit
+     output=OUTPUT
+  end
+      
+end
+
+
+{* now with anomalous scatterers *}
+xray 
+  reset 
+   declare name=fobs type=complex domain=reciprocal end
+   declare name=fpart domain=reciprocal type=complex end
+   declare name=fcalc domain=reciprocal type=complex end
+  
+  evaluate ($lr=10.)
+  evaluate ($hr=6.) 
+  binresolution $lr $hr 
+  mapresolution $hr
+  tselection=( $hr <= d <= $lr  ) 
+
+  a=16.00 b=16.00 c=8.00 alpha=90.0 beta=90.00 gamma=120.0
+
+  hermitian=false
+  symmetry=( x, y, z) 
+
+  SCATter ( chemical C* ) 
+ 2.31000 20.8439 1.02 10.2075 1.58860 .568700 .865000 51.651 .2156
+    IMAG 2.0
+  SCATter ( chemical FE ) 
+   2.31000 20.8439 1.02 10.2075 1.58860 .568700 .865000 51.651 .2156
+    IMAG 5.0 
+  associate fcalc ( chemical FE or chemical C*) 
+  asele=( chemical FE or chemical C*) 
+
+  tolerance=0. 
+  associate fcalc ( all )
+  method=fft lookup=false
+  fft
+     prime=5 avoid=2 
+  end   
+  nreflections=1000 
+  generate  10. 6.
+  do (fpart=0) ( all )
+
+  predict 
+      mode=reciprocal 
+      to=fcalc 
+      selection=( all ) 
+      atomselection=( chemical FE or chemical C* ) 
+  end 
+  declare name=map1 domain=real end
+  do (map1=ft(fcalc) ) ( all )
+  
+  write map
+     from=map1
+     extend=unit
+     output=OUTPUT
+     ioutput=OUTPUT
+  end
+ 
+  do (fobs=combine(40.+3.*amplitude(fcalc),0))   ( all ) 
+  optimize bfactor
+      debug=true
+      step=0.0001
+  end     
+end
+
+
+
+
+{* test special positions, first no special positions *}
+{* ================================================== *}
+do (chemical=C) ( all )
+xray
+  reset
+   declare name=fobs type=complex domain=reciprocal end
+   declare name=fpart domain=reciprocal type=complex end
+   declare name=fcalc domain=reciprocal type=complex end
+
+  a=16.00 b=16.00 c=8.00 alpha=90.0 beta=90.00 gamma=120.0
+  SCATter ( chemical C* ) 
+ 2.31000 20.8439 1.02 10.2075 1.58860 .568700 .865000 51.651 .2156
+
+  SCATter ( chemical FE ) 
+   2.31000 20.8439 1.02 10.2075 1.58860 .568700 .865000 51.651 .2156
+          IMAG 5.0
+  associate fcalc ( chemical FE or chemical C* ) 
+  asele=( chemical FE ) 
+
+  hermitian=true lookup=false
+  symmetry=(x,y,z)
+  symmetry=(-y,x-y,z)
+  symmetry=(y-x,-x,z) 
+  symmetry=(y,x,1/2+z) 
+  symmetry=(-x,y-x,1/2+z) 
+  symmetry=(x-y,-y,1/2+z)
+  
+  evaluate ($lr=10.)
+  evaluate ($hr=3) 
+  binresolution $lr $hr 
+  mapresolution $hr
+  tselection=( $hr <= d <= $lr ) 
+
+
+   generate 10. 3. 
+   do (fpart=0) ( all )
+  
+
+   associate fcalc ( all )
+
+   predict 
+      mode=reciprocal 
+      to=fcalc 
+      selection=( all ) 
+      atomselection=( chemical FE or chemical C* ) 
+   end 
+   do (fobs=combine(amplitude(fcalc),0) )  ( all ) 
+
+
+end
+
+flags excl * incl pvdw pele xref end
+energy end
+
+{* move atom one to a special position *}
+coor fractionalize end
+do ( x=0. ) ( resid 1 ) 
+do ( y=0. ) ( resid 1 )
+coor orthogonalize end
+energy end
+
+xray
+   associate fcalc ( resid 1 )
+   method=direct
+   predict 
+      mode=reciprocal 
+      to=fcalc 
+      selection=( all ) 
+      atomselection=( resid 1 ) 
+   end 
+   write reflection fcalc  sele=( all ) end 
+   symmetry reset
+   symmetry (x,y,z)
+   symmetry (x,y,z+1/2)
+   method=direct 
+   predict 
+      mode=reciprocal 
+      to=fcalc 
+      selection=( all ) 
+      atomselection=( resid 1 ) 
+   end 
+   write reflection fcalc  sele=( all ) end
+   method=fft
+   predict 
+      mode=reciprocal 
+      to=fcalc 
+      selection=( all ) 
+      atomselection=( resid 1 ) 
+   end 
+   write reflection fcalc  sele=( all ) end
+end 
+
+
+{* test anomalous differences *}
+coor translate vector=( 1.1  0.8 1.4 ) sele=( resid 1 ) end
+coor translate vector=( 1.5  0.2 1.1 ) sele=( resid 2 ) end
+coor translate vector=( 0.5  0.5 1.7 ) sele=( resid 3 ) end
+do ( chemical="FE") ( resid 1 )
+xray 
+  reset 
+   declare name=fobs type=complex domain=reciprocal end
+   declare name=fpart domain=reciprocal type=complex end
+   declare name=fcalc domain=reciprocal type=complex end
+  
+  evaluate ($lr=10.)
+  evaluate ($hr=6) 
+  binresolution $lr $hr 
+  mapresolution $hr
+  tselection=( $hr <= d <= $lr ) 
+
+  a=16.00 b=16.00 c=8.00 alpha=90.0 beta=90.00 gamma=120.0
+
+  hermitian=false
+  symmetry=(x,y,z)
+  symmetry=(-y,x-y,z)
+  symmetry=(y-x,-x,z) 
+  symmetry=(y,x,1/2+z) 
+  symmetry=(-x,y-x,1/2+z) 
+  symmetry=(x-y,-y,1/2+z)
+
+  SCATter ( chemical C* ) 
+   2.31000 20.8439 1.02 10.2075 1.58860 .568700 .865000 51.651 .2156
+
+  SCATter ( chemical FE ) 
+   2.31000 20.8439 1.02 10.2075 1.58860 .568700 .865000 51.651 .2156
+    {IMAG 5.0 }
+
+  tolerance=0. 
+  associate fcalc ( all )
+  aselection=( not all )
+  lookup=false
+  method=direct 
+  fft
+     prime=5 avoid=2 
+  end   
+  nreflections=1000 
+
+  
+  generate  10. 6.
+  do (fpart=0) ( all )
+
+  associate fcalc ( all ) 
+  predict 
+      mode=reciprocal 
+      to=fcalc 
+      selection=( all ) 
+      atomselection=( all ) 
+  end 
+  show elem (fcalc) ( centric ) 
+  show elem ( centric_phase ) ( centric )
+  show elem (fcalc) ( acentric ) 
+  show elem ( amplitude(fcalc)-amplitude(friedel(fcalc)) ) ( centric ) 
+  show elem ( amplitude(fcalc)-amplitude(friedel(fcalc)) ) ( acentric ) 
+
+  show elem ( fcalc-conjugate(friedel(fcalc)) ) ( all )
+end
+
+
+xray 
+  reset 
+   declare name=fobs type=complex domain=reciprocal end
+   declare name=fpart domain=reciprocal type=complex end
+   declare name=fcalc domain=reciprocal type=complex end
+  
+  evaluate ($lr=10.)
+  evaluate ($hr=6) 
+  binresolution $lr $hr 
+  mapresolution $hr
+  tselection=( $hr <= d <= $lr ) 
+
+  a=16.00 b=16.00 c=8.00 alpha=90.0 beta=90.00 gamma=120.0
+
+  hermitian=false
+  symmetry=(x,y,z)
+  symmetry=(-y,x-y,z)
+  symmetry=(y-x,-x,z) 
+  symmetry=(y,x,1/2+z) 
+  symmetry=(-x,y-x,1/2+z) 
+  symmetry=(x-y,-y,1/2+z)
+
+  SCATter ( chemical C* ) 
+   2.31000 20.8439 1.02 10.2075 1.58860 .568700 .865000 51.651 .2156
+
+  SCATter ( chemical FE ) 
+   2.31000 20.8439 1.02 10.2075 1.58860 .568700 .865000 51.651 .2156
+    IMAG 5.0 
+  associate fcalc ( all ) 
+  asele=( chemical FE ) 
+
+  tolerance=0. 
+  associate fcalc ( all )
+  lookup=false
+  method=direct 
+  fft
+     prime=5 avoid=2 
+  end   
+  nreflections=1000 
+
+  
+  generate  10. 6.
+  do (fpart=0) ( all )
+
+  associate fcalc ( all ) 
+  predict 
+      mode=reciprocal 
+      to=fcalc 
+      selection=( all ) 
+      atomselection=( all ) 
+  end 
+  show elem (fcalc) ( centric ) 
+  show elem ( centric_phase ) ( centric )
+  show elem (fcalc) ( acentric ) 
+  show elem ( amplitude(fcalc)-amplitude(friedel(fcalc)) ) ( centric ) 
+  show elem ( amplitude(fcalc)-amplitude(friedel(fcalc)) ) ( acentric ) 
+end
+
+xray 
+  reset 
+   declare name=fobs type=complex domain=reciprocal end
+   declare name=fpart domain=reciprocal type=complex end
+   declare name=fcalc domain=reciprocal type=complex end
+
+  evaluate ($lr=10.)
+  evaluate ($hr=6) 
+  binresolution $lr $hr 
+  mapresolution $hr
+  tselection=( $hr <= d <= $lr ) 
+
+  a=16.00 b=16.00 c=8.00 alpha=90.0 beta=90.00 gamma=120.0
+
+  hermitian=false
+  symmetry=(x,y,z)
+  symmetry=(-y,x-y,z)
+  symmetry=(y-x,-x,z) 
+  symmetry=(y,x,1/2+z) 
+  symmetry=(-x,y-x,1/2+z) 
+  symmetry=(x-y,-y,1/2+z)
+
+  SCATter ( chemical C* ) 
+   2.31000 20.8439 1.02 10.2075 1.58860 .568700 .865000 51.651 .2156
+    IMAG 2.0 
+
+  SCATter ( chemical FE ) 
+   2.31000 20.8439 1.02 10.2075 1.58860 .568700 .865000 51.651 .2156
+    IMAG 5.0 
+  associate fcalc ( chemical FE or chemical C* ) 
+  asele=( chemical FE or chemical C* ) 
+
+  tolerance=0. 
+  associate fcalc ( all )
+  
+  lookup=false
+  method=direct 
+  fft
+     prime=5 avoid=2 
+  end   
+  nreflections=1000 
+
+  
+  generate  10. 6. 
+  do (fpart=0) ( all )
+
+  associate fcalc ( all ) 
+  predict 
+      mode=reciprocal 
+      to=fcalc 
+      selection=( all ) 
+      atomselection=( chemical FE or chemical C* ) 
+  end 
+  show elem (fcalc) ( centric ) 
+  show elem ( centric_phase ) ( centric )
+  show elem (fcalc) ( acentric ) 
+  show elem ( amplitude(fcalc)-amplitude(friedel(fcalc)) ) ( centric ) 
+  show elem ( amplitude(fcalc)-amplitude(friedel(fcalc)) ) ( acentric ) 
+end
+
+
+
+xray 
+  ! 
+  reset 
+   declare name=fobs type=complex domain=reciprocal end
+   declare name=fpart domain=reciprocal type=complex end
+   declare name=fcalc domain=reciprocal type=complex end
+  
+  evaluate ($lr=10.)
+  evaluate ($hr=6) 
+  binresolution $lr $hr 
+  mapresolution $hr
+  tselection=( $hr <= d <= $lr ) 
+
+  a=20. b=20. c=20. alpha=90.0 beta=90.00 gamma=90.0
+
+  hermitian=false
+  symmetry=( X,Y,Z )      {* test with orthorhombic space group Fddd *}
+  symmetry=( -X,-Y,Z )
+  symmetry=( -X,Y,-Z )
+  symmetry=( X,-Y,-Z )
+  symmetry=( 1/4-X,1/4-Y,1/4-Z )
+  symmetry=( 1/4+X,1/4+Y,1/4-Z )
+  symmetry=( 1/4+X,1/4-Y,1/4+Z )
+  symmetry=( 1/4-X,1/4+Y,1/4+Z )
+  symmetry=( X,1/2+Y,1/2+Z )
+  symmetry=( -X,1/2-Y,1/2+Z )
+  symmetry=( -X,1/2+Y,1/2-Z )
+  symmetry=( X,1/2-Y,1/2-Z )
+  symmetry=( 1/4-X,3/4-Y,3/4-Z )
+  symmetry=( 1/4+X,3/4+Y,3/4-Z )
+  symmetry=( 1/4+X,3/4-Y,3/4+Z )
+  symmetry=( 1/4-X,3/4+Y,3/4+Z )
+  symmetry=( 1/2+X,Y,1/2+Z )
+  symmetry=( 1/2-X,-Y,1/2+Z )
+  symmetry=( 1/2-X,Y,1/2-Z )
+  symmetry=( 1/2+X,-Y,1/2-Z )
+  symmetry=( 3/4-X,1/4-Y,3/4-Z )
+  symmetry=( 3/4+X,1/4+Y,3/4-Z )
+  symmetry=( 3/4+X,1/4-Y,3/4+Z )
+  symmetry=( 3/4-X,1/4+Y,3/4+Z )
+  symmetry=( 1/2+X,1/2+Y,Z )
+  symmetry=( 1/2-X,1/2-Y,Z )
+  symmetry=( 1/2-X,1/2+Y,-Z )
+  symmetry=( 1/2+X,1/2-Y,-Z )
+  symmetry=( 3/4-X,3/4-Y,1/4-Z )
+  symmetry=( 3/4+X,3/4+Y,1/4-Z )
+  symmetry=( 3/4+X,3/4-Y,1/4+Z )
+  symmetry=( 3/4-X,3/4+Y,1/4+Z )
+
+  SCATter ( chemical C* ) 
+   2.31000 20.8439 1.02 10.2075 1.58860 .568700 .865000 51.651 .2156
+
+  SCATter ( chemical FE ) 
+   2.31000 20.8439 1.02 10.2075 1.58860 .568700 .865000 51.651 .2156
+
+  tolerance=0. 
+  associate fcalc ( all )
+  lookup=false
+  method=direct 
+  fft
+     prime=5 avoid=2 
+  end   
+  nreflections=1000 
+
+  
+  generate  10. 6. 
+  do (fpart=0) ( all )
+
+  associate fcalc ( all ) 
+  predict 
+      mode=reciprocal 
+      to=fcalc 
+      selection=( all  ) 
+      atomselection=(all ) 
+  end 
+  show elem (fcalc) ( centric ) 
+  show elem ( centric_phase ) ( centric )
+  show elem (fcalc) ( acentric ) 
+  show elem ( amplitude(fcalc)-amplitude(friedel(fcalc)) ) ( centric ) 
+  show elem ( amplitude(fcalc)-amplitude(friedel(fcalc)) ) ( acentric ) 
+
+  show (fcalc-conjugate(friedel(fcalc))) ( all )
+end
+
+
+
+xray 
+  reset 
+   declare name=fobs type=complex domain=reciprocal end
+   declare name=fpart domain=reciprocal type=complex end
+   declare name=fcalc domain=reciprocal type=complex end
+
+
+  evaluate ($lr=10.)
+  evaluate ($hr=6) 
+  binresolution $lr $hr 
+  mapresolution $hr
+  tselection=( $hr <= d <= $lr  ) 
+
+  a=20. b=20. c=20. alpha=90.0 beta=90.00 gamma=90.0
+
+  hermitian=false
+   symmetry=(x,y,z)                         {*Symmetry operators for space *}
+   symmetry=(-x+1/2,-y,z+1/2)               {*group P212121; notation as in*}
+   symmetry=(-x,y+1/2,-z+1/2)               {*Int. Tables.                 *}
+   symmetry=(x+1/2,-y+1/2,-z)      
+
+   scatter (all )
+29.564100    1.211520   18.059999    7.056390   12.837400    
+              0.284738    6.899120   20.748199   10.626800
+
+  tolerance=0. 
+  associate fcalc ( all )
+  lookup=false  !! test this with lookup=true
+  method=direct 
+  fft
+     prime=5 avoid=2 
+  end   
+  nreflections=1000 
+
+  
+  generate  10. 6. 
+  do (fpart=0) ( all )
+
+  associate fcalc ( all ) 
+  predict 
+      mode=reciprocal 
+      to=fcalc 
+      selection=( all ) 
+      atomselection=( all ) 
+  end 
+  show elem (fcalc) ( centric ) 
+  show elem ( centric_phase ) ( centric )
+  show elem (fcalc) ( acentric ) 
+  show elem ( amplitude(fcalc)-amplitude(friedel(fcalc)) ) ( centric ) 
+  show elem ( amplitude(fcalc)-amplitude(friedel(fcalc)) ) ( acentric ) 
+
+  show (fcalc-conjugate(friedel(fcalc))) ( all )
+  show (fcalc-conjugate(friedel(fcalc))) (( H=1 and K=1 and L=-3 ) or
+                                      ( H=1 and K=1 and L=+3 )) 
+
+  show (fcalc) ( friedel_pair(true))
+
+  reflection
+    index 4 5 6 fobs 50. fcalc 50. 40. 
+  end
+
+  show (fcalc) ( friedel_pair(true))
+
+  show (fcalc-friedel(fcalc)) ( all )
+  show (fcalc-friedel(fcalc)) ( friedel_pair(true))
+
+  show (fcalc) (friedel_pair( (h=1 and k=0 and l=-3)
+                           or (h=0 and k=1 and l=-3)
+                           or (h=1 and k=1 and l=-3) 
+                           or (h=1 and k=1 and l=3)) )
+
+  show (fcalc) (friedel_pair( (h=1 and k=0 and l=-3)
+                           or (h=0 and k=1 and l=-3)
+                           or (h=1 and k=1 and l=-3) ) )
+
+
+end
+
+
+
+xray 
+  reset 
+   declare name=fobs type=complex domain=reciprocal end
+   declare name=fpart domain=reciprocal type=complex end
+   declare name=fcalc domain=reciprocal type=complex end
+
+  evaluate ($lr=10.)
+  evaluate ($hr=6.) 
+  binresolution $lr $hr 
+  mapresolution $hr
+  tselection=( $hr <= d <= $lr  ) 
+
+  a=16.00 b=16.00 c=8.00 alpha=90.0 beta=90.00 gamma=120.0
+
+  hermitian=false
+  symmetry=(x,y,z)
+  symmetry=(-y,x-y,z)
+  symmetry=(y-x,-x,z) 
+  symmetry=(y,x,1/2+z) 
+  symmetry=(-x,y-x,1/2+z) 
+  symmetry=(x-y,-y,1/2+z)
+
+  SCATter ( chemical C* ) 
+   2.31000 20.8439 1.02 10.2075 1.58860 .568700 .865000 51.651 .2156
+    IMAG 2.0 
+
+  SCATter ( chemical FE ) 
+   2.31000 20.8439 1.02 10.2075 1.58860 .568700 .865000 51.651 .2156
+    IMAG 5.0 
+  associate fcalc ( chemical FE or chemical C* ) 
+
+  tolerance=0. 
+  associate fcalc ( all )
+  aselection=( not all )
+  lookup=false
+  method=direct 
+  fft
+     prime=5 avoid=2 
+  end   
+  nreflections=1000 
+
+  
+  generate  10. 6. 
+  do (fpart=0) ( all )
+
+  associate fcalc ( all ) 
+  predict 
+      mode=reciprocal 
+      to=fcalc 
+      selection=( all ) 
+      atomselection=( all ) 
+  end 
+  do (fpart=fcalc) ( all )
+
+  scatter reset
+  SCATter ( chemical C* ) 
+   2.31000 20.8439 1.02 10.2075 1.58860 .568700 .865000 51.651 .2156
+
+  SCATter ( chemical FE ) 
+   2.31000 20.8439 1.02 10.2075 1.58860 .568700 .865000 51.651 .2156
+  associate fcalc ( all )
+  aselection=( all )
+
+  predict 
+      mode=reciprocal 
+      to=fcalc 
+      selection=( all ) 
+      atomselection=( all ) 
+  end 
+  show ave (fcalc-fpart) ( all )
+  
+  scatter reset
+  SCATter ( chemical C* ) 
+   2.31000 20.8439 1.02 10.2075 1.58860 .568700 .865000 51.651 .2156
+
+  SCATter ( chemical FE ) 
+   2.31000 20.8439 1.02 10.2075 1.58860 .568700 .865000 51.651 .2156
+    IMAG 5.0 
+  predict 
+      mode=reciprocal 
+      to=fcalc 
+      selection=( all ) 
+      atomselection=( all ) 
+  end 
+  show ave (fcalc-fpart) ( all )
+  do (fpart=fcalc) ( all )
+  
+  associate fcalc ( not all )
+  associate fcalc ( all )
+  predict 
+      mode=reciprocal 
+      to=fcalc 
+      selection=( all ) 
+      atomselection=( all ) 
+  end 
+  show ave (fcalc-fpart) ( all )
+  do (fpart=fcalc) ( all )
+
+  scatter reset
+  SCATter ( chemical C* ) 
+   2.31000 20.8439 1.02 10.2075 1.58860 .568700 .865000 51.651 .2156
+    IMAG 2.0 
+
+  SCATter ( chemical FE ) 
+   2.31000 20.8439 1.02 10.2075 1.58860 .568700 .865000 51.651 .2156
+    IMAG 5.0 
+  aselection=( chemical FE)
+  associate fcalc ( all )
+  aselection=( chemical FE)
+  predict 
+      mode=reciprocal 
+      to=fcalc 
+      selection=( all ) 
+      atomselection=( all ) 
+  end 
+  show ave (fcalc-fpart) ( all )
+  
+  aselection=( not all )
+  associate fcalc ( all )
+  predict 
+      mode=reciprocal 
+      to=fcalc 
+      selection=( all ) 
+      atomselection=( all ) 
+  end 
+  do (fpart=fcalc) ( all )
+  scatter reset
+  SCATter ( chemical C* ) 
+   2.31000 20.8439 1.02 10.2075 1.58860 .568700 .865000 51.651 .2156
+
+  SCATter ( chemical FE ) 
+   2.31000 20.8439 1.02 10.2075 1.58860 .568700 .865000 51.651 .2156
+
+  predict 
+      mode=reciprocal 
+      to=fcalc 
+      selection=( all ) 
+      atomselection=( all ) 
+  end 
+  show ave (fcalc-fpart) ( all )
+end
+
+xray
+  reset 
+   declare name=fobs type=complex domain=reciprocal end
+   declare name=fpart domain=reciprocal type=complex end
+   declare name=fcalc domain=reciprocal type=complex end
+
+  evaluate ($lr=10.)
+  evaluate ($hr=6.) 
+  binresolution $lr $hr 
+  mapresolution $hr
+  tselection=( $hr <= d <= $lr ) 
+
+  a=16.00 b=16.00 c=8.00 alpha=90.0 beta=90.00 gamma=120.0
+
+  hermitian=false
+  symmetry=(x,y,z)
+  symmetry=(-y,x-y,z)
+  symmetry=(y-x,-x,z) 
+  symmetry=(y,x,1/2+z) 
+  symmetry=(-x,y-x,1/2+z) 
+  symmetry=(x-y,-y,1/2+z)
+  
+  anomalous=true
+  generate 10. 6. 
+   do (fpart=0) ( all )
+ 
+  SCATter ( chemical C* ) 
+   2.31000 20.8439 1.02 10.2075 1.58860 .568700 .865000 51.651 .2156
+    IMAG 0.01 
+
+  SCATter ( chemical FE ) 
+   2.31000 20.8439 1.02 10.2075 1.58860 .568700 .865000 51.651 .2156
+    IMAG 5.0 
+  associate fcalc ( all )
+  predict 
+      mode=reciprocal 
+      to=fcalc 
+      selection=( all ) 
+      atomselection=( all ) 
+  end 
+  do (fpart=fcalc) ( all )
+  
+  
+  asele=( chemical FE ) 
+  predict 
+      mode=reciprocal 
+      to=fcalc 
+      selection=( all ) 
+      atomselection=( all ) 
+  end 
+  
+  show ave (fcalc-fpart) ( all )
+  
+end
+
+stop

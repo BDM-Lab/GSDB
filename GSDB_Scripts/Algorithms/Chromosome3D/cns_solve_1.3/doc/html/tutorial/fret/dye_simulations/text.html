@@ -1,0 +1,64 @@
+<HTML>
+<HEAD>
+   <TITLE>Crystallography & NMR System</TITLE>
+</HEAD>
+<BODY BGCOLOR=#8ebf8e>
+
+<HR WIDTH="100%">
+
+<H2>Simulation of dye positions and distances between dyes</H2>
+
+<HR WIDTH="100%">
+<p><br>
+  In this section we provide an example of simulating two dyes (Cy3 and Cy5) that are linked to residues 140 and 350 in the C2AB fragment of synaptotagmin 3.See the following reference for further details: </p>
+<p>M. Vrljic, P. Strop, J.A. Ernst, R.B. Sutton, S.Chu, A.T. Brunger, Molecular mechanism of the synaptotagmin-SNARE interaction in Ca2+ -triggered vesicle fusion, <em>Nat. Struct. Mol. Biol.</em> <strong>17</strong>, 325-331(2010).</p>
+<p>U.B. Choi, P. Strop, M. Vrljic, S. Chu, A.T. Brunger, K.R. Weninger, Single-molecule FRET-derived model of the synaptotagmin 1-SNARE fusion complex. <em>Nat. Struct. Mol. Biol.</em> <strong>17</strong>, 318-324 (2010).</p>
+<h3>Dye coordinates, topology, and parameters</h3>
+<p>Topology and parameter files for the Cy3 and Cy5 dyes are in the toppar library of CNS (files <tt>dyes.top</tt> and <tt>dyes.param</tt>). The topology file also contains patches to covalently link the dyes to Cys residues. </p>
+<p>Example coordinates for Cy3 and Cy5 dyes are:</p>
+<p><a href="cy3.pdb"><tt>cy3.pdb</tt></a></p>
+<p><a href="cy5.pdb"><tt>cy5.pdb</tt></a></p>
+<h3>Setting up of the initial configuration</h3>
+<p>The first step is to mutate  residues 140 and 150 to cysteine residues. You can use a graphics program (Coot or Pymol), or you can use CNS (see the <a href="../docking_calculations/text.html">next section</a> for an example). </p>
+<p>The resulting coordinate file is</p>
+<p><a href="140_350.pdb"><tt>140_350.pdb</tt></a><br>
+</p>
+<p>We now perform multi-trial simulated annealing with the protein(s) fixed. In this simulation we fix all protein atoms (except the SG atoms of the Cys residues), but let all dye atoms move. Note that we use the custom patch file</p>
+<p>&nbsp;</p>
+<p><a href="dye_patches.def"><tt>dye_patches.def</tt></a></p>
+<p>&nbsp;</p>
+<p>to covalently link the dyes to their corresponding residues. For a tutorial on the CNS PATCh statement, please read this <a href="../../generate/molecular_topol/text.html">section</a> on &quot;Generating and manipulating the molecular topology. </p>
+<p>We perform multi-trial simulated annealing with a slowcooling schedule starting at 300,000 K, with a cool-rate of 500 dynamics steps per cycle (a cycle consists of 6 molecular dynamics steps with a  time step of  0.75 fsec). At least 100-200 trials (using different random initial velocities) should be performed (we only perform 10 trials in this tutorial to reduce computation time).<br>
+</p>
+<PRE>
+
+      cns_solve &lt; <A HREF="model_anneal.inp">model_anneal.inp</A> &gt; model_anneal.out
+</PRE>
+<p><br>
+The simulated annealing calculation produces an ensemble of coordinates (<tt>140_350_1.pdb</tt>, <tt>140_350_2.pdb</tt>, ...). Next we calculate the distances between the Cy3 and Cy5 dye centers (we choose the CAO atoms as dye centers for both the Cy3 and Cy5 dyes) for this ensemble:</p>
+<p>&nbsp;</p>
+<pre>      cns_solve &lt; <A HREF="distance_calculation.inp">distance_calculation.inp</A> &gt; distance_calculation.out 
+
+</pre>
+<br>
+This job produces a list file which also provides the average distance between the dye centers averaged over the coordinate ensemble:
+<pre>      <a href="distance_calculation.list">distance_calculation.list
+</a>
+ </pre>
+<br>
+We finally compute the average coordinates of the dyes from the coordinate ensemble:<br>
+<pre>     
+      cns_solve &lt; <A HREF="average_coordinates.inp">average_coordinates.inp</A> &gt; average_coordinates.out
+      </pre>
+<p><A HREF="tutorial.csh">Script to run this tutorial</A>
+  
+</p>
+<HR WIDTH="100%">
+
+<A HREF="../../text.html">Back to tutorials</A>&nbsp;&nbsp;
+<a href="../docking_calculations/text.html">Next section</a><A HREF="../fret_structures/text.html"></A>&nbsp;&nbsp;
+
+<HR WIDTH="100%"></P>
+
+</BODY>
+</HTML>

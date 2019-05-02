@@ -1,0 +1,1415 @@
+{+ file: pmrefine.inp +}
+{+ directory: nmr_calc +}
+{+ description: probability map refinement for multi-conformer models using 
+                NOEs on monomeric, dimers, and loops of macromolecules +}
+{+ authors: Warren DeLano, Alexandre Bonvin, Axel T. Brunger, 
+            Gregory Warren and Paul Adams +}
+{+ copyright: Yale University +}
+
+{+ reference: Bonvin AMJJ  and Brunger AT, Conformational variability 
+              of solution Nuclear Magnetic Resonance structures,
+              J. Mol. Biol., 250, 80-93 (1995) +}
+
+{+ reference: DeLano, WL and Brunger AT, Helix packing in proteins:
+              prediction and energetic analysis of dimeric, trimeric,
+              and tetrameric GCN4 coiled coil structures, Proteins, 20,
+              105-123 (1994) +}
+
+{- Guidelines for using this file:
+   - all strings must be quoted by double-quotes
+   - logical variables (true/false) are not quoted
+   - do not remove any evaluate statements from the file 
+   - all data must be in the proper format, see ensemble.inp
+     and ensemble_cv.inp 
+   - the ensemble.inp coordinates must be run through rmsd_en.inp
+     before running this script -}
+   
+{- begin block parameter definition -} define(
+
+{======================= molecular structure =========================}
+
+{* parameter file(s) *}
+{===>} par.1="CNS_TOPPAR:protein-allhdg5-4.param";
+{===>} par.2="";
+{===>} par.3="";
+{===>} par.4="";
+{===>} par.5="";
+
+{* single conformer structure file(s) *}
+{===>} struct.1="ambtv.mtf";
+{===>} struct.2="";
+{===>} struct.3="";
+{===>} struct.4="";
+{===>} struct.5="";
+
+{========================== atom selection ===========================}
+
+{* input atom selection for average structure generation *}
+{* for protein      (name n or name ca or name c)
+   for nucleic acid (name O5' or name C5' or name C4' or name C3' 
+                     or name O3' or name P) *}
+{===>} pdb.atom.select=(name n or name ca or name c);
+
+{* input atom selection for generating map and reflection file(s) *}
+{* for protein      (all)
+   for nucleic acid (not chemical h*) *}
+{===>} pdb.map.select=(all);
+
+{====================== refinement parameters ========================}
+
+{* seed for random number generator *}
+{* change to get different initial velocities *}
+{===>} md.seed=82364;
+
+{* number of structures from multi-conformer refinement *}
+{===>} pdb.end.count=10;
+
+{==================== torsion dynamics parameters ====================}
+
+{* torsion angle topology modification file *}
+{===>} torsion_infile="CNS_TOPPAR:torsionmdmods";
+
+{========= parameters for the xray slow-cool annealing stage =========}
+
+{* type of molecular dynamics for xray cool phase *}
+{+ choice: "torsion" "cartesian" +}
+{===>} md.xray.type.cool="cartesian";
+
+{* temperature (torsion: 5000, cartesian: 3000) *}
+{===>} md.xray.cool.temp=3000;
+{* number of steps *}
+{===>} md.xray.cool.step=6000;
+{* molecular dynamics timestep ( torsion: 0.002, cartesian: 0.0005) *}
+{===>} md.xray.cool.ss=0.0005;
+{* slow-cool annealing temperature step ( torsion: 50 cartesian: 25) *}
+{===>} md.xray.cool.tmpstp=25;
+
+{======= parameters for the nmr/xray slow-cool annealing stage =======}
+   
+{* type of molecular dynamics for nmr/xray cool phase *}
+{+ choice: "torsion" "cartesian" +}
+{===>} md.nmr.type.cool="cartesian";
+
+{* temperature (torsion: 3000, cartesian: 1000) *}
+{===>} md.nmr.cool.temp=1000;
+{* number of steps *}
+{===>} md.nmr.cool.step=3000;
+{* scale factor for NOE energy term *}
+{===>} md.nmr.cool.noe=50;
+{* scale factor for dihedral angle energy term *}
+{===>} md.nmr.cool.cdih=200;
+{* molecular dynamics timestep ( torsion: 0.002, cartesian: 0.0005) *}
+{===>} md.nmr.cool.ss=0.0005;
+{* slow-cool annealing temperature step ( torsion: 50 cartesian: 25) *}
+{===>} md.nmr.cool.tmpstp=25;
+
+{=================== Probability map refinement ======================}
+
+{* number of conformers to be refined against *}
+{===>} nmr.ens.copy.num=( 2 );
+{* number of coordinate copies for probility refinement *}
+{===>} nmr.ens.coor.num=2;
+{* is the macromolecule a multimer? *}
+{* the current implimentation only works for dimers *}
+{+ choice: true false +}
+{===>} nmr.ens.multi.flag=false;
+{* is the mulitmer symmetric? *}
+{+ choice: true false +}
+{===>} nmr.ens.multi.symm=false;
+{* input the first segid prefix *}
+{===>} nmr.ens.multi.segid.1="A";
+{* input the second segid prefix *}
+{===>} nmr.ens.multi.segid.2="B";
+{* multi-conformer refinement for loops? *}
+{+ choice: true false +}
+{===>} nmr.ens.loop.flag=false;
+
+{* unit cell cushion *}
+{* The size of the unit cell is determined by the size of
+   the macromolecule.  The cushion adds some extra space *}
+{===>} nmr.ens.map.cushion=3;
+
+{* probability map resolution limits *}
+
+{* low resolution limit *}
+{===>} nmr.ens.map.low.limit=15.0;
+{* high resolution limit *}
+{===>} nmr.ens.map.high.limit=1.0;
+{* write probability map? *}
+{* filename: output base name + number of conformer + .map,
+             e.g. il4_multi_2.map *}
+{+ choice: true false +}
+{===>} nmr.ens.map.flag.map=false;
+{* write reflections? *}
+{* filename: output base name + number of conformer + .fob,
+             e.g. il4_multi_2.fob *}
+{+ choice: true false +}
+{===>} nmr.ens.map.flag.fob=true;
+{* generate a test set for free-r calculation? *}
+{+ choice: true false +}
+{===>} nmr.ens.map.flag.fr=true;
+
+{* Loop 1 *}
+
+{* starting residue number *}
+{===>} nmr.ens.loop.low.1=21;
+{* final residue number *}
+{===>} nmr.ens.loop.high.1=27;
+
+{============================= noe data ===============================}
+
+{- Important - if you do not have a particular data set then
+   set the file name to null (""). For loop refinement, this is
+   the non-loop NOE data. -}
+
+{* loop NOE distance restraints files. *}
+
+{* Loop 1 *}
+
+{* restraints for loop 1 file *}
+{===>} nmr.noe.loop.file.1="";
+{* averaging mode for restraint loop 1 *}
+{+ choice: "sum" "R-6" "R-3" +}
+{===>} nmr.noe.loop.ave.mode.1="R-6";
+
+{* non-loop NOE distance restraints files. *}
+
+{* restraint set 1 file *}
+{===>} nmr.noe.file.1="ambtv_unsort_noe.tbl";
+{* restraint set 2 file *}
+{===>} nmr.noe.file.2="";
+{* restraint set 3 file *}
+{===>} nmr.noe.file.3="";
+{* restraint set 4 file *}
+{===>} nmr.noe.file.4="";
+{* restraint set 5 file *}
+{===>} nmr.noe.file.5="";
+
+{* NOE averaging modes *}
+
+{* restraint set 1 *}
+{+ choice: "sum" "R-6" "R-3" +}
+{===>} nmr.noe.ave.mode.1="R-6";
+{* restraint set 2 *}
+{+ choice: "sum" "R-6" "R-3" +}
+{===>} nmr.noe.ave.mode.2="R-6";
+{* restraint set 3 *}
+{+ choice: "sum" "R-6" "R-3" +}
+{===>} nmr.noe.ave.mode.3="R-6";
+{* restraint set 4 *}
+{+ choice: "sum" "R-6" "R-3" +}
+{===>} nmr.noe.ave.mode.4="";
+{* restraint set 5 *}
+{+ choice: "sum" "R-6" "R-3" +}
+{===>} nmr.noe.ave.mode.5="";
+
+{======================== hydrogen bond data ==========================}
+
+{* base name for hydrogen-bond distance restraints file(s). *}
+{* files must be in the form base_name1.tbl, base_name2.tbl *}
+{===>} nmr.noe.hbnd.file="";
+
+
+{* enter hydrogen-bond distance averaging mode *}
+{+ choice: "sum" "cent" "R-6" "R-3" "symm" +}
+{===>} nmr.noe.ave.mode.hbnd="cent";
+
+{======================= 3-bond J-coupling data =======================}
+{* the default setup is for the phi dihedral *}
+
+{* Class 1 *}
+
+{* base name for 3-bond J-coupling Class 1 restraints file(s) *}
+{* files must be in the form base_name1.tbl, base_name2.tbl *}
+{===>} nmr.jcoup.file.1="ambtv_jcoup";
+{* 3-bond J-coupling potential *}
+{+ choice: "harmonic" "square" "multiple" +}
+{===>} nmr.jcoup.pot.1="harmonic";
+{* 3-bond J-coupling non-glycine force value *}
+{===>} nmr.jcoup.force.1.1=1;
+{* 3-bond j-coupling multiple class force second value *}
+{===>} nmr.jcoup.force.2.1=0;
+{* 3-bond j-coupling Karplus coefficients *}
+{* the default values are for non-glycine phi *}
+{===>} nmr.jcoup.coef.1.1=6.98;
+{===>} nmr.jcoup.coef.2.1=-1.38;
+{===>} nmr.jcoup.coef.3.1=1.72;
+{===>} nmr.jcoup.coef.4.1=-60.0;
+
+{* Class 2 *}
+
+{* base name for 3-bond j-coupling Class 2 restraints file(s) *}
+{===>} nmr.jcoup.file.2="ambtv_jcoupgly";
+{* 3-bond J-coupling potential *}
+{* The potential for glycine classes must be multiple *}
+{+ choice: "harmonic" "square" "multiple" +}
+{===>} nmr.jcoup.pot.2="multiple";
+{* 3-bond J-coupling first force value *}
+{===>} nmr.jcoup.force.1.2=1;
+{* 3-bond j-coupling glycine or multiple force second value *}
+{===>} nmr.jcoup.force.2.2=0.2;
+{* 3-bond j-coupling Karplus coefficients *}
+{* the default values are for glycine phi *}
+{===>} nmr.jcoup.coef.1.2=6.98;
+{===>} nmr.jcoup.coef.2.2=-1.38;
+{===>} nmr.jcoup.coef.3.2=1.72;
+{===>} nmr.jcoup.coef.4.2=0.0;
+
+{================ 1-bond heteronuclear J-coupling data ================}
+
+{* Class 1 *}
+
+{* base name for 1-bond heteronuclear j-coupling Class 1 file *}
+{* files must be in the form base_name1.tbl, base_name2.tbl *}
+{===>} nmr.oneb.file.1="";
+{* 1-bond heteronuclear j-coupling potential *}
+{+ choice: "harmonic" "square" +}
+{===>} nmr.oneb.pot.1="harmonic";
+{* 1-bond heteronuclear j-coupling force value *}
+{===>} nmr.oneb.force.1=1.0;
+
+{=============== alpha/beta carbon chemical shift data ================}
+
+{* Class 1 *}
+
+{* base name for carbon, alpha and beta, chemical shift Class 1 file *}
+{* files must be in the form base_name1.tbl, base_name2.tbl *}
+{===>} nmr.carb.file.1="";
+{* carbon, alpha and beta, chemical shift restraint potential *}
+{+ choice: "harmonic" "square" +}
+{===>} nmr.carb.pot.1="harmonic";
+{* carbon, alpha and beta, chemical shift restraint force value *}
+{===>} nmr.carb.force.1=0.5;
+
+{===================== proton chemical shift data =====================}
+
+{* Class 1 *}
+
+{* class 1 base name for proton chemical shift restraints file *}
+{* files must be in the form base_name1.tbl, base_name2.tbl *}
+{===>} nmr.prot.file.1="";
+{* class 1 proton chemical shift potential *}
+{+ choice: "harmonic" "square" "multiple" +}
+{===>} nmr.prot.pot.1="harmonic";
+{* class 1 proton chemical shift force value *}
+{===>} nmr.prot.force.1.1=7.5;
+{* 2nd class 1 proton chemical shift force value for multi *}
+{===>} nmr.prot.force.2.1=0;
+{* class 1 proton chemical shift violation cutoff threshold *}
+{===>} nmr.prot.thresh.1=0.3;
+
+{* Class 2 *}
+
+{* class 2 base name for proton chemical shift restraints file *}
+{===>} nmr.prot.file.2="";
+{* class 2 proton chemical shift potential *}
+{+ choice: "harmonic" "square" "multiple" +}
+{===>} nmr.prot.pot.2="harmonic";
+{* class 2 proton chemical shift force value *}
+{===>} nmr.prot.force.1.2=7.5;
+{* 2nd class 2 proton chemical shift force value for multi *}
+{===>} nmr.prot.force.2.2=0;
+{* class 2 proton chemical shift violation cutoff threshold *}
+{===>} nmr.prot.thresh.2=0.3;
+
+{* Class 3 *}
+
+{* class 3 base name for proton chemical shift restraints file *}
+{===>} nmr.prot.file.3="";
+{* class 3 proton chemical shift potential *}
+{+ choice: "harmonic" "square" "multiple" +}
+{===>} nmr.prot.pot.3="harmonic";
+{* class 3 proton chemical shift force value *}
+{===>} nmr.prot.force.1.3=7.5;
+{* 2nd class 3 proton chemical shift force value for multi *}
+{===>} nmr.prot.force.2.3=0;
+{* class 3 proton chemical shift violation cutoff threshold *}
+{===>} nmr.prot.thresh.3=0.3;
+
+{* Class 4 *}
+
+{* class 4 base name for proton chemical shift restraints file *}
+{===>} nmr.prot.file.4="";
+{* class 4 proton chemical shift potential *}
+{+ choice: "harmonic" "square" "multiple" +}
+{===>} nmr.prot.pot.4="multiple";
+{* class 4 proton chemical shift force value *}
+{===>} nmr.prot.force.1.4=7.5;
+{* 2nd class 4 proton chemical shift force value for multi *}
+{===>} nmr.prot.force.2.4=0;
+{* class 4 proton chemical shift violation cutoff threshold *}
+{===>} nmr.prot.thresh.4=0.3;
+
+{======================== other restraint data ========================}
+
+{* base name for dihedral angle restraints file *}
+{* files must be in the form base_name1.tbl, base_name2.tbl *}
+
+{* Note: the restraint file MUST NOT contain RESTRAINTS 
+         DIHEDRAL or END *}
+{===>} nmr.cdih.file="ambtv_dihed";
+
+{* DNA-RNA base planarity restraints file *}
+{* Note: include weights as $pscale in the restraint file *}
+{===>} nmr.plan.file="";
+{* input planarity scale factor - this will be written into $pscale *}
+{===>} nmr.plan.scale=150;
+
+{* base name for NCS-restraints file *}
+{* example is in inputs/xtal_data/eg1_ncs_restrain.dat *}
+{===>} nmr.ncs.file="";
+
+{======================== input/output files ==========================}
+
+{* base name for ensemble coordinate files *}
+{* e.g. il4_multi_2_#.pdb -> il4_multi *}
+{===>} pdb.ens.name="ambtv_full";
+
+{* base name for rmsd_en.inp single structure input coordinate files *}
+{* e.g. il4_m_2_#.pdb -> il4_m *}
+{===>} pdb.in.name="ambtv_full_sngl";
+
+{* base name for output coordinate files *}
+{===>} pdb.out.name="ambtv_full_pm";
+
+{===========================================================================}
+{         things below this line do not normally need to be changed         }
+{         except for the torsion angle topology setup if you have           }
+{         molecules other than protein or nucleic acid                      }
+{===========================================================================}
+flg.cv.flag=false;
+flg.cv.noe=false;
+flg.cv.coup=false;
+flg.cv.cdih=false;
+flg.dgsa.flag=false;
+nmr.cv.numpart=10;
+nmr.dani.axis="";
+nmr.dani.file.1="";
+nmr.sani.axis="";
+nmr.sani.file.1="";
+
+ ) {- end block parameter definition -}
+
+checkversion 1.3
+
+evaluate ($log_level=quiet)
+
+parameter
+   reset
+   if (&par.1 # "") then
+      @@&par.1
+   end if
+   if (&par.2 # "") then
+      @@&par.2
+   end if
+   if (&par.3 # "") then
+      @@&par.3
+   end if
+   if (&par.4 # "") then
+      @@&par.4
+   end if
+   if (&par.5 # "") then
+      @@&par.5
+   end if
+end
+
+parameter
+   nbonds
+      repel=0.80
+      rexp=2 irexp=2 rcon=1.
+      nbxmod=3
+      wmin=0.01
+      cutnb=6.0 ctonnb=2.99 ctofnb=3.
+      tolerance=1.5
+   end
+end
+
+structure 
+   if  (&struct.1 # "") then
+      @@&struct.1
+   end if
+   if  (&struct.2 # "") then
+      @@&struct.2
+   end if
+   if  (&struct.3 # "") then
+      @@&struct.3
+   end if
+   if  (&struct.4 # "") then
+      @@&struct.4
+   end if
+   if  (&struct.5 # "") then
+      @@&struct.5
+   end if
+end
+
+if ( $log_level = verbose ) then
+  set message=normal echo=on end
+else
+  set message=off echo=off end
+end if
+
+for $nmr.copies in &nmr.ens.copy.num loop multi
+
+   evaluate ($nmr.end.count=&pdb.end.count*$nmr.copies)
+   set seed=&md.seed end           
+                                    
+   evaluate ($temp_file_name=&pdb.in.name+"_"+encode($nmr.copies)+"_single_ave.pdb")
+   coor @@$temp_file_name
+   
+  {- Count the number of residues and determine molecule type -}
+   identify (store9) (tag)
+   evaluate ($nmr.rsn.num = $SELECT)
+   identify (store9) ( tag and ( resn THY or resn CYT or resn GUA or
+                                 resn ADE or resn URI ))
+   evaluate ($nmr.nucl.num = $SELECT)    
+
+  {- set up unit cell -}
+
+   coor orient select=(all) end
+
+  {- Compute extent of molecule -}
+
+   show min ( x ) (all)       
+   evaluate ( $minx = $result )
+   show max ( x ) (all)
+   evaluate ( $maxx = $result )
+   show min ( y ) (all)
+   evaluate ( $miny = $result )
+   show max ( y ) (all)
+   evaluate ( $maxy = $result )
+   show min ( z ) (all)
+   evaluate ( $minz = $result )
+   show max ( z ) (all)
+   evaluate ( $maxz = $result )
+
+   evaluate ( $nmr.map.adim = ( $maxx - $minx ) + (2*&nmr.ens.map.cushion) )        
+   evaluate ( $nmr.map.bdim = ( $maxy - $miny ) + (2*&nmr.ens.map.cushion) )
+   evaluate ( $nmr.map.cdim = ( $maxz - $minz ) + (2*&nmr.ens.map.cushion) )
+
+   evaluate ( $tx = &nmr.ens.map.cushion - $minx )
+   evaluate ( $ty = &nmr.ens.map.cushion - $miny )
+   evaluate ( $tz = &nmr.ens.map.cushion - $minz )
+
+  {- Translate model to center of unit cell -}
+   coor trans vector = ( $tx $ty $tz ) end
+   coor copy end                    
+
+   buffer mapout
+      reset
+      display Unit cell: a=$nmr.map.adim b=$nmr.map.bdim c=$nmr.map.cdim alpha=90.0 beta=90.0 gamma=90.0
+   end
+
+   buffer coorout
+      reset
+      display pmrefine.inp -- Probability map refinement
+      display a=$nmr.map.adim b=$nmr.map.bdim c=$nmr.map.cdim alpha=90.0 beta=90.0 gamma=90.0
+   end
+
+  {- compute B-values -}
+
+   do (store1 = 0 )  (all)
+
+   evaluate ($count = 0)
+   while ($count < $nmr.end.count ) loop struct 
+      evaluate ($count=$count+1)
+      evaluate ($temp_file_name=&pdb.in.name+"_"+encode($nmr.copies)+"_"+encode($count)+".pdb")
+      coor init end
+      coor @@$temp_file_name
+
+      if (&nmr.ens.loop.flag=false) then
+         coor fit sele ( &pdb.atom.select ) end
+      else
+         coor fit sele ( &pdb.atom.select and segid C0) end
+      end if
+      if ($nmr.nucl.num > 0) then
+         coor rms sele (name C1') end
+         do ( store1 = store1 + rmsd ) (name C1')
+      else
+         coor rms sele (name ca) end
+         do ( store1 = store1 + rmsd ) (name ca)
+      end if
+   end loop struct
+
+   if ($nmr.nucl.num > 0) then
+      do ( store1 = store1 / $nmr.end.count ) (name C1')
+      do ( store1 =  (8/3) * ( $pi  ^ 2 ) * ( store1 ^ 2 )) (name C1')
+   else
+      do ( store1 = store1 / $nmr.end.count ) (name ca)
+      do ( store1 =  (8/3) * ( $pi  ^ 2 ) * ( store1 ^ 2 )) (name ca)
+   end if
+                                                     
+  {- Enforce limit of 40 A^2 -}
+   if ($nmr.nucl.num > 0) then
+      for $1 in id (name C1') loop bvals
+         show (store1) (id $1)
+         do (store1 = min($result,40) ) (byres id $1)
+      end loop bvals
+   else
+      for $1 in id (name ca) loop bvals
+         show (store1) (id $1)
+         do (store1 = min($result,40) ) (byres id $1)
+      end loop bvals
+   end if
+
+   show min (store1) (all)
+   evaluate ( $nmr.map.bmin = $result )
+   show max (store1) (all)
+   evaluate ( $nmr.map.bmax = $result )
+   show average (store1) (all)
+   evaluate ( $nmr.map.bavg = $result )
+
+   buffer mapout
+      display B-factors: min: $nmr.map.bmin[F6.2] max: $nmr.map.bmax[F6.2] avg: $nmr.map.bavg[F6.2]
+   end
+
+  {- compute probability map -}    
+
+   xray
+
+      evaluate ($sg="P1")
+      @CNS_XTALLIB:spacegroup.lib (sg=$sg;)
+
+      a=$nmr.map.adim b=$nmr.map.bdim c=$nmr.map.cdim 
+      alpha=90.0 beta=90.0 gamma=90.0
+
+      @CNS_XRAYLIB:scatter.lib
+
+      binresolution &nmr.ens.map.low.limit &nmr.ens.map.high.limit
+      mapresolution &nmr.ens.map.high.limit
+
+   end
+
+   xray
+     declare name=map1 domain=real end
+     do (map1 = 0) (all)
+     declare name=map2 domain=real end
+     do (map2 = 0) (all)
+   end
+
+   evaluate ($count = 0)
+   while ($count < $nmr.end.count ) loop struct 
+      evaluate ($count=$count+1)
+      evaluate ($temp_file_name=&pdb.in.name+"_"+encode($nmr.copies)+"_"+encode($count)+".pdb")
+
+      coor init end
+      coor @@$temp_file_name
+      if (&nmr.ens.loop.flag=true) then
+         coor fit sele ( &pdb.atom.select and (segid C0)) end
+      else
+         coor fit sele ( &pdb.atom.select ) end
+      end if
+      
+     {- assign b-values -}
+      do ( b = store1 ) (all)
+
+     {- compute and sum maps -}
+      xray
+        predict
+          mode=real
+          to = map1 
+          atomselection=( &pdb.map.select )
+        end
+        do ( map2 = map2 + map1 ) ( all )
+      end
+
+   end loop struct
+
+  {- average map -}
+   xray
+
+      do (map2 = map2 / $nmr.end.count ) ( all )
+      {- write out map -}                                            
+      if (&nmr.ens.map.flag.map=true) then
+         evaluate ($mapname=&pdb.out.name+"_"+encode($nmr.copies)+".map")
+         write map
+            output = $mapname
+            from = map2
+            extent = unit
+         end
+      end if
+
+      generate &nmr.ens.map.low.limit &nmr.ens.map.high.limit
+
+      declare name=fobs domain=reciprocal type=complex end
+      declare name=fom  domain=reciprocal type=real end
+      declare name=test domain=reciprocal type=integer end
+
+      do (fobs = ft(map2)) (all)
+      do (fom=1) (all)
+
+      {- write reflections and test set -}
+      if (&nmr.ens.map.flag.fob=true) then
+         evaluate ($fobname=&pdb.out.name+"_"+encode($nmr.copies)+".fob")
+
+         if (&nmr.ens.map.flag.fr=true) then
+            do ( test = int(random()+0.10) ) ( all )
+            write reflec output=$fobname fobs test fom end
+         else
+            write reflec output=$fobname fobs fom end
+         end if
+         
+      end if
+
+      undeclare name=fobs domain=reciprocal end
+      undeclare name=fom  domain=reciprocal end
+      undeclare name=test domain=reciprocal end
+ 
+   end
+
+  {- make multiple copies of start structure -}
+
+   evaluate ($temp_file_name=&pdb.in.name+"_"+encode($nmr.copies)+"_single_ave.pdb")
+   coor @@$temp_file_name
+
+   evaluate ($nmr.ens.dimer.flag=false)
+   if (&nmr.ens.multi.flag=true) then
+      evaluate ($nmr.ens.dimer.flag=true)
+      evaluate ($nmr.ens.multi.tmp.1 = &nmr.ens.multi.segid.1 + "1")
+      evaluate ($nmr.ens.multi.tmp.2 = &nmr.ens.multi.segid.2 + "1")
+      do (segid = $nmr.ens.multi.tmp.1) (segid &nmr.ens.multi.segid.1)
+      do (segid = $nmr.ens.multi.tmp.2) (segid &nmr.ens.multi.segid.2)
+   elseif (&nmr.ens.loop.flag=true) then
+      evaluate ($nmr.ens.dimer.flag=true)
+      do (segid = "C0") ( all )
+      evaluate ($count = 1)
+      while (&exist%nmr.ens.loop.low.$count=true) loop NLOOP
+         do (segid = "C1") ( resid &nmr.ens.loop.low.$count:&nmr.ens.loop.high.$count )
+         evaluate ($count = $count + 1)
+      end loop NLOOP 
+   else
+      do (segid = "C1") ( all )
+   end if     
+
+   if ($nmr.copies # &nmr.ens.coor.num) then
+      evaluate ($nmr.copy.flag=false)
+      if ($nmr.copies > &nmr.ens.coor.num) then
+         evaluate ($copy_num=$nmr.copies)
+         evaluate ($nmr.copy.greater=true)
+      else
+         evaluate ($copy_num=&nmr.ens.coor.num)
+         evaluate ($nmr.copy.greater=false)
+      end if
+   else
+      evaluate ($copy_num=$nmr.copies)
+      evaluate ($nmr.copy.flag=true)
+   end if
+   
+   evaluate ($count = 1)
+   while ($count < $copy_num) loop GENERATE
+      if (&nmr.ens.multi.flag=true) then
+         evaluate ($count = $count + 1)
+         evaluate ($chainname1 = &nmr.ens.multi.segid.1 + encode($count))
+         evaluate ($chainname2 = &nmr.ens.multi.segid.2 + encode($count))
+
+         duplicate
+             segid = $chainname1
+             select = ( segid=$nmr.ens.multi.tmp.1)
+         end
+         duplicate
+             segid = $chainname2
+             select = ( segid=$nmr.ens.multi.tmp.2)
+         end
+      else
+         evaluate ($count = $count + 1) 
+         evaluate ($chainname = "C" + encode($count))
+
+         duplicate
+            segid = $chainname          
+            select = ( segid="C1")
+         end
+      end if
+   end loop GENERATE
+
+
+   evaluate ($nmr.file.name   = &pdb.out.name+encode($copy_num)+".pdb")
+   evaluate ($nmr.struct.name = &pdb.out.name+encode($copy_num)+".mtf")
+
+   write structure   output=$nmr.struct.name end	
+   write coordinates output=$nmr.file.name format=PDBO end	
+
+   structure reset end
+   coor init end
+
+   structure @@$nmr.struct.name end
+   coor @@$nmr.file.name
+
+  {- symmetry restraints for dimer -}   
+
+   if (&nmr.ens.multi.symm=true) then
+      ncs restraints
+         initialize
+         evaluate ($count = 0)
+         while ($count < $copy_num) loop NCSRE
+            evaluate ($count = $count + 1)
+            evaluate ($chainname1=&nmr.ens.multi.segid.1+encode($count))
+            evaluate ($chainname2=&nmr.ens.multi.segid.2+encode($count))
+            group
+               equi (segid $chainname1)
+               equi (segid $chainname2)
+               weight = 300
+            end
+         end loop NCSRE
+      end
+   end if
+
+  {- Read experimental data -}
+
+   @CNS_NMRMODULE:readensdata ( nmr=&nmr;
+                                flag=&flg;
+                                output=$nmr; )
+
+  {- Read and store the number of NMR restraints -}
+
+   @CNS_NMRMODULE:restraintnumber ( num=$num; )
+   
+  {- keep molecules from "seeing" each other (really) -}
+   igroup 
+      if (&nmr.ens.loop.flag=true) then
+         interaction ( segid "C0" ) ( segid "C0" )
+      end if
+      evaluate ($count = 0)
+      while ($count < $copy_num) loop INTERAC
+         if (&nmr.ens.multi.flag=true) then
+            evaluate ($count = $count + 1)
+            evaluate ($chainname1 = &nmr.ens.multi.segid.1 + encode($count))
+            evaluate ($chainname2 = &nmr.ens.multi.segid.2 + encode($count))
+            interaction ( segid $chainname1 ) ( segid $chainname1 )
+            interaction ( segid $chainname1 ) ( segid $chainname2 )
+            interaction ( segid $chainname2 ) ( segid $chainname2 )
+         elseif (&nmr.ens.loop.flag=true) then
+            evaluate ($count = $count + 1) 
+            evaluate ($chainname = "C"+encode($count))
+            interaction ( segid $chainname ) ( segid $chainname or segid "C0")
+         else
+            evaluate ($count = $count + 1) 
+            evaluate ($chainname = "C"+encode($count))
+            interaction ( segid $chainname ) ( segid $chainname )
+         end if
+      end loop INTERAC
+   end
+
+  {- find multi-conformer model with lowest energy using the multi-structures -}
+
+   flags exclude *
+         include bond angle impr vdw dihed
+                 noe cdih coup oneb carb ncs plan end
+
+   evaluate ($count=0)
+   evaluate ($best=1)
+
+   {- find model with lowest energy -}
+   while ($count < &pdb.end.count) loop struct
+
+      evaluate ($count=$count+1)
+      evaluate ($startname=&pdb.ens.name+"_"+encode($nmr.copies)+"_"+encode($count)+".pdb")
+
+      coor @@$startname
+      energy end
+      if ($count = 1) then
+        evaluate ($enemin=$ener)
+      end if
+      if ($ener < $enemin) then
+        evaluate ($enemin=$ener)
+        evaluate ($best=$count)
+      end if
+
+   end loop struct
+
+   {- write model with lowest energy -}
+   evaluate ($startname=&pdb.ens.name+"_"+encode($nmr.copies)+"_"+encode($best)+".pdb")
+   coor @@$startname
+   coor fit sele ( &pdb.atom.select ) end  
+   do ( b = bcomp ) (all)                    
+
+   {- add or delete conformers if necessary -}
+   if ($nmr.copy.flag=false) then
+      if ($nmr.copy.greater=true) then
+         evaluate ($count = &nmr.ens.coor.num)
+         while ($count < $copy_num) loop GENERATE
+            if (&nmr.ens.multi.flag=true) then
+               evaluate ($count = $count + 1)
+               evaluate ($chainname1 = &nmr.ens.multi.segid.1 + encode($count))
+               evaluate ($chainname2 = &nmr.ens.multi.segid.2 + encode($count))
+
+               delete
+                    select = ( segid $chainname1)
+               end
+               delete
+                   select = ( segid $chainname2)
+               end
+            else
+               evaluate ($count = $count + 1)
+               evaluate ($chainname = "C" + encode($count))
+
+               delete
+                  select = ( segid $chainname)
+               end
+            end if
+         end loop GENERATE
+      else
+         evaluate ($count = $nmr.copies)
+         while ($count < $copy_num) loop GENERATE
+            if (&nmr.ens.multi.flag=true) then
+               evaluate ($count = $count + 1)
+               evaluate ($chainname1 = &nmr.ens.multi.segid.1 + encode($count))
+               evaluate ($chainname2 = &nmr.ens.multi.segid.2 + encode($count))
+
+               duplicate
+                   segid = $chainname1
+                   select = ( segid=$nmr.ens.multi.tmp.1)
+               end
+               duplicate
+                   segid = $chainname2
+                   select = ( segid=$nmr.ens.multi.tmp.2)
+               end
+            else
+               evaluate ($count = $count + 1)
+               evaluate ($chainname = "C" + encode($count))
+
+               duplicate
+                  segid = $chainname
+                  select = ( segid="C1")
+               end
+            end if
+         end loop GENERATE
+      end if
+   end if
+         
+   evaluate ($nmr.file.name=&pdb.ens.name+"_"+encode($nmr.copies)+"_low_ener.pdb")
+   write coordinates output=$nmr.file.name format=PDBO end         
+
+   buffer mapout
+      display Start structure with lowest energy ($enemin) for probability
+      display refinement is: $nmr.file.name
+   end
+   
+   evaluate ($count = 0)                           
+   evaluate ($occup = 1.0 / $copy_num )               
+
+   while ($count < $copy_num) loop occupancy
+ 
+      evaluate ($count = $count + 1)
+      if (&nmr.ens.multi.flag=true) then
+         evaluate ($chainname1 = &nmr.ens.multi.segid.1 + encode($count))
+         evaluate ($chainname2 = &nmr.ens.multi.segid.2 + encode($count))
+         do (q=$occup) (segid $chainname1 or segid $chainname2)
+      elseif (&nmr.ens.loop.flag=true) then
+         do (q=1.0) (segid C0)
+         evaluate ($chainname = "C"+encode($count))
+         do (q=$occup) (segid $chainname)
+      else
+	 evaluate ($chainname = "C"+encode($count))
+	 do (q=$occup) (segid $chainname)
+      end if
+
+   end loop occupancy
+
+  {- refine model in probability map -}
+
+   xray
+
+      evaluate ($sg="P1")
+      @CNS_XTALLIB:spacegroup.lib (sg=$sg;)
+
+      a=$nmr.map.adim b=$nmr.map.bdim c=$nmr.map.cdim 
+      alpha=90.0 beta=90.0 gamma=90.0
+
+      @CNS_XRAYLIB:scatter.lib
+
+      binresolution &nmr.ens.map.low.limit &nmr.ens.map.high.limit
+      mapresolution &nmr.ens.map.high.limit
+
+      reflection @@$fobname end                             
+
+   end
+
+   coor @@$nmr.file.name
+   coor copy end
+
+   flags
+      exclude *                                
+      include xref ncs                            
+      include bond angle dihedral improper vdw 
+   end                                         
+                                             
+   xray
+      {- Adjust Resolution range -}
+      binresolution &nmr.ens.map.low.limit 2.5
+      mapresolution 2.5
+   end                                      
+
+   xray
+     query name=fcalc domain=reciprocal end
+     if ( $object_exist = false ) then
+        declare name=fcalc domain=reciprocal type=complex end
+     end if
+
+     declare name=ref_active domain=reciprocal type=integer end
+     declare name=tst_active domain=reciprocal type=integer end
+
+     do (ref_active=0) ( all )
+     do (ref_active=1) ( ( amplitude(fobs) > 0.0 ) and
+                       ( &nmr.ens.map.low.limit >= d >= 2.5 ) )
+
+     do (tst_active=0) (all)
+     do (tst_active=1) (ref_active=1 and test=1)
+
+     associate fcalc ( &pdb.map.select )
+
+     tselection=( ref_active=1 )
+
+     cvselection=( tst_active=1 )
+
+     method=FFT
+
+     fft
+       automemory=true
+     end
+
+   end
+
+   xray
+     predict
+       mode=reciprocal
+       to=fcalc
+       selection=(ref_active=1)
+       atomselection=( &pdb.map.select )
+     end
+   end
+
+   xray
+     @@CNS_XTALMODULE:refinementtarget (target="vector";
+                                        sig_sigacv=0.07;
+                                        mbins=&target_bins;
+                                        fobs=fobs;
+                                        sigma=sigma;
+                                        weight=1;
+                                        iobs=iobs;
+                                        sigi=iobs;
+                                        test=tst_active;
+                                        fcalc=fcalc;
+                                        fpart=0;
+                                        pa=pa;
+                                        pb=pb;
+                                        pc=pc;
+                                        pd=pd;
+                                        phase=fobs;
+                                        fom=fom;
+                                        sel=(ref_active=1);
+                                        sel_test=(tst_active=1);
+                                        statistics=true;)
+   end
+
+
+   xray
+     @@CNS_XTALMODULE:calculate_r (fobs=fobs;
+                                   fcalc=fcalc;
+                                   fpart=0;
+                                   sel=(ref_active=1);
+                                   sel_test=(tst_active=1);
+                                   print=true;
+                                   output=OUTPUT;
+                                   r=$start_r;
+                                   test_r=$start_test_r;)
+   end
+
+   flags                                    
+      exclude xref                             
+   end                                      
+ 
+   minimize lbfgs                          
+      nstep=40
+      nprint=10
+      drop=40.0                                
+   end                                         
+
+   dynamics cartesian
+      vscaling = true
+      tcoupling=false
+      timestep=0.001
+      nstep=100
+      nprint=50
+      temperature=300
+   end
+
+   flags                                    
+      include xref                             
+   end                                      
+ 
+   @@CNS_XTALMODULE:getweight (
+                               selected=&pdb.map.select;
+                               fixed=(none);
+                               wa=$nmr.xray.weight;
+                               )
+
+   buffer mapout
+      display Weight for vector target: $nmr.xray.weight
+   end
+
+   {- positional refinement -}
+  
+   {- restore initial coordinates -}
+   coor swap end                                
+
+   xray
+     predict
+       mode=reciprocal
+       to=fcalc
+       selection=(ref_active=1)
+       atomselection=( &pdb.map.select )
+     end
+   end
+
+   xray
+     @@CNS_XTALMODULE:calculate_r (fobs=fobs;
+                                   fcalc=fcalc;
+                                   fpart=0;
+                                   sel=(ref_active=1);
+                                   sel_test=(tst_active=1);
+                                   print=true;
+                                   output=OUTPUT;
+                                   r=$start_r;
+                                   test_r=$start_test_r;)
+   end
+
+   buffer mapout
+      display Initial R and free R values: $start_r[F6.3] $start_test_r[F6.3]
+   end
+
+   flags
+      exclude *
+      include angl bond dihe impr vdw ncs
+   end
+
+   xray
+      tolerance=0.0 lookup=false             
+      wa=$nmr.xray.weight                                  
+   end                  
+
+   fix selection=( not hydrogen ) end      
+
+   minimize lbfgs 
+      nstep=40
+      nprint=10 
+   end
+
+   fix selection=( not all ) end 
+
+   flags
+      exclude *                                
+      include xref ncs                            
+      include bond angl dihe impr vdw 
+   end                                         
+                                             
+   minimize lbfgs
+      nstep=200
+      nprint=25
+      drop=10.0 
+   end
+
+   xray
+     @@CNS_XTALMODULE:calculate_r (fobs=fobs;
+                                   fcalc=fcalc;
+                                   fpart=0;
+                                   sel=(ref_active=1);
+                                   sel_test=(tst_active=1);
+                                   print=true;
+                                   output=OUTPUT;
+                                   r=$r;
+                                   test_r=$test_r;)
+   end
+
+
+   buffer mapout
+      display R values after positional refinement: $r[F6.3] $test_r[F6.3]
+   end
+   
+  {- slowcool refinement xray terms only -}
+
+   xray
+     tolerance=0.2 lookup=true
+   end
+
+   set seed=&md.seed end
+
+   evaluate ($final_t = 300)
+
+   evaluate ($ncycle = int((&md.xray.cool.temp-$final_t)/&md.xray.cool.tmpstp))
+   evaluate ($nstep = int(&md.xray.cool.step/$ncycle))
+
+   do (vx=maxwell(&md.xray.cool.temp)) ( all )
+   do (vy=maxwell(&md.xray.cool.temp)) ( all )
+   do (vz=maxwell(&md.xray.cool.temp)) ( all )
+   
+   do (fbeta=100.) ( all )
+
+   if ( &md.xray.type.cool = "torsion" ) then
+      dyna torsion
+         topology
+            maxlength=-1
+            maxtree=-1
+            {- All dihedrals w/ (force constant > 23) will be locked -}
+            {- This keeps planar groups planar -}
+            kdihmax = 23.
+            if ( &BLANK%torsion_infile = false ) then
+               @&torsion_infile
+            else         
+               @CNS_TOPPAR:torsionmdmods
+            end if
+         end
+      end
+   end if
+
+   evaluate ($bath=&md.xray.cool.temp)
+   
+   evaluate ($i_cool = 0)
+   while ($i_cool <= $ncycle) loop cool
+      evaluate ($i_cool = $i_cool + 1)
+
+      if ( &md.xray.type.cool = "torsion" ) then
+         dynamics  torsion
+            cmremove=true
+            vscaling = true
+            tcoup = false
+            timestep = &md.xray.cool.ss
+            nstep = $nstep
+            nprint = $nstep
+            temperature = $bath
+         end
+      else
+         dynamics  cartesian
+            cmremove=true
+            vscaling = true
+            tcoup = false
+            timestep = &md.xray.cool.ss
+            nstep = $nstep
+            nprint = $nstep
+            temperature = $bath
+         end
+      end if
+
+      evaluate ($bath  = $bath  - &md.xray.cool.tmpstp)
+
+   end loop cool
+
+   xray
+      tolerance=0.0    lookup=false                       
+   end
+       
+   minimize lbfgs                                      
+      nstep=120
+      nprint=10                                         
+      drop=10.0
+   end
+ 
+   xray
+     @@CNS_XTALMODULE:calculate_r (fobs=fobs;
+                                   fcalc=fcalc;
+                                   fpart=0;
+                                   sel=(ref_active=1);
+                                   sel_test=(tst_active=1);
+                                   print=true;
+                                   output=OUTPUT;
+                                   r=$start_r;
+                                   test_r=$start_test_r;)
+   end
+
+   buffer mapout
+      display R and free R values after slowcooling refinement: $r[F6.3] $test_r[F6.3]
+   end
+
+  {- slow-cooling with inclusion of NMR constraints -}
+   evaluate ($temp_seed=&md.seed*314.1593)
+   set seed=$temp_seed end
+
+   flags include noe cdih coup oneb carb plan end
+   
+   evaluate ($nmr.xray.weight=$nmr.xray.weight/4)
+   xray
+      wa=$nmr.xray.weight
+   end
+   
+   buffer mapout
+      display Weight for AB target set to: $nmr.xray.weight
+   end
+
+   evaluate ($final_t = 0.)
+
+   evaluate ($ncycle = int((&md.nmr.cool.temp-$final_t)/&md.nmr.cool.tmpstp))
+   evaluate ($nstep = int(&md.nmr.cool.step/$ncycle))
+
+   do (vx=maxwell(&md.nmr.cool.temp)) ( all )
+   do (vy=maxwell(&md.nmr.cool.temp)) ( all )
+   do (vz=maxwell(&md.nmr.cool.temp)) ( all )
+   
+   do (fbeta=100.) ( all )
+
+   if ( &md.xray.type.cool = "torsion" ) then
+      if (&md.nmr.type.cool # "torsion" ) then
+         dynamics torsion
+            topology
+               reset
+            end
+         end
+      end if
+   elseif (&md.nmr.type.cool = "torsion" ) then 
+      dyna torsion
+         topology
+            maxlength=-1
+            maxtree=-1
+            {- All dihedrals w/ (force constant > 23) will be locked -}
+            {- This keeps planar groups planar -}
+            kdihmax = 23.
+            if ( &BLANK%torsion_infile = false ) then
+               @&torsion_infile
+            else         
+               @CNS_TOPPAR:torsionmdmods
+            end if
+         end
+      end
+   end if
+
+   noe
+      scale * &md.nmr.cool.noe
+   end
+
+   restraints dihedral
+      scale = &md.nmr.cool.cdih
+   end
+
+   if ($nmr.nucl.num > 0) then
+      evaluate ($cart_nucl_flag=true)
+      parameter
+         nbonds
+            repel=0
+            nbxmod=5
+            wmin=0.01
+            tolerance=0.5
+            cutnb=11.5 ctonnb=9.5 ctofnb=10.5
+            rdie vswitch switch
+         end
+      end
+      flags include elec end
+   end if
+
+   evaluate ($bath=&md.nmr.cool.temp)
+   
+   evaluate ($i_cool = 0)
+   while ($i_cool <= $ncycle) loop cool
+      evaluate ($i_cool = $i_cool + 1)
+
+      if ( &md.nmr.type.cool = "torsion" ) then
+         dynamics  torsion
+            cmremove=true
+            vscaling = true
+            tcoup = false
+            timestep = &md.nmr.cool.ss
+            nstep = $nstep
+            nprint = $nstep
+            temperature = $bath
+         end
+      else
+         dynamics  cartesian
+            cmremove=true
+            vscaling = true
+            tcoup = false
+            timestep = &md.nmr.cool.ss
+            nstep = $nstep
+            nprint = $nstep
+            temperature = $bath
+         end
+      end if
+
+      evaluate ($bath  = $bath  - &md.nmr.cool.tmpstp)
+
+   end loop cool
+
+   if ( &md.nmr.type.cool = "torsion" ) then
+      dynamics torsion
+         topology
+            reset
+         end
+      end
+   end if
+
+   flags include prot end
+   
+   xray
+      tolerance=0.0    lookup=false                       
+   end
+       
+   minimize lbfgs                                      
+      nstep=500
+      nprint=25                                         
+      drop=10.0
+   end
+ 
+   xray
+     @@CNS_XTALMODULE:calculate_r (fobs=fobs;
+                                   fcalc=fcalc;
+                                   fpart=0;
+                                   sel=(ref_active=1);
+                                   sel_test=(tst_active=1);
+                                   print=true;
+                                   output=OUTPUT;
+                                   r=$start_r;
+                                   test_r=$start_test_r;)
+   end
+
+   buffer mapout
+      display R and free R values after slowcooling refinement with NMR constraints: $r[F6.3] $test_r[F6.3]
+   end
+   
+   flag exclude xref end
+
+   minimize lbfgs                                      
+      nstep=500
+      nprint=25                                         
+      drop=10.0
+   end
+
+   xray
+     @@CNS_XTALMODULE:calculate_r (fobs=fobs;
+                                   fcalc=fcalc;
+                                   fpart=0;
+                                   sel=(ref_active=1);
+                                   sel_test=(tst_active=1);
+                                   print=true;
+                                   output=OUTPUT;
+                                   r=$start_r;
+                                   test_r=$start_test_r;)
+   end
+
+   buffer mapout
+      display R and free R values after final minimization with NMR constraints: $r[F6.3] $test_r[F6.3]
+   end
+
+   {- print coordinates -}
+   @CNS_NMRMODULE:pmprint ( cv=$cv;
+                            flag=&flg;
+                            md=&md;
+                            nmr=&nmr;
+                            num=$num;
+                            output=$nmr;
+                            pdb=&pdb;  )
+
+   {- print map results -}
+   evaluate ($resultfile=&pdb.out.name+"_pm.summary")
+   set display=$resultfile end
+
+   buffer mapout
+      to display
+      flush
+   end
+
+   close $resultfile end
+
+end loop MULTI
+
+stop
+
+
+
+
+
+

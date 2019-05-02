@@ -1,0 +1,2103 @@
+          ============================================================
+          |                                                          |
+          |            Crystallography & NMR System (CNS)            |
+          |                         CNSsolve                         |
+          |                                                          |
+          ============================================================
+           Version: 1.3
+           Status: General release
+          ============================================================
+           Written by: A.T.Brunger, P.D.Adams, G.M.Clore, W.L.DeLano,
+                       P.Gros, R.W.Grosse-Kunstleve,J.-S.Jiang,J.M.Krahn,
+                       J.Kuszewski, M.Nilges, N.S.Pannu, R.J.Read,
+                       L.M.Rice, G.F.Schroeder, T.Simonson, G.L.Warren.
+           Copyright (c) 1997-2010 Yale University
+          ============================================================
+           Running on machine: lewis4-r710-login-node223 (x86_64/Linux,64-bit)
+                               with 16 threads
+           Program started by: oeow39
+           Program started at: 16:08:06 on 05-Jul-2018
+          ============================================================
+
+ FFT3C: Using FFTPACK4.1
+
+ CNSsolve>remarks  file RSEARCH.INP --- test rotation search 
+ CNSsolve>remarks  Author: Axel T. Brunger 
+ CNSsolve> 
+ CNSsolve>structure 
+ STRUcture>data_cns_mtf 
+ REMARKS FILENAME="/data/rwgk/test/tmp.mtf"
+ REMARKS DATE:18-Nov-98  14:17:44       created by user: rwgk
+ REMARKS VERSION:0.4a
+ Status of internal molecular topology database:
+ -> NATOM=        396(MAXA=     1000000)  NBOND=        406(MAXB=     1000000)
+ -> NTHETA=       587(MAXT=     2000000)  NGRP=         165(MAXGRP=   1000000)
+ -> NPHI=         244(MAXP=     2000000)  NIMPHI=       182(MAXIMP=   1000000)
+ -> NNB=            9(MAXNB=    1000000) 
+ STRUcture> 
+ STRUcture>end 
+ CNSsolve> 
+ CNSsolve>{* read coordinates of ROTATED crambin structure *} 
+ CNSsolve> 
+ CNSsolve>coor 
+ COOR>ATOM      1  N   THR     1      21.799  -2.958   4.368  0.00  8.00 
+ COOR>ATOM      5  CA  THR     1      21.052  -1.780   4.915  0.00  8.00 
+ %READC-WRN: still     69 missing coordinates (in selected subset)
+ CNSsolve> 
+ CNSsolve> 
+ CNSsolve>{* make Patterson of model in P1 box *} 
+ CNSsolve> 
+ CNSsolve>do (b=8.0) ( all ) 
+ SELRPN:    396 atoms have been selected out of    396
+ CNSsolve>do (q=1.0) ( all ) 
+ SELRPN:    396 atoms have been selected out of    396
+ CNSsolve> 
+ CNSsolve>xray 
+ XRAY>   declare name=fobs type=complex domain=reciprocal end 
+ XDECLARE: Object FOBS has been declared.
+ XRAY>   declare name=fpart domain=reciprocal type=complex end 
+ XDECLARE: Object FPART has been declared.
+ XRAY>   declare name=fcalc domain=reciprocal type=complex end 
+ XDECLARE: Object FCALC has been declared.
+ XRAY>   declare name=fom domain=reciprocal type=real end 
+ XDECLARE: Object FOM has been declared.
+ XRAY>   declare name=weight domain=reciprocal type=real end 
+ XDECLARE: Object WEIGHT has been declared.
+ XRAY>   declare name=sigma domain=reciprocal type=real end 
+ XDECLARE: Object SIGMA has been declared.
+ XRAY>   declare name=test domain=reciprocal type=integer end 
+ XDECLARE: Object TEST has been declared.
+ XRAY> 
+ XRAY>   a=100.0 b=100.0 c=100.0 alpha=90.0 beta=90.0 gamma=90.0 
+ XRAY>   symmetry=(x,y,z) 
+ XRAY>   SCATter ( chemical C* ) 
+ SELRPN:    202 atoms have been selected out of    396
+ SCATTER_A1=   2.31000 20.8439 1.02000 10.2075 1.58860 .568700 .865000 51.6512 .215600 
+ XRAY> 
+ XRAY>   SCATter ( chemical N* ) 
+ SELRPN:     55 atoms have been selected out of    396
+ SCATTER_A1=   12.2126 .005700 3.13220 9.89330 2.01250 28.9975 1.16630 .582600 -11.529 
+ XRAY> 
+ XRAY>   SCATter ( chemical O* ) 
+ SELRPN:     64 atoms have been selected out of    396
+ SCATTER_A1=   3.04850 13.2771 2.28680 5.70110 1.54630 .323900 .867000 32.9089 .250800 
+ XRAY> 
+ XRAY>   SCATter ( chemical S* ) 
+ SELRPN:      6 atoms have been selected out of    396
+ SCATTER_A1=   6.90530 1.46790 5.20340 22.2151 1.43790 .253600 1.58630 56.1720 .866900 
+ XRAY> 
+ XRAY> 
+ XRAY>   nreflections=20000 
+ XRAY: allocating space for   20000 reflections.
+ XRAY> 
+ XRAY>   evaluate ($lr=10.001) 
+ EVALUATE: symbol $LR set to    10.0010     (real)
+ XRAY>   evaluate ($hr=5.001) 
+ EVALUATE: symbol $HR set to    5.00100     (real)
+ XRAY>   binresolution $lr $hr 
+ XRAY>   mapresolution $hr 
+ XRAY>   tselection=( $hr <= d <= $lr  ) 
+ XRAY> 
+ XRAY>   generate 10.001 5.001 
+ XGENER: generating reflections to produce a full set
+         for the specified resolution range.
+ XGENE2:    14616 new reflections have been generated.
+ XRAY> 
+ XRAY>   method=fft 
+ XRAY>   fft 
+ XFFT>      grid=0.3 prime=5 avoid=2 ! sampling grid of electron density 
+ XFFT>   end 
+ XRAY>   predict 
+ PREDict>      mode=reciprocal 
+ PREDict>      to=fcalc 
+ PREDict>      selection=( $hr <= d <= $lr  ) 
+ Total of     14616 structure factor elements were selected.
+ PREDict>      atomselection=( not hydrogen ) 
+ SELRPN:    327 atoms have been selected out of    396
+ PREDict>   end 
+ FCALC: #scatt.=    327 #anomalous=   0 #special pos.=  0 occupancies=1
+ XSFAL: allocating space for complex reciprocal space object.
+ XFFT: using grid [  72,  72,  96] and sublattice [  72(  73),  72(  73),   6]
+ XRAY> 
+ XRAY>   do (fcalc=combine(amplitude(fcalc)^2,0)) (all ) 
+ Total of     14616 structure factor elements were selected.
+ XRAY> 
+ XRAY>   fft 
+ XFFT>      grid=0.28 prime=5 avoid=2 ! sampling grid of Patterson map 
+ XFFT>   end 
+ XRAY> 
+ XRAY>   declare name=map1 domain=real end 
+ XRAY>   do (map1=ft(fcalc)) ( all ) 
+ XSFAL: allocating space for complex reciprocal space object.
+ Total of     14616 structure factor elements were selected.
+ XMAPASU: using grid [  72,  72,  72] and sublattice [  72,  72,  72]
+ Maps will be stored in P1:
+   A=     0,...,    71  B=     0,...,    71  C=     0,...,    71
+ XMAPAL: allocating space for real space object.
+ XRAY> 
+ XRAY>   write map 
+ WRITe MAP>      from=map1 
+ WRITe MAP>      extend=box 
+ WRITe MAP>      xmin=-35.0 xmax=35.0  ! 
+ WRITe MAP>      ymin=-35.0 ymax=35.0  ! this is sufficient since max vector is < 30. 
+ WRITe MAP>      zmin=0.0 zmax=35.0  ! hemisphere (centro-symmetry) 
+ WRITe MAP>      automatic=true ! automatic scaling of map turned on 
+ WRITe MAP>      formatted=false  output=makep1.dat 
+ WRITe MAP>   end 
+ ASSFIL: file makep1.dat opened.
+ XMAPX: map will be scaled.
+ XMAPX: extend NA=(  72 -25  25) NB=(  72 -25  25) NC=(  72   0  25) 
+ XMAPX: ave. density (real) in unit cell=       0.00000 sigma=       3.37285 e/A^3
+ XMAPX: real part of section #   0 ave. dens.=       0.47592 sigma=      18.43098 e/A^3
+ XMAPX: real part of section #   1 ave. dens.=       0.19688 sigma=      13.86333 e/A^3
+ XMAPX: real part of section #   2 ave. dens.=      -0.26866 sigma=       9.32683 e/A^3
+ XMAPX: real part of section #   3 ave. dens.=      -0.38421 sigma=       9.10479 e/A^3
+ XMAPX: real part of section #   4 ave. dens.=      -0.17965 sigma=       7.09054 e/A^3
+ XMAPX: real part of section #   5 ave. dens.=       0.01802 sigma=       6.72171 e/A^3
+ XMAPX: real part of section #   6 ave. dens.=       0.15015 sigma=       5.65124 e/A^3
+ XMAPX: real part of section #   7 ave. dens.=       0.27239 sigma=       4.90014 e/A^3
+ XMAPX: real part of section #   8 ave. dens.=       0.22613 sigma=       5.05804 e/A^3
+ XMAPX: real part of section #   9 ave. dens.=      -0.07840 sigma=       4.70371 e/A^3
+ XMAPX: real part of section #  10 ave. dens.=      -0.35067 sigma=       4.09249 e/A^3
+ XMAPX: real part of section #  11 ave. dens.=      -0.28277 sigma=       3.00927 e/A^3
+ XMAPX: real part of section #  12 ave. dens.=       0.01110 sigma=       2.39820 e/A^3
+ XMAPX: real part of section #  13 ave. dens.=       0.20726 sigma=       2.20759 e/A^3
+ XMAPX: real part of section #  14 ave. dens.=       0.19727 sigma=       2.07404 e/A^3
+ XMAPX: real part of section #  15 ave. dens.=       0.07835 sigma=       1.67762 e/A^3
+ XMAPX: real part of section #  16 ave. dens.=      -0.05917 sigma=       1.55824 e/A^3
+ XMAPX: real part of section #  17 ave. dens.=      -0.14649 sigma=       1.56628 e/A^3
+ XMAPX: real part of section #  18 ave. dens.=      -0.11380 sigma=       1.35969 e/A^3
+ XMAPX: real part of section #  19 ave. dens.=       0.01375 sigma=       1.12532 e/A^3
+ XMAPX: real part of section #  20 ave. dens.=       0.11675 sigma=       1.14983 e/A^3
+ XMAPX: real part of section #  21 ave. dens.=       0.12315 sigma=       1.18828 e/A^3
+ XMAPX: real part of section #  22 ave. dens.=       0.04990 sigma=       1.13997 e/A^3
+ XMAPX: real part of section #  23 ave. dens.=      -0.06560 sigma=       1.06939 e/A^3
+ XMAPX: real part of section #  24 ave. dens.=      -0.16500 sigma=       0.93942 e/A^3
+ XMAPX: real part of section #  25 ave. dens.=      -0.16104 sigma=       0.97274 e/A^3
+ XRAY>end 
+ CNSsolve> 
+ CNSsolve>{* now make Patterson from Fobs *} 
+ CNSsolve>xray 
+ XRAY>   reset 
+ XRAY: whole xray database erased and reset
+ XRAY>   declare name=fobs type=complex domain=reciprocal end 
+ XDECLARE: Object FOBS has been declared.
+ XRAY>   declare name=fpart domain=reciprocal type=complex end 
+ XDECLARE: Object FPART has been declared.
+ XRAY>   declare name=fcalc domain=reciprocal type=complex end 
+ XDECLARE: Object FCALC has been declared.
+ XRAY>   declare name=fom domain=reciprocal type=real end 
+ XDECLARE: Object FOM has been declared.
+ XRAY>   declare name=weight domain=reciprocal type=real end 
+ XDECLARE: Object WEIGHT has been declared.
+ XRAY>   declare name=sigma domain=reciprocal type=real end 
+ XDECLARE: Object SIGMA has been declared.
+ XRAY>   declare name=test domain=reciprocal type=integer end 
+ XDECLARE: Object TEST has been declared.
+ XRAY>   a=40.96 b=18.65 c=22.52 alpha=90.0 beta=90.77 gamma=90.0 
+ XRAY> 
+ XRAY>   nreflections=20000 
+ XRAY: allocating space for   20000 reflections.
+ XRAY> reflection 
+ REFLection> INDEx    0   2   0  Fobs 4171.8999 
+ XSFAL: allocating space for complex reciprocal space object.
+ XRRR2:      729 new h,k,l indices have been added.
+ XRAY> 
+ XRAY>   evaluate ($lr=10.001) 
+ EVALUATE: symbol $LR set to    10.0010     (real)
+ XRAY>   evaluate ($hr=5.001) 
+ EVALUATE: symbol $HR set to    5.00100     (real)
+ XRAY>   binresolution $lr $hr 
+ XRAY>   mapresolution $hr 
+ XRAY>   tselection=( $hr <= d <= $lr  ) 
+ XRAY> 
+ XRAY>   method=fft 
+ XRAY>   fft 
+ XFFT>      grid=0.28 prime=5 avoid=2 ! sampling grid of Patterson 
+ XFFT>   end 
+ XRAY> 
+ XRAY> 
+ XRAY>   symmetry=(x,y,z)    ! Patterson symmetry (no phase shifts) 
+ XRAY>   symmetry=(-x,y,-z)  ! 
+ XRAY> 
+ XRAY>   do (fcalc=combine( (amplitude(fobs))^2,0) ) ( all ) 
+ XSFAL: allocating space for complex reciprocal space object.
+ Total of       729 structure factor elements were selected.
+ XRAY> 
+ XRAY>   declare name=map1 domain=real end 
+ XRAY> 
+ XRAY>   do (map1=ft(fcalc) ) ( 10.0001 >= d >= 5.0001 ) 
+ XSFAL: allocating space for complex reciprocal space object.
+ Total of       150 structure factor elements were selected.
+ XMAPASU: using grid [  30,  15,  16] and sublattice [  30,  15,  16]
+ %XASUDEF-warning: no asymmetric unit for maps specified.
+ %XASUDEF-warning: excessive memory and CPU usage may occur.
+ Maps will be stored in P1:
+   A=     0,...,    29  B=     0,...,    14  C=     0,...,    15
+ XMAPAL: allocating space for real space object.
+ XRAY> 
+ XRAY>   write map 
+ WRITe MAP>      from=map1 
+ WRITe MAP>      extend=unit 
+ WRITe MAP>      formatted=false output=makep2.dat 
+ WRITe MAP>      automatic=true ! automatic scaling of map turned on 
+ WRITe MAP>   end 
+ ASSFIL: file makep2.dat opened.
+ XMAPX: map will be scaled.
+ XMAPX: extend NA=(  30   0  30) NB=(  15   0  15) NC=(  16   0  16) 
+ XMAPX: ave. density (real) in unit cell=       0.00000 sigma=    3602.52667 e/A^3
+ XMAPX: real part of section #   0 ave. dens.=     999.94678 sigma=    8746.39631 e/A^3
+ XMAPX: real part of section #   1 ave. dens.=     584.51390 sigma=    6248.43697 e/A^3
+ XMAPX: real part of section #   2 ave. dens.=     -72.25841 sigma=    3747.57035 e/A^3
+ XMAPX: real part of section #   3 ave. dens.=    -158.36705 sigma=    2763.13783 e/A^3
+ XMAPX: real part of section #   4 ave. dens.=     162.52483 sigma=    2817.96658 e/A^3
+ XMAPX: real part of section #   5 ave. dens.=     263.50499 sigma=    3288.33085 e/A^3
+ XMAPX: real part of section #   6 ave. dens.=     111.17940 sigma=    3338.73923 e/A^3
+ XMAPX: real part of section #   7 ave. dens.=      45.37081 sigma=    2956.87663 e/A^3
+ XMAPX: real part of section #   8 ave. dens.=      67.20690 sigma=    3390.73060 e/A^3
+ XMAPX: real part of section #   9 ave. dens.=      45.37081 sigma=    2956.87663 e/A^3
+ XMAPX: real part of section #  10 ave. dens.=     111.17940 sigma=    3338.73923 e/A^3
+ XMAPX: real part of section #  11 ave. dens.=     263.50499 sigma=    3288.33085 e/A^3
+ XMAPX: real part of section #  12 ave. dens.=     162.52483 sigma=    2817.96658 e/A^3
+ XMAPX: real part of section #  13 ave. dens.=    -158.36705 sigma=    2763.13783 e/A^3
+ XMAPX: real part of section #  14 ave. dens.=     -72.25841 sigma=    3747.57035 e/A^3
+ XMAPX: real part of section #  15 ave. dens.=     584.51390 sigma=    6248.43697 e/A^3
+ XMAPX: real part of section #  16 ave. dens.=     999.94678 sigma=    8746.39631 e/A^3
+ XRAY>end 
+ CNSsolve> 
+ CNSsolve>{* now we're ready to do the rotation search *} 
+ CNSsolve>set timing=on end 
+ CNSsolve> 
+ CNSsolve>xray 
+ XRAY>   reset 
+ XRAY: whole xray database erased and reset
+ XRAY>   declare name=fobs type=complex domain=reciprocal end 
+ XDECLARE: Object FOBS has been declared.
+ XRAY>   declare name=fpart domain=reciprocal type=complex end 
+ XDECLARE: Object FPART has been declared.
+ XRAY>   declare name=fcalc domain=reciprocal type=complex end 
+ XDECLARE: Object FCALC has been declared.
+ XRAY>   declare name=fom domain=reciprocal type=real end 
+ XDECLARE: Object FOM has been declared.
+ XRAY>   declare name=weight domain=reciprocal type=real end 
+ XDECLARE: Object WEIGHT has been declared.
+ XRAY>   declare name=sigma domain=reciprocal type=real end 
+ XDECLARE: Object SIGMA has been declared.
+ XRAY>   declare name=test domain=reciprocal type=integer end 
+ XDECLARE: Object TEST has been declared.
+ XRAY>   a=40.96 b=18.65 c=22.52 alpha=90.0 beta=90.77 gamma=90.0 
+ XRAY>   symmetry=(x,y,z)        ! unit cell and 
+ XRAY>   symmetry=(-x,y+1/2,-z)  ! symmetry ops for peak redundancy check 
+ XRAY>   search rotation 
+ RSEARCH>      p1input=makep1.dat   formatted=false 
+ RSEARCH>      p2input=makep2.dat 
+ RSEARCH>      range=4.0 30.0 
+ RSEARCH>      threshold=1.0 ! all peaks above 1 sigma 
+ RSEARCH>      npeaks=1500 
+ RSEARCH>      tmmin=0.0 tmmax=720. 
+ RSEARCH>      t2min=0.0 t2max=90. 
+ RSEARCH>      tpmin=0.0 tpmax=360. 
+ RSEARCH>      delta=30.0 
+ RSEARCH>      nlist=100 
+ RSEARCH>      epsilon=0.5 
+ RSEARCH>      target=correlation 
+ RSEARCH>      output=OUTPUT 
+ RSEARCH>      symbols="DF" 
+ RSEARCH>      ? 
+ -----------rotation search-parameters---------------------------------------
+ | The quasi-orthogonal Eulerian angle sampling method is used
+ | TPMIn=     0.00000 TPMAx=   360.00000
+ | TMMIn=     0.00000 TMMAx=   720.00000
+ | T2MIn=     0.00000 T2MAx=    90.00000
+ | DELTa=    30.00000 SELF_symmetry=F FORMatted=F
+ | vector-RANGe-of-P1=    4.00000 to   30.00000
+ | THREshold-of-peaks-of-P1=    1.000000
+ | TARGet=CORRelation
+ | NPEAks-of-P1=    1500
+ | NLISt=     100
+ | EPSIlon= 0.50
+ -------------------------------------------------------------------------------
+ RSEARCH>   end 
+ ASSFIL: file makep1.dat opened.
+ REMARKS FILENAME="makep1.dat"
+ REMARKS DATE:05-Jul-2018  16:08:07       created by user: oeow39
+ REMARKS VERSION:1.3
+ XPATRT:    21783 peaks of P1 have coordinates between   4.00000
+ and   30.00000 A relative to the origin.
+ XPATRT: of those     4361 peaks have values that are above   1.00000    
+ XPATRT: of those the     1500 highest peaks will be used
+ RSEARC: CPU-Time:  P1 peak selection=    0.0312
+ RSEARC: CPU-Time:  generation of angle grid=    0.0008
+ ASSFIL: file makep2.dat opened.
+ REMARKS FILENAME="makep2.dat"
+ REMARKS DATE:05-Jul-2018  16:08:07       created by user: oeow39
+ REMARKS VERSION:1.3
+ RSEARC: CPU-Time:  rotation search=    0.6440
+ (* Rotation Function *)
+   rnumber=    393;
+   rave=  0.0302;
+   rsigma=  0.0486;
+   rmax=  0.2194;
+   rmin= -0.0738;
+ var={ "theta2", "theta-", "theta+" };
+ min={    0.00000 ,    0.00000 ,    0.00000 };
+ max={   90.00000 ,  720.00000 ,  360.00000 };
+ rf={
+ {
+ {
+     0.0171,     0.0857,     0.0460,     0.0829,     0.0208,     0.0489,
+     0.0300,     0.0752,     0.0402,     0.0598,     0.0296,     0.0603,
+     0.0171
+ }
+ },
+ {
+ {
+    -0.0021,     0.0247,     0.0524,     0.0645,     0.0527,     0.0566,
+     0.0850,     0.0466,     0.0676,     0.0188,     0.0888,     0.0792
+ },
+ {
+    -0.0018,    -0.0440,     0.1093,    -0.0507,     0.0937,    -0.0135,
+     0.0615,    -0.0090,    -0.0253,     0.0113,     0.0681,     0.0508
+ },
+ {
+     0.0490,    -0.0327,    -0.0601,     0.1147,     0.0265,     0.0517,
+     0.2194,    -0.0495,     0.0307,     0.0599,     0.0585,     0.0419
+ },
+ {
+     0.0792,     0.0036,    -0.0061,     0.0538,    -0.0522,    -0.0570,
+     0.1101,     0.0502,     0.0300,     0.0832,     0.0397,    -0.0021
+ },
+ {
+     0.0508,    -0.0222,     0.0321,     0.0142,     0.0448,     0.0217,
+    -0.0095,     0.0588,     0.0935,     0.0450,     0.0485,    -0.0018
+ },
+ {
+     0.0419,    -0.0116,     0.0822,     0.0089,     0.0042,     0.1132,
+     0.0483,    -0.0039,    -0.0380,     0.0807,     0.1089,     0.0490
+ },
+ {
+    -0.0021,     0.0247,     0.0524,     0.0645,     0.0527,     0.0566,
+     0.0850,     0.0466,     0.0676,     0.0188,     0.0888,     0.0792
+ }
+ },
+ {
+ {
+     0.0723,     0.1243,     0.0570,     0.0551,    -0.0082,     0.0035,
+    -0.0170,    -0.0062,     0.0478,     0.0389,     0.0786
+ },
+ {
+     0.0332,     0.0417,     0.0634,    -0.0493,     0.0470,     0.0344,
+     0.0287,    -0.0603,     0.0590,     0.0603,     0.0378
+ },
+ {
+    -0.0096,    -0.0227,     0.0545,     0.0289,    -0.0234,     0.0347,
+     0.0055,     0.1383,     0.0715,     0.0187,     0.0150
+ },
+ {
+     0.0769,     0.0422,    -0.0384,    -0.0347,     0.0151,     0.0991,
+     0.0693,     0.0788,     0.0664,     0.0844,    -0.0084
+ },
+ {
+     0.0422,     0.0282,    -0.0548,     0.0405,     0.0525,     0.0215,
+     0.0351,    -0.0261,    -0.0717,    -0.0093,     0.0021
+ },
+ {
+     0.0252,     0.0230,     0.0963,     0.0775,     0.0200,     0.0124,
+     0.0340,     0.0165,     0.0929,     0.0260,    -0.0066
+ },
+ {
+     0.0786,     0.0657,     0.0726,     0.0452,     0.0183,     0.0196,
+     0.0583,    -0.0143,     0.0659,     0.0695,     0.0723
+ },
+ {
+     0.0378,     0.1067,    -0.0505,     0.0454,     0.0124,    -0.0038,
+    -0.0139,     0.0215,     0.0689,     0.0992,     0.0332
+ },
+ {
+     0.0150,     0.0886,     0.0236,     0.0708,     0.0616,    -0.0018,
+     0.0070,     0.0973,     0.0392,     0.0742,    -0.0096
+ },
+ {
+    -0.0084,     0.0271,    -0.0096,     0.0805,    -0.0117,     0.0915,
+     0.0897,     0.0278,     0.0369,    -0.0012,     0.0769
+ },
+ {
+     0.0021,    -0.0109,     0.0034,     0.1038,     0.1154,     0.0660,
+     0.0279,     0.0060,    -0.0058,     0.0258,     0.0422
+ },
+ {
+    -0.0066,     0.0031,     0.0993,     0.0395,     0.0837,    -0.0311,
+    -0.0387,     0.0244,    -0.0194,     0.0551,     0.0252
+ },
+ {
+     0.0723,     0.1243,     0.0570,     0.0551,    -0.0082,     0.0035,
+    -0.0170,    -0.0062,     0.0478,     0.0389,     0.0786
+ }
+ },
+ {
+ {
+     0.0439,     0.0581,     0.0037,     0.0089,    -0.0292,     0.0118,
+     0.0029,     0.0842,     0.0434
+ },
+ {
+    -0.0132,    -0.0251,     0.0091,    -0.0232,     0.0863,     0.0194,
+     0.1448,     0.0021,     0.0392
+ },
+ {
+    -0.0246,     0.0540,    -0.0169,    -0.0667,     0.0375,     0.0075,
+     0.1142,     0.0768,    -0.0738
+ },
+ {
+     0.0366,    -0.0674,     0.0314,    -0.0292,     0.0756,     0.1112,
+     0.0531,    -0.0201,    -0.0027
+ },
+ {
+    -0.0385,    -0.0377,    -0.0331,     0.1383,     0.0439,    -0.0132,
+    -0.0246,     0.0366,    -0.0385
+ },
+ {
+     0.0774,     0.0025,     0.1214,     0.0597,     0.0581,    -0.0251,
+     0.0540,    -0.0674,    -0.0377
+ },
+ {
+     0.0318,     0.0122,     0.0678,    -0.0315,     0.0037,     0.0091,
+    -0.0169,     0.0314,    -0.0331
+ },
+ {
+     0.1050,     0.1285,     0.0467,    -0.0379,     0.0089,    -0.0232,
+    -0.0667,    -0.0292,     0.1383
+ },
+ {
+     0.0434,    -0.0154,    -0.0181,     0.1125,    -0.0292,     0.0863,
+     0.0375,     0.0756,     0.0439
+ },
+ {
+     0.0392,    -0.0731,     0.0264,    -0.0524,     0.0118,     0.0194,
+     0.0075,     0.1112,    -0.0132
+ },
+ {
+    -0.0738,     0.0350,    -0.0510,     0.0468,     0.0029,     0.1448,
+     0.1142,     0.0531,    -0.0246
+ },
+ {
+    -0.0027,    -0.0393,     0.0048,     0.0218,     0.0842,     0.0021,
+     0.0768,    -0.0201,     0.0366
+ },
+ {
+    -0.0385,     0.0774,     0.0318,     0.1050,     0.0434,     0.0392,
+    -0.0738,    -0.0027,    -0.0385
+ },
+ {
+    -0.0377,     0.0025,     0.0122,     0.1285,    -0.0154,    -0.0731,
+     0.0350,    -0.0393,     0.0774
+ },
+ {
+    -0.0331,     0.1214,     0.0678,     0.0467,    -0.0181,     0.0264,
+    -0.0510,     0.0048,     0.0318
+ },
+ {
+     0.1383,     0.0597,    -0.0315,    -0.0379,     0.1125,    -0.0524,
+     0.0468,     0.0218,     0.1050
+ },
+ {
+     0.0439,     0.0581,     0.0037,     0.0089,    -0.0292,     0.0118,
+     0.0029,     0.0842,     0.0434
+ }
+ }
+ };
+ Summary of rotation search:
+   number of grid points=   393
+   mean of R-function=  0.030
+   sigma of R-function=  0.049
+   maximum of R-function=  0.219
+   minimum of R-function= -0.074
+ Clustered list (EPSIlon= 0.50) of first    100 highest peaks
+ (the [] indicate a symmetry operation)
+     no.  priority     theta1, theta2, theta3          RF
+ ===========================================================
+      1      1           ( 218.182  30.000 338.182)      0.2194
+ 
+      2      2           ( 157.500  90.000 112.500)      0.1448
+      3      2 [  1,  2] ( 337.500  90.000 247.500)      0.1448
+ 
+      4      3           ( 157.500  90.000 337.500)      0.1383
+      5      3 [  1,  2] ( 337.500  90.000  22.500)      0.1383
+      6      3 [  1,  2] ( 337.500  90.000  22.500)      0.1383
+ 
+      7      4           ( 186.000  60.000  66.000)      0.1383
+ 
+      8      5           ( 180.000  90.000 225.000)      0.1285
+      9      5 [  1,  2] (   0.000  90.000 135.000)      0.1285
+ 
+     10      6           (  18.000  60.000  18.000)      0.1243
+ 
+     12      7           ( 157.500  90.000 292.500)      0.1214
+     13      7 [  1,  2] ( 337.500  90.000  67.500)      0.1214
+ 
+     14      8           (  12.000  60.000 132.000)      0.1154
+ 
+     15      9           ( 169.091  30.000 289.091)      0.1147
+ 
+     16     10           ( 180.000  90.000  90.000)      0.1142
+     17     10 [  1,  2] (   0.000  90.000 270.000)      0.1142
+ 
+     18     11           (  21.818  30.000 141.818)      0.1132
+ 
+     19     12           ( 247.500  90.000 247.500)      0.1125
+     20     12 [  1,  2] (  67.500  90.000 112.500)      0.1125
+ 
+     21     13           ( 180.000  90.000  45.000)      0.1112
+     22     13 [  1,  2] (   0.000  90.000 315.000)      0.1112
+ 
+     23     14           ( 278.182  30.000 278.182)      0.1101
+ 
+     24     15           (  92.727  30.000 332.727)      0.1093
+ 
+     25     16           ( 103.636  30.000 223.636)      0.1089
+ 
+     26     17           ( 228.000  60.000 168.000)      0.1067
+ 
+     27     18           ( 157.500  90.000 202.500)      0.1050
+     28     18 [  1,  2] ( 337.500  90.000 157.500)      0.1050
+ 
+     30     19           ( 354.000  60.000 114.000)      0.1038
+ 
+     31     20           (   6.000  60.000  66.000)      0.0993
+ 
+     32     21           (  12.000  60.000 312.000)      0.0992
+ 
+     33     22           ( 180.000  60.000   0.000)      0.0991
+ 
+     34     23           (   6.000  60.000 246.000)      0.0973
+ 
+     35     24           ( 186.000  60.000 246.000)      0.0963
+ 
+     36     25           ( 125.455  30.000   5.455)      0.0937
+ 
+     37     26           (  10.909  30.000 250.909)      0.0935
+ 
+     38     27           ( 294.000  60.000 354.000)      0.0929
+ 
+     39     28           (   0.000  60.000 180.000)      0.0915
+ 
+     40     29           (  18.000  60.000 198.000)      0.0897
+ 
+     41     30           ( 163.636  30.000 163.636)      0.0888
+ 
+     43     31           ( 258.000  60.000 138.000)      0.0886
+ 
+     44     32           ( 112.500  90.000  67.500)      0.0863
+     45     32 [  1,  2] ( 292.500  90.000 292.500)      0.0863
+ 
+     46     33           (  15.000   0.000  15.000)      0.0857
+ 
+     47     34           (  98.182  30.000  98.182)      0.0850
+ 
+     49     35           ( 252.000  60.000  72.000)      0.0844
+ 
+     50     36           ( 157.500  90.000 157.500)      0.0842
+     51     36 [  1,  2] ( 337.500  90.000 202.500)      0.0842
+ 
+     53     37           (  42.000  60.000 102.000)      0.0837
+ 
+     54     38           ( 327.273  30.000 327.273)      0.0832
+ 
+     55     39           (  45.000   0.000  45.000)      0.0829
+ 
+     56     40           ( 332.727  30.000  92.727)      0.0822
+ 
+     57     41           (  87.273  30.000 207.273)      0.0807
+ 
+     58     42           ( 324.000  60.000 144.000)      0.0805
+ 
+     59     43           ( 180.000  30.000 180.000)      0.0792
+ 
+     62     44           ( 216.000  60.000  36.000)      0.0788
+ 
+     63     45           ( 180.000  60.000 180.000)      0.0786
+ 
+     66     46           ( 204.000  60.000 264.000)      0.0775
+ 
+     67     47           ( 112.500  90.000 247.500)      0.0774
+     68     47 [  1,  2] ( 292.500  90.000 112.500)      0.0774
+ 
+     70     48           (  90.000  60.000 270.000)      0.0769
+ 
+     72     49           ( 202.500  90.000 112.500)      0.0768
+     73     49 [  1,  2] (  22.500  90.000 247.500)      0.0768
+ 
+     74     50           ( 157.500  90.000  22.500)      0.0756
+     75     50 [  1,  2] ( 337.500  90.000 337.500)      0.0756
+ 
+     76     51           ( 105.000   0.000 105.000)      0.0752
+ 
+     77     52           (  42.000  60.000 282.000)      0.0742
+ 
+     78     53           ( 216.000  60.000 216.000)      0.0726
+ 
+     79     54           (   0.000  60.000   0.000)      0.0723
+ 
+     82     55           ( 204.000  60.000  84.000)      0.0715
+ 
+     83     56           ( 294.000  60.000 174.000)      0.0708
+ 
+     84     57           ( 342.000  60.000 342.000)      0.0695
+ 
+     85     58           ( 198.000  60.000  18.000)      0.0693
+ 
+     86     59           ( 354.000  60.000 294.000)      0.0689
+ 
+     87     60           ( 223.636  30.000 103.636)      0.0681
+ 
+     88     61           ( 180.000  90.000 270.000)      0.0678
+     89     61 [  1,  2] (   0.000  90.000  90.000)      0.0678
+ 
+     90     62           ( 130.909  30.000 130.909)      0.0676
+ 
+     92     63           ( 234.000  60.000  54.000)      0.0664
+ 
+     93     64           (  30.000  60.000 150.000)      0.0660
+ 
+     94     65           ( 324.000  60.000 324.000)      0.0659
+ 
+     95     66           ( 198.000  60.000 198.000)      0.0657
+ 
+     96     67           (  49.091  30.000  49.091)      0.0645
+ 
+     98     68           (  66.000  60.000   6.000)      0.0634
+ 
+     99     69           ( 312.000  60.000 192.000)      0.0616
+ 
+    100     70           ( 158.182  30.000  38.182)      0.0615
+ List of the highest peaks of the clusters (EPSIlon= 0.50)
+     no.  priority     theta1, theta2, theta3          RF
+ ===========================================================
+      1      1       ( 218.182  30.000 338.182)      0.2194
+      2      2       ( 157.500  90.000 112.500)      0.1448
+      4      3       ( 157.500  90.000 337.500)      0.1383
+      7      4       ( 186.000  60.000  66.000)      0.1383
+      8      5       ( 180.000  90.000 225.000)      0.1285
+     10      6       (  18.000  60.000  18.000)      0.1243
+     12      7       ( 157.500  90.000 292.500)      0.1214
+     14      8       (  12.000  60.000 132.000)      0.1154
+     15      9       ( 169.091  30.000 289.091)      0.1147
+     16     10       ( 180.000  90.000  90.000)      0.1142
+     18     11       (  21.818  30.000 141.818)      0.1132
+     19     12       ( 247.500  90.000 247.500)      0.1125
+     21     13       ( 180.000  90.000  45.000)      0.1112
+     23     14       ( 278.182  30.000 278.182)      0.1101
+     24     15       (  92.727  30.000 332.727)      0.1093
+     25     16       ( 103.636  30.000 223.636)      0.1089
+     26     17       ( 228.000  60.000 168.000)      0.1067
+     27     18       ( 157.500  90.000 202.500)      0.1050
+     30     19       ( 354.000  60.000 114.000)      0.1038
+     31     20       (   6.000  60.000  66.000)      0.0993
+     32     21       (  12.000  60.000 312.000)      0.0992
+     33     22       ( 180.000  60.000   0.000)      0.0991
+     34     23       (   6.000  60.000 246.000)      0.0973
+     35     24       ( 186.000  60.000 246.000)      0.0963
+     36     25       ( 125.455  30.000   5.455)      0.0937
+     37     26       (  10.909  30.000 250.909)      0.0935
+     38     27       ( 294.000  60.000 354.000)      0.0929
+     39     28       (   0.000  60.000 180.000)      0.0915
+     40     29       (  18.000  60.000 198.000)      0.0897
+     41     30       ( 163.636  30.000 163.636)      0.0888
+     43     31       ( 258.000  60.000 138.000)      0.0886
+     44     32       ( 112.500  90.000  67.500)      0.0863
+     46     33       (  15.000   0.000  15.000)      0.0857
+     47     34       (  98.182  30.000  98.182)      0.0850
+     49     35       ( 252.000  60.000  72.000)      0.0844
+     50     36       ( 157.500  90.000 157.500)      0.0842
+     53     37       (  42.000  60.000 102.000)      0.0837
+     54     38       ( 327.273  30.000 327.273)      0.0832
+     55     39       (  45.000   0.000  45.000)      0.0829
+     56     40       ( 332.727  30.000  92.727)      0.0822
+     57     41       (  87.273  30.000 207.273)      0.0807
+     58     42       ( 324.000  60.000 144.000)      0.0805
+     59     43       ( 180.000  30.000 180.000)      0.0792
+     62     44       ( 216.000  60.000  36.000)      0.0788
+     63     45       ( 180.000  60.000 180.000)      0.0786
+     66     46       ( 204.000  60.000 264.000)      0.0775
+     67     47       ( 112.500  90.000 247.500)      0.0774
+     70     48       (  90.000  60.000 270.000)      0.0769
+     72     49       ( 202.500  90.000 112.500)      0.0768
+     74     50       ( 157.500  90.000  22.500)      0.0756
+     76     51       ( 105.000   0.000 105.000)      0.0752
+     77     52       (  42.000  60.000 282.000)      0.0742
+     78     53       ( 216.000  60.000 216.000)      0.0726
+     79     54       (   0.000  60.000   0.000)      0.0723
+     82     55       ( 204.000  60.000  84.000)      0.0715
+     83     56       ( 294.000  60.000 174.000)      0.0708
+     84     57       ( 342.000  60.000 342.000)      0.0695
+     85     58       ( 198.000  60.000  18.000)      0.0693
+     86     59       ( 354.000  60.000 294.000)      0.0689
+     87     60       ( 223.636  30.000 103.636)      0.0681
+     88     61       ( 180.000  90.000 270.000)      0.0678
+     90     62       ( 130.909  30.000 130.909)      0.0676
+     92     63       ( 234.000  60.000  54.000)      0.0664
+     93     64       (  30.000  60.000 150.000)      0.0660
+     94     65       ( 324.000  60.000 324.000)      0.0659
+     95     66       ( 198.000  60.000 198.000)      0.0657
+     96     67       (  49.091  30.000  49.091)      0.0645
+     98     68       (  66.000  60.000   6.000)      0.0634
+     99     69       ( 312.000  60.000 192.000)      0.0616
+    100     70       ( 158.182  30.000  38.182)      0.0615
+ RSEARC: CPU-Time:  cluster analysis=    0.0613
+ XRAY> 
+ XRAY>   $? 
+ Current Symbol Table
+ NOTE: The scope number (#) of $<name> is shown as $_#_<name> 
+ $_1_DF_NLIST=   70.0000     (real)
+ $_1_DF_THETA3_70=   38.1818     (real)
+ $_1_DF_THETA2_70=   30.0000     (real)
+ $_1_DF_THETA1_70=   158.182     (real)
+ $_1_DF_RFVALUE_70=  0.615179E-01 (real)
+ $_1_DF_THETA3_69=   192.000     (real)
+ $_1_DF_THETA2_69=   60.0000     (real)
+ $_1_DF_THETA1_69=   312.000     (real)
+ $_1_DF_RFVALUE_69=  0.616332E-01 (real)
+ $_1_DF_THETA3_68=   6.00000     (real)
+ $_1_DF_THETA2_68=   60.0000     (real)
+ $_1_DF_THETA1_68=   66.0000     (real)
+ $_1_DF_RFVALUE_68=  0.633624E-01 (real)
+ $_1_DF_THETA3_67=   49.0909     (real)
+ $_1_DF_THETA2_67=   30.0000     (real)
+ $_1_DF_THETA1_67=   49.0909     (real)
+ $_1_DF_RFVALUE_67=  0.645117E-01 (real)
+ $_1_DF_THETA3_66=   198.000     (real)
+ $_1_DF_THETA2_66=   60.0000     (real)
+ $_1_DF_THETA1_66=   198.000     (real)
+ $_1_DF_RFVALUE_66=  0.656770E-01 (real)
+ $_1_DF_THETA3_65=   324.000     (real)
+ $_1_DF_THETA2_65=   60.0000     (real)
+ $_1_DF_THETA1_65=   324.000     (real)
+ $_1_DF_RFVALUE_65=  0.658945E-01 (real)
+ $_1_DF_THETA3_64=   150.000     (real)
+ $_1_DF_THETA2_64=   60.0000     (real)
+ $_1_DF_THETA1_64=   30.0000     (real)
+ $_1_DF_RFVALUE_64=  0.660300E-01 (real)
+ $_1_DF_THETA3_63=   54.0000     (real)
+ $_1_DF_THETA2_63=   60.0000     (real)
+ $_1_DF_THETA1_63=   234.000     (real)
+ $_1_DF_RFVALUE_63=  0.664006E-01 (real)
+ $_1_DF_THETA3_62=   130.909     (real)
+ $_1_DF_THETA2_62=   30.0000     (real)
+ $_1_DF_THETA1_62=   130.909     (real)
+ $_1_DF_RFVALUE_62=  0.676480E-01 (real)
+ $_1_DF_THETA3_61=   270.000     (real)
+ $_1_DF_THETA2_61=   90.0000     (real)
+ $_1_DF_THETA1_61=   180.000     (real)
+ $_1_DF_RFVALUE_61=  0.677953E-01 (real)
+ $_1_DF_THETA3_60=   103.636     (real)
+ $_1_DF_THETA2_60=   30.0000     (real)
+ $_1_DF_THETA1_60=   223.636     (real)
+ $_1_DF_RFVALUE_60=  0.681249E-01 (real)
+ $_1_DF_THETA3_59=   294.000     (real)
+ $_1_DF_THETA2_59=   60.0000     (real)
+ $_1_DF_THETA1_59=   354.000     (real)
+ $_1_DF_RFVALUE_59=  0.688506E-01 (real)
+ $_1_DF_THETA3_58=   18.0000     (real)
+ $_1_DF_THETA2_58=   60.0000     (real)
+ $_1_DF_THETA1_58=   198.000     (real)
+ $_1_DF_RFVALUE_58=  0.692705E-01 (real)
+ $_1_DF_THETA3_57=   342.000     (real)
+ $_1_DF_THETA2_57=   60.0000     (real)
+ $_1_DF_THETA1_57=   342.000     (real)
+ $_1_DF_RFVALUE_57=  0.695008E-01 (real)
+ $_1_DF_THETA3_56=   174.000     (real)
+ $_1_DF_THETA2_56=   60.0000     (real)
+ $_1_DF_THETA1_56=   294.000     (real)
+ $_1_DF_RFVALUE_56=  0.707757E-01 (real)
+ $_1_DF_THETA3_55=   84.0000     (real)
+ $_1_DF_THETA2_55=   60.0000     (real)
+ $_1_DF_THETA1_55=   204.000     (real)
+ $_1_DF_RFVALUE_55=  0.714984E-01 (real)
+ $_1_DF_THETA3_54=  0.100000E-05 (real)
+ $_1_DF_THETA2_54=   60.0000     (real)
+ $_1_DF_THETA1_54=  0.100000E-05 (real)
+ $_1_DF_RFVALUE_54=  0.723081E-01 (real)
+ $_1_DF_THETA3_53=   216.000     (real)
+ $_1_DF_THETA2_53=   60.0000     (real)
+ $_1_DF_THETA1_53=   216.000     (real)
+ $_1_DF_RFVALUE_53=  0.726422E-01 (real)
+ $_1_DF_THETA3_52=   282.000     (real)
+ $_1_DF_THETA2_52=   60.0000     (real)
+ $_1_DF_THETA1_52=   42.0000     (real)
+ $_1_DF_RFVALUE_52=  0.741583E-01 (real)
+ $_1_DF_THETA3_51=   105.000     (real)
+ $_1_DF_THETA2_51=   0.00000     (real)
+ $_1_DF_THETA1_51=   105.000     (real)
+ $_1_DF_RFVALUE_51=  0.751693E-01 (real)
+ $_1_DF_THETA3_50=   22.5000     (real)
+ $_1_DF_THETA2_50=   90.0000     (real)
+ $_1_DF_THETA1_50=   157.500     (real)
+ $_1_DF_RFVALUE_50=  0.756074E-01 (real)
+ $_1_DF_THETA3_49=   112.500     (real)
+ $_1_DF_THETA2_49=   90.0000     (real)
+ $_1_DF_THETA1_49=   202.500     (real)
+ $_1_DF_RFVALUE_49=  0.767857E-01 (real)
+ $_1_DF_THETA3_48=   270.000     (real)
+ $_1_DF_THETA2_48=   60.0000     (real)
+ $_1_DF_THETA1_48=   90.0000     (real)
+ $_1_DF_RFVALUE_48=  0.768913E-01 (real)
+ $_1_DF_THETA3_47=   247.500     (real)
+ $_1_DF_THETA2_47=   90.0000     (real)
+ $_1_DF_THETA1_47=   112.500     (real)
+ $_1_DF_RFVALUE_47=  0.774398E-01 (real)
+ $_1_DF_THETA3_46=   264.000     (real)
+ $_1_DF_THETA2_46=   60.0000     (real)
+ $_1_DF_THETA1_46=   204.000     (real)
+ $_1_DF_RFVALUE_46=  0.774586E-01 (real)
+ $_1_DF_THETA3_45=   180.000     (real)
+ $_1_DF_THETA2_45=   60.0000     (real)
+ $_1_DF_THETA1_45=   180.000     (real)
+ $_1_DF_RFVALUE_45=  0.786482E-01 (real)
+ $_1_DF_THETA3_44=   36.0000     (real)
+ $_1_DF_THETA2_44=   60.0000     (real)
+ $_1_DF_THETA1_44=   216.000     (real)
+ $_1_DF_RFVALUE_44=  0.787548E-01 (real)
+ $_1_DF_THETA3_43=   180.000     (real)
+ $_1_DF_THETA2_43=   30.0000     (real)
+ $_1_DF_THETA1_43=   180.000     (real)
+ $_1_DF_RFVALUE_43=  0.791896E-01 (real)
+ $_1_DF_THETA3_42=   144.000     (real)
+ $_1_DF_THETA2_42=   60.0000     (real)
+ $_1_DF_THETA1_42=   324.000     (real)
+ $_1_DF_RFVALUE_42=  0.804943E-01 (real)
+ $_1_DF_THETA3_41=   207.273     (real)
+ $_1_DF_THETA2_41=   30.0000     (real)
+ $_1_DF_THETA1_41=   87.2727     (real)
+ $_1_DF_RFVALUE_41=  0.807048E-01 (real)
+ $_1_DF_THETA3_40=   92.7273     (real)
+ $_1_DF_THETA2_40=   30.0000     (real)
+ $_1_DF_THETA1_40=   332.727     (real)
+ $_1_DF_RFVALUE_40=  0.821877E-01 (real)
+ $_1_DF_THETA3_39=   45.0000     (real)
+ $_1_DF_THETA2_39=   0.00000     (real)
+ $_1_DF_THETA1_39=   45.0000     (real)
+ $_1_DF_RFVALUE_39=  0.828760E-01 (real)
+ $_1_DF_THETA3_38=   327.273     (real)
+ $_1_DF_THETA2_38=   30.0000     (real)
+ $_1_DF_THETA1_38=   327.273     (real)
+ $_1_DF_RFVALUE_38=  0.831980E-01 (real)
+ $_1_DF_THETA3_37=   102.000     (real)
+ $_1_DF_THETA2_37=   60.0000     (real)
+ $_1_DF_THETA1_37=   42.0000     (real)
+ $_1_DF_RFVALUE_37=  0.837211E-01 (real)
+ $_1_DF_THETA3_36=   157.500     (real)
+ $_1_DF_THETA2_36=   90.0000     (real)
+ $_1_DF_THETA1_36=   157.500     (real)
+ $_1_DF_RFVALUE_36=  0.841607E-01 (real)
+ $_1_DF_THETA3_35=   72.0000     (real)
+ $_1_DF_THETA2_35=   60.0000     (real)
+ $_1_DF_THETA1_35=   252.000     (real)
+ $_1_DF_RFVALUE_35=  0.843705E-01 (real)
+ $_1_DF_THETA3_34=   98.1818     (real)
+ $_1_DF_THETA2_34=   30.0000     (real)
+ $_1_DF_THETA1_34=   98.1818     (real)
+ $_1_DF_RFVALUE_34=  0.849819E-01 (real)
+ $_1_DF_THETA3_33=   15.0000     (real)
+ $_1_DF_THETA2_33=   0.00000     (real)
+ $_1_DF_THETA1_33=   15.0000     (real)
+ $_1_DF_RFVALUE_33=  0.856505E-01 (real)
+ $_1_DF_THETA3_32=   67.5000     (real)
+ $_1_DF_THETA2_32=   90.0000     (real)
+ $_1_DF_THETA1_32=   112.500     (real)
+ $_1_DF_RFVALUE_32=  0.863233E-01 (real)
+ $_1_DF_THETA3_31=   138.000     (real)
+ $_1_DF_THETA2_31=   60.0000     (real)
+ $_1_DF_THETA1_31=   258.000     (real)
+ $_1_DF_RFVALUE_31=  0.886429E-01 (real)
+ $_1_DF_THETA3_30=   163.636     (real)
+ $_1_DF_THETA2_30=   30.0000     (real)
+ $_1_DF_THETA1_30=   163.636     (real)
+ $_1_DF_RFVALUE_30=  0.887982E-01 (real)
+ $_1_DF_THETA3_29=   198.000     (real)
+ $_1_DF_THETA2_29=   60.0000     (real)
+ $_1_DF_THETA1_29=   18.0000     (real)
+ $_1_DF_RFVALUE_29=  0.896502E-01 (real)
+ $_1_DF_THETA3_28=   180.000     (real)
+ $_1_DF_THETA2_28=   60.0000     (real)
+ $_1_DF_THETA1_28=  0.100000E-05 (real)
+ $_1_DF_RFVALUE_28=  0.915312E-01 (real)
+ $_1_DF_THETA3_27=   354.000     (real)
+ $_1_DF_THETA2_27=   60.0000     (real)
+ $_1_DF_THETA1_27=   294.000     (real)
+ $_1_DF_RFVALUE_27=  0.928948E-01 (real)
+ $_1_DF_THETA3_26=   250.909     (real)
+ $_1_DF_THETA2_26=   30.0000     (real)
+ $_1_DF_THETA1_26=   10.9091     (real)
+ $_1_DF_RFVALUE_26=  0.935256E-01 (real)
+ $_1_DF_THETA3_25=   5.45455     (real)
+ $_1_DF_THETA2_25=   30.0000     (real)
+ $_1_DF_THETA1_25=   125.455     (real)
+ $_1_DF_RFVALUE_25=  0.937323E-01 (real)
+ $_1_DF_THETA3_24=   246.000     (real)
+ $_1_DF_THETA2_24=   60.0000     (real)
+ $_1_DF_THETA1_24=   186.000     (real)
+ $_1_DF_RFVALUE_24=  0.962710E-01 (real)
+ $_1_DF_THETA3_23=   246.000     (real)
+ $_1_DF_THETA2_23=   60.0000     (real)
+ $_1_DF_THETA1_23=   6.00000     (real)
+ $_1_DF_RFVALUE_23=  0.972746E-01 (real)
+ $_1_DF_THETA3_22=  0.100000E-05 (real)
+ $_1_DF_THETA2_22=   60.0000     (real)
+ $_1_DF_THETA1_22=   180.000     (real)
+ $_1_DF_RFVALUE_22=  0.991367E-01 (real)
+ $_1_DF_THETA3_21=   312.000     (real)
+ $_1_DF_THETA2_21=   60.0000     (real)
+ $_1_DF_THETA1_21=   12.0000     (real)
+ $_1_DF_RFVALUE_21=  0.991794E-01 (real)
+ $_1_DF_THETA3_20=   66.0000     (real)
+ $_1_DF_THETA2_20=   60.0000     (real)
+ $_1_DF_THETA1_20=   6.00000     (real)
+ $_1_DF_RFVALUE_20=  0.993386E-01 (real)
+ $_1_DF_THETA3_19=   114.000     (real)
+ $_1_DF_THETA2_19=   60.0000     (real)
+ $_1_DF_THETA1_19=   354.000     (real)
+ $_1_DF_RFVALUE_19=  0.103844     (real)
+ $_1_DF_THETA3_18=   202.500     (real)
+ $_1_DF_THETA2_18=   90.0000     (real)
+ $_1_DF_THETA1_18=   157.500     (real)
+ $_1_DF_RFVALUE_18=  0.105030     (real)
+ $_1_DF_THETA3_17=   168.000     (real)
+ $_1_DF_THETA2_17=   60.0000     (real)
+ $_1_DF_THETA1_17=   228.000     (real)
+ $_1_DF_RFVALUE_17=  0.106696     (real)
+ $_1_DF_THETA3_16=   223.636     (real)
+ $_1_DF_THETA2_16=   30.0000     (real)
+ $_1_DF_THETA1_16=   103.636     (real)
+ $_1_DF_RFVALUE_16=  0.108943     (real)
+ $_1_DF_THETA3_15=   332.727     (real)
+ $_1_DF_THETA2_15=   30.0000     (real)
+ $_1_DF_THETA1_15=   92.7273     (real)
+ $_1_DF_RFVALUE_15=  0.109346     (real)
+ $_1_DF_THETA3_14=   278.182     (real)
+ $_1_DF_THETA2_14=   30.0000     (real)
+ $_1_DF_THETA1_14=   278.182     (real)
+ $_1_DF_RFVALUE_14=  0.110108     (real)
+ $_1_DF_THETA3_13=   45.0000     (real)
+ $_1_DF_THETA2_13=   90.0000     (real)
+ $_1_DF_THETA1_13=   180.000     (real)
+ $_1_DF_RFVALUE_13=  0.111175     (real)
+ $_1_DF_THETA3_12=   247.500     (real)
+ $_1_DF_THETA2_12=   90.0000     (real)
+ $_1_DF_THETA1_12=   247.500     (real)
+ $_1_DF_RFVALUE_12=  0.112492     (real)
+ $_1_DF_THETA3_11=   141.818     (real)
+ $_1_DF_THETA2_11=   30.0000     (real)
+ $_1_DF_THETA1_11=   21.8182     (real)
+ $_1_DF_RFVALUE_11=  0.113200     (real)
+ $_1_DF_THETA3_10=   90.0000     (real)
+ $_1_DF_THETA2_10=   90.0000     (real)
+ $_1_DF_THETA1_10=   180.000     (real)
+ $_1_DF_RFVALUE_10=  0.114217     (real)
+ $_1_DF_THETA3_9=   289.091     (real)
+ $_1_DF_THETA2_9=   30.0000     (real)
+ $_1_DF_THETA1_9=   169.091     (real)
+ $_1_DF_RFVALUE_9=  0.114683     (real)
+ $_1_DF_THETA3_8=   132.000     (real)
+ $_1_DF_THETA2_8=   60.0000     (real)
+ $_1_DF_THETA1_8=   12.0000     (real)
+ $_1_DF_RFVALUE_8=  0.115444     (real)
+ $_1_DF_THETA3_7=   292.500     (real)
+ $_1_DF_THETA2_7=   90.0000     (real)
+ $_1_DF_THETA1_7=   157.500     (real)
+ $_1_DF_RFVALUE_7=  0.121436     (real)
+ $_1_DF_THETA3_6=   18.0000     (real)
+ $_1_DF_THETA2_6=   60.0000     (real)
+ $_1_DF_THETA1_6=   18.0000     (real)
+ $_1_DF_RFVALUE_6=  0.124298     (real)
+ $_1_DF_THETA3_5=   225.000     (real)
+ $_1_DF_THETA2_5=   90.0000     (real)
+ $_1_DF_THETA1_5=   180.000     (real)
+ $_1_DF_RFVALUE_5=  0.128478     (real)
+ $_1_DF_THETA3_4=   66.0000     (real)
+ $_1_DF_THETA2_4=   60.0000     (real)
+ $_1_DF_THETA1_4=   186.000     (real)
+ $_1_DF_RFVALUE_4=  0.138254     (real)
+ $_1_DF_THETA3_3=   337.500     (real)
+ $_1_DF_THETA2_3=   90.0000     (real)
+ $_1_DF_THETA1_3=   157.500     (real)
+ $_1_DF_RFVALUE_3=  0.138339     (real)
+ $_1_DF_THETA3_2=   112.500     (real)
+ $_1_DF_THETA2_2=   90.0000     (real)
+ $_1_DF_THETA1_2=   157.500     (real)
+ $_1_DF_RFVALUE_2=  0.144806     (real)
+ $_1_DF_THETA3_1=   338.182     (real)
+ $_1_DF_THETA2_1=   30.0000     (real)
+ $_1_DF_THETA1_1=   218.182     (real)
+ $_1_DF_RFVALUE_1=  0.219382     (real)
+ $_1_RESULT=  0.219382     (real)
+ $_1_NC=   16.0000     (real)
+ $_1_NB=   15.0000     (real)
+ $_1_NA=   30.0000     (real)
+ $_1_BIN_RESOLUTION_HIGH=   5.00100     (real)
+ $_1_BIN_RESOLUTION_LOW=   10.0010     (real)
+ $_1_HR=   5.00100     (real)
+ $_1_LR=   10.0010     (real)
+ $_1_SYMMETRY_OP_1="(X,Y,Z)" (string) 
+ $_1_CENTRIC_SPACEGROUP="FALSE" (logical) 
+ $_1_SYMMETRY_OP_2="(-X,Y+1/2,-Z)" (string) 
+ $_1_SELECT=   150.000     (real)
+ $_1_NCS=   1.00000     (real)
+ $_1_EFLAG.VEAN="FALSE" (logical) 
+ $_1_EFLAG.DANI="FALSE" (logical) 
+ $_1_EFLAG.SANI="FALSE" (logical) 
+ $_1_EFLAG.RAMA="FALSE" (logical) 
+ $_1_EFLAG.ONEB="FALSE" (logical) 
+ $_1_EFLAG.PROT="FALSE" (logical) 
+ $_1_EFLAG.CARB="FALSE" (logical) 
+ $_1_EFLAG.COUP="FALSE" (logical) 
+ $_1_EFLAG.ANDB="FALSE" (logical) 
+ $_1_EFLAG.DG="FALSE" (logical) 
+ $_1_EFLAG.PLAN="FALSE" (logical) 
+ $_1_EFLAG.XREF="FALSE" (logical) 
+ $_1_EFLAG.NOE="FALSE" (logical) 
+ $_1_EFLAG.NCS="FALSE" (logical) 
+ $_1_EFLAG.CDIH="FALSE" (logical) 
+ $_1_EFLAG.HARM="FALSE" (logical) 
+ $_1_EFLAG.PELE="FALSE" (logical) 
+ $_1_EFLAG.PVDW="FALSE" (logical) 
+ $_1_EFLAG.ELEC="TRUE" (logical) 
+ $_1_EFLAG.VDW="TRUE" (logical) 
+ $_1_EFLAG.IMPR="TRUE" (logical) 
+ $_1_EFLAG.DIHE="TRUE" (logical) 
+ $_1_EFLAG.ANGL="TRUE" (logical) 
+ $_1_EFLAG.BOND="TRUE" (logical) 
+ $_1_EFLAG.GRAD="FALSE" (logical) 
+ $_1_EFLAG.TEMP="FALSE" (logical) 
+ $_1_EFLAG.ENER="FALSE" (logical) 
+ $_1_EFLAG.TOTK="FALSE" (logical) 
+ $_1_EFLAG.TOTE="FALSE" (logical) 
+ $_1_BIN_NUMBER=   8.00000     (real)
+ $_1_SYMMETRY=   2.00000     (real)
+ $_1_CSTAR=  0.444090E-01 (real)
+ $_1_BSTAR=  0.536193E-01 (real)
+ $_1_ASTAR=  0.244163E-01 (real)
+ $_1_XRINTR_3_3=   22.5180     (real)
+ $_1_XRINTR_3_2=   0.00000     (real)
+ $_1_XRINTR_3_1=   0.00000     (real)
+ $_1_XRINTR_2_3= -0.796848E-13 (real)
+ $_1_XRINTR_2_2=   18.6500     (real)
+ $_1_XRINTR_2_1=   0.00000     (real)
+ $_1_XRINTR_1_3= -0.302638     (real)
+ $_1_XRINTR_1_2= -0.651161E-13 (real)
+ $_1_XRINTR_1_1=   40.9600     (real)
+ $_1_XRTR_3_3=  0.444090E-01 (real)
+ $_1_XRTR_3_2=   0.00000     (real)
+ $_1_XRTR_3_1=   0.00000     (real)
+ $_1_XRTR_2_3=  0.189744E-15 (real)
+ $_1_XRTR_2_2=  0.536193E-01 (real)
+ $_1_XRTR_2_1=   0.00000     (real)
+ $_1_XRTR_1_3=  0.328121E-03 (real)
+ $_1_XRTR_1_2=  0.852412E-16 (real)
+ $_1_XRTR_1_1=  0.244141E-01 (real)
+ $_1_XRCELL_6=   90.0000     (real)
+ $_1_XRCELL_5=   90.7700     (real)
+ $_1_XRCELL_4=   90.0000     (real)
+ $_1_XRCELL_3=   22.5200     (real)
+ $_1_XRCELL_2=   18.6500     (real)
+ $_1_XRCELL_1=   40.9600     (real)
+ $_1_VOLUME=   17201.6     (real)
+ $_1_FP_EPSILON=  0.222045E-15 (real)
+ $_1_CNS_PATCH="0" (string) 
+ $_1_CNS_VERSION="1.3" (string) 
+ $_1_LOG_LEVEL="QUIET" (string) 
+ $_1_SYSTEM="x86_64/Linux" (string) 
+ $_1_NAME="oeow39" (string) 
+ $_1_TIMFAC=  0.488882E-01 (real)
+ $_1_PI=   3.14159     (real)
+ $_1_KBOLTZ=  0.198719E-02 (real)
+ XRAY>{* do another search with equidistant sampling *} 
+ XRAY> 
+ XRAY>   search rotation 
+ RSEARCH>      p1input=makep1.dat  formatted=false 
+ RSEARCH>      p2input=makep2.dat 
+ RSEARCH>      range=4.0 30.0 
+ RSEARCH>      threshold=1.0 ! all peaks above 1 sigma 
+ RSEARCH>      npeaks=1500 
+ RSEARCH>      t1min=0.0 t1max=360. 
+ RSEARCH>      t2min=10.0 t2max=90. 
+ RSEARCH>      t3min=0.0 t3max=360. 
+ RSEARCH>      delta=30.0 
+ RSEARCH>      nlist=100 
+ RSEARCH>      epsilon=0.5 
+ RSEARCH>      target=product 
+ RSEARCH>      output=OUTPUT 
+ RSEARCH>      ? 
+ -----------rotation search-parameters---------------------------------------
+ | The equidistant Eulerian angle sampling method is used
+ | T1MIn=     0.00000 T1MAx=   360.00000
+ | T2MIn=    10.00000 T2MAx=    90.00000
+ | T3MIn=     0.00000 T3MAx=   360.00000
+ | DELTa=    30.00000 SELF_symmetry=F FORMatted=F
+ | vector-RANGe-of-P1=    4.00000 to   30.00000
+ | THREshold-of-peaks-of-P1=    1.000000
+ | TARGet=PRODuct
+ | NPEAks-of-P1=    1500
+ | NLISt=     100
+ | EPSIlon= 0.50
+ -------------------------------------------------------------------------------
+ RSEARCH>  end 
+ ASSFIL: file makep1.dat opened.
+ REMARKS FILENAME="makep1.dat"
+ REMARKS DATE:05-Jul-2018  16:08:07       created by user: oeow39
+ REMARKS VERSION:1.3
+ XPATRT:    21783 peaks of P1 have coordinates between   4.00000
+ and   30.00000 A relative to the origin.
+ XPATRT: of those     4361 peaks have values that are above   1.00000    
+ XPATRT: of those the     1500 highest peaks will be used
+ RSEARC: CPU-Time:  P1 peak selection=    0.0307
+ RSEARC: CPU-Time:  generation of angle grid=    0.0009
+ ASSFIL: file makep2.dat opened.
+ REMARKS FILENAME="makep2.dat"
+ REMARKS DATE:05-Jul-2018  16:08:07       created by user: oeow39
+ REMARKS VERSION:1.3
+ RSEARC: CPU-Time:  rotation search=    0.8244
+ (* Rotation Function *)
+   rnumber=    507;
+   rave=  0.4768;
+   rsigma=  0.2843;
+   rmax=  1.5322;
+   rmin= -0.2141;
+ var={ "theta2", "theta3", "theta1" };
+ min={   10.00000 ,    0.00000 ,    0.00000 };
+ max={   90.00000 ,  360.00000 ,  360.00000 };
+ rf={
+ {
+ {
+     0.9144,     0.2419,     0.5110,     0.7171,     0.7780,     0.3742,
+     0.6336,    -0.0261,     0.7654,    -0.0232,     0.4485,     0.2128,
+     0.9144
+ },
+ {
+     0.5087,     0.5118,     0.6467,     0.6848,     0.2634,     0.5600,
+     0.1204,     0.8671,    -0.0729,     0.3602,     0.4366,     0.9583,
+     0.5087
+ },
+ {
+     0.5465,     0.6919,     0.4751,     0.4184,     0.4244,     0.1652,
+     0.8860,    -0.0673,     0.3329,     0.7647,     0.8761,     0.5758,
+     0.5465
+ },
+ {
+     0.4192,     0.4041,     0.7324,     0.4424,     0.2636,     0.5978,
+     0.1673,     0.4758,     0.8978,     0.7250,     0.4185,     0.5851,
+     0.4192
+ },
+ {
+     0.5335,     0.7323,     0.5865,     0.2348,     0.3503,     0.3239,
+     0.7773,     0.8387,     0.7008,     0.1207,     0.6552,     0.0713,
+     0.5335
+ },
+ {
+     0.6031,     0.6713,     0.1395,     0.3634,     0.2641,     0.9645,
+     0.7444,     0.8736,    -0.0926,     0.6656,    -0.1124,     0.5321,
+     0.6031
+ },
+ {
+     0.6674,     0.1937,     0.4628,     0.1741,     1.0168,     0.5733,
+     0.9655,    -0.0363,     0.7164,    -0.1579,     0.4969,     0.4819,
+     0.6674
+ },
+ {
+     0.4037,     0.5439,     0.2983,     0.9180,     0.6296,     0.8442,
+     0.1798,     0.7879,    -0.1319,     0.4667,     0.6050,     0.8717,
+     0.4037
+ },
+ {
+     0.5536,     0.4772,     0.6527,     0.8204,     0.6425,     0.4593,
+     0.7649,     0.0368,     0.4572,     0.8817,     0.8914,     0.3946,
+     0.5536
+ },
+ {
+     0.3696,     0.5248,     0.9078,     0.6227,     0.5870,     0.5516,
+     0.3989,     0.6393,     0.9055,     0.6666,     0.1418,     0.5450,
+     0.3696
+ },
+ {
+     0.6390,     0.5890,     0.7789,     0.4368,     0.5130,     0.7065,
+     0.8434,     0.7052,     0.5289,    -0.1121,     0.6226,     0.1275,
+     0.6390
+ },
+ {
+     0.2623,     0.8894,     0.2140,     0.5529,     0.8173,     0.8531,
+     0.5948,     0.5929,    -0.1913,     0.7039,     0.0081,     0.5958,
+     0.2623
+ },
+ {
+     0.9144,     0.2419,     0.5110,     0.7171,     0.7780,     0.3742,
+     0.6336,    -0.0261,     0.7654,    -0.0232,     0.4485,     0.2128,
+     0.9144
+ }
+ },
+ {
+ {
+     0.3116,     0.4393,     0.0849,     0.8901,     0.0463,    -0.0410,
+     0.6083,     0.1545,     0.4940,     0.4824,     0.5996,     0.1040,
+     0.3116
+ },
+ {
+     0.4138,     1.5322,     0.7478,    -0.0831,    -0.0273,     0.7501,
+     0.3175,     1.1397,     0.7266,     0.9482,     0.3070,     0.4155,
+     0.4138
+ },
+ {
+     0.8538,     0.3787,     0.2315,     0.1446,     0.4318,     0.4765,
+     0.7467,     0.1255,     0.0694,     0.4450,     0.6581,     0.3953,
+     0.8538
+ },
+ {
+     0.1923,     0.5890,     0.7287,     0.6166,     0.1495,     0.5565,
+     0.3394,     0.1700,     0.8565,     0.4372,     0.3481,     0.2236,
+     0.1923
+ },
+ {
+     0.1630,     0.9287,     0.4883,     0.2637,     0.0575,     0.1837,
+     0.0314,     0.4164,     0.1799,     0.4458,     0.7969,     0.8822,
+     0.1630
+ },
+ {
+     0.6287,     0.4184,     0.4250,     0.1428,     0.4009,     0.8804,
+     0.3502,     0.3721,     0.6454,     0.0192,     1.2847,     1.2568,
+     0.6287
+ },
+ {
+     0.4653,     0.4199,     0.1877,     0.5415,    -0.1362,     0.1149,
+     0.7977,     0.2447,     0.3050,     0.6735,     0.6494,     0.4147,
+     0.4653
+ },
+ {
+     0.2998,     1.0477,     0.6629,    -0.2141,     0.2834,     0.7500,
+     0.1538,     1.1680,     0.8076,     1.0572,     0.9031,     0.6349,
+     0.2998
+ },
+ {
+     0.8475,     0.3511,     0.3170,     0.0321,     0.5199,     0.2867,
+     0.4640,     0.5224,     0.3379,     0.7313,     0.7225,     0.4444,
+     0.8475
+ },
+ {
+     0.0856,     0.6918,     0.9732,     0.8054,     0.1121,     0.6771,
+     0.5179,     0.4213,     1.1488,     0.6154,     0.4739,     0.3421,
+     0.0856
+ },
+ {
+     0.1163,     1.1473,     0.3220,     0.0223,     0.0462,     0.1045,
+     0.3994,     0.4359,     0.4935,     0.3807,     0.7196,     0.5246,
+     0.1163
+ },
+ {
+     0.4486,     0.6474,     0.5633,    -0.1653,     0.3132,     0.3818,
+     0.2824,     0.4338,     0.6310,     0.2573,     1.4071,     0.7837,
+     0.4486
+ },
+ {
+     0.3116,     0.4393,     0.0849,     0.8901,     0.0463,    -0.0410,
+     0.6083,     0.1545,     0.4940,     0.4824,     0.5996,     0.1040,
+     0.3116
+ }
+ },
+ {
+ {
+     0.4463,     0.5273,     0.3907,     0.7700,     0.4289,     0.8421,
+     0.4463,     0.5273,     0.3907,     0.7700,     0.4289,     0.8421,
+     0.4463
+ },
+ {
+     0.5539,     0.2858,     0.3582,     0.7018,     0.3923,     0.3948,
+     0.7073,     0.1259,     0.3672,     0.2845,     0.2929,     0.9320,
+     0.5539
+ },
+ {
+     0.2241,     0.1376,     0.0533,     0.7816,     0.6174,     0.7654,
+     0.5672,     0.4493,     0.7016,     0.4892,     0.1914,     0.9688,
+     0.2241
+ },
+ {
+     0.0245,     0.3133,     0.4368,     1.0862,     0.3115,     0.2530,
+     0.3137,     0.5372,     0.4253,     1.0036,     0.3306,     0.3715,
+     0.0245
+ },
+ {
+     0.4604,     0.2068,     0.7060,     0.2623,     0.3525,     1.0487,
+    -0.0983,     0.3517,     0.2799,     0.2312,     0.5391,     0.3786,
+     0.4604
+ },
+ {
+     0.2263,     0.1105,     0.1545,     0.4921,     0.6332,     0.5870,
+     0.5816,     0.4320,     0.3122,     0.4997,     0.5741,     0.3806,
+     0.2263
+ },
+ {
+     0.5068,     0.2655,     0.3213,     0.5851,     0.6441,     0.7880,
+     0.5068,     0.2655,     0.3213,     0.5851,     0.6441,     0.7880,
+     0.5068
+ },
+ {
+     0.5816,     0.4320,     0.3122,     0.4997,     0.5741,     0.3806,
+     0.2263,     0.1105,     0.1545,     0.4921,     0.6332,     0.5870,
+     0.5816
+ },
+ {
+    -0.0983,     0.3517,     0.2799,     0.2312,     0.5391,     0.3786,
+     0.4604,     0.2068,     0.7060,     0.2623,     0.3525,     1.0487,
+    -0.0983
+ },
+ {
+     0.3137,     0.5372,     0.4253,     1.0036,     0.3306,     0.3715,
+     0.0245,     0.3133,     0.4368,     1.0862,     0.3115,     0.2530,
+     0.3137
+ },
+ {
+     0.5672,     0.4493,     0.7016,     0.4892,     0.1914,     0.9688,
+     0.2241,     0.1376,     0.0533,     0.7816,     0.6174,     0.7654,
+     0.5672
+ },
+ {
+     0.7073,     0.1259,     0.3672,     0.2845,     0.2929,     0.9320,
+     0.5539,     0.2858,     0.3582,     0.7018,     0.3923,     0.3948,
+     0.7073
+ },
+ {
+     0.4463,     0.5273,     0.3907,     0.7700,     0.4289,     0.8421,
+     0.4463,     0.5273,     0.3907,     0.7700,     0.4289,     0.8421,
+     0.4463
+ }
+ }
+ };
+ Summary of rotation search:
+   number of grid points=   507
+   mean of R-function=  0.477
+   sigma of R-function=  0.284
+   maximum of R-function=  1.532
+   minimum of R-function= -0.214
+ Clustered list (EPSIlon= 0.50) of first    100 highest peaks
+ (the [] indicate a symmetry operation)
+     no.  priority     theta1, theta2, theta3          RF
+ ===========================================================
+      1      1           (  30.000  50.000  30.000)      1.5322
+ 
+      2      2           ( 300.000  50.000 330.000)      1.4071
+ 
+      3      3           ( 300.000  50.000 150.000)      1.2847
+ 
+      4      4           ( 330.000  50.000 150.000)      1.2568
+ 
+      5      5           ( 210.000  50.000 210.000)      1.1680
+ 
+      6      6           ( 240.000  50.000 270.000)      1.1488
+ 
+      7      7           (  30.000  50.000 300.000)      1.1473
+ 
+      8      8           ( 210.000  50.000  30.000)      1.1397
+ 
+      9      9           (  90.000  90.000  90.000)      1.0862
+     10      9 [  1,  2] ( 270.000  90.000 270.000)      1.0862
+ 
+     11     10           ( 270.000  50.000 210.000)      1.0572
+ 
+     12     11           ( 150.000  90.000 120.000)      1.0487
+     13     11 [  1,  2] ( 330.000  90.000 240.000)      1.0487
+ 
+     14     12           (  30.000  50.000 210.000)      1.0477
+ 
+     15     13           ( 120.000  10.000 180.000)      1.0168
+     22     13           ( 150.000  10.000 150.000)      0.9645
+     28     13           (  90.000  10.000 210.000)      0.9180
+     77     13           ( 180.000  10.000 120.000)      0.7773
+ 
+     16     14           ( 270.000  90.000  90.000)      1.0036
+     17     14 [  1,  2] (  90.000  90.000 270.000)      1.0036
+ 
+     18     15           (  60.000  50.000 270.000)      0.9732
+ 
+     19     16           ( 330.000  90.000  60.000)      0.9688
+     20     16 [  1,  2] ( 150.000  90.000 300.000)      0.9688
+ 
+     21     17           ( 180.000  10.000 180.000)      0.9655
+     23     17           ( 330.000  10.000  30.000)      0.9583
+     29     17           (   0.000  10.000   0.000)      0.9144
+     30     17           ( 360.000  10.000   0.000)      0.9144
+     31     17           (   0.000  10.000 360.000)      0.9144
+     32     17           ( 360.000  10.000 360.000)      0.9144
+     40     17           (  30.000  10.000 330.000)      0.8894
+     45     17           ( 300.000  10.000  60.000)      0.8761
+     46     17           ( 210.000  10.000 150.000)      0.8736
+     55     17           ( 150.000  10.000 210.000)      0.8442
+     74     17           (  60.000  10.000 300.000)      0.7789
+     98     17           ( 270.000  10.000  90.000)      0.7250
+ 
+     24     18           ( 270.000  50.000  30.000)      0.9482
+ 
+     25     19           ( 330.000  90.000  30.000)      0.9320
+     26     19 [  1,  2] ( 150.000  90.000 330.000)      0.9320
+ 
+     27     20           (  30.000  50.000 120.000)      0.9287
+ 
+     33     21           (  60.000  10.000 270.000)      0.9078
+     36     21           ( 240.000  10.000  90.000)      0.8978
+     61     21           ( 210.000  10.000 120.000)      0.8387
+     62     21           (  90.000  10.000 240.000)      0.8204
+     87     21           ( 270.000  10.000  60.000)      0.7647
+     92     21           ( 180.000  10.000 150.000)      0.7444
+ 
+     34     22           ( 240.000  10.000 270.000)      0.9055
+     43     22           ( 270.000  10.000 240.000)      0.8817
+     93     22           (  60.000  10.000  90.000)      0.7324
+     94     22           (  30.000  10.000 120.000)      0.7323
+ 
+     35     23           ( 300.000  50.000 210.000)      0.9031
+ 
+     37     24           ( 300.000  10.000 240.000)      0.8914
+     47     24           ( 330.000  10.000 210.000)      0.8717
+ 
+     38     25           (  90.000  50.000   0.000)      0.8901
+ 
+     41     26           ( 180.000  10.000  60.000)      0.8860
+     48     26           ( 210.000  10.000  30.000)      0.8671
+     82     26           ( 240.000  10.000   0.000)      0.7654
+     83     26           ( 240.000  10.000 360.000)      0.7654
+ 
+     42     27           ( 330.000  50.000 120.000)      0.8822
+ 
+     44     28           ( 150.000  50.000 150.000)      0.8804
+ 
+     49     29           ( 240.000  50.000  90.000)      0.8565
+ 
+     50     30           (   0.000  50.000  60.000)      0.8538
+ 
+     52     31           ( 150.000  10.000 330.000)      0.8531
+     56     31           ( 180.000  10.000 300.000)      0.8434
+     75     31           ( 120.000  10.000   0.000)      0.7780
+     76     31           ( 120.000  10.000 360.000)      0.7780
+ 
+     53     32           (   0.000  50.000 240.000)      0.8475
+ 
+     57     33           ( 150.000  90.000   0.000)      0.8421
+     58     33 [  1,  2] ( 330.000  90.000   0.000)      0.8421
+     60     33 [  1,  2] ( 330.000  90.000 360.000)      0.8421
+ 
+     63     34           ( 120.000  10.000 330.000)      0.8173
+ 
+     64     35           ( 240.000  50.000 210.000)      0.8076
+ 
+     65     36           (  90.000  50.000 270.000)      0.8054
+ 
+     66     37           ( 180.000  50.000 180.000)      0.7977
+ 
+     67     38           ( 300.000  50.000 120.000)      0.7969
+ 
+     68     39           ( 150.000  90.000 180.000)      0.7880
+     69     39 [  1,  2] ( 330.000  90.000 180.000)      0.7880
+ 
+     70     40           ( 210.000  10.000 210.000)      0.7879
+     86     40           ( 180.000  10.000 240.000)      0.7649
+ 
+     71     41           ( 330.000  50.000 330.000)      0.7837
+ 
+     72     42           (  90.000  90.000  60.000)      0.7816
+     73     42 [  1,  2] ( 270.000  90.000 300.000)      0.7816
+ 
+     78     43           (  90.000  90.000   0.000)      0.7700
+     79     43 [  1,  2] ( 270.000  90.000   0.000)      0.7700
+     81     43 [  1,  2] ( 270.000  90.000 360.000)      0.7700
+ 
+     84     44           ( 150.000  90.000  60.000)      0.7654
+     85     44 [  1,  2] ( 330.000  90.000 300.000)      0.7654
+ 
+     88     45           ( 150.000  50.000  30.000)      0.7501
+ 
+     89     46           ( 150.000  50.000 210.000)      0.7500
+ 
+     90     47           (  60.000  50.000  30.000)      0.7478
+ 
+     91     48           ( 180.000  50.000  60.000)      0.7467
+ 
+     95     49           ( 270.000  50.000 240.000)      0.7313
+ 
+     96     50           (  60.000  50.000  90.000)      0.7287
+ 
+     97     51           ( 240.000  50.000  30.000)      0.7266
+ 
+     99     52           ( 300.000  50.000 240.000)      0.7225
+ 
+    100     53           ( 300.000  50.000 300.000)      0.7196
+ List of the highest peaks of the clusters (EPSIlon= 0.50)
+     no.  priority     theta1, theta2, theta3          RF
+ ===========================================================
+      1      1       (  30.000  50.000  30.000)      1.5322
+      2      2       ( 300.000  50.000 330.000)      1.4071
+      3      3       ( 300.000  50.000 150.000)      1.2847
+      4      4       ( 330.000  50.000 150.000)      1.2568
+      5      5       ( 210.000  50.000 210.000)      1.1680
+      6      6       ( 240.000  50.000 270.000)      1.1488
+      7      7       (  30.000  50.000 300.000)      1.1473
+      8      8       ( 210.000  50.000  30.000)      1.1397
+      9      9       (  90.000  90.000  90.000)      1.0862
+     11     10       ( 270.000  50.000 210.000)      1.0572
+     12     11       ( 150.000  90.000 120.000)      1.0487
+     14     12       (  30.000  50.000 210.000)      1.0477
+     15     13       ( 120.000  10.000 180.000)      1.0168
+     16     14       ( 270.000  90.000  90.000)      1.0036
+     18     15       (  60.000  50.000 270.000)      0.9732
+     19     16       ( 330.000  90.000  60.000)      0.9688
+     21     17       ( 180.000  10.000 180.000)      0.9655
+     24     18       ( 270.000  50.000  30.000)      0.9482
+     25     19       ( 330.000  90.000  30.000)      0.9320
+     27     20       (  30.000  50.000 120.000)      0.9287
+     33     21       (  60.000  10.000 270.000)      0.9078
+     34     22       ( 240.000  10.000 270.000)      0.9055
+     35     23       ( 300.000  50.000 210.000)      0.9031
+     37     24       ( 300.000  10.000 240.000)      0.8914
+     38     25       (  90.000  50.000   0.000)      0.8901
+     41     26       ( 180.000  10.000  60.000)      0.8860
+     42     27       ( 330.000  50.000 120.000)      0.8822
+     44     28       ( 150.000  50.000 150.000)      0.8804
+     49     29       ( 240.000  50.000  90.000)      0.8565
+     50     30       (   0.000  50.000  60.000)      0.8538
+     52     31       ( 150.000  10.000 330.000)      0.8531
+     53     32       (   0.000  50.000 240.000)      0.8475
+     57     33       ( 150.000  90.000   0.000)      0.8421
+     63     34       ( 120.000  10.000 330.000)      0.8173
+     64     35       ( 240.000  50.000 210.000)      0.8076
+     65     36       (  90.000  50.000 270.000)      0.8054
+     66     37       ( 180.000  50.000 180.000)      0.7977
+     67     38       ( 300.000  50.000 120.000)      0.7969
+     68     39       ( 150.000  90.000 180.000)      0.7880
+     70     40       ( 210.000  10.000 210.000)      0.7879
+     71     41       ( 330.000  50.000 330.000)      0.7837
+     72     42       (  90.000  90.000  60.000)      0.7816
+     78     43       (  90.000  90.000   0.000)      0.7700
+     84     44       ( 150.000  90.000  60.000)      0.7654
+     88     45       ( 150.000  50.000  30.000)      0.7501
+     89     46       ( 150.000  50.000 210.000)      0.7500
+     90     47       (  60.000  50.000  30.000)      0.7478
+     91     48       ( 180.000  50.000  60.000)      0.7467
+     95     49       ( 270.000  50.000 240.000)      0.7313
+     96     50       (  60.000  50.000  90.000)      0.7287
+     97     51       ( 240.000  50.000  30.000)      0.7266
+     99     52       ( 300.000  50.000 240.000)      0.7225
+    100     53       ( 300.000  50.000 300.000)      0.7196
+ RSEARC: CPU-Time:  cluster analysis=    0.0306
+ XRAY>{* do a self-rotation search with spherical polar angles *} 
+ XRAY>   search rotation 
+ RSEARCH>      p1input=makep2.dat  formatted=false 
+ RSEARCH>      p2input=makep2.dat 
+ RSEARCH>      range=4.0 30.0 
+ RSEARCH>      threshold=1.0 ! all peaks above 1 sigma 
+ RSEARCH>      npeaks=1500 
+ RSEARCH>      psimin=0.0 psimax=180. 
+ RSEARCH>      phimin=0.0 phimax=360. 
+ RSEARCH>      kappamin=180.0 kappamax=180.0 
+ RSEARCH>      delta=30.0 
+ RSEARCH>      nlist=100 
+ RSEARCH>      epsilon=0.5 
+ RSEARCH>      output=OUTPUT 
+ RSEARCH>      ? 
+ -----------rotation search-parameters---------------------------------------
+ | The spherical polar angle sampling method is used
+ | PSIMIn=     0.00000 PSIMAx=   180.00000
+ | PHIMIn=     0.00000 PHIMAx=   360.00000
+ | KAPPAMIn=   180.00000 KAPPAMAx=   180.00000
+ | DELTa=    30.00000 SELF_symmetry=F FORMatted=F
+ | vector-RANGe-of-P1=    4.00000 to   30.00000
+ | THREshold-of-peaks-of-P1=    1.000000
+ | TARGet=PRODuct
+ | NPEAks-of-P1=    1500
+ | NLISt=     100
+ | EPSIlon= 0.50
+ -------------------------------------------------------------------------------
+ RSEARCH>  end 
+ ASSFIL: file makep2.dat opened.
+ REMARKS FILENAME="makep2.dat"
+ REMARKS DATE:05-Jul-2018  16:08:07       created by user: oeow39
+ REMARKS VERSION:1.3
+ XPATRT:     4955 peaks of P1 have coordinates between   4.00000
+ and   30.00000 A relative to the origin.
+ XPATRT: of those      622 peaks have values that are above   1.00000    
+ XPATRT: of those the      622 highest peaks will be used
+ RSEARC: CPU-Time:  P1 peak selection=    0.0047
+ RSEARC: CPU-Time:  generation of angle grid=    0.0003
+ ASSFIL: file makep2.dat opened.
+ REMARKS FILENAME="makep2.dat"
+ REMARKS DATE:05-Jul-2018  16:08:07       created by user: oeow39
+ REMARKS VERSION:1.3
+ RSEARC: CPU-Time:  rotation search=    0.0606
+ (* Rotation Function *)
+   rnumber=     91;
+   rave=  2.5929;
+   rsigma=  2.5529;
+   rmax=  6.2017;
+   rmin= -0.1372;
+ var={ "phi", "kappa", "psi" };
+ min={    0.00000 ,  180.00000 ,    0.00000 };
+ max={  360.00000 ,  180.00000 ,  180.00000 };
+ rf={
+ {
+ {
+     6.2017,     1.2858,     1.4261,     5.4005,     1.3241,     1.3400,
+     6.2017
+ }
+ },
+ {
+ {
+     6.2017,    -0.0246,     1.0150,     1.5563,     0.2460,     0.2778,
+     6.2017
+ }
+ },
+ {
+ {
+     6.2017,     0.1807,    -0.1372,     1.7874,     0.0832,     0.1848,
+     6.2017
+ }
+ },
+ {
+ {
+     6.2017,     0.8799,     0.9734,     5.4005,     0.8846,     1.0125,
+     6.2017
+ }
+ },
+ {
+ {
+     6.2017,     0.4554,     0.4769,     1.5563,     0.0898,     0.5627,
+     6.2017
+ }
+ },
+ {
+ {
+     6.2017,     0.3625,     1.3114,     1.7874,     0.1763,     0.0902,
+     6.2017
+ }
+ },
+ {
+ {
+     6.2017,     1.3400,     1.3241,     5.4005,     1.4261,     1.2858,
+     6.2017
+ }
+ },
+ {
+ {
+     6.2017,     0.2778,     0.2460,     1.5563,     1.0150,    -0.0246,
+     6.2017
+ }
+ },
+ {
+ {
+     6.2017,     0.1848,     0.0832,     1.7874,    -0.1372,     0.1807,
+     6.2017
+ }
+ },
+ {
+ {
+     6.2017,     1.0125,     0.8846,     5.4005,     0.9734,     0.8799,
+     6.2017
+ }
+ },
+ {
+ {
+     6.2017,     0.5627,     0.0898,     1.5563,     0.4769,     0.4554,
+     6.2017
+ }
+ },
+ {
+ {
+     6.2017,     0.0902,     0.1763,     1.7874,     1.3114,     0.3625,
+     6.2017
+ }
+ },
+ {
+ {
+     6.2017,     1.2858,     1.4261,     5.4005,     1.3241,     1.3400,
+     6.2017
+ }
+ }
+ };
+ Summary of rotation search:
+   number of grid points=    91
+   mean of R-function=  2.593
+   sigma of R-function=  2.553
+   maximum of R-function=  6.202
+   minimum of R-function= -0.137
+ Clustered list (EPSIlon= 0.50) of first     91 highest peaks
+ (the [] indicate a symmetry operation)
+     no.  priority     psi,    phi,    kappa           RF
+ ===========================================================
+      1      1           (   0.000   0.000 180.000)      6.2017
+ 
+     27      2           (  90.000   0.000 180.000)      5.4005
+     28      2 [  1,  2] (  90.000  90.000 180.000)      5.4005
+     30      2 [  1,  2] (  90.000 270.000 180.000)      5.4005
+ 
+     32      3           (  90.000  60.000 180.000)      1.7874
+     33      3 [  1,  2] (  90.000 150.000 180.000)      1.7874
+     35      3 [  1,  2] (  90.000 330.000 180.000)      1.7874
+ 
+     36      4           (  90.000  30.000 180.000)      1.5563
+     37      4 [  1,  2] (  90.000 120.000 180.000)      1.5563
+     39      4 [  1,  2] (  90.000 300.000 180.000)      1.5563
+ 
+     40      5           (  60.000   0.000 180.000)      1.4261
+ 
+     43      6           ( 150.000   0.000 180.000)      1.3400
+ 
+     46      7           ( 120.000   0.000 180.000)      1.3241
+ 
+     49      8           (  60.000 150.000 180.000)      1.3114
+ 
+     51      9           (  30.000   0.000 180.000)      1.2858
+ 
+     54     10           (  60.000  30.000 180.000)      1.0150
+ 
+     56     11           ( 150.000  90.000 180.000)      1.0125
+ 
+     58     12           (  60.000  90.000 180.000)      0.9734
+ 
+     60     13           ( 120.000  90.000 180.000)      0.8846
+ 
+     62     14           (  30.000  90.000 180.000)      0.8799
+ 
+     64     15           ( 150.000 120.000 180.000)      0.5627
+ 
+     66     16           (  60.000 120.000 180.000)      0.4769
+ 
+     68     17           (  30.000 120.000 180.000)      0.4554
+ 
+     70     18           (  30.000 150.000 180.000)      0.3625
+ 
+     72     19           ( 150.000  30.000 180.000)      0.2778
+ 
+     74     20           ( 120.000  30.000 180.000)      0.2460
+ 
+     76     21           ( 150.000  60.000 180.000)      0.1848
+ 
+     78     22           (  30.000  60.000 180.000)      0.1807
+ 
+     80     23           ( 120.000 150.000 180.000)      0.1763
+ 
+     82     24           ( 150.000 150.000 180.000)      0.0902
+ 
+     84     25           ( 120.000 120.000 180.000)      0.0898
+ 
+     86     26           ( 120.000  60.000 180.000)      0.0832
+ 
+     88     27           (  30.000  30.000 180.000)     -0.0246
+ 
+     90     28           (  60.000  60.000 180.000)     -0.1372
+ List of the highest peaks of the clusters (EPSIlon= 0.50)
+     no.  priority     psi,    phi,    kappa           RF
+ ===========================================================
+      1      1       (   0.000   0.000 180.000)      6.2017
+     27      2       (  90.000   0.000 180.000)      5.4005
+     32      3       (  90.000  60.000 180.000)      1.7874
+     36      4       (  90.000  30.000 180.000)      1.5563
+     40      5       (  60.000   0.000 180.000)      1.4261
+     43      6       ( 150.000   0.000 180.000)      1.3400
+     46      7       ( 120.000   0.000 180.000)      1.3241
+     49      8       (  60.000 150.000 180.000)      1.3114
+     51      9       (  30.000   0.000 180.000)      1.2858
+     54     10       (  60.000  30.000 180.000)      1.0150
+     56     11       ( 150.000  90.000 180.000)      1.0125
+     58     12       (  60.000  90.000 180.000)      0.9734
+     60     13       ( 120.000  90.000 180.000)      0.8846
+     62     14       (  30.000  90.000 180.000)      0.8799
+     64     15       ( 150.000 120.000 180.000)      0.5627
+     66     16       (  60.000 120.000 180.000)      0.4769
+     68     17       (  30.000 120.000 180.000)      0.4554
+     70     18       (  30.000 150.000 180.000)      0.3625
+     72     19       ( 150.000  30.000 180.000)      0.2778
+     74     20       ( 120.000  30.000 180.000)      0.2460
+     76     21       ( 150.000  60.000 180.000)      0.1848
+     78     22       (  30.000  60.000 180.000)      0.1807
+     80     23       ( 120.000 150.000 180.000)      0.1763
+     82     24       ( 150.000 150.000 180.000)      0.0902
+     84     25       ( 120.000 120.000 180.000)      0.0898
+     86     26       ( 120.000  60.000 180.000)      0.0832
+     88     27       (  30.000  30.000 180.000)     -0.0246
+     90     28       (  60.000  60.000 180.000)     -0.1372
+ RSEARC: CPU-Time:  cluster analysis=    0.0137
+ XRAY> 
+ XRAY>end 
+ CNSsolve> 
+ CNSsolve>display  $result 
+ 6.20165
+ CNSsolve> 
+ CNSsolve>{* now another test *} 
+ CNSsolve> 
+ CNSsolve>xray 
+ XRAY>   reset 
+ XRAY: whole xray database erased and reset
+ XRAY>   {* P6(3) (Patterson symmetry: P 6/m) *} 
+ XRAY>   symmetry=( x, y, z ) 
+ XRAY>   symmetry=( -y, x-y, z) 
+ XRAY>   symmetry=( y-x, -x, z ) 
+ XRAY>   symmetry=( -x, -y, z+1/2) 
+ XRAY>   symmetry=( y, -x+y, z+1/2) 
+ XRAY>   symmetry=( x-y, x, z+1/2) 
+ XRAY> 
+ XRAY>   a=162.531  b=162.531  c=60.719  alpha=90.00  beta=90.00 gamma=120.00 
+ XRAY>   search rotation 
+ RSEARCH>      p1input=makep2.dat  formatted=false 
+ RSEARCH>      p2input=makep2.dat 
+ RSEARCH>      range=10.0 20.0 
+ RSEARCH>      threshold=1.0 ! 
+ RSEARCH>      npeaks=5 
+ RSEARCH>      tmmin=0.0 tmmax=720. 
+ RSEARCH>      t2min=0.0 t2max=180. 
+ RSEARCH>      tpmin=0.0 tpmax=720. 
+ RSEARCH>      delta=30.0 
+ RSEARCH>      nlist=10 
+ RSEARCH>      epsilon=0.5 
+ RSEARCH>      target=correlation 
+ RSEARCH>      ? 
+ -----------rotation search-parameters---------------------------------------
+ | The quasi-orthogonal Eulerian angle sampling method is used
+ | TPMIn=     0.00000 TPMAx=   720.00000
+ | TMMIn=     0.00000 TMMAx=   720.00000
+ | T2MIn=     0.00000 T2MAx=   180.00000
+ | DELTa=    30.00000 SELF_symmetry=F FORMatted=F
+ | vector-RANGe-of-P1=   10.00000 to   20.00000
+ | THREshold-of-peaks-of-P1=    1.000000
+ | TARGet=CORRelation
+ | NPEAks-of-P1=       5
+ | NLISt=      10
+ | EPSIlon= 0.50
+ -------------------------------------------------------------------------------
+ RSEARCH>   end 
+ ASSFIL: file makep2.dat opened.
+ REMARKS FILENAME="makep2.dat"
+ REMARKS DATE:05-Jul-2018  16:08:07       created by user: oeow39
+ REMARKS VERSION:1.3
+ XPATRT:     1751 peaks of P1 have coordinates between  10.00000
+ and   20.00000 A relative to the origin.
+ XPATRT: of those      255 peaks have values that are above   1.00000    
+ XPATRT: of those the        5 highest peaks will be used
+ RSEARC: CPU-Time:  P1 peak selection=    0.0026
+ RSEARC: CPU-Time:  generation of angle grid=    0.0019
+ ASSFIL: file makep2.dat opened.
+ REMARKS FILENAME="makep2.dat"
+ REMARKS DATE:05-Jul-2018  16:08:07       created by user: oeow39
+ REMARKS VERSION:1.3
+ RSEARC: CPU-Time:  rotation search=    0.0005
+ Summary of rotation search:
+   number of grid points=  1221
+   mean of R-function=  0.037
+   sigma of R-function=  0.541
+   maximum of R-function=  1.000
+   minimum of R-function= -0.981
+ Clustered list (EPSIlon= 0.50) of first     10 highest peaks
+ (the [] indicate a symmetry operation)
+     no.  priority     theta1, theta2, theta3          RF
+ ===========================================================
+      1      1           (   0.000   0.000   0.000)      1.0000
+      6      1 [  1,  4] (  90.000   0.000  90.000)      0.9999
+      7      1 [  1,  4] ( 270.000   0.000 270.000)      0.9999
+ 
+      4      2           (  90.000 180.000 270.000)      1.0000
+      8      2 [  1,  4] (   0.000 180.000   0.000)      0.9999
+      9      2 [  1,  4] ( 180.000 180.000 180.000)      0.9999
+     10      2 [  1,  4] (   0.000 180.000   0.000)      0.9999
+ List of the highest peaks of the clusters (EPSIlon= 0.50)
+     no.  priority     theta1, theta2, theta3          RF
+ ===========================================================
+      1      1       (   0.000   0.000   0.000)      1.0000
+      4      2       (   0.000 180.000   0.000)      1.0000
+ RSEARC: CPU-Time:  cluster analysis=    0.0004
+ XRAY>{* do another search with equidistant sampling *} 
+ XRAY>   search rotation 
+ RSEARCH>      p1input=makep2.dat  formatted=false 
+ RSEARCH>      p2input=makep2.dat 
+ RSEARCH>      range=10.0 20.0 
+ RSEARCH>      threshold=1.0 ! 
+ RSEARCH>      npeaks=5 
+ RSEARCH>      t1min=0.0 t1max=360. 
+ RSEARCH>      t2min=0.0 t2max=360. 
+ RSEARCH>      t3min=0.0 t3max=360. 
+ RSEARCH>      delta=30.0 
+ RSEARCH>      nlist=10 
+ RSEARCH>      epsilon=0.5 
+ RSEARCH>      target=correlation 
+ RSEARCH>      ? 
+ -----------rotation search-parameters---------------------------------------
+ | The equidistant Eulerian angle sampling method is used
+ | T1MIn=     0.00000 T1MAx=   360.00000
+ | T2MIn=     0.00000 T2MAx=   360.00000
+ | T3MIn=     0.00000 T3MAx=   360.00000
+ | DELTa=    30.00000 SELF_symmetry=F FORMatted=F
+ | vector-RANGe-of-P1=   10.00000 to   20.00000
+ | THREshold-of-peaks-of-P1=    1.000000
+ | TARGet=CORRelation
+ | NPEAks-of-P1=       5
+ | NLISt=      10
+ | EPSIlon= 0.50
+ -------------------------------------------------------------------------------
+ RSEARCH>   end 
+ ASSFIL: file makep2.dat opened.
+ REMARKS FILENAME="makep2.dat"
+ REMARKS DATE:05-Jul-2018  16:08:07       created by user: oeow39
+ REMARKS VERSION:1.3
+ XPATRT:     1751 peaks of P1 have coordinates between  10.00000
+ and   20.00000 A relative to the origin.
+ XPATRT: of those      255 peaks have values that are above   1.00000    
+ XPATRT: of those the        5 highest peaks will be used
+ RSEARC: CPU-Time:  P1 peak selection=    0.0001
+ RSEARC: CPU-Time:  generation of angle grid=    0.0001
+ ASSFIL: file makep2.dat opened.
+ REMARKS FILENAME="makep2.dat"
+ REMARKS DATE:05-Jul-2018  16:08:07       created by user: oeow39
+ REMARKS VERSION:1.3
+ RSEARC: CPU-Time:  rotation search=    0.0009
+ Summary of rotation search:
+   number of grid points=  2197
+   mean of R-function=  0.046
+   sigma of R-function=  0.598
+   maximum of R-function=  1.000
+   minimum of R-function= -0.978
+ Clustered list (EPSIlon= 0.50) of first     10 highest peaks
+ (the [] indicate a symmetry operation)
+     no.  priority     theta1, theta2, theta3          RF
+ ===========================================================
+      1      1           (   0.000   0.000   0.000)      1.0000
+ List of the highest peaks of the clusters (EPSIlon= 0.50)
+     no.  priority     theta1, theta2, theta3          RF
+ ===========================================================
+      1      1       (   0.000   0.000   0.000)      1.0000
+ RSEARC: CPU-Time:  cluster analysis=    0.0005
+ XRAY>{* do another search with spherical polars *} 
+ XRAY>   search rotation 
+ RSEARCH>      p1input=makep2.dat   formatted=false 
+ RSEARCH>      p2input=makep2.dat 
+ RSEARCH>      range=10.0 20.0 
+ RSEARCH>      threshold=1.0 ! 
+ RSEARCH>      npeaks=5 
+ RSEARCH>      psimin=0.0 psimax=360. 
+ RSEARCH>      phimin=0.0 phimax=360. 
+ RSEARCH>      kappamin=0.0 kappamax=360. 
+ RSEARCH>      delta=30.0 
+ RSEARCH>      nlist=10 
+ RSEARCH>      epsilon=0.5 
+ RSEARCH>      target=correlation 
+ RSEARCH>      ? 
+ -----------rotation search-parameters---------------------------------------
+ | The spherical polar angle sampling method is used
+ | PSIMIn=     0.00000 PSIMAx=   360.00000
+ | PHIMIn=     0.00000 PHIMAx=   360.00000
+ | KAPPAMIn=     0.00000 KAPPAMAx=   360.00000
+ | DELTa=    30.00000 SELF_symmetry=F FORMatted=F
+ | vector-RANGe-of-P1=   10.00000 to   20.00000
+ | THREshold-of-peaks-of-P1=    1.000000
+ | TARGet=CORRelation
+ | NPEAks-of-P1=       5
+ | NLISt=      10
+ | EPSIlon= 0.50
+ -------------------------------------------------------------------------------
+ RSEARCH>   end 
+ ASSFIL: file makep2.dat opened.
+ REMARKS FILENAME="makep2.dat"
+ REMARKS DATE:05-Jul-2018  16:08:07       created by user: oeow39
+ REMARKS VERSION:1.3
+ XPATRT:     1751 peaks of P1 have coordinates between  10.00000
+ and   20.00000 A relative to the origin.
+ XPATRT: of those      255 peaks have values that are above   1.00000    
+ XPATRT: of those the        5 highest peaks will be used
+ RSEARC: CPU-Time:  P1 peak selection=    0.0001
+ RSEARC: CPU-Time:  generation of angle grid=    0.0001
+ ASSFIL: file makep2.dat opened.
+ REMARKS FILENAME="makep2.dat"
+ REMARKS DATE:05-Jul-2018  16:08:07       created by user: oeow39
+ REMARKS VERSION:1.3
+ RSEARC: CPU-Time:  rotation search=    0.0010
+ Summary of rotation search:
+   number of grid points=  2197
+   mean of R-function=  0.354
+   sigma of R-function=  0.632
+   maximum of R-function=  1.000
+   minimum of R-function= -0.970
+ Clustered list (EPSIlon= 0.50) of first     10 highest peaks
+ (the [] indicate a symmetry operation)
+     no.  priority     psi,    phi,    kappa           RF
+ ===========================================================
+      1      1           (   0.000   0.000   0.000)      1.0000
+ List of the highest peaks of the clusters (EPSIlon= 0.50)
+     no.  priority     psi,    phi,    kappa           RF
+ ===========================================================
+      1      1       (   0.000   0.000   0.000)      1.0000
+ RSEARC: CPU-Time:  cluster analysis=    0.0006
+ XRAY> 
+ XRAY>{* do a self-rotation search *} 
+ XRAY>   search rotation 
+ RSEARCH>      p1input=makep2.dat  formatted=false 
+ RSEARCH>      p2input=makep2.dat 
+ RSEARCH>      range=10.0 20.0 
+ RSEARCH>      threshold=1.0 ! 
+ RSEARCH>      npeaks=5 
+ RSEARCH>      self_symmetry=true 
+ RSEARCH>      psimin=0.0 psimax=360. 
+ RSEARCH>      phimin=0.0 phimax=360. 
+ RSEARCH>      kappamin=0.0 kappamax=360. 
+ RSEARCH>      delta=30.0 
+ RSEARCH>      nlist=10 
+ RSEARCH>      epsilon=0.5 
+ RSEARCH>      target=correlation 
+ RSEARCH>      ? 
+ -----------rotation search-parameters---------------------------------------
+ | The spherical polar angle sampling method is used
+ | PSIMIn=     0.00000 PSIMAx=   360.00000
+ | PHIMIn=     0.00000 PHIMAx=   360.00000
+ | KAPPAMIn=     0.00000 KAPPAMAx=   360.00000
+ | DELTa=    30.00000 SELF_symmetry=T FORMatted=F
+ | vector-RANGe-of-P1=   10.00000 to   20.00000
+ | THREshold-of-peaks-of-P1=    1.000000
+ | TARGet=CORRelation
+ | NPEAks-of-P1=       5
+ | NLISt=      10
+ | EPSIlon= 0.50
+ -------------------------------------------------------------------------------
+ RSEARCH>   end 
+ ASSFIL: file makep2.dat opened.
+ REMARKS FILENAME="makep2.dat"
+ REMARKS DATE:05-Jul-2018  16:08:07       created by user: oeow39
+ REMARKS VERSION:1.3
+ XPATRT:     1751 peaks of P1 have coordinates between  10.00000
+ and   20.00000 A relative to the origin.
+ XPATRT: of those      255 peaks have values that are above   1.00000    
+ XPATRT: of those the        5 highest peaks will be used
+ RSEARC: CPU-Time:  P1 peak selection=    0.0001
+ RSEARC: CPU-Time:  generation of angle grid=    0.0001
+ ASSFIL: file makep2.dat opened.
+ REMARKS FILENAME="makep2.dat"
+ REMARKS DATE:05-Jul-2018  16:08:07       created by user: oeow39
+ REMARKS VERSION:1.3
+ RSEARC: CPU-Time:  rotation search=    0.0010
+ Summary of rotation search:
+   number of grid points=  2197
+   mean of R-function=  0.354
+   sigma of R-function=  0.632
+   maximum of R-function=  1.000
+   minimum of R-function= -0.970
+ Clustered list (EPSIlon= 0.50) of first     10 highest peaks
+ (the [] indicate a symmetry operation)
+     no.  priority     psi,    phi,    kappa           RF
+ ===========================================================
+      1      1           (   0.000   0.000   0.000)      1.0000
+ List of the highest peaks of the clusters (EPSIlon= 0.50)
+     no.  priority     psi,    phi,    kappa           RF
+ ===========================================================
+      1      1       (   0.000   0.000   0.000)      1.0000
+ RSEARC: CPU-Time:  cluster analysis=    0.0005
+ XRAY> 
+ XRAY>end 
+ CNSsolve> 
+ CNSsolve>open makep1.dat access=append end  close makep1.dat disposition=delete end 
+ ASSFIL: file makep1.dat opened.
+ CNSsolve>open makep2.dat access=append end  close makep2.dat disposition=delete end 
+ ASSFIL: file makep2.dat opened.
+ CNSsolve>stop 
+          ============================================================
+           Maximum dynamic memory allocation:    22391512 bytes
+           Maximum dynamic memory overhead:          1840 bytes
+           Program started at: 16:08:06 on 05-Jul-2018
+           Program stopped at: 16:08:07 on 05-Jul-2018
+           CPU time used:       5.9428 seconds
+          ============================================================

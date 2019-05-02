@@ -1,0 +1,2277 @@
+          ============================================================
+          |                                                          |
+          |            Crystallography & NMR System (CNS)            |
+          |                         CNSsolve                         |
+          |                                                          |
+          ============================================================
+           Version: 1.3
+           Status: General release
+          ============================================================
+           Written by: A.T.Brunger, P.D.Adams, G.M.Clore, W.L.DeLano,
+                       P.Gros, R.W.Grosse-Kunstleve,J.-S.Jiang,J.M.Krahn,
+                       J.Kuszewski, M.Nilges, N.S.Pannu, R.J.Read,
+                       L.M.Rice, G.F.Schroeder, T.Simonson, G.L.Warren.
+           Copyright (c) 1997-2010 Yale University
+          ============================================================
+           Running on machine: lewis4-r710-login-node223 (x86_64/Linux,64-bit)
+                               with 16 threads
+           Program started by: oeow39
+           Program started at: 16:08:32 on 05-Jul-2018
+          ============================================================
+
+ FFT3C: Using FFTPACK4.1
+
+ CNSsolve>remarks   XRAY 
+ CNSsolve>remarks   test for xray 
+ CNSsolve> 
+ CNSsolve>structure 
+ STRUcture>data_cns_mtf 
+ REMARKS FILENAME="/data/rwgk/test/tmp.mtf"
+ REMARKS HBUILD.INP
+ REMARKS build hydrogens for GAL11 structure
+ REMARKS DATE:18-Nov-98  14:17:56       created by user: rwgk
+ REMARKS VERSION:0.4a
+ Status of internal molecular topology database:
+ -> NATOM=        648(MAXA=     1000000)  NBOND=        655(MAXB=     1000000)
+ -> NTHETA=      1183(MAXT=     2000000)  NGRP=         264(MAXGRP=   1000000)
+ -> NPHI=         317(MAXP=     2000000)  NIMPHI=       143(MAXIMP=   1000000)
+ -> NNB=            9(MAXNB=    1000000) 
+ STRUcture> 
+ STRUcture>end 
+ CNSsolve> 
+ CNSsolve> 
+ CNSsolve>coor 
+ COOR>REMARK FILENAME="" 
+ COOR>REMARK HBUILD.INP The crystal structure with protons built on 
+ COOR>REMARK build hydrogens 
+ COOR>REMARK DATE: 8-OCT-85  13:41:30       created by user: CLORE 
+ COOR>ATOM      1  N   THR     1      17.047  14.099   3.625  0.00 13.79 
+ COOR>ATOM      2  HT1 THR     1      16.206  14.668   3.850  0.00  0.00 
+ CNSsolve> 
+ CNSsolve>do (q=1) ( all ) 
+ SELRPN:    648 atoms have been selected out of    648
+ CNSsolve>delete selection=( hydrogen ) end 
+ SELRPN:    321 atoms have been selected out of    648
+ Status of internal molecular topology database:
+ -> NATOM=        327(MAXA=     1000000)  NBOND=        334(MAXB=     1000000)
+ -> NTHETA=       460(MAXT=     2000000)  NGRP=         264(MAXGRP=   1000000)
+ -> NPHI=         209(MAXP=     2000000)  NIMPHI=        81(MAXIMP=   1000000)
+ -> NNB=            9(MAXNB=    1000000) 
+ CNSsolve> 
+ CNSsolve>parameter 
+ PARRDR>remarks   PARAMETER FILE FOR ALL EXPLICIT HYDROGENS BASED ON CFF PARAMETERS 
+ PARRDR>remarks   IN BRUCE GELIN'S THESIS (PARMFIX7 VALUES HAVE TRAILING 0'S) 
+ PARRDR>remarks   BOND ANGLE PARAMETERS INCLUDE THE HARMONIC CONTRIBUTION FROM UREY-BRADLEY 
+ PARRDR>remarks   F TERM ( (R13-R0)^2 ) 
+ PARRDR>remarks   DIHEDRALS INCLUDE MULTIPLICITY FROM CFF 
+ PARRDR>remarks   MODIFIED TO INCLUDE HA AND CT 
+ PARRDR>remarks   HIS AND TRYP INCLUDED 4/13/80 DJS 
+ PARRDR>set echo=false end 
+ PARRDR>end 
+ CNSsolve> 
+ CNSsolve>{* ============================================================= *} 
+ CNSsolve>{* ============================================================= *} 
+ CNSsolve> 
+ CNSsolve>xray 
+ XRAY>   declare name=fobs type=complex domain=reciprocal end 
+ XDECLARE: Object FOBS has been declared.
+ XRAY>   declare name=fpart domain=reciprocal type=complex end 
+ XDECLARE: Object FPART has been declared.
+ XRAY>   declare name=fcalc domain=reciprocal type=complex end 
+ XDECLARE: Object FCALC has been declared.
+ XRAY>   declare name=fom domain=reciprocal type=real end 
+ XDECLARE: Object FOM has been declared.
+ XRAY>   declare name=weight domain=reciprocal type=real end 
+ XDECLARE: Object WEIGHT has been declared.
+ XRAY>   declare name=sigma domain=reciprocal type=real end 
+ XDECLARE: Object SIGMA has been declared.
+ XRAY>   declare name=test domain=reciprocal type=integer end 
+ XDECLARE: Object TEST has been declared.
+ XRAY> 
+ XRAY> 
+ XRAY>   a=40.96 b=18.65 c=22.52 alpha=90.0 beta=90.77 gamma=90.0 
+ XRAY> 
+ XRAY> 
+ XRAY>   display  $xrcell_1[F8.3] $xrcell_2[F8.3] $xrcell_3[F8.3] 
+   40.960   18.650   22.520
+ XRAY>   display  $xrcell_4[F8.3] $xrcell_5[F8.3] $xrcell_6[F8.3] 
+   90.000   90.770   90.000
+ XRAY>   display  $volume[F12.3] 
+    17201.565
+ XRAY> 
+ XRAY>   display  $xrtr_1_1[F8.3] $xrtr_1_2[F8.3] $xrtr_1_3[F8.3] 
+    0.024    0.000    0.000
+ XRAY>   display  $xrtr_2_1[F8.3] $xrtr_2_2[F8.3] $xrtr_2_3[F8.3] 
+    0.000    0.054    0.000
+ XRAY>   display  $xrtr_3_1[F8.3] $xrtr_3_2[F8.3] $xrtr_3_3[F8.3] 
+    0.000    0.000    0.044
+ XRAY>   display  $xrintr_1_1[F8.3] $xrintr_1_2[F8.3] $xrintr_1_3[F8.3] 
+   40.960    0.000   -0.303
+ XRAY>   display  $xrintr_2_1[F8.3] $xrintr_2_2[F8.3] $xrintr_2_3[F8.3] 
+    0.000   18.650    0.000
+ XRAY>   display  $xrintr_3_1[F8.3] $xrintr_3_2[F8.3] $xrintr_3_3[F8.3] 
+    0.000    0.000   22.518
+ XRAY> 
+ XRAY> 
+ XRAY>   symmetry=(x,y,z)         !! 
+ XRAY>   symmetry=(-x,y+1/2,-z)   !! this is P21, b axis unique 
+ XRAY> 
+ XRAY>  evaluate ($lr=10.) 
+ EVALUATE: symbol $LR set to    10.0000     (real)
+ XRAY>  evaluate ($hr=3) 
+ EVALUATE: symbol $HR set to    3.00000     (real)
+ XRAY>  binresolution $lr $hr 
+ XRAY>  mapresolution $hr 
+ XRAY>  tselection=( $hr <= d <= $lr and 10000. >= amplitude(fobs)>=0.01 ) 
+ XRAY> 
+ XRAY>   SCATter ( chemical C* ) 
+ SELRPN:    202 atoms have been selected out of    327
+ SCATTER_A1=   2.31000 20.8439 1.02000 10.2075 1.58860 .568700 .865000 51.6512 .215600 
+ XRAY> 
+ XRAY>   SCATter ( chemical N* ) 
+ SELRPN:     55 atoms have been selected out of    327
+ SCATTER_A1=   12.2126 .005700 3.13220 9.89330 2.01250 28.9975 1.16630 .582600 -11.529 
+ XRAY> 
+ XRAY>   SCATter ( chemical O* ) 
+ SELRPN:     64 atoms have been selected out of    327
+ SCATTER_A1=   3.04850 13.2771 2.28680 5.70110 1.54630 .323900 .867000 32.9089 .250800 
+ XRAY> 
+ XRAY>   SCATter ( chemical S* ) 
+ SELRPN:      6 atoms have been selected out of    327
+ SCATTER_A1=   6.90530 1.46790 5.20340 22.2151 1.43790 .253600 1.58630 56.1720 .866900 
+ XRAY> 
+ XRAY> 
+ XRAY> reflection 
+ REFLection> INDEx    0   2   0  Fobs 4171.8999 
+ XSFAL: allocating space for complex reciprocal space object.
+ XRRR2:      729 new h,k,l indices have been added.
+ XRAY> 
+ XRAY> do (fpart=0) ( all ) 
+ XSFAL: allocating space for complex reciprocal space object.
+ Total of       729 structure factor elements were selected.
+ XRAY> 
+ XRAY>   tolerance=0.0 
+ XRAY>   ? 
+ ---------------------------diffraction-data-----------------------------------
+ | a= 40.96, b= 18.65, c= 22.52, alpha= 90.00, beta= 90.77, gamma= 90.00
+ | ANOMalous=FALSe
+ | Number or unique reflections read=   729
+ | resolution range covered by these reflections:       9.94 to       3.00
+ | Hmax=   13 Kmax=    6 Lmax=    7 Hmin=  -13 Kmin=    0 Lmin=    0
+ ------------------------------------------------------------------------------
+ XRAY>   method=direct 
+ XRAY> 
+ XRAY>  predict 
+ PREDict>      mode=reciprocal 
+ PREDict>      to=fcalc 
+ PREDict>      selection=( all ) 
+ Total of       729 structure factor elements were selected.
+ PREDict>      atomselection=( not hydrogen ) 
+ SELRPN:    327 atoms have been selected out of    327
+ PREDict>  end 
+ FCALC: #scatt.=    327 #anomalous=   0 #special pos.=  0 occupancies=1
+ XSFAL: allocating space for complex reciprocal space object.
+ XRAY> 
+ XRAY>   print target 
+ XRTSELSET: number of selected reflections     723
+ XTAREXPR:                 monitor=  0.266
+ TARGET value (working set)=        0.09271
+ XRAY>   write reflections fobs fcalc  sele=( all ) end 
+ Total of       729 structure factor elements were selected.
+ NREFlection=       729
+ ANOMalous=FALSe { equiv. to HERMitian=TRUE}
+ DECLare NAME=FOBS                   DOMAin=RECIprocal   TYPE=COMP END
+ DECLare NAME=FCALC                  DOMAin=RECIprocal   TYPE=COMP END
+ INDE     0    2    0 FOBS=  4171.900     0.000 FCALC=   630.884   141.382
+ INDE     0    4    0 FOBS=   549.800     0.000 FCALC=    79.259    18.800
+ INDE     0    6    0 FOBS=   359.500     0.000 FCALC=    18.574    87.436
+ INDE     1    2    0 FOBS=  1629.600     0.000 FCALC=    70.096   202.761
+ INDE     1    3    0 FOBS=  1252.000     0.000 FCALC=   166.578   307.266
+ INDE     1    4    0 FOBS=  1927.700     0.000 FCALC=   182.969    41.365
+ INDE     1    5    0 FOBS=   551.400     0.000 FCALC=    52.136   328.388
+ INDE     1    6    0 FOBS=  1570.500     0.000 FCALC=   102.929    71.359
+ INDE     2    2    0 FOBS=   263.800     0.000 FCALC=   119.869    98.972
+ INDE     2    3    0 FOBS=  2381.900     0.000 FCALC=   236.497   228.309
+ INDE     2    4    0 FOBS=  1298.300     0.000 FCALC=    99.967   193.319
+ INDE     2    5    0 FOBS=  2755.900     0.000 FCALC=   208.351   301.188
+ INDE     2    6    0 FOBS=   493.600     0.000 FCALC=    28.390   161.991
+ INDE     3    2    0 FOBS=  2604.000     0.000 FCALC=   264.645   318.900
+ INDE     3    3    0 FOBS=  2646.700     0.000 FCALC=   278.769    31.016
+ INDE     3    4    0 FOBS=  2334.700     0.000 FCALC=   162.759   127.613
+ INDE     3    5    0 FOBS=  1512.400     0.000 FCALC=   141.233   353.063
+ INDE     3    6    0 FOBS=  2194.500     0.000 FCALC=   168.846   181.278
+ INDE     4    1    0 FOBS=  1866.400     0.000 FCALC=   168.123   316.918
+ INDE     4    2    0 FOBS=  2465.000     0.000 FCALC=   205.136   306.674
+ INDE     4    3    0 FOBS=  1985.300     0.000 FCALC=   170.137   336.887
+ INDE     4    4    0 FOBS=  3146.900     0.000 FCALC=   214.697   312.644
+ INDE     4    5    0 FOBS=  1093.700     0.000 FCALC=    90.152   101.089
+ INDE     5    0    0 FOBS=  2777.900     0.000 FCALC=   356.915   180.000
+ INDE     5    1    0 FOBS=  1138.000     0.000 FCALC=   129.421    52.385
+ INDE     5    2    0 FOBS=  1439.400     0.000 FCALC=   145.128   354.778
+ INDE     5    3    0 FOBS=  1944.300     0.000 FCALC=   243.409   243.495
+ INDE     5    4    0 FOBS=  1847.500     0.000 FCALC=   110.392   287.977
+ INDE     5    5    0 FOBS=  3129.400     0.000 FCALC=   235.255   155.727
+ INDE     6    0    0 FOBS=   737.400     0.000 FCALC=   159.616   180.000
+ INDE     6    1    0 FOBS=   867.600     0.000 FCALC=    85.997   259.099
+ INDE     6    2    0 FOBS=   656.000     0.000 FCALC=    71.535   186.447
+ INDE     6    3    0 FOBS=  1635.700     0.000 FCALC=   134.248   245.299
+ INDE     6    4    0 FOBS=  2042.100     0.000 FCALC=   146.610   131.344
+ INDE     6    5    0 FOBS=  1680.900     0.000 FCALC=    99.572   301.067
+ INDE     7    0    0 FOBS=   629.900     0.000 FCALC=    27.678   180.000
+ INDE     7    1    0 FOBS=   711.000     0.000 FCALC=    77.653    93.500
+ INDE     7    2    0 FOBS=  2752.700     0.000 FCALC=   277.177   152.631
+ INDE     7    3    0 FOBS=  1957.800     0.000 FCALC=   207.474    62.954
+ INDE     7    4    0 FOBS=  1656.000     0.000 FCALC=   146.092   141.176
+ INDE     7    5    0 FOBS=   850.900     0.000 FCALC=    55.866   305.107
+ INDE     8    0    0 FOBS=  1151.600     0.000 FCALC=   166.963   180.000
+ INDE     8    1    0 FOBS=  3216.500     0.000 FCALC=   305.213    51.492
+ INDE     8    2    0 FOBS=  2022.000     0.000 FCALC=   124.050   348.757
+ INDE     8    3    0 FOBS=  1690.500     0.000 FCALC=   144.669    87.860
+ INDE     8    4    0 FOBS=   902.900     0.000 FCALC=    87.390   227.957
+ INDE     8    5    0 FOBS=  1277.800     0.000 FCALC=   103.946   274.254
+ INDE     9    0    0 FOBS=  1628.200     0.000 FCALC=   162.562     0.000
+ INDE     9    1    0 FOBS=  1486.900     0.000 FCALC=    70.517   128.263
+ INDE     9    2    0 FOBS=  3802.000     0.000 FCALC=   274.228    67.119
+ INDE     9    3    0 FOBS=  1918.700     0.000 FCALC=   133.635   159.797
+ INDE     9    4    0 FOBS=  1854.200     0.000 FCALC=    85.420   175.904
+ INDE    10    0    0 FOBS=   897.900     0.000 FCALC=    66.338     0.000
+ INDE    10    1    0 FOBS=   635.800     0.000 FCALC=    69.259   318.515
+ INDE    10    2    0 FOBS=  1407.800     0.000 FCALC=    71.866    45.514
+ INDE    10    3    0 FOBS=  1620.100     0.000 FCALC=   110.244   341.268
+ INDE    10    4    0 FOBS=  1093.200     0.000 FCALC=    85.960     0.748
+ INDE    11    0    0 FOBS=  2609.700     0.000 FCALC=   174.360   180.000
+ INDE    11    1    0 FOBS=   958.700     0.000 FCALC=   117.412   325.345
+ INDE    11    2    0 FOBS=  1756.200     0.000 FCALC=   122.552    52.467
+ INDE    11    3    0 FOBS=  1667.200     0.000 FCALC=   112.628   299.419
+ INDE    12    0    0 FOBS=   251.700     0.000 FCALC=     9.769   180.000
+ INDE    12    1    0 FOBS=  1982.400     0.000 FCALC=   177.006     1.530
+ INDE    12    2    0 FOBS=  1531.700     0.000 FCALC=   170.233   284.954
+ INDE    13    0    0 FOBS=  1699.400     0.000 FCALC=     9.487     0.000
+ INDE    13    1    0 FOBS=   204.800     0.000 FCALC=    25.014    57.381
+ INDE   -13    0    1 FOBS=  1700.200     0.000 FCALC=   163.123     0.000
+ INDE   -13    1    1 FOBS=   783.400     0.000 FCALC=   101.874   274.667
+ INDE   -12    0    1 FOBS=  1115.400     0.000 FCALC=   127.259     0.000
+ INDE   -12    1    1 FOBS=   573.600     0.000 FCALC=    75.527   218.081
+ INDE   -12    2    1 FOBS=  1993.900     0.000 FCALC=   148.776   162.195
+ INDE   -11    0    1 FOBS=   220.900     0.000 FCALC=    11.515   180.000
+ INDE   -11    1    1 FOBS=   842.800     0.000 FCALC=    79.374   216.123
+ INDE   -11    2    1 FOBS=  1758.900     0.000 FCALC=   157.110   175.105
+ INDE   -11    3    1 FOBS=   403.000     0.000 FCALC=   101.001   292.923
+ INDE   -10    0    1 FOBS=   939.100     0.000 FCALC=    89.189   180.000
+ INDE   -10    1    1 FOBS=  1172.200     0.000 FCALC=   109.380   242.674
+ INDE   -10    2    1 FOBS=  1299.900     0.000 FCALC=   159.695   345.207
+ INDE   -10    3    1 FOBS=   945.200     0.000 FCALC=    79.201    16.585
+ INDE   -10    4    1 FOBS=  2191.800     0.000 FCALC=   168.842   184.518
+ INDE    -9    0    1 FOBS=  1600.400     0.000 FCALC=   182.829   180.000
+ INDE    -9    1    1 FOBS=  1171.400     0.000 FCALC=   176.841   252.097
+ INDE    -9    2    1 FOBS=  1176.100     0.000 FCALC=   139.817   117.151
+ INDE    -9    3    1 FOBS=  1309.400     0.000 FCALC=    89.073   135.990
+ INDE    -9    4    1 FOBS=   662.400     0.000 FCALC=    90.121   157.718
+ INDE    -8    0    1 FOBS=  1478.300     0.000 FCALC=   168.119     0.000
+ INDE    -8    1    1 FOBS=  1028.800     0.000 FCALC=   110.269    29.923
+ INDE    -8    2    1 FOBS=  1900.800     0.000 FCALC=   139.792   160.136
+ INDE    -8    3    1 FOBS=   747.700     0.000 FCALC=    87.357    43.055
+ INDE    -8    4    1 FOBS=  1228.200     0.000 FCALC=   123.787   138.527
+ INDE    -7    0    1 FOBS=   129.500     0.000 FCALC=    88.084     0.000
+ INDE    -7    1    1 FOBS=  1752.500     0.000 FCALC=   217.861   181.463
+ INDE    -7    2    1 FOBS=  1610.700     0.000 FCALC=   145.012   332.632
+ INDE    -7    3    1 FOBS=  1536.500     0.000 FCALC=   122.175    25.930
+ INDE    -7    4    1 FOBS=  1058.400     0.000 FCALC=    76.450   151.959
+ INDE    -7    5    1 FOBS=   936.500     0.000 FCALC=    70.440   303.101
+ INDE    -6    0    1 FOBS=  1213.400     0.000 FCALC=    19.948   180.000
+ INDE    -6    1    1 FOBS=   650.000     0.000 FCALC=    32.076   280.324
+ INDE    -6    2    1 FOBS=   509.700     0.000 FCALC=   126.922   137.727
+ INDE    -6    3    1 FOBS=  1464.900     0.000 FCALC=   113.151    66.362
+ INDE    -6    4    1 FOBS=  3470.000     0.000 FCALC=   292.201   283.219
+ INDE    -6    5    1 FOBS=  1768.100     0.000 FCALC=   156.728     4.248
+ INDE    -5    0    1 FOBS=  2232.700     0.000 FCALC=   213.675   180.000
+ INDE    -5    1    1 FOBS=   529.200     0.000 FCALC=    76.437    23.630
+ INDE    -5    2    1 FOBS=   500.800     0.000 FCALC=    32.268   246.143
+ INDE    -5    3    1 FOBS=   566.600     0.000 FCALC=   108.095   237.657
+ INDE    -5    4    1 FOBS=   491.200     0.000 FCALC=    44.007   316.882
+ INDE    -5    5    1 FOBS=  2361.000     0.000 FCALC=   165.394   100.648
+ INDE    -4    0    1 FOBS=  1760.600     0.000 FCALC=   216.747   180.000
+ INDE    -4    1    1 FOBS=   494.600     0.000 FCALC=   107.133   271.955
+ INDE    -4    2    1 FOBS=   679.800     0.000 FCALC=    67.182    11.895
+ INDE    -4    3    1 FOBS=   689.300     0.000 FCALC=   108.846   235.061
+ INDE    -4    4    1 FOBS=  1957.600     0.000 FCALC=   157.956   160.894
+ INDE    -4    5    1 FOBS=  1854.900     0.000 FCALC=   191.260    59.314
+ INDE    -3    1    1 FOBS=   736.100     0.000 FCALC=   128.004   324.854
+ INDE    -3    2    1 FOBS=  1313.800     0.000 FCALC=   221.685    84.191
+ INDE    -3    3    1 FOBS=  1317.100     0.000 FCALC=   195.380     1.866
+ INDE    -3    4    1 FOBS=   879.500     0.000 FCALC=    90.801   307.420
+ INDE    -3    5    1 FOBS=   297.400     0.000 FCALC=    33.835    29.518
+ INDE    -3    6    1 FOBS=  1261.500     0.000 FCALC=   143.073   258.427
+ INDE    -2    2    1 FOBS=   821.700     0.000 FCALC=   116.822   189.788
+ INDE    -2    3    1 FOBS=   706.600     0.000 FCALC=    76.863   175.548
+ INDE    -2    4    1 FOBS=  1722.600     0.000 FCALC=   147.932    15.769
+ INDE    -2    5    1 FOBS=  1012.500     0.000 FCALC=    44.767   246.996
+ INDE    -2    6    1 FOBS=  2152.000     0.000 FCALC=   172.978   269.520
+ INDE    -1    2    1 FOBS=  1263.000     0.000 FCALC=   211.968   205.271
+ INDE    -1    3    1 FOBS=   526.700     0.000 FCALC=   114.256   276.442
+ INDE    -1    4    1 FOBS=   919.000     0.000 FCALC=   138.079   216.108
+ INDE    -1    5    1 FOBS=  1690.900     0.000 FCALC=   131.058   132.075
+ INDE    -1    6    1 FOBS=   818.700     0.000 FCALC=   109.306    78.414
+ INDE     0    2    1 FOBS=  1514.800     0.000 FCALC=   188.577   299.082
+ INDE     0    3    1 FOBS=  1339.500     0.000 FCALC=   135.667   284.368
+ INDE     0    4    1 FOBS=   499.600     0.000 FCALC=    15.383    86.759
+ INDE     0    5    1 FOBS=   429.500     0.000 FCALC=    68.843   304.761
+ INDE     0    6    1 FOBS=  1595.500     0.000 FCALC=   152.770    60.132
+ INDE     1    2    1 FOBS=   631.300     0.000 FCALC=   102.167   207.371
+ INDE     1    3    1 FOBS=  1056.700     0.000 FCALC=   163.216   215.142
+ INDE     1    4    1 FOBS=   792.400     0.000 FCALC=   147.989    47.574
+ INDE     1    5    1 FOBS=  1294.500     0.000 FCALC=    82.884    13.603
+ INDE     1    6    1 FOBS=   834.100     0.000 FCALC=    58.648    29.172
+ INDE     2    2    1 FOBS=  2527.600     0.000 FCALC=   409.523   311.089
+ INDE     2    3    1 FOBS=   476.800     0.000 FCALC=    52.073    26.249
+ INDE     2    4    1 FOBS=  1852.000     0.000 FCALC=    94.423    61.774
+ INDE     2    5    1 FOBS=   542.300     0.000 FCALC=    48.593    18.982
+ INDE     2    6    1 FOBS=   503.100     0.000 FCALC=    36.245   136.719
+ INDE     3    1    1 FOBS=   591.500     0.000 FCALC=   107.621   281.700
+ INDE     3    2    1 FOBS=   456.700     0.000 FCALC=   130.980   110.405
+ INDE     3    3    1 FOBS=  1053.900     0.000 FCALC=    72.791   233.841
+ INDE     3    4    1 FOBS=   191.400     0.000 FCALC=    71.265   209.435
+ INDE     3    5    1 FOBS=  1571.100     0.000 FCALC=    98.016   211.584
+ INDE     3    6    1 FOBS=   660.800     0.000 FCALC=    59.177   270.904
+ INDE     4    0    1 FOBS=  2852.600     0.000 FCALC=   260.355   180.000
+ INDE     4    1    1 FOBS=  1118.100     0.000 FCALC=    34.597   207.892
+ INDE     4    2    1 FOBS=  1948.000     0.000 FCALC=   197.228     8.694
+ INDE     4    3    1 FOBS=   487.000     0.000 FCALC=    94.367   272.320
+ INDE     4    4    1 FOBS=   847.500     0.000 FCALC=    72.672   241.113
+ INDE     4    5    1 FOBS=  2328.700     0.000 FCALC=   137.788   124.190
+ INDE     5    0    1 FOBS=  1011.300     0.000 FCALC=   156.860   180.000
+ INDE     5    1    1 FOBS=  1758.500     0.000 FCALC=   151.975   211.329
+ INDE     5    2    1 FOBS=   960.200     0.000 FCALC=   148.284   285.710
+ INDE     5    3    1 FOBS=   258.600     0.000 FCALC=    61.141   106.140
+ INDE     5    4    1 FOBS=   174.200     0.000 FCALC=    33.711   275.542
+ INDE     5    5    1 FOBS=  1007.100     0.000 FCALC=    87.096   265.541
+ INDE     6    0    1 FOBS=  1013.700     0.000 FCALC=   107.653   180.000
+ INDE     6    1    1 FOBS=   629.900     0.000 FCALC=    95.527   242.713
+ INDE     6    2    1 FOBS=  2505.700     0.000 FCALC=   216.692   286.573
+ INDE     6    3    1 FOBS=   823.500     0.000 FCALC=    91.331   200.043
+ INDE     6    4    1 FOBS=  1438.100     0.000 FCALC=    97.922   104.935
+ INDE     6    5    1 FOBS=  1128.600     0.000 FCALC=    87.802    29.462
+ INDE     7    0    1 FOBS=  1494.800     0.000 FCALC=   144.194   180.000
+ INDE     7    1    1 FOBS=   744.100     0.000 FCALC=    72.416    29.113
+ INDE     7    2    1 FOBS=  1240.400     0.000 FCALC=   143.274   154.553
+ INDE     7    3    1 FOBS=  1713.000     0.000 FCALC=   165.839   186.784
+ INDE     7    4    1 FOBS=   773.000     0.000 FCALC=    80.771   192.850
+ INDE     7    5    1 FOBS=  1304.400     0.000 FCALC=    82.306   297.493
+ INDE     8    0    1 FOBS=  1798.700     0.000 FCALC=   137.938   180.000
+ INDE     8    1    1 FOBS=   208.200     0.000 FCALC=    62.321    36.472
+ INDE     8    2    1 FOBS=  1612.500     0.000 FCALC=   155.652    50.212
+ INDE     8    3    1 FOBS=  1815.900     0.000 FCALC=   133.870    22.114
+ INDE     8    4    1 FOBS=  1949.700     0.000 FCALC=   117.209    73.417
+ INDE     9    0    1 FOBS=   862.100     0.000 FCALC=     6.709     0.000
+ INDE     9    1    1 FOBS=   755.200     0.000 FCALC=    57.403   251.484
+ INDE     9    2    1 FOBS=  1677.300     0.000 FCALC=   142.462   324.933
+ INDE     9    3    1 FOBS=  1259.300     0.000 FCALC=   149.338     6.190
+ INDE     9    4    1 FOBS=   884.400     0.000 FCALC=    79.776   324.587
+ INDE    10    0    1 FOBS=  1000.100     0.000 FCALC=    36.599     0.000
+ INDE    10    1    1 FOBS=  1575.400     0.000 FCALC=   194.361   339.991
+ INDE    10    2    1 FOBS=  1563.200     0.000 FCALC=    88.371   183.647
+ INDE    10    3    1 FOBS=   614.100     0.000 FCALC=    50.601     6.927
+ INDE    10    4    1 FOBS=   293.300     0.000 FCALC=    42.100   340.079
+ INDE    11    0    1 FOBS=   417.800     0.000 FCALC=    33.045     0.000
+ INDE    11    1    1 FOBS=  1373.100     0.000 FCALC=   125.404   289.527
+ INDE    11    2    1 FOBS=  2590.000     0.000 FCALC=   182.501   242.387
+ INDE    11    3    1 FOBS=  1284.600     0.000 FCALC=    24.680   330.721
+ INDE    12    0    1 FOBS=  1816.600     0.000 FCALC=    95.221   180.000
+ INDE    12    1    1 FOBS=  2824.600     0.000 FCALC=   195.980   149.597
+ INDE    12    2    1 FOBS=   828.100     0.000 FCALC=    45.132   210.588
+ INDE    13    0    1 FOBS=   105.700     0.000 FCALC=    15.165   180.000
+ INDE    13    1    1 FOBS=   647.600     0.000 FCALC=    31.364   103.029
+ INDE   -13    0    2 FOBS=   312.800     0.000 FCALC=    89.810     0.000
+ INDE   -13    1    2 FOBS=  2259.600     0.000 FCALC=   195.320   181.610
+ INDE   -12    0    2 FOBS=   469.700     0.000 FCALC=    23.009   180.000
+ INDE   -12    1    2 FOBS=   375.900     0.000 FCALC=     9.390    57.350
+ INDE   -12    2    2 FOBS=   537.600     0.000 FCALC=    56.277   311.452
+ INDE   -11    0    2 FOBS=   176.200     0.000 FCALC=    16.000   180.000
+ INDE   -11    1    2 FOBS=  1488.000     0.000 FCALC=   141.533   230.143
+ INDE   -11    2    2 FOBS=  2411.700     0.000 FCALC=   197.762   348.848
+ INDE   -11    3    2 FOBS=   864.000     0.000 FCALC=    77.792   103.753
+ INDE   -10    0    2 FOBS=  1885.800     0.000 FCALC=   120.148   180.000
+ INDE   -10    1    2 FOBS=   986.800     0.000 FCALC=   119.014   333.875
+ INDE   -10    2    2 FOBS=  1601.300     0.000 FCALC=   112.660    47.211
+ INDE   -10    3    2 FOBS=   747.000     0.000 FCALC=    59.555   103.577
+ INDE    -9    0    2 FOBS=  1925.400     0.000 FCALC=   161.418   180.000
+ INDE    -9    1    2 FOBS=   458.000     0.000 FCALC=    51.543   222.426
+ INDE    -9    2    2 FOBS=  1403.500     0.000 FCALC=   163.316   292.950
+ INDE    -9    3    2 FOBS=   693.300     0.000 FCALC=    44.399   287.948
+ INDE    -9    4    2 FOBS=   194.600     0.000 FCALC=    54.884    73.053
+ INDE    -8    0    2 FOBS=  1991.000     0.000 FCALC=   289.327   180.000
+ INDE    -8    1    2 FOBS=   606.400     0.000 FCALC=    69.211    92.495
+ INDE    -8    2    2 FOBS=   476.900     0.000 FCALC=    82.482   262.794
+ INDE    -8    3    2 FOBS=   627.500     0.000 FCALC=    53.192    12.855
+ INDE    -8    4    2 FOBS=  1467.400     0.000 FCALC=   121.375   293.020
+ INDE    -7    0    2 FOBS=    70.400     0.000 FCALC=    13.640   180.000
+ INDE    -7    1    2 FOBS=   888.000     0.000 FCALC=   106.117   350.045
+ INDE    -7    2    2 FOBS=   400.400     0.000 FCALC=    17.659    45.411
+ INDE    -7    3    2 FOBS=  1710.800     0.000 FCALC=   156.344   353.571
+ INDE    -7    4    2 FOBS=  1170.600     0.000 FCALC=   134.721   270.458
+ INDE    -7    5    2 FOBS=   806.300     0.000 FCALC=    83.843   201.038
+ INDE    -6    0    2 FOBS=   637.600     0.000 FCALC=     1.499     0.000
+ INDE    -6    1    2 FOBS=   553.100     0.000 FCALC=   112.617   246.209
+ INDE    -6    2    2 FOBS=  1726.900     0.000 FCALC=   236.446   221.036
+ INDE    -6    3    2 FOBS=  2810.200     0.000 FCALC=   286.106   330.942
+ INDE    -6    4    2 FOBS=  1427.300     0.000 FCALC=   118.850    83.717
+ INDE    -6    5    2 FOBS=   560.500     0.000 FCALC=    41.963   103.194
+ INDE    -5    0    2 FOBS=   654.700     0.000 FCALC=   233.365     0.000
+ INDE    -5    1    2 FOBS=  1437.700     0.000 FCALC=   189.286   116.801
+ INDE    -5    2    2 FOBS=  1228.300     0.000 FCALC=   112.678   148.706
+ INDE    -5    3    2 FOBS=  1719.400     0.000 FCALC=   169.288   132.326
+ INDE    -5    4    2 FOBS=   756.000     0.000 FCALC=    79.976   314.708
+ INDE    -5    5    2 FOBS=  1340.000     0.000 FCALC=   103.694   341.623
+ INDE    -4    0    2 FOBS=   883.600     0.000 FCALC=   143.913   180.000
+ INDE    -4    1    2 FOBS=   734.900     0.000 FCALC=   180.457    38.970
+ INDE    -4    2    2 FOBS=   964.200     0.000 FCALC=   126.108     2.936
+ INDE    -4    3    2 FOBS=  1433.200     0.000 FCALC=   156.632    50.004
+ INDE    -4    4    2 FOBS=   640.400     0.000 FCALC=    72.926   303.698
+ INDE    -4    5    2 FOBS=   636.600     0.000 FCALC=    45.452   224.220
+ INDE    -3    0    2 FOBS=  1303.800     0.000 FCALC=   355.078   180.000
+ INDE    -3    1    2 FOBS=   786.400     0.000 FCALC=   125.344   352.466
+ INDE    -3    2    2 FOBS=  1415.500     0.000 FCALC=   176.976   245.084
+ INDE    -3    3    2 FOBS=  1914.700     0.000 FCALC=   215.040   127.289
+ INDE    -3    4    2 FOBS=   742.200     0.000 FCALC=    35.657    34.754
+ INDE    -3    5    2 FOBS=  2274.600     0.000 FCALC=   199.526   229.670
+ INDE    -2    0    2 FOBS=  1808.300     0.000 FCALC=   344.247   180.000
+ INDE    -2    1    2 FOBS=   491.000     0.000 FCALC=    98.932   202.326
+ INDE    -2    2    2 FOBS=   956.500     0.000 FCALC=    70.273   297.989
+ INDE    -2    3    2 FOBS=  1134.400     0.000 FCALC=    98.854   119.372
+ INDE    -2    4    2 FOBS=  2572.800     0.000 FCALC=   202.894   154.972
+ INDE    -2    5    2 FOBS=   539.800     0.000 FCALC=    74.063   165.577
+ INDE    -1    1    2 FOBS=  1822.600     0.000 FCALC=   160.568    70.847
+ INDE    -1    2    2 FOBS=   532.400     0.000 FCALC=    30.318   316.583
+ INDE    -1    3    2 FOBS=   404.400     0.000 FCALC=   100.561   280.907
+ INDE    -1    4    2 FOBS=  1128.700     0.000 FCALC=   138.678   227.299
+ INDE    -1    5    2 FOBS=   772.900     0.000 FCALC=    71.448    75.963
+ INDE     0    1    2 FOBS=  1588.800     0.000 FCALC=   256.512   141.280
+ INDE     0    2    2 FOBS=  1027.300     0.000 FCALC=   177.317   114.435
+ INDE     0    3    2 FOBS=  1956.100     0.000 FCALC=   191.437   182.794
+ INDE     0    4    2 FOBS=   591.400     0.000 FCALC=    77.931   280.012
+ INDE     0    5    2 FOBS=  2100.500     0.000 FCALC=   172.844   251.493
+ INDE     1    1    2 FOBS=   266.700     0.000 FCALC=    31.221    87.079
+ INDE     1    2    2 FOBS=   942.100     0.000 FCALC=   138.940    33.395
+ INDE     1    3    2 FOBS=  1611.800     0.000 FCALC=    85.609   198.498
+ INDE     1    4    2 FOBS=   737.500     0.000 FCALC=    10.768   200.962
+ INDE     1    5    2 FOBS=  1643.500     0.000 FCALC=   152.996   234.317
+ INDE     2    0    2 FOBS=   615.600     0.000 FCALC=   127.648   180.000
+ INDE     2    1    2 FOBS=  1950.100     0.000 FCALC=   199.292   357.390
+ INDE     2    2    2 FOBS=  1015.900     0.000 FCALC=   129.388   146.735
+ INDE     2    3    2 FOBS=  1231.700     0.000 FCALC=   208.494   145.680
+ INDE     2    4    2 FOBS=  1369.200     0.000 FCALC=   164.077    14.458
+ INDE     2    5    2 FOBS=  1026.500     0.000 FCALC=    90.003   345.403
+ INDE     3    0    2 FOBS=  1682.300     0.000 FCALC=    59.241   180.000
+ INDE     3    1    2 FOBS=  2135.600     0.000 FCALC=   237.879   189.357
+ INDE     3    2    2 FOBS=  1399.800     0.000 FCALC=   116.238     5.725
+ INDE     3    3    2 FOBS=   971.700     0.000 FCALC=   102.334   243.317
+ INDE     3    4    2 FOBS=  1091.500     0.000 FCALC=   110.133    36.088
+ INDE     3    5    2 FOBS=   608.800     0.000 FCALC=    81.461    73.173
+ INDE     4    0    2 FOBS=  1994.700     0.000 FCALC=   222.502     0.000
+ INDE     4    1    2 FOBS=   484.200     0.000 FCALC=    30.348   200.480
+ INDE     4    2    2 FOBS=  1029.900     0.000 FCALC=   165.660   159.225
+ INDE     4    3    2 FOBS=   865.700     0.000 FCALC=   106.844   152.203
+ INDE     4    4    2 FOBS=  1582.100     0.000 FCALC=    94.227   353.486
+ INDE     4    5    2 FOBS=   272.200     0.000 FCALC=    26.533   350.274
+ INDE     5    0    2 FOBS=  1047.400     0.000 FCALC=   127.207   180.000
+ INDE     5    1    2 FOBS=  1467.300     0.000 FCALC=   174.313   267.006
+ INDE     5    2    2 FOBS=  1532.400     0.000 FCALC=   132.360   245.086
+ INDE     5    3    2 FOBS=  2309.200     0.000 FCALC=   246.425   259.304
+ INDE     5    4    2 FOBS=   304.700     0.000 FCALC=     4.513    16.536
+ INDE     5    5    2 FOBS=  1954.200     0.000 FCALC=   141.304    46.314
+ INDE     6    0    2 FOBS=   329.700     0.000 FCALC=    68.740     0.000
+ INDE     6    1    2 FOBS=   298.500     0.000 FCALC=    31.005   159.173
+ INDE     6    2    2 FOBS=  2326.400     0.000 FCALC=   178.633   157.235
+ INDE     6    3    2 FOBS=  1259.000     0.000 FCALC=   146.798   307.497
+ INDE     6    4    2 FOBS=  2273.600     0.000 FCALC=   194.854   244.106
+ INDE     6    5    2 FOBS=    68.700     0.000 FCALC=    63.067   205.967
+ INDE     7    0    2 FOBS=   738.900     0.000 FCALC=    21.685   180.000
+ INDE     7    1    2 FOBS=   811.800     0.000 FCALC=    91.023   346.811
+ INDE     7    2    2 FOBS=  1487.800     0.000 FCALC=   135.531   277.574
+ INDE     7    3    2 FOBS=   998.900     0.000 FCALC=    75.415   270.321
+ INDE     7    4    2 FOBS=  1170.600     0.000 FCALC=    95.006   121.632
+ INDE     7    5    2 FOBS=   343.100     0.000 FCALC=    54.141   161.214
+ INDE     8    0    2 FOBS=  1095.900     0.000 FCALC=   152.061     0.000
+ INDE     8    1    2 FOBS=   295.000     0.000 FCALC=    38.049   255.302
+ INDE     8    2    2 FOBS=   764.500     0.000 FCALC=    74.411   138.262
+ INDE     8    3    2 FOBS=   977.600     0.000 FCALC=    76.906   327.084
+ INDE     8    4    2 FOBS=  1232.200     0.000 FCALC=    74.102   146.391
+ INDE     9    0    2 FOBS=  2102.100     0.000 FCALC=   120.218   180.000
+ INDE     9    1    2 FOBS=  1199.600     0.000 FCALC=   149.391   117.757
+ INDE     9    2    2 FOBS=  2025.300     0.000 FCALC=   175.142   239.111
+ INDE     9    3    2 FOBS=  2295.200     0.000 FCALC=   163.924   345.438
+ INDE     9    4    2 FOBS=  2121.200     0.000 FCALC=   150.973    48.164
+ INDE    10    0    2 FOBS=  2153.000     0.000 FCALC=   114.279     0.000
+ INDE    10    1    2 FOBS=   908.400     0.000 FCALC=    82.237   141.572
+ INDE    10    2    2 FOBS=  2391.700     0.000 FCALC=   162.170    97.899
+ INDE    10    3    2 FOBS=  1098.900     0.000 FCALC=    91.107    48.806
+ INDE    11    0    2 FOBS=  1086.400     0.000 FCALC=    90.276     0.000
+ INDE    11    1    2 FOBS=  1744.700     0.000 FCALC=    80.245    50.756
+ INDE    11    2    2 FOBS=   376.400     0.000 FCALC=    40.431   342.762
+ INDE    11    3    2 FOBS=  1426.200     0.000 FCALC=    86.986   112.521
+ INDE    12    0    2 FOBS=  1724.400     0.000 FCALC=   244.119     0.000
+ INDE    12    1    2 FOBS=   853.600     0.000 FCALC=    57.531    10.555
+ INDE    12    2    2 FOBS=  1490.100     0.000 FCALC=   155.907   163.656
+ INDE    13    0    2 FOBS=   444.000     0.000 FCALC=    19.608     0.000
+ INDE   -12    0    3 FOBS=   249.100     0.000 FCALC=    10.745   180.000
+ INDE   -12    1    3 FOBS=   471.700     0.000 FCALC=    43.921   196.229
+ INDE   -11    0    3 FOBS=   429.900     0.000 FCALC=    19.649     0.000
+ INDE   -11    1    3 FOBS=  1460.900     0.000 FCALC=   149.061    52.010
+ INDE   -11    2    3 FOBS=   738.600     0.000 FCALC=    73.179   271.057
+ INDE   -10    0    3 FOBS=   783.000     0.000 FCALC=    39.834   180.000
+ INDE   -10    1    3 FOBS=  1263.000     0.000 FCALC=    78.337   263.415
+ INDE   -10    2    3 FOBS=   977.200     0.000 FCALC=    88.578   239.835
+ INDE   -10    3    3 FOBS=   779.300     0.000 FCALC=    74.278     3.465
+ INDE    -9    0    3 FOBS=  1875.100     0.000 FCALC=   180.208   180.000
+ INDE    -9    1    3 FOBS=  1556.400     0.000 FCALC=    94.860   276.382
+ INDE    -9    2    3 FOBS=  1871.700     0.000 FCALC=   182.194   302.350
+ INDE    -9    3    3 FOBS=  1112.000     0.000 FCALC=    54.942   225.512
+ INDE    -8    0    3 FOBS=   946.800     0.000 FCALC=    87.611   180.000
+ INDE    -8    1    3 FOBS=  1888.100     0.000 FCALC=   204.715   222.133
+ INDE    -8    2    3 FOBS=  1481.100     0.000 FCALC=   148.847    42.068
+ INDE    -8    3    3 FOBS=  1016.100     0.000 FCALC=    88.023   283.004
+ INDE    -8    4    3 FOBS=  1097.500     0.000 FCALC=   125.469    78.407
+ INDE    -7    0    3 FOBS=  1500.000     0.000 FCALC=   164.843   180.000
+ INDE    -7    1    3 FOBS=   800.200     0.000 FCALC=    47.153    94.024
+ INDE    -7    2    3 FOBS=  1273.700     0.000 FCALC=   149.285   120.810
+ INDE    -7    3    3 FOBS=   812.300     0.000 FCALC=    57.253   358.729
+ INDE    -7    4    3 FOBS=  2237.400     0.000 FCALC=   216.344    22.729
+ INDE    -6    0    3 FOBS=   407.100     0.000 FCALC=   103.667     0.000
+ INDE    -6    1    3 FOBS=  1812.900     0.000 FCALC=   229.295   120.395
+ INDE    -6    2    3 FOBS=  1887.500     0.000 FCALC=   205.051    76.823
+ INDE    -6    3    3 FOBS=  1660.600     0.000 FCALC=   136.280   101.968
+ INDE    -6    4    3 FOBS=   828.100     0.000 FCALC=    79.288   243.144
+ INDE    -6    5    3 FOBS=  1068.000     0.000 FCALC=   122.553   289.908
+ INDE    -5    0    3 FOBS=  1560.600     0.000 FCALC=   226.856     0.000
+ INDE    -5    1    3 FOBS=   868.500     0.000 FCALC=   122.061    93.131
+ INDE    -5    2    3 FOBS=  1440.300     0.000 FCALC=   179.126   220.189
+ INDE    -5    3    3 FOBS=   168.500     0.000 FCALC=     2.490    54.628
+ INDE    -5    4    3 FOBS=  1154.000     0.000 FCALC=    84.039    64.889
+ INDE    -5    5    3 FOBS=   828.600     0.000 FCALC=    42.780   219.699
+ INDE    -4    0    3 FOBS=  2185.400     0.000 FCALC=   291.698     0.000
+ INDE    -4    1    3 FOBS=  1244.300     0.000 FCALC=    83.188   115.312
+ INDE    -4    2    3 FOBS=  2131.300     0.000 FCALC=   306.705   125.735
+ INDE    -4    3    3 FOBS=  2159.100     0.000 FCALC=   150.491   164.996
+ INDE    -4    4    3 FOBS=   263.300     0.000 FCALC=    48.915    34.920
+ INDE    -4    5    3 FOBS=   955.100     0.000 FCALC=   105.762   262.100
+ INDE    -3    0    3 FOBS=   989.300     0.000 FCALC=   215.905     0.000
+ INDE    -3    1    3 FOBS=     0.000     0.000 FCALC=    67.501    18.561
+ INDE    -3    2    3 FOBS=   693.800     0.000 FCALC=    72.461    38.422
+ INDE    -3    3    3 FOBS=  2555.300     0.000 FCALC=   254.241    89.770
+ INDE    -3    4    3 FOBS=   107.100     0.000 FCALC=    35.603   226.874
+ INDE    -3    5    3 FOBS=   512.200     0.000 FCALC=    71.460   178.227
+ INDE    -2    0    3 FOBS=   990.200     0.000 FCALC=   136.038     0.000
+ INDE    -2    1    3 FOBS=  1265.700     0.000 FCALC=   169.937   177.887
+ INDE    -2    2    3 FOBS=  1210.700     0.000 FCALC=   184.442   300.293
+ INDE    -2    3    3 FOBS=   784.700     0.000 FCALC=    54.158   358.849
+ INDE    -2    4    3 FOBS=  1141.700     0.000 FCALC=    76.857   123.164
+ INDE    -2    5    3 FOBS=   943.700     0.000 FCALC=   181.559   268.921
+ INDE    -1    0    3 FOBS=   733.100     0.000 FCALC=   101.526     0.000
+ INDE    -1    1    3 FOBS=   436.500     0.000 FCALC=    69.483    47.835
+ INDE    -1    2    3 FOBS=   849.500     0.000 FCALC=    83.884   180.299
+ INDE    -1    3    3 FOBS=  1387.600     0.000 FCALC=   175.367   329.953
+ INDE    -1    4    3 FOBS=   886.300     0.000 FCALC=    57.122   270.054
+ INDE    -1    5    3 FOBS=  1541.000     0.000 FCALC=    94.509   244.687
+ INDE     0    0    3 FOBS=  1029.500     0.000 FCALC=   167.784     0.000
+ INDE     0    1    3 FOBS=  1389.600     0.000 FCALC=   134.563   266.663
+ INDE     0    2    3 FOBS=  1950.200     0.000 FCALC=   210.979   255.333
+ INDE     0    3    3 FOBS=  1088.600     0.000 FCALC=   137.462   311.368
+ INDE     0    4    3 FOBS=  1231.000     0.000 FCALC=   102.525   324.057
+ INDE     0    5    3 FOBS=  1890.100     0.000 FCALC=   201.267    83.236
+ INDE     1    0    3 FOBS=    70.300     0.000 FCALC=     7.279     0.000
+ INDE     1    1    3 FOBS=   900.400     0.000 FCALC=   131.552   113.246
+ INDE     1    2    3 FOBS=   395.400     0.000 FCALC=    76.250    29.831
+ INDE     1    3    3 FOBS=  1387.200     0.000 FCALC=   109.594   175.969
+ INDE     1    4    3 FOBS=  1074.000     0.000 FCALC=    33.274     3.262
+ INDE     1    5    3 FOBS=  1665.200     0.000 FCALC=   165.411   346.965
+ INDE     2    0    3 FOBS=  2726.900     0.000 FCALC=   275.860   180.000
+ INDE     2    1    3 FOBS=   975.500     0.000 FCALC=    87.250   204.190
+ INDE     2    2    3 FOBS=   530.200     0.000 FCALC=    62.687    75.949
+ INDE     2    3    3 FOBS=  2006.800     0.000 FCALC=   141.312   228.691
+ INDE     2    4    3 FOBS=  2809.100     0.000 FCALC=   280.996   149.114
+ INDE     2    5    3 FOBS=   891.800     0.000 FCALC=    80.571   311.739
+ INDE     3    0    3 FOBS=   827.000     0.000 FCALC=   111.970     0.000
+ INDE     3    1    3 FOBS=  1024.000     0.000 FCALC=   180.168   124.763
+ INDE     3    2    3 FOBS=  1615.000     0.000 FCALC=   166.503   137.000
+ INDE     3    3    3 FOBS=  1781.600     0.000 FCALC=   157.802   201.260
+ INDE     3    4    3 FOBS=  1588.200     0.000 FCALC=   121.736   218.782
+ INDE     3    5    3 FOBS=  1990.300     0.000 FCALC=   127.439     6.517
+ INDE     4    0    3 FOBS=     0.000     0.000 FCALC=    51.500     0.000
+ INDE     4    1    3 FOBS=   638.200     0.000 FCALC=    67.727   168.566
+ INDE     4    2    3 FOBS=  2391.200     0.000 FCALC=   265.589   169.626
+ INDE     4    3    3 FOBS=  1687.700     0.000 FCALC=   181.815    97.017
+ INDE     4    4    3 FOBS=  1636.700     0.000 FCALC=    97.889   220.512
+ INDE     4    5    3 FOBS=  1506.400     0.000 FCALC=    86.759    55.207
+ INDE     5    0    3 FOBS=    45.400     0.000 FCALC=    34.945   180.000
+ INDE     5    1    3 FOBS=  2009.000     0.000 FCALC=   191.211    51.452
+ INDE     5    2    3 FOBS=  1342.200     0.000 FCALC=   141.463    18.691
+ INDE     5    3    3 FOBS=  1415.300     0.000 FCALC=   195.837   114.285
+ INDE     5    4    3 FOBS=   663.000     0.000 FCALC=    26.186   291.644
+ INDE     5    5    3 FOBS=  2053.500     0.000 FCALC=   155.380   141.781
+ INDE     6    0    3 FOBS=  1724.000     0.000 FCALC=   165.227   180.000
+ INDE     6    1    3 FOBS=  1042.200     0.000 FCALC=    88.164    92.836
+ INDE     6    2    3 FOBS=  2665.100     0.000 FCALC=   232.029    26.778
+ INDE     6    3    3 FOBS=  1784.600     0.000 FCALC=   154.161   329.811
+ INDE     6    4    3 FOBS=   706.500     0.000 FCALC=    58.589   118.392
+ INDE     7    0    3 FOBS=   996.600     0.000 FCALC=    80.401   180.000
+ INDE     7    1    3 FOBS=   956.600     0.000 FCALC=    90.587    12.200
+ INDE     7    2    3 FOBS=   707.300     0.000 FCALC=    56.985   103.230
+ INDE     7    3    3 FOBS=  3312.700     0.000 FCALC=   283.653   327.974
+ INDE     7    4    3 FOBS=  1729.500     0.000 FCALC=   154.614   249.694
+ INDE     8    0    3 FOBS=  2490.600     0.000 FCALC=   245.933   180.000
+ INDE     8    1    3 FOBS=  2048.400     0.000 FCALC=   167.772    48.109
+ INDE     8    2    3 FOBS=  1938.100     0.000 FCALC=   160.601   309.463
+ INDE     8    3    3 FOBS=  1360.500     0.000 FCALC=    91.329   205.484
+ INDE     8    4    3 FOBS=   910.100     0.000 FCALC=    81.948    48.902
+ INDE     9    0    3 FOBS=   395.600     0.000 FCALC=    94.292     0.000
+ INDE     9    1    3 FOBS=  2806.100     0.000 FCALC=   262.693   322.931
+ INDE     9    2    3 FOBS=  1497.200     0.000 FCALC=   201.844    98.730
+ INDE     9    3    3 FOBS=  1867.600     0.000 FCALC=   141.608   262.699
+ INDE    10    0    3 FOBS=   119.900     0.000 FCALC=    16.825     0.000
+ INDE    10    1    3 FOBS=  2126.700     0.000 FCALC=   193.780   331.166
+ INDE    10    2    3 FOBS=  2827.700     0.000 FCALC=   218.621   234.227
+ INDE    10    3    3 FOBS=  1330.800     0.000 FCALC=    93.766   117.120
+ INDE    11    0    3 FOBS=  2665.300     0.000 FCALC=   165.588     0.000
+ INDE    11    1    3 FOBS=  1217.700     0.000 FCALC=    59.489    27.100
+ INDE    11    2    3 FOBS=  1653.700     0.000 FCALC=   119.639   228.754
+ INDE    12    0    3 FOBS=  2055.500     0.000 FCALC=   201.096   180.000
+ INDE    12    1    3 FOBS=   368.300     0.000 FCALC=    30.438   304.598
+ INDE   -11    0    4 FOBS=   762.700     0.000 FCALC=    45.166     0.000
+ INDE   -11    1    4 FOBS=   331.700     0.000 FCALC=    54.527   318.107
+ INDE   -10    0    4 FOBS=   614.800     0.000 FCALC=    79.387     0.000
+ INDE   -10    1    4 FOBS=   125.300     0.000 FCALC=    14.120    66.073
+ INDE   -10    2    4 FOBS=   418.700     0.000 FCALC=    40.230   284.720
+ INDE    -9    0    4 FOBS=     0.000     0.000 FCALC=    21.102   180.000
+ INDE    -9    1    4 FOBS=   671.100     0.000 FCALC=    45.741   265.529
+ INDE    -9    2    4 FOBS=  1843.600     0.000 FCALC=   121.324    33.977
+ INDE    -9    3    4 FOBS=  1033.700     0.000 FCALC=   147.658    30.263
+ INDE    -8    0    4 FOBS=  1197.900     0.000 FCALC=    53.792   180.000
+ INDE    -8    1    4 FOBS=   700.500     0.000 FCALC=    78.288   211.669
+ INDE    -8    2    4 FOBS=   417.400     0.000 FCALC=    23.698    27.930
+ INDE    -8    3    4 FOBS=  1112.000     0.000 FCALC=    96.340   346.685
+ INDE    -7    0    4 FOBS=  2110.200     0.000 FCALC=   196.933     0.000
+ INDE    -7    1    4 FOBS=  2340.900     0.000 FCALC=   153.661   214.069
+ INDE    -7    2    4 FOBS=  1409.200     0.000 FCALC=   166.382    53.154
+ INDE    -7    3    4 FOBS=   339.200     0.000 FCALC=    68.713   161.271
+ INDE    -7    4    4 FOBS=  1873.400     0.000 FCALC=   204.179   207.528
+ INDE    -6    0    4 FOBS=  1347.500     0.000 FCALC=    70.081     0.000
+ INDE    -6    1    4 FOBS=  1488.100     0.000 FCALC=   125.499   271.849
+ INDE    -6    2    4 FOBS=   237.200     0.000 FCALC=    29.750   254.209
+ INDE    -6    3    4 FOBS=  1058.400     0.000 FCALC=    71.714   229.425
+ INDE    -6    4    4 FOBS=   859.800     0.000 FCALC=    77.491    26.849
+ INDE    -5    0    4 FOBS=  1335.300     0.000 FCALC=   239.482   180.000
+ INDE    -5    1    4 FOBS=   412.200     0.000 FCALC=    60.406   154.260
+ INDE    -5    2    4 FOBS=   999.900     0.000 FCALC=    74.001   101.967
+ INDE    -5    3    4 FOBS=   321.500     0.000 FCALC=    36.396   157.640
+ INDE    -5    4    4 FOBS=  1595.200     0.000 FCALC=   122.940   253.669
+ INDE    -4    0    4 FOBS=  2505.700     0.000 FCALC=   256.568     0.000
+ INDE    -4    1    4 FOBS=   983.000     0.000 FCALC=    81.957   319.251
+ INDE    -4    2    4 FOBS=  1144.500     0.000 FCALC=   172.173   253.488
+ INDE    -4    3    4 FOBS=  3779.000     0.000 FCALC=   325.060   108.222
+ INDE    -4    4    4 FOBS=  1050.700     0.000 FCALC=   116.353    59.261
+ INDE    -3    0    4 FOBS=  3225.300     0.000 FCALC=   306.153     0.000
+ INDE    -3    1    4 FOBS=   743.300     0.000 FCALC=   116.131   306.237
+ INDE    -3    2    4 FOBS=   548.100     0.000 FCALC=    92.710   353.470
+ INDE    -3    3    4 FOBS=  1002.900     0.000 FCALC=   169.161   111.237
+ INDE    -3    4    4 FOBS=  1827.900     0.000 FCALC=   131.345    54.943
+ INDE    -3    5    4 FOBS=  1827.300     0.000 FCALC=   122.962   279.772
+ INDE    -2    0    4 FOBS=  2909.600     0.000 FCALC=   458.796     0.000
+ INDE    -2    1    4 FOBS=  1058.100     0.000 FCALC=    73.943   336.129
+ INDE    -2    2    4 FOBS=  1376.300     0.000 FCALC=   109.242   145.985
+ INDE    -2    3    4 FOBS=  1947.500     0.000 FCALC=   126.845   282.291
+ INDE    -2    4    4 FOBS=  2395.600     0.000 FCALC=   194.683   320.749
+ INDE    -2    5    4 FOBS=   515.800     0.000 FCALC=    53.022   165.114
+ INDE    -1    0    4 FOBS=  1591.700     0.000 FCALC=   217.249   180.000
+ INDE    -1    1    4 FOBS=   537.900     0.000 FCALC=   104.263   101.164
+ INDE    -1    2    4 FOBS=  1512.500     0.000 FCALC=   158.585   254.626
+ INDE    -1    3    4 FOBS=  3141.400     0.000 FCALC=   293.721   248.331
+ INDE    -1    4    4 FOBS=   752.200     0.000 FCALC=    31.337   214.889
+ INDE    -1    5    4 FOBS=  1483.700     0.000 FCALC=   150.515   314.612
+ INDE     0    0    4 FOBS=   135.900     0.000 FCALC=    97.484   180.000
+ INDE     0    1    4 FOBS=  1926.400     0.000 FCALC=   209.107    77.195
+ INDE     0    2    4 FOBS=  1193.400     0.000 FCALC=   153.023   257.170
+ INDE     0    3    4 FOBS=  1577.100     0.000 FCALC=   187.511   258.837
+ INDE     0    4    4 FOBS=  3751.500     0.000 FCALC=   237.173   199.137
+ INDE     0    5    4 FOBS=  1881.300     0.000 FCALC=   139.567   325.889
+ INDE     1    0    4 FOBS=     0.000     0.000 FCALC=    45.192   180.000
+ INDE     1    1    4 FOBS=   552.400     0.000 FCALC=    86.260    26.175
+ INDE     1    2    4 FOBS=  2461.900     0.000 FCALC=   211.813   265.639
+ INDE     1    3    4 FOBS=   222.500     0.000 FCALC=     9.028   122.052
+ INDE     1    4    4 FOBS=   436.000     0.000 FCALC=    41.615   193.670
+ INDE     1    5    4 FOBS=   556.900     0.000 FCALC=    22.270   142.743
+ INDE     2    0    4 FOBS=  1788.300     0.000 FCALC=   122.562     0.000
+ INDE     2    1    4 FOBS=  1453.100     0.000 FCALC=   166.319   247.421
+ INDE     2    2    4 FOBS=  1370.800     0.000 FCALC=   148.767   293.087
+ INDE     2    3    4 FOBS=   988.900     0.000 FCALC=    98.119   251.631
+ INDE     2    4    4 FOBS=  1292.300     0.000 FCALC=   100.472     2.796
+ INDE     2    5    4 FOBS=   934.000     0.000 FCALC=    44.792   228.393
+ INDE     3    0    4 FOBS=  1924.900     0.000 FCALC=   208.393   180.000
+ INDE     3    1    4 FOBS=  1170.600     0.000 FCALC=   116.268   220.205
+ INDE     3    2    4 FOBS=   256.400     0.000 FCALC=    48.001    36.653
+ INDE     3    3    4 FOBS=  2796.000     0.000 FCALC=   222.879    59.921
+ INDE     3    4    4 FOBS=  1123.800     0.000 FCALC=   111.028   156.564
+ INDE     3    5    4 FOBS=   472.800     0.000 FCALC=    60.525   198.713
+ INDE     4    0    4 FOBS=  3870.900     0.000 FCALC=   416.407   180.000
+ INDE     4    1    4 FOBS=   428.900     0.000 FCALC=    16.589   331.662
+ INDE     4    2    4 FOBS=  1979.700     0.000 FCALC=   186.686     9.458
+ INDE     4    3    4 FOBS=  2142.200     0.000 FCALC=   231.422    38.250
+ INDE     4    4    4 FOBS=  2562.900     0.000 FCALC=   193.372   142.725
+ INDE     5    0    4 FOBS=   162.100     0.000 FCALC=    21.965   180.000
+ INDE     5    1    4 FOBS=  2431.600     0.000 FCALC=   263.289    91.220
+ INDE     5    2    4 FOBS=   939.700     0.000 FCALC=    26.530   124.478
+ INDE     5    3    4 FOBS=  2926.300     0.000 FCALC=   277.534    45.492
+ INDE     5    4    4 FOBS=  1907.400     0.000 FCALC=   164.270   212.414
+ INDE     6    0    4 FOBS=  2201.200     0.000 FCALC=   182.191     0.000
+ INDE     6    1    4 FOBS=  3470.000     0.000 FCALC=   356.926    50.270
+ INDE     6    2    4 FOBS=   814.200     0.000 FCALC=    33.750   323.700
+ INDE     6    3    4 FOBS=  2830.300     0.000 FCALC=   234.885   144.260
+ INDE     6    4    4 FOBS=  1304.300     0.000 FCALC=   110.795   290.116
+ INDE     7    0    4 FOBS=  2376.000     0.000 FCALC=   139.568     0.000
+ INDE     7    1    4 FOBS=   316.100     0.000 FCALC=    25.623   298.688
+ INDE     7    2    4 FOBS=  3922.700     0.000 FCALC=   271.992    51.182
+ INDE     7    3    4 FOBS=   991.200     0.000 FCALC=   104.058   186.432
+ INDE     7    4    4 FOBS=  2466.700     0.000 FCALC=   174.115     7.002
+ INDE     8    0    4 FOBS=     0.000     0.000 FCALC=    60.737   180.000
+ INDE     8    1    4 FOBS=  1653.900     0.000 FCALC=   128.821   307.683
+ INDE     8    2    4 FOBS=  2300.700     0.000 FCALC=   192.740   156.509
+ INDE     8    3    4 FOBS=  1011.300     0.000 FCALC=   147.487   313.517
+ INDE     9    0    4 FOBS=   321.500     0.000 FCALC=     1.483   180.000
+ INDE     9    1    4 FOBS=  1111.900     0.000 FCALC=   128.195    35.625
+ INDE     9    2    4 FOBS=   761.700     0.000 FCALC=    74.894   267.872
+ INDE     9    3    4 FOBS=  2539.500     0.000 FCALC=   182.991    99.346
+ INDE    10    0    4 FOBS=  2476.900     0.000 FCALC=   165.950     0.000
+ INDE    10    1    4 FOBS=  1159.300     0.000 FCALC=    80.963   167.836
+ INDE    10    2    4 FOBS=   501.500     0.000 FCALC=    23.112   304.417
+ INDE    11    0    4 FOBS=     0.000     0.000 FCALC=     6.800   180.000
+ INDE    11    1    4 FOBS=  1617.400     0.000 FCALC=   104.673   284.062
+ INDE   -10    0    5 FOBS=   287.900     0.000 FCALC=    13.707     0.000
+ INDE   -10    1    5 FOBS=    79.500     0.000 FCALC=    39.376   250.317
+ INDE    -9    0    5 FOBS=   321.900     0.000 FCALC=    24.457     0.000
+ INDE    -9    1    5 FOBS=   534.200     0.000 FCALC=    58.335   233.289
+ INDE    -9    2    5 FOBS=   789.900     0.000 FCALC=    33.181   199.033
+ INDE    -8    0    5 FOBS=   270.600     0.000 FCALC=    43.753   180.000
+ INDE    -8    1    5 FOBS=   393.100     0.000 FCALC=    55.674    17.985
+ INDE    -8    2    5 FOBS=  1348.000     0.000 FCALC=   121.769   294.379
+ INDE    -7    0    5 FOBS=   815.700     0.000 FCALC=    96.650   180.000
+ INDE    -7    1    5 FOBS=  1192.300     0.000 FCALC=    62.668   112.548
+ INDE    -7    2    5 FOBS=  2330.400     0.000 FCALC=   201.103   297.581
+ INDE    -7    3    5 FOBS=  1027.000     0.000 FCALC=   119.610   100.163
+ INDE    -6    0    5 FOBS=  1069.200     0.000 FCALC=    69.289   180.000
+ INDE    -6    1    5 FOBS=   802.800     0.000 FCALC=    82.520    11.529
+ INDE    -6    2    5 FOBS=  2489.400     0.000 FCALC=   166.938   310.522
+ INDE    -6    3    5 FOBS=   771.800     0.000 FCALC=    34.783   176.619
+ INDE    -5    0    5 FOBS=  2053.100     0.000 FCALC=   192.585     0.000
+ INDE    -5    1    5 FOBS=  1120.000     0.000 FCALC=   113.318   286.069
+ INDE    -5    2    5 FOBS=   868.200     0.000 FCALC=    98.822   297.638
+ INDE    -5    3    5 FOBS=   837.600     0.000 FCALC=    93.643    99.751
+ INDE    -5    4    5 FOBS=   942.600     0.000 FCALC=    86.401     4.598
+ INDE    -4    0    5 FOBS=  3209.900     0.000 FCALC=   231.830     0.000
+ INDE    -4    1    5 FOBS=   272.900     0.000 FCALC=    45.379    82.479
+ INDE    -4    2    5 FOBS=  1555.500     0.000 FCALC=   138.705    85.679
+ INDE    -4    3    5 FOBS=  2172.700     0.000 FCALC=   167.162   179.682
+ INDE    -4    4    5 FOBS=  1982.100     0.000 FCALC=   129.094   276.182
+ INDE    -3    0    5 FOBS=  1660.200     0.000 FCALC=   128.687     0.000
+ INDE    -3    1    5 FOBS=  1207.400     0.000 FCALC=   166.090   269.087
+ INDE    -3    2    5 FOBS=  1634.400     0.000 FCALC=   167.612   128.873
+ INDE    -3    3    5 FOBS=  1122.700     0.000 FCALC=   116.710   199.184
+ INDE    -3    4    5 FOBS=  1211.800     0.000 FCALC=    94.398   126.747
+ INDE    -2    0    5 FOBS=  3700.600     0.000 FCALC=   304.414   180.000
+ INDE    -2    1    5 FOBS=   392.500     0.000 FCALC=    27.970   207.680
+ INDE    -2    2    5 FOBS=  2617.800     0.000 FCALC=   228.827   242.973
+ INDE    -2    3    5 FOBS=   672.000     0.000 FCALC=    68.086   270.774
+ INDE    -2    4    5 FOBS=  2092.000     0.000 FCALC=   163.564    85.896
+ INDE    -1    0    5 FOBS=  1148.500     0.000 FCALC=   133.816     0.000
+ INDE    -1    1    5 FOBS=   794.800     0.000 FCALC=    99.689   132.293
+ INDE    -1    2    5 FOBS=  1240.700     0.000 FCALC=    76.060   189.216
+ INDE    -1    3    5 FOBS=  1830.100     0.000 FCALC=   160.566   293.976
+ INDE    -1    4    5 FOBS=  2002.600     0.000 FCALC=   120.131    49.365
+ INDE     0    0    5 FOBS=   442.800     0.000 FCALC=    16.140   180.000
+ INDE     0    1    5 FOBS=  2550.600     0.000 FCALC=   249.145   331.787
+ INDE     0    2    5 FOBS=  1352.800     0.000 FCALC=   113.925    64.476
+ INDE     0    3    5 FOBS=  1166.200     0.000 FCALC=    89.600    11.323
+ INDE     0    4    5 FOBS=  1034.800     0.000 FCALC=    71.282   285.850
+ INDE     1    0    5 FOBS=  2385.500     0.000 FCALC=   242.717   180.000
+ INDE     1    1    5 FOBS=   830.700     0.000 FCALC=   126.752   270.022
+ INDE     1    2    5 FOBS=  1769.200     0.000 FCALC=   150.241   285.145
+ INDE     1    3    5 FOBS=   392.500     0.000 FCALC=    16.213   178.560
+ INDE     1    4    5 FOBS=  1169.300     0.000 FCALC=    74.642   285.182
+ INDE     2    0    5 FOBS=   379.000     0.000 FCALC=    76.522     0.000
+ INDE     2    1    5 FOBS=  2232.700     0.000 FCALC=   218.974   179.237
+ INDE     2    2    5 FOBS=   345.900     0.000 FCALC=    13.276   131.781
+ INDE     2    3    5 FOBS=  1336.400     0.000 FCALC=    99.692   296.576
+ INDE     2    4    5 FOBS=   465.000     0.000 FCALC=    32.468   193.915
+ INDE     3    0    5 FOBS=   750.000     0.000 FCALC=    95.678   180.000
+ INDE     3    1    5 FOBS=   616.500     0.000 FCALC=    47.659   326.248
+ INDE     3    2    5 FOBS=  1374.600     0.000 FCALC=   138.347   178.555
+ INDE     3    3    5 FOBS=   363.400     0.000 FCALC=    41.993   307.849
+ INDE     3    4    5 FOBS=   692.700     0.000 FCALC=    78.447   135.356
+ INDE     4    0    5 FOBS=  3063.000     0.000 FCALC=   239.728     0.000
+ INDE     4    1    5 FOBS=  1946.200     0.000 FCALC=   110.276   133.843
+ INDE     4    2    5 FOBS=   500.900     0.000 FCALC=    43.112    78.878
+ INDE     4    3    5 FOBS=   433.100     0.000 FCALC=    57.881     0.575
+ INDE     4    4    5 FOBS=   650.200     0.000 FCALC=    77.711   208.094
+ INDE     5    0    5 FOBS=  3275.800     0.000 FCALC=   325.638     0.000
+ INDE     5    1    5 FOBS=   367.400     0.000 FCALC=    61.285    81.398
+ INDE     5    2    5 FOBS=  1163.300     0.000 FCALC=   112.333   216.315
+ INDE     5    3    5 FOBS=  1670.600     0.000 FCALC=    94.666    68.988
+ INDE     5    4    5 FOBS=   725.600     0.000 FCALC=    70.703   340.504
+ INDE     6    0    5 FOBS=   973.200     0.000 FCALC=    40.008     0.000
+ INDE     6    1    5 FOBS=   689.900     0.000 FCALC=    69.387   164.066
+ INDE     6    2    5 FOBS=  1963.000     0.000 FCALC=   191.490    32.308
+ INDE     6    3    5 FOBS=  1176.600     0.000 FCALC=   101.052   291.066
+ INDE     7    0    5 FOBS=   183.100     0.000 FCALC=    42.652   180.000
+ INDE     7    1    5 FOBS=  1316.800     0.000 FCALC=    66.827    62.805
+ INDE     7    2    5 FOBS=   581.400     0.000 FCALC=    75.650    32.066
+ INDE     7    3    5 FOBS=   958.800     0.000 FCALC=    53.827   301.518
+ INDE     8    0    5 FOBS=   613.900     0.000 FCALC=    46.838     0.000
+ INDE     8    1    5 FOBS=   879.700     0.000 FCALC=    81.323    53.929
+ INDE     8    2    5 FOBS=  1321.100     0.000 FCALC=   102.148   137.475
+ INDE     9    0    5 FOBS=  1176.000     0.000 FCALC=    86.749     0.000
+ INDE     9    1    5 FOBS=  1864.100     0.000 FCALC=   152.592    92.477
+ INDE     9    2    5 FOBS=  1207.200     0.000 FCALC=    53.341   357.300
+ INDE    10    0    5 FOBS=  1416.300     0.000 FCALC=    98.534     0.000
+ INDE    -8    0    6 FOBS=   785.600     0.000 FCALC=    71.866     0.000
+ INDE    -8    1    6 FOBS=   275.600     0.000 FCALC=    53.632   267.958
+ INDE    -7    0    6 FOBS=   885.100     0.000 FCALC=   102.636     0.000
+ INDE    -7    1    6 FOBS=  1248.700     0.000 FCALC=   146.359    56.591
+ INDE    -7    2    6 FOBS=   567.900     0.000 FCALC=    82.606   201.178
+ INDE    -6    0    6 FOBS=   816.300     0.000 FCALC=    42.669     0.000
+ INDE    -6    1    6 FOBS=  1351.600     0.000 FCALC=   106.322    14.057
+ INDE    -6    2    6 FOBS=   753.600     0.000 FCALC=    89.416    24.261
+ INDE    -5    0    6 FOBS=  1615.200     0.000 FCALC=   135.786   180.000
+ INDE    -5    1    6 FOBS=   782.900     0.000 FCALC=    27.381   239.381
+ INDE    -5    2    6 FOBS=   691.400     0.000 FCALC=    78.006   296.500
+ INDE    -5    3    6 FOBS=   859.500     0.000 FCALC=    47.945   272.533
+ INDE    -4    0    6 FOBS=  1271.100     0.000 FCALC=    84.474   180.000
+ INDE    -4    1    6 FOBS=  1225.100     0.000 FCALC=    93.090   203.700
+ INDE    -4    2    6 FOBS=  1638.600     0.000 FCALC=   125.985   141.695
+ INDE    -4    3    6 FOBS=   272.300     0.000 FCALC=    31.115   274.151
+ INDE    -3    0    6 FOBS=  1664.400     0.000 FCALC=   116.534     0.000
+ INDE    -3    1    6 FOBS=   734.700     0.000 FCALC=    93.573   107.426
+ INDE    -3    2    6 FOBS=   347.200     0.000 FCALC=    40.255   246.196
+ INDE    -3    3    6 FOBS=  1420.700     0.000 FCALC=    92.051   262.628
+ INDE    -2    0    6 FOBS=   832.000     0.000 FCALC=    34.078   180.000
+ INDE    -2    1    6 FOBS=   368.300     0.000 FCALC=    39.285   222.838
+ INDE    -2    2    6 FOBS=  1610.800     0.000 FCALC=    84.483    28.624
+ INDE    -2    3    6 FOBS=  1152.800     0.000 FCALC=    89.935   299.906
+ INDE    -1    0    6 FOBS=   925.100     0.000 FCALC=    80.780   180.000
+ INDE    -1    1    6 FOBS=   384.000     0.000 FCALC=    66.765   240.593
+ INDE    -1    2    6 FOBS=   543.400     0.000 FCALC=    56.701   203.492
+ INDE    -1    3    6 FOBS=   187.300     0.000 FCALC=    54.673   336.924
+ INDE     0    0    6 FOBS=   172.700     0.000 FCALC=    71.395     0.000
+ INDE     0    1    6 FOBS=  1042.900     0.000 FCALC=   103.808   271.499
+ INDE     0    2    6 FOBS=  2539.500     0.000 FCALC=   195.854   178.513
+ INDE     0    3    6 FOBS=   685.500     0.000 FCALC=   122.422   246.406
+ INDE     1    0    6 FOBS=  1952.900     0.000 FCALC=   201.204   180.000
+ INDE     1    1    6 FOBS=  1414.100     0.000 FCALC=    95.767   282.014
+ INDE     1    2    6 FOBS=   923.800     0.000 FCALC=    98.871   178.401
+ INDE     1    3    6 FOBS=  1806.200     0.000 FCALC=   100.678   310.655
+ INDE     2    0    6 FOBS=  2667.500     0.000 FCALC=   262.246   180.000
+ INDE     2    1    6 FOBS=   684.200     0.000 FCALC=    11.746   128.751
+ INDE     2    2    6 FOBS=   739.500     0.000 FCALC=    65.179   199.030
+ INDE     2    3    6 FOBS=   910.500     0.000 FCALC=    68.648    32.501
+ INDE     3    0    6 FOBS=  1429.300     0.000 FCALC=   150.140     0.000
+ INDE     3    1    6 FOBS=  1843.100     0.000 FCALC=   114.477   270.592
+ INDE     3    2    6 FOBS=  1081.400     0.000 FCALC=    64.522   227.249
+ INDE     3    3    6 FOBS=  1095.300     0.000 FCALC=    73.589   246.834
+ INDE     4    0    6 FOBS=  2669.900     0.000 FCALC=   134.723     0.000
+ INDE     4    1    6 FOBS=  1912.100     0.000 FCALC=   162.983     1.464
+ INDE     4    2    6 FOBS=   854.800     0.000 FCALC=    48.237   237.923
+ INDE     4    3    6 FOBS=   574.900     0.000 FCALC=    94.479   154.555
+ INDE     5    0    6 FOBS=  1988.100     0.000 FCALC=   146.298   180.000
+ INDE     5    1    6 FOBS=  1055.000     0.000 FCALC=   115.427    28.940
+ INDE     5    2    6 FOBS=  1926.300     0.000 FCALC=   125.384    32.247
+ INDE     6    0    6 FOBS=   529.300     0.000 FCALC=    67.600     0.000
+ INDE     6    1    6 FOBS=   786.700     0.000 FCALC=    54.410   135.035
+ INDE     6    2    6 FOBS=   913.800     0.000 FCALC=    60.974   191.911
+ INDE     7    0    6 FOBS=  1341.400     0.000 FCALC=   103.917   180.000
+ INDE     7    1    6 FOBS=  1616.100     0.000 FCALC=   107.693   109.858
+ INDE     8    0    6 FOBS=   987.200     0.000 FCALC=    82.140   180.000
+ INDE    -5    0    7 FOBS=   992.700     0.000 FCALC=   160.316     0.000
+ INDE    -4    0    7 FOBS=  1889.700     0.000 FCALC=   192.402     0.000
+ INDE    -4    1    7 FOBS=  1812.800     0.000 FCALC=   104.125   230.352
+ INDE    -3    0    7 FOBS=   488.600     0.000 FCALC=    60.513   180.000
+ INDE    -3    1    7 FOBS=  1144.400     0.000 FCALC=   101.889   274.248
+ INDE    -2    0    7 FOBS=  1258.500     0.000 FCALC=   138.170   180.000
+ INDE    -2    1    7 FOBS=   484.500     0.000 FCALC=    40.404   355.768
+ INDE    -2    2    7 FOBS=   694.800     0.000 FCALC=    42.056     9.218
+ INDE    -1    0    7 FOBS=   424.100     0.000 FCALC=    10.203   180.000
+ INDE    -1    1    7 FOBS=   959.400     0.000 FCALC=    55.808    97.880
+ INDE    -1    2    7 FOBS=  1444.500     0.000 FCALC=   114.829   107.945
+ INDE     0    0    7 FOBS=   176.600     0.000 FCALC=    14.519   180.000
+ INDE     0    1    7 FOBS=    68.300     0.000 FCALC=    10.089   100.217
+ INDE     0    2    7 FOBS=  1173.800     0.000 FCALC=    84.135   183.732
+ INDE     1    0    7 FOBS=  1543.300     0.000 FCALC=    88.518   180.000
+ INDE     1    1    7 FOBS=   906.800     0.000 FCALC=   107.356    51.206
+ INDE     1    2    7 FOBS=  1254.000     0.000 FCALC=   185.915   212.277
+ INDE     2    0    7 FOBS=   744.300     0.000 FCALC=    34.316   180.000
+ INDE     2    1    7 FOBS=  1067.800     0.000 FCALC=    60.472   135.812
+ INDE     2    2    7 FOBS=  1021.900     0.000 FCALC=   121.723   234.575
+ INDE     3    0    7 FOBS=   856.200     0.000 FCALC=    52.631   180.000
+ INDE     3    1    7 FOBS=   639.000     0.000 FCALC=    86.241     8.362
+ INDE     4    0    7 FOBS=  2597.500     0.000 FCALC=   212.626   180.000
+ INDE     4    1    7 FOBS=  1832.600     0.000 FCALC=   190.789    58.637
+ XRAY> 
+ XRAY>  evaluate ($lr=8.) 
+ EVALUATE: symbol $LR set to    8.00000     (real)
+ XRAY>  evaluate ($hr=5.) 
+ EVALUATE: symbol $HR set to    5.00000     (real)
+ XRAY>  binresolution $lr $hr 
+ XRAY>  mapresolution $hr 
+ XRAY>  tselection=( $hr <= d <= $lr and 10000. >= amplitude(fobs)>=0.01 ) 
+ XRAY> 
+ XRAY>   predict 
+ PREDict>      mode=reciprocal 
+ PREDict>      to=fcalc 
+ PREDict>      selection=( all ) 
+ Total of       729 structure factor elements were selected.
+ PREDict>      atomselection=( not hydrogen ) 
+ SELRPN:    327 atoms have been selected out of    327
+ PREDict>   end 
+ FCALC: #scatt.=    327 #anomalous=   0 #special pos.=  0 occupancies=1
+ XRAY>   print target 
+ XRTSELSET: number of selected reflections     124
+ XTAREXPR:                 monitor=  0.270
+ TARGET value (working set)=        0.08482
+ XRAY>   write reflections fobs fcalc  sele=( all ) end 
+ Total of       729 structure factor elements were selected.
+ NREFlection=       729
+ ANOMalous=FALSe { equiv. to HERMitian=TRUE}
+ DECLare NAME=FOBS                   DOMAin=RECIprocal   TYPE=COMP END
+ DECLare NAME=FCALC                  DOMAin=RECIprocal   TYPE=COMP END
+ INDE     0    2    0 FOBS=  4171.900     0.000 FCALC=   630.884   141.382
+ INDE     0    4    0 FOBS=   549.800     0.000 FCALC=    79.259    18.800
+ INDE     0    6    0 FOBS=   359.500     0.000 FCALC=    18.574    87.436
+ INDE     1    2    0 FOBS=  1629.600     0.000 FCALC=    70.096   202.761
+ INDE     1    3    0 FOBS=  1252.000     0.000 FCALC=   166.578   307.266
+ INDE     1    4    0 FOBS=  1927.700     0.000 FCALC=   182.969    41.365
+ INDE     1    5    0 FOBS=   551.400     0.000 FCALC=    52.136   328.388
+ INDE     1    6    0 FOBS=  1570.500     0.000 FCALC=   102.929    71.359
+ INDE     2    2    0 FOBS=   263.800     0.000 FCALC=   119.869    98.972
+ INDE     2    3    0 FOBS=  2381.900     0.000 FCALC=   236.497   228.309
+ INDE     2    4    0 FOBS=  1298.300     0.000 FCALC=    99.967   193.319
+ INDE     2    5    0 FOBS=  2755.900     0.000 FCALC=   208.351   301.188
+ INDE     2    6    0 FOBS=   493.600     0.000 FCALC=    28.390   161.991
+ INDE     3    2    0 FOBS=  2604.000     0.000 FCALC=   264.645   318.900
+ INDE     3    3    0 FOBS=  2646.700     0.000 FCALC=   278.769    31.016
+ INDE     3    4    0 FOBS=  2334.700     0.000 FCALC=   162.759   127.613
+ INDE     3    5    0 FOBS=  1512.400     0.000 FCALC=   141.233   353.063
+ INDE     3    6    0 FOBS=  2194.500     0.000 FCALC=   168.846   181.278
+ INDE     4    1    0 FOBS=  1866.400     0.000 FCALC=   168.123   316.918
+ INDE     4    2    0 FOBS=  2465.000     0.000 FCALC=   205.136   306.674
+ INDE     4    3    0 FOBS=  1985.300     0.000 FCALC=   170.137   336.887
+ INDE     4    4    0 FOBS=  3146.900     0.000 FCALC=   214.697   312.644
+ INDE     4    5    0 FOBS=  1093.700     0.000 FCALC=    90.152   101.089
+ INDE     5    0    0 FOBS=  2777.900     0.000 FCALC=   356.915   180.000
+ INDE     5    1    0 FOBS=  1138.000     0.000 FCALC=   129.421    52.385
+ INDE     5    2    0 FOBS=  1439.400     0.000 FCALC=   145.128   354.778
+ INDE     5    3    0 FOBS=  1944.300     0.000 FCALC=   243.409   243.495
+ INDE     5    4    0 FOBS=  1847.500     0.000 FCALC=   110.392   287.977
+ INDE     5    5    0 FOBS=  3129.400     0.000 FCALC=   235.255   155.727
+ INDE     6    0    0 FOBS=   737.400     0.000 FCALC=   159.616   180.000
+ INDE     6    1    0 FOBS=   867.600     0.000 FCALC=    85.997   259.099
+ INDE     6    2    0 FOBS=   656.000     0.000 FCALC=    71.535   186.447
+ INDE     6    3    0 FOBS=  1635.700     0.000 FCALC=   134.248   245.299
+ INDE     6    4    0 FOBS=  2042.100     0.000 FCALC=   146.610   131.344
+ INDE     6    5    0 FOBS=  1680.900     0.000 FCALC=    99.572   301.067
+ INDE     7    0    0 FOBS=   629.900     0.000 FCALC=    27.678   180.000
+ INDE     7    1    0 FOBS=   711.000     0.000 FCALC=    77.653    93.500
+ INDE     7    2    0 FOBS=  2752.700     0.000 FCALC=   277.177   152.631
+ INDE     7    3    0 FOBS=  1957.800     0.000 FCALC=   207.474    62.954
+ INDE     7    4    0 FOBS=  1656.000     0.000 FCALC=   146.092   141.176
+ INDE     7    5    0 FOBS=   850.900     0.000 FCALC=    55.866   305.107
+ INDE     8    0    0 FOBS=  1151.600     0.000 FCALC=   166.963   180.000
+ INDE     8    1    0 FOBS=  3216.500     0.000 FCALC=   305.213    51.492
+ INDE     8    2    0 FOBS=  2022.000     0.000 FCALC=   124.050   348.757
+ INDE     8    3    0 FOBS=  1690.500     0.000 FCALC=   144.669    87.860
+ INDE     8    4    0 FOBS=   902.900     0.000 FCALC=    87.390   227.957
+ INDE     8    5    0 FOBS=  1277.800     0.000 FCALC=   103.946   274.254
+ INDE     9    0    0 FOBS=  1628.200     0.000 FCALC=   162.562     0.000
+ INDE     9    1    0 FOBS=  1486.900     0.000 FCALC=    70.517   128.263
+ INDE     9    2    0 FOBS=  3802.000     0.000 FCALC=   274.228    67.119
+ INDE     9    3    0 FOBS=  1918.700     0.000 FCALC=   133.635   159.797
+ INDE     9    4    0 FOBS=  1854.200     0.000 FCALC=    85.420   175.904
+ INDE    10    0    0 FOBS=   897.900     0.000 FCALC=    66.338     0.000
+ INDE    10    1    0 FOBS=   635.800     0.000 FCALC=    69.259   318.515
+ INDE    10    2    0 FOBS=  1407.800     0.000 FCALC=    71.866    45.514
+ INDE    10    3    0 FOBS=  1620.100     0.000 FCALC=   110.244   341.268
+ INDE    10    4    0 FOBS=  1093.200     0.000 FCALC=    85.960     0.748
+ INDE    11    0    0 FOBS=  2609.700     0.000 FCALC=   174.360   180.000
+ INDE    11    1    0 FOBS=   958.700     0.000 FCALC=   117.412   325.345
+ INDE    11    2    0 FOBS=  1756.200     0.000 FCALC=   122.552    52.467
+ INDE    11    3    0 FOBS=  1667.200     0.000 FCALC=   112.628   299.419
+ INDE    12    0    0 FOBS=   251.700     0.000 FCALC=     9.769   180.000
+ INDE    12    1    0 FOBS=  1982.400     0.000 FCALC=   177.006     1.530
+ INDE    12    2    0 FOBS=  1531.700     0.000 FCALC=   170.233   284.954
+ INDE    13    0    0 FOBS=  1699.400     0.000 FCALC=     9.487     0.000
+ INDE    13    1    0 FOBS=   204.800     0.000 FCALC=    25.014    57.381
+ INDE   -13    0    1 FOBS=  1700.200     0.000 FCALC=   163.123     0.000
+ INDE   -13    1    1 FOBS=   783.400     0.000 FCALC=   101.874   274.667
+ INDE   -12    0    1 FOBS=  1115.400     0.000 FCALC=   127.259     0.000
+ INDE   -12    1    1 FOBS=   573.600     0.000 FCALC=    75.527   218.081
+ INDE   -12    2    1 FOBS=  1993.900     0.000 FCALC=   148.776   162.195
+ INDE   -11    0    1 FOBS=   220.900     0.000 FCALC=    11.515   180.000
+ INDE   -11    1    1 FOBS=   842.800     0.000 FCALC=    79.374   216.123
+ INDE   -11    2    1 FOBS=  1758.900     0.000 FCALC=   157.110   175.105
+ INDE   -11    3    1 FOBS=   403.000     0.000 FCALC=   101.001   292.923
+ INDE   -10    0    1 FOBS=   939.100     0.000 FCALC=    89.189   180.000
+ INDE   -10    1    1 FOBS=  1172.200     0.000 FCALC=   109.380   242.674
+ INDE   -10    2    1 FOBS=  1299.900     0.000 FCALC=   159.695   345.207
+ INDE   -10    3    1 FOBS=   945.200     0.000 FCALC=    79.201    16.585
+ INDE   -10    4    1 FOBS=  2191.800     0.000 FCALC=   168.842   184.518
+ INDE    -9    0    1 FOBS=  1600.400     0.000 FCALC=   182.829   180.000
+ INDE    -9    1    1 FOBS=  1171.400     0.000 FCALC=   176.841   252.097
+ INDE    -9    2    1 FOBS=  1176.100     0.000 FCALC=   139.817   117.151
+ INDE    -9    3    1 FOBS=  1309.400     0.000 FCALC=    89.073   135.990
+ INDE    -9    4    1 FOBS=   662.400     0.000 FCALC=    90.121   157.718
+ INDE    -8    0    1 FOBS=  1478.300     0.000 FCALC=   168.119     0.000
+ INDE    -8    1    1 FOBS=  1028.800     0.000 FCALC=   110.269    29.923
+ INDE    -8    2    1 FOBS=  1900.800     0.000 FCALC=   139.792   160.136
+ INDE    -8    3    1 FOBS=   747.700     0.000 FCALC=    87.357    43.055
+ INDE    -8    4    1 FOBS=  1228.200     0.000 FCALC=   123.787   138.527
+ INDE    -7    0    1 FOBS=   129.500     0.000 FCALC=    88.084     0.000
+ INDE    -7    1    1 FOBS=  1752.500     0.000 FCALC=   217.861   181.463
+ INDE    -7    2    1 FOBS=  1610.700     0.000 FCALC=   145.012   332.632
+ INDE    -7    3    1 FOBS=  1536.500     0.000 FCALC=   122.175    25.930
+ INDE    -7    4    1 FOBS=  1058.400     0.000 FCALC=    76.450   151.959
+ INDE    -7    5    1 FOBS=   936.500     0.000 FCALC=    70.440   303.101
+ INDE    -6    0    1 FOBS=  1213.400     0.000 FCALC=    19.948   180.000
+ INDE    -6    1    1 FOBS=   650.000     0.000 FCALC=    32.076   280.324
+ INDE    -6    2    1 FOBS=   509.700     0.000 FCALC=   126.922   137.727
+ INDE    -6    3    1 FOBS=  1464.900     0.000 FCALC=   113.151    66.362
+ INDE    -6    4    1 FOBS=  3470.000     0.000 FCALC=   292.201   283.219
+ INDE    -6    5    1 FOBS=  1768.100     0.000 FCALC=   156.728     4.248
+ INDE    -5    0    1 FOBS=  2232.700     0.000 FCALC=   213.675   180.000
+ INDE    -5    1    1 FOBS=   529.200     0.000 FCALC=    76.437    23.630
+ INDE    -5    2    1 FOBS=   500.800     0.000 FCALC=    32.268   246.143
+ INDE    -5    3    1 FOBS=   566.600     0.000 FCALC=   108.095   237.657
+ INDE    -5    4    1 FOBS=   491.200     0.000 FCALC=    44.007   316.882
+ INDE    -5    5    1 FOBS=  2361.000     0.000 FCALC=   165.394   100.648
+ INDE    -4    0    1 FOBS=  1760.600     0.000 FCALC=   216.747   180.000
+ INDE    -4    1    1 FOBS=   494.600     0.000 FCALC=   107.133   271.955
+ INDE    -4    2    1 FOBS=   679.800     0.000 FCALC=    67.182    11.895
+ INDE    -4    3    1 FOBS=   689.300     0.000 FCALC=   108.846   235.061
+ INDE    -4    4    1 FOBS=  1957.600     0.000 FCALC=   157.956   160.894
+ INDE    -4    5    1 FOBS=  1854.900     0.000 FCALC=   191.260    59.314
+ INDE    -3    1    1 FOBS=   736.100     0.000 FCALC=   128.004   324.854
+ INDE    -3    2    1 FOBS=  1313.800     0.000 FCALC=   221.685    84.191
+ INDE    -3    3    1 FOBS=  1317.100     0.000 FCALC=   195.380     1.866
+ INDE    -3    4    1 FOBS=   879.500     0.000 FCALC=    90.801   307.420
+ INDE    -3    5    1 FOBS=   297.400     0.000 FCALC=    33.835    29.518
+ INDE    -3    6    1 FOBS=  1261.500     0.000 FCALC=   143.073   258.427
+ INDE    -2    2    1 FOBS=   821.700     0.000 FCALC=   116.822   189.788
+ INDE    -2    3    1 FOBS=   706.600     0.000 FCALC=    76.863   175.548
+ INDE    -2    4    1 FOBS=  1722.600     0.000 FCALC=   147.932    15.769
+ INDE    -2    5    1 FOBS=  1012.500     0.000 FCALC=    44.767   246.996
+ INDE    -2    6    1 FOBS=  2152.000     0.000 FCALC=   172.978   269.520
+ INDE    -1    2    1 FOBS=  1263.000     0.000 FCALC=   211.968   205.271
+ INDE    -1    3    1 FOBS=   526.700     0.000 FCALC=   114.256   276.442
+ INDE    -1    4    1 FOBS=   919.000     0.000 FCALC=   138.079   216.108
+ INDE    -1    5    1 FOBS=  1690.900     0.000 FCALC=   131.058   132.075
+ INDE    -1    6    1 FOBS=   818.700     0.000 FCALC=   109.306    78.414
+ INDE     0    2    1 FOBS=  1514.800     0.000 FCALC=   188.577   299.082
+ INDE     0    3    1 FOBS=  1339.500     0.000 FCALC=   135.667   284.368
+ INDE     0    4    1 FOBS=   499.600     0.000 FCALC=    15.383    86.759
+ INDE     0    5    1 FOBS=   429.500     0.000 FCALC=    68.843   304.761
+ INDE     0    6    1 FOBS=  1595.500     0.000 FCALC=   152.770    60.132
+ INDE     1    2    1 FOBS=   631.300     0.000 FCALC=   102.167   207.371
+ INDE     1    3    1 FOBS=  1056.700     0.000 FCALC=   163.216   215.142
+ INDE     1    4    1 FOBS=   792.400     0.000 FCALC=   147.989    47.574
+ INDE     1    5    1 FOBS=  1294.500     0.000 FCALC=    82.884    13.603
+ INDE     1    6    1 FOBS=   834.100     0.000 FCALC=    58.648    29.172
+ INDE     2    2    1 FOBS=  2527.600     0.000 FCALC=   409.523   311.089
+ INDE     2    3    1 FOBS=   476.800     0.000 FCALC=    52.073    26.249
+ INDE     2    4    1 FOBS=  1852.000     0.000 FCALC=    94.423    61.774
+ INDE     2    5    1 FOBS=   542.300     0.000 FCALC=    48.593    18.982
+ INDE     2    6    1 FOBS=   503.100     0.000 FCALC=    36.245   136.719
+ INDE     3    1    1 FOBS=   591.500     0.000 FCALC=   107.621   281.700
+ INDE     3    2    1 FOBS=   456.700     0.000 FCALC=   130.980   110.405
+ INDE     3    3    1 FOBS=  1053.900     0.000 FCALC=    72.791   233.841
+ INDE     3    4    1 FOBS=   191.400     0.000 FCALC=    71.265   209.435
+ INDE     3    5    1 FOBS=  1571.100     0.000 FCALC=    98.016   211.584
+ INDE     3    6    1 FOBS=   660.800     0.000 FCALC=    59.177   270.904
+ INDE     4    0    1 FOBS=  2852.600     0.000 FCALC=   260.355   180.000
+ INDE     4    1    1 FOBS=  1118.100     0.000 FCALC=    34.597   207.892
+ INDE     4    2    1 FOBS=  1948.000     0.000 FCALC=   197.228     8.694
+ INDE     4    3    1 FOBS=   487.000     0.000 FCALC=    94.367   272.320
+ INDE     4    4    1 FOBS=   847.500     0.000 FCALC=    72.672   241.113
+ INDE     4    5    1 FOBS=  2328.700     0.000 FCALC=   137.788   124.190
+ INDE     5    0    1 FOBS=  1011.300     0.000 FCALC=   156.860   180.000
+ INDE     5    1    1 FOBS=  1758.500     0.000 FCALC=   151.975   211.329
+ INDE     5    2    1 FOBS=   960.200     0.000 FCALC=   148.284   285.710
+ INDE     5    3    1 FOBS=   258.600     0.000 FCALC=    61.141   106.140
+ INDE     5    4    1 FOBS=   174.200     0.000 FCALC=    33.711   275.542
+ INDE     5    5    1 FOBS=  1007.100     0.000 FCALC=    87.096   265.541
+ INDE     6    0    1 FOBS=  1013.700     0.000 FCALC=   107.653   180.000
+ INDE     6    1    1 FOBS=   629.900     0.000 FCALC=    95.527   242.713
+ INDE     6    2    1 FOBS=  2505.700     0.000 FCALC=   216.692   286.573
+ INDE     6    3    1 FOBS=   823.500     0.000 FCALC=    91.331   200.043
+ INDE     6    4    1 FOBS=  1438.100     0.000 FCALC=    97.922   104.935
+ INDE     6    5    1 FOBS=  1128.600     0.000 FCALC=    87.802    29.462
+ INDE     7    0    1 FOBS=  1494.800     0.000 FCALC=   144.194   180.000
+ INDE     7    1    1 FOBS=   744.100     0.000 FCALC=    72.416    29.113
+ INDE     7    2    1 FOBS=  1240.400     0.000 FCALC=   143.274   154.553
+ INDE     7    3    1 FOBS=  1713.000     0.000 FCALC=   165.839   186.784
+ INDE     7    4    1 FOBS=   773.000     0.000 FCALC=    80.771   192.850
+ INDE     7    5    1 FOBS=  1304.400     0.000 FCALC=    82.306   297.493
+ INDE     8    0    1 FOBS=  1798.700     0.000 FCALC=   137.938   180.000
+ INDE     8    1    1 FOBS=   208.200     0.000 FCALC=    62.321    36.472
+ INDE     8    2    1 FOBS=  1612.500     0.000 FCALC=   155.652    50.212
+ INDE     8    3    1 FOBS=  1815.900     0.000 FCALC=   133.870    22.114
+ INDE     8    4    1 FOBS=  1949.700     0.000 FCALC=   117.209    73.417
+ INDE     9    0    1 FOBS=   862.100     0.000 FCALC=     6.709     0.000
+ INDE     9    1    1 FOBS=   755.200     0.000 FCALC=    57.403   251.484
+ INDE     9    2    1 FOBS=  1677.300     0.000 FCALC=   142.462   324.933
+ INDE     9    3    1 FOBS=  1259.300     0.000 FCALC=   149.338     6.190
+ INDE     9    4    1 FOBS=   884.400     0.000 FCALC=    79.776   324.587
+ INDE    10    0    1 FOBS=  1000.100     0.000 FCALC=    36.599     0.000
+ INDE    10    1    1 FOBS=  1575.400     0.000 FCALC=   194.361   339.991
+ INDE    10    2    1 FOBS=  1563.200     0.000 FCALC=    88.371   183.647
+ INDE    10    3    1 FOBS=   614.100     0.000 FCALC=    50.601     6.927
+ INDE    10    4    1 FOBS=   293.300     0.000 FCALC=    42.100   340.079
+ INDE    11    0    1 FOBS=   417.800     0.000 FCALC=    33.045     0.000
+ INDE    11    1    1 FOBS=  1373.100     0.000 FCALC=   125.404   289.527
+ INDE    11    2    1 FOBS=  2590.000     0.000 FCALC=   182.501   242.387
+ INDE    11    3    1 FOBS=  1284.600     0.000 FCALC=    24.680   330.721
+ INDE    12    0    1 FOBS=  1816.600     0.000 FCALC=    95.221   180.000
+ INDE    12    1    1 FOBS=  2824.600     0.000 FCALC=   195.980   149.597
+ INDE    12    2    1 FOBS=   828.100     0.000 FCALC=    45.132   210.588
+ INDE    13    0    1 FOBS=   105.700     0.000 FCALC=    15.165   180.000
+ INDE    13    1    1 FOBS=   647.600     0.000 FCALC=    31.364   103.029
+ INDE   -13    0    2 FOBS=   312.800     0.000 FCALC=    89.810     0.000
+ INDE   -13    1    2 FOBS=  2259.600     0.000 FCALC=   195.320   181.610
+ INDE   -12    0    2 FOBS=   469.700     0.000 FCALC=    23.009   180.000
+ INDE   -12    1    2 FOBS=   375.900     0.000 FCALC=     9.390    57.350
+ INDE   -12    2    2 FOBS=   537.600     0.000 FCALC=    56.277   311.452
+ INDE   -11    0    2 FOBS=   176.200     0.000 FCALC=    16.000   180.000
+ INDE   -11    1    2 FOBS=  1488.000     0.000 FCALC=   141.533   230.143
+ INDE   -11    2    2 FOBS=  2411.700     0.000 FCALC=   197.762   348.848
+ INDE   -11    3    2 FOBS=   864.000     0.000 FCALC=    77.792   103.753
+ INDE   -10    0    2 FOBS=  1885.800     0.000 FCALC=   120.148   180.000
+ INDE   -10    1    2 FOBS=   986.800     0.000 FCALC=   119.014   333.875
+ INDE   -10    2    2 FOBS=  1601.300     0.000 FCALC=   112.660    47.211
+ INDE   -10    3    2 FOBS=   747.000     0.000 FCALC=    59.555   103.577
+ INDE    -9    0    2 FOBS=  1925.400     0.000 FCALC=   161.418   180.000
+ INDE    -9    1    2 FOBS=   458.000     0.000 FCALC=    51.543   222.426
+ INDE    -9    2    2 FOBS=  1403.500     0.000 FCALC=   163.316   292.950
+ INDE    -9    3    2 FOBS=   693.300     0.000 FCALC=    44.399   287.948
+ INDE    -9    4    2 FOBS=   194.600     0.000 FCALC=    54.884    73.053
+ INDE    -8    0    2 FOBS=  1991.000     0.000 FCALC=   289.327   180.000
+ INDE    -8    1    2 FOBS=   606.400     0.000 FCALC=    69.211    92.495
+ INDE    -8    2    2 FOBS=   476.900     0.000 FCALC=    82.482   262.794
+ INDE    -8    3    2 FOBS=   627.500     0.000 FCALC=    53.192    12.855
+ INDE    -8    4    2 FOBS=  1467.400     0.000 FCALC=   121.375   293.020
+ INDE    -7    0    2 FOBS=    70.400     0.000 FCALC=    13.640   180.000
+ INDE    -7    1    2 FOBS=   888.000     0.000 FCALC=   106.117   350.045
+ INDE    -7    2    2 FOBS=   400.400     0.000 FCALC=    17.659    45.411
+ INDE    -7    3    2 FOBS=  1710.800     0.000 FCALC=   156.344   353.571
+ INDE    -7    4    2 FOBS=  1170.600     0.000 FCALC=   134.721   270.458
+ INDE    -7    5    2 FOBS=   806.300     0.000 FCALC=    83.843   201.038
+ INDE    -6    0    2 FOBS=   637.600     0.000 FCALC=     1.499     0.000
+ INDE    -6    1    2 FOBS=   553.100     0.000 FCALC=   112.617   246.209
+ INDE    -6    2    2 FOBS=  1726.900     0.000 FCALC=   236.446   221.036
+ INDE    -6    3    2 FOBS=  2810.200     0.000 FCALC=   286.106   330.942
+ INDE    -6    4    2 FOBS=  1427.300     0.000 FCALC=   118.850    83.717
+ INDE    -6    5    2 FOBS=   560.500     0.000 FCALC=    41.963   103.194
+ INDE    -5    0    2 FOBS=   654.700     0.000 FCALC=   233.365     0.000
+ INDE    -5    1    2 FOBS=  1437.700     0.000 FCALC=   189.286   116.801
+ INDE    -5    2    2 FOBS=  1228.300     0.000 FCALC=   112.678   148.706
+ INDE    -5    3    2 FOBS=  1719.400     0.000 FCALC=   169.288   132.326
+ INDE    -5    4    2 FOBS=   756.000     0.000 FCALC=    79.976   314.708
+ INDE    -5    5    2 FOBS=  1340.000     0.000 FCALC=   103.694   341.623
+ INDE    -4    0    2 FOBS=   883.600     0.000 FCALC=   143.913   180.000
+ INDE    -4    1    2 FOBS=   734.900     0.000 FCALC=   180.457    38.970
+ INDE    -4    2    2 FOBS=   964.200     0.000 FCALC=   126.108     2.936
+ INDE    -4    3    2 FOBS=  1433.200     0.000 FCALC=   156.632    50.004
+ INDE    -4    4    2 FOBS=   640.400     0.000 FCALC=    72.926   303.698
+ INDE    -4    5    2 FOBS=   636.600     0.000 FCALC=    45.452   224.220
+ INDE    -3    0    2 FOBS=  1303.800     0.000 FCALC=   355.078   180.000
+ INDE    -3    1    2 FOBS=   786.400     0.000 FCALC=   125.344   352.466
+ INDE    -3    2    2 FOBS=  1415.500     0.000 FCALC=   176.976   245.084
+ INDE    -3    3    2 FOBS=  1914.700     0.000 FCALC=   215.040   127.289
+ INDE    -3    4    2 FOBS=   742.200     0.000 FCALC=    35.657    34.754
+ INDE    -3    5    2 FOBS=  2274.600     0.000 FCALC=   199.526   229.670
+ INDE    -2    0    2 FOBS=  1808.300     0.000 FCALC=   344.247   180.000
+ INDE    -2    1    2 FOBS=   491.000     0.000 FCALC=    98.932   202.326
+ INDE    -2    2    2 FOBS=   956.500     0.000 FCALC=    70.273   297.989
+ INDE    -2    3    2 FOBS=  1134.400     0.000 FCALC=    98.854   119.372
+ INDE    -2    4    2 FOBS=  2572.800     0.000 FCALC=   202.894   154.972
+ INDE    -2    5    2 FOBS=   539.800     0.000 FCALC=    74.063   165.577
+ INDE    -1    1    2 FOBS=  1822.600     0.000 FCALC=   160.568    70.847
+ INDE    -1    2    2 FOBS=   532.400     0.000 FCALC=    30.318   316.583
+ INDE    -1    3    2 FOBS=   404.400     0.000 FCALC=   100.561   280.907
+ INDE    -1    4    2 FOBS=  1128.700     0.000 FCALC=   138.678   227.299
+ INDE    -1    5    2 FOBS=   772.900     0.000 FCALC=    71.448    75.963
+ INDE     0    1    2 FOBS=  1588.800     0.000 FCALC=   256.512   141.280
+ INDE     0    2    2 FOBS=  1027.300     0.000 FCALC=   177.317   114.435
+ INDE     0    3    2 FOBS=  1956.100     0.000 FCALC=   191.437   182.794
+ INDE     0    4    2 FOBS=   591.400     0.000 FCALC=    77.931   280.012
+ INDE     0    5    2 FOBS=  2100.500     0.000 FCALC=   172.844   251.493
+ INDE     1    1    2 FOBS=   266.700     0.000 FCALC=    31.221    87.079
+ INDE     1    2    2 FOBS=   942.100     0.000 FCALC=   138.940    33.395
+ INDE     1    3    2 FOBS=  1611.800     0.000 FCALC=    85.609   198.498
+ INDE     1    4    2 FOBS=   737.500     0.000 FCALC=    10.768   200.962
+ INDE     1    5    2 FOBS=  1643.500     0.000 FCALC=   152.996   234.317
+ INDE     2    0    2 FOBS=   615.600     0.000 FCALC=   127.648   180.000
+ INDE     2    1    2 FOBS=  1950.100     0.000 FCALC=   199.292   357.390
+ INDE     2    2    2 FOBS=  1015.900     0.000 FCALC=   129.388   146.735
+ INDE     2    3    2 FOBS=  1231.700     0.000 FCALC=   208.494   145.680
+ INDE     2    4    2 FOBS=  1369.200     0.000 FCALC=   164.077    14.458
+ INDE     2    5    2 FOBS=  1026.500     0.000 FCALC=    90.003   345.403
+ INDE     3    0    2 FOBS=  1682.300     0.000 FCALC=    59.241   180.000
+ INDE     3    1    2 FOBS=  2135.600     0.000 FCALC=   237.879   189.357
+ INDE     3    2    2 FOBS=  1399.800     0.000 FCALC=   116.238     5.725
+ INDE     3    3    2 FOBS=   971.700     0.000 FCALC=   102.334   243.317
+ INDE     3    4    2 FOBS=  1091.500     0.000 FCALC=   110.133    36.088
+ INDE     3    5    2 FOBS=   608.800     0.000 FCALC=    81.461    73.173
+ INDE     4    0    2 FOBS=  1994.700     0.000 FCALC=   222.502     0.000
+ INDE     4    1    2 FOBS=   484.200     0.000 FCALC=    30.348   200.480
+ INDE     4    2    2 FOBS=  1029.900     0.000 FCALC=   165.660   159.225
+ INDE     4    3    2 FOBS=   865.700     0.000 FCALC=   106.844   152.203
+ INDE     4    4    2 FOBS=  1582.100     0.000 FCALC=    94.227   353.486
+ INDE     4    5    2 FOBS=   272.200     0.000 FCALC=    26.533   350.274
+ INDE     5    0    2 FOBS=  1047.400     0.000 FCALC=   127.207   180.000
+ INDE     5    1    2 FOBS=  1467.300     0.000 FCALC=   174.313   267.006
+ INDE     5    2    2 FOBS=  1532.400     0.000 FCALC=   132.360   245.086
+ INDE     5    3    2 FOBS=  2309.200     0.000 FCALC=   246.425   259.304
+ INDE     5    4    2 FOBS=   304.700     0.000 FCALC=     4.513    16.536
+ INDE     5    5    2 FOBS=  1954.200     0.000 FCALC=   141.304    46.314
+ INDE     6    0    2 FOBS=   329.700     0.000 FCALC=    68.740     0.000
+ INDE     6    1    2 FOBS=   298.500     0.000 FCALC=    31.005   159.173
+ INDE     6    2    2 FOBS=  2326.400     0.000 FCALC=   178.633   157.235
+ INDE     6    3    2 FOBS=  1259.000     0.000 FCALC=   146.798   307.497
+ INDE     6    4    2 FOBS=  2273.600     0.000 FCALC=   194.854   244.106
+ INDE     6    5    2 FOBS=    68.700     0.000 FCALC=    63.067   205.967
+ INDE     7    0    2 FOBS=   738.900     0.000 FCALC=    21.685   180.000
+ INDE     7    1    2 FOBS=   811.800     0.000 FCALC=    91.023   346.811
+ INDE     7    2    2 FOBS=  1487.800     0.000 FCALC=   135.531   277.574
+ INDE     7    3    2 FOBS=   998.900     0.000 FCALC=    75.415   270.321
+ INDE     7    4    2 FOBS=  1170.600     0.000 FCALC=    95.006   121.632
+ INDE     7    5    2 FOBS=   343.100     0.000 FCALC=    54.141   161.214
+ INDE     8    0    2 FOBS=  1095.900     0.000 FCALC=   152.061     0.000
+ INDE     8    1    2 FOBS=   295.000     0.000 FCALC=    38.049   255.302
+ INDE     8    2    2 FOBS=   764.500     0.000 FCALC=    74.411   138.262
+ INDE     8    3    2 FOBS=   977.600     0.000 FCALC=    76.906   327.084
+ INDE     8    4    2 FOBS=  1232.200     0.000 FCALC=    74.102   146.391
+ INDE     9    0    2 FOBS=  2102.100     0.000 FCALC=   120.218   180.000
+ INDE     9    1    2 FOBS=  1199.600     0.000 FCALC=   149.391   117.757
+ INDE     9    2    2 FOBS=  2025.300     0.000 FCALC=   175.142   239.111
+ INDE     9    3    2 FOBS=  2295.200     0.000 FCALC=   163.924   345.438
+ INDE     9    4    2 FOBS=  2121.200     0.000 FCALC=   150.973    48.164
+ INDE    10    0    2 FOBS=  2153.000     0.000 FCALC=   114.279     0.000
+ INDE    10    1    2 FOBS=   908.400     0.000 FCALC=    82.237   141.572
+ INDE    10    2    2 FOBS=  2391.700     0.000 FCALC=   162.170    97.899
+ INDE    10    3    2 FOBS=  1098.900     0.000 FCALC=    91.107    48.806
+ INDE    11    0    2 FOBS=  1086.400     0.000 FCALC=    90.276     0.000
+ INDE    11    1    2 FOBS=  1744.700     0.000 FCALC=    80.245    50.756
+ INDE    11    2    2 FOBS=   376.400     0.000 FCALC=    40.431   342.762
+ INDE    11    3    2 FOBS=  1426.200     0.000 FCALC=    86.986   112.521
+ INDE    12    0    2 FOBS=  1724.400     0.000 FCALC=   244.119     0.000
+ INDE    12    1    2 FOBS=   853.600     0.000 FCALC=    57.531    10.555
+ INDE    12    2    2 FOBS=  1490.100     0.000 FCALC=   155.907   163.656
+ INDE    13    0    2 FOBS=   444.000     0.000 FCALC=    19.608     0.000
+ INDE   -12    0    3 FOBS=   249.100     0.000 FCALC=    10.745   180.000
+ INDE   -12    1    3 FOBS=   471.700     0.000 FCALC=    43.921   196.229
+ INDE   -11    0    3 FOBS=   429.900     0.000 FCALC=    19.649     0.000
+ INDE   -11    1    3 FOBS=  1460.900     0.000 FCALC=   149.061    52.010
+ INDE   -11    2    3 FOBS=   738.600     0.000 FCALC=    73.179   271.057
+ INDE   -10    0    3 FOBS=   783.000     0.000 FCALC=    39.834   180.000
+ INDE   -10    1    3 FOBS=  1263.000     0.000 FCALC=    78.337   263.415
+ INDE   -10    2    3 FOBS=   977.200     0.000 FCALC=    88.578   239.835
+ INDE   -10    3    3 FOBS=   779.300     0.000 FCALC=    74.278     3.465
+ INDE    -9    0    3 FOBS=  1875.100     0.000 FCALC=   180.208   180.000
+ INDE    -9    1    3 FOBS=  1556.400     0.000 FCALC=    94.860   276.382
+ INDE    -9    2    3 FOBS=  1871.700     0.000 FCALC=   182.194   302.350
+ INDE    -9    3    3 FOBS=  1112.000     0.000 FCALC=    54.942   225.512
+ INDE    -8    0    3 FOBS=   946.800     0.000 FCALC=    87.611   180.000
+ INDE    -8    1    3 FOBS=  1888.100     0.000 FCALC=   204.715   222.133
+ INDE    -8    2    3 FOBS=  1481.100     0.000 FCALC=   148.847    42.068
+ INDE    -8    3    3 FOBS=  1016.100     0.000 FCALC=    88.023   283.004
+ INDE    -8    4    3 FOBS=  1097.500     0.000 FCALC=   125.469    78.407
+ INDE    -7    0    3 FOBS=  1500.000     0.000 FCALC=   164.843   180.000
+ INDE    -7    1    3 FOBS=   800.200     0.000 FCALC=    47.153    94.024
+ INDE    -7    2    3 FOBS=  1273.700     0.000 FCALC=   149.285   120.810
+ INDE    -7    3    3 FOBS=   812.300     0.000 FCALC=    57.253   358.729
+ INDE    -7    4    3 FOBS=  2237.400     0.000 FCALC=   216.344    22.729
+ INDE    -6    0    3 FOBS=   407.100     0.000 FCALC=   103.667     0.000
+ INDE    -6    1    3 FOBS=  1812.900     0.000 FCALC=   229.295   120.395
+ INDE    -6    2    3 FOBS=  1887.500     0.000 FCALC=   205.051    76.823
+ INDE    -6    3    3 FOBS=  1660.600     0.000 FCALC=   136.280   101.968
+ INDE    -6    4    3 FOBS=   828.100     0.000 FCALC=    79.288   243.144
+ INDE    -6    5    3 FOBS=  1068.000     0.000 FCALC=   122.553   289.908
+ INDE    -5    0    3 FOBS=  1560.600     0.000 FCALC=   226.856     0.000
+ INDE    -5    1    3 FOBS=   868.500     0.000 FCALC=   122.061    93.131
+ INDE    -5    2    3 FOBS=  1440.300     0.000 FCALC=   179.126   220.189
+ INDE    -5    3    3 FOBS=   168.500     0.000 FCALC=     2.490    54.628
+ INDE    -5    4    3 FOBS=  1154.000     0.000 FCALC=    84.039    64.889
+ INDE    -5    5    3 FOBS=   828.600     0.000 FCALC=    42.780   219.699
+ INDE    -4    0    3 FOBS=  2185.400     0.000 FCALC=   291.698     0.000
+ INDE    -4    1    3 FOBS=  1244.300     0.000 FCALC=    83.188   115.312
+ INDE    -4    2    3 FOBS=  2131.300     0.000 FCALC=   306.705   125.735
+ INDE    -4    3    3 FOBS=  2159.100     0.000 FCALC=   150.491   164.996
+ INDE    -4    4    3 FOBS=   263.300     0.000 FCALC=    48.915    34.920
+ INDE    -4    5    3 FOBS=   955.100     0.000 FCALC=   105.762   262.100
+ INDE    -3    0    3 FOBS=   989.300     0.000 FCALC=   215.905     0.000
+ INDE    -3    1    3 FOBS=     0.000     0.000 FCALC=    67.501    18.561
+ INDE    -3    2    3 FOBS=   693.800     0.000 FCALC=    72.461    38.422
+ INDE    -3    3    3 FOBS=  2555.300     0.000 FCALC=   254.241    89.770
+ INDE    -3    4    3 FOBS=   107.100     0.000 FCALC=    35.603   226.874
+ INDE    -3    5    3 FOBS=   512.200     0.000 FCALC=    71.460   178.227
+ INDE    -2    0    3 FOBS=   990.200     0.000 FCALC=   136.038     0.000
+ INDE    -2    1    3 FOBS=  1265.700     0.000 FCALC=   169.937   177.887
+ INDE    -2    2    3 FOBS=  1210.700     0.000 FCALC=   184.442   300.293
+ INDE    -2    3    3 FOBS=   784.700     0.000 FCALC=    54.158   358.849
+ INDE    -2    4    3 FOBS=  1141.700     0.000 FCALC=    76.857   123.164
+ INDE    -2    5    3 FOBS=   943.700     0.000 FCALC=   181.559   268.921
+ INDE    -1    0    3 FOBS=   733.100     0.000 FCALC=   101.526     0.000
+ INDE    -1    1    3 FOBS=   436.500     0.000 FCALC=    69.483    47.835
+ INDE    -1    2    3 FOBS=   849.500     0.000 FCALC=    83.884   180.299
+ INDE    -1    3    3 FOBS=  1387.600     0.000 FCALC=   175.367   329.953
+ INDE    -1    4    3 FOBS=   886.300     0.000 FCALC=    57.122   270.054
+ INDE    -1    5    3 FOBS=  1541.000     0.000 FCALC=    94.509   244.687
+ INDE     0    0    3 FOBS=  1029.500     0.000 FCALC=   167.784     0.000
+ INDE     0    1    3 FOBS=  1389.600     0.000 FCALC=   134.563   266.663
+ INDE     0    2    3 FOBS=  1950.200     0.000 FCALC=   210.979   255.333
+ INDE     0    3    3 FOBS=  1088.600     0.000 FCALC=   137.462   311.368
+ INDE     0    4    3 FOBS=  1231.000     0.000 FCALC=   102.525   324.057
+ INDE     0    5    3 FOBS=  1890.100     0.000 FCALC=   201.267    83.236
+ INDE     1    0    3 FOBS=    70.300     0.000 FCALC=     7.279     0.000
+ INDE     1    1    3 FOBS=   900.400     0.000 FCALC=   131.552   113.246
+ INDE     1    2    3 FOBS=   395.400     0.000 FCALC=    76.250    29.831
+ INDE     1    3    3 FOBS=  1387.200     0.000 FCALC=   109.594   175.969
+ INDE     1    4    3 FOBS=  1074.000     0.000 FCALC=    33.274     3.262
+ INDE     1    5    3 FOBS=  1665.200     0.000 FCALC=   165.411   346.965
+ INDE     2    0    3 FOBS=  2726.900     0.000 FCALC=   275.860   180.000
+ INDE     2    1    3 FOBS=   975.500     0.000 FCALC=    87.250   204.190
+ INDE     2    2    3 FOBS=   530.200     0.000 FCALC=    62.687    75.949
+ INDE     2    3    3 FOBS=  2006.800     0.000 FCALC=   141.312   228.691
+ INDE     2    4    3 FOBS=  2809.100     0.000 FCALC=   280.996   149.114
+ INDE     2    5    3 FOBS=   891.800     0.000 FCALC=    80.571   311.739
+ INDE     3    0    3 FOBS=   827.000     0.000 FCALC=   111.970     0.000
+ INDE     3    1    3 FOBS=  1024.000     0.000 FCALC=   180.168   124.763
+ INDE     3    2    3 FOBS=  1615.000     0.000 FCALC=   166.503   137.000
+ INDE     3    3    3 FOBS=  1781.600     0.000 FCALC=   157.802   201.260
+ INDE     3    4    3 FOBS=  1588.200     0.000 FCALC=   121.736   218.782
+ INDE     3    5    3 FOBS=  1990.300     0.000 FCALC=   127.439     6.517
+ INDE     4    0    3 FOBS=     0.000     0.000 FCALC=    51.500     0.000
+ INDE     4    1    3 FOBS=   638.200     0.000 FCALC=    67.727   168.566
+ INDE     4    2    3 FOBS=  2391.200     0.000 FCALC=   265.589   169.626
+ INDE     4    3    3 FOBS=  1687.700     0.000 FCALC=   181.815    97.017
+ INDE     4    4    3 FOBS=  1636.700     0.000 FCALC=    97.889   220.512
+ INDE     4    5    3 FOBS=  1506.400     0.000 FCALC=    86.759    55.207
+ INDE     5    0    3 FOBS=    45.400     0.000 FCALC=    34.945   180.000
+ INDE     5    1    3 FOBS=  2009.000     0.000 FCALC=   191.211    51.452
+ INDE     5    2    3 FOBS=  1342.200     0.000 FCALC=   141.463    18.691
+ INDE     5    3    3 FOBS=  1415.300     0.000 FCALC=   195.837   114.285
+ INDE     5    4    3 FOBS=   663.000     0.000 FCALC=    26.186   291.644
+ INDE     5    5    3 FOBS=  2053.500     0.000 FCALC=   155.380   141.781
+ INDE     6    0    3 FOBS=  1724.000     0.000 FCALC=   165.227   180.000
+ INDE     6    1    3 FOBS=  1042.200     0.000 FCALC=    88.164    92.836
+ INDE     6    2    3 FOBS=  2665.100     0.000 FCALC=   232.029    26.778
+ INDE     6    3    3 FOBS=  1784.600     0.000 FCALC=   154.161   329.811
+ INDE     6    4    3 FOBS=   706.500     0.000 FCALC=    58.589   118.392
+ INDE     7    0    3 FOBS=   996.600     0.000 FCALC=    80.401   180.000
+ INDE     7    1    3 FOBS=   956.600     0.000 FCALC=    90.587    12.200
+ INDE     7    2    3 FOBS=   707.300     0.000 FCALC=    56.985   103.230
+ INDE     7    3    3 FOBS=  3312.700     0.000 FCALC=   283.653   327.974
+ INDE     7    4    3 FOBS=  1729.500     0.000 FCALC=   154.614   249.694
+ INDE     8    0    3 FOBS=  2490.600     0.000 FCALC=   245.933   180.000
+ INDE     8    1    3 FOBS=  2048.400     0.000 FCALC=   167.772    48.109
+ INDE     8    2    3 FOBS=  1938.100     0.000 FCALC=   160.601   309.463
+ INDE     8    3    3 FOBS=  1360.500     0.000 FCALC=    91.329   205.484
+ INDE     8    4    3 FOBS=   910.100     0.000 FCALC=    81.948    48.902
+ INDE     9    0    3 FOBS=   395.600     0.000 FCALC=    94.292     0.000
+ INDE     9    1    3 FOBS=  2806.100     0.000 FCALC=   262.693   322.931
+ INDE     9    2    3 FOBS=  1497.200     0.000 FCALC=   201.844    98.730
+ INDE     9    3    3 FOBS=  1867.600     0.000 FCALC=   141.608   262.699
+ INDE    10    0    3 FOBS=   119.900     0.000 FCALC=    16.825     0.000
+ INDE    10    1    3 FOBS=  2126.700     0.000 FCALC=   193.780   331.166
+ INDE    10    2    3 FOBS=  2827.700     0.000 FCALC=   218.621   234.227
+ INDE    10    3    3 FOBS=  1330.800     0.000 FCALC=    93.766   117.120
+ INDE    11    0    3 FOBS=  2665.300     0.000 FCALC=   165.588     0.000
+ INDE    11    1    3 FOBS=  1217.700     0.000 FCALC=    59.489    27.100
+ INDE    11    2    3 FOBS=  1653.700     0.000 FCALC=   119.639   228.754
+ INDE    12    0    3 FOBS=  2055.500     0.000 FCALC=   201.096   180.000
+ INDE    12    1    3 FOBS=   368.300     0.000 FCALC=    30.438   304.598
+ INDE   -11    0    4 FOBS=   762.700     0.000 FCALC=    45.166     0.000
+ INDE   -11    1    4 FOBS=   331.700     0.000 FCALC=    54.527   318.107
+ INDE   -10    0    4 FOBS=   614.800     0.000 FCALC=    79.387     0.000
+ INDE   -10    1    4 FOBS=   125.300     0.000 FCALC=    14.120    66.073
+ INDE   -10    2    4 FOBS=   418.700     0.000 FCALC=    40.230   284.720
+ INDE    -9    0    4 FOBS=     0.000     0.000 FCALC=    21.102   180.000
+ INDE    -9    1    4 FOBS=   671.100     0.000 FCALC=    45.741   265.529
+ INDE    -9    2    4 FOBS=  1843.600     0.000 FCALC=   121.324    33.977
+ INDE    -9    3    4 FOBS=  1033.700     0.000 FCALC=   147.658    30.263
+ INDE    -8    0    4 FOBS=  1197.900     0.000 FCALC=    53.792   180.000
+ INDE    -8    1    4 FOBS=   700.500     0.000 FCALC=    78.288   211.669
+ INDE    -8    2    4 FOBS=   417.400     0.000 FCALC=    23.698    27.930
+ INDE    -8    3    4 FOBS=  1112.000     0.000 FCALC=    96.340   346.685
+ INDE    -7    0    4 FOBS=  2110.200     0.000 FCALC=   196.933     0.000
+ INDE    -7    1    4 FOBS=  2340.900     0.000 FCALC=   153.661   214.069
+ INDE    -7    2    4 FOBS=  1409.200     0.000 FCALC=   166.382    53.154
+ INDE    -7    3    4 FOBS=   339.200     0.000 FCALC=    68.713   161.271
+ INDE    -7    4    4 FOBS=  1873.400     0.000 FCALC=   204.179   207.528
+ INDE    -6    0    4 FOBS=  1347.500     0.000 FCALC=    70.081     0.000
+ INDE    -6    1    4 FOBS=  1488.100     0.000 FCALC=   125.499   271.849
+ INDE    -6    2    4 FOBS=   237.200     0.000 FCALC=    29.750   254.209
+ INDE    -6    3    4 FOBS=  1058.400     0.000 FCALC=    71.714   229.425
+ INDE    -6    4    4 FOBS=   859.800     0.000 FCALC=    77.491    26.849
+ INDE    -5    0    4 FOBS=  1335.300     0.000 FCALC=   239.482   180.000
+ INDE    -5    1    4 FOBS=   412.200     0.000 FCALC=    60.406   154.260
+ INDE    -5    2    4 FOBS=   999.900     0.000 FCALC=    74.001   101.967
+ INDE    -5    3    4 FOBS=   321.500     0.000 FCALC=    36.396   157.640
+ INDE    -5    4    4 FOBS=  1595.200     0.000 FCALC=   122.940   253.669
+ INDE    -4    0    4 FOBS=  2505.700     0.000 FCALC=   256.568     0.000
+ INDE    -4    1    4 FOBS=   983.000     0.000 FCALC=    81.957   319.251
+ INDE    -4    2    4 FOBS=  1144.500     0.000 FCALC=   172.173   253.488
+ INDE    -4    3    4 FOBS=  3779.000     0.000 FCALC=   325.060   108.222
+ INDE    -4    4    4 FOBS=  1050.700     0.000 FCALC=   116.353    59.261
+ INDE    -3    0    4 FOBS=  3225.300     0.000 FCALC=   306.153     0.000
+ INDE    -3    1    4 FOBS=   743.300     0.000 FCALC=   116.131   306.237
+ INDE    -3    2    4 FOBS=   548.100     0.000 FCALC=    92.710   353.470
+ INDE    -3    3    4 FOBS=  1002.900     0.000 FCALC=   169.161   111.237
+ INDE    -3    4    4 FOBS=  1827.900     0.000 FCALC=   131.345    54.943
+ INDE    -3    5    4 FOBS=  1827.300     0.000 FCALC=   122.962   279.772
+ INDE    -2    0    4 FOBS=  2909.600     0.000 FCALC=   458.796     0.000
+ INDE    -2    1    4 FOBS=  1058.100     0.000 FCALC=    73.943   336.129
+ INDE    -2    2    4 FOBS=  1376.300     0.000 FCALC=   109.242   145.985
+ INDE    -2    3    4 FOBS=  1947.500     0.000 FCALC=   126.845   282.291
+ INDE    -2    4    4 FOBS=  2395.600     0.000 FCALC=   194.683   320.749
+ INDE    -2    5    4 FOBS=   515.800     0.000 FCALC=    53.022   165.114
+ INDE    -1    0    4 FOBS=  1591.700     0.000 FCALC=   217.249   180.000
+ INDE    -1    1    4 FOBS=   537.900     0.000 FCALC=   104.263   101.164
+ INDE    -1    2    4 FOBS=  1512.500     0.000 FCALC=   158.585   254.626
+ INDE    -1    3    4 FOBS=  3141.400     0.000 FCALC=   293.721   248.331
+ INDE    -1    4    4 FOBS=   752.200     0.000 FCALC=    31.337   214.889
+ INDE    -1    5    4 FOBS=  1483.700     0.000 FCALC=   150.515   314.612
+ INDE     0    0    4 FOBS=   135.900     0.000 FCALC=    97.484   180.000
+ INDE     0    1    4 FOBS=  1926.400     0.000 FCALC=   209.107    77.195
+ INDE     0    2    4 FOBS=  1193.400     0.000 FCALC=   153.023   257.170
+ INDE     0    3    4 FOBS=  1577.100     0.000 FCALC=   187.511   258.837
+ INDE     0    4    4 FOBS=  3751.500     0.000 FCALC=   237.173   199.137
+ INDE     0    5    4 FOBS=  1881.300     0.000 FCALC=   139.567   325.889
+ INDE     1    0    4 FOBS=     0.000     0.000 FCALC=    45.192   180.000
+ INDE     1    1    4 FOBS=   552.400     0.000 FCALC=    86.260    26.175
+ INDE     1    2    4 FOBS=  2461.900     0.000 FCALC=   211.813   265.639
+ INDE     1    3    4 FOBS=   222.500     0.000 FCALC=     9.028   122.052
+ INDE     1    4    4 FOBS=   436.000     0.000 FCALC=    41.615   193.670
+ INDE     1    5    4 FOBS=   556.900     0.000 FCALC=    22.270   142.743
+ INDE     2    0    4 FOBS=  1788.300     0.000 FCALC=   122.562     0.000
+ INDE     2    1    4 FOBS=  1453.100     0.000 FCALC=   166.319   247.421
+ INDE     2    2    4 FOBS=  1370.800     0.000 FCALC=   148.767   293.087
+ INDE     2    3    4 FOBS=   988.900     0.000 FCALC=    98.119   251.631
+ INDE     2    4    4 FOBS=  1292.300     0.000 FCALC=   100.472     2.796
+ INDE     2    5    4 FOBS=   934.000     0.000 FCALC=    44.792   228.393
+ INDE     3    0    4 FOBS=  1924.900     0.000 FCALC=   208.393   180.000
+ INDE     3    1    4 FOBS=  1170.600     0.000 FCALC=   116.268   220.205
+ INDE     3    2    4 FOBS=   256.400     0.000 FCALC=    48.001    36.653
+ INDE     3    3    4 FOBS=  2796.000     0.000 FCALC=   222.879    59.921
+ INDE     3    4    4 FOBS=  1123.800     0.000 FCALC=   111.028   156.564
+ INDE     3    5    4 FOBS=   472.800     0.000 FCALC=    60.525   198.713
+ INDE     4    0    4 FOBS=  3870.900     0.000 FCALC=   416.407   180.000
+ INDE     4    1    4 FOBS=   428.900     0.000 FCALC=    16.589   331.662
+ INDE     4    2    4 FOBS=  1979.700     0.000 FCALC=   186.686     9.458
+ INDE     4    3    4 FOBS=  2142.200     0.000 FCALC=   231.422    38.250
+ INDE     4    4    4 FOBS=  2562.900     0.000 FCALC=   193.372   142.725
+ INDE     5    0    4 FOBS=   162.100     0.000 FCALC=    21.965   180.000
+ INDE     5    1    4 FOBS=  2431.600     0.000 FCALC=   263.289    91.220
+ INDE     5    2    4 FOBS=   939.700     0.000 FCALC=    26.530   124.478
+ INDE     5    3    4 FOBS=  2926.300     0.000 FCALC=   277.534    45.492
+ INDE     5    4    4 FOBS=  1907.400     0.000 FCALC=   164.270   212.414
+ INDE     6    0    4 FOBS=  2201.200     0.000 FCALC=   182.191     0.000
+ INDE     6    1    4 FOBS=  3470.000     0.000 FCALC=   356.926    50.270
+ INDE     6    2    4 FOBS=   814.200     0.000 FCALC=    33.750   323.700
+ INDE     6    3    4 FOBS=  2830.300     0.000 FCALC=   234.885   144.260
+ INDE     6    4    4 FOBS=  1304.300     0.000 FCALC=   110.795   290.116
+ INDE     7    0    4 FOBS=  2376.000     0.000 FCALC=   139.568     0.000
+ INDE     7    1    4 FOBS=   316.100     0.000 FCALC=    25.623   298.688
+ INDE     7    2    4 FOBS=  3922.700     0.000 FCALC=   271.992    51.182
+ INDE     7    3    4 FOBS=   991.200     0.000 FCALC=   104.058   186.432
+ INDE     7    4    4 FOBS=  2466.700     0.000 FCALC=   174.115     7.002
+ INDE     8    0    4 FOBS=     0.000     0.000 FCALC=    60.737   180.000
+ INDE     8    1    4 FOBS=  1653.900     0.000 FCALC=   128.821   307.683
+ INDE     8    2    4 FOBS=  2300.700     0.000 FCALC=   192.740   156.509
+ INDE     8    3    4 FOBS=  1011.300     0.000 FCALC=   147.487   313.517
+ INDE     9    0    4 FOBS=   321.500     0.000 FCALC=     1.483   180.000
+ INDE     9    1    4 FOBS=  1111.900     0.000 FCALC=   128.195    35.625
+ INDE     9    2    4 FOBS=   761.700     0.000 FCALC=    74.894   267.872
+ INDE     9    3    4 FOBS=  2539.500     0.000 FCALC=   182.991    99.346
+ INDE    10    0    4 FOBS=  2476.900     0.000 FCALC=   165.950     0.000
+ INDE    10    1    4 FOBS=  1159.300     0.000 FCALC=    80.963   167.836
+ INDE    10    2    4 FOBS=   501.500     0.000 FCALC=    23.112   304.417
+ INDE    11    0    4 FOBS=     0.000     0.000 FCALC=     6.800   180.000
+ INDE    11    1    4 FOBS=  1617.400     0.000 FCALC=   104.673   284.062
+ INDE   -10    0    5 FOBS=   287.900     0.000 FCALC=    13.707     0.000
+ INDE   -10    1    5 FOBS=    79.500     0.000 FCALC=    39.376   250.317
+ INDE    -9    0    5 FOBS=   321.900     0.000 FCALC=    24.457     0.000
+ INDE    -9    1    5 FOBS=   534.200     0.000 FCALC=    58.335   233.289
+ INDE    -9    2    5 FOBS=   789.900     0.000 FCALC=    33.181   199.033
+ INDE    -8    0    5 FOBS=   270.600     0.000 FCALC=    43.753   180.000
+ INDE    -8    1    5 FOBS=   393.100     0.000 FCALC=    55.674    17.985
+ INDE    -8    2    5 FOBS=  1348.000     0.000 FCALC=   121.769   294.379
+ INDE    -7    0    5 FOBS=   815.700     0.000 FCALC=    96.650   180.000
+ INDE    -7    1    5 FOBS=  1192.300     0.000 FCALC=    62.668   112.548
+ INDE    -7    2    5 FOBS=  2330.400     0.000 FCALC=   201.103   297.581
+ INDE    -7    3    5 FOBS=  1027.000     0.000 FCALC=   119.610   100.163
+ INDE    -6    0    5 FOBS=  1069.200     0.000 FCALC=    69.289   180.000
+ INDE    -6    1    5 FOBS=   802.800     0.000 FCALC=    82.520    11.529
+ INDE    -6    2    5 FOBS=  2489.400     0.000 FCALC=   166.938   310.522
+ INDE    -6    3    5 FOBS=   771.800     0.000 FCALC=    34.783   176.619
+ INDE    -5    0    5 FOBS=  2053.100     0.000 FCALC=   192.585     0.000
+ INDE    -5    1    5 FOBS=  1120.000     0.000 FCALC=   113.318   286.069
+ INDE    -5    2    5 FOBS=   868.200     0.000 FCALC=    98.822   297.638
+ INDE    -5    3    5 FOBS=   837.600     0.000 FCALC=    93.643    99.751
+ INDE    -5    4    5 FOBS=   942.600     0.000 FCALC=    86.401     4.598
+ INDE    -4    0    5 FOBS=  3209.900     0.000 FCALC=   231.830     0.000
+ INDE    -4    1    5 FOBS=   272.900     0.000 FCALC=    45.379    82.479
+ INDE    -4    2    5 FOBS=  1555.500     0.000 FCALC=   138.705    85.679
+ INDE    -4    3    5 FOBS=  2172.700     0.000 FCALC=   167.162   179.682
+ INDE    -4    4    5 FOBS=  1982.100     0.000 FCALC=   129.094   276.182
+ INDE    -3    0    5 FOBS=  1660.200     0.000 FCALC=   128.687     0.000
+ INDE    -3    1    5 FOBS=  1207.400     0.000 FCALC=   166.090   269.087
+ INDE    -3    2    5 FOBS=  1634.400     0.000 FCALC=   167.612   128.873
+ INDE    -3    3    5 FOBS=  1122.700     0.000 FCALC=   116.710   199.184
+ INDE    -3    4    5 FOBS=  1211.800     0.000 FCALC=    94.398   126.747
+ INDE    -2    0    5 FOBS=  3700.600     0.000 FCALC=   304.414   180.000
+ INDE    -2    1    5 FOBS=   392.500     0.000 FCALC=    27.970   207.680
+ INDE    -2    2    5 FOBS=  2617.800     0.000 FCALC=   228.827   242.973
+ INDE    -2    3    5 FOBS=   672.000     0.000 FCALC=    68.086   270.774
+ INDE    -2    4    5 FOBS=  2092.000     0.000 FCALC=   163.564    85.896
+ INDE    -1    0    5 FOBS=  1148.500     0.000 FCALC=   133.816     0.000
+ INDE    -1    1    5 FOBS=   794.800     0.000 FCALC=    99.689   132.293
+ INDE    -1    2    5 FOBS=  1240.700     0.000 FCALC=    76.060   189.216
+ INDE    -1    3    5 FOBS=  1830.100     0.000 FCALC=   160.566   293.976
+ INDE    -1    4    5 FOBS=  2002.600     0.000 FCALC=   120.131    49.365
+ INDE     0    0    5 FOBS=   442.800     0.000 FCALC=    16.140   180.000
+ INDE     0    1    5 FOBS=  2550.600     0.000 FCALC=   249.145   331.787
+ INDE     0    2    5 FOBS=  1352.800     0.000 FCALC=   113.925    64.476
+ INDE     0    3    5 FOBS=  1166.200     0.000 FCALC=    89.600    11.323
+ INDE     0    4    5 FOBS=  1034.800     0.000 FCALC=    71.282   285.850
+ INDE     1    0    5 FOBS=  2385.500     0.000 FCALC=   242.717   180.000
+ INDE     1    1    5 FOBS=   830.700     0.000 FCALC=   126.752   270.022
+ INDE     1    2    5 FOBS=  1769.200     0.000 FCALC=   150.241   285.145
+ INDE     1    3    5 FOBS=   392.500     0.000 FCALC=    16.213   178.560
+ INDE     1    4    5 FOBS=  1169.300     0.000 FCALC=    74.642   285.182
+ INDE     2    0    5 FOBS=   379.000     0.000 FCALC=    76.522     0.000
+ INDE     2    1    5 FOBS=  2232.700     0.000 FCALC=   218.974   179.237
+ INDE     2    2    5 FOBS=   345.900     0.000 FCALC=    13.276   131.781
+ INDE     2    3    5 FOBS=  1336.400     0.000 FCALC=    99.692   296.576
+ INDE     2    4    5 FOBS=   465.000     0.000 FCALC=    32.468   193.915
+ INDE     3    0    5 FOBS=   750.000     0.000 FCALC=    95.678   180.000
+ INDE     3    1    5 FOBS=   616.500     0.000 FCALC=    47.659   326.248
+ INDE     3    2    5 FOBS=  1374.600     0.000 FCALC=   138.347   178.555
+ INDE     3    3    5 FOBS=   363.400     0.000 FCALC=    41.993   307.849
+ INDE     3    4    5 FOBS=   692.700     0.000 FCALC=    78.447   135.356
+ INDE     4    0    5 FOBS=  3063.000     0.000 FCALC=   239.728     0.000
+ INDE     4    1    5 FOBS=  1946.200     0.000 FCALC=   110.276   133.843
+ INDE     4    2    5 FOBS=   500.900     0.000 FCALC=    43.112    78.878
+ INDE     4    3    5 FOBS=   433.100     0.000 FCALC=    57.881     0.575
+ INDE     4    4    5 FOBS=   650.200     0.000 FCALC=    77.711   208.094
+ INDE     5    0    5 FOBS=  3275.800     0.000 FCALC=   325.638     0.000
+ INDE     5    1    5 FOBS=   367.400     0.000 FCALC=    61.285    81.398
+ INDE     5    2    5 FOBS=  1163.300     0.000 FCALC=   112.333   216.315
+ INDE     5    3    5 FOBS=  1670.600     0.000 FCALC=    94.666    68.988
+ INDE     5    4    5 FOBS=   725.600     0.000 FCALC=    70.703   340.504
+ INDE     6    0    5 FOBS=   973.200     0.000 FCALC=    40.008     0.000
+ INDE     6    1    5 FOBS=   689.900     0.000 FCALC=    69.387   164.066
+ INDE     6    2    5 FOBS=  1963.000     0.000 FCALC=   191.490    32.308
+ INDE     6    3    5 FOBS=  1176.600     0.000 FCALC=   101.052   291.066
+ INDE     7    0    5 FOBS=   183.100     0.000 FCALC=    42.652   180.000
+ INDE     7    1    5 FOBS=  1316.800     0.000 FCALC=    66.827    62.805
+ INDE     7    2    5 FOBS=   581.400     0.000 FCALC=    75.650    32.066
+ INDE     7    3    5 FOBS=   958.800     0.000 FCALC=    53.827   301.518
+ INDE     8    0    5 FOBS=   613.900     0.000 FCALC=    46.838     0.000
+ INDE     8    1    5 FOBS=   879.700     0.000 FCALC=    81.323    53.929
+ INDE     8    2    5 FOBS=  1321.100     0.000 FCALC=   102.148   137.475
+ INDE     9    0    5 FOBS=  1176.000     0.000 FCALC=    86.749     0.000
+ INDE     9    1    5 FOBS=  1864.100     0.000 FCALC=   152.592    92.477
+ INDE     9    2    5 FOBS=  1207.200     0.000 FCALC=    53.341   357.300
+ INDE    10    0    5 FOBS=  1416.300     0.000 FCALC=    98.534     0.000
+ INDE    -8    0    6 FOBS=   785.600     0.000 FCALC=    71.866     0.000
+ INDE    -8    1    6 FOBS=   275.600     0.000 FCALC=    53.632   267.958
+ INDE    -7    0    6 FOBS=   885.100     0.000 FCALC=   102.636     0.000
+ INDE    -7    1    6 FOBS=  1248.700     0.000 FCALC=   146.359    56.591
+ INDE    -7    2    6 FOBS=   567.900     0.000 FCALC=    82.606   201.178
+ INDE    -6    0    6 FOBS=   816.300     0.000 FCALC=    42.669     0.000
+ INDE    -6    1    6 FOBS=  1351.600     0.000 FCALC=   106.322    14.057
+ INDE    -6    2    6 FOBS=   753.600     0.000 FCALC=    89.416    24.261
+ INDE    -5    0    6 FOBS=  1615.200     0.000 FCALC=   135.786   180.000
+ INDE    -5    1    6 FOBS=   782.900     0.000 FCALC=    27.381   239.381
+ INDE    -5    2    6 FOBS=   691.400     0.000 FCALC=    78.006   296.500
+ INDE    -5    3    6 FOBS=   859.500     0.000 FCALC=    47.945   272.533
+ INDE    -4    0    6 FOBS=  1271.100     0.000 FCALC=    84.474   180.000
+ INDE    -4    1    6 FOBS=  1225.100     0.000 FCALC=    93.090   203.700
+ INDE    -4    2    6 FOBS=  1638.600     0.000 FCALC=   125.985   141.695
+ INDE    -4    3    6 FOBS=   272.300     0.000 FCALC=    31.115   274.151
+ INDE    -3    0    6 FOBS=  1664.400     0.000 FCALC=   116.534     0.000
+ INDE    -3    1    6 FOBS=   734.700     0.000 FCALC=    93.573   107.426
+ INDE    -3    2    6 FOBS=   347.200     0.000 FCALC=    40.255   246.196
+ INDE    -3    3    6 FOBS=  1420.700     0.000 FCALC=    92.051   262.628
+ INDE    -2    0    6 FOBS=   832.000     0.000 FCALC=    34.078   180.000
+ INDE    -2    1    6 FOBS=   368.300     0.000 FCALC=    39.285   222.838
+ INDE    -2    2    6 FOBS=  1610.800     0.000 FCALC=    84.483    28.624
+ INDE    -2    3    6 FOBS=  1152.800     0.000 FCALC=    89.935   299.906
+ INDE    -1    0    6 FOBS=   925.100     0.000 FCALC=    80.780   180.000
+ INDE    -1    1    6 FOBS=   384.000     0.000 FCALC=    66.765   240.593
+ INDE    -1    2    6 FOBS=   543.400     0.000 FCALC=    56.701   203.492
+ INDE    -1    3    6 FOBS=   187.300     0.000 FCALC=    54.673   336.924
+ INDE     0    0    6 FOBS=   172.700     0.000 FCALC=    71.395     0.000
+ INDE     0    1    6 FOBS=  1042.900     0.000 FCALC=   103.808   271.499
+ INDE     0    2    6 FOBS=  2539.500     0.000 FCALC=   195.854   178.513
+ INDE     0    3    6 FOBS=   685.500     0.000 FCALC=   122.422   246.406
+ INDE     1    0    6 FOBS=  1952.900     0.000 FCALC=   201.204   180.000
+ INDE     1    1    6 FOBS=  1414.100     0.000 FCALC=    95.767   282.014
+ INDE     1    2    6 FOBS=   923.800     0.000 FCALC=    98.871   178.401
+ INDE     1    3    6 FOBS=  1806.200     0.000 FCALC=   100.678   310.655
+ INDE     2    0    6 FOBS=  2667.500     0.000 FCALC=   262.246   180.000
+ INDE     2    1    6 FOBS=   684.200     0.000 FCALC=    11.746   128.751
+ INDE     2    2    6 FOBS=   739.500     0.000 FCALC=    65.179   199.030
+ INDE     2    3    6 FOBS=   910.500     0.000 FCALC=    68.648    32.501
+ INDE     3    0    6 FOBS=  1429.300     0.000 FCALC=   150.140     0.000
+ INDE     3    1    6 FOBS=  1843.100     0.000 FCALC=   114.477   270.592
+ INDE     3    2    6 FOBS=  1081.400     0.000 FCALC=    64.522   227.249
+ INDE     3    3    6 FOBS=  1095.300     0.000 FCALC=    73.589   246.834
+ INDE     4    0    6 FOBS=  2669.900     0.000 FCALC=   134.723     0.000
+ INDE     4    1    6 FOBS=  1912.100     0.000 FCALC=   162.983     1.464
+ INDE     4    2    6 FOBS=   854.800     0.000 FCALC=    48.237   237.923
+ INDE     4    3    6 FOBS=   574.900     0.000 FCALC=    94.479   154.555
+ INDE     5    0    6 FOBS=  1988.100     0.000 FCALC=   146.298   180.000
+ INDE     5    1    6 FOBS=  1055.000     0.000 FCALC=   115.427    28.940
+ INDE     5    2    6 FOBS=  1926.300     0.000 FCALC=   125.384    32.247
+ INDE     6    0    6 FOBS=   529.300     0.000 FCALC=    67.600     0.000
+ INDE     6    1    6 FOBS=   786.700     0.000 FCALC=    54.410   135.035
+ INDE     6    2    6 FOBS=   913.800     0.000 FCALC=    60.974   191.911
+ INDE     7    0    6 FOBS=  1341.400     0.000 FCALC=   103.917   180.000
+ INDE     7    1    6 FOBS=  1616.100     0.000 FCALC=   107.693   109.858
+ INDE     8    0    6 FOBS=   987.200     0.000 FCALC=    82.140   180.000
+ INDE    -5    0    7 FOBS=   992.700     0.000 FCALC=   160.316     0.000
+ INDE    -4    0    7 FOBS=  1889.700     0.000 FCALC=   192.402     0.000
+ INDE    -4    1    7 FOBS=  1812.800     0.000 FCALC=   104.125   230.352
+ INDE    -3    0    7 FOBS=   488.600     0.000 FCALC=    60.513   180.000
+ INDE    -3    1    7 FOBS=  1144.400     0.000 FCALC=   101.889   274.248
+ INDE    -2    0    7 FOBS=  1258.500     0.000 FCALC=   138.170   180.000
+ INDE    -2    1    7 FOBS=   484.500     0.000 FCALC=    40.404   355.768
+ INDE    -2    2    7 FOBS=   694.800     0.000 FCALC=    42.056     9.218
+ INDE    -1    0    7 FOBS=   424.100     0.000 FCALC=    10.203   180.000
+ INDE    -1    1    7 FOBS=   959.400     0.000 FCALC=    55.808    97.880
+ INDE    -1    2    7 FOBS=  1444.500     0.000 FCALC=   114.829   107.945
+ INDE     0    0    7 FOBS=   176.600     0.000 FCALC=    14.519   180.000
+ INDE     0    1    7 FOBS=    68.300     0.000 FCALC=    10.089   100.217
+ INDE     0    2    7 FOBS=  1173.800     0.000 FCALC=    84.135   183.732
+ INDE     1    0    7 FOBS=  1543.300     0.000 FCALC=    88.518   180.000
+ INDE     1    1    7 FOBS=   906.800     0.000 FCALC=   107.356    51.206
+ INDE     1    2    7 FOBS=  1254.000     0.000 FCALC=   185.915   212.277
+ INDE     2    0    7 FOBS=   744.300     0.000 FCALC=    34.316   180.000
+ INDE     2    1    7 FOBS=  1067.800     0.000 FCALC=    60.472   135.812
+ INDE     2    2    7 FOBS=  1021.900     0.000 FCALC=   121.723   234.575
+ INDE     3    0    7 FOBS=   856.200     0.000 FCALC=    52.631   180.000
+ INDE     3    1    7 FOBS=   639.000     0.000 FCALC=    86.241     8.362
+ INDE     4    0    7 FOBS=  2597.500     0.000 FCALC=   212.626   180.000
+ INDE     4    1    7 FOBS=  1832.600     0.000 FCALC=   190.789    58.637
+ XRAY>end 
+ CNSsolve> 
+ CNSsolve>xray 
+ XRAY>   tolerance=0.0 
+ XRAY>  evaluate ($lr=8.) 
+ EVALUATE: symbol $LR set to    8.00000     (real)
+ XRAY>  evaluate ($hr=7.) 
+ EVALUATE: symbol $HR set to    7.00000     (real)
+ XRAY>  binresolution $lr $hr 
+ XRAY>  mapresolution $hr 
+ XRAY>  tselection=( $hr <= d <= $lr and 10000. >= amplitude(fobs)>=0.01 ) 
+ XRAY> 
+ XRAY> 
+ XRAY>  target=( resi[k=8.239](amplitude(fobs),fcalc+fpart,1)) 
+ XRAY>  dtarget=( dresi[k=8.239](amplitude(fobs),fcalc+fpart,1)) 
+ XRAY>  monitor=( rvalue[overall,k=8.239](fobs,fcalc+fpart)) 
+ XRAY> 
+ XRAY>   wa=100.0 
+ XRAY>   ? 
+ ---------------------------diffraction-data-----------------------------------
+ | a= 40.96, b= 18.65, c= 22.52, alpha= 90.00, beta= 90.77, gamma= 90.00
+ | ANOMalous=FALSe
+ | Number or unique reflections read=   729
+ | resolution range covered by these reflections:       9.94 to       3.00
+ | Hmax=   13 Kmax=    6 Lmax=    7 Hmin=  -13 Kmin=    0 Lmin=    0
+ ------------------------------------------------------------------------------
+ XRAY>end 
+ CNSsolve> 
+ CNSsolve>flags excl * incl xref end 
+ CNSsolve> 
+ CNSsolve>{* test first derivatives *} 
+ CNSsolve>{* ====================== *} 
+ CNSsolve>test first sele=( resid 1 and name n ) tol=0.0 step=0.0001 end 
+ SELRPN:      1 atoms have been selected out of    327
+ XRTSELSET: number of selected reflections      23
+ FCALC: #scatt.=    327 #anomalous=   0 #special pos.=  0 occupancies=1
+ XTAREXPR:                 monitor=  0.262
+ FCALC: #scatt.=    327 #anomalous=   0 #special pos.=  0 occupancies=1
+ XTAREXPR:                 monitor=  0.262
+ FCALC: #scatt.=    327 #anomalous=   0 #special pos.=  0 occupancies=1
+ XTAREXPR:                 monitor=  0.262
+ FCALC: #scatt.=    327 #anomalous=   0 #special pos.=  0 occupancies=1
+ XTAREXPR:                 monitor=  0.262
+ FCALC: #scatt.=    327 #anomalous=   0 #special pos.=  0 occupancies=1
+ XTAREXPR:                 monitor=  0.262
+ FCALC: #scatt.=    327 #anomalous=   0 #special pos.=  0 occupancies=1
+ XTAREXPR:                 monitor=  0.262
+ FCALC: #scatt.=    327 #anomalous=   0 #special pos.=  0 occupancies=1
+ XTAREXPR:                 monitor=  0.262
+ TESTFD: Parameters: STEP=   0.00010  MASSweighting=F
+ TESTFD: The following first derivatives differ by more than TOL=    0.000000
+
+  DIM.         ATOM                 ANALYTIC        FINITE-DIFF     DEVIATION
+    1 X (      1    THR  N   )       0.065418       0.065418       0.000000
+    1 Y (      1    THR  N   )       0.197153       0.197153       0.000000
+    1 Z (      1    THR  N   )      -0.319312      -0.319312       0.000000
+ TESTFD: A total of     0 elements were within the tolerance
+ CNSsolve> 
+ CNSsolve>test first sele=( resid 20 and name ca ) tol=0.0 step=0.0001 end 
+ SELRPN:      1 atoms have been selected out of    327
+ FCALC: #scatt.=    327 #anomalous=   0 #special pos.=  0 occupancies=1
+ XTAREXPR:                 monitor=  0.262
+ FCALC: #scatt.=    327 #anomalous=   0 #special pos.=  0 occupancies=1
+ XTAREXPR:                 monitor=  0.262
+ FCALC: #scatt.=    327 #anomalous=   0 #special pos.=  0 occupancies=1
+ XTAREXPR:                 monitor=  0.262
+ FCALC: #scatt.=    327 #anomalous=   0 #special pos.=  0 occupancies=1
+ XTAREXPR:                 monitor=  0.262
+ FCALC: #scatt.=    327 #anomalous=   0 #special pos.=  0 occupancies=1
+ XTAREXPR:                 monitor=  0.262
+ FCALC: #scatt.=    327 #anomalous=   0 #special pos.=  0 occupancies=1
+ XTAREXPR:                 monitor=  0.262
+ FCALC: #scatt.=    327 #anomalous=   0 #special pos.=  0 occupancies=1
+ XTAREXPR:                 monitor=  0.262
+ TESTFD: Parameters: STEP=   0.00010  MASSweighting=F
+ TESTFD: The following first derivatives differ by more than TOL=    0.000000
+
+  DIM.         ATOM                 ANALYTIC        FINITE-DIFF     DEVIATION
+  144 X (      20   GLY  CA  )       0.407491       0.407491       0.000000
+  144 Y (      20   GLY  CA  )      -0.055420      -0.055420       0.000000
+  144 Z (      20   GLY  CA  )      -0.139801      -0.139801       0.000000
+ TESTFD: A total of     0 elements were within the tolerance
+ CNSsolve> 
+ CNSsolve> 
+ CNSsolve>{* test linear approximation *} 
+ CNSsolve>{* ========================= *} 
+ CNSsolve> 
+ CNSsolve>flags excl * incl xref end 
+ CNSsolve> 
+ CNSsolve>energy end 
+ FCALC: #scatt.=    327 #anomalous=   0 #special pos.=  0 occupancies=1
+ XTAREXPR:                 monitor=  0.262
+ --------------- cycle=     1 --------------------------------------------------
+ | Etotal =7.282      grad(E)=0.206      E(XREF)=7.282                         |
+ -------------------------------------------------------------------------------
+ CNSsolve> 
+ CNSsolve>do ( store1 = dx ) ( all ) 
+ SELRPN:    327 atoms have been selected out of    327
+ CNSsolve>do ( store2 = dy ) ( all ) 
+ SELRPN:    327 atoms have been selected out of    327
+ CNSsolve>do ( store3 = dz ) ( all ) 
+ SELRPN:    327 atoms have been selected out of    327
+ CNSsolve> 
+ CNSsolve>xray 
+ XRAY>   tolerance=0.5 
+ XRAY>   target=( resi[k=8.239](amplitude(fobs),fcalc+fpart,1)) 
+ XRAY>   dtarget=( dresi[k=8.239](amplitude(fobs),fcalc+fpart,1)) 
+ XRAY>   monitor=( rvalue[overall,k=8.239](fobs,fcalc+fpart)) 
+ XRAY>end 
+ CNSsolve> 
+ CNSsolve>energy end 
+ FCALC: #scatt.=    327 #anomalous=   0 #special pos.=  0 occupancies=1
+ XTAREXPR:                 monitor=  0.262
+ --------------- cycle=     2 --------------------------------------------------
+ | Etotal =7.282      grad(E)=0.206      E(XREF)=7.282                         |
+ -------------------------------------------------------------------------------
+ CNSsolve> 
+ CNSsolve>do ( dx = store1 - dx ) ( all ) 
+ SELRPN:    327 atoms have been selected out of    327
+ CNSsolve>do ( dy = store2 - dy ) ( all ) 
+ SELRPN:    327 atoms have been selected out of    327
+ CNSsolve>do ( dz = store3 - dz ) ( all ) 
+ SELRPN:    327 atoms have been selected out of    327
+ CNSsolve> 
+ CNSsolve>show elem ( dx ) ( attr dx # 0.0 ) 
+ SELRPN:      0 atoms have been selected out of    327
+ SHOW: zero atoms selected
+ CNSsolve>show elem ( dy ) ( attr dy # 0.0 ) 
+ SELRPN:      0 atoms have been selected out of    327
+ SHOW: zero atoms selected
+ CNSsolve>show elem ( dz ) ( attr dz # 0.0 ) 
+ SELRPN:      0 atoms have been selected out of    327
+ SHOW: zero atoms selected
+ CNSsolve> 
+ CNSsolve>test first sele=( resid 1 and name n ) step=0.0001 tol=0.0 end 
+ SELRPN:      1 atoms have been selected out of    327
+ TESTFD: Parameters: STEP=   0.00010  MASSweighting=F
+ TESTFD: The following first derivatives differ by more than TOL=    0.000000
+
+  DIM.         ATOM                 ANALYTIC        FINITE-DIFF     DEVIATION
+    1 X (      1    THR  N   )       0.065418       0.065418       0.000000
+    1 Y (      1    THR  N   )       0.197153       0.197153       0.000000
+    1 Z (      1    THR  N   )      -0.319312      -0.319312       0.000000
+ TESTFD: A total of     0 elements were within the tolerance
+ CNSsolve> 
+ CNSsolve>coor rotate vector=(3.0 2.0 1.0 ) angle=0.2 end 
+
+ Rotation matrix =
+    0.999998    0.000936   -0.001865
+   -0.000930    0.999996    0.002800
+    0.001867   -0.002798    0.999994
+ Corresp. Eulerian angles (theta1,theta2,theta3)    33.7168    0.1927  326.3367
+ Corresp. spherical polar angles (psi,phi,kappa)   122.3115  161.5651  359.8000
+ Corresp. rotation angle     0.2000 about axis       0.8018    0.5345    0.2673
+ Corresp. quaternions     1.0000    0.0014    0.0009    0.0005
+
+ COOR: rotation center =    0.000000    0.000000    0.000000
+ COOR: selected coordinates rotated
+ CNSsolve> 
+ CNSsolve>test first sele=( resid 1 and name n ) step=0.0001 tol=0.0 end 
+ SELRPN:      1 atoms have been selected out of    327
+ TESTFD: Parameters: STEP=   0.00010  MASSweighting=F
+ TESTFD: The following first derivatives differ by more than TOL=    0.000000
+
+  DIM.         ATOM                 ANALYTIC        FINITE-DIFF     DEVIATION
+    1 X (      1    THR  N   )       0.065418       0.065418       0.000000
+    1 Y (      1    THR  N   )       0.197153       0.197153       0.000000
+    1 Z (      1    THR  N   )      -0.319312      -0.319312       0.000000
+ TESTFD: A total of     0 elements were within the tolerance
+ CNSsolve> 
+ CNSsolve>xray  tolerance=0.0 end 
+ CNSsolve> 
+ CNSsolve>test first sele=( resid 1 and name n ) step=0.0001 tol=0.0 end 
+ SELRPN:      1 atoms have been selected out of    327
+ FCALC: #scatt.=    327 #anomalous=   0 #special pos.=  0 occupancies=1
+ XTAREXPR:                 monitor=  0.260
+ FCALC: #scatt.=    327 #anomalous=   0 #special pos.=  0 occupancies=1
+ XTAREXPR:                 monitor=  0.260
+ FCALC: #scatt.=    327 #anomalous=   0 #special pos.=  0 occupancies=1
+ XTAREXPR:                 monitor=  0.260
+ FCALC: #scatt.=    327 #anomalous=   0 #special pos.=  0 occupancies=1
+ XTAREXPR:                 monitor=  0.260
+ FCALC: #scatt.=    327 #anomalous=   0 #special pos.=  0 occupancies=1
+ XTAREXPR:                 monitor=  0.260
+ FCALC: #scatt.=    327 #anomalous=   0 #special pos.=  0 occupancies=1
+ XTAREXPR:                 monitor=  0.260
+ FCALC: #scatt.=    327 #anomalous=   0 #special pos.=  0 occupancies=1
+ XTAREXPR:                 monitor=  0.260
+ TESTFD: Parameters: STEP=   0.00010  MASSweighting=F
+ TESTFD: The following first derivatives differ by more than TOL=    0.000000
+
+  DIM.         ATOM                 ANALYTIC        FINITE-DIFF     DEVIATION
+    1 X (      1    THR  N   )       0.085431       0.085431       0.000000
+    1 Y (      1    THR  N   )       0.195065       0.195065       0.000000
+    1 Z (      1    THR  N   )      -0.323405      -0.323405       0.000000
+ TESTFD: A total of     0 elements were within the tolerance
+ CNSsolve> 
+ CNSsolve>flags incl bonds angles dihe impr end 
+ CNSsolve> 
+ CNSsolve> 
+ CNSsolve>xray 
+ XRAY>   reset 
+ XRAY: whole xray database erased and reset
+ XRAY>   declare name=fobs type=complex domain=reciprocal end 
+ XDECLARE: Object FOBS has been declared.
+ XRAY>   declare name=fpart domain=reciprocal type=complex end 
+ XDECLARE: Object FPART has been declared.
+ XRAY>   declare name=fcalc domain=reciprocal type=complex end 
+ XDECLARE: Object FCALC has been declared.
+ XRAY>   declare name=fom domain=reciprocal type=real end 
+ XDECLARE: Object FOM has been declared.
+ XRAY>   declare name=weight domain=reciprocal type=real end 
+ XDECLARE: Object WEIGHT has been declared.
+ XRAY>   declare name=sigma domain=reciprocal type=real end 
+ XDECLARE: Object SIGMA has been declared.
+ XRAY>   declare name=test domain=reciprocal type=integer end 
+ XDECLARE: Object TEST has been declared.
+ XRAY> 
+ XRAY>   a=40.96 b=18.65 c=22.52 alpha=90.0 beta=90.77 gamma=90.0 
+ XRAY>   symmetry=(x,y,z)         !! 
+ XRAY>   symmetry=(-x,y+1/2,-z)   !! this is P21, b axis unique 
+ XRAY>   method=direct 
+ XRAY> 
+ XRAY>   evaluate ($lr=10.) 
+ EVALUATE: symbol $LR set to    10.0000     (real)
+ XRAY>   evaluate ($hr=9.9) 
+ EVALUATE: symbol $HR set to    9.90000     (real)
+ XRAY>   binresolution $lr $hr 
+ XRAY>   mapresolution $hr 
+ XRAY>  tselection=( $hr <= d <= $lr and 10000. >= amplitude(fobs)>=0.01 ) 
+ XRAY> 
+ XRAY> 
+ XRAY>   SCATter ( chemical C* ) 
+ SELRPN:    202 atoms have been selected out of    327
+ SCATTER_A1=   2.31000 20.8439 1.02000 10.2075 1.58860 .568700 .865000 51.6512 .215600 
+ XRAY> 
+ XRAY>   SCATter ( chemical N* ) 
+ SELRPN:     55 atoms have been selected out of    327
+ SCATTER_A1=   12.2126 .005700 3.13220 9.89330 2.01250 28.9975 1.16630 .582600 -11.529 
+ XRAY> 
+ XRAY>   SCATter ( chemical O* ) 
+ SELRPN:     64 atoms have been selected out of    327
+ SCATTER_A1=   3.04850 13.2771 2.28680 5.70110 1.54630 .323900 .867000 32.9089 .250800 
+ XRAY> 
+ XRAY>   SCATter ( chemical S* ) 
+ SELRPN:      6 atoms have been selected out of    327
+ SCATTER_A1=   6.90530 1.46790 5.20340 22.2151 1.43790 .253600 1.58630 56.1720 .866900 
+ XRAY> 
+ XRAY> reflection 
+ REFLection> INDEx    0   2   0  Fobs 4171.8999 
+ XSFAL: allocating space for complex reciprocal space object.
+ XSFAL: allocating space for real reciprocal space object.
+ XRRR2:        6 new h,k,l indices have been added.
+ XRAY> 
+ XRAY> do (fpart=0) ( all ) 
+ XSFAL: allocating space for complex reciprocal space object.
+ Total of         6 structure factor elements were selected.
+ XRAY> 
+ XRAY>   tolerance=0.0 
+ XRAY>   ? 
+ ---------------------------diffraction-data-----------------------------------
+ | a= 40.96, b= 18.65, c= 22.52, alpha= 90.00, beta= 90.77, gamma= 90.00
+ | ANOMalous=FALSe
+ | Number or unique reflections read=     6
+ | resolution range covered by these reflections:       9.32 to       3.11
+ | Hmax=    0 Kmax=    6 Lmax=    1 Hmin=   -7 Kmin=    0 Lmin=    0
+ ------------------------------------------------------------------------------
+ XRAY>  evaluate ($lr=8.) 
+ EVALUATE: symbol $LR set to    8.00000     (real)
+ XRAY>  evaluate ($hr=1.5) 
+ EVALUATE: symbol $HR set to    1.50000     (real)
+ XRAY>  binresolution $lr $hr 
+ XRAY>  mapresolution $hr 
+ XRAY>  tselection=( $hr <= d <= $lr and 10000. >= amplitude(fobs)>=0.01 ) 
+ XRAY> 
+ XRAY> 
+ XRAY>   wa=100 
+ XRAY> 
+ XRAY>   target=( resi[k=8.239](amplitude(fobs),fcalc+fpart,1)) 
+ XRAY>   dtarget=( dresi[k=8.239](amplitude(fobs),fcalc+fpart,1)) 
+ XRAY>   monitor=( rvalue[overall,k=8.239](fobs,fcalc+fpart)) 
+ XRAY> 
+ XRAY>   predict 
+ PREDict>      mode=reciprocal 
+ PREDict>      to=fcalc 
+ PREDict>      selection=( all ) 
+ Total of         6 structure factor elements were selected.
+ PREDict>      atomselection=( not hydrogen ) 
+ SELRPN:    327 atoms have been selected out of    327
+ PREDict>   end 
+ FCALC: #scatt.=    327 #anomalous=   0 #special pos.=  0 occupancies=1
+ XSFAL: allocating space for complex reciprocal space object.
+ XRAY>   print target 
+ XRTSELSET: number of selected reflections       5
+ XTAREXPR:                 monitor=  0.229
+ TARGET value (working set)=        6.23186
+ XRAY>   write reflections fobs fcalc fom  sele=( all ) end 
+ Total of         6 structure factor elements were selected.
+ NREFlection=         6
+ ANOMalous=FALSe { equiv. to HERMitian=TRUE}
+ DECLare NAME=FOBS                   DOMAin=RECIprocal   TYPE=COMP END
+ DECLare NAME=FCALC                  DOMAin=RECIprocal   TYPE=COMP END
+ DECLare NAME=FOM                    DOMAin=RECIprocal   TYPE=REAL END
+ INDE     0    2    0 FOBS=  4171.900     0.000 FCALC=   632.831   141.994
+                   FOM=     0.000
+ INDE     0    4    0 FOBS=   549.800     0.000 FCALC=    77.272    19.662
+                   FOM=     0.000
+ INDE     0    6    0 FOBS=   359.500     0.000 FCALC=    17.546    54.785
+                   FOM=     0.000
+ INDE    -7    1    1 FOBS=  1752.500    70.000 FCALC=   220.848   182.024
+                   FOM=     0.900
+ INDE    -7    2    1 FOBS=  1610.700    60.000 FCALC=   145.111   334.563
+                   FOM=     0.800
+ INDE    -7    3    1 FOBS=  1536.500    20.000 FCALC=   120.399    26.562
+                   FOM=     0.900
+ XRAY>end 
+ CNSsolve> 
+ CNSsolve> 
+ CNSsolve>flags excl * incl xref end 
+ CNSsolve> 
+ CNSsolve>{* test first derivatives *} 
+ CNSsolve>{* ====================== *} 
+ CNSsolve>xray 
+ XRAY>   lookup=false 
+ XRAY>end 
+ CNSsolve>test first sele=( resid 1 and name n ) tol=0.0 step=0.0001 end 
+ SELRPN:      1 atoms have been selected out of    327
+ FCALC: #scatt.=    327 #anomalous=   0 #special pos.=  0 occupancies=1
+ XTAREXPR:                 monitor=  0.229
+ FCALC: #scatt.=    327 #anomalous=   0 #special pos.=  0 occupancies=1
+ XTAREXPR:                 monitor=  0.229
+ FCALC: #scatt.=    327 #anomalous=   0 #special pos.=  0 occupancies=1
+ XTAREXPR:                 monitor=  0.229
+ FCALC: #scatt.=    327 #anomalous=   0 #special pos.=  0 occupancies=1
+ XTAREXPR:                 monitor=  0.229
+ FCALC: #scatt.=    327 #anomalous=   0 #special pos.=  0 occupancies=1
+ XTAREXPR:                 monitor=  0.229
+ FCALC: #scatt.=    327 #anomalous=   0 #special pos.=  0 occupancies=1
+ XTAREXPR:                 monitor=  0.229
+ FCALC: #scatt.=    327 #anomalous=   0 #special pos.=  0 occupancies=1
+ XTAREXPR:                 monitor=  0.229
+ TESTFD: Parameters: STEP=   0.00010  MASSweighting=F
+ TESTFD: The following first derivatives differ by more than TOL=    0.000000
+
+  DIM.         ATOM                 ANALYTIC        FINITE-DIFF     DEVIATION
+    1 X (      1    THR  N   )       0.732996       0.732996       0.000000
+    1 Y (      1    THR  N   )       0.804363       0.804363       0.000000
+    1 Z (      1    THR  N   )      -0.180622      -0.180622       0.000000
+ TESTFD: A total of     0 elements were within the tolerance
+ CNSsolve> 
+ CNSsolve>test first sele=( resid 20 and name ca ) tol=0.0 step=0.0001 end 
+ SELRPN:      1 atoms have been selected out of    327
+ FCALC: #scatt.=    327 #anomalous=   0 #special pos.=  0 occupancies=1
+ XTAREXPR:                 monitor=  0.229
+ FCALC: #scatt.=    327 #anomalous=   0 #special pos.=  0 occupancies=1
+ XTAREXPR:                 monitor=  0.229
+ FCALC: #scatt.=    327 #anomalous=   0 #special pos.=  0 occupancies=1
+ XTAREXPR:                 monitor=  0.229
+ FCALC: #scatt.=    327 #anomalous=   0 #special pos.=  0 occupancies=1
+ XTAREXPR:                 monitor=  0.229
+ FCALC: #scatt.=    327 #anomalous=   0 #special pos.=  0 occupancies=1
+ XTAREXPR:                 monitor=  0.229
+ FCALC: #scatt.=    327 #anomalous=   0 #special pos.=  0 occupancies=1
+ XTAREXPR:                 monitor=  0.229
+ FCALC: #scatt.=    327 #anomalous=   0 #special pos.=  0 occupancies=1
+ XTAREXPR:                 monitor=  0.229
+ TESTFD: Parameters: STEP=   0.00010  MASSweighting=F
+ TESTFD: The following first derivatives differ by more than TOL=    0.000000
+
+  DIM.         ATOM                 ANALYTIC        FINITE-DIFF     DEVIATION
+  144 X (      20   GLY  CA  )       0.206456       0.206456       0.000000
+  144 Y (      20   GLY  CA  )       0.199673       0.199673       0.000000
+  144 Z (      20   GLY  CA  )      -0.050874      -0.050874       0.000000
+ TESTFD: A total of     0 elements were within the tolerance
+ CNSsolve> 
+ CNSsolve> 
+ CNSsolve>{* test linear approximation *} 
+ CNSsolve>{* ========================= *} 
+ CNSsolve> 
+ CNSsolve>flags excl * incl xref end 
+ CNSsolve> 
+ CNSsolve>energy end 
+ FCALC: #scatt.=    327 #anomalous=   0 #special pos.=  0 occupancies=1
+ XTAREXPR:                 monitor=  0.229
+ --------------- cycle=     3 --------------------------------------------------
+ | Etotal =6.232      grad(E)=0.660      E(XREF)=6.232                         |
+ -------------------------------------------------------------------------------
+ CNSsolve> 
+ CNSsolve>do ( store1 = dx ) ( all ) 
+ SELRPN:    327 atoms have been selected out of    327
+ CNSsolve>do ( store2 = dy ) ( all ) 
+ SELRPN:    327 atoms have been selected out of    327
+ CNSsolve>do ( store3 = dz ) ( all ) 
+ SELRPN:    327 atoms have been selected out of    327
+ CNSsolve> 
+ CNSsolve>xray 
+ XRAY>   tolerance= 0.5 
+ XRAY>end 
+ CNSsolve> 
+ CNSsolve>energy end 
+ FCALC: #scatt.=    327 #anomalous=   0 #special pos.=  0 occupancies=1
+ XTAREXPR:                 monitor=  0.229
+ --------------- cycle=     4 --------------------------------------------------
+ | Etotal =6.232      grad(E)=0.660      E(XREF)=6.232                         |
+ -------------------------------------------------------------------------------
+ CNSsolve> 
+ CNSsolve>do ( dx = store1 - dx ) ( all ) 
+ SELRPN:    327 atoms have been selected out of    327
+ CNSsolve>do ( dy = store2 - dy ) ( all ) 
+ SELRPN:    327 atoms have been selected out of    327
+ CNSsolve>do ( dz = store3 - dz ) ( all ) 
+ SELRPN:    327 atoms have been selected out of    327
+ CNSsolve> 
+ CNSsolve>show elem ( dx ) ( attr dx # 0.0 ) 
+ SELRPN:      0 atoms have been selected out of    327
+ SHOW: zero atoms selected
+ CNSsolve>show elem ( dy ) ( attr dy # 0.0 ) 
+ SELRPN:      0 atoms have been selected out of    327
+ SHOW: zero atoms selected
+ CNSsolve>show elem ( dz ) ( attr dz # 0.0 ) 
+ SELRPN:      0 atoms have been selected out of    327
+ SHOW: zero atoms selected
+ CNSsolve> 
+ CNSsolve>test first sele=( resid 1 and name n ) step=0.0001 tol=0.0 end 
+ SELRPN:      1 atoms have been selected out of    327
+ TESTFD: Parameters: STEP=   0.00010  MASSweighting=F
+ TESTFD: The following first derivatives differ by more than TOL=    0.000000
+
+  DIM.         ATOM                 ANALYTIC        FINITE-DIFF     DEVIATION
+    1 X (      1    THR  N   )       0.732996       0.732996       0.000000
+    1 Y (      1    THR  N   )       0.804363       0.804363       0.000000
+    1 Z (      1    THR  N   )      -0.180622      -0.180622       0.000000
+ TESTFD: A total of     0 elements were within the tolerance
+ CNSsolve> 
+ CNSsolve>coor rotate vector=(3.0 2.0 1.0 ) angle=0.2 end 
+
+ Rotation matrix =
+    0.999998    0.000936   -0.001865
+   -0.000930    0.999996    0.002800
+    0.001867   -0.002798    0.999994
+ Corresp. Eulerian angles (theta1,theta2,theta3)    33.7168    0.1927  326.3367
+ Corresp. spherical polar angles (psi,phi,kappa)   122.3115  161.5651  359.8000
+ Corresp. rotation angle     0.2000 about axis       0.8018    0.5345    0.2673
+ Corresp. quaternions     1.0000    0.0014    0.0009    0.0005
+
+ COOR: rotation center =    0.000000    0.000000    0.000000
+ COOR: selected coordinates rotated
+ CNSsolve> 
+ CNSsolve>test first sele=( resid 1 and name n ) step=0.0001 tol=0.0 end 
+ SELRPN:      1 atoms have been selected out of    327
+ TESTFD: Parameters: STEP=   0.00010  MASSweighting=F
+ TESTFD: The following first derivatives differ by more than TOL=    0.000000
+
+  DIM.         ATOM                 ANALYTIC        FINITE-DIFF     DEVIATION
+    1 X (      1    THR  N   )       0.732996       0.732996       0.000000
+    1 Y (      1    THR  N   )       0.804363       0.804363       0.000000
+    1 Z (      1    THR  N   )      -0.180622      -0.180622       0.000000
+ TESTFD: A total of     0 elements were within the tolerance
+ CNSsolve> 
+ CNSsolve>xray  tolerance=0.0 end 
+ CNSsolve> 
+ CNSsolve>test first sele=( resid 1 and name n ) step=0.0001 tol=0.0 end 
+ SELRPN:      1 atoms have been selected out of    327
+ FCALC: #scatt.=    327 #anomalous=   0 #special pos.=  0 occupancies=1
+ XTAREXPR:                 monitor=  0.226
+ FCALC: #scatt.=    327 #anomalous=   0 #special pos.=  0 occupancies=1
+ XTAREXPR:                 monitor=  0.226
+ FCALC: #scatt.=    327 #anomalous=   0 #special pos.=  0 occupancies=1
+ XTAREXPR:                 monitor=  0.226
+ FCALC: #scatt.=    327 #anomalous=   0 #special pos.=  0 occupancies=1
+ XTAREXPR:                 monitor=  0.226
+ FCALC: #scatt.=    327 #anomalous=   0 #special pos.=  0 occupancies=1
+ XTAREXPR:                 monitor=  0.226
+ FCALC: #scatt.=    327 #anomalous=   0 #special pos.=  0 occupancies=1
+ XTAREXPR:                 monitor=  0.226
+ FCALC: #scatt.=    327 #anomalous=   0 #special pos.=  0 occupancies=1
+ XTAREXPR:                 monitor=  0.226
+ TESTFD: Parameters: STEP=   0.00010  MASSweighting=F
+ TESTFD: The following first derivatives differ by more than TOL=    0.000000
+
+  DIM.         ATOM                 ANALYTIC        FINITE-DIFF     DEVIATION
+    1 X (      1    THR  N   )       0.742131       0.742131       0.000000
+    1 Y (      1    THR  N   )       0.551984       0.551984       0.000000
+    1 Z (      1    THR  N   )      -0.182873      -0.182873       0.000000
+ TESTFD: A total of     0 elements were within the tolerance
+ CNSsolve> 
+ CNSsolve>flags incl bonds angles dihe impr end 
+ CNSsolve> 
+ CNSsolve> 
+ CNSsolve>{* test atom selection facility *} 
+ CNSsolve> 
+ CNSsolve>xray 
+ XRAY>   wa=10.0  tolerance=0.5 
+ XRAY>end 
+ CNSsolve> 
+ CNSsolve>energy end 
+ FCALC: #scatt.=    327 #anomalous=   0 #special pos.=  0 occupancies=1
+ XTAREXPR:                 monitor=  0.226
+ --------------- cycle=     5 --------------------------------------------------
+ | Etotal =463.841    grad(E)=17.620     E(BOND)=80.825     E(ANGL)=118.002    |
+ | E(DIHE)=264.122    E(IMPR)=0.266      E(XREF)=0.625                         |
+ -------------------------------------------------------------------------------
+ CNSsolve>show elem ( dx ) ( name ca and resid 12 ) 
+ SELRPN:      1 atoms have been selected out of    327
+ (      ASN  12   CA   )  -0.89881    
+ CNSsolve>show elem ( dy ) ( name ca and resid 12 ) 
+ SELRPN:      1 atoms have been selected out of    327
+ (      ASN  12   CA   )    20.917    
+ CNSsolve>show elem ( dz ) ( name ca and resid 12 ) 
+ SELRPN:      1 atoms have been selected out of    327
+ (      ASN  12   CA   )   -3.8112    
+ CNSsolve> 
+ CNSsolve>xray 
+ XRAY>   associate fcalc ( not resid 12 ) 
+ SELRPN:    319 atoms have been selected out of    327
+ XRAY>   predict 
+ PREDict>      mode=reciprocal 
+ PREDict>      to=fcalc 
+ PREDict>      selection=( all ) 
+ Total of         6 structure factor elements were selected.
+ PREDict>      atomselection=( not resid 12 ) 
+ SELRPN:    319 atoms have been selected out of    327
+ PREDict>   end 
+ FCALC: #scatt.=    319 #anomalous=   0 #special pos.=  0 occupancies=1
+ XRAY>   print target 
+ XTAREXPR:                 monitor=  0.198
+ TARGET value (working set)=        0.50769
+ XRAY>   do ( FPART=FCALC ) ( all ) 
+ Total of         6 structure factor elements were selected.
+ XRAY>end 
+ CNSsolve> 
+ CNSsolve>xray 
+ XRAY>  associate fcalc ( resid 12 ) 
+ SELRPN:      8 atoms have been selected out of    327
+ XRAY>end 
+ CNSsolve>energy end 
+ XRTSELSET: number of selected reflections       5
+ FCALC: #scatt.=      8 #anomalous=   0 #special pos.=  0 occupancies=1
+ XTAREXPR:                 monitor=  0.226
+ --------------- cycle=     6 --------------------------------------------------
+ | Etotal =463.841    grad(E)=17.620     E(BOND)=80.825     E(ANGL)=118.002    |
+ | E(DIHE)=264.122    E(IMPR)=0.266      E(XREF)=0.625                         |
+ -------------------------------------------------------------------------------
+ CNSsolve>show elem ( dx ) ( name ca and resid 12 ) 
+ SELRPN:      1 atoms have been selected out of    327
+ (      ASN  12   CA   )  -0.89881    
+ CNSsolve>show elem ( dy ) ( name ca and resid 12 ) 
+ SELRPN:      1 atoms have been selected out of    327
+ (      ASN  12   CA   )    20.917    
+ CNSsolve>show elem ( dz ) ( name ca and resid 12 ) 
+ SELRPN:      1 atoms have been selected out of    327
+ (      ASN  12   CA   )   -3.8112    
+ CNSsolve> 
+ CNSsolve>coor translate vector=( 0.8 0.8 0.8 ) selection=( name ca and resid 12 ) end 
+ SELRPN:      1 atoms have been selected out of    327
+ COOR: using atom subset.
+ COOR: translation vector =(     0.800000    0.800000    0.800000 )
+ COOR: selected coordinates translated
+ CNSsolve>energy end 
+ FCALC: #scatt.=      8 #anomalous=   0 #special pos.=  0 occupancies=1
+ XTAREXPR:                 monitor=  0.249
+ --------------- cycle=     7 --------------------------------------------------
+ | Etotal =598.062    grad(E)=21.082     E(BOND)=108.925    E(ANGL)=202.234    |
+ | E(DIHE)=285.879    E(IMPR)=0.361      E(XREF)=0.662                         |
+ -------------------------------------------------------------------------------
+ CNSsolve>show elem ( dx ) ( name ca and resid 12 ) 
+ SELRPN:      1 atoms have been selected out of    327
+ (      ASN  12   CA   )    142.55    
+ CNSsolve>show elem ( dy ) ( name ca and resid 12 ) 
+ SELRPN:      1 atoms have been selected out of    327
+ (      ASN  12   CA   )    100.50    
+ CNSsolve>show elem ( dz ) ( name ca and resid 12 ) 
+ SELRPN:      1 atoms have been selected out of    327
+ (      ASN  12   CA   )    172.01    
+ CNSsolve> 
+ CNSsolve>xray 
+ XRAY>   associate fcalc ( all ) 
+ SELRPN:    327 atoms have been selected out of    327
+ XRAY>   do ( FPART=0.0 ) ( all ) 
+ Total of         6 structure factor elements were selected.
+ XRAY>end 
+ CNSsolve>energy end 
+ XRTSELSET: number of selected reflections       5
+ FCALC: #scatt.=    327 #anomalous=   0 #special pos.=  0 occupancies=1
+ XTAREXPR:                 monitor=  0.249
+ --------------- cycle=     8 --------------------------------------------------
+ | Etotal =598.062    grad(E)=21.082     E(BOND)=108.925    E(ANGL)=202.234    |
+ | E(DIHE)=285.879    E(IMPR)=0.361      E(XREF)=0.662                         |
+ -------------------------------------------------------------------------------
+ CNSsolve>show elem ( dx ) ( name ca and resid 12 ) 
+ SELRPN:      1 atoms have been selected out of    327
+ (      ASN  12   CA   )    142.55    
+ CNSsolve>show elem ( dy ) ( name ca and resid 12 ) 
+ SELRPN:      1 atoms have been selected out of    327
+ (      ASN  12   CA   )    100.50    
+ CNSsolve>show elem ( dz ) ( name ca and resid 12 ) 
+ SELRPN:      1 atoms have been selected out of    327
+ (      ASN  12   CA   )    172.01    
+ CNSsolve> 
+ CNSsolve>stop 
+          ============================================================
+           Maximum dynamic memory allocation:     9905216 bytes
+           Maximum dynamic memory overhead:          1008 bytes
+           Program started at: 16:08:32 on 05-Jul-2018
+           Program stopped at: 16:08:33 on 05-Jul-2018
+           CPU time used:       3.6712 seconds
+          ============================================================

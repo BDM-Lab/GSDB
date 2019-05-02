@@ -1,0 +1,158 @@
+remarks TESTFIRS.INP
+remarks test the analytic first derivatives for standard potentials
+
+topology @CNS_TOPPAR:protein.top end
+parameter @CNS_TOPPAR:protein.param end
+
+segment
+  name=tryp
+  chain
+     @CNS_TOPPAR:protein.link
+     sequence
+        TRP
+     end
+  end
+end
+
+coor
+ATOM      1  HT1 TRP     1       0.101   0.574  -1.385  1.00  0.00      TRYP
+ATOM      2  HT2 TRP     1       1.711   0.436  -1.904  1.00  0.00      TRYP
+ATOM      3  N   TRP     1       1.067   0.302  -1.101  1.00  0.00      TRYP
+ATOM      4  HT3 TRP     1       1.080  -0.689  -0.791  1.00  0.00      TRYP
+ATOM      5  CA  TRP     1       1.472   1.192   0.027  1.00  0.00      TRYP
+ATOM      6  CB  TRP     1       2.696   2.026  -0.348  1.00  0.00      TRYP
+ATOM      7  CG  TRP     1       3.922   1.169  -0.679  1.00  0.00      TRYP
+ATOM      8  CD2 TRP     1       4.295   0.679  -1.890  1.00  0.00      TRYP
+ATOM      9  CE2 TRP     1       5.424  -0.010  -1.601  1.00  0.00      TRYP
+ATOM     10  CE3 TRP     1       3.769   0.774  -3.155  1.00  0.00      TRYP
+ATOM     11  CD1 TRP     1       4.813   0.775   0.290  1.00  0.00      TRYP
+ATOM     12  NE1 TRP     1       5.727   0.046  -0.320  1.00  0.00      TRYP
+ATOM     13  HE1 TRP     1       6.094  -0.743   0.127  1.00  0.00      TRYP
+ATOM     14  CZ2 TRP     1       6.138  -0.677  -2.563  1.00  0.00      TRYP
+ATOM     15  CZ3 TRP     1       4.472   0.108  -4.148  1.00  0.00      TRYP
+ATOM     16  CH2 TRP     1       5.636  -0.605  -3.856  1.00  0.00      TRYP
+ATOM     17  C   TRP     1       0.280   2.113   0.309  1.00  0.00      TRYP
+ATOM     18  O   TRP     1      -0.402   2.481  -0.636  1.00  0.00      TRYP
+ATOM     19  OXT TRP     1      -0.106   2.192   1.459  1.00  0.00      TRYP
+END
+
+coor copy end
+ 
+{* c-dielectric, shifting *} 
+{* ====================== *}
+parameter 
+  nbonds
+     atom cdie shift eps=1.0
+     cutnb=30.0 ctonnb=6.0 ctofnb=8.0
+     nbxmod=5 vswitch 
+  end
+end
+
+
+test first selection= ( all ) step=0.000001 tol=0.0 end
+
+
+{* r-dielectric, switching *}
+{* ======================= *}
+parameter 
+  nbonds
+     atom rdie switch eps=1.0
+     cutnb=30.0 ctonnb=6.0 ctofnb=8.0
+     nbxmod=5 vswitch 
+  end
+end
+
+
+test first selection= ( all ) step=0.000001 tol=0.0 end
+
+{* repel option  *}
+{* ============  *}
+flags exclude * include vdw end
+
+parameter 
+  nbonds
+     atom repel=0.9 rexponent=2 irexponent=2  rconst=110.
+ end
+end
+
+
+test first selection= ( all ) step=0.000001 tol=0.0 end
+
+parameter 
+  nbonds
+     atom repel=0.9 rexponent=4 irexponent=1  rconst=110.
+ end
+end
+
+
+test first selection= ( all ) step=0.000001 tol=0.0 end
+
+parameter 
+  nbonds
+     atom repel=0.9 rexponent=2 irexponent=2  rconst=110.
+ end
+end
+
+
+test first selection= ( all ) step=0.000001 tol=0.0 end
+
+parameter 
+  nbonds
+     atom repel=0.9 rexponent=2 irexponent=1  rconst=110.
+ end
+end
+
+
+test first selection= ( all ) step=0.000001 tol=0.0 end
+
+igroup interaction ( chemical O* ) ( chemical N* ) end
+
+do (x=4.) ( chemical O* ) 
+do (y=4.) ( chemical O* ) 
+do (z=4.) ( chemical O* ) 
+
+do (x=5.) ( chemical N* ) 
+do (y=4.) ( chemical N* ) 
+do (z=4.) ( chemical N* ) 
+
+parameter 
+  nbonds
+
+     atom repel=0.89 rexponent=2 irexponent=1  rconst=110. cutnb=20.
+ end
+end
+
+
+parameter
+  NONBONDED ( chemical O* ) 0.6469   2.8509       0.6469  2.8509 
+  nonbonded ( chemical N* )  0.2384    2.8509      0.2384  2.8509
+end
+energy end
+
+parameter
+  nbfix ( chemical O* ) ( chemical N* ) 1000000. 10.  1000000. 10. 
+end
+energy end
+
+do ( chemical=N) ( chemical N* )
+do (chemical=O) ( chemical O* )
+
+delete selection=( not (chemical O or chemical N ) ) end
+igroup interaction ( chemical O* ) ( chemical N* ) end
+
+parameter
+   reset
+  NONBONDED O  0.6469   2.8509       0.6469  2.8509 
+  nonbonded N  0.2384    2.8509      0.2384  2.8509
+end
+
+energy end
+
+parameter
+  nbfix O N  1000000. 10.  1000000. 10.
+end
+
+energy end
+
+
+stop

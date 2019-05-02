@@ -1,0 +1,373 @@
+{+ file: neighbours.inp +}
+{+ directory: general +}
+{+ description: Apply symmetry to generate the full neighbourhood
+                for a molecule +}
+{+ authors: Axel T. Brunger, and Paul D. Adams +}
+{+ copyright: Yale University +}
+
+{- Guidelines for using this file:
+   - all strings must be quoted by double-quotes
+   - logical variables (true/false) are not quoted
+   - do not remove any evaluate statements from the file 
+   - the selections store1 through store8 are available for general use -}
+
+{- begin block parameter definition -} define(
+
+{============================ coordinates ============================}
+
+{* coordinate file *}
+{===>} coordinate_infile="amy.pdb";
+
+{==================== molecular information ==========================}
+
+{* topology files *}
+{===>} topology_infile_1="CNS_TOPPAR:protein.top";
+{===>} topology_infile_2="CNS_TOPPAR:dna-rna.top";
+{===>} topology_infile_3="CNS_TOPPAR:water.top";
+{===>} topology_infile_4="CNS_TOPPAR:ion.top";
+{===>} topology_infile_5="CNS_TOPPAR:carbohydrate.top";
+{===>} topology_infile_6="";
+{===>} topology_infile_7="";
+{===>} topology_infile_8="";
+
+{* linkage files for linear, continuous polymers (protein, DNA, RNA) *}
+{===>} link_infile_1="CNS_TOPPAR:protein.link";
+{===>} link_infile_2="CNS_TOPPAR:dna-rna-pho.link";
+{===>} link_infile_3="";
+
+{* parameter files *}
+{===>} parameter_infile_1="CNS_TOPPAR:protein_rep.param";
+{===>} parameter_infile_2="CNS_TOPPAR:dna-rna_rep.param";
+{===>} parameter_infile_3="CNS_TOPPAR:water_rep.param";
+{===>} parameter_infile_4="CNS_TOPPAR:ion.param";
+{===>} parameter_infile_5="CNS_TOPPAR:carbohydrate.param";
+{===>} parameter_infile_6="";
+{===>} parameter_infile_7="";
+{===>} parameter_infile_8="";
+
+{* molecular topology file: optional (leave blank for auto generation) *}
+{* 
+   Auto generation of the molecular topology from the coordinates should only 
+   be used if:
+   (1) Each distinct protein, DNA, or RNA chain must have a separate segid 
+       (or chainid if the chainid is non-blank). 
+   (2) Each contiguous protein, RNA, or RNA chain must not be disrupted by 
+       other types of residues or ligands.  Rather, these other residues 
+       should be listed after protein, RNA/DNA chains. 
+   (3) Disulphides are automatically detected based on distances between the sulfur atoms
+      (must be less than 3 A apart).
+   (4) Broken protein/RNA/DNA chains without terminii must be more than 2.5 A apart to be recognized as such.
+   (5) N-linked glycan links are automatically recognized if the bonded atoms are less than 2.5 A apart.
+   (6) Automatic generation cannot be used with alternate conformations. 
+   For ligands, the user must make suitable topology and parameter files.
+   For non-standard covalent linkages, the custom patch file should be used.
+   Alternatively, the generate.inp or generate_easy.inp task files
+   can be used to generated the mtf prior to running this task file.
+    *}
+{===>} structure_infile="amy.mtf";
+
+{* for auto generation: extra linkages and modifications by custom patches *}
+{===>} patch_infile="";
+
+{====================== crystallographic data ========================}
+
+{* space group *}
+{* use International Table conventions with subscripts substituted
+   by parenthesis *}
+{===>} sg="P2(1)2(1)2(1)";
+
+{* unit cell parameters in Angstroms and degrees *}
+{+ table: rows=1 "cell" cols=6 "a" "b" "c" "alpha" "beta" "gamma" +}
+{===>} a=61.76;
+{===>} b=40.73;
+{===>} c=26.74;
+{===>} alpha=90;
+{===>} beta=90;
+{===>} gamma=90;
+
+{========================= atom selections ===========================}
+
+{* select atoms in reference molecule (can be all known atoms) *}
+{* this molecule and any others not selected below will remain fixed *}
+{===>} atom_select_ref=(known);
+
+{* select atoms to apply symmetry to (can be all known atoms) *}
+{===>} atom_symmetry=(known);
+
+{============================ parameters =============================}
+
+{* closeness cutoff (Angstroms) *}
+{* if the distance between any atom in the reference and the
+   transformed molecule is closer than this then they are considered
+   to be neighbours *}
+{===>} close_cutoff=5.0;
+
+{* only write out residues that have at least atom within the specified
+   cutoff distance of the reference molecule (useful for generating the
+   environment of the molecule) *}
+{+ choice: true false +}
+{===>} close_only=false;
+
+{=========================== output files ============================}
+
+{* root name for output coordinate files *}
+{* files  <output_root>_1.pdb ... <output_root>_n.pdb are written *}
+{===>} output_root="neighbours";
+
+{===========================================================================}
+{        things below this line do not normally need to be changed          }
+{===========================================================================}
+
+ ) {- end block parameter definition -}
+
+ checkversion 1.3
+
+ evaluate ($log_level=quiet)
+
+ if ( $log_level = verbose ) then
+   set message=normal echo=on end
+ else
+   set message=off echo=off end
+ end if
+
+ if ( &BLANK%structure_infile = true ) then
+ 
+    {- read topology files -}
+    topology
+     evaluate ($counter=1)
+     evaluate ($done=false)
+     while ( $done = false ) loop read
+      if ( &exist_topology_infile_$counter = true ) then
+         if ( &BLANK%topology_infile_$counter = false ) then
+            @@&topology_infile_$counter
+         end if
+      else
+        evaluate ($done=true)
+      end if
+      evaluate ($counter=$counter+1)
+     end loop read
+    end
+    
+    @CNS_XTALMODULE:mtfautogenerate (
+                                  coordinate_infile=&coordinate_infile;
+                                  convert=true;
+                                  separate=true;
+                                  atom_delete=(not known);
+                                  hydrogen_flag=true;
+                                  break_cutoff=2.5;
+                                  disulphide_dist=3.0;
+                                  carbo_dist=2.5;
+                                  patch_infile=&patch_infile;
+                                  O5_becomes="O";
+                                 )
+
+ else
+
+   structure @&structure_infile end
+   coordinates @&coordinate_infile
+
+ end if
+
+ {- read parameter files -}
+ parameter
+  evaluate ($counter=1)
+  evaluate ($done=false)
+  while ( $done = false ) loop read
+   if ( &exist_parameter_infile_$counter = true ) then
+      if ( &BLANK%parameter_infile_$counter = false ) then
+         @@&parameter_infile_$counter
+      end if
+   else
+     evaluate ($done=true)
+   end if
+   evaluate ($counter=$counter+1)
+  end loop read
+ end
+
+ set message=normal echo=on end
+
+ xray
+
+   @CNS_XTALLIB:spacegroup.lib (sg=&sg;
+                                sgparam=$sgparam;)
+
+   a=&a b=&b c=&c  alpha=&alpha beta=&beta gamma=&gamma
+  
+ end
+
+ duplicate selection=(&atom_select_ref) segid=REFM end
+
+ coord fractionalize end
+
+ show ave(x) ( segid REFM )
+ evaluate ($refx=$result)
+ show ave(y) ( segid REFM )
+ evaluate ($refy=$result)
+ show ave(z) ( segid REFM )
+ evaluate ($refz=$result)
+
+ coord orthogonalize end
+
+ show sum(1) ( &atom_symmetry and not ( segid REFM ) )
+
+ if ( $select <= 0 ) then
+   display >>> Error: no atoms selected
+   abort
+ end if
+
+ if ( $log_level = verbose ) then
+   set message=normal echo=on end
+ else
+   set message=off echo=off end
+ end if
+
+ coord copy end
+
+ evaluate ($count=1)
+ evaluate ($symm=1)
+
+ while ( $symm <= $symmetry ) loop symm
+ 
+   for $dx in ( -1 0 1 ) loop dx
+
+     for $dy in ( -1 0 1 ) loop dy
+
+       for $dz in ( -1 0 1 ) loop dz
+
+         evaluate ($self=false)
+         if ( $symm = 1 ) then
+           if ( $dx = 0 ) then
+             if ( $dy = 0 ) then 
+               if ( $dz = 0 ) then
+                 evaluate ($self=true)
+               end if
+             end if
+           end if
+         end if
+
+         if ( $self = false ) then
+
+           coord swap end
+           coord copy end
+
+           coord symmetry $symmetry_op_$symm 
+             selection=( &atom_symmetry and not ( segid REFM ) )
+           end
+
+           coord fractionalize end
+
+           show ave(x) ( &atom_symmetry and not ( segid REFM ) )
+           evaluate ($molx=$result)
+           show ave(y) ( &atom_symmetry and not ( segid REFM ) )
+           evaluate ($moly=$result)	  
+           show ave(z) ( &atom_symmetry and not ( segid REFM ) )
+           evaluate ($molz=$result)
+
+           evaluate ($shift_dx=int($refx-$molx))
+           evaluate ($shift_dy=int($refy-$moly))
+           evaluate ($shift_dz=int($refz-$molz))
+ 
+           do (x=x+$shift_dx) ( &atom_symmetry and not ( segid REFM ) )
+           do (y=y+$shift_dy) ( &atom_symmetry and not ( segid REFM ) )
+           do (z=z+$shift_dz) ( &atom_symmetry and not ( segid REFM ) )
+
+           coord translate 
+             vector=( $dx $dy $dz ) 
+             selection=( &atom_symmetry and not ( segid REFM ) )
+           end
+
+           coord orthogonalize end
+
+           igroup interaction
+             ( &atom_symmetry and not ( segid REFM ) )
+             ( segid REFM )
+           end
+
+           distance
+             from=( &atom_symmetry and not ( segid REFM ) )
+             to=( segid REFM )
+             cuton=0
+             cutoff=&close_cutoff
+             disp=rmsd
+           end           
+
+           show min( rmsd ) ( &atom_symmetry and not ( segid REFM ) and
+                            (attr rmsd > 0) )
+
+           if ( $select > 0 ) then
+             evaluate ($min=$result)
+           else
+             evaluate ($min=9999)
+           end if
+
+           if ( $min < &close_cutoff ) then
+
+             evaluate ($mdx=$dx+$shift_dx)
+             evaluate ($mdy=$dy+$shift_dy)
+             evaluate ($mdz=$dz+$shift_dz)
+
+             buffer history
+               reset
+               display input coordinates: &STRIP%coordinate_infile
+               display sg= &STRIP%sg a= &a b= &b c= &c
+               concatenate  alpha= &alpha beta= &beta gamma= &gamma
+               display close cutoff= &close_cutoff Angstrom
+               display symmetry_op=$symmetry_op_$symm
+               concatenate  dx=$mdx[i2]  dy=$mdy[i2]  dz=$mdz[i2]
+               concatenate  distance=$min[f6.3]
+             end
+
+             set remarks=reset end
+
+             buffer history
+               to=remarks
+               dump
+             end
+
+             evaluate ($coordinate_outfile=
+                           &output_root + "_" + encode($count) + ".pdb")
+
+ 
+               @@CNS_XTALMODULE:pdbgetsgname (sg=$sgparam.sg_number;
+                                              sgname=$sg_pdb;)
+
+               set display=$coordinate_outfile end
+
+               display CRYST1 $xrcell_1[f8.3] $xrcell_2[f8.3] $xrcell_3[f8.3] \
+$xrcell_4[f6.2] $xrcell_5[f6.2] $xrcell_6[f6.2] $sg_pdb[a10]
+
+               set display=OUTPUT end
+
+               if ( &close_only = true ) then
+                 write coordinates
+                   format=PDBO output=$coordinate_outfile 
+                   selection=( &atom_symmetry and not (segid REFM ) and
+                    byresidue( ( attribute rmsd > 0 ) and
+                             ( ( attribute rmsd < &close_cutoff ) or
+                               ( attribute rmsd = &close_cutoff ) ) ) )
+                 end
+               else
+                 write coordinates
+                   format=PDBO output=$coordinate_outfile
+                   selection=(&atom_symmetry and not (segid REFM ))
+                 end
+               end if
+ 
+
+             evaluate ($count=$count+1)
+
+           end if
+
+         end if
+
+       end loop dz
+
+     end loop dy
+
+   end loop dx
+
+   evaluate ($symm=$symm+1)
+
+ end loop symm
+
+ stop

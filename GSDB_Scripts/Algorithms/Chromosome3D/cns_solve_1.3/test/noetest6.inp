@@ -1,0 +1,129 @@
+remarks  noetest6.inp
+remarks test NOE restraints facility: time-averaging, running average
+remarks  
+
+topology @CNS_TOPPAR:protein.top end
+parameter @CNS_TOPPAR:protein.param end
+
+segment
+   name=mol1
+   molecule  name=lys number=1 end
+end
+segment
+   name=mol2
+   molecule name=lys number=1 end
+end
+
+delete selection=( not ( name nz or name hz* or name ce )) end
+
+coor
+ATOM      1  CE  LYS     1      -3.484  -0.633  -1.000  1.00  0.00      MOL1
+ATOM      2  NZ  LYS     1      -3.000  -2.000  -1.000  1.00  0.00      MOL1
+ATOM      3  HZ1 LYS     1       0.919  -1.295  -0.649  1.00  0.00      MOL1
+ATOM      4  HZ2 LYS     1      -1.913  -2.027   0.113  1.00  0.00      MOL1
+ATOM      5  HZ3 LYS     1      -1.913  -2.027  -1.585  1.00  0.00      MOL1
+ATOM      6  CE  LYS     1      -0.516  -8.367  -7.000  1.00  0.00      MOL2
+ATOM      7  NZ  LYS     1      -1.000  -7.000  -7.000  1.00  0.00      MOL2
+ATOM      8  HZ1 LYS     1      -4.190  -7.695  -7.397  1.00  0.00      MOL2
+ATOM      9  HZ2 LYS     1      -4.250  -7.446  -6.634  1.00  0.00      MOL2
+ATOM     10  HZ3 LYS     1      -0.654  -6.509  -7.849  1.00  0.00      MOL2
+END
+
+
+flags  exclude * include noe   end
+
+
+noe 
+	reset			{erases the current noe restraints}
+	nrestraints 100
+	class one
+		assign ( atom mol1 1 hz1 ) ( atom mol2 1 hz2)  4.0  0.08 0.17
+		assign ( atom mol1 1 hz* ) ( atom mol2 1 hz*)  4.0  0.08 0.17
+		AVER one R-3 		{Use r-3 averaging instead of r-6}
+	raverage *
+		on			{ turn on running-averaging }
+		exponent 3		{ uses r-3 averaging }
+		reset current		{ reset to the current distance }
+	end
+end
+
+energy end	{N=1, the total number of evaluations}
+print noe
+energy end	{N=2}
+print noe
+energy end	{N=3}
+print noe
+
+{Now change the interproton distances, and see if the running-average changes too}
+coor translate sele=( segid mol2 ) vector=( -1.0 -1.0 -1.0 ) end
+energy end	{N=4}
+print noe
+energy end	{N=5}
+print noe
+energy end	{N=6}
+print noe
+{The running average should now equal the average of the two distances}
+
+{Now change the analysis mode: energy calculated from running-average}
+noe anal=rave end
+print noe
+noe anal=curr end
+
+noe
+	raverage * reset current end	{reset the running-average distances}
+end	
+print noe
+energy  end
+{The running averages should now equal the current distances}
+
+{Test time-average facilities }
+
+noe 
+	reset			{erases the current noe restraints}
+	nrestraints 100
+	class one
+		assign ( atom mol1 1 hz1 ) ( atom mol2 1 hz2)  4.0  0.08 0.17
+	AVER	* R-3			{use r-3 averaging for pseudoatom groups}
+	raverage * on reset current end	{reset the running-average distances}
+	taverage *		
+		on			{ turn on time-averaging }
+		tau 50		{ sets the decay constant in step numbers }
+		exponent 3		{ uses r-3 averaging }
+		force nonconservative
+		reset current
+	end
+end
+
+print noe
+energy end
+print noe
+energy end
+print noe
+energy end
+{Now change the interproton distances to check that the time-average changes correctly}
+coor translate sele=( segid mol2 ) vector=( -3.0 -1.0 -1.0 ) end
+print noe
+energy end
+print noe
+energy end
+print noe
+energy end
+print noe
+{Now change the analysis mode: energy calculated from running-average}
+noe anal=rave end
+print noe
+{Now change the analysis mode: energy calculated from time-average}
+noe anal=tave end
+print noe
+noe anal=curr end
+
+noe 
+ 	taverage * reset current end	{reset the time-average distances}
+end
+print noe
+noe 
+ 	taverage * reset constraint end	{reset the time-average distances}
+end
+print noe
+
+stop

@@ -1,0 +1,532 @@
+<HTML>
+<HEAD>
+   <TITLE>Crystallography & NMR System</TITLE>
+</HEAD>
+<BODY BGCOLOR=#8ebf8e>
+
+<HR WIDTH="100%"></P>
+   
+<P>CNS has a powerful atom selection syntax that allows one to select
+atoms without reference to the internal index and to construct
+arbitrary logical expressions of selected atoms. The number of
+selected atoms from the last executed selection statement is stored in
+the symbol $SELECT.  Atom selections are generally fragile, which
+means that information associated with atom selections is lost when
+changing the molecular structure. Certain selections are rendered only
+partially fragile by mapping the selected atoms to the new molecular
+structure after it has been modified. This applies to all atom
+properties except for the internal stores, which are fragile. It also
+applies to the atom-based parameter statements. Note, however, that
+the atom selections are not applied to any newly created atoms and
+these atoms are then not selected. (The reason for this is that CNS
+does not store the strings associated with the selections.)</P>
+
+<P>An atom selection consists of one or more expressions which are
+combined with the logical operators <B>AND</B> and <B>OR</B>.
+Parentheses are used to group expressions (see the preceeding
+documentation for further examples). The following selection
+statements are possible:</P>
+
+<UL>
+<LI><B>ALL</B> selects all atoms.</LI>
+
+<LI><B>expression AROUnd real</B> selects all atoms that are within
+the specified real cutoff value around any atom selected in the
+expression.</LI>
+
+<LI><B>ATOM *segment-name* *residue-number* *atom*</B> selects all
+atoms that match the specified segment name, residue number, and atom
+name or wildcards of them.</LI>
+
+<LI><B>ATTRibute [ABS] atom-property &lt; | = | # | &gt; real </B>
+selects all atoms that have (optionally absolute) properties less
+than, equal to, not equal to, or greater than the specified real
+number.</LI>
+
+<LI><B>BONDedto expression</B> selects all atoms which are covalently
+bonded to any atom selected by the expression. The connectivity is
+found by analysis of the bonds defined in the molecular topology.</LI>
+
+<LI><B>BYGRoup expression</B> selects all atoms that belong to groups
+containing at least one atom that has been selected in the expression.</LI>
+
+<LI><B>BYRes expression</B> selects all atoms that belong to residues
+containing at least one atom that has been selected in in the expression.</LI>
+
+<LI><B>CHEMical *type*</B> selects all atoms that match the specified
+type or a wildcard of it.</LI>
+
+<LI><B>CHEMIcal type:type</B> selects all atoms that have types
+greater than or equal to the first type but less than or equal to the
+second type in alphanumeric order.</LI>
+
+<LI><B>FBOX real real real real real real</B> selects all atoms that
+lie within the specified fractional limits (xmin xmax ymin ymax zmin
+zmax). The crystallographic unit cell must have been defined.</LI>
+
+<LI><B>HYDRogen</B> selects all atoms with masses (atom-property MASS)
+approximately less than 3.5 amu.</LI>
+
+<LI><B>ID integer</B> selects all atoms that match the specified
+internal atom number. It should be used with caution. The main
+application is in conjunction with the "FOR symbol IN ID"
+statement.</LI>
+
+<LI><B>KNOWn</B> selects all atoms with known coordinates.</LI>
+
+<LI><B>NAME *atom*</B> selects all atoms that match the specified atom
+name or a wildcard of it.</LI>
+
+<LI><B>NAME atom:atom</B> selects all atoms that have atom names
+greater than or equal to the first atom name but less than or equal to
+the second atom name.</LI>
+
+<LI><B>NONE</B> selects no atoms.</LI>
+
+<LI><B>NOT expression</B> selects all atoms that have not been
+selected in the expression.</LI>
+
+<LI><B>POINt vector CUT real</B> selects all atoms that are within the
+specified real cutoff value around the specified 3d-vector.</LI>
+
+<LI><B>PREVious</B> selects all atoms that have been selected in a
+previous selection in application statements that contain multiple
+selections.</LI>
+
+<LI><B>RESIdue *residue-number*</B> selects all atoms that match the
+specified residue number or a wildcard of it.</LI>
+
+<LI><B>RESIDue residue-number:residue-number</B> selects all atoms
+that have residue numbers greater than or equal to the first residue
+number but less than or equal to the second residue number.</LI>
+
+<LI><B>RESName *residue-name*</B> selects all atoms that match the
+specified residue name or a wildcard of it.</LI>
+
+<LI><B>RESName residue-name:residue-name</B> selects all atoms that
+have residue names greater than or equal to the first residue name but
+less than or equal to the second residue name.</LI>
+
+<LI><B>expression SAROund real</B> selects all atoms that are within
+the specified real cutoff value around any atoms selected in the
+expression or any of its crystallographic or non-crystallographic
+symmetry mates.</LI>
+
+<LI><B>SEGId *segment-name*</B> selects all atoms that match the
+specified segment name or a wildcard of it.</LI>
+
+<LI><B>SEGId segment-name:segment-name</B> selects all atoms that have
+segment names greater than or equal to the first segment name but less
+than or equal to the second segment name.</LI>
+
+<LI><B>SFBOX real real real real real real</B> selects all atoms
+including symmetry related atoms that lie within the specified
+fractional limits (xmin xmax ymin ymax zmin zmax). The
+crystallographic unit cell and spacegroup symmetry must have been
+defined.</LI>
+
+<LI><B>STORE1|STORE2|STORE3|STORE4|STORE5|STORE6|STORE7|STORE8|STORE9</B>
+selects all atoms for which the value of STOREi is greater than 0;
+e.g., STORE2 is short hand for "ATTRibute STORE2 > 0", etc. The STOREi
+can be defined by the IDENtity statement or the DO statement.</LI>
+
+<LI><B>TAG</B> selects exactly one atom from each residue. These
+selected atoms may be used to "tag" all residues without having to
+refer to residue numbers or identifiers. The sequence of selected
+atoms is determined by the order in which the residues have been
+created through the segment statement. The identity of the atom
+selected per residue is not well defined.</LI>
+
+</UL>
+
+<P>The atomic properties which can be used in the attribute statement
+are:</P>
+
+<UL>
+
+<LI><B>B</B> B-factors of main coordinate set in A2 (real)</LI>
+<LI><B>BCOMp</B> B-factors of comparison coordinate set in A2 (real)</LI>
+<LI><B>CHARge</B> electric charge in electronic charges (real)</LI>
+<LI><B>DX</B> x component of first derivatives in kcal mole-1 &Aring;-1 (real)</LI>
+<LI><B>DY</B> y component of first derivatives in kcal mole-1 &Aring;-1 (real)</LI>
+<LI><B>DZ</B> z component of first derivatives in kcal mole-1 &Aring;-1 (real)</LI>
+<LI><B>FBETa</B> friction coefficient in psec-1 (real)</LI>
+<LI><B>HARMonic</B> energy constants of harmonic restraints in kcal mole-1 &Aring;-2 (real)</LI>
+<LI><B>MASS</B> mass in amu (real)</LI>
+<LI><B>Q</B> occupancies of main coordinate set (real)</LI>
+<LI><B>QCOMp</B> occupancies of comparison coordinate set (real)</LI>
+<LI><B>REFX</B> x component of reference coordinate set in &Aring; (real)</LI>
+<LI><B>REFY</B> y component of reference coordinate set in &Aring; (real)</LI>
+<LI><B>REFZ</B> z component of reference coordinate set in &Aring; (real)</LI>
+<LI><B>RMSD</B> array used by various modules, e.g., the COOR RMS statement</LI>
+<LI><B>SCATTER_A1</B> atomic form-factor coefficient a1 (real)</LI>
+<LI><B>SCATTER_A2</B> atomic form-factor coefficient a2 (real)</LI>
+<LI><B>SCATTER_A3</B> atomic form-factor coefficient a3 (real)</LI>
+<LI><B>SCATTER_A4</B> atomic form-factor coefficient a4 (real)</LI>
+<LI><B>SCATTER_B1</B> atomic form-factor coefficient b1 (real)</LI>
+<LI><B>SCATTER_B2</B> atomic form-factor coefficient b2 (real)</LI>
+<LI><B>SCATTER_B3</B> atomic form-factor coefficient b3 (real)</LI>
+<LI><B>SCATTER_B4</B> atomic form-factor coefficient b4 (real)</LI>
+<LI><B>SCATTER_C</B> atomic form-factor coefficient c (real)</LI>
+<LI><B>SCATTER_FP</B> atomic f' coefficient (real)</LI>
+<LI><B>SCATTER_FDP</B> atomic f'' coefficient (real)</LI>
+<LI><B>VX</B> x component of current velocities in &Aring; psec-1 (real)</LI>
+<LI><B>VY</B> y component of current velocities in &Aring; psec-1 (real)</LI>
+<LI><B>VZ</B> z component of current velocities in &Aring; psec-1 (real)</LI>
+<LI><B>X</B> x component of main coordinate set in &Aring; (real)</LI>
+<LI><B>XCOMp</B> x component of comparison coordinate set in &Aring; (real)</LI>
+<LI><B>Y</B> y component of main coordinate set in &Aring; (real)</LI>
+<LI><B>YCOMp</B> y component of comparison coordinate set in &Aring; (real)</LI>
+<LI><B>Z</B> z component of main coordinate set in &Aring; (real)</LI>
+<LI><B>ZCOMp</B> z component of comparison coordinate set in &Aring; (real)</LI>
+
+</UL>
+
+
+<U>Examples</U>
+
+<P>The first example selects all CA carbon atoms between residue
+number 40 and 100:</P>
+
+<PRE>
+  ( name ca and resid 40:100 )
+</PRE>
+
+<P>The next example selects all heavy side-chain atoms:</P>
+
+<PRE>
+  ( not ( name ca or name n or name c or name o or hydrogen ) ) 
+</PRE>
+
+<P>The next example selects all atoms in Phe residues that are within
+20&Aring; around residue 1:</P>
+
+<PRE>
+  ( resname phe and ( residue 1 around 20.0 ) )
+</PRE>
+
+<P>The next example is similar to the previous one, except that all
+atoms of a particular Phe residue are selected once any atom of this
+residue is within 20&Aring; from residue 1:</P>
+
+<PRE>
+  ( byresidue ( resname phe and ( residue 1 around 20.0 ) ) ) 
+</PRE>
+
+<P>Suppose that we want to get the stereochemistry as a function of
+residue number. The following example tags each residue by using its
+Ca carbon atom and then computes the rms deviation of bond lengths
+from ideality for all atoms of the selected residue.
+
+<PRE>
+  for $1 in id ( name ca ) loop main 
+     igroup 
+       interaction ( byresidue ( id $1 ) ) ( byresidue ( id $1 ) )
+     end 
+     print threshold=0.1 bonds 
+     display $result 
+  end loop main 
+</PRE>
+
+<U>Do, show and identity statements</U>
+
+<P>The do, show and identity statement allow the manipulation and
+query of atomic properties, such as masses, charges, coordinates,
+forces, and atom names. Mathematical expressions can be constructed
+that involve atomic properties. The show statement can also be used to
+analyze atomic properties and to transfer the information to the
+$RESULT symbol. The identity statement can be used to define and store
+an atom selection that can be recalled later.
+
+<UL>
+
+<LI><B>DO</B> manipulates atom properties. The operations are carried
+out component by component for all selected atoms.</LI>
+
+<LI><B>IDENtify</B> is used to define and store an atom selection. The
+output array will contain the sequential number of the selected atoms
+or otherwise zero.</LI>
+
+<LI><B>SHOW show-property</B> can be used to analyze atom
+properties. The possible show-properties are:
+
+<UL>
+
+<LI><B>AVE</B> shows the arithmetic average of selected elements and stores it in $RESULT.</LI>
+
+<LI><B>ELEMent</B> shows selected elements and stores the last element in $RESULT.</LI>
+
+<LI><B>MAX</B> shows the maximum of selected elements and stores it in $RESULT.</LI>
+
+<LI><B>MIN</B> shows the minimum of selected elements and stores it in $RESULT.</LI>
+
+<LI><B>NORM</B> shows the norm (sqrt(sum x^2/N)) of selected elements and stores it in $RESULT.</LI>
+
+<LI><B>RMS</B> shows the root-mean-square (rms) deviation (sqrt((sum
+(x-<x>)^2)/N)) of selected elements and stores it in $RESULT.
+
+<LI><B>SUM</B> shows the arithmetic sum of selected elements and stores it in $RESULT.</LI>
+
+</UL>
+
+</UL>
+
+<P>Atom properties can be reassigned the result of an operation using
+the DO statement:</P>
+
+<PRE>
+  DO ( atom-property = operation ) ( atom-selection )
+</PRE>
+
+<P>The SHOW statement show only the result of an operation:</P>
+
+<PRE>
+  SHOW ( operation ) ( atom-selection )
+</PRE>
+
+<P>The IDENtity statement does not use an operation, only an atomic
+STORE array and an atom selection:</P>
+
+<PRE>
+  IDENtity ( store[i] ) ( atom-selection )
+</PRE>
+
+<P>Operations are expressions using:</P>
+
+<PRE>
+  atom-property | function | integer | real | string | symbol
+</PRE>
+
+<P>Where operators (in order of increasing precedence) are:</P>
+
+<UL>
+<LI><B>+</B> denotes addition; concatenation for strings.</LI>
+<LI><B>-</B> denotes subtraction; unary minus or negative concatenation for strings.</LI>
+<LI><B>*</B> denotes multiplication.</LI>
+<LI><B>/</B> denotes division.</LI>
+<LI><B>^</B> denotes exponentiation.</LI>
+<LI><B>**</B> denotes exponentiation (same as ^).</LI>
+</UL>
+
+<P>Operators with the highest precedence are excuted first. Operators
+with the same precedence are executed from left to right. Operations
+have to be meaningful; i.e., the data type of the operands has to
+match the operation. For strings, only the "+" and "-" operations are
+allowed.</P>
+
+<P>Functions are as follows. Use of a string requires enclosure in
+double quotes " ". The data type of the function arguments has to
+match the data type of the operands.</P>
+
+<UL>
+
+<LI><B>ABS()</B> expects one argument and returns its absolute
+value. Argument restrictions: no string.</LI>
+
+<LI><B>ACOS()</B> denotes arc cosine. Argument restrictions: no string
+or complex; expects argument in degrees.</LI>
+
+<LI><B>ASIN()</B> denotes arc sine. Argument restrictions: no string
+or complex; expects argument in degrees.</LI>
+
+<LI><B>CAPITALIZE()</B> converts all characters in a string to uppercase.</LI>
+
+<LI><B>COS()</B> denotes cosine. Argument restrictions: no string;
+expects argument in degrees.</LI>
+
+<LI><B>DECODE()</B> converts a character string to a numerical number
+if possible.</LI>
+
+<LI><B>ENCODE()</B> converts a numerical number to a character string.</LI>
+
+<LI><B>EXP()</B> is an exponentiation function. Argument restrictions:
+no string.</LI>
+
+<LI><B>GAUSS()</B> is a Gaussian distribution random-number function;
+it has one argument, the desired standard deviation. The mean of the
+distribution is always zero. Argument restrictions: no string or
+complex.</LI>
+
+<LI><B>IMOD( a, b )</B> returns the nearest integer remainder of the
+first argument divided by the second. Argument restrictions: no string
+or complex.</LI>
+
+<LI><B>INT()</B> is a truncation. Argument restrictions: no string.</LI>
+
+<LI><B>LOG10()</B> is a base-10 logarithmic function. Argument
+restrictions: no string or complex; argument must be greater than
+zero.</LI>
+
+<LI><B>LOG()</B> is a natural logarithmic function. Argument
+restrictions: no string or complex; real numbers must be greater than
+zero.</LI>
+
+<LI><B>MAX( list )</B> is a maximum-value function; it must have at
+least two arguments, and it returns the value of the argument with the
+maximum value. Argument restrictions: no string or complex.</LI>
+
+<LI><B>MAXW()</B> is a Maxwellian distribution random-number function;
+it has one argument, the desired standard deviation. The mean of the
+distribution is always zero. Argument restrictions: no string or
+complex.</LI>
+
+<LI><B>MIN( list )</B> is a minimum-value function; it must have at
+least two arguments, and it returns the value of the argument with the
+minimum value. Argument restrictions: no string or complex.</LI>
+
+<LI><B>MOD( a, b )</B> returns the remainder of the first argument
+divided by the second. Argument restrictions: no string or complex.</LI>
+
+<LI><B>NINT()</B> returns nearest integer. Argument restrictions: no
+string.</LI>
+
+<LI><B>NORM()</B> is a normalization function; it has one argument, which
+must be an atom property. This function calculates the sum of the
+squares of all selected elements in the argument array. Then it
+divides each selected element by the square root of the sum of the
+squares. Argument restrictions: no string or complex.</LI>
+
+<LI><B>RANDom()</B> is a random-number function; it has no
+argument. It returns a uniform distribution between 0 and 1.</LI>
+
+<LI><B>SIGN()</B> is a transfer of sign. If the argument is >= 0, it
+returns +1; if the argument is < 0, it returns -1. Argument
+restrictions: no string or complex.</LI>
+
+<LI><B>SIN()</B> denotes sine. Argument restrictions: no string;
+expects degrees.</LI>
+
+<LI><B>SQRT()</B> returns the square root of the given
+argument. Argument restrictions: no string; no negative real numbers.</LI>
+
+<LI><B>STEP()</B> is a step function; it expects one real-number
+argument. If the argument is greater than zero, step returns a one;
+otherwise step returns a zero. Argument restrictions: no string or
+complex.</LI>
+
+<LI><B>TAN()</B> denotes tangent in degrees. Argument restrictions: no
+string or complex.</LI>
+
+</UL>
+
+<P>The complete set of atomic properties is:</P>
+
+<UL>
+
+<LI><B>B</B> B-factors of main coordinate set in &Aring;^2 (real)</LI>
+<LI><B>BCOMp</B> B-factors of comparison coordinate set in &Aring;^2 (real)</LI>
+<LI><B>CHARge</B> electric charge in electronic charges (real)</LI>
+<LI><B>CHEMical</B> chemical atom type (string)</LI>
+<LI><B>DX</B> x component of first derivatives in kcal mole-1 &Aring;-1 (real)</LI>
+<LI><B>DY</B> y component of first derivatives in kcal mole-1 &Aring;-1 (real)</LI>
+<LI><B>DZ</B> z component of first derivatives in kcal mole-1 &Aring;-1 (real)</LI>
+<LI><B>FBETa</B> friction coefficient in psec-1 (real)</LI>
+<LI><B>HARMonic</B> energy constants of harmonic restraints in kcal mole-1 &Aring;-2 (real)</LI>
+<LI><B>MASS</B> mass in amu (real)</LI>
+<LI><B>NAME</B> atom name (string)</LI>
+<LI><B>Q</B> occupancies of main coordinate set (real)</LI>
+<LI><B>QCOMp</B> occupancies of comparison coordinate set (real)</LI>
+<LI><B>REFX</B> x component of reference coordinate set in &Aring; (real)</LI>
+<LI><B>REFY</B> y component of reference coordinate set in &Aring; (real)</LI>
+<LI><B>REFZ</B> z component of reference coordinate set in &Aring; (real)</LI>
+<LI><B>RESId</B> residue number (string)</LI>
+<LI><B>RESName</B> residue name (string)</LI>
+<LI><B>RMSD</B> array used by various modules, e.g., the COOR RMS statement</LI>
+<LI><B>SEGId</B> segment or chain identifier (string)</LI>
+<LI><B>SCATTER_A1</B> atomic form-factor coefficient a1 (real)</LI>
+<LI><B>SCATTER_A2</B> atomic form-factor coefficient a2 (real)</LI>
+<LI><B>SCATTER_A3</B> atomic form-factor coefficient a3 (real)</LI>
+<LI><B>SCATTER_A4</B> atomic form-factor coefficient a4 (real)</LI>
+<LI><B>SCATTER_B1</B> atomic form-factor coefficient b1 (real)</LI>
+<LI><B>SCATTER_B2</B> atomic form-factor coefficient b2 (real)</LI>
+<LI><B>SCATTER_B3</B> atomic form-factor coefficient b3 (real)</LI>
+<LI><B>SCATTER_B4</B> atomic form-factor coefficient b4 (real)</LI>
+<LI><B>SCATTER_C</B> atomic form-factor coefficient c (real)</LI>
+<LI><B>SCATTER_FP</B> atomic f' coefficient (real)</LI>
+<LI><B>SCATTER_FDP</B> atomic f'' coefficient (real)</LI>
+<LI><B>STORE1</B> 1st internal store, is fragile (real)</LI>
+<LI><B>STORE2</B> 2nd internal store, is fragile (real)</LI>
+<LI><B>STORE3</B> 3rd internal store, is fragile (real)</LI>
+<LI><B>STORE4</B> 4th internal store, is fragile (real)</LI>
+<LI><B>STORE5</B> 5th internal store, is fragile (real)</LI>
+<LI><B>STORE6</B> 6th internal store, is fragile (real)</LI>
+<LI><B>STORE7</B> 7th internal store, is fragile (real)</LI>
+<LI><B>STORE8</B> 8th internal store, is fragile (real)</LI>
+<LI><B>STORE9</B> 9th internal store, is fragile (real)</LI>
+<LI><B>VX</B> x component of current velocities in &Aring; psec-1 (real)</LI>
+<LI><B>VY</B> y component of current velocities in &Aring; psec-1 (real)</LI>
+<LI><B>VZ</B> z component of current velocities in &Aring; psec-1 (real)</LI>
+<LI><B>X</B> x component of main coordinate set in &Aring; (real)</LI>
+<LI><B>XCOMp</B> x component of comparison coordinate set in &Aring; (real)</LI>
+<LI><B>Y</B> y component of main coordinate set in &Aring; (real)</LI>
+<LI><B>YCOMp</B> y component of comparison coordinate set in &Aring; (real)</LI>
+<LI><B>Z</B> z component of main coordinate set in &Aring; (real)</LI>
+<LI><B>ZCOMp</B> z component of comparison coordinate set in &Aring; (real)</LI>
+
+</UL>
+
+<U>Requirements</U>
+
+<P>The molecular structure has to be present. Upon modification of the
+molecular structure (e.g., delete or patch statement), the contents of
+the internal stores are destroyed; i.e., they are fragile. However,
+all other atom properties are conserved; i.e., they are only partially
+fragile.</P>
+
+<U>Examples</U>
+
+<P>The first example divides the coordinate array Z by the derivative
+array DX, adds the quotient to the coordinate array Y, and stores the
+result in the coordinate array X. The operations are carried out
+component by component for all atoms.</P>
+
+<PRE>
+  do ( X = Y + Z / DX ) ( all ) 
+</PRE>
+
+<P>The next example computes a Gaussian distribution with standard
+deviation 1.0 and stores the result in the coordinate array x for all
+Ca atoms:</P>
+
+<PRE>
+  do ( X = GAUSS( 1.0 ) ) ( name ca ) 
+</PRE>
+
+<P>The next example provides a listing of the X coordinates of all Tyr
+residues:</P>
+
+<PRE>
+  show element ( X ) ( resname tyr ) 
+</PRE>
+
+<P>The next example computes the average of all electric charges in
+residue 34. This average value is then stored in the symbol $1 by
+using the evaluate statement.</P>
+
+<PRE>
+  show ave ( charge ) ( residue 34 ) 
+  evaluate ($1=$RESULT) 
+</PRE>
+
+<P>The next example stores the specified atom selection in the array
+STORE1:</P>
+
+<PRE>
+  identity ( store1 ) ( attribute mass > 30.0 ) 
+</PRE>
+
+<P>The array STORE1 will be nonzero for the selected atoms and zero
+otherwise. The values for the selected atoms represent the sequential
+number of the selected atoms. The array STORE1 can be recalled by
+using ( store1 ) in a selection statement.</P>
+
+<HR WIDTH="100%"></P>
+
+<A HREF="../../text.html">Back to tutorials</A>&nbsp;&nbsp;
+<A HREF="../atom_sele_basic/text.html">Previous section</A>&nbsp;&nbsp;
+<A HREF="../sf_sele/text.html">Next section</A>
+
+<HR WIDTH="100%"></P>
+
+</BODY>
+</HTML>

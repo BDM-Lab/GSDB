@@ -1,0 +1,135 @@
+<HTML>
+<HEAD>
+   <TITLE>Crystallography & NMR System</TITLE>
+</HEAD>
+<BODY BGCOLOR=#8ebf8e>
+
+<HR WIDTH="100%">
+
+<H2>Preparation of diffraction data</H2>
+
+<HR WIDTH="100%"></P>
+
+<P>In this section we discuss refinement in the presence of phase information. When phase information is available (especially experimental phase information) it can be beneficial to use this information during refinement and map calculations. The only differences to the refinement examples discussed in sections <a href="../refinement_high_resolution/data_prep/text.html">Structure refinement at high to medium resolution</a> and <a href="../refinement_low_resolution/refinement/text.html">Structure refinement at low resolution</a> are the choice of the refinement target (<tt>mlhl</tt> instead of <tt>mlf</tt>) and the map type (<tt>combined</tt> instead of <tt>sigmaa</tt>). The following example illustrates the use of experimental phase information. </P>
+<P>We will assume that the diffraction data has been converted to CNS
+  format using to_cns or CCP4. There will then be a reflection file
+  containing the observed structure factor amplitudes and estimated
+  errors (sigma values). Cross validation will be used to monitor the
+  subsequent refinement of the model and also to reduce bias in map
+  calculations. The cross validation information is added to the
+  reflection file using the CNS task file <TT>make_cv.inp</TT>.</P>
+
+<PRE>
+      cns_solve &lt; <A HREF="make_cv.inp">make_cv.inp</A> &gt; make_cv.out</PRE>
+
+<P>A new reflection array is created, by default the name TEST is
+used. The array contains integer numbers, by default 1 signifies that
+the reflection will be used for cross-validation (i.e. excluded from
+refinement). The output of the <TT>make_cv.inp</TT> task file is a CNS
+formatted reflection file. This will contain a header which describes
+the data items in the file, followed by the data items themselves. The
+file is plain ASCII and can be viewed with any text viewer/editor.
+Example header from a CNS reflection file with cross validation
+information:</P>
+
+<PRE>
+ NREFlection=     25615
+ ANOMalous=FALSe { equiv. to HERMitian=TRUE}
+ DECLare NAME=FOBS                   DOMAin=RECIprocal   TYPE=REAL END
+ DECLare NAME=SIGMA                  DOMAin=RECIprocal   TYPE=REAL END
+ DECLare NAME=TEST                   DOMAin=RECIprocal   TYPE=INTE END
+ INDE     0    0    3 FOBS=  1047.380 SIGMA=    18.630 TEST=         0
+ INDE     0    0    6 FOBS=   197.360 SIGMA=     2.980 TEST=         0
+ INDE     0    0    7 FOBS=   451.840 SIGMA=     4.920 TEST=         0
+ INDE     0    0    8 FOBS=   410.340 SIGMA=     4.270 TEST=         1
+ INDE     0    0    9 FOBS=   666.420 SIGMA=     8.190 TEST=         0
+</PRE>
+
+<P>The phase information to be used in the refinement will be the
+Hendrickson-Lattman coefficients obtained from MAD phasing (see other
+tutorials). It is sufficient to just add the output .hkl file, from
+the final MAD phasing job, to the list of reflection files read into
+the CNS task files. It is important to list this file last if the
+other reflections files do not contain anomalous data.</P>
+
+<P>In some cases the experimental phases will have come from a
+different program and therefore will be in a different format. If the
+format is plain text then an awk or perl script can usually be written
+to convert to CNS format. For binary files such as the CCP4 MTZ format
+a special program will be required to convert to CNS format. There are
+2 such programs for this (both of which are part of CCP4 version 3.5):</P>
+<UL>
+<LI><B>SFTOOLS:</B> This can read an MTZ file then write it back out
+in CNS format. All items will be correctly converted. However, the
+header information from the CNS file is not written. This must be
+added manually. The header for a file with experimental phase
+information should look something like this:
+<PRE>
+ NREFlection=           1400
+ ANOMalous=TRUE { equiv. to HERMitian=FALSe}
+ DECLare NAME=FOBS        DOMAin=RECIprocal   TYPE=COMP END
+ DECLare NAME=SIGMA       DOMAin=RECIprocal   TYPE=REAL END
+ DECLare NAME=PA          DOMAin=RECIprocal   TYPE=REAL END
+ DECLare NAME=PB          DOMAin=RECIprocal   TYPE=REAL END
+ DECLare NAME=PC          DOMAin=RECIprocal   TYPE=REAL END
+ DECLare NAME=PD          DOMAin=RECIprocal   TYPE=REAL END
+ GROUp TYPE=HL
+   OBJEct=PA
+   OBJEct=PB
+   OBJEct=PC
+   OBJEct=PD
+ END
+ INDE     0    4    2 FOBS=     677.8       0.0 SIGMA=     19.40
+                      PA=    -0.486 PB=     0.000 PC=     0.000 PD=     0.000
+</PRE>
+The grouping for the HL coefficients is essential in order that
+remapping of reflections to a different asymmetric unit is performed
+correctly.</LI>
+
+<LI><B>mtz2various:</B> This can read an MTZ file and write out a CNS
+reflection file. An example script is:
+<PRE>
+mtz2various HKLIN infile HKLOUT outfile << EOF
+RESOLUTION 10000 2
+OUTPUT CNS
+EXCLUDE SIGP 0.001   # to exclude unmeasured refl.
+LABIN FP=Fnat SIGFP=SIGnat PHIB=PHI FOM=FOMM HLA=HLA HLB=HLB HLC=HLC HLD=HLD
+END
+EOF
+</PRE>
+</LI>
+</UL>
+
+<P>In some cases the experimental phase information is only available
+in the form of centroid phases and figures-of-merit (FOM). These must
+be converted to Hendrickson-Lattman coefficients in order to be used
+in refinement in CNS. The CNS task file <TT>make_hlcoeff.inp</TT> can
+be used for this purpose.</P>
+
+<P>In general it is best to use the "raw" experimental phase
+information, i.e. no density modification or other phase improvement
+methods have been used. Density modified phases usually have inflated
+FOM estimates which will lead to their over-weighting with the MLHL
+target in refinement. Therefore, if density modified phases are to be
+used it may be wise to "blur" the probability distributions by the
+application of a scale factor and B-factor. The CNS task file
+<TT>hlcoeff_blur.inp</TT> can be used for this purpose.</P>
+
+<P>It is a good idea to check that the electron density map generated
+from these experimental phases after conversion to CNS format is
+unchanged and that the model coincides with the density. The CNS task
+file <TT>fourier_map.inp</TT> can be used to make a Fourier synthesis
+using the observed amplitudes and the experimental Hendrickson-Lattman
+coefficients.</P>
+
+<A HREF="tutorial.csh">Script to run this tutorial</A>
+
+<HR WIDTH="100%">
+
+<A HREF="../../text.html">Back to tutorials</A>&nbsp;&nbsp;
+<A HREF="../model_stats/text.html">Next section</A>
+
+<HR WIDTH="100%"></P>
+
+</BODY>
+</HTML>

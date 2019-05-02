@@ -1,0 +1,228 @@
+! Module file: locsummary
+!
+! CNS module
+! **********
+!
+! Author: Axel T. Brunger
+!
+! copyright Yale University
+!
+! Function:
+!           Statistical analysis of lack-of-closure expression
+! Requirements:
+! 1. This module can only be called from the main level.
+! 2. For anomalous differences ANOMalous must be TRUE and, thus, the
+!
+
+module {locsummary}
+(
+   &method;      {"maxlike" "chisquare" "anomaxlike" "anochisquare" }
+   &messages;    {"normal" | "all" | "off"}
+   &summary;     { summary filename. }
+   &integration; {integration for probabilities: "numerical" | "analytic" }
+   &phistep;     {stepsize for integration}
+   &epsilon;     {"yes" | "no", use epsilon weighting in summing variances}
+   &cen360;      { TRUE | FALSE; if TRUE: full 0...360 phase prob. distr. for centrics }
+
+   &fp;          {native data (|F| and phase if present)}
+   &sp;          {native sigma on F}
+   &h;           {selection of heavy atoms}
+   &hfix;        {heavy atoms whose parameters are not refined.}
+   &fph;         {name of derivative data array (|F| and dummy phase)} 
+   &sph=null;    {name of derivative's sigma on F }
+   &target_set;  {selection for refinement and scaling target (must be subset of phase_set)}
+   &free_set;    {selection for cross-validation (must be subset of phase_set)}
+   &phase_set;   {selection for all phased reflections}
+   
+   &vloc;        {lack-of-closure variance}
+   &bad;         {outlier selection}
+  
+)
+
+checkversion 1.3
+
+if (&method = "chisquare") then
+   evaluate ($rd_ano = "no")
+elseif (&method ="maxlike") then
+   evaluate ($rd_ano = "no") 
+elseif (&method ="anochisquare") then
+   evaluate ($rd_ano = "yes") 
+elseif (&method ="anomaxlike") then
+   evaluate ($rd_ano = "yes")
+else 
+   display LOCSUMMARY: method &method not defined
+   stop
+end if
+
+{* check if cross-validation is turned on *}
+xray
+   show sum (1) (&free_set) 
+   if ($select>0) then
+      evaluate ($rd_cross_val=true)
+   else
+      evaluate ($rd_cross_val=false)
+   end if
+end
+
+xray
+   declare name=pa_loc domain=reciprocal type=real end
+   declare name=pb_loc domain=reciprocal type=real end
+   declare name=pc_loc domain=reciprocal type=real end
+   declare name=pd_loc domain=reciprocal type=real end
+   group type=hl object=pa_loc object=pb_loc object=pc_loc object=pd_loc end
+   declare name=mder domain=reciprocal type=complex end
+   declare name=fcalc_loc domain=reciprocal type=complex end
+   declare name=vloi domain=reciprocal type=real end
+   
+   predict { note: predict computes Fcalcs for all reflections }
+      to=fcalc_loc mode=reciprocal 
+      selection=( &phase_set ) 
+      atomselection=( &h ) 
+   end
+   
+   do (vloi=&vloc) (&phase_set) {copy individual loc's}
+   
+   @@CNS_XTALMODULE:substractmeasurementerror ( {compute individual loi's}
+      anomalous=$rd_ano;
+      messages=&messages;
+      sel=&phase_set;
+      var=vloi;
+      sp=&sp;sph=&sph;)
+
+   if ($rd_cross_val=false) then  
+      @@CNS_XTALMODULE:averagebin ( {compute variance loi from target set}
+     	 anomalous=$rd_ano;
+     	 epsilon=&epsilon;
+     	 sel=&phase_set;
+     	 subsel=(&target_set and &bad=0);
+     	 data=vloi;)
+   else
+      @@CNS_XTALMODULE:averagebin (  {compute variance loi from free set}
+     	 anomalous=$rd_ano;
+     	 epsilon=&epsilon;
+     	 sel=&phase_set;
+     	 subsel=(&free_set and &bad=0);
+     	 data=vloi;)
+   end if
+
+   @@CNS_XTALMODULE:addmeasurementerror (    {compute total variance}
+      anomalous=$rd_ano;  
+      messages=&messages; 
+      epsilon=&epsilon;   
+      var=vloi;	  
+      sp=&sp;sph=&sph;
+      sel=&phase_set;)
+
+   @@CNS_XTALMODULE:resetvariances ( {reset zero variances   }
+      zerovar=0.001;
+      resetzero=0.001;
+      var=vloi;
+      sel=&phase_set;)
+    
+   @@CNS_XTALMODULE:getprobability (   {compute probability}
+      method=&method;
+      integration=&integration;
+      messages=&messages;
+      fp=&fp;sp=&sp;		 
+      sel=&phase_set;
+      nameh=&nameh;
+      fh=fcalc_loc;fph=&fph;sph=&sph;
+      var=vloi;
+      pa=pa_loc;pb=pb_loc;pc=pc_loc;pd=pd_loc;
+      phistep=&phistep;
+      cen360=&cen360;)
+
+   @@CNS_XTALMODULE:getfom (			      
+      pa=pa_loc;pb=pb_loc;pc=pc_loc;pd=pd_loc;       
+      m=mder;
+      sel=&phase_set;
+      phistep=&phistep;
+      cen360=&cen360;)
+ 
+   show sum (1) (&target_set ) 
+   evaluate ($prl_nwork=$result)
+   show sum (1) (&free_set ) 
+   evaluate ($prl_nfree=$result)
+   show sum (1) (&phase_set) 
+   evaluate ($prl_ntest=$result)
+   show sum (1) ( &bad=1 and &target_set )
+   evaluate ($prl_wbad=$result)
+   show sum (1) ( &bad=1 and &free_set)
+   evaluate ($prl_tbad=$result)
+   show sum (1) ( &bad=1 and &phase_set)
+   evaluate ($prl_bad=$result)
+
+   show sum (1) (&target_set and acentric ) 
+   evaluate ($prl_nwork_a=$result)
+   show sum (1) (&free_set and acentric ) 
+   evaluate ($prl_nfree_a=$result)
+   show sum (1) (&phase_set and acentric) 
+   evaluate ($prl_ntest_a=$result)
+   show sum (1) ( &bad=1 and &target_set and acentric )
+   evaluate ($prl_wbad_a=$result)
+   show sum (1) ( &bad=1 and &free_set and acentric )
+   evaluate ($prl_tbad_a=$result)
+   show sum (1) ( &bad=1 and &phase_set and acentric )
+   evaluate ($prl_bad_a=$result)
+
+   show sum (1) (&target_set and centric ) 
+   evaluate ($prl_nwork_c=$result)
+   show sum (1) (&free_set and centric ) 
+   evaluate ($prl_nfree_c=$result)
+   show sum (1) (&phase_set and centric) 
+   evaluate ($prl_ntest_c=$result)
+   show sum (1) ( &bad=1 and &target_set and centric )
+   evaluate ($prl_wbad_c=$result)
+   show sum (1) ( &bad=1 and &free_set and centric )
+   evaluate ($prl_tbad_c=$result)
+   show sum (1) ( &bad=1 and &phase_set and centric )
+   evaluate ($prl_bad_c=$result)
+
+   set display=&summary end
+   display
+   display Summary of reflection usage for this LOC 
+   display                                                   (#centr.,   #acentr.,     #all) 
+   display LOC working set (used for scaling and refinement)=( $prl_nwork_c[I7] , $prl_nwork_a[I7] , $prl_nwork[I7] )  
+   display     outliers (among refl. in working set)=        ( $prl_wbad_c[I7] , $prl_wbad_a[I7] , $prl_wbad[I7] )    
+   show sum (1) (&free_set) 
+   if ($select > 0) then
+      display LOC test set (used for cross-validation)=         ( $prl_nfree_c[I7] , $prl_nfree_a[I7] , $prl_nfree[I7] )  
+      display     outliers (among refl. in test set)=           ( $prl_tbad_c[I7] , $prl_tbad_a[I7] , $prl_tbad[I7] )    
+   end if
+   display LOC phase set (all phased reflections)=           ( $prl_ntest_c[I7] , $prl_ntest_a[I7] , $prl_ntest[I7] )
+   display     outliers (among refl. in phase set)=          ( $prl_bad_c[I7] , $prl_bad_a[I7] , $prl_bad[I7] )
+   display  
+   set display=OUTPUT end
+
+   do (vloi=&vloc) (&phase_set) {copy individual loc's}
+   
+   @@CNS_XTALMODULE:substractmeasurementerror ( {compute individual loi's}
+      anomalous=$rd_ano;
+      messages=&messages;
+      sel=&phase_set;
+      var=vloi;
+      sp=&sp;sph=&sph;)
+
+   @@CNS_XTALMODULE:printstatistics (  
+      epsilon=&epsilon;
+      anomalous=$rd_ano;
+      text="";
+      table="";
+      target_set=(&target_set and &bad=0);
+      free_set=(&free_set and &bad=0);
+      phase_set=(&phase_set and &bad=0);
+      fp=&fp;fph=&fph;&fh=fcalc;m=mder;
+      varloc=&vloc;varloi=vloi; output=&summary)
+
+   undeclare name=vloi      domain=reciprocal  end
+   undeclare name=pa_loc    domain=reciprocal  end
+   undeclare name=pb_loc    domain=reciprocal  end
+   undeclare name=pc_loc    domain=reciprocal  end
+   undeclare name=pd_loc    domain=reciprocal  end
+   undeclare name=mder      domain=reciprocal  end
+   undeclare name=fcalc_loc domain=reciprocal  end
+
+end
+
+
+

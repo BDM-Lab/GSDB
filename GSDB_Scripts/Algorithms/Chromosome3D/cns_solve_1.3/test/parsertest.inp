@@ -1,0 +1,690 @@
+remarks  parsertest.inp
+remarks
+remarks  test CNS parser
+remarks  Axel T. Brunger
+
+set message=all end
+
+set display=parsertest.dat end
+literal eval ( $test = 2 )
+close parsertest.dat end
+set display=OUTPUT end
+
+set abort=off end
+
+eval ( $j = 0 )
+while ($j < 5) loop j
+   evaluate ($j=$j+1)
+
+      if ( $j eq 4 ) then
+          @does.not.exist
+          @parsertest.dat
+      end if
+           eval ( $test = 1 )
+           $?
+ end loop j
+
+evaluate( $1 = 3.0 )  
+evaluate( $2 = 4.0 )
+
+{* if statements *}
+{* ============= *}
+
+if ( $1 = 2.0 )   then
+   display    ERROR !!!!
+   parameter 
+      nbonds end
+   end
+elseif ( $2 = 4.0 ) then
+   if ( $1 = 3 )  then
+      display   OK !!
+      if ( $1 = 2 ) then
+         display   ERROR !!!!
+      end if
+   else
+      minimize powell  end
+      display   ERROR !!!!
+      dynamics torsion end
+   end if
+else
+   display  ERROR !!!!
+end if
+
+evaluate ($1=-3) 
+if ($1 = -3 ) then 
+   display  ok !!!
+end if
+evaluate ($1=3) 
+if ($1 = +3 ) then 
+   display  ok !!!
+end if
+
+if (1=1.000) then
+   display  ok !!
+end if
+
+if (1> 1.00E00) then
+   display no !!
+end if
+
+if (1 < $1) then 
+  display  OK !!
+end if
+
+if (a=b) then
+  display no !!
+end if
+
+if (a=a) then
+  display ok !!
+end if
+
+if (a="A") then
+  display ok !!
+end if
+
+eval ($rr="a") 
+if ($rr="a") then
+  display ok!!
+end if
+
+if ("a"=$rr) then
+   display  ok !!
+end if
+
+for $1 in ( 1 -1 2. -3.e-10 +5 +.6 ) loop main
+   display  $1 
+end loop main
+
+evaluate ($1="a")
+if ($1="b") then
+   for $1 in ( a b c d ) loop main
+       dynamics torsion end
+   end loop main
+elseif ($1="c") then
+   for $1 in ( a b c d ) loop main
+       dynamics torsion end
+   end loop main
+elseif ($1="a") then
+   for $1 in ( a b c d ) loop main
+   end loop main
+elseif ($1="q") then
+   for $1 in ( a b c d ) loop main
+       dynamics torsion end
+   end loop main
+end if
+
+{* basic loop with exit statement *}
+{* ============================== *}
+
+for $a in ( 1 2 3 ) loop main
+  evaluate( $1 = 1 )
+  loop  test
+   display   LOOP-INDEX= $1
+   evaluate( $1 = $1 + 1 )
+   if ( $1 > 5 )  then exit test   end if   
+  end loop test
+  display  YEAH!!! $a  $1
+end loop main
+
+
+{* while loop *}
+{* ========== *}
+evaluate( $1 = 1 )
+
+while ( $1 <= 5 )   loop test
+   display   LOOP-INDEX= $1
+   evaluate( $1 = $1 + 1 )
+   parameter end
+end loop test
+
+
+{* for loop *}
+{* ======== *}
+
+for $1 in ( A B C D E )   loop test
+   display   LOOP-COUNTER= $1
+end loop test
+
+
+{* nested loops *}
+{* ============ *}
+
+for $1 in (A B C D E) loop test
+    for $2 in ( 1 2 3 ) loop sub
+        display  LOOP-TEST-INDEX= $1    LOOP-SUB-INDEX= $2
+    if ( $1 eq E ) then exit test   end if
+    parameter end
+    end loop sub
+end loop test
+
+
+
+
+{* test some system symbols *}
+{* ======================== *}
+
+display   CPU-time=$CPU  name=$NAME  system=$SYSTEM
+display   time=$TIME   date=$DATE
+display   $KBOLTZ  $PI  $TIMFAC
+
+{* test continuation *}
+evaluate ($1a=123.46)
+evaluate ($2a=10.03)
+display  $1a\
+testing $2a[F10.4]\
+abcdefghijklmnop \
+test
+
+display  $1a\
+$1a[F6.2],$2a[F8.2]
+
+
+topology
+   !
+   mass A   1.0
+   mass B   2.0
+   mass C   3.0
+   mass D   4.0
+   mass E   5.0
+   mass F   6.0
+   mass G   7.0
+   mass H   8.0
+   mass I   9.0
+   !
+   residue test 
+     atom A  type A  charge 10.0 end
+     atom B  type B  charge 20.0 end
+     atom C  type C  charge 30.0 end
+     atom D  type D  charge 40.0 end
+     atom E  type E  charge 50.0 end
+     atom F  type F  charge 60.0 end
+     atom G  type G  charge 70.0 end
+     atom H  type H  charge 80.0 end
+     atom I  type I  charge 90.0 end
+   end
+   !
+end !topology
+
+segment
+   name=test
+   molecule name=test number=1 end
+end
+
+set message=all end
+
+evaluate ($abce=12.0+50.)
+display   $abce
+evaluate ($test=$abce^2+$pi)
+display   $test
+
+$?
+
+do (x=0.) ( all )
+do (x=x+$abce) ( all )
+show (x) ( all )
+
+evaluate ($test="hell"+" abcd "+"1")
+evaluate ($rr=1+1.0e-03)
+
+{* comparisons }
+
+evaluate ($1=1.0) 
+if ($1=1) then   end if
+
+evaluate ($1=1.0+33.3-33.3+0.00000000000001) 
+if ($1=1) then   end if
+evaluate ($1=1.0+33.3-33.3+0.00000000001) 
+if ($1=1) then   end if
+evaluate ($1=1.0+33.3-33.3+0.000001) 
+if ($1=1) then   end if
+
+evaluate ($1=5.)
+evaluate ($2=5.)
+if ($1>=$2) then  end if
+if ($1<=$2) then  end if
+if ($1<$2) then  end if
+if ($1>$2) then  end if
+if ($1# $2) then  end if
+if ($1=$2) then  end if
+
+evaluate ($1=5.)
+evaluate ($2=4.)
+if ($1>=$2) then  end if
+if ($1<=$2) then  end if
+if ($1<$2) then  end if
+if ($1>$2) then  end if
+if ($1# $2) then  end if
+if ($1=$2) then  end if
+
+evaluate ($1="test")
+evaluate ($2="test")
+if ($1>=$2) then  end if
+if ($1<=$2) then  end if
+if ($1<$2) then  end if
+if ($1>$2) then  end if
+if ($1# $2) then  end if
+if ($1=$2) then  end if
+
+evaluate ($1="test")
+evaluate ($2="tesu")
+if ($1>=$2) then  end if
+if ($1<=$2) then  end if
+if ($1<$2) then  end if
+if ($1>$2) then  end if
+if ($1# $2) then  end if
+if ($1=$2) then  end if
+if ($1==$2) then end if
+
+evaluate ($1="test")
+evaluate ($2="tes*")
+
+if ($1=$2) then end if
+if ($1==$2) then end if
+
+if (test=test) then end if
+if (test==test) then end if
+
+
+evaluate ($1=(1.,2.))
+evaluate ($2=(1.,2.))
+if ($1=$2) then  end if
+if ($1# $2) then  end if
+
+evaluate ($1=(2.,3.))
+evaluate ($2=(1.,2.))
+if ($1=$2) then  end if
+if ($1# $2) then  end if
+
+{*  implicit assignment in FOR loops *}
+evaluate ($1="test")
+evaluate ($2="1")
+evaluate ($3=1)
+evaluate ($4=(4.,5))
+for $index in ( a b d e "f" "1" 1 2 $1 $2 $3 $4 ) loop main
+  evaluate ($index=$index)
+  display   $index
+end loop main
+
+for $index in ( a "(" ")" 1 b ) loop main
+end loop main
+
+{* for in FOR IN ID loops *}
+for $1 in id ( name a or name b or name e or name f ) loop main
+    evaluate ($1=$1)
+    show ( name ) ( id $1 ) 
+end loop main
+
+{* nested FOR ID loops *}
+for $1 in id ( name a or name b or name e or name f ) loop main
+    for $2 in id ( name c or name d ) loop sub
+       display    $1   $2
+    end loop sub
+end loop main
+
+{* nested FOR ID loops *}
+for $1 in ( "A" "B" "X" "F" ) loop main
+    for $2 in id ( name $1 ) loop sub
+       display    $1   $2
+    end loop sub
+end loop main
+
+{* precision in substitutions *}
+evaluate ($1=1.234567789123455) 
+evaluate ($2=101220.4344444) 
+display   $1   $2
+set
+    seed=$1 
+    seed ? 
+end
+set precision=10 end
+display   $1   $2
+set
+    seed=$1 
+    seed ? 
+end
+
+{* test display *}
+evaluate ($1="test")
+evaluate ($2="1")
+evaluate ($3=1)
+evaluate ($4=(4.,5))
+display $1 $2 $3 $4
+display $1=$2($3)$4
+display "$1" 
+
+{* comment handling *}
+structure end  { this is a test !!! blah{}{}{}{!!!} blah }
+str{test test test}ucture
+  ?
+e{{hhhhh}}nd !! testing { {{{{
+
+{* test conversion to upper case characters *}
+evaluate ($1="ABCDEFGHIJKLMNOPQRSTUVWXYZ")
+evaluate ($2=abcdefghijklmnopqrstuvwxyz)
+if ($1=$2) then 
+elseif ($1 # $2) then
+end if
+
+{* test "silent" mode *}
+set message=off end
+set echo=off end
+evaluate ($1=10.0)
+for $1 in ( a b d e ) loop main
+   display   $1
+end loop main
+if ($1 = e) then
+   display  OK !!!
+elseif ($1 > 5 ) then
+   display  ERROR
+end if
+
+{* test @ file business *}
+set message=all end
+set echo=on end
+set display=parsertest.dat end
+display   structure
+display   end
+close parsertest.dat end
+
+@parsertest.dat
+
+for $1 in ( e r d ) loop main
+   @parsertest.dat  set precision=6 end 
+end loop main
+
+for $1 in ( e r d ) loop main
+   @@parsertest.dat set precision=6 end 
+end loop main
+
+set display=OUTPUT end
+
+display   $EXIST_CPU
+evaluate ($rrr=1234)
+display   $EXIST_RRR
+display   $EXIST_rrt
+
+{* test FORMAT specs for symbols *}
+evaluate ($abcd=10.4)
+display  $abcd
+display  $abcd[E10.4]
+display  $abcd[G14.5]
+evaluate ($abcd2=3.4)
+evaluate ($abcd1=1.2)
+display  $abcd[F10.4]   $abcd2[F10.4]  $abcd1[F10.4]
+evaluate ($abcd=1770.4)
+evaluate ($abcd2=333.4)
+evaluate ($abcd1=43431.24)
+display  $abcd[F10.4]   $abcd2[F10.4]  $abcd1[F10.4]
+
+
+evaluate ($abcd=(1.,2.))
+display  $abcd
+display  $abcd[F10.4]
+
+
+
+
+xray
+
+  symmetry=( X,Y,Z )
+  symmetry=( 1/2-X,-Y,1/2+Z )
+  symmetry=( -X,1/2+Y,1/2-Z )
+  symmetry=( 1/2+X,1/2-Y,-Z )
+
+   display  { SYMMETRY_OP_1 }  symmetry = $symmetry_op_1
+   display  { SYMMETRY_OP_2 }  symmetry = $symmetry_op_2
+   display  { SYMMETRY_OP_3 }  symmetry = $symmetry_op_3
+   display  { SYMMETRY_OP_4 }  symmetry = $symmetry_op_4
+
+   evaluate ($i=0)
+   while ($i < 4) loop disp
+      evaluate ($i=$i+1)
+      display symmetry = $symmetry_op_$i
+   end loop disp
+
+   evaluate ($i=0)
+   evaluate ($x=op)
+   while ($i < 4) loop disp
+      evaluate ($i=$i+1)
+      display symmetry = $symmetry_$x_$i
+   end loop disp
+
+end
+
+
+
+   evaluate ($i=0)
+   evaluate ($sum=0)
+
+   while ($i < 3) loop i
+      evaluate ($i=$i+1)
+
+      evaluate ($j=0)
+      while ($j < 3) loop j
+        evaluate ($j=$j+1)
+
+        evaluate ($a_$i_$j=$i+$j)
+        evaluate ($sum=$sum+$a_$i_$j)
+        display i= $i  j= $j   a(i,j)= $a_$i_$j   sum= $sum
+
+      end loop j
+
+   end loop i
+
+
+
+
+eval ($junk="$junk") 
+set display=abcd.dat end
+display  a b c d 
+display 1 2 3 4 
+display $junk
+
+set display=OUTPUT end
+close abcd.dat end
+
+
+evaluate ($junk=(1.0, 2.0))
+
+{* TEST 1 ------------------ }
+for $1 in ( a b c d 1 2 3 4 $junk) loop main
+
+  display $for_line
+  display $1 $1_type
+
+end loop main
+
+  display $for_line
+
+
+
+
+{* TEST 2 ------------------ }
+for $1 in ( @abcd.dat ) loop main
+
+  display $for_line
+  display $1 $1_type
+
+end loop main
+  display $for_line
+
+
+{* TEST 3 ------------------ }
+evaluate ($file="abcd.dat")
+
+for $1 in ( @$file ) loop inp
+
+  display $for_line
+  display $1 $1_type
+
+end loop inp
+  display $for_line
+
+for $1 in ( @@$file ) loop inp
+
+  display $for_line
+  display $1 $1_type
+
+end loop inp
+  display $for_line
+
+
+{* TEST 4 ------------------ }
+evaluate ($file="abcd.dat")
+evaluate ($i=1)
+
+if ($i > 2) then
+
+for $1 in ( @@$file ) loop inp
+
+  display $for_line
+  display $1 $1_type
+
+end loop inp
+  display $for_line
+
+end if
+
+
+
+fileexist parsertest.dat end
+display  $RESULT
+fileexist parsertest.junk end
+display  $RESULT
+
+
+write coor end
+
+remarks testing
+
+write coor end
+
+
+set remarks=accu end
+
+remarks  testing 1
+
+display ttt 
+
+remarks  testing 2
+
+write coor end
+
+set remarks =reset end
+
+write coor end
+
+eval ($1=1)
+eval ($rr_$1="tt")
+
+display  $exist_rr_$1
+
+eval ($1=2)
+display  $exist_rr_$1
+
+eval ( $test1 = 1 )
+eval ( $idx_$test1 = 10 ) 
+
+eval ( $test2 = 2 )
+eval ( $test3 = "works" )
+
+eval ( $sym.$test2.hi = 2 )
+eval ( $sym.$test3.hi = 3 )
+
+eval ( $t1 = 1 )
+eval ( $t2 = 2 )
+eval ( $t3 = 3 )
+eval ( $t_4_m = 4 )
+
+eval ( $sym.$t1.$t2 = 3 )
+eval ( $sym_$t1_$t2 = 3 )
+
+eval ( $sym.$t1_$t2.$t3 = 3 )
+
+! check that underscores are being parsed properly
+
+eval ( $s_s_$t1_$t_4_m_$t3 = 3 )
+
+set abort = off end
+
+! illegals
+ 
+eval ( $fail1 = -1.0 )
+eval ( $fail2 = (3,4) )
+eval ( $fail3 = 1e29 )
+eval ( $fail4 = 1.25 )
+
+eval ( $sym.$fail1.hi = 4 )
+eval ( $sym.$fail2.hi = 5 )
+eval ( $sym.$fail3.hi = 6 )
+eval ( $sym.$fail4.hi = 7 )
+
+eval ( $sym.$_fail5.hi = 8 )
+
+
+! let's try an array
+eval ( $x = 1 )
+while ( $x lt 10 ) loop xloop
+eval ( $y = 1 )
+while ( $y lt 10 ) loop yloop
+
+  eval ( $array.$x.$y = $x * $y ) 
+
+  eval ( $y = $y + 1 )
+end loop yloop
+
+eval ( $x = $x + 1 )
+end loop xloop
+
+set echo = off end
+set message = off end
+
+eval ( $x = 1 )
+while ( $x lt 10 ) loop xloop
+
+   display $array.$x.1[I3] $array.$x.2[I3] $array.$x.3[I3] $array.$x.4[I3] \
+$array.$x.5[I3] $array.$x.6[I3] $array.$x.7[I3] $array.$x.8[I3] \
+$array.$x.9[I3] 
+
+eval ( $x = $x + 1 )
+end loop xloop
+
+set echo = on end
+set message = norm end
+
+$?
+
+! new exist directive
+
+display   $EXIST%CPU
+evaluate ($rrr=1234)
+display   $EXIST%RRR
+display   $EXIST%rrt
+
+
+! blank directive
+
+eval ( $somestr = "" )
+
+if ( $blank%somestr = TRUE ) then
+display blank (should be TRUE):  $blank%somestr
+else
+display not blank (should be FALSE):  $blank%somestr
+end if
+
+eval ( $somestr = "something" )
+
+if ( $blank%somestr = TRUE ) then
+display blank (should be TRUE):  $blank%somestr
+else
+display not blank (should be FALSE):  $blank%somestr
+end if
+
+stop
+
+
+
+
+
+

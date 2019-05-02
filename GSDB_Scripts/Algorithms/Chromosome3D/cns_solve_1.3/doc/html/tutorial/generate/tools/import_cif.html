@@ -1,0 +1,230 @@
+<HTML>
+<HEAD>
+   <TITLE>Crystallography & NMR System</TITLE>
+</HEAD>
+<BODY BGCOLOR=#8ebf8e>
+<HR>
+<h2>Importing CIF Monomer descriptions</h2>
+<HR>
+<P>The CIF Monomer format, developed by CCP4 REFMAC, is essentially a <I>de facto</I>
+standard to define ligand and residue geometries. The format is supported by several
+programs, and the quality of available CIF refinement parameters continues to improve.
+The CIF Monomer format was published in
+<A HREF="http://scripts.iucr.org/cgi-bin/paper?ba5073" target="_blank">Acta Cryst D</A> and is
+<A HREF="http://www.ysbl.york.ac.uk/~alexei/dictionary.html" target="_blank">summarized here.</A>
+It is based on the
+<A HREF="http://deposit.rcsb.org/cc_dict_tut.html" target="_blank">PDB chemical component mmCIF format</A>,
+but is currently not part of the formal PDB mmCIF standard.</P>
+
+<P>The <B>cns_import_cif</B> utility program can read a CIF Monomer file
+and write out CNS topology and parameter files. Run "<b><a
+href="cns_import_cif.html" target="_blank">cns_import_cif --man</a></b>"
+to read the built-in documentation.
+
+<P>In order to avoid the atom CHEMical type name conflicts that occur with
+parameters from tools such as XPLO2D, restraints are written using atom-based
+parameters, as used by cis-peptide restraint modifications. The CHEMical name
+is given the atomic element name, and is only used for scatter-factor and
+non-bonded parameters. (See <a href="../parameter/text.html">Making parameter
+files</a> for more information on atom-based parameters.)</P>
+
+<P><B>NOTE:</B> Atom-based parameters only apply to atoms currently defined in the molecular topology. They do not apply to newly generated atoms after the atom-based parameter file has been generated. However, all standard CNS scripts read the parameters in the proper order, so they should
+work with no errors.</P>
+<hr>
+<h2>Example: Importing CIF Parameters for NADP</h2>
+
+<h3>1) Obtain a CIF Monomer file</h3>
+<p>PHENIX and REFMAC include CIF parameters for NADP in their standard
+ligand libraries. The compound ID is NAP (same as the 3-letter code).
+This tutorial will use the CIF file from PHENIX: "$PHENIX/chem_data/mon_lib/n/NAP.cif":</p>
+<blockquote>
+  <p><tt><a href="NAP.cif">NAP.cif</a></tt></p>
+</blockquote>
+<p>Currently, the REFMAC/CCP4 file ($CLIBD/monomers/n/NAP.cif) is identical to
+  the PHENIX version. PHENIX started with the CCP4 library, but includes far
+  fewer entries.  The CCP4 library is auto-generated, and has not been carefully
+  validated. PHENIX has culled out entries that may have problems, with a rather
+  strict selection criteria. Some of the excluded CCP4 entries are probably OK,
+but beware that some of them have serious problems.</p>
+
+<h3>2) Convert the CIF Monomer file to CNS topology and parameter files</h3>
+
+<p>Run the CIF import utility using the command "<b>cns_import_cif --invoke-cns NAP.cif</b>".
+This will create topology and parameter files using the default options, </p>
+<blockquote>
+  <p><tt><a href="NAP.top">NAP.top</a></tt></p>
+  <p><tt><a href="NAP.par">NAP.par</a></tt></p>
+</blockquote>
+<p>and will automatically
+  run cns on the validation input file which will produced minimized coordinates of the NAP compound:</p>
+<blockquote>
+  <p><tt><a href="NAP_min.pdb">NAP_min.pdb</a></tt></p>
+</blockquote>
+<p>The output produced by <tt>cns_import_cif</tt> should look like this:</p>
+<pre>
+Processing CIF file: NAP.cif
+Residue "NAP":
+73 atom(s), 77 bond(s), 135 angle(s), 47 dihedral(s), 8 chiral centre(s), 3 planar group(s)
+22 atoms in 3 plane group(s) produced 22 impropers (6 fixed).
+8 secondary chiral restraints were added.
+Writing topology file "NAP.top"
+Writing parameter file "NAP.par"
+Writing import log file "NAP.log"
+Writing CNS validation input file "NAP.inp"
+Running command: cns &lt; NAP.inp &gt;&amp; NAP_cns.log
+</pre>
+
+<p>The first line of statistics indicates the number of geometric terms read from the input file.
+Planar groups are decomposed into improper torsions. In this case, there were 22 planarity
+impropers, and the CIF parameters explicitly defined six of them with fixed angles. A proper
+CIF Monomer defines enough fixed planar torsions to ensure the correct geometry within
+each planar group.</p>
+
+<p>There are also 8 secondary chiral restraints. CIF defines the stereochemistry of the chiral
+center and three bonded atoms. For tetrahedral geometries, the secondary chiral restraint includes
+the fourth bonded atom. This is required for CNS successfully auto-build missing atoms successfully.</p>
+
+<p>Warnings are written as comments in the topology output file. In this case, no problems were found.
+Here are a few lines from "NAP.top":</p>
+<pre>
+      DIHEdral  "NC2*"  "NC3*"  "NO3*"  NHO3    ! var_31
+      DIHEdral  "NO4*"  "NC1*"  NN1     NC2     ! var_32
+      DIHEdral  "NO4*"  "NC1*"  NN1     NC6     ! var_33
+      IMPRoper  "NC1*"  NN1     NC2     NC3     ! CONST_11
+      IMPRoper  NN1     NC2     NC3     NC4     ! CONST_12
+...
+      IMPRoper  "AC4*"  "AC5*"  "AO4*"  "AC3*"  MULT 2 ! chir_01
+      IMPRoper  "AC4*"  "AC5*"  "AO4*"  "AH4*"  MULT 2 ! chir_01-extra
+      IMPRoper  "AC3*"  "AC4*"  "AO3*"  "AC2*"  MULT 2 ! chir_02
+      IMPRoper  "AC3*"  "AC4*"  "AO3*"  "AH3*"  MULT 2 ! chir_02-extra
+...
+! plane(plan-1) = AN6,AN9,"AC1*",AC8,AC4,AN7,AC5,AC6,AN1,
+!                AC2,AN3
+! esd=  0.0200, const=   1000.00
+! **  IMPRoper  "AC1*"  AN9     AC8     AN7     ! plan-1; angle:=180.000
+      IMPRoper  AC4     AN9     AC8     AN7     ! plan-1
+      IMPRoper  "AC1*"  AN9     AC4     AC5     ! plan-1
+      IMPRoper  "AC1*"  AN9     AC4     AN3     ! plan-1
+      IMPRoper  AC8     AN9     AC4     AC5     ! plan-1
+      IMPRoper  AC8     AN9     AC4     AN3     ! plan-1
+! **  IMPRoper  AN9     AC8     AN7     AC5     ! plan-1; angle:=0.000
+! **  IMPRoper  AN9     AC4     AC5     AN7     ! plan-1; angle:=0.000
+      IMPRoper  AN9     AC4     AC5     AC6     ! plan-1
+! **  IMPRoper  AN3     AC4     AC5     AN7     ! plan-1; angle:=180.000
+      IMPRoper  AN3     AC4     AC5     AC6     ! plan-1
+      IMPRoper  AN9     AC4     AN3     AC2     ! plan-1
+! **  IMPRoper  AC5     AC4     AN3     AC2     ! plan-1; angle:=0.000
+</pre>
+<p>The comments include the CIF label for torsions and plane groups. For chiral centers,
+the "-extra" suffix is added for the secondary chiral restraints. For plane groups,
+the explicitly defined torsions are included as comment lines.</p>
+
+
+<h3>3) Validate the results</h3>
+
+<P>Parameters should always be validated by energy minimization, the optimized
+result checked for problems, and visualized to make sure the geometry is
+sensible. It is also valuable to use more than one parameterization tool and
+compare results.</P>
+
+<P>The CNS validation script, which is automatically run with the --invoke-cns flag,
+auto-builds any missing atoms, does energy minimization, and includes an overall
+statistical summary at the end of the output log file:</P>
+<pre>
+Comp.ID     E0/atom     E/atom     E(VDW); RMS:Bonds     Angles      Impr.      Dihe.    Coor.;  Built
+NAP           1.331      1.149      0.932      0.002      0.648      0.084     34.405    0.267   0/76
+</pre>
+<P><B>E0/atom</B> is the total energy per atom calculated by CNS for the input
+coordinate file, and <B>E/atom</B> is the energy after minimization. The final
+energy should ideally be about 1 or less, with slightly higher values for large
+molecules. An energy of 4 or more usually indicates a problem. Ideally, the input
+reference coordinates should also have a low energy when available, but many
+CIF files include non-ideal coordinates.</P> 
+
+<P>RMSD statistics are shown for geometry restraints. Theses are normally lower than
+refinement against X-ray data. If reference coordinates were defined, the coordinate
+RMSD should be near zero for rigid molecules, but is not always meaningful for
+flexible molecules.  <B>E(VDW)</B> is the total Van der Waals energy,
+and should be less than one. Large values are usually an indication of serious
+geometry or parameter errors.</P>
+
+<P><B>Built 0/76</B> means that zero of 76 atoms were added using a
+variation of the CNS auto-build protocol. Many CIF Monomer files do not include
+reference coordinates. The auto-build protocol typically is able to generate
+an entire molecule, but errors can occur, especially for very large molecules.
+You may be able to obtain ideal coordinates from
+<A HREF="http://www.ebi.ac.uk/msd-srv/chempdb" target="ebi">EBI PDBeChem</A> or
+<A href="http://ligand-expo.rcsb.org/" target="rcsb">RCSB Ligand Expo</A>
+and re-run the validation script using the idealized starting coordinates.</P>
+
+<P>In this example, the statistics look good, so the next step is to visualize
+the result. This example uses PDB v.2 nomenclature, which has 'N' or 'A'
+prefixes for the nicotinamide and adeinine components.  This is likely to cause
+element misidentification, because CNS does not yet write the element name at
+the end of PDB ATOM records.</P>
+
+<div style="text-align: center;"><img src="NADP1.png" width="438" height="256"
+alt="Edge view of the nicotinamide ring in NADP"
+style="border-color: black; border-style: solid; border-width: 4px; align: center;"><br>
+<b>The nicotinamide ring in NADP energy-minimized with CNS</b></div>
+
+<p>Careful inspection shows that the amide group NC7 is out of the plane from the
+nicotinamide ring, causing the NC3 atom to be non-planar. The NC3-NC7 bond deviates 23
+degrees from the plane. Atom NC7 should have been included with the plane containing
+the ring, but checking the CIF file indicates that it was not:</p>
+<blockquote>
+  <p> <tt>NAP      plan-2    NN1       0.020<br>
+    NAP      plan-2    NC1*      0.020<br>
+    NAP      plan-2    NC2       0.020<br>
+    NAP      plan-2    NC6       0.020<br>
+    NAP      plan-2    NC3       0.020<br>
+    NAP      plan-2    NC4       0.020<br>
+    NAP      plan-2    NC5       0.020<br>
+    NAP      plan-3    NC7       0.020<br>
+    NAP      plan-3    NC3       0.020<br>
+    NAP      plan-3    NO7       0.020<br>
+    NAP      plan-3    NN7       0.020</tt></p>
+</blockquote>
+<p>The fix is to merge the two plane definitions: </p>
+<blockquote>
+  <p> <tt>NAP      plan-2    NN1       0.020<br>
+    NAP      plan-2    NC1*      0.020<br>
+    NAP      plan-2    NC2       0.020<br>
+    NAP      plan-2    NC6       0.020<br>
+    NAP      plan-2    NC3       0.020<br>
+    NAP      plan-2    NC4       0.020<br>
+    NAP      plan-2    NC5       0.020<br>
+    NAP      plan-2    NC7       0.020<br>
+    NAP      plan-2    NC3       0.020<br>
+    NAP      plan-2    NO7       0.020<br>
+    NAP      plan-2    NN7       0.020</tt></p>
+</blockquote>
+<p>and to re-run <tt>cns_import_cif </tt>with the fixed CIF file. </P>
+<p>Another potential problem visible in this view is that hydrogens NH2 and NH72 are
+  quite close. The partial double-bond character of NC3-NC7 favors the amide group being
+  planar with the ring, but the NH2-NH72 VdW interaction disfavors planarity. The result
+  is a torsion offset from the plane. The CIF parameters define the torsion NC2-NC3-NC7-NO7
+  with an angle of 168.83 with a periodicity of one. (This becomes -11.17 in CNS due to
+  different periodic restraint equations.) This value is reasonable for basing parameters
+  on a single energy-minimized reference molecule, but does not account for the offset being
+  positive. In addition, the amide group can flip, and the periodicity should be two. One
+  solution is to use a low energy constant (corresponding to a large CIF ESD), and let the
+  refinement determine the correct torsion. At lower resolution, you may want to modify
+  the torsion parameters to restrain towards one of the ideal +/-11.17 offsets once the
+  approximate torsion is determined. This is essentially the approach taken for nucleic-acid
+  sugar puckers.</P>
+
+<P>The important lesson is that even the best parameterization tools are imperfect.
+Parameters should always be considered with a bit of skepticism, and carefully
+validated.</P>
+
+<HR WIDTH="100%">
+
+<A HREF="../../text.html">Back to tutorials</A>&nbsp;&nbsp;
+<A HREF="toppar.html">Previous section</A>&nbsp;&nbsp;
+<A HREF="../cis-peptides/text.html">Next section</A>
+
+<HR WIDTH="100%">
+
+</BODY>
+</HTML>

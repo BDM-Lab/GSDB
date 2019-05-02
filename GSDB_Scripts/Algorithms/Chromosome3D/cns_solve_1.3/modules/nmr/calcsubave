@@ -1,0 +1,294 @@
+! Module file: calcsubave
+!
+! CNS MODULE
+! **********
+!
+! Authors: Gregory L. Warren and Axel T. Brunger
+!
+! copyright Yale University
+!
+! version 02/20/98
+!
+! Function:
+!          Calculate average values for accepted or trial
+!          ensembles
+!
+! Requirements:
+!       Use symbols initilized and used in the macros initave 
+!       and printaccept.             
+!
+!
+
+module {calcsubave}
+(
+   &ave=ave;                 {summed value from printave}
+   &ave2=ave2;               {squared sum values from printave}
+   &count=count;             {number of accepted or trial structures}
+   &cv=cv;                   {cross validation values}
+   &flag=flag;               {flags for average and cross validation}
+   &nmr=nmr;                 {parameters for nmr restraint data}
+)
+
+checkversion 1.3
+
+set message ? end
+evaluate ($message_old=$result)
+set echo ? end
+evaluate ($echo_old=$result)
+if ( $log_level = verbose ) then
+  set echo=on message=normal end
+else
+  set echo=off message=off end
+end if
+
+   if (&count > 1) then
+      {- rms sd values -}
+      evaluate (&ave2.pow.num=sqrt
+               ((&ave2.pow.num-(&ave.pow.num^2/&count))
+               /(&count-1)))
+      evaluate (&ave2.rms.bond=sqrt
+               ((&ave2.rms.bond-(&ave.rms.bond^2/&count))
+               /(&count-1)))
+      evaluate (&ave2.rms.angl=sqrt
+               ((&ave2.rms.angl-(&ave.rms.angl^2/&count))
+               /(&count-1)))
+      evaluate (&ave2.rms.impr=sqrt
+               ((&ave2.rms.impr-(&ave.rms.impr^2/&count))
+               /(&count-1)))
+      evaluate (&ave2.rms.dihe=sqrt
+               ((&ave2.rms.dihe-(&ave.rms.dihe^2/&count))
+               /(&count-1)))
+      evaluate (&ave2.rms.noe=sqrt
+               ((&ave2.rms.noe-(&ave.rms.noe^2/&count))
+               /(&count-1)))
+      evaluate (&ave2.rms.jcoup=sqrt 
+               ((&ave2.rms.jcoup-(&ave.rms.jcoup^2/&count)) 
+               /(&count-1)))
+      evaluate (&ave2.rms.oneb=sqrt 
+               ((&ave2.rms.oneb-(&ave.rms.oneb^2/&count)) 
+               /(&count-1)))
+      evaluate (&ave2.rms.carb.a=sqrt
+               ((&ave2.rms.carb.a-(&ave.rms.carb.a^2/&count))
+               /(&count-1)))
+      evaluate (&ave2.rms.carb.b=sqrt
+               ((&ave2.rms.carb.b-(&ave.rms.carb.b^2/&count))
+               /(&count-1)))
+      evaluate (&ave2.rms.prot.all=sqrt
+               ((&ave2.rms.prot.all-(&ave.rms.prot.all^2/&count))
+               /(&count-1)))
+      evaluate (&ave2.rms.dani=sqrt
+               ((&ave2.rms.dani-(&ave.rms.dani^2/&count))
+               /(&count-1)))
+      evaluate (&ave2.rms.sani=sqrt
+               ((&ave2.rms.sani-(&ave.rms.sani^2/&count))
+               /(&count-1)))
+      evaluate (&ave2.rms.cdih=sqrt
+               ((&ave2.rms.cdih-(&ave.rms.cdih^2/&count))
+               /(&count-1)))
+
+      {- violation sd values -}
+      evaluate (&ave2.viol.bond=sqrt
+               ((&ave2.viol.bond-(&ave.viol.bond^2/&count))
+               /(&count-1)))
+      evaluate (&ave2.viol.angl=sqrt
+               ((&ave2.viol.angl-(&ave.viol.angl^2/&count))
+               /(&count-1)))
+      evaluate (&ave2.viol.impr=sqrt
+               ((&ave2.viol.impr-(&ave.viol.impr^2/&count))
+               /(&count-1)))
+      evaluate (&ave2.viol.dihe=sqrt
+               ((&ave2.viol.dihe-(&ave.viol.dihe^2/&count))
+               /(&count-1)))
+      evaluate (&ave2.viol.vdw=sqrt
+               ((&ave2.viol.vdw-(&ave.viol.vdw^2/&count))
+               /(&count-1)))
+      evaluate (&ave2.viol.noe.2=sqrt
+               ((&ave2.viol.noe.2-(&ave.viol.noe.2^2/&count))
+               /(&count-1)))
+      evaluate (&ave2.viol.noe.5=sqrt
+               ((&ave2.viol.noe.5-(&ave.viol.noe.5^2/&count))
+               /(&count-1)))
+      evaluate (&ave2.viol.jcoup.1=sqrt 
+               ((&ave2.viol.jcoup.1-(&ave.viol.jcoup.1^2/&count)) 
+               /(&count-1)))
+      evaluate (&ave2.viol.jcoup.2=sqrt 
+               ((&ave2.viol.jcoup.2-(&ave.viol.jcoup.2^2/&count)) 
+               /(&count-1)))
+      evaluate (&ave2.viol.oneb=sqrt 
+               ((&ave2.viol.oneb-(&ave.viol.oneb^2/&count)) 
+               /(&count-1)))
+      evaluate (&ave2.viol.carb=sqrt
+               ((&ave2.viol.carb-(&ave.viol.carb^2/&count))
+               /(&count-1)))
+      evaluate (&ave2.viol.prot.all=sqrt
+               ((&ave2.viol.prot.all-(&ave.viol.prot.all^2/&count))
+               /(&count-1)))
+      evaluate (&ave2.viol.dani.1=sqrt
+               ((&ave2.viol.dani.1-(&ave.viol.dani.1^2/&count))
+               /(&count-1)))
+      evaluate (&ave2.viol.dani.2=sqrt
+               ((&ave2.viol.dani.2-(&ave.viol.dani.2^2/&count))
+               /(&count-1)))
+      evaluate (&ave2.viol.sani.01=sqrt
+               ((&ave2.viol.sani.01-(&ave.viol.sani.01^2/&count))
+               /(&count-1)))
+      evaluate (&ave2.viol.sani.10=sqrt
+               ((&ave2.viol.sani.10-(&ave.viol.sani.10^2/&count))
+               /(&count-1)))
+      evaluate (&ave2.viol.cdih.2=sqrt
+               ((&ave2.viol.cdih.2-(&ave.viol.cdih.2^2/&count))
+               /(&count-1)))
+      evaluate (&ave2.viol.cdih.5=sqrt
+               ((&ave2.viol.cdih.5-(&ave.viol.cdih.5^2/&count))
+               /(&count-1)))
+
+      {- proton chemical shift class rms and viol sd values -}
+      evaluate ($count=1)
+      while (&exist%nmr.prot.file.$count=true) loop nloop
+         evaluate ($clsname = "P"+encode($count))
+         if (&nmr.prot.file.$count # "") then
+            evaluate (&ave2.rms.prot.$clsname=sqrt
+                     ((&ave2.rms.prot.$clsname-(&ave.rms.prot.$clsname^2/&count))
+                     /(&count-1)))
+            evaluate (&ave2.viol.prot.$clsname=sqrt
+                     ((&ave2.viol.prot.$clsname-(&ave.viol.prot.$clsname^2/&count))
+                     /(&count-1)))
+         end if
+         evaluate ($count = $count + 1)
+      end loop nloop
+   else
+      {- rms sd values -}
+      evaluate (&ave2.pow.num =0.)
+      evaluate (&ave2.rms.bond=0.)
+      evaluate (&ave2.rms.angl=0.)
+      evaluate (&ave2.rms.impr=0.)
+      evaluate (&ave2.rms.dihe=0.)
+      evaluate (&ave2.rms.noe =0.)
+      evaluate (&ave2.rms.jcoup=0.)
+      evaluate (&ave2.rms.oneb=0.)
+      evaluate (&ave2.rms.carb.a=0.)
+      evaluate (&ave2.rms.carb.b=0.)
+      evaluate (&ave2.rms.prot.all=0.)
+      evaluate (&ave2.rms.dani=0.)
+      evaluate (&ave2.rms.sani=0.)
+      evaluate (&ave2.rms.cdih=0.)
+
+      {- violation sd values -}
+      evaluate (&ave2.viol.bond=0.)
+      evaluate (&ave2.viol.angl=0.)
+      evaluate (&ave2.viol.impr=0.)
+      evaluate (&ave2.viol.dihe=0.)
+      evaluate (&ave2.viol.vdw=0.)
+      evaluate (&ave2.viol.noe.2=0.)
+      evaluate (&ave2.viol.noe.5=0.)
+      evaluate (&ave2.viol.jcoup.1=0.)
+      evaluate (&ave2.viol.jcoup.2=0.)
+      evaluate (&ave2.viol.oneb=0.)
+      evaluate (&ave2.viol.carb=0.)
+      evaluate (&ave2.viol.prot.all=0.)
+      evaluate (&ave2.viol.dani.1=0.)
+      evaluate (&ave2.viol.dani.2=0.)
+      evaluate (&ave2.viol.sani.01=0.)
+      evaluate (&ave2.viol.sani.10=0.)
+      evaluate (&ave2.viol.cdih.2=0.)
+      evaluate (&ave2.viol.cdih.5=0.)
+
+      {- proton chemical shift class rms and viol sd values -}
+      evaluate ($count=1)
+      while (&exist%nmr.prot.file.$count=true) loop nloop
+         evaluate ($clsname = "P"+encode($count))
+         if (&nmr.prot.file.$count # "") then
+            evaluate (&ave2.rms.prot.$clsname=0.)
+            evaluate (&ave2.viol.prot.$clsname=0.)
+         end if
+         evaluate ($count = $count + 1)
+      end loop nloop
+   end if
+
+      {- cross validation average values -}
+      if (&flag.cv.flag=true) then
+         if (&cv.num > 1) then
+            evaluate (&ave2.test.rms.noe=sqrt
+                     ((&ave2.test.rms.noe-($ave.mlt.tst.rms.noe^2/&cv.num))
+                     /(&cv.num-1)))
+            evaluate (&ave2.test.viol.noe=sqrt
+                     ((&ave2.test.viol.noe-($ave.mlt.tst.vl.noe^2/&cv.num))
+                     /(&cv.num-1)))
+            evaluate (&ave2.test.rms.coup=sqrt
+                     ((&ave2.test.rms.coup-($ave.mlt.tst.rms.coup^2/&cv.num))
+                     /(&cv.num-1)))
+            evaluate (&ave2.test.viol.coup=sqrt
+                     ((&ave2.test.viol.coup-($ave.mlt.tst.vl.coup^2/&cv.num))
+                     /(&cv.num-1)))
+            evaluate (&ave2.test.rms.cdih=sqrt
+                     ((&ave2.test.rms.cdih-($ave.mlt.tst.rms.cdih^2/&cv.num))
+                     /(&cv.num-1)))
+            evaluate (&ave2.test.viol.cdih=sqrt
+                     ((&ave2.test.viol.cdih-($ave.mlt.tst.vl.cdih^2/&cv.num))
+                     /(&cv.num-1)))
+         else
+            evaluate (&ave2.test.rms.noe=0.)
+            evaluate (&ave2.test.viol.noe=0.)
+            evaluate (&ave2.test.rms.coup=0.)
+            evaluate (&ave2.test.viol.coup=0.)
+            evaluate (&ave2.test.rms.cdih=0.)
+            evaluate (&ave2.test.viol.cdih=0.)
+         end if
+
+         evaluate (&ave.test.rms.noe=&ave.test.rms.noe/&count)
+         evaluate (&ave.test.viol.noe=&ave.test.viol.noe/&count)
+         evaluate (&ave.test.rms.coup=&ave.test.rms.coup/&count)
+         evaluate (&ave.test.viol.coup=&ave.test.viol.coup/&count)
+         evaluate (&ave.test.rms.cdih=&ave.test.rms.cdih/&count)
+         evaluate (&ave.test.viol.cdih=&ave.test.viol.cdih/&count)
+      end if
+      
+
+   {- average rms values -}
+      evaluate (&ave.pow.num=&ave.pow.num/&count)
+      evaluate (&ave.rms.bond=&ave.rms.bond/&count)
+      evaluate (&ave.rms.angl=&ave.rms.angl/&count)
+      evaluate (&ave.rms.impr=&ave.rms.impr/&count)
+      evaluate (&ave.rms.dihe=&ave.rms.dihe/&count)
+      evaluate (&ave.rms.noe=&ave.rms.noe/&count)
+      evaluate (&ave.rms.jcoup=&ave.rms.jcoup/&count) 
+      evaluate (&ave.rms.oneb=&ave.rms.oneb/&count) 
+      evaluate (&ave.rms.carb.a=&ave.rms.carb.a/&count)
+      evaluate (&ave.rms.carb.b=&ave.rms.carb.b/&count)
+      evaluate (&ave.rms.prot.all=&ave.rms.prot.all/&count)
+      evaluate (&ave.rms.dani=&ave.rms.dani/&count) 
+      evaluate (&ave.rms.sani=&ave.rms.sani/&count) 
+      evaluate (&ave.rms.cdih=&ave.rms.cdih/&count) 
+
+   {- average violation values -}
+      evaluate (&ave.viol.bond=&ave.viol.bond/&count)
+      evaluate (&ave.viol.angl=&ave.viol.angl/&count)
+      evaluate (&ave.viol.impr=&ave.viol.impr/&count)
+      evaluate (&ave.viol.dihe=&ave.viol.dihe/&count)
+      evaluate (&ave.viol.vdw=&ave.viol.vdw/&count)
+      evaluate (&ave.viol.noe.2=&ave.viol.noe.2/&count)
+      evaluate (&ave.viol.noe.5=&ave.viol.noe.5/&count)
+      evaluate (&ave.viol.jcoup.1=&ave.viol.jcoup.1/&count) 
+      evaluate (&ave.viol.jcoup.2=&ave.viol.jcoup.2/&count) 
+      evaluate (&ave.viol.oneb=&ave.viol.oneb/&count) 
+      evaluate (&ave.viol.carb=&ave.viol.carb/&count)
+      evaluate (&ave.viol.prot.all=&ave.viol.prot.all/&count)
+      evaluate (&ave.viol.dani.1=&ave.viol.dani.1/&count) 
+      evaluate (&ave.viol.dani.2=&ave.viol.dani.2/&count) 
+      evaluate (&ave.viol.sani.01=&ave.viol.sani.01/&count) 
+      evaluate (&ave.viol.sani.10=&ave.viol.sani.10/&count) 
+      evaluate (&ave.viol.cdih.2=&ave.viol.cdih.2/&count) 
+      evaluate (&ave.viol.cdih.5=&ave.viol.cdih.5/&count) 
+
+   {- proton chemical shift class rms and viol average values -}
+      evaluate ($count=1)
+      while (&exist%nmr.prot.file.$count=true) loop nloop
+         evaluate ($clsname = "P"+encode($count))
+         if (&nmr.prot.file.$count # "") then
+            evaluate (&ave.rms.prot.$clsname=&ave.rms.prot.$clsname/&count)
+            evaluate (&ave.viol.prot.$clsname=&ave.viol.prot.$clsname/&count)
+         end if
+         evaluate ($count = $count + 1)
+      end loop nloop
+
+set message=$message_old echo=$echo_old end

@@ -1,0 +1,1749 @@
+! Module file: master
+!
+! CNS module
+! **********
+!
+! Author: Axel T. Brunger
+!
+! copyright Yale University
+
+{ We assume that heavy atoms are stored in residues.  Each residue
+  will be treated as a rigid body.  Residues can belong to the same
+  lack-of-closure expression class or can belong to different classes.  Atom types
+  must match standard form factor library specifications.  
+
+ It is important to put the data on an quasi-absolute scale
+ before refining the heavy atom parameters.  Otherwise the occupancies
+ may be ill-behaved
+
+  Prior to running this module the following items must be defined
+
+  1. Molecular structure file with heavy atoms.
+  2. Initial heavy atom coordinates
+  3. form factor library (normal and anomalous if required)
+  4. diffraction data (native and derivatives)
+
+  Notes:
+
+  This module will automatically detect if the data set
+  contains anomalous entries (i.e., if the ANOMalous flag has
+  been set).  The module can deal with situations where
+  only partial information is available, e.g., missing Bijvoet
+  mates, some data for some derivatives but not for others.  
+  If Bijvoet mates are missing, the module sets the missing mate
+  to be equal to the other one.  In this way, the reflection
+  can still be used for Fiso differences but the anomalous 
+  contribution will of course be zero. 
+
+  For more lack-of-closure expressions there are only two sections which need to
+  be edited (marked by FOR MORE lack-of-closure expressionS).
+  
+ }
+
+module {master}
+(
+
+{LIST}  { Specify which lack-of-closure expressions should be included in phasing or refinement.   }
+{====}  { This also specifies the order with which phasing and refinement proceeds.}
+&list= 0 1 2 3 4 5 6 7 8 9 10 11 12 13 14 15 16 17 18 19;   
+       { default: all lack-of-closure expressions with specified fph_<i> }
+
+&scatter="" ; { scattering library, if empty 
+                                    existing library will be used. }
+
+{NATIVE DATA}
+{===========}
+&fp;     {native amplitudes stored in complex array -
+          on output returns the centroid phases - required}
+&sp;     {native sigma - required}
+
+{PRIOR PHASE PROBABILITY DISTRIBUTION INDEPENDENT OF lack-of-closure expressions}
+{===============================================================================}
+&priora;  {prior probability Hendrickson and Lattman A array}
+&priorb;  {prior probability Hendrickson and Lattman B array}
+&priorc;  {prior probability Hendrickson and Lattman C array}
+&priord;  {prior probability Hendrickson and Lattman D array}
+
+{OUTPUT PHASE PROBABILITY DISTRIBUTION AND FOM}
+{=============================================}
+&pa;   {output probability Hendrickson and Lattman A array}  
+&pb;   {output probability Hendrickson and Lattman B array}
+&pc;   {output probability Hendrickson and Lattman C array}
+&pd;   {output probability Hendrickson and Lattman D array}
+&fom; {FOM array}
+
+
+{SUMMARY FILE NAME}
+{=================}
+&summary=summary.txt;
+
+{ FOR MORE lack-of-closure expressions simply add more entries. }
+{ ------------------------------------------------------------  }
+{PARAMETERS FOR lack-of-closure expression 0}
+{===========================================}
+&on_off_0="on"; {on/off flag for this lack-of-closure expression}
+&fph_0=NULL;         {name of 0th lack-of-closure expression data array}
+&sph_0=NULL;    {name of 0th lack-of-closure expression's sigma array}
+&target_set_0=(all);  {selection for Fiso phasing calculation;  set to (not all) if undesired }
+&target_set_a_0=(all);  {selection for Fano phasing calculation ; set to (not all) if undesired }
+&h_0=(all) ; {atom selection for all atoms belonging to 1st lack-of-closure expression }
+&hfix_0=(none); {heavy atoms whose parameters are kept fixed.}
+&xstep_0=20;   {number of coordinate minimization steps}
+&qstep_0=20;   {number of occupancy factor minimization steps}
+&bstep_0=20;   {number of B-factor minimization steps}
+&fpstep_0=0;   {number of fp minimization steps}
+&fdpstep_0=0;  {number of fdp minimization steps}
+&kstep_0=20;     {number of scaling minimization steps}		
+&kscale_0="yes";       {"yes" | "no" k-scaling}
+&bscale_0="no";        {"no" | "isotropic" | "anisotropic"  B }
+&xstep_ano_0=20;   {number of coordinate minimization steps for Fano calc.}
+&qstep_ano_0=0;   {number of occupancy factor minimization steps for Fano calc.}
+&bstep_ano_0=0;   {number of B-factor minimization steps for Fano calc.}		
+&fpstep_ano_0=0;   {number of fp minimization steps for Fano calc.}
+&fdpstep_ano_0=0;  {number of fdp minimization steps for Fano calc.}		
+&kstep_ano_0=20;     {number of scaling minimization steps for Fano calc.}		
+&kscale_ano_0="yes";       {"yes" | "no" k-scaling  for Fano calc.}
+&bscale_ano_0="no";        {"no" | "isotropic" | "anisotropic"  B } 
+&feedback_0="yes"; { "yes" | "no" ; feedback of lack-of-closure expression's phases in scaling and refinement }
+&grad_map_0="";
+
+{PARAMETERS FOR lack-of-closure expression 1}
+{===========================================}
+&on_off_1="on"; {on/off flag for this lack-of-closure expression}
+&fph_1=NULL;         {name of 1st lack-of-closure expression data array}
+&sph_1=NULL;    {name of 1st lack-of-closure expression's sigma array}
+&target_set_1=(all);  {selection for Fiso phasing calculation;  set to (not all) if undesired }
+&target_set_a_1=(all);  {selection for Fano phasing calculation ; set to (not all) if undesired }
+&h_1=(all) ; {atom selection for all atoms belonging to 1st lack-of-closure expression }
+&hfix_1=(none); {heavy atoms whose parameters are kept fixed.}
+&xstep_1=20;   {number of coordinate minimization steps}
+&qstep_1=20;   {number of occupancy factor minimization steps}
+&bstep_1=20;   {number of B-factor minimization steps}
+&fpstep_1=0;   {number of fp minimization steps}
+&fdpstep_1=0;  {number of fdp minimization steps}		
+&kstep_1=20;     {number of scaling minimization steps}	
+&kscale_1="yes";       {"yes" | "no" k-scaling}
+&bscale_1="no";        {"no" | "isotropic" | "anisotropic"  B } 
+&xstep_ano_1=20;   {number of coordinate minimization steps for Fano calc.}
+&qstep_ano_1=0;   {number of occupancy factor minimization steps for Fano calc.}
+&bstep_ano_1=0;   {number of B-factor minimization steps for Fano calc.}		
+&fpstep_ano_1=0;   {number of fp minimization steps for Fano calc.}
+&fdpstep_ano_1=0;  {number of fdp minimization steps for Fano calc.}		
+&kstep_ano_1=20;     {number of scaling minimization steps for Fano calc.}		
+&kscale_ano_1="yes";       {"yes" | "no" k-scaling  for Fano calc.}
+&bscale_ano_1="no";        {"no" | "isotropic" | "anisotropic"  B } 
+&feedback_1="yes"; { "yes" | "no" ; feedback of lack-of-closure expression's phases in scaling and refinement }
+&grad_map_1="";
+
+{PARAMETERS FOR lack-of-closure expression _2}
+{============================================}
+&on_off_2="on"; {on/off flag for this lack-of-closure expression}
+&fph_2=NULL;         {name of 1st lack-of-closure expression data array}
+&sph_2=NULL;    {name of 1st lack-of-closure expression's sigma array}
+&target_set_2=(all);  {selection for Fiso phasing calculation;  set to (not all) if undesired }
+&target_set_a_2=(all);  {selection for Fano phasing calculation ; set to (not all) if undesired }
+&h_2=(all) ; {atom selection for all atoms belonging to 1st lack-of-closure expression }
+&hfix_2=(none); {heavy atoms whose parameters are kept fixed.}
+&xstep_2=20;   {number of coordinate minimization steps}
+&qstep_2=20;   {number of occupancy factor minimization steps}
+&bstep_2=20;   {number of B-factor minimization steps}		
+&fpstep_2=0;   {number of fp minimization steps}
+&fdpstep_2=0;  {number of fdp minimization steps}		
+&kstep_2=20;     {number of scaling minimization steps}	
+&kscale_2="yes";       {"yes" | "no" k-scaling}
+&bscale_2="no";        {"no" | "isotropic" | "anisotropic"  B } 
+&xstep_ano_2=20;   {number of coordinate minimization steps for Fano calc.}
+&qstep_ano_2=0;   {number of occupancy factor minimization steps for Fano calc.}
+&bstep_ano_2=0;   {number of B-factor minimization steps for Fano calc.}		
+&fpstep_ano_2=0;   {number of fp minimization steps for Fano calc.}
+&fdpstep_ano_2=0;  {number of fdp minimization steps for Fano calc.}		
+&kstep_ano_2=20;     {number of scaling minimization steps for Fano calc.}		
+&kscale_ano_2="yes";       {"yes" | "no" k-scaling  for Fano calc.}
+&bscale_ano_2="no";        {"no" | "isotropic" | "anisotropic"  B } 
+&feedback_2="yes"; { "yes" | "no" ; feedback of lack-of-closure expression's phases in scaling and refinement }
+&grad_map_2="";
+
+{PARAMETERS FOR lack-of-closure expression _3}
+{============================================}
+&on_off_3="on"; {on/off flag for this lack-of-closure expression}
+&fph_3=NULL;         {name of 1st lack-of-closure expression data array}
+&sph_3=NULL;    {name of 1st lack-of-closure expression's sigma array}
+&target_set_3=(all);  {selection for Fiso phasing calculation;  set to (not all) if undesired }
+&target_set_a_3=(all);  {selection for Fano phasing calculation ; set to (not all) if undesired }
+&h_3=(all) ; {atom selection for all atoms belonging to 1st lack-of-closure expression }
+&hfix_3=(none); {heavy atoms whose parameters are kept fixed.}
+&xstep_3=20;   {number of coordinate minimization steps}
+&qstep_3=20;   {number of occupancy factor minimization steps}
+&bstep_3=20;   {number of B-factor minimization steps}		
+&fpstep_3=0;   {number of fp minimization steps}
+&fdpstep_3=0;  {number of fdp minimization steps}		
+&kstep_3=20;     {number of scaling minimization steps}	
+&kscale_3="yes";       {"yes" | "no" k-scaling}
+&bscale_3="no";        {"no" | "isotropic" | "anisotropic"  B } 
+&xstep_ano_3=20;   {number of coordinate minimization steps for Fano calc.}
+&qstep_ano_3=0;   {number of occupancy factor minimization steps for Fano calc.}
+&bstep_ano_3=0;   {number of B-factor minimization steps for Fano calc.}		
+&fpstep_ano_3=0;   {number of fp minimization steps for Fano calc.}
+&fdpstep_ano_3=0;  {number of fdp minimization steps for Fano calc.}		
+&kstep_ano_3=20;     {number of scaling minimization steps for Fano calc.}		
+&kscale_ano_3="yes";       {"yes" | "no" k-scaling  for Fano calc.}
+&bscale_ano_3="no";        {"no" | "isotropic" | "anisotropic"  B } 
+&feedback_3="yes"; { "yes" | "no" ; feedback of lack-of-closure expression's phases in scaling and refinement }
+&grad_map_3="";
+
+{PARAMETERS FOR lack-of-closure expression _4}
+{============================================}
+&on_off_4="on"; {on/off flag for this lack-of-closure expression}
+&fph_4=NULL;         {name of 1st lack-of-closure expression data array}
+&sph_4=NULL;    {name of 1st lack-of-closure expression's sigma array}
+&target_set_4=(all);  {selection for Fiso phasing calculation;  set to (not all) if undesired }
+&target_set_a_4=(all);  {selection for Fano phasing calculation ; set to (not all) if undesired }
+&h_4=(all) ; {atom selection for all atoms belonging to 1st lack-of-closure expression }
+&hfix_4=(none); {heavy atoms whose parameters are kept fixed.}
+&xstep_4=20;   {number of coordinate minimization steps}
+&qstep_4=20;   {number of occupancy factor minimization steps}
+&bstep_4=20;   {number of B-factor minimization steps}		
+&fpstep_4=0;   {number of fp minimization steps}
+&fdpstep_4=0;  {number of fdp minimization steps}		
+&kstep_4=20;     {number of scaling minimization steps}	
+&kscale_4="yes";       {"yes" | "no" k-scaling}
+&bscale_4="no";        {"no" | "isotropic" | "anisotropic"  B } 
+&xstep_ano_4=20;   {number of coordinate minimization steps for Fano calc.}
+&qstep_ano_4=0;   {number of occupancy factor minimization steps for Fano calc.}
+&bstep_ano_4=0;   {number of B-factor minimization steps for Fano calc.}		
+&fpstep_ano_4=0;   {number of fp minimization steps for Fano calc.}
+&fdpstep_ano_4=0;  {number of fdp minimization steps for Fano calc.}		
+&kstep_ano_4=20;     {number of scaling minimization steps for Fano calc.}		
+&kscale_ano_4="yes";       {"yes" | "no" k-scaling  for Fano calc.}
+&bscale_ano_4="no";        {"no" | "isotropic" | "anisotropic"  B } 
+&feedback_4="yes"; { "yes" | "no" ; feedback of lack-of-closure expression's phases in scaling and refinement }
+&grad_map_4="";
+
+{PARAMETERS FOR lack-of-closure expression _5}
+{============================================}
+&on_off_5="on"; {on/off flag for this lack-of-closure expression}
+&fph_5=NULL;         {name of 1st lack-of-closure expression data array}
+&sph_5=NULL;    {name of 1st lack-of-closure expression's sigma array}
+&target_set_5=(all);  {selection for Fiso phasing calculation;  set to (not all) if undesired }
+&target_set_a_5=(all);  {selection for Fano phasing calculation ; set to (not all) if undesired }
+&h_5=(all); {atom selection for all atoms belonging to 1st lack-of-closure expression }
+&hfix_5=(none); {heavy atoms whose parameters are kept fixed.}
+&xstep_5=20;   {number of coordinate minimization steps}
+&qstep_5=20;   {number of occupancy factor minimization steps}
+&bstep_5=20;   {number of B-factor minimization steps}		
+&fpstep_5=0;   {number of fp minimization steps}
+&fdpstep_5=0;  {number of fdp minimization steps}		
+&kstep_5=20;     {number of scaling minimization steps}	
+&kscale_5="yes";       {"yes" | "no" k-scaling}
+&bscale_5="no";        {"no" | "isotropic" | "anisotropic"  B } 
+&xstep_ano_5=20;   {number of coordinate minimization steps for Fano calc.}
+&qstep_ano_5=0;   {number of occupancy factor minimization steps for Fano calc.}
+&bstep_ano_5=0;   {number of B-factor minimization steps for Fano calc.}		
+&fpstep_ano_5=0;   {number of fp minimization steps for Fano calc.}
+&fdpstep_ano_5=0;  {number of fdp minimization steps for Fano calc.}		
+&kstep_ano_5=20;     {number of scaling minimization steps for Fano calc.}		
+&kscale_ano_5="yes";       {"yes" | "no" k-scaling  for Fano calc.}
+&bscale_ano_5="no";        {"no" | "isotropic" | "anisotropic"  B } 
+&feedback_5="yes"; { "yes" | "no" ; feedback of lack-of-closure expression's phases in scaling and refinement }
+&grad_map_5="";
+
+{PARAMETERS FOR lack-of-closure expression _6}
+{============================================}
+&on_off_6="on"; {on/off flag for this lack-of-closure expression}
+&fph_6=NULL;         {name of 1st lack-of-closure expression data array}
+&sph_6=NULL;    {name of 1st lack-of-closure expression's sigma array}
+&target_set_6=(all);  {selection for Fiso phasing calculation;  set to (not all) if undesired }
+&target_set_a_6=(all);  {selection for Fano phasing calculation ; set to (not all) if undesired }
+&h_6=(all) ; {atom selection for all atoms belonging to 1st lack-of-closure expression }
+&hfix_6=(none); {heavy atoms whose parameters are kept fixed.}
+&xstep_6=20;   {number of coordinate minimization steps}
+&qstep_6=20;   {number of occupancy factor minimization steps}
+&bstep_6=20;   {number of B-factor minimization steps}		
+&fpstep_6=0;   {number of fp minimization steps}
+&fdpstep_6=0;  {number of fdp minimization steps}		
+&kstep_6=20;     {number of scaling minimization steps}	
+&kscale_6="yes";       {"yes" | "no" k-scaling}
+&bscale_6="no";        {"no" | "isotropic" | "anisotropic"  B } 
+&xstep_ano_6=20;   {number of coordinate minimization steps for Fano calc.}
+&qstep_ano_6=0;   {number of occupancy factor minimization steps for Fano calc.}
+&bstep_ano_6=0;   {number of B-factor minimization steps for Fano calc.}		
+&fpstep_ano_6=0;   {number of fp minimization steps for Fano calc.}
+&fdpstep_ano_6=0;  {number of fdp minimization steps for Fano calc.}		
+&kstep_ano_6=20;     {number of scaling minimization steps for Fano calc.}		
+&kscale_ano_6="yes";       {"yes" | "no" k-scaling  for Fano calc.}
+&bscale_ano_6="no";        {"no" | "isotropic" | "anisotropic"  B } 
+&feedback_6="yes"; { "yes" | "no" ; feedback of lack-of-closure expression's phases in scaling and refinement }
+&grad_map_6="";
+
+{PARAMETERS FOR lack-of-closure expression _7}
+{============================================}
+&on_off_7="on"; {on/off flag for this lack-of-closure expression}
+&fph_7=NULL;         {name of 1st lack-of-closure expression data array}
+&sph_7=NULL;    {name of 1st lack-of-closure expression's sigma array}
+&target_set_7=(all);  {selection for Fiso phasing calculation;  set to (not all) if undesired }
+&target_set_a_7=(all);  {selection for Fano phasing calculation ; set to (not all) if undesired }
+&h_7=(all) ; {atom selection for all atoms belonging to 1st lack-of-closure expression }
+&hfix_7=(none); {heavy atoms whose parameters are kept fixed.}
+&xstep_7=20;   {number of coordinate minimization steps}
+&qstep_7=20;   {number of occupancy factor minimization steps}
+&bstep_7=20;   {number of B-factor minimization steps}		
+&fpstep_7=0;   {number of fp minimization steps}
+&fdpstep_7=0;  {number of fdp minimization steps}		
+&kstep_7=20;     {number of scaling minimization steps}	
+&kscale_7="yes";       {"yes" | "no" k-scaling}
+&bscale_7="no";        {"no" | "isotropic" | "anisotropic"  B } 
+&xstep_ano_7=20;   {number of coordinate minimization steps for Fano calc.}
+&qstep_ano_7=0;   {number of occupancy factor minimization steps for Fano calc.}
+&bstep_ano_7=0;   {number of B-factor minimization steps for Fano calc.}		
+&fpstep_ano_7=0;   {number of fp minimization steps for Fano calc.}
+&fdpstep_ano_7=0;  {number of fdp minimization steps for Fano calc.}		
+&kstep_ano_7=20;     {number of scaling minimization steps for Fano calc.}		
+&kscale_ano_7="yes";       {"yes" | "no" k-scaling  for Fano calc.}
+&bscale_ano_7="no";        {"no" | "isotropic" | "anisotropic"  B } 
+&feedback_7="yes"; { "yes" | "no" ; feedback of lack-of-closure expression's phases in scaling and refinement }
+&grad_map_7="";
+
+{PARAMETERS FOR lack-of-closure expression _8}
+{============================================}
+&on_off_8="on"; {on/off flag for this lack-of-closure expression}
+&fph_8=NULL;         {name of 1st lack-of-closure expression data array}
+&sph_8=NULL;    {name of 1st lack-of-closure expression's sigma array}
+&target_set_8=(all);  {selection for Fiso phasing calculation;  set to (not all) if undesired }
+&target_set_a_8=(all);  {selection for Fano phasing calculation ; set to (not all) if undesired }
+&h_8=(all) ; {atom selection for all atoms belonging to 1st lack-of-closure expression }
+&hfix_8=(none); {heavy atoms whose parameters are kept fixed.}
+&xstep_8=20;   {number of coordinate minimization steps}
+&qstep_8=20;   {number of occupancy factor minimization steps}
+&bstep_8=20;   {number of B-factor minimization steps}		
+&fpstep_8=0;   {number of fp minimization steps}
+&fdpstep_8=0;  {number of fdp minimization steps}		
+&kstep_8=20;     {number of scaling minimization steps}	
+&kscale_8="yes";       {"yes" | "no" k-scaling}
+&bscale_8="no";        {"no" | "isotropic" | "anisotropic"  B } 
+&xstep_ano_8=20;   {number of coordinate minimization steps for Fano calc.}
+&qstep_ano_8=0;   {number of occupancy factor minimization steps for Fano calc.}
+&bstep_ano_8=0;   {number of B-factor minimization steps for Fano calc.}		
+&fpstep_ano_8=0;   {number of fp minimization steps for Fano calc.}
+&fdpstep_ano_8=0;  {number of fdp minimization steps for Fano calc.}		
+&kstep_ano_8=20;     {number of scaling minimization steps for Fano calc.}		
+&kscale_ano_8="yes";       {"yes" | "no" k-scaling  for Fano calc.}
+&bscale_ano_8="no";        {"no" | "isotropic" | "anisotropic"  B } 
+&feedback_8="yes"; { "yes" | "no" ; feedback of lack-of-closure expression's phases in scaling and refinement }
+&grad_map_8="";
+
+{PARAMETERS FOR lack-of-closure expression _9}
+{============================================}
+&on_off_9="on"; {on/off flag for this lack-of-closure expression}
+&fph_9=NULL;         {name of 1st lack-of-closure expression data array}
+&sph_9=NULL;    {name of 1st lack-of-closure expression's sigma array}
+&target_set_9=(all);  {selection for Fiso phasing calculation;  set to (not all) if undesired }
+&target_set_a_9=(all);  {selection for Fano phasing calculation ; set to (not all) if undesired }
+&h_9=(all) ; {atom selection for all atoms belonging to 1st lack-of-closure expression }
+&hfix_9=(none); {heavy atoms whose parameters are kept fixed.}
+&xstep_9=20;   {number of coordinate minimization steps}
+&qstep_9=20;   {number of occupancy factor minimization steps}
+&bstep_9=20;   {number of B-factor minimization steps}		
+&fpstep_9=0;   {number of fp minimization steps}
+&fdpstep_9=0;  {number of fdp minimization steps}		
+&kstep_9=20;     {number of scaling minimization steps}	
+&kscale_9="yes";       {"yes" | "no" k-scaling}
+&bscale_9="no";        {"no" | "isotropic" | "anisotropic"  B } 
+&xstep_ano_9=20;   {number of coordinate minimization steps for Fano calc.}
+&qstep_ano_9=0;   {number of occupancy factor minimization steps for Fano calc.}
+&bstep_ano_9=0;   {number of B-factor minimization steps for Fano calc.}		
+&fpstep_ano_9=0;   {number of fp minimization steps for Fano calc.}
+&fdpstep_ano_9=0;  {number of fdp minimization steps for Fano calc.}		
+&kstep_ano_9=20;     {number of scaling minimization steps for Fano calc.}		
+&kscale_ano_9="yes";       {"yes" | "no" k-scaling  for Fano calc.}
+&bscale_ano_9="no";        {"no" | "isotropic" | "anisotropic"  B } 
+&feedback_9="yes"; { "yes" | "no" ; feedback of lack-of-closure expression's phases in scaling and refinement }
+&grad_map_9="";
+
+{PARAMETERS FOR lack-of-closure expression 10}
+{============================================}
+&on_off_10="on"; {on/off flag for this lack-of-closure expression}
+&fph_10=NULL;         {name of 0th lack-of-closure expression data array}
+&sph_10=NULL;    {name of 0th lack-of-closure expression's sigma array}
+&target_set_10=(all);  {selection for Fiso phasing calculation;  set to (not all) if undesired }
+&target_set_a_10=(all);  {selection for Fano phasing calculation ; set to (not all) if undesired }
+&h_10=(all) ; {atom selection for all atoms belonging to 1st lack-of-closure expression }
+&hfix_10=(none); {heavy atoms whose parameters are kept fixed.}
+&xstep_10=20;   {number of coordinate minimization steps}
+&qstep_10=20;   {number of occupancy factor minimization steps}
+&bstep_10=20;   {number of B-factor minimization steps}
+&fpstep_10=0;   {number of fp minimization steps}
+&fdpstep_10=0;  {number of fdp minimization steps}		
+&kstep_10=20;     {number of scaling minimization steps}	
+&kscale_10="yes";       {"yes" | "no" k-scaling}
+&bscale_10="no";        {"no" | "isotropic" | "anisotropic"  B }
+&xstep_ano_10=20;   {number of coordinate minimization steps for Fano calc.}
+&qstep_ano_10=0;   {number of occupancy factor minimization steps for Fano calc.}
+&bstep_ano_10=0;   {number of B-factor minimization steps for Fano calc.}		
+&fpstep_ano_10=0;   {number of fp minimization steps for Fano calc.}
+&fdpstep_ano_10=0;  {number of fdp minimization steps for Fano calc.}		
+&kstep_ano_10=20;     {number of scaling minimization steps for Fano calc.}		
+&kscale_ano_10="yes";       {"yes" | "no" k-scaling  for Fano calc.}
+&bscale_ano_10="no";        {"no" | "isotropic" | "anisotropic"  B } 
+&feedback_10="yes"; { "yes" | "no" ; feedback of lack-of-closure expression's phases in scaling and refinement }
+&grad_map_10="";
+
+{PARAMETERS FOR lack-of-closure expression 11}
+{============================================}
+&on_off_11="on"; {on/off flag for this lack-of-closure expression}
+&fph_11=NULL;         {name of 1st lack-of-closure expression data array}
+&sph_11=NULL;    {name of 1st lack-of-closure expression's sigma array}
+&target_set_11=(all);  {selection for Fiso phasing calculation;  set to (not all) if undesired }
+&target_set_a_11=(all);  {selection for Fano phasing calculation ; set to (not all) if undesired }
+&h_11=(all) ; {atom selection for all atoms belonging to 1st lack-of-closure expression }
+&hfix_11=(none); {heavy atoms whose parameters are kept fixed.}
+&xstep_11=20;   {number of coordinate minimization steps}
+&qstep_11=20;   {number of occupancy factor minimization steps}
+&bstep_11=20;   {number of B-factor minimization steps}
+&fpstep_11=0;   {number of fp minimization steps}
+&fdpstep_11=0;  {number of fdp minimization steps}		
+&kstep_11=20;     {number of scaling minimization steps}	
+&kscale_11="yes";       {"yes" | "no" k-scaling}
+&bscale_11="no";        {"no" | "isotropic" | "anisotropic"  B } 
+&xstep_ano_11=20;   {number of coordinate minimization steps for Fano calc.}
+&qstep_ano_11=0;   {number of occupancy factor minimization steps for Fano calc.}
+&bstep_ano_11=0;   {number of B-factor minimization steps for Fano calc.}		
+&fpstep_ano_11=0;   {number of fp minimization steps for Fano calc.}
+&fdpstep_ano_11=0;  {number of fdp minimization steps for Fano calc.}		
+&kstep_ano_11=20;     {number of scaling minimization steps for Fano calc.}		
+&kscale_ano_11="yes";       {"yes" | "no" k-scaling  for Fano calc.}
+&bscale_ano_11="no";        {"no" | "isotropic" | "anisotropic"  B } 
+&feedback_11="yes"; { "yes" | "no" ; feedback of lack-of-closure expression's phases in scaling and refinement }
+&grad_map_11="";
+
+{PARAMETERS FOR lack-of-closure expression 12}
+{============================================}
+&on_off_12="on"; {on/off flag for this lack-of-closure expression}
+&fph_12=NULL;         {name of 1st lack-of-closure expression data array}
+&sph_12=NULL;    {name of 1st lack-of-closure expression's sigma array}
+&target_set_12=(all);  {selection for Fiso phasing calculation;  set to (not all) if undesired }
+&target_set_a_12=(all);  {selection for Fano phasing calculation ; set to (not all) if undesired }
+&h_12=(all) ; {atom selection for all atoms belonging to 1st lack-of-closure expression }
+&hfix_12=(none); {heavy atoms whose parameters are kept fixed.}
+&xstep_12=20;   {number of coordinate minimization steps}
+&qstep_12=20;   {number of occupancy factor minimization steps}
+&bstep_12=20;   {number of B-factor minimization steps}		
+&fpstep_12=0;   {number of fp minimization steps}
+&fdpstep_12=0;  {number of fdp minimization steps}		
+&kstep_12=20;     {number of scaling minimization steps}	
+&kscale_12="yes";       {"yes" | "no" k-scaling}
+&bscale_12="no";        {"no" | "isotropic" | "anisotropic"  B } 
+&xstep_ano_12=20;   {number of coordinate minimization steps for Fano calc.}
+&qstep_ano_12=0;   {number of occupancy factor minimization steps for Fano calc.}
+&bstep_ano_12=0;   {number of B-factor minimization steps for Fano calc.}		
+&fpstep_ano_12=0;   {number of fp minimization steps for Fano calc.}
+&fdpstep_ano_12=0;  {number of fdp minimization steps for Fano calc.}		
+&kstep_ano_12=20;     {number of scaling minimization steps for Fano calc.}		
+&kscale_ano_12="yes";       {"yes" | "no" k-scaling  for Fano calc.}
+&bscale_ano_12="no";        {"no" | "isotropic" | "anisotropic"  B } 
+&feedback_12="yes"; { "yes" | "no" ; feedback of lack-of-closure expression's phases in scaling and refinement }
+&grad_map_12="";
+
+{PARAMETERS FOR lack-of-closure expression 13}
+{============================================}
+&on_off_13="on"; {on/off flag for this lack-of-closure expression}
+&fph_13=NULL;         {name of 1st lack-of-closure expression data array}
+&sph_13=NULL;    {name of 1st lack-of-closure expression's sigma array}
+&target_set_13=(all);  {selection for Fiso phasing calculation;  set to (not all) if undesired }
+&target_set_a_13=(all);  {selection for Fano phasing calculation ; set to (not all) if undesired }
+&h_13=(all) ; {atom selection for all atoms belonging to 1st lack-of-closure expression }
+&hfix_13=(none); {heavy atoms whose parameters are kept fixed.}
+&xstep_13=20;   {number of coordinate minimization steps}
+&qstep_13=20;   {number of occupancy factor minimization steps}
+&bstep_13=20;   {number of B-factor minimization steps}		
+&fpstep_13=0;   {number of fp minimization steps}
+&fdpstep_13=0;  {number of fdp minimization steps}		
+&kstep_13=20;     {number of scaling minimization steps}	
+&kscale_13="yes";       {"yes" | "no" k-scaling}
+&bscale_13="no";        {"no" | "isotropic" | "anisotropic"  B } 
+&xstep_ano_13=20;   {number of coordinate minimization steps for Fano calc.}
+&qstep_ano_13=0;   {number of occupancy factor minimization steps for Fano calc.}
+&bstep_ano_13=0;   {number of B-factor minimization steps for Fano calc.}		
+&fpstep_ano_13=0;   {number of fp minimization steps for Fano calc.}
+&fdpstep_ano_13=0;  {number of fdp minimization steps for Fano calc.}		
+&kstep_ano_13=20;     {number of scaling minimization steps for Fano calc.}		
+&kscale_ano_13="yes";       {"yes" | "no" k-scaling  for Fano calc.}
+&bscale_ano_13="no";        {"no" | "isotropic" | "anisotropic"  B } 
+&feedback_13="yes"; { "yes" | "no" ; feedback of lack-of-closure expression's phases in scaling and refinement }
+&grad_map_13="";
+
+{PARAMETERS FOR lack-of-closure expression 14}
+{============================================}
+&on_off_14="on"; {on/off flag for this lack-of-closure expression}
+&fph_14=NULL;         {name of 1st lack-of-closure expression data array}
+&sph_14=NULL;    {name of 1st lack-of-closure expression's sigma array}
+&target_set_14=(all);  {selection for Fiso phasing calculation;  set to (not all) if undesired }
+&target_set_a_14=(all);  {selection for Fano phasing calculation ; set to (not all) if undesired }
+&h_14=(all) ; {atom selection for all atoms belonging to 1st lack-of-closure expression }
+&hfix_14=(none); {heavy atoms whose parameters are kept fixed.}
+&xstep_14=20;   {number of coordinate minimization steps}
+&qstep_14=20;   {number of occupancy factor minimization steps}
+&bstep_14=20;   {number of B-factor minimization steps}		
+&fpstep_14=0;   {number of fp minimization steps}
+&fdpstep_14=0;  {number of fdp minimization steps}		
+&kstep_14=20;     {number of scaling minimization steps}	
+&kscale_14="yes";       {"yes" | "no" k-scaling}
+&bscale_14="no";        {"no" | "isotropic" | "anisotropic"  B } 
+&xstep_ano_14=20;   {number of coordinate minimization steps for Fano calc.}
+&qstep_ano_14=0;   {number of occupancy factor minimization steps for Fano calc.}
+&bstep_ano_14=0;   {number of B-factor minimization steps for Fano calc.}		
+&fpstep_ano_14=0;   {number of fp minimization steps for Fano calc.}
+&fdpstep_ano_14=0;  {number of fdp minimization steps for Fano calc.}		
+&kstep_ano_14=20;     {number of scaling minimization steps for Fano calc.}		
+&kscale_ano_14="yes";       {"yes" | "no" k-scaling  for Fano calc.}
+&bscale_ano_14="no";        {"no" | "isotropic" | "anisotropic"  B } 
+&feedback_14="yes"; { "yes" | "no" ; feedback of lack-of-closure expression's phases in scaling and refinement }
+&grad_map_14="";
+
+{PARAMETERS FOR lack-of-closure expression 15}
+{============================================}
+&on_off_15="on"; {on/off flag for this lack-of-closure expression}
+&fph_15=NULL;         {name of 1st lack-of-closure expression data array}
+&sph_15=NULL;    {name of 1st lack-of-closure expression's sigma array}
+&target_set_15=(all);  {selection for Fiso phasing calculation;  set to (not all) if undesired }
+&target_set_a_15=(all);  {selection for Fano phasing calculation ; set to (not all) if undesired }
+&h_15=(all); {atom selection for all atoms belonging to 1st lack-of-closure expression }
+&hfix_15=(none); {heavy atoms whose parameters are kept fixed.}
+&xstep_15=20;   {number of coordinate minimization steps}
+&qstep_15=20;   {number of occupancy factor minimization steps}
+&bstep_15=20;   {number of B-factor minimization steps}		
+&fpstep_15=0;   {number of fp minimization steps}
+&fdpstep_15=0;  {number of fdp minimization steps}		
+&kstep_15=20;     {number of scaling minimization steps}	
+&kscale_15="yes";       {"yes" | "no" k-scaling}
+&bscale_15="no";        {"no" | "isotropic" | "anisotropic"  B } 
+&xstep_ano_15=20;   {number of coordinate minimization steps for Fano calc.}
+&qstep_ano_15=0;   {number of occupancy factor minimization steps for Fano calc.}
+&bstep_ano_15=0;   {number of B-factor minimization steps for Fano calc.}		
+&fpstep_ano_15=0;   {number of fp minimization steps for Fano calc.}
+&fdpstep_ano_15=0;  {number of fdp minimization steps for Fano calc.}		
+&kstep_ano_15=20;     {number of scaling minimization steps for Fano calc.}		
+&kscale_ano_15="yes";       {"yes" | "no" k-scaling  for Fano calc.}
+&bscale_ano_15="no";        {"no" | "isotropic" | "anisotropic"  B } 
+&feedback_15="yes"; { "yes" | "no" ; feedback of lack-of-closure expression's phases in scaling and refinement }
+&grad_map_15="";
+
+{PARAMETERS FOR lack-of-closure expression 16}
+{============================================}
+&on_off_16="on"; {on/off flag for this lack-of-closure expression}
+&fph_16=NULL;         {name of 1st lack-of-closure expression data array}
+&sph_16=NULL;    {name of 1st lack-of-closure expression's sigma array}
+&target_set_16=(all);  {selection for Fiso phasing calculation;  set to (not all) if undesired }
+&target_set_a_16=(all);  {selection for Fano phasing calculation ; set to (not all) if undesired }
+&h_16=(all) ; {atom selection for all atoms belonging to 1st lack-of-closure expression }
+&hfix_16=(none); {heavy atoms whose parameters are kept fixed.}
+&xstep_16=20;   {number of coordinate minimization steps}
+&qstep_16=20;   {number of occupancy factor minimization steps}
+&bstep_16=20;   {number of B-factor minimization steps}		
+&fpstep_16=0;   {number of fp minimization steps}
+&fdpstep_16=0;  {number of fdp minimization steps}		
+&kstep_16=20;     {number of scaling minimization steps}	
+&kscale_16="yes";       {"yes" | "no" k-scaling}
+&bscale_16="no";        {"no" | "isotropic" | "anisotropic"  B } 
+&xstep_ano_16=20;   {number of coordinate minimization steps for Fano calc.}
+&qstep_ano_16=0;   {number of occupancy factor minimization steps for Fano calc.}
+&bstep_ano_16=0;   {number of B-factor minimization steps for Fano calc.}		
+&fpstep_ano_16=0;   {number of fp minimization steps for Fano calc.}
+&fdpstep_ano_16=0;  {number of fdp minimization steps for Fano calc.}		
+&kstep_ano_16=20;     {number of scaling minimization steps for Fano calc.}		
+&kscale_ano_16="yes";       {"yes" | "no" k-scaling  for Fano calc.}
+&bscale_ano_16="no";        {"no" | "isotropic" | "anisotropic"  B }
+&feedback_16="yes"; { "yes" | "no" ; feedback of lack-of-closure expression's phases in scaling and refinement }
+&grad_map_16="";
+
+{PARAMETERS FOR lack-of-closure expression 17}
+{============================================}
+&on_off_17="on"; {on/off flag for this lack-of-closure expression}
+&fph_17=NULL;         {name of 1st lack-of-closure expression data array}
+&sph_17=NULL;    {name of 1st lack-of-closure expression's sigma array}
+&target_set_17=(all);  {selection for Fiso phasing calculation;  set to (not all) if undesired }
+&target_set_a_17=(all);  {selection for Fano phasing calculation ; set to (not all) if undesired }
+&h_17=(all) ; {atom selection for all atoms belonging to 1st lack-of-closure expression }
+&hfix_17=(none); {heavy atoms whose parameters are kept fixed.}
+&xstep_17=20;   {number of coordinate minimization steps}
+&qstep_17=20;   {number of occupancy factor minimization steps}
+&bstep_17=20;   {number of B-factor minimization steps}		
+&fpstep_17=0;   {number of fp minimization steps}
+&fdpstep_17=0;  {number of fdp minimization steps}		
+&kstep_17=20;     {number of scaling minimization steps}	
+&kscale_17="yes";       {"yes" | "no" k-scaling}
+&bscale_17="no";        {"no" | "isotropic" | "anisotropic"  B } 
+&xstep_ano_17=20;   {number of coordinate minimization steps for Fano calc.}
+&qstep_ano_17=0;   {number of occupancy factor minimization steps for Fano calc.}
+&bstep_ano_17=0;   {number of B-factor minimization steps for Fano calc.}		
+&fpstep_ano_17=0;   {number of fp minimization steps for Fano calc.}
+&fdpstep_ano_17=0;  {number of fdp minimization steps for Fano calc.}		
+&kstep_ano_17=20;     {number of scaling minimization steps for Fano calc.}		
+&kscale_ano_17="yes";       {"yes" | "no" k-scaling  for Fano calc.}
+&bscale_ano_17="no";        {"no" | "isotropic" | "anisotropic"  B } 
+&feedback_17="yes"; { "yes" | "no" ; feedback of lack-of-closure expression's phases in scaling and refinement }
+&grad_map_17="";
+
+{PARAMETERS FOR lack-of-closure expression 18}
+{============================================}
+&on_off_18="on"; {on/off flag for this lack-of-closure expression}
+&fph_18=NULL;         {name of 1st lack-of-closure expression data array}
+&sph_18=NULL;    {name of 1st lack-of-closure expression's sigma array}
+&target_set_18=(all);  {selection for Fiso phasing calculation;  set to (not all) if undesired }
+&target_set_a_18=(all);  {selection for Fano phasing calculation ; set to (not all) if undesired }
+&h_18=(all) ; {atom selection for all atoms belonging to 1st lack-of-closure expression }
+&hfix_18=(none); {heavy atoms whose parameters are kept fixed.}
+&xstep_18=20;   {number of coordinate minimization steps}
+&qstep_18=20;   {number of occupancy factor minimization steps}
+&bstep_18=20;   {number of B-factor minimization steps}		
+&fpstep_18=0;   {number of fp minimization steps}
+&fdpstep_18=0;  {number of fdp minimization steps}		
+&kstep_18=20;     {number of scaling minimization steps}	
+&kscale_18="yes";       {"yes" | "no" k-scaling}
+&bscale_18="no";        {"no" | "isotropic" | "anisotropic"  B } 
+&xstep_ano_18=20;   {number of coordinate minimization steps for Fano calc.}
+&qstep_ano_18=0;   {number of occupancy factor minimization steps for Fano calc.}
+&bstep_ano_18=0;   {number of B-factor minimization steps for Fano calc.}		
+&fpstep_ano_18=0;   {number of fp minimization steps for Fano calc.}
+&fdpstep_ano_18=0;  {number of fdp minimization steps for Fano calc.}		
+&kstep_ano_18=20;     {number of scaling minimization steps for Fano calc.}		
+&kscale_ano_18="yes";       {"yes" | "no" k-scaling  for Fano calc.}
+&bscale_ano_18="no";        {"no" | "isotropic" | "anisotropic"  B } 
+&feedback_18="yes"; { "yes" | "no" ; feedback of lack-of-closure expression's phases in scaling and refinement }
+&grad_map_18="";
+
+{PARAMETERS FOR lack-of-closure expression 19}
+{============================================}
+&on_off_19="on"; {on/off flag for this lack-of-closure expression}
+&fph_19=NULL;         {name of 1st lack-of-closure expression data array}
+&sph_19=NULL;    {name of 1st lack-of-closure expression's sigma array}
+&target_set_19=(all);  {selection for Fiso phasing calculation;  set to (not all) if undesired }
+&target_set_a_19=(all);  {selection for Fano phasing calculation ; set to (not all) if undesired }
+&h_19=(all) ; {atom selection for all atoms belonging to 1st lack-of-closure expression }
+&hfix_19=(none); {heavy atoms whose parameters are kept fixed.}
+&xstep_19=20;   {number of coordinate minimization steps}
+&qstep_19=20;   {number of occupancy factor minimization steps}
+&bstep_19=20;   {number of B-factor minimization steps}		
+&fpstep_19=0;   {number of fp minimization steps}
+&fdpstep_19=0;  {number of fdp minimization steps}		
+&kstep_19=20;     {number of scaling minimization steps}	
+&kscale_19="yes";       {"yes" | "no" k-scaling}
+&bscale_19="no";        {"no" | "isotropic" | "anisotropic"  B } 
+&xstep_ano_19=20;   {number of coordinate minimization steps for Fano calc.}
+&qstep_ano_19=0;   {number of occupancy factor minimization steps for Fano calc.}
+&bstep_ano_19=0;   {number of B-factor minimization steps for Fano calc.}		
+&fpstep_ano_19=0;   {number of fp minimization steps for Fano calc.}
+&fdpstep_ano_19=0;  {number of fdp minimization steps for Fano calc.}		
+&kstep_ano_19=20;     {number of scaling minimization steps for Fano calc.}		
+&kscale_ano_19="yes";       {"yes" | "no" k-scaling  for Fano calc.}
+&bscale_ano_19="no";        {"no" | "isotropic" | "anisotropic"  B } 
+&feedback_19="yes"; { "yes" | "no" ; feedback of lack-of-closure expression's phases in scaling and refinement }
+&cen360="no"; {"yes" | "no" ; use full 360 range for centric phase prob. distr. for anomalous data}
+&grad_map_19="";
+
+
+{GLOBAL PARAMETERS}
+{=================}
+&anomalous_mode="fano"; { "fano" | "deltaf", anomalous options.  fano mode means
+                          that we compute the averages of F+ and F- for the FISO term.
+                          deltaf means that we keep the Bijvoet pairs always separate and
+                          only compute F lack-of-closures.  
+                          The latter option is useful when strong anomalous signals 
+                          are present.  It can also be used when the native data 
+                          has an anomalous signal. }
+&mergeanomalous="true"; { "true" | "false" only for fano=deltaf method.  Can be set to true if the
+                          native Fs have no anomalous component.  In this case, the Friedel symmetry is
+                          strictly enforced.  Set to false when the native Fs have
+                          an anomalous component. }
+
+&test_array;   { global test array cross-validation }
+&test_flag=1;
+&phase_set=(all);     { global phasing set }
+&text="this is a test";
+&messages="normal"; {set verbosity "normal" | "all" | "off"}
+&method="chisquare";        {"maxlike" or "chisquare" }
+&integration="analytic";  {integration for probabilities: numerical | analytic }
+&sum_method="direct"; {summation method for structure factor calculation: direct | fft }
+&fft_grid=0.2;        {fft grid spacing for fft summation method (normally 0.2) }
+&fft_memory=-1;       { memory allocation for FFT calculation; negative value -> automatic }
+&macrocycle=10;       {number of macro-cycles for everything.  Must be greater than 1. }
+&ncycle=10;           {number of micro-cycles for each lack-of-closure expression}
+&tolerance=0.001;     {lack-of-closure tolerance (relative) for initial phase prob. iterations}  
+                      {also specifies tolerance for conjugate gradient minimizations} 
+&iteration=4;        {max. number of initial phase prob. iterations}
+&cutoff=4;            {sigma cutoff level for discarding outliers }
+
+&epsilon="no";        {"yes" | "no", use epsilon weighting in summing variances}
+&resetzero=0.001;     {reset zero variances to &resetzero, to avoid division
+                        by zero}
+&zerovar=0.001;      {smallest significant value. For example, the smallest
+                        digit defined by the diffraction data.}
+&phistep=5;          {integration step size}
+&workbin=8;          {select number of bins used in calculations}
+&bmin=1;             {minimum B-factor (Ang^2); truncation only applied 
+                      to B-factors that are being refined}
+&bmax=300;            {maximum B-factor (Ang^2); truncation only applied 
+                      to B-factors that are being refined}
+&qmin=0.01;          {minimum occupancy factor; truncation only applied 
+                      to occupancy factors that are being refined}
+&qmax=10.;           {maximum occupancy factor; truncation only applied 
+                      to occupancy factors that are being refined}
+&fpmin=-300;
+&fpmax=+300;         {minimum and maximum fprime; truncation only applied
+                        to fprime factors that are being refined}
+&fdpmin=-300;
+&fdpmax=+300;        {minimum and maximum fdprime; truncation only applied
+                        to fprime factors that are being refined}
+&qmaxshift=1.;        {maximum q-shift}
+&fpmaxshift=20.;      {maximum fp-shift}
+&fdpmaxshift=20.;     {maximum fdp-shift}
+&bmaxshift=100.;      {maximum b-shift}
+)
+
+{=====================================START MACRO=======================================}
+
+checkversion 1.3
+
+xray
+   if (&scatter # "") then
+      { Read scattering library. }
+      { ------------------------ }
+   
+      set message ? end eval ($master_mess=$result)
+      set echo ? end    eval ($master_echo=$result)
+      scatter reset  
+      @@&scatter 
+      set message=$master_mess end
+      set echo=$master_echo end
+   end if
+
+   show min (d) (&phase_set)
+   eval ($minq_min=$result-0.01)
+   show max (d) (&phase_set)
+   eval ($minq_max=$result+0.01)
+   binresolution $minq_min $minq_max
+
+end
+
+{ Copy current coordinates to comparison set }
+{ ------------------------------------------ }
+do (xcomp=x) ( all )
+do (ycomp=y) ( all )
+do (zcomp=z) ( all )
+do (bcomp=b) ( all )
+do (qcomp=q) ( all )
+do (fbeta=scatter_fp) ( all )
+do (harm=scatter_fdp) ( all )
+
+{ Set the energy flag for positional refinement -- only X-ray term used }
+{ --------------------------------------------------------------------- }
+flags exclude * include xref end
+
+xray
+
+   bins=&workbin
+   
+   { select direct summation method or FFT method}
+   if (&sum_method="direct") then
+      method=direct  
+   else
+      method=fft
+      mapresolution $minq_min
+      fft 
+        grid=&fft_grid 
+        if ( &fft_memory < 0 ) then
+          automemory=true
+        else
+          memory=&fft_memory
+        end if
+     end                 
+   end if
+   
+   lookup=false 
+   { set tolerance to zero for conjugate gradient minimization }
+   tolerance=0.0
+
+   { Local array declaration and initialization. }
+   { ------------------------------------------- }
+   
+   query name=fcalc domain=reciprocal end
+   if ( $object_exist = false ) then
+      declare name=fcalc domain=reciprocal type=complex end
+   end if
+   
+   { Figure of merit and centroid phase array. }
+   { ----------------------------------------- }
+   declare domain=reci type=complex name=m end  
+   
+   { Temporary stores for combined distribution w/o a particular lack-of-closure expression. }
+   { --------------------------------------------------------------------------------------- }
+   declare domain=reci type=real name=ppa end   {TYPE=HL}
+   declare domain=reci type=real name=ppb end   {TYPE=HL}
+   declare domain=reci type=real name=ppc end   {TYPE=HL}
+   declare domain=reci type=real name=ppd end   {TYPE=HL}
+   group type=hl object=ppa object=ppb object=ppc object=ppd end
+
+   { Copy the fp and sp array into a local arrays - we don't want to operate on them }
+   declare domain=reci type=complex name=fp end  
+   declare domain=reci type=real    name=sp end
+   do (fp=&fp) ( all )
+   do (sp=&sp) ( all ) 
+   
+   { Fiso arrays }
+   { ----------- }
+   declare domain=reci type=real name=fph_iso end  
+   declare domain=reci type=real name=sph_iso end  
+
+   { Structure factor selection arrays }
+   { --------------------------------- }
+   declare domain=reci type=integer name=sel end
+   declare domain=reci type=integer name=sel_ano end
+
+   declare domain=reci type=integer name=targ_set end
+   declare domain=reci type=integer name=phss_set end
+   declare domain=reci type=integer name=free_set end
+ 
+   { Do we have anomalous (F+,F-) data? }
+   { ---------------------------------- }
+   anomalous  ?
+   evaluate ($master_anomalous=$result)
+
+   { If "deltaf" mode is used and anomalous data is present we set the flag      }
+   { to use a full 0...360 degree phase probability distribution for all centric }
+   { structure factors.  Otherwise, the distribution is reduced to two or one    }
+   { possible phases which has implications for statistical treatments in        }
+   { various places.                                                             }
+   evaluate ($master_cen360=FALSE)
+   if (&cen360="yes") then
+      if (&anomalous_mode # "fano") then
+         if ($master_anomalous=TRUE) then
+               evaluate ($master_cen360=TRUE) 
+         end if
+      end if
+   end if
+
+   {Store prior distribution in parent distribution. }
+   { ----------------------------------------------- }
+   do (&pa=&priora) ( all )
+   do (&pb=&priorb) ( all )
+   do (&pc=&priorc) ( all )
+   do (&pd=&priord) ( all )
+   
+   {Compute figure of merit and centroid phase. }
+   { ------------------------------------------ }
+   @CNS_XTALMODULE:getfom
+   (
+      pa=&pa;              {Hendrickson and Lattman A array}
+      pb=&pb;              {Hendrickson and Lattman B array}
+      pc=&pc;              {Hendrickson and Lattman C array}
+      pd=&pd;              {Hendrickson and Lattman D array}
+   
+      m=m;                 {complex: amplitude: figure-of-merit, 
+                           phase: centroid phase}
+   
+      sel=( abs(&pa)>0 or abs(&pb)>0 or abs(&pc)>0 or abs(&pd)>0  );		
+                                       {structure factor selection}
+   
+      phistep=&phistep;         {size of phase steps in integration}
+      cen360=$master_cen360;
+   )
+   
+   { Store phases in fp. }
+   { -------------------- }
+   do (fp=combine(amplitude(fp),phase(m))) ( amplitude(m)>0 )
+   
+   { In "fano" mode one assumes that Fp doesn't contain an anomalous signal.  }
+   { To make sure we average the Friedel mates for Fp.  But we keep unpaired Fs around.  }
+   { ----------------------------------------------------------------------------------- }
+   if (&anomalous_mode="fano") then
+      do (fp=combine(amplitude(fp)+amplitude(friedel(fp)),phase(fp))/2.) (friedel_pair(amplitude(fp)>0))
+      do (sp=sqrt((&sp^2+friedel(&sp)^2)/2)) (friedel_pair(amplitude(fp)>0))
+   end if
+
+   { Declare and initialize lack-of-closure-expression probabilities. }
+   { ---------------------------------------------------------------- }
+   for $index in ( &list ) loop inpr
+      evaluate ($pa="PA_"+ encode($index) )
+      evaluate ($pb="PB_"+ encode($index) )
+      evaluate ($pc="PC_"+ encode($index) )
+      evaluate ($pd="PD_"+ encode($index) )
+      evaluate ($pabcd="PABCD_"+ encode($index) )
+      evaluate ($fph="FPH_SAF_"+encode($index) )
+
+      declare domain=reci type=real name=$$pa end   {TYPE=HL}
+      declare domain=reci type=real name=$$pb end   {TYPE=HL}
+      declare domain=reci type=real name=$$pc end   {TYPE=HL}
+      declare domain=reci type=real name=$$pd end   {TYPE=HL}
+      group type=hl object=$$pa object=$$pb object=$$pc object=$$pd end
+
+      declare domain=reci type=real name=$$fph end   
+      do ($$pa=0) ( all )
+      do ($$pb=0) ( all )
+      do ($$pc=0) ( all )
+      do ($$pd=0) ( all )
+   end loop inpr
+
+   if (&anomalous_mode="fano") then   
+      if ($master_anomalous=TRUE) then
+         for $index in ( &list ) loop inpa
+            evaluate ($pa_ano="PA_ANO"+ encode($index) )
+            evaluate ($pb_ano="PB_ANO"+ encode($index) )
+            evaluate ($pc_ano="PC_ANO"+ encode($index) )
+            evaluate ($pd_ano="PD_ANO"+ encode($index) )
+            evaluate ($RJ_ANO="RJ_ANO"+ encode($index) )
+            evaluate ($pabcda="PABCDA_"+ encode($index) )
+
+            declare domain=reci type=real name=$$pa_ano end   {TYPE=HL}
+            declare domain=reci type=real name=$$pb_ano end   {TYPE=HL}
+            declare domain=reci type=real name=$$pc_ano end   {TYPE=HL}
+            declare domain=reci type=real name=$$pd_ano end   {TYPE=HL}
+            group type=hl object=$$pa_ano object=$$pb_ano object=$$pc_ano object=$$pd_ano end
+
+            declare domain=reci type=integer name=$$RJ_ANO end
+            do ($$pa_ano=0) ( all )
+            do ($$pb_ano=0) ( all )
+            do ($$pc_ano=0) ( all )
+            do ($$pd_ano=0) ( all )
+            do ($$RJ_ANO=0) ( all )
+         end loop inpa
+      end if
+   end if
+end
+
+ 
+{^^^^^^^^^^^^^^^^^^^^^^^^^}
+{--->BEGIN MACROCYCLE<----}
+{^^^^^^^^^^^^^^^^^^^^^^^^^}
+evaluate ($master_mcycle=&macrocycle)
+evaluate ($master_cycle=0)
+while ($master_cycle < $master_mcycle) loop main
+  evaluate ($master_cycle=$master_cycle+1)
+
+   { set flag for summary after last cycle }
+   { ------------------------------------- }
+   if ($master_cycle=$master_mcycle) then
+      eval ($master_summary=&summary)
+   else
+      eval ($master_summary="null")
+   end if
+
+   {* ============================================= *}
+   {* ============================================= *}
+   {* ============================================= *}
+   {--->LOOP OVER ALL lack-of-closure expressions<---}
+   {* ============================================= *}
+   {* ============================================= *}
+   {* ============================================= *}
+   for $mid in ( &list ) loop deri
+   
+     { Store names of parent structure factor array and sigma array in symbols. }
+     { Store other numerical or string parameters in symbols.                   }
+     { Store atom selections in stores.                                         }
+     { Store structure factor selections in appropriate arrays.                 }
+     { ------------------------------------------------------------------------ } 
+
+      xray
+        do (sel=0) ( all )
+        do (sel_ano=0) ( all )
+      end
+
+      { Check that this lack-of-closure expression is actually specified. }
+      { ----------------------------------------------------------------- }
+ 
+      
+      if (&fph_$mid # NULL) then
+      if (&on_off_$mid = "on") then
+
+   	 xray do (sel=1) (&target_set_$mid) end
+   	 xray do (sel_ano=1) (&target_set_a_$mid) end
+   	 evaluate ($xstep_id=&xstep_$mid)
+   	 evaluate ($qstep_id=&qstep_$mid)
+   	 evaluate ($bstep_id=&bstep_$mid)
+   	 evaluate ($fpstep_id=&fpstep_$mid)
+   	 evaluate ($fdpstep_id=&fdpstep_$mid)
+   	 evaluate ($fpstep_ano_id=&fpstep_ano_$mid)
+   	 evaluate ($fdpstep_ano_id=&fdpstep_ano_$mid)
+   	 evaluate ($kstep_id=&kstep_$mid)
+   	 evaluate ($kstep_ano_id=&kstep_ano_$mid)
+   	 evaluate ($kscale_id=&kscale_$mid)
+   	 evaluate ($bscale_id=&bscale_$mid)
+   	 evaluate ($xstep_ano_id=&xstep_ano_$mid)
+   	 evaluate ($qstep_ano_id=&qstep_ano_$mid)
+   	 evaluate ($bstep_ano_id=&bstep_ano_$mid)
+   	 evaluate ($kscale_ano_id=&kscale_ano_$mid)
+   	 evaluate ($bscale_ano_id=&bscale_ano_$mid)
+   	 evaluate ($feedback_id=&feedback_$mid)
+
+         if ($master_cycle=1) then
+
+            { Safe initial lack-of-closure-expression Fs. }
+            { ------------------------------------------- }
+            evaluate ($fph="FPH_SAF_"+encode($mid)) 
+            xray
+               do ($$fph=amplitude(&&fph_$mid)) ( all )
+            end
+
+            { First cycle is just phasing cycle. }
+            { ---------------------------------- }
+            evaluate ($bstep_id=0)
+            evaluate ($xstep_id=0)
+            evaluate ($qstep_id=0)
+            evaluate ($fpstep_id=0)
+            evaluate ($fdpstep_id=0)
+            evaluate ($kscale_id="no")
+            evaluate ($bscale_id="no")
+            evaluate ($bstep_ano_id=0)
+            evaluate ($xstep_ano_id=0)
+            evaluate ($qstep_ano_id=0)
+            evaluate ($fpstep_ano_id=0)
+            evaluate ($fdpstep_ano_id=0)
+            evaluate ($kscale_ano_id="no")
+            evaluate ($bscale_ano_id="no")
+            evaluate ($kstep_id=0)
+            evaluate ($kstep_ano_id=0)
+
+            evaluate ($master_ncycle=1)
+            evaluate ($feedback_id="yes")
+         else
+            evaluate ($master_ncycle=&ncycle)
+         end if
+         
+         
+         { ********** }
+         { ********** }
+         { ********** }
+         { ********** }
+         { Fiso term. }
+         { ********** }
+         { ********** }
+         { ********** }
+         { ********** }
+   
+         xray      
+
+            { Compute Fiso and corresponding sigma terms . }
+            { -------------------------------------------- }
+            if (&anomalous_mode="deltaf") then
+               do (fph_iso=amplitude(&&fph_$mid)) ( all )
+               do (sph_iso=&&sph_$mid) ( all )
+            else            
+               do (fph_iso=(amplitude(&&fph_$mid)+amplitude(friedel(&&fph_$mid)))/2.) 
+                  (amplitude(&&fph_$mid)>0 and amplitude(friedel(&&fph_$mid))>0)
+               do (sph_iso=sqrt(&&sph_$mid^2+friedel(&&sph_$mid)^2)) 
+                  (amplitude(&&fph_$mid)>0 and amplitude(friedel(&&fph_$mid))>0)
+            end if
+            
+            { See if we have to compute the Fiso term at all. }
+            { ----------------------------------------------- }
+            show sum (1) (amplitude(fp)>0 and sel=1 and amplitude(fph_iso)>0 
+                          and &phase_set and &test_array # &test_flag)
+         end
+   
+         if ($result>0) then
+            
+            xray
+   
+               { Combine all probabilities except FISO of that lack-of-closure expression. }
+               { ------------------------------------------------------------------------- }
+               
+               {* Get prior probability. *}
+               do (ppa=&priora) ( all )
+               do (ppb=&priorb) ( all )
+               do (ppc=&priorc) ( all )
+               do (ppd=&priord) ( all )
+               
+               for $index in ( &list ) loop comb
+                  if ($index # $mid ) then
+                     evaluate ($pa="PA_"+ encode($index) )
+                     evaluate ($pb="PB_"+ encode($index) )
+                     evaluate ($pc="PC_"+ encode($index) )
+                     evaluate ($pd="PD_"+ encode($index) )
+                     @CNS_XTALMODULE:combineprobability (
+                        messages=&messages;
+                        sel=(all);
+                        &name="zero";&addname="prior";
+                        pa=ppa;pb=ppb;pc=ppc;pd=ppd;
+                        adda=$$pa;addb=$$pb;addc=$$pc;addd=$$pd;)
+                  end if
+               end loop comb
+               
+               if (&anomalous_mode="fano") then   
+                  if ($master_anomalous=TRUE) then
+                     for $index in ( &list ) loop com2
+                        evaluate ($pa_ano="PA_ANO"+ encode($index) )
+                        evaluate ($pb_ano="PB_ANO"+ encode($index) )
+                        evaluate ($pc_ano="PC_ANO"+ encode($index) )
+                        evaluate ($pd_ano="PD_ANO"+ encode($index) )
+                        @CNS_XTALMODULE:combineprobability (
+                           messages=&messages;
+                           sel=(all);
+                           &name="zero";&addname="prior";
+                           pa=ppa;pb=ppb;pc=ppc;pd=ppd;
+                           adda=$$pa_ano;addb=$$pb_ano;addc=$$pc_ano;addd=$$pd_ano;)
+                     end loop com2
+                  end if
+               end if
+            
+               evaluate ($pa="PA_"+ encode($mid) )
+               evaluate ($pb="PB_"+ encode($mid) )
+               evaluate ($pc="PC_"+ encode($mid) )
+               evaluate ($pd="PD_"+ encode($mid) )
+                              
+               { Treatment of anomalous atoms: none, Fiso+Fano, Fiso (separate mode) }
+               { ------------------------------------------------------------------- } 
+               if ($master_anomalous=TRUE) then
+                  if (&anomalous_mode="fano") then
+                        evaluate ($master_mergeanom="no")
+                        { Turn off imaginary (f'') components for all heavy atoms }
+                        { ------------------------------------------------------- }
+                        aselection=( not all )
+                        { Cannot refine f'' in Fiso term }
+                        { ------------------------------ }
+                        evaluate ($fdpstep_id=0)
+                     elseif (&mergeanomalous="false") then 
+                        evaluate ($master_mergeanom="no")
+                        aselection=( &h_$mid )
+                     else
+                        evaluate ($master_mergeanom="yes")
+                        aselection=( &h_$mid )
+                  end if
+               else
+                  evaluate ($master_mergeanom="no")  
+                  { Turn off imaginary (f'') components for all heavy atoms }
+                  { ------------------------------------------------------- }
+                  aselection=( not all ) 
+                  { Cannot refine f'' if no anomalous data is present }
+                  { ------------------------------------------------- }
+                  evaluate ($fdpstep_id=0)
+                  evaluate ($fdpstep_ano_id=0)
+               end if
+      
+            end
+
+
+            { In no-feedback mode, the selection must be a subset of all phased reflections. }
+            { ------------------------------------------------------------------------------ }
+            if ($feedback_id="no") then
+               xray do (sel=0) (ppa=0 and ppb=0 and ppc=0 and ppd=0) end 
+            end if
+
+           if ($master_summary # "null") then         
+               set display=$master_summary end
+               display
+               display
+               display
+               display  ======================================================================
+               display  ======= macro-cycle = $master_cycle  ; Fiso calculation
+               display  ==================== lack-of-closure expression:  &&fph_$mid 
+               display  ======================================================================
+               set display=OUTPUT end
+            end if
+      
+            { A note about scaling: the scaling applied to the lack-of-closure-expression FISO term is }
+            { also applied to the original lack-of-closure-expression Fs.                              }
+ 
+            evaluate ($master_table=&fph_$mid+" Fiso maccyc="+encode($master_cycle))
+
+            xray 
+               do (targ_set=0) ( all )
+               do (free_set=0) ( all )
+               do (phss_set=0) ( all ) 
+               do (targ_set=1) (&phase_set and &test_array # &test_flag and sel=1 
+                                and amplitude(fp)>0 and amplitude(fph_iso)>0) 
+               do (free_set=1) (&phase_set and &test_array= &test_flag and sel=1 
+                                and amplitude(fp)>0 and amplitude(fph_iso)>0)
+               do (phss_set=1) (&phase_set and amplitude(fp)>0 and amplitude(fph_iso)>0)
+            end 
+
+            @CNS_XTALMODULE:phasenrefineloc
+            ( 
+               nameh=&&fph_$mid; 
+               text="Fiso calculation";
+               method=&method;
+               bscale=$bscale_id;
+               kscale=$kscale_id;
+               epsilon=&epsilon;
+               phistep=&phistep;
+               bmin=&bmin;
+               bmax=&bmax;
+               qmin=&qmin;
+               qmax=&qmax;  
+               fpmin=&fpmin;
+               fpmax=&fpmax;
+               fdpmin=&fdpmin;
+               fdpmax=&fdpmax;             
+               messages=&messages;
+               table=$master_table;
+               
+               ncycle=$master_ncycle;
+               tolerance=&tolerance; 
+               xstep=$xstep_id;
+               bstep=$bstep_id;
+               qstep=$qstep_id;
+               fpstep=$fpstep_id;
+               fdpstep=$fdpstep_id;
+               kstep=$kstep_id;
+               
+               fp=fp;
+               sp=sp;
+               
+               m=m;  
+               
+               h=(&h_$mid);
+               hfix=(&hfix_$mid and &h_$mid);	
+               fph=fph_iso;   {* f_iso array *}
+               fop=&&fph_$mid;  {* apply scale to f array as well *}
+
+               sph=sph_iso;    {* f_iso sigma                    *}
+               fop2=&&sph_$mid;  {* apply scale to f sigma as well *}
+              
+               target_set= targ_set=1 ; 
+               free_set= free_set=1 ;
+               phase_set= phss_set=1 ;
+               
+               ppa=ppa;ppb=ppb;ppc=ppc;ppd=ppd;      {input: prior probability ( combined)  }
+                                                     { probability excluding this lack-of-closure expression }
+               pppa=&pa;pppb=&pb;pppc=&pc;pppd=&pd;  {input/output: parent (protein) probability }
+               pa=$$pa;pb=$$pb;pc=$$pc;pd=$$pd;      {output: lack-of-closure-expression probability }
+               
+               
+               cutoff=&cutoff;
+               
+               mergeanomalous=$master_mergeanom   ;
+               feedback=$feedback_id; 
+               summary=$master_summary; 
+               integration=&integration;   
+               iteration=&iteration;  
+
+               cen360=$master_cen360;
+               
+               qmaxshift=&qmaxshift;  
+               fpmaxshift=&fpmaxshift;  
+               fdpmaxshift=&fdpmaxshift; 
+               bmaxshift=&bmaxshift;  
+
+               gradient_map=&grad_map_$mid;
+             )
+
+      
+         end if
+         
+         
+         { ********** }
+         { ********** }
+         { ********** }
+         { ********** }
+         { Fano term. }
+         { ********** }
+         { ********** }
+         { ********** }
+         { ********** }
+      
+      
+         { Check if the Fano term is selected. }
+         { ----------------------------------- }
+        
+         if (&anomalous_mode="fano") then
+            if ($master_anomalous=TRUE) then
+               xray   
+                  show sum (1) (acentric and friedel_pair(sel_ano=1 and amplitude(fp)>0 
+                                and amplitude(&&fph_$mid)>0 and &phase_set 
+                                and &test_array # &test_flag))
+               end
+   
+               if ($result>0) then
+ 
+                  show sum (abs(scatter_fdp)) ( &h_$mid ) 
+                  if ($result=0) then
+                     display  
+                     display  ********************************************************
+                     display  Error: the f'' components of the form factor for the
+                     display  anomalously scattering atoms in LOC &&fph_$mid are zero.
+                     display  Check that you are using an anomalous scattering library
+                     display  and that the selected atoms have anomalous form factors
+                  end if
+                    
+                  xray
+                     { Cannot refine f' in Fano term }
+                     { ------------------------------ }
+                     evaluate ($fpstep_ano_id=0)
+                     
+                     aselection=( &h_$mid ) 
+
+                     if (&method="maxlike") then
+                        evaluate ($master_method_2="anomaxlike")
+                     else
+                        evaluate ($master_method_2="anochisquare")
+                     end if 
+                  end   
+                  
+                     { check if an anomalous form factor has been defined for the selected }
+                     { heavy atoms.                                                        }
+                  show ave ( abs(scatter_fdp) ) ( &h_$mid and not &hfix_$mid ) 
+                  if ($result<0.0001) then
+                     display  ERROR: Anomalous form factors (f'') are zero for all atoms
+                     display         associated with LOC &&fph_$mid.
+                     display 
+                     display      -> Check atom selection for LOC &&fph_$mid.
+                     display      -> Check form factor library.
+                     display      -> Are you using an anomalous form factor library? 
+                     abort
+                  end if  
+                   
+                  xray
+                     { Combine all probabilities except FANO of that lack-of-closure expression. }
+                     { ------------------------------------------------------------------------- }
+                     
+                     {* Get prior probability. *}
+                     do (ppa=&priora) ( all )
+                     do (ppb=&priorb) ( all )
+                     do (ppc=&priorc) ( all )
+                     do (ppd=&priord) ( all )
+                     
+                     for $index in ( &list ) loop com3
+                        evaluate ($pa="PA_"+ encode($index) )
+                        evaluate ($pb="PB_"+ encode($index) )
+                        evaluate ($pc="PC_"+ encode($index) )
+                        evaluate ($pd="PD_"+ encode($index) )
+                        @CNS_XTALMODULE:combineprobability (
+                           messages=&messages;
+                           sel=(all);
+                           &name="zero";&addname="prior";
+                           pa=ppa;pb=ppb;pc=ppc;pd=ppd;
+                           adda=$$pa;addb=$$pb;addc=$$pc;addd=$$pd;)
+                     end loop com3
+                     
+                     for $index in ( &list ) loop com4
+                        if ($index # $mid ) then
+                           evaluate ($pa_ano="PA_ANO"+ encode($index) )
+                           evaluate ($pb_ano="PB_ANO"+ encode($index) )
+                           evaluate ($pc_ano="PC_ANO"+ encode($index) )
+                           evaluate ($pd_ano="PD_ANO"+ encode($index) )
+                           @CNS_XTALMODULE:combineprobability (messages=&messages;
+                              sel=(all);
+                              &name="zero";&addname="prior";
+                              pa=ppa;pb=ppb;pc=ppc;pd=ppd;
+                              adda=$$pa_ano;addb=$$pb_ano;addc=$$pc_ano;addd=$$pd_ano;)
+                        end if
+                     end loop com4
+                     
+                     evaluate ($pa_ano="PA_ANO"+ encode($mid) )
+                     evaluate ($pb_ano="PB_ANO"+ encode($mid) )
+                     evaluate ($pc_ano="PC_ANO"+ encode($mid) )
+                     evaluate ($pd_ano="PD_ANO"+ encode($mid) )
+                     evaluate ($RJ_ANO="RJ_ANO"+ encode($mid) )
+      
+                  end
+   
+               { In no-feedback mode, the selection must be a subset of all phased reflections. }
+               { ------------------------------------------------------------------------------ }
+               if ($feedback_id="no") then
+                  xray do (sel_ano=0) (ppa=0 and ppb=0 and ppc=0 and ppd=0) end 
+               end if
+               
+               if ($master_summary # "null" ) then
+                  set display=$master_summary end
+                  display
+                  display
+                  display
+                  display  ======================================================================
+                  display  ======= macro-cycle = $master_cycle  ; Fano calculation 
+                  display  ==================== lack-of-closure expression:  &&fph_$mid
+                  display  ======================================================================
+                  set display=OUTPUT end
+               end if
+   
+               { A note about scaling: the scaling is directly applied to the original }
+               { lack-of-closure-expression Fs.                                        }
+               
+               evaluate ($master_table=&fph_$mid+" Fano maccyc="+encode($master_cycle))
+
+               xray
+                  do (targ_set=0) ( all )
+                  do (free_set=0) ( all )
+                  do (phss_set=0) ( all ) 
+                  do (targ_set=1) (acentric and friedel_pair(&phase_set and sel_ano=1 and 
+                     amplitude(&&fph_$mid)>0 and amplitude(fp)>0 and &phase_set 
+                     and &test_array # &test_flag))
+                  do (free_set=1)   (acentric and friedel_pair(&phase_set and sel_ano=1 and 
+                     amplitude(&&fph_$mid)>0 and amplitude(fp)>0 and &phase_set 
+                     and &test_array = &test_flag))
+                  do (phss_set=1)  (acentric and friedel_pair(&phase_set and 
+                                    amplitude(&&fph_$mid)>0 and amplitude(fp)>0 ))
+              end
+
+
+              @CNS_XTALMODULE:phasenrefineloc
+               (
+                  nameh=&&fph_$mid; 
+                  text="Fano calculation";
+                  method=$master_method_2;
+                  bscale=$bscale_ano_id;
+                  kscale=$kscale_ano_id;
+                  epsilon=&epsilon;
+                  phistep=&phistep;
+                  bmin=&bmin;
+                  bmax=&bmax;
+                  qmin=&qmin;
+                  qmax=&qmax; 
+                  fpmin=&fpmin;
+                  fpmax=&fpmax;
+                  fdpmin=&fdpmin;
+                  fdpmax=&fdpmax;             
+                  
+                  messages=&messages;
+                  table=$master_table;
+                  
+                  ncycle=$master_ncycle;
+                  tolerance=&tolerance; 
+                  xstep=$xstep_ano_id;
+                  bstep=$bstep_ano_id;
+                  qstep=$qstep_ano_id;
+                  fpstep=$fpstep_ano_id;
+                  fdpstep=$fdpstep_ano_id;
+                  kstep=$kstep_ano_id;
+                  
+                  fp=fp;
+                  sp=sp;
+                  
+                  m=m; 
+                  
+                  h=(&h_$mid);
+                  hfix=(&hfix_$mid and &h_$mid);	
+                  fph=&&fph_$mid;
+                  sph=&&sph_$mid;
+                  
+                  target_set= targ_set=1 ;
+                  free_set= free_set=1 ;
+                  phase_set= phss_set=1 ;
+                  
+                  ppa=ppa;ppb=ppb;ppc=ppc;ppd=ppd;      
+                  pppa=&pa;pppb=&pb;pppc=&pc;pppd=&pd;   
+                  pa=$$pa_ano;pb=$$pb_ano;pc=$$pc_ano;pd=$$pd_ano;
+                  
+                  cutoff=&cutoff;
+                  
+                  mergeanomalous="false";
+                  feedback=$feedback_id;
+                  summary=$master_summary; 
+                  integration=&integration;   
+                  iteration=&iteration;  
+
+                  cen360=$master_cen360;
+                  
+                  qmaxshift=&qmaxshift;  
+                  fpmaxshift=&fpmaxshift;  
+                  fdpmaxshift=&fdpmaxshift; 
+                  bmaxshift=&bmaxshift;  
+                  
+                  gradient_map="";
+                   )
+         
+               end if
+            end if
+         end if
+
+         if ($master_summary # "null") then         
+            set display=$master_summary end
+            display
+            display  Scaling from initial lack-of-closure-expression F to final F
+            display  ------------------------------------------------------------
+   
+            { Get scale factor between initial lack-of-closure-expression F and final F }
+            { ------------------------------------------------------------------------- }
+            evaluate ($fph="FPH_SAF_"+encode($mid)) 
+            xray
+               @CNS_XTALMODULE:scalef ( {scale |Fph| to |Fphc|}
+                  text="";
+                  table="";
+                  kscale="yes"; 
+                  bscale="anisotropic"; 
+                  apply="no";
+                  messages="all";
+                  sel=(targ_set=1);
+                  f=$$fph;&fref=&&fph_$mid; )
+            end
+
+
+            set display=$master_summary end
+            display
+            display
+            display  initial coordinates for "heavy" atom sites of this lack-of-closure expression
+            display  -----------------------------------------------------------------------------
+
+            coor swap end
+            do (store9=b) ( all )
+            do (b=bcomp) ( all )
+            do (bcomp=store9) ( all )
+            do (store9=q) ( all )
+            do (q=qcomp) ( all )
+            do (qcomp=store9) ( all )
+            do (store9=scatter_fp) ( all )
+            do (scatter_fp=fbeta) ( all )
+            do (fbeta=store9) ( all )
+            do (store9=scatter_fdp) ( all )
+            do (scatter_fdp=harm) ( all )
+            do (harm=store9) ( all )
+
+
+            @CNS_XTALMODULE:printcoordinates
+            (
+               text="";
+               sel=(&h_$mid);
+               output=$master_summary;
+            )
+
+            coor swap end
+            do (store9=b) ( all )
+            do (b=bcomp) ( all )
+            do (bcomp=store9) ( all )
+            do (store9=q) ( all )
+            do (q=qcomp) ( all )
+            do (qcomp=store9) ( all )
+            do (store9=scatter_fp) ( all )
+            do (scatter_fp=fbeta) ( all )
+            do (fbeta=store9) ( all )
+            do (store9=scatter_fdp) ( all )
+            do (scatter_fdp=harm) ( all )
+            do (harm=store9) ( all )
+   
+            set display=$master_summary end
+            display
+            display  final coordinates for heavy atom sites of this lack-of-closure expression
+            display  -------------------------------------------------------------------------
+            
+            @CNS_XTALMODULE:printcoordinates
+            (
+               text="";
+               sel=(&h_$mid);
+               output=$master_summary;
+            )
+            
+
+            display
+            display
+            display
+            
+            set display=OUTPUT end
+   
+         end if
+
+   
+      end if     
+      end if 
+
+      
+   {* ================================================= *}
+   {* ================================================= *}
+   {* ================================================= *}
+   {--->END LOOP OVER ALL lack-of-closure expressions<---}
+   {* ================================================= *}
+   {* ================================================= *}
+   {* ================================================= *}
+   end loop deri
+
+
+{^^^^^^^^^^^^^^^^^^^^^^^}
+{--->END MACROCYCLE<----}
+{^^^^^^^^^^^^^^^^^^^^^^^}
+end loop main
+
+
+
+{ Final probability is in &pa, &pb, &pc &pc. }
+{ ------------------------------------------ }
+
+
+
+xray
+   { Copy the fp array back into the &fp array }
+   do (&fp=fp) ( all )
+
+   { Centroid phase is now stored in &fp }
+   { ----------------------------------- }
+
+   { Figure of merit is in amplitude(m), copy to &fom }
+   { ------------------------------------------- }
+   do (&fom=amplitude(m)) ( all ) 
+
+   set display=$master_summary end
+   display
+   display
+   display
+   display  ======================================================================
+   display  ======= figure of merit after final cycle ============================ 
+   display  ======================================================================
+   set display=OUTPUT end
+
+   @CNS_XTALMODULE:printfom 
+      (
+      text="Figure of merit for global phase set";
+      table="";
+      epsilon=&epsilon; 
+      m=m;
+      sel=&phase_set;
+      output=$master_summary;
+      )
+
+   show sum (1) (&test_array = &test_flag and &phase_set)
+   if ($select>0) then
+   
+      display .............................................................. 
+      @CNS_XTALMODULE:printfom 
+         (
+         text="Figure of merit for global test set (for cross-validation)" ;
+         table="";
+         epsilon=&epsilon; 
+         m=m;
+         sel=(&test_array = &test_flag and &phase_set);
+         output=$master_summary;
+         )
+   end if
+   set display=$master_summary end
+   display 
+   display --------------------------------------------------------------
+   set display=OUTPUT end
+
+   if (&priora # NULL ) then
+     { Combine all probabilities except prior phase probability distribution.    }
+     { ------------------------------------------------------------------------- }
+   
+     {* Get prior probability. *}
+     do (&&pa=0) ( all )
+     do (&&pb=0) ( all )
+     do (&&pc=0) ( all )
+     do (&&pd=0) ( all )
+   
+     for $index in ( &list ) loop comb
+        evaluate ($pa="PA_"+ encode($index) )
+        evaluate ($pb="PB_"+ encode($index) )
+        evaluate ($pc="PC_"+ encode($index) )
+        evaluate ($pd="PD_"+ encode($index) )
+        @CNS_XTALMODULE:combineprobability (
+         messages=&messages;
+           sel=(all);
+           &name="zero";&addname="prior";
+           pa=&&pa;pb=&&pb;pc=&&pc;pd=&&pd;
+           adda=$$pa;addb=$$pb;addc=$$pc;addd=$$pd;)
+     end loop comb
+   
+     if (&anomalous_mode="fano") then   
+      if ($master_anomalous=TRUE) then
+   	 for $index in ( &list ) loop com2
+   	    evaluate ($pa_ano="PA_ANO"+ encode($index) )
+   	    evaluate ($pb_ano="PB_ANO"+ encode($index) )
+   	    evaluate ($pc_ano="PC_ANO"+ encode($index) )
+   	    evaluate ($pd_ano="PD_ANO"+ encode($index) )
+   	    @CNS_XTALMODULE:combineprobability (
+   	       messages=&messages;
+   	       sel=(all);
+   	       &name="zero";&addname="prior";
+               pa=&&pa;pb=&&pb;pc=&&pc;pd=&&pd;
+   	       adda=$$pa_ano;addb=$$pb_ano;addc=$$pc_ano;addd=$$pd_ano;)
+   	 end loop com2
+      end if
+     end if
+     @@CNS_XTALMODULE:getfom 
+     (  
+        m=m;
+        sel=(amplitude(&&pa)>0 or amplitude(&&pb)>0 or amplitude(&&pc)>0 or amplitude(&&pd)>0);
+        pa=&&pa;pb=&&pb;pc=&&pc;pd=&&pd;
+        phistep=&phistep;
+        cen360=$master_cen360;
+     )
+     
+     set display=$master_summary end
+     display
+     display
+     display
+     display  ======================================================================
+     display  ======= figure of merit after final cycle without prior phase prob.=== 
+     display  ======================================================================
+     set display=OUTPUT end
+
+     @CNS_XTALMODULE:printfom 
+        (
+        text="Figure of merit for global phase set without prior phase prob.";
+        table="";
+        epsilon=&epsilon; 
+        m=m;
+        sel=&phase_set;
+        output=$master_summary;
+      )
+
+     show sum (1) (&test_array = &test_flag and &phase_set)
+     if ($select>0) then
+   
+        display .............................................................. 
+        @CNS_XTALMODULE:printfom 
+           (
+           text="Figure of merit for global test set (for cross-validation) without prior phase prob." ;
+           table="";
+           epsilon=&epsilon; 
+           m=m;
+           sel=(&test_array = &test_flag and &phase_set);
+           output=$master_summary;
+         )
+     end if
+     set display=$master_summary end
+     display 
+     display --------------------------------------------------------------
+     set display=OUTPUT end
+   end if
+   
+   { Undeclare local arrays. }
+   { ----------------------- }
+   undeclare domain=reci name=fcalc end
+   undeclare domain=reci name=m end 
+
+   undeclare domain=reci name=ppa end   {TYPE=HL}
+   undeclare domain=reci name=ppb end   {TYPE=HL}
+   undeclare domain=reci name=ppc end   {TYPE=HL}
+   undeclare domain=reci name=ppd end   {TYPE=HL}
+
+   undeclare domain=reci name=fp end  
+   undeclare domain=reci name=sp end  
+   undeclare domain=reci name=fph_iso end  
+   undeclare domain=reci name=sph_iso end  
+   undeclare domain=reci name=sel end
+   undeclare domain=reci name=sel_ano end
+   undeclare domain=reci name=targ_set end
+   undeclare domain=reci name=phss_set end
+   undeclare domain=reci name=free_set end
+   
+   for $index in ( &list ) loop inpu
+      evaluate ($pa="PA_"+ encode($index) )
+      evaluate ($pb="PB_"+ encode($index) )
+      evaluate ($pc="PC_"+ encode($index) )
+      evaluate ($pd="PD_"+ encode($index) )
+      evaluate ($fph="FPH_SAF_"+encode($index) )
+      evaluate ($pabcd="PABCD_"+ encode($index) )
+
+      undeclare domain=reci name=$$pa end  
+      undeclare domain=reci name=$$pb end  
+      undeclare domain=reci name=$$pc end  
+      undeclare domain=reci name=$$pd end  
+
+      undeclare domain=reci name=$$fph end   
+   end loop inpu
+   
+   if (&anomalous_mode="fano") then   
+      if ($master_anomalous=TRUE) thend
+         for $index in ( &list ) loop inpp
+            evaluate ($pa_ano="PA_ANO"+ encode($index) )
+            evaluate ($pb_ano="PB_ANO"+ encode($index) )
+            evaluate ($pc_ano="PC_ANO"+ encode($index) )
+            evaluate ($pd_ano="PD_ANO"+ encode($index) )
+            evaluate ($RJ_ANO="RJ_ANO"+ encode($index) )
+            evaluate ($pabcda="PABCDA_"+ encode($index) )
+
+            undeclare domain=reci name=$$pa_ano end  
+            undeclare domain=reci name=$$pb_ano end  
+            undeclare domain=reci name=$$pc_ano end  
+            undeclare domain=reci name=$$pd_ano end 
+ 
+            undeclare domain=reci name=$$RJ_ANO end  
+         end loop inpp
+      end if
+   end if
+end
+

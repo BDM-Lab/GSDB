@@ -1,0 +1,79 @@
+! Module file: corrcoeff
+!
+! CNS module
+! **********
+!
+! Author: R.W. Grosse-Kunstleve
+!
+! copyright Yale University
+!
+! Function:
+!    Compute standard-linear correlation coefficient for
+!    two maps or structure factor arrays.
+!
+! Requirements:
+!    Needs to be called within xray.
+!    Must be in P1 (no symmetry).
+
+module {corrcoeff}
+
+(
+&domain;
+&objx;
+&objy;
+&selection;
+&cc;
+)
+
+set message ? end
+evaluate ($message_old=$result)
+set echo ? end
+evaluate ($echo_old=$result)
+if ( $log_level = verbose ) then
+  set echo=on message=normal end
+else
+  set echo=off message=off end
+end if
+
+if ($SYMMETRY # 1) then
+  display Error: Must be in P1.
+  abort
+end if
+
+if (&domain=real) then
+  show ave ((&objx)) (&selection)
+  eval($meanx = $result)
+  show ave ((&objy)) (&selection)
+  eval($meany = $result)
+  show sum (  ((&objx) - $meanx)
+            * ((&objy) - $meany)) (&selection)
+  eval($Sdxdy = $result)
+  show sum (((&objx) - $meanx)^2) (&selection)
+  eval($Sdx2 = $result)
+  show sum (((&objy) - $meany)^2) (&selection)
+  eval($Sdy2 = $result)
+else
+  show ave (amplitude(&objx)) (&selection)
+  eval($meanx = $result)
+  show ave (amplitude(&objy)) (&selection)
+  eval($meany = $result)
+  show sum (  (amplitude(&objx) - $meanx)
+            * (amplitude(&objy) - $meany)) (&selection)
+  eval($Sdxdy = $result)
+  show sum ((amplitude(&objx) - $meanx)^2) (&selection)
+  eval($Sdx2 = $result)
+  show sum ((amplitude(&objy) - $meany)^2) (&selection)
+  eval($Sdy2 = $result)
+end if
+eval($GoodCond = false)
+if ($Sdx2 # 0) then
+if ($Sdy2 # 0) then
+  eval($GoodCond = true)
+  eval(&cc = $Sdxdy / sqrt($Sdx2 * $Sdy2))
+end if
+end if
+if ($GoodCond = false) then
+  eval(&cc = 9.9999)
+end if
+
+set message=$message_old echo=$echo_old end

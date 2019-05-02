@@ -1,0 +1,128 @@
+remarks  MAPYARD.INP
+remarks  tests mapyard command in XRAY
+remarks  By R.W.Grosse-Kunstleve
+
+{* Generate a one-atom dummy structure
+ *}
+topology
+  residue SI
+    atom SI mass=14 charge=0 {chemical}type="SI+4" end
+  end
+end
+
+segment
+  name = QZ
+  molecule {res}name=SI number=1 end
+end
+
+do (name="SI1") (resid=1)
+
+do (x=0.499   ) (name=SI1)
+do (y=0.000   ) (name=SI1)
+do (z=0.333333) (name=SI1)
+do (q=1.0     ) (name=SI1)
+do (b=2.0     ) (name=SI1)
+
+evaluate ($a = 5.01)
+evaluate ($b = 6.25)
+evaluate ($c = 5.47)
+evaluate ($alpha = 100)
+evaluate ($beta  =  80)
+evaluate ($gamma = 110)
+
+
+{* define some general xray settings
+ *}
+xray
+  a=$a b=$b c=$c alpha=$alpha beta=$beta gamma=$gamma
+  method=direct
+  mapresolution 1
+  @@CNS_XRAYLIB:scatter.lib
+end
+
+coordinates orthogonalize end
+
+xray
+  {* generate reflections
+   *}
+  anomalous = false
+  generate 100000. 1.0
+
+  {* compute dummy "fobs"
+   *}
+  declare name=fobs domain=reciprocal type=complex end
+  predict
+    mode=reciprocal
+    to=fobs
+    atomselection=(all)
+    selection (all)
+  end
+
+  fft
+    grid=0.4
+    xgridfactor=12
+    ygridfactor=15
+    zgridfactor=10
+  end
+
+  {* compute some maps *}
+  declare name=map1 domain=real end
+  declare name=map2 domain=real end
+  do (map1=FT(combine(amplitude(fobs),   0))) (all)
+  do (map2=FT(combine(amplitude(fobs)^2, 0))) (all)
+
+  show min (map1) (all)
+  show max (map1) (all)
+  show min (map2) (all)
+  show max (map2) (all)
+
+  {* store and restore... *}
+  mapyard
+    store map1 a
+    store map1 b
+    store map1 c
+    store map1 d
+    store map1 e
+    store map1 a
+    store map1 f
+    store map1 g
+    store map1 h
+    store map1 i
+    store map1 j
+    store map1 f
+    clear b
+    store map2 k
+    ?
+  end
+
+  declare name=map3 domain=real end
+  mapyard
+    restore k map3
+  end
+
+  {* make sure map2 and map3 are exactly equal
+   *}
+  show max (abs(map2-map3)) (all)
+  if ($result # 0) then
+    abort
+  end if
+
+  mapyard
+    clear all
+    ?
+    store map1 a
+  end
+
+  mapyard
+    restore a map2
+  end
+
+  {* make sure map1 and map2 are exactly equal
+   *}
+  show max (abs(map1-map2)) (all)
+  if ($result # 0) then
+    abort
+  end if
+end
+
+stop

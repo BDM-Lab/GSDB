@@ -1,0 +1,169 @@
+REMARKS  XFINITE.INP 
+remarks  test consistency of energy and first derivatives 
+
+parameter @CNS_TOPPAR:protein.param end
+
+{* read a ca trace *}
+struc 
+data_cns_mtf
+
+_cns_mtf.title
+; FILENAME="/data/rwgk/test/tmp.mtf"
+  DATE:18-Nov-98  14:17:52       created by user: rwgk
+  VERSION:0.4a
+;
+
+loop_
+_cns_mtf_atom.id
+_cns_mtf_atom.segment_id
+_cns_mtf_atom.residue_id
+_cns_mtf_atom.residue_name
+_cns_mtf_atom.atom_name
+_cns_mtf_atom.chemical_type
+_cns_mtf_atom.charge
+_cns_mtf_atom.atom_mass
+1 ' ' '1' 'LYS' 'CA' 'CH1E' 0.250000 13.0190
+2 ' ' '2' 'LYS' 'CA' 'CH1E' 0.250000 13.0190
+3 ' ' '3' 'LYS' 'CA' 'CH1E' 0.250000 13.0190
+-1 ' ' ' ' ' ' ' ' ' ' -1.00000 -1.00000
+
+loop_
+_cns_mtf_bond.id[1]
+_cns_mtf_bond.id[2]
+-1 -1
+
+loop_
+_cns_mtf_angle.id[1]
+_cns_mtf_angle.id[2]
+_cns_mtf_angle.id[3]
+-1 -1 -1
+
+loop_
+_cns_mtf_dihedral.id[1]
+_cns_mtf_dihedral.id[2]
+_cns_mtf_dihedral.id[3]
+_cns_mtf_dihedral.id[4]
+-1 -1 -1 -1
+
+loop_
+_cns_mtf_improper.id[1]
+_cns_mtf_improper.id[2]
+_cns_mtf_improper.id[3]
+_cns_mtf_improper.id[4]
+-1 -1 -1 -1
+
+loop_
+_cns_mtf_explicit_nonbonded_exclusion.inb
+-1
+
+loop_
+_cns_mtf_explicit_nonbonded_exclusion.iblo
+0
+0
+0
+-1
+
+loop_
+_cns_mtf_group_linked_list.first_atom_id
+0
+1
+-1
+
+end
+
+coor 
+ATOM      1  CA  LYS     1       8.000   8.000   8.000  1.00 15.00          
+ATOM      2  CA  LYS     2       1.400   6.200  18.000  1.00 15.00          
+ATOM      3  CA  LYS     3       2.400   9.200  16.000  1.00 15.00          
+END 
+
+set timer=1 end
+
+
+{===============================}
+{*  test with P31c space group *}
+{==============================*}
+                 
+xray 
+  reset 
+   declare name=fobs type=complex domain=reciprocal end
+   declare name=fpart domain=reciprocal type=complex end
+   declare name=fcalc domain=reciprocal type=complex end
+   declare name=fom domain=reciprocal type=real end
+   declare name=weight domain=reciprocal type=real end
+   declare name=sigma domain=reciprocal type=real end
+   declare name=test domain=reciprocal type=integer end
+  a=16.00 b=16.00 c=8.00 alpha=90.0 beta=90.00 gamma=120.0
+  symmetry=(x,y,z)
+  symmetry=(-y,x-y,z)
+  symmetry=(y-x,-x,z) 
+!  symmetry=(y,x,1/2+z) 
+!  symmetry=(-x,y-x,1/2+z) 
+!  symmetry=(x-y,-y,1/2+z) 
+  SCATter ( chemical C* ) 
+       2.31000 20.8439 1.02000 10.2075 1.58860 .568700 .865000 51.6512 .215600
+  method=fft
+  fft
+     prime=5 avoid=2 
+  end   
+  nreflections=1000 
+  generate  10. 3.
+  mapresolution 3
+  do (fobs=1) ( all )
+  do (fpart=0) ( all ) 
+  do (weight=1) ( all )
+  predict 
+      mode=reciprocal 
+      to=fcalc 
+      selection=( all ) 
+      atomselection=( not hydrogen ) 
+  end 
+  do (fobs=fcalc) ( all ) 
+  wa=200.
+  do (fom=1) ( all) 
+  tolerance=0.0
+  do (weight=2.0) ( 3.001 <= d <= 4.001 ) 
+  do (weight=3.0) ( 4.001 <= d <= 5.001 )
+  do (weight=4.0) ( 5.001 <= d <= 6.001 ) 
+  
+  evaluate ($lr=10.001)
+  evaluate ($hr=3.001) 
+  binresolution $lr $hr 
+  mapresolution $hr
+  tselection=( $hr <= d <= $lr  ) 
+  target=( resi(amplitude(fobs),fcalc+fpart,weight)) 
+  dtarget=( dresi(amplitude(fobs),fcalc+fpart,weight)) 
+  monitor=( rvalue[overall](weight fobs,weight*( fcalc+fpart))) 
+
+ 
+  write reflection fobs fcalc weight selection=( 3.001 <= d <= 10.001 ) end
+end
+coor translate vector=( 1.1  0.8 1.4 ) sele=( resid 1 ) end
+
+flags exclu * inclu xref end  
+energy end
+
+xray
+   method=fft lookup=false
+end
+test first sele=( id 1 ) step=0.000004 tolerance=0.0 end
+
+xray
+  method=direct lookup=false
+end
+
+test first sele=( id 1 ) step=0.000004 tolerance=0.0 end
+
+xray 
+  wa=0.1
+  method=direct lookup=true
+end
+test first sele=( id 1 ) step=0.001 tolerance=0.0 end
+
+xray 
+  wa=0.1
+  method=fft lookup=true
+end
+test first sele=( id 1 ) step=0.001 tolerance=0.0 end
+
+stop

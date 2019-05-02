@@ -1,0 +1,444 @@
+          ============================================================
+          |                                                          |
+          |            Crystallography & NMR System (CNS)            |
+          |                         CNSsolve                         |
+          |                                                          |
+          ============================================================
+           Version: 1.3
+           Status: General release
+          ============================================================
+           Written by: A.T.Brunger, P.D.Adams, G.M.Clore, W.L.DeLano,
+                       P.Gros, R.W.Grosse-Kunstleve,J.-S.Jiang,J.M.Krahn,
+                       J.Kuszewski, M.Nilges, N.S.Pannu, R.J.Read,
+                       L.M.Rice, G.F.Schroeder, T.Simonson, G.L.Warren.
+           Copyright (c) 1997-2010 Yale University
+          ============================================================
+           Running on machine: lewis4-r710-login-node223 (x86_64/Linux,64-bit)
+                               with 16 threads
+           Program started by: oeow39
+           Program started at: 16:08:30 on 05-Jul-2018
+          ============================================================
+
+ FFT3C: Using FFTPACK4.1
+
+ CNSsolve>remarks  XPACK.INP 
+ CNSsolve>remarks  test the crystallographic packing facility 
+ CNSsolve> 
+ CNSsolve>parameter @CNS_TOPPAR:protein.param end 
+ ASSFIL: file protein.param opened.
+ PARRDR>remarks file toppar/protein.param 
+ PARRDR>remarks   protein parameters with Lennard-Jones van der Waals parameters 
+ PARRDR>remarks   for crystallographic structure determination 
+ PARRDR> 
+ PARRDR>! 
+ PARRDR>! Please cite the following reference when using these parameters: 
+ PARRDR>! Engh, R.A. and  Huber, R. (1991). Accurate Bond and 
+ PARRDR>!  Angle Parameters for X-ray Protein-Structure Refinement, 
+ PARRDR>!  Acta Cryst. A47, 392-400. 
+ PARRDR>! 
+ PARRDR>! 
+ PARRDR> 
+ PARRDR>set message ? end eval ($old_message=$result) set echo ? end eval ($old_echo=$result) 
+ MESSage=NORM
+ EVALUATE: symbol $OLD_MESSAGE set to "NORM" (string)
+ ECHO=TRUE {ON}
+ EVALUATE: symbol $OLD_ECHO set to TRUE (logical)
+ PARRDR>set message=off echo=off end 
+ PARRDR> 
+ PARRDR> end 
+ CNSsolve> 
+ CNSsolve>{* read a ca trace *} 
+ CNSsolve>struc 
+ STRUcture>data_cns_mtf 
+ REMARKS FILENAME="/data/rwgk/test/tmp.mtf"
+ REMARKS - parameter file PARAM19 -
+ REMARKS PEPTIDE GEOMETRY FROM RAMACHANDRAN ET AL BBA 359:298 (1974)
+ REMARKS TORSIONS FROM HAGLER ET AL JACS 98:4600 (1976)
+ REMARKS JORGENSEN NONBOND PARAMETERS JACS 103:3976-3985 WITH 1-4 RC=1.80/0.1
+ REMARKS DATE:18-Nov-98  14:17:55       created by user: rwgk
+ REMARKS VERSION:0.4a
+ Status of internal molecular topology database:
+ -> NATOM=        123(MAXA=     1000000)  NBOND=          0(MAXB=     1000000)
+ -> NTHETA=         0(MAXT=     2000000)  NGRP=         123(MAXGRP=   1000000)
+ -> NPHI=           0(MAXP=     2000000)  NIMPHI=         0(MAXIMP=   1000000)
+ -> NNB=            0(MAXNB=    1000000) 
+ STRUcture> 
+ STRUcture>end 
+ CNSsolve> 
+ CNSsolve>coor 
+ COOR>REMARK FILENAME="" 
+ COOR>REMARK - parameter file PARAM19 - 
+ COOR>REMARK PEPTIDE GEOMETRY FROM RAMACHANDRAN ET AL BBA 359:298 (1974) 
+ COOR>REMARK TORSIONS FROM HAGLER ET AL JACS 98:4600 (1976) 
+ COOR>REMARK JORGENSEN NONBOND PARAMETERS JACS 103:3976-3985 WITH 1-4 RC=1.80/0.1 
+ COOR>REMARK DATE: 8-SEP-86  14:23:36       created by user: BRUNGER 
+ COOR>ATOM      1  CA  LYS     1       7.781  27.092  15.335  0.00 12.00 
+ COOR>ATOM      2  CA  GLN     2       8.641  26.707  11.942  0.00 12.00 
+ CNSsolve> 
+ CNSsolve> 
+ CNSsolve> 
+ CNSsolve>{===================================================================} 
+ CNSsolve> 
+ CNSsolve>xray 
+ XRAY>   declare name=fobs type=complex domain=reciprocal end 
+ XDECLARE: Object FOBS has been declared.
+ XRAY>   declare name=fpart domain=reciprocal type=complex end 
+ XDECLARE: Object FPART has been declared.
+ XRAY>   declare name=fcalc domain=reciprocal type=complex end 
+ XDECLARE: Object FCALC has been declared.
+ XRAY>   declare name=fom domain=reciprocal type=real end 
+ XDECLARE: Object FOM has been declared.
+ XRAY>   declare name=weight domain=reciprocal type=real end 
+ XDECLARE: Object WEIGHT has been declared.
+ XRAY>   declare name=sigma domain=reciprocal type=real end 
+ XDECLARE: Object SIGMA has been declared.
+ XRAY>   declare name=test domain=reciprocal type=integer end 
+ XDECLARE: Object TEST has been declared.
+ XRAY> 
+ XRAY>   a=33.6 b=69.9 c=47.3 alpha=90.0 beta=90.0 gamma=90.0 
+ XRAY> 
+ XRAY>   {* space_group=P2(1)2(1)2 *} 
+ XRAY>   symmetry=(x,y,z) 
+ XRAY>   symmetry=(-x,-y,z) 
+ XRAY>   symmetry=(1/2+x,1/2-y,-z) 
+ XRAY>   symmetry=(1/2-x,1/2+y,-z) 
+ XRAY> 
+ XRAY>  evaluate ($lr=10.) 
+ EVALUATE: symbol $LR set to    10.0000     (real)
+ XRAY>  evaluate ($hr=3) 
+ EVALUATE: symbol $HR set to    3.00000     (real)
+ XRAY>  binresolution $lr $hr 
+ XRAY>  mapresolution $hr 
+ XRAY>  tselection=( $hr <= d <= $lr  ) 
+ XRAY> 
+ XRAY>  do (fpart=0) ( all ) 
+ Total of         0 structure factor elements were selected.
+ XRAY>end 
+ CNSsolve> 
+ CNSsolve>parameter 
+ PARRDR>   nbonds cutnb=7.0 wmin=0.5 ctonnb=5.0 ctofnb=6.0 end 
+ PARRDR>end 
+ CNSsolve> 
+ CNSsolve>flags   exclude * include pvdw pele   end 
+ CNSsolve> 
+ CNSsolve>distance 
+ DISTANCE>  cutoff=7.0 cuton=0.0 
+ DISTANCE>end 
+ DISTAN: nonbonded distances printed
+ NBONDS: found       50 symmetry-atom interactions
+ atoms "    -18  -TYR -CA  " and "    -43  -GLU -CA  "(XSYM#  1)  6.4299 A apart
+ atoms "    -18  -TYR -CA  " and "    -44  -ASN -CA  "(XSYM#  1)  6.7671 A apart
+ atoms "    -18  -TYR -CA  " and "    -45  -ASN -CA  "(XSYM#  1)  6.9035 A apart
+ atoms "    -65  -GLN -CA  " and "    -67  -PRO -CA  "(XSYM#  2)  5.8728 A apart
+ atoms "    -65  -GLN -CA  " and "    -68  -GLN -CA  "(XSYM#  2)  6.5588 A apart
+ atoms "    -66  -VAL -CA  " and "    -66  -VAL -CA  "(XSYM#  2)  6.2844 A apart
+ atoms "    -66  -VAL -CA  " and "    -67  -PRO -CA  "(XSYM#  2)  5.3431 A apart
+ atoms "    -67  -PRO -CA  " and "    -67  -PRO -CA  "(XSYM#  2)  6.0164 A apart
+ atoms "    -11  -LEU -CA  " and "    -62  -LYS -CA  "(XSYM#  3)  6.7869 A apart
+ atoms "    -11  -LEU -CA  " and "    -63  -SER -CA  "(XSYM#  3)  6.7108 A apart
+ atoms "    -14  -ASP -CA  " and "    -76  -SER -CA  "(XSYM#  3)  6.8969 A apart
+ atoms "    -32  -HIS -CA  " and "    -116 -GLU -CA  "(XSYM#  3)  5.8469 A apart
+ atoms "    -32  -HIS -CA  " and "    -117 -GLN -CA  "(XSYM#  3)  5.5654 A apart
+ atoms "    -32  -HIS -CA  " and "    -118 -TRP -CA  "(XSYM#  3)  6.9637 A apart
+ atoms "    -33  -THR -CA  " and "    -115 -LEU -CA  "(XSYM#  3)  6.5111 A apart
+ atoms "    -33  -THR -CA  " and "    -116 -GLU -CA  "(XSYM#  3)  5.5269 A apart
+ atoms "    -33  -THR -CA  " and "    -117 -GLN -CA  "(XSYM#  3)  4.1007 A apart
+ atoms "    -34  -SER -CA  " and "    -114 -LYS -CA  "(XSYM#  3)  6.0216 A apart
+ atoms "    -34  -SER -CA  " and "    -115 -LEU -CA  "(XSYM#  3)  3.2618 A apart
+ atoms "    -34  -SER -CA  " and "    -116 -GLU -CA  "(XSYM#  3)  4.3069 A apart
+ atoms "    -34  -SER -CA  " and "    -117 -GLN -CA  "(XSYM#  3)  5.4301 A apart
+ atoms "    -35  -GLY -CA  " and "    -114 -LYS -CA  "(XSYM#  3)  6.6834 A apart
+ atoms "    -35  -GLY -CA  " and "    -115 -LEU -CA  "(XSYM#  3)  5.3421 A apart
+ atoms "    -35  -GLY -CA  " and "    -116 -GLU -CA  "(XSYM#  3)  6.3705 A apart
+ atoms "    -40  -ALA -CA  " and "    -115 -LEU -CA  "(XSYM#  3)  6.8380 A apart
+ atoms "    -62  -LYS -CA  " and "    -86  -THR -CA  "(XSYM#  3)  6.8612 A apart
+ atoms "    -63  -SER -CA  " and "    -84  -ASP -CA  "(XSYM#  3)  5.6054 A apart
+ atoms "    -63  -SER -CA  " and "    -85  -ILE -CA  "(XSYM#  3)  5.9031 A apart
+ atoms "    -63  -SER -CA  " and "    -86  -THR -CA  "(XSYM#  3)  4.3773 A apart
+ atoms "    -64  -SER -CA  " and "    -83  -ASP -CA  "(XSYM#  3)  6.1213 A apart
+ atoms "    -64  -SER -CA  " and "    -84  -ASP -CA  "(XSYM#  3)  4.8386 A apart
+ atoms "    -64  -SER -CA  " and "    -85  -ILE -CA  "(XSYM#  3)  6.1086 A apart
+ atoms "    -64  -SER -CA  " and "    -86  -THR -CA  "(XSYM#  3)  6.8352 A apart
+ atoms "    -65  -GLN -CA  " and "    -84  -ASP -CA  "(XSYM#  3)  6.5057 A apart
+ atoms "    -76  -SER -CA  " and "    -86  -THR -CA  "(XSYM#  3)  6.7312 A apart
+ atoms "    -77  -CYS -CA  " and "    -86  -THR -CA  "(XSYM#  3)  5.0857 A apart
+ atoms "    -77  -CYS -CA  " and "    -87  -ASP -CA  "(XSYM#  3)  5.9249 A apart
+ atoms "    -78  -ASP -CA  " and "    -86  -THR -CA  "(XSYM#  3)  5.5576 A apart
+ atoms "    -78  -ASP -CA  " and "    -87  -ASP -CA  "(XSYM#  3)  5.4141 A apart
+ atoms "    -78  -ASP -CA  " and "    -89  -ILE -CA  "(XSYM#  3)  6.2910 A apart
+ atoms "    -78  -ASP -CA  " and "    -90  -MET -CA  "(XSYM#  3)  5.2779 A apart
+ atoms "    -81  -LEU -CA  " and "    -87  -ASP -CA  "(XSYM#  3)  6.2677 A apart
+ atoms "    -81  -LEU -CA  " and "    -90  -MET -CA  "(XSYM#  3)  6.1793 A apart
+ atoms "    -105 -LEU -CA  " and "    -117 -GLN -CA  "(XSYM#  3)  6.2857 A apart
+ atoms "    -105 -LEU -CA  " and "    -118 -TRP -CA  "(XSYM#  3)  6.6117 A apart
+ atoms "    -106 -ALA -CA  " and "    -117 -GLN -CA  "(XSYM#  3)  6.2798 A apart
+ atoms "    -106 -ALA -CA  " and "    -118 -TRP -CA  "(XSYM#  3)  5.7339 A apart
+ atoms "    -106 -ALA -CA  " and "    -119 -LEU -CA  "(XSYM#  3)  5.5545 A apart
+ atoms "    -108 -LYS -CA  " and "    -123 -LEU -CA  "(XSYM#  3)  4.9930 A apart
+ atoms "    -109 -ALA -CA  " and "    -123 -LEU -CA  "(XSYM#  3)  5.9068 A apart
+ CNSsolve>distance 
+ DISTANCE>  cutoff=6. cuton=5.8 
+ DISTANCE>end 
+ DISTAN: nonbonded distances printed
+ atoms "    -65  -GLN -CA  " and "    -67  -PRO -CA  "(XSYM#  2)  5.8728 A apart
+ atoms "    -32  -HIS -CA  " and "    -116 -GLU -CA  "(XSYM#  3)  5.8469 A apart
+ atoms "    -63  -SER -CA  " and "    -85  -ILE -CA  "(XSYM#  3)  5.9031 A apart
+ atoms "    -77  -CYS -CA  " and "    -87  -ASP -CA  "(XSYM#  3)  5.9249 A apart
+ atoms "    -109 -ALA -CA  " and "    -123 -LEU -CA  "(XSYM#  3)  5.9068 A apart
+ CNSsolve> 
+ CNSsolve>test first sele=( resid 34 ) step=0.0002 tol=0.0 end 
+ SELRPN:      1 atoms have been selected out of    123
+ TESTFD: Parameters: STEP=   0.00020  MASSweighting=F
+ TESTFD: The following first derivatives differ by more than TOL=    0.000000
+
+  DIM.         ATOM                 ANALYTIC        FINITE-DIFF     DEVIATION
+   34 X (      34   SER  CA  )     -13.794221     -13.794223       0.000001
+   34 Y (      34   SER  CA  )       3.998552       3.998552       0.000000
+   34 Z (      34   SER  CA  )      -1.572373      -1.572373       0.000000
+ TESTFD: A total of     0 elements were within the tolerance
+ CNSsolve> 
+ CNSsolve>{* now skew the unit-cell to test derivatives *} 
+ CNSsolve>{* ========================================== *} 
+ CNSsolve>xray 
+ XRAY>    alpha=60.0 beta=70.0 gamma=50.0 
+ XRAY>end 
+ CNSsolve> 
+ CNSsolve>distance 
+ DISTANCE>  cutoff=5.0 cuton=0.0 
+ DISTANCE>end 
+ DISTAN: nonbonded distances printed
+ NBONDS: found      308 symmetry-atom interactions
+ atoms "    -19  -GLY -CA  " and "    -98  -ILE -CA  "(XSYM#  2)  4.9250 A apart
+ atoms "    -19  -GLY -CA  " and "    -99  -LYS -CA  "(XSYM#  2)  2.8462 A apart
+ atoms "    -20  -GLY -CA  " and "    -99  -LYS -CA  "(XSYM#  2)  4.9057 A apart
+ atoms "    -43  -GLU -CA  " and "    -95  -ILE -CA  "(XSYM#  2)  4.3525 A apart
+ atoms "    -46  -GLU -CA  " and "    -90  -MET -CA  "(XSYM#  2)  4.8368 A apart
+ atoms "    -46  -GLU -CA  " and "    -91  -CYS -CA  "(XSYM#  2)  4.1091 A apart
+ atoms "    -46  -GLU -CA  " and "    -92  -ALA -CA  "(XSYM#  2)  3.6196 A apart
+ atoms "    -46  -GLU -CA  " and "    -95  -ILE -CA  "(XSYM#  2)  3.6128 A apart
+ atoms "    -47  -SER -CA  " and "    -55  -ILE -CA  "(XSYM#  2)  3.6422 A apart
+ atoms "    -47  -SER -CA  " and "    -91  -CYS -CA  "(XSYM#  2)  3.3394 A apart
+ atoms "    -50  -TYR -CA  " and "    -59  -LEU -CA  "(XSYM#  2)  3.5205 A apart
+ atoms "    -50  -TYR -CA  " and "    -60  -TRP -CA  "(XSYM#  2)  4.5381 A apart
+ atoms "    -55  -ILE -CA  " and "    -57  -ASN -CA  "(XSYM#  2)  4.0749 A apart
+ atoms "    -56  -SER -CA  " and "    -56  -SER -CA  "(XSYM#  2)  2.8710 A apart
+ atoms "    -56  -SER -CA  " and "    -57  -ASN -CA  "(XSYM#  2)  3.2792 A apart
+ atoms "    -57  -ASN -CA  " and "    -60  -TRP -CA  "(XSYM#  2)  4.9739 A apart
+ atoms "    -58  -LYS -CA  " and "    -80  -PHE -CA  "(XSYM#  2)  3.8977 A apart
+ atoms "    -59  -LEU -CA  " and "    -79  -LYS -CA  "(XSYM#  2)  4.9264 A apart
+ atoms "    -59  -LEU -CA  " and "    -80  -PHE -CA  "(XSYM#  2)  2.0067 A apart
+ atoms "    -59  -LEU -CA  " and "    -81  -LEU -CA  "(XSYM#  2)  4.5894 A apart
+ atoms "    -60  -TRP -CA  " and "    -77  -CYS -CA  "(XSYM#  2)  3.0284 A apart
+ atoms "    -60  -TRP -CA  " and "    -80  -PHE -CA  "(XSYM#  2)  4.7794 A apart
+ atoms "    -61  -CYS -CA  " and "    -61  -CYS -CA  "(XSYM#  2)  3.3120 A apart
+ atoms "    -61  -CYS -CA  " and "    -75  -ILE -CA  "(XSYM#  2)  4.3529 A apart
+ atoms "    -61  -CYS -CA  " and "    -77  -CYS -CA  "(XSYM#  2)  3.2795 A apart
+ atoms "    -61  -CYS -CA  " and "    -79  -LYS -CA  "(XSYM#  2)  4.9678 A apart
+ atoms "    -62  -LYS -CA  " and "    -75  -ILE -CA  "(XSYM#  2)  3.8101 A apart
+ atoms "    -63  -SER -CA  " and "    -73  -CYS -CA  "(XSYM#  2)  4.1325 A apart
+ atoms "    -65  -GLN -CA  " and "    -87  -ASP -CA  "(XSYM#  2)  4.4508 A apart
+ atoms "    -65  -GLN -CA  " and "    -88  -ASP -CA  "(XSYM#  2)  3.8657 A apart
+ atoms "    -65  -GLN -CA  " and "    -91  -CYS -CA  "(XSYM#  2)  4.7368 A apart
+ atoms "    -68  -GLN -CA  " and "    -84  -ASP -CA  "(XSYM#  2)  3.8533 A apart
+ atoms "    -69  -SER -CA  " and "    -79  -LYS -CA  "(XSYM#  2)  3.4188 A apart
+ atoms "    -69  -SER -CA  " and "    -80  -PHE -CA  "(XSYM#  2)  2.5203 A apart
+ atoms "    -69  -SER -CA  " and "    -81  -LEU -CA  "(XSYM#  2)  4.2847 A apart
+ atoms "    -70  -ARG -CA  " and "    -79  -LYS -CA  "(XSYM#  2)  3.6969 A apart
+ atoms "    -70  -ARG -CA  " and "    -80  -PHE -CA  "(XSYM#  2)  3.8093 A apart
+ atoms "    -70  -ARG -CA  " and "    -81  -LEU -CA  "(XSYM#  2)  2.6799 A apart
+ atoms "    -71  -ASN -CA  " and "    -77  -CYS -CA  "(XSYM#  2)  2.7923 A apart
+ atoms "    -71  -ASN -CA  " and "    -78  -ASP -CA  "(XSYM#  2)  2.2067 A apart
+ atoms "    -71  -ASN -CA  " and "    -79  -LYS -CA  "(XSYM#  2)  2.4800 A apart
+ atoms "    -71  -ASN -CA  " and "    -80  -PHE -CA  "(XSYM#  2)  4.8915 A apart
+ atoms "    -72  -ILE -CA  " and "    -77  -CYS -CA  "(XSYM#  2)  4.3194 A apart
+ atoms "    -72  -ILE -CA  " and "    -78  -ASP -CA  "(XSYM#  2)  3.2538 A apart
+ atoms "    -73  -CYS -CA  " and "    -77  -CYS -CA  "(XSYM#  2)  3.7773 A apart
+ atoms "    -73  -CYS -CA  " and "    -78  -ASP -CA  "(XSYM#  2)  3.9122 A apart
+ atoms "    -74  -ASP -CA  " and "    -76  -SER -CA  "(XSYM#  2)  2.8456 A apart
+ atoms "    -74  -ASP -CA  " and "    -77  -CYS -CA  "(XSYM#  2)  4.8028 A apart
+ atoms "    -74  -ASP -CA  " and "    -78  -ASP -CA  "(XSYM#  2)  4.2114 A apart
+ atoms "    -75  -ILE -CA  " and "    -75  -ILE -CA  "(XSYM#  2)  3.3961 A apart
+ atoms "    -75  -ILE -CA  " and "    -76  -SER -CA  "(XSYM#  2)  1.0762 A apart
+ atoms "    -75  -ILE -CA  " and "    -77  -CYS -CA  "(XSYM#  2)  4.6642 A apart
+ atoms "    -76  -SER -CA  " and "    -76  -SER -CA  "(XSYM#  2)  4.2778 A apart
+ atoms "    -93  -LYS -CA  " and "    -97  -ASP -CA  "(XSYM#  2)  3.2592 A apart
+ atoms "    -93  -LYS -CA  " and "    -98  -ILE -CA  "(XSYM#  2)  4.5100 A apart
+ atoms "    -94  -LYS -CA  " and "    -97  -ASP -CA  "(XSYM#  2)  4.6969 A apart
+ atoms "    -96  -LEU -CA  " and "    -96  -LEU -CA  "(XSYM#  2)  4.2807 A apart
+ atoms "    -96  -LEU -CA  " and "    -97  -ASP -CA  "(XSYM#  2)  3.7243 A apart
+ atoms "    -96  -LEU -CA  " and "    -99  -LYS -CA  "(XSYM#  2)  4.2013 A apart
+ atoms "    -97  -ASP -CA  " and "    -97  -ASP -CA  "(XSYM#  2)  3.0698 A apart
+ atoms "    -97  -ASP -CA  " and "    -99  -LYS -CA  "(XSYM#  2)  4.6363 A apart
+ atoms "    -99  -LYS -CA  " and "    -100 -GLY -CA  "(XSYM#  2)  4.4300 A apart
+ atoms "    -118 -TRP -CA  " and "    -121 -GLU -CA  "(XSYM#  2)  3.7080 A apart
+ atoms "    -118 -TRP -CA  " and "    -123 -LEU -CA  "(XSYM#  2)  4.5460 A apart
+ atoms "    -119 -LEU -CA  " and "    -119 -LEU -CA  "(XSYM#  2)  4.4772 A apart
+ atoms "    -119 -LEU -CA  " and "    -120 -CYS -CA  "(XSYM#  2)  3.2276 A apart
+ atoms "    -119 -LEU -CA  " and "    -121 -GLU -CA  "(XSYM#  2)  1.9693 A apart
+ atoms "    -119 -LEU -CA  " and "    -122 -LYS -CA  "(XSYM#  2)  3.1337 A apart
+ atoms "    -119 -LEU -CA  " and "    -123 -LEU -CA  "(XSYM#  2)  3.2918 A apart
+ atoms "    -120 -CYS -CA  " and "    -120 -CYS -CA  "(XSYM#  2)  3.5290 A apart
+ atoms "    -120 -CYS -CA  " and "    -123 -LEU -CA  "(XSYM#  2)  4.7625 A apart
+ atoms "    -1   -LYS -CA  " and "    -76  -SER -CA  "(XSYM#  3)  4.5725 A apart
+ atoms "    -1   -LYS -CA  " and "    -87  -ASP -CA  "(XSYM#  3)  3.2349 A apart
+ atoms "    -1   -LYS -CA  " and "    -88  -ASP -CA  "(XSYM#  3)  4.3669 A apart
+ atoms "    -2   -GLN -CA  " and "    -76  -SER -CA  "(XSYM#  3)  4.9887 A apart
+ atoms "    -14  -ASP -CA  " and "    -84  -ASP -CA  "(XSYM#  3)  4.7151 A apart
+ atoms "    -17  -GLY -CA  " and "    -115 -LEU -CA  "(XSYM#  3)  4.9810 A apart
+ atoms "    -18  -TYR -CA  " and "    -115 -LEU -CA  "(XSYM#  3)  3.7413 A apart
+ atoms "    -20  -GLY -CA  " and "    -116 -GLU -CA  "(XSYM#  3)  3.8018 A apart
+ atoms "    -20  -GLY -CA  " and "    -117 -GLN -CA  "(XSYM#  3)  3.2735 A apart
+ atoms "    -31  -PHE -CA  " and "    -109 -ALA -CA  "(XSYM#  3)  4.7202 A apart
+ atoms "    -32  -HIS -CA  " and "    -109 -ALA -CA  "(XSYM#  3)  2.9733 A apart
+ atoms "    -32  -HIS -CA  " and "    -112 -THR -CA  "(XSYM#  3)  2.9750 A apart
+ atoms "    -32  -HIS -CA  " and "    -113 -GLU -CA  "(XSYM#  3)  2.9240 A apart
+ atoms "    -33  -THR -CA  " and "    -113 -GLU -CA  "(XSYM#  3)  2.5870 A apart
+ atoms "    -34  -SER -CA  " and "    -113 -GLU -CA  "(XSYM#  3)  3.5281 A apart
+ atoms "    -35  -GLY -CA  " and "    -113 -GLU -CA  "(XSYM#  3)  4.8303 A apart
+ atoms "    -38  -THR -CA  " and "    -87  -ASP -CA  "(XSYM#  3)  3.9419 A apart
+ atoms "    -39  -GLN -CA  " and "    -86  -THR -CA  "(XSYM#  3)  3.0856 A apart
+ atoms "    -39  -GLN -CA  " and "    -87  -ASP -CA  "(XSYM#  3)  4.6339 A apart
+ atoms "    -82  -ASP -CA  " and "    -86  -THR -CA  "(XSYM#  3)  4.9228 A apart
+ atoms "    -82  -ASP -CA  " and "    -87  -ASP -CA  "(XSYM#  3)  4.2886 A apart
+ atoms "    -83  -ASP -CA  " and "    -88  -ASP -CA  "(XSYM#  3)  4.4963 A apart
+ atoms "    -83  -ASP -CA  " and "    -89  -ILE -CA  "(XSYM#  3)  3.0932 A apart
+ atoms "    -1   -LYS -CA  " and "    -62  -LYS -CA  "(XSYM#  4)  3.5799 A apart
+ atoms "    -1   -LYS -CA  " and "    -65  -GLN -CA  "(XSYM#  4)  4.7413 A apart
+ atoms "    -1   -LYS -CA  " and "    -66  -VAL -CA  "(XSYM#  4)  4.7662 A apart
+ atoms "    -2   -GLN -CA  " and "    -62  -LYS -CA  "(XSYM#  4)  3.9265 A apart
+ atoms "    -3   -PHE -CA  " and "    -62  -LYS -CA  "(XSYM#  4)  4.3189 A apart
+ atoms "    -3   -PHE -CA  " and "    -64  -SER -CA  "(XSYM#  4)  4.6337 A apart
+ atoms "    -7   -GLU -CA  " and "    -64  -SER -CA  "(XSYM#  4)  4.9556 A apart
+ atoms "    -37  -ASP -CA  " and "    -66  -VAL -CA  "(XSYM#  4)  3.1502 A apart
+ atoms "    -38  -THR -CA  " and "    -66  -VAL -CA  "(XSYM#  4)  4.4565 A apart
+ atoms "    -39  -GLN -CA  " and "    -66  -VAL -CA  "(XSYM#  4)  4.0110 A apart
+ atoms "    -40  -ALA -CA  " and "    -66  -VAL -CA  "(XSYM#  4)  4.3486 A apart
+ CNSsolve> 
+ CNSsolve>test first sele=( resid 34 or resid 56 or resid 77 or resid 67 or resid 99 
+ SELRPN>                  or resid 113 )  step=0.001 tol=0.0 end 
+ SELRPN:      6 atoms have been selected out of    123
+ TESTFD: Parameters: STEP=   0.00100  MASSweighting=F
+ TESTFD: The following first derivatives differ by more than TOL=    0.000000
+
+  DIM.         ATOM                 ANALYTIC        FINITE-DIFF     DEVIATION
+   34 X (      34   SER  CA  )       1.097569       1.097569       0.000000
+   34 Y (      34   SER  CA  )      -2.043184      -2.043184       0.000000
+   34 Z (      34   SER  CA  )      -4.404606      -4.404615       0.000008
+   56 X (      56   SER  CA  )     -35.982648     -35.982767       0.000119
+   56 Y (      56   SER  CA  )     -59.156553     -59.157113       0.000559
+   56 Z (      56   SER  CA  )      53.102477      53.102705       0.000229
+   67 X (      67   PRO  CA  )      -0.088706      -0.088706       0.000000
+   67 Y (      67   PRO  CA  )       0.057785       0.057785       0.000000
+   67 Z (      67   PRO  CA  )      -0.095476      -0.095476       0.000000
+   77 X (      77   CYS  CA  )      26.333405      26.333414       0.000009
+   77 Y (      77   CYS  CA  )     109.419067     109.419425       0.000358
+   77 Z (      77   CYS  CA  )    -114.801432    -114.801672       0.000240
+   99 X (      99   LYS  CA  )     -44.389272     -44.389280       0.000008
+   99 Y (      99   LYS  CA  )     -74.663429     -74.663585       0.000155
+   99 Z (      99   LYS  CA  )      61.830830      61.830829       0.000002
+  113 X (      113  GLU  CA  )     234.844630     234.844931       0.000301
+  113 Y (      113  GLU  CA  )    -293.007371    -293.007946       0.000574
+  113 Z (      113  GLU  CA  )    -206.001242    -206.001719       0.000477
+ TESTFD: A total of     0 elements were within the tolerance
+ CNSsolve> 
+ CNSsolve> 
+ CNSsolve>{* now we test the interaction criterium *} 
+ CNSsolve>{* ===================================== *} 
+ CNSsolve>igroup interaction=( resid 99 )=( all ) end 
+ SELRPN:      1 atoms have been selected out of    123
+ SELRPN:    123 atoms have been selected out of    123
+ CNSsolve> 
+ CNSsolve>energy end 
+ NBONDS: found       11 symmetry-atom interactions
+ --------------- cycle=     1 --------------------------------------------------
+ | Etotal =22.082     grad(E)=7.424      E(PVDW)=20.830     E(PELE)=1.252      |
+ -------------------------------------------------------------------------------
+ CNSsolve>display  $pele 
+ 1.2518
+ CNSsolve>display  $pvdw 
+ 20.8303
+ CNSsolve> 
+ CNSsolve>igroup interaction=( resid 99 )=( resid 96 ) end 
+ SELRPN:      1 atoms have been selected out of    123
+ SELRPN:      1 atoms have been selected out of    123
+ CNSsolve> 
+ CNSsolve>distance 
+ DISTANCE>  cutoff=7.0 cuton=0.0 
+ DISTANCE>end 
+ DISTAN: nonbonded distances printed
+ NBONDS: found        1 symmetry-atom interactions
+ atoms "    -96  -LEU -CA  " and "    -99  -LYS -CA  "(XSYM#  2)  4.2013 A apart
+ CNSsolve> 
+ CNSsolve> 
+ CNSsolve> 
+ CNSsolve>test first sele=( resid 99 or resid 96 ) step=0.001 tol=0.0 end 
+ SELRPN:      2 atoms have been selected out of    123
+ TESTFD: Parameters: STEP=   0.00100  MASSweighting=F
+ TESTFD: The following first derivatives differ by more than TOL=    0.000000
+
+  DIM.         ATOM                 ANALYTIC        FINITE-DIFF     DEVIATION
+   96 X (      96   LEU  CA  )       0.440318       0.440318       0.000000
+   96 Y (      96   LEU  CA  )       0.021821       0.021821       0.000000
+   96 Z (      96   LEU  CA  )      -0.294188      -0.294188       0.000000
+   99 X (      99   LYS  CA  )       0.440318       0.440318       0.000000
+   99 Y (      99   LYS  CA  )       0.021821       0.021821       0.000000
+   99 Z (      99   LYS  CA  )      -0.072208      -0.072208       0.000000
+ TESTFD: A total of     0 elements were within the tolerance
+ CNSsolve> 
+ CNSsolve> 
+ CNSsolve>{* test the automatic update  business *} 
+ CNSsolve>{* ================================== *} 
+ CNSsolve>energy end 
+ --------------- cycle=     2 --------------------------------------------------
+ | Etotal =0.209      grad(E)=0.036      E(PVDW)=0.004      E(PELE)=0.205      |
+ -------------------------------------------------------------------------------
+ CNSsolve>coor translate sele=( resid 99 ) vector=( 0.0 0.4 0.0 ) end 
+ SELRPN:      1 atoms have been selected out of    123
+ COOR: using atom subset.
+ COOR: translation vector =(     0.000000    0.400000    0.000000 )
+ COOR: selected coordinates translated
+ CNSsolve>energy end 
+ --------------- cycle=     3 --------------------------------------------------
+ | Etotal =0.208      grad(E)=0.036      E(PVDW)=0.003      E(PELE)=0.205      |
+ -------------------------------------------------------------------------------
+ CNSsolve>coor translate sele=( resid 99 ) vector=( 0.0 0.2 0.0 ) end 
+ SELRPN:      1 atoms have been selected out of    123
+ COOR: using atom subset.
+ COOR: translation vector =(     0.000000    0.200000    0.000000 )
+ COOR: selected coordinates translated
+ CNSsolve>energy end 
+ NBONDS: found        1 symmetry-atom interactions
+ --------------- cycle=     4 --------------------------------------------------
+ | Etotal =0.200      grad(E)=0.034      E(PVDW)=-0.001     E(PELE)=0.201      |
+ -------------------------------------------------------------------------------
+ CNSsolve> 
+ CNSsolve>flags incl vdw elec pvdw pele end 
+ CNSsolve>igroup inter=( resn t* ) ( prev ) end 
+ SELRPN:     14 atoms have been selected out of    123
+ SELRPN:     14 atoms have been selected out of    123
+ CNSsolve>distance end 
+ DISTAN: nonbonded distances printed
+ NBONDS: generating intra-molecular exclusion list with mode= 5
+ MAKINB: Ran out of space. RESIZING
+ MAKINB: mode   5 found      0 exclusions and      0 interactions(1-4)
+ NBONDS: found        4 intra-atom interactions
+ NBONDS: found        6 symmetry-atom interactions
+ atoms "    -29  -THR -CA  " and "    -33  -THR -CA  "            5.1910 A apart
+ atoms "    -36  -TYR -CA  " and "    -38  -THR -CA  "            6.3421 A apart
+ atoms "    -48  -THR -CA  " and "    -50  -TYR -CA  "            6.4083 A apart
+ atoms "    -103 -TYR -CA  " and "    -104 -TRP -CA  "            3.9053 A apart
+ atoms "    -48  -THR -CA  " and "    -60  -TRP -CA  "(XSYM#  2)  6.5202 A apart
+ atoms "    -50  -TYR -CA  " and "    -60  -TRP -CA  "(XSYM#  2)  4.5381 A apart
+ atoms "    -118 -TRP -CA  " and "    -118 -TRP -CA  "(XSYM#  2)  5.7237 A apart
+ atoms "    -29  -THR -CA  " and "    -112 -THR -CA  "(XSYM#  3)  6.8194 A apart
+ atoms "    -33  -THR -CA  " and "    -112 -THR -CA  "(XSYM#  3)  5.2529 A apart
+ atoms "    -38  -THR -CA  " and "    -86  -THR -CA  "(XSYM#  3)  6.1195 A apart
+ CNSsolve> 
+ CNSsolve>stop 
+          ============================================================
+           Maximum dynamic memory allocation:     8284824 bytes
+           Maximum dynamic memory overhead:          1024 bytes
+           Program started at: 16:08:30 on 05-Jul-2018
+           Program stopped at: 16:08:30 on 05-Jul-2018
+           CPU time used:       0.0245 seconds
+          ============================================================

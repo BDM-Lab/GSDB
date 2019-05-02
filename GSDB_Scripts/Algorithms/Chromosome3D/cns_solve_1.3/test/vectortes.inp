@@ -1,0 +1,153 @@
+remarks VECTORTES
+remarks test case for DO and SHOW commands
+
+topology
+   !
+   mass A   1.0
+   mass B   2.0
+   mass C   3.0
+   mass D   4.0
+   mass E   5.0
+   mass F   6.0
+   mass G   7.0
+   mass H   8.0
+   mass I   9.0
+   !
+   residue test 
+     atom A  type A  charge 10.0 end
+     atom B  type B  charge 20.0 end
+     atom C  type C  charge 30.0 end
+     atom D  type D  charge 40.0 end
+     atom E  type E  charge 50.0 end
+     atom F  type F  charge 60.0 end
+     atom G  type G  charge 70.0 end
+     atom H  type H  charge 80.0 end
+     atom I  type I  charge 90.0 end
+   end
+   !
+end !topology
+
+segment
+   name=test
+   molecule name=test number=1 end
+end
+
+show element ( charge )( all )
+
+do ( x = 0.0 ) ( all )
+do ( y = 9.0 ) ( all )
+do ( z = 99.0 )( all )
+
+do ( x = 1.0 ) ( name A or name E )
+show element ( x ) ( all )
+
+do ( x = x + 10.0 ) ( name B or name E )
+show element ( x )  ( name B or name E )
+
+do ( x = x * 2.0 ) ( name B )
+show element ( x ) ( name B )
+
+do ( x = x / 4.0 ) ( name B )
+show element ( x ) ( name B )
+
+do ( x = x * 4.0 ) ( name B )
+
+do ( x = 1.0 / x ) ( name E )
+show element ( x ) ( name E )
+
+do ( x = log( x ) ) ( name E )
+show element ( x )  ( name E )
+
+do ( x = exp( x ) )  ( all )
+show element ( x ) ( all )
+
+do ( x = x * -1.0 ) ( all )
+do ( x = abs( x ) ) ( all )
+show element ( x )  ( all )
+
+do ( store1 = x ) ( all ) 
+
+do ( x = min( x, 2.0 ) ) ( all )
+show element ( x ) ( all )
+
+do ( x = store1 ) ( all )
+do ( x = max( x, 20.0 ) ) ( all )
+show element ( x ) ( all )
+
+do ( x = 2.0 ) ( name B )
+show norm ( x ) ( name B or name C )
+do (x = x / ( $RESULT* sqrt($SELECT) ) ) ( name B or name C)
+
+show element ( x ) ( name B  or  name C )
+
+do ( x = x^2.0 ) ( all )
+show element ( x )( all )
+display  $result
+
+show sum  ( x ) ( all )
+display  $result
+show max  ( x ) ( all )
+display  $result
+show min  ( x ) ( all )
+display  $result
+show ave  ( x ) ( all )
+display  $result
+show rms  ( x ) ( all )
+display  $result
+show norm ( x ) ( all )
+display  $result
+
+show element ( mass ) ( all )
+do ( store1 = store1 + mass ) ( all )
+do ( bcomp = store1 ) ( all )
+show element ( bcomp ) ( all )
+
+show element ( charge )( all )
+do ( store1 = store1 * charge ) ( all )
+do ( bcomp = store1 ) ( all )
+show element ( bcomp ) ( all )
+
+identity ( b ) ( name A  or  name C  or  name E )
+do ( store2 = b ) ( all )
+
+show element ( b ) ( recall 2 )
+
+write coor end
+
+do ( segid = "NEW" )( segid test )
+do ( resid = "10" ) ( resid 1 )
+do ( resname = "JUNK" ) ( resname test )
+do ( name = "X" ) ( name A )
+do ( chemical = "J" ) ( chemical I )
+show elem ( segid ) ( all )
+display   $result
+
+show element ( name ) ( name X )
+show element ( segid ) ( segid NEW )
+
+write structure end 
+
+do ( b = gauss( 1.0 ) ) ( all )
+show element ( b ) ( all )
+
+do ( b = maxw( 100.0 ) ) ( all )
+show element ( b ) ( all )
+
+do ( resid = encode ( integer (b + 100) ) ) ( all ) 
+show ( decode(resid) + 11 ) ( all )
+show ( encode ( decode(resid) + 11 ) ) ( all )
+do ( segid =  encode ( integer ( decode(resid) - 10 ) ) )  ( all ) 
+show ( segid ) ( all )
+
+do (store2=b ) ( name F ) 
+do (store2=store2+1.0) ( all )
+show ( store2 ) ( all )
+
+do (resid="abCD" ) ( all ) 
+do (resid= capitalize (resid) )  ( all ) 
+show ( resid ) ( all ) 
+
+do (resid= capitalize ("abCD") )  ( all ) 
+show ( resid ) ( all ) 
+
+stop

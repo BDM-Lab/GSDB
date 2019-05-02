@@ -1,0 +1,59 @@
+! Module file: rmsplotfile
+!
+! CNS MODULE
+! **********
+!
+! Authors: Gregory L. Warren and Axel T. Brunger
+!
+! copyright Yale University
+!
+! version 03/05/98
+!
+! Function:
+!          Generates a text file containing the residue
+!          number and the residue backbone and heavy atom
+!          sidechain rmsd values for an ensemble
+!
+! Requirements:
+!        
+!
+!
+
+module {rmsplotfile}
+(
+   &pdb.out.name=pdb.out.name;            {INPUT: output file basename}
+)
+
+checkversion 1.3
+
+set message ? end
+evaluate ($message_old=$result)
+set echo ? end
+evaluate ($echo_old=$result)
+if ( $log_level = verbose ) then
+  set echo=on message=normal end
+else
+  set echo=off message=off end
+end if
+
+   evaluate ($rms_plot_file=&pdb.out.name+"_rms_plot.dat")
+   set display=$rms_plot_file end
+   display res #    back    side
+   display ----------------------   
+   evaluate ($res_num=0.)
+   ident (store9) (tag)
+   for $atom_id in id ( store9 ) loop rms
+      show norm ( b ) ( byresidue ( id $atom_id ) 
+                 and ( name ca or name n or name c ))
+      evaluate ($back=$result)
+      show norm ( b ) ( byresidue ( id $atom_id )
+                 and not ( name ca or name n or name c ) 
+                 and not (chemical h*) )
+      evaluate ($side=$result)
+      show elem ( resid ) ( id $atom_id )
+      evaluate ($res_num=$res_num + 1)
+      display $res_num[I5]   $back[F6.3]  $side[F6.3]
+   end loop rms
+   close $rms_plot_file end
+
+set message=$message_old echo=$echo_old end

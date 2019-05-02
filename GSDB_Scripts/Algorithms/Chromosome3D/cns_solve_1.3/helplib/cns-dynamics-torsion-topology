@@ -1,0 +1,33 @@
+topology {<dynamics-torsion-topology-statement>} end
+
+<dynamics-torsion-topology-statement> :==
+
+  reset 
+  --{Resets the torsion topology. Should only
+     be used stand-alone, i.e., TOPOlogy RESEt END.}
+
+  fix torsion <atom-selection> <atom-selection> 
+              <atom-selection> <atom-selection>
+  --{Constrain the selected torsion angle.}
+  fix group <atom-selection>
+  --{Constrain all torsion angles within the selected group.}
+  free torsion <atom-selection> <atom-selection>
+               <atom-selection> <atom-selection>
+  --{Un-constrain selected torsion angle.}
+  free bond <atom-selection> <atom-selection> 
+  --{Ignore the selected bond for torsion topology generation.
+     The bond will still be restrained through the energy function, 
+     but it is not constrained to a fixed value. All bonds that 
+     match the double selection will be "free-ed". This statement
+     is useful for breaking closed loops that are not part of
+     rigid groups.}
+  kdihmax=<real>
+  --{Threshold for selecting torsions as free to rotate. 
+     Rotation will be permitted around torsion angles with force constants
+     less than this cutoff value. Torsion angles with force constants above
+     this value will be constrained during dynamics.}
+
+Notes:
+
+The topology statements (except RESEt) are only parsed if no torsion topology
+is already present.  

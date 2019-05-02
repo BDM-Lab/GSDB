@@ -1,0 +1,140 @@
+<xray-expression> :==
+
+  <vflc> [ <operator> <xray-expression> ]
+
+  <vflc> :==
+ 
+    <xray-object>|<xray-function>|<symbol>|<parameter>|<literal-constant>
+
+    <xray-function> :==
+
+      <reciprocal-space-function>
+      <real-space-function>
+      abs(<xray-expression>)
+      acos(<xray-expression>)
+      amplitude(<xray-expression>)
+      asin(<xray-expression>)
+      atan(<xray-expression>)
+      combine(<xray-expression>,<xray-expression>)
+      complex(<xray-expression>,<xray-expression>)
+      conjugate(<xray-expression>)
+      cos(<xray-expression>)
+      exp(<xray-expression>)
+      ft(<xray-expression>)
+      gauss(<xray-expression>)
+      i
+      i0(<xray-expression>)
+      i1(<xray-expression>)
+      i1overi0(<xray-expression>)
+      imag(<xray-expression>)
+      int(<xray-expression>)
+      log(<xray-expression>)
+      log10(<xray-expression>)
+      max(<xray-expression>,<xray-expression>[{,<xray-expression>}])
+      min(<xray-expression>,<xray-expression>[{,<xray-expression>}])
+      mod(<xray-expression>,<xray-expression>)
+      phase(<xray-expression>)
+      random
+      real(<xray-expression>)
+      sign(<xray-expression>)
+      sin(<xray-expression>)
+      sqrt(<xray-expression>)
+      step(<xray-expression>)
+      tan(<xray-expression>)
+      tanh(<xray-expression>)
+      add[_<variable>,<real>,<real>,<real>](<xray-expression>)
+      integrate[_<variable>,<real>,<real>,<real>](<xray-expression>)
+      multiply[_<variable>,<real>,<real>,<real>](<xray-expression>)
+      maximize[_<variable>,<real>,<real>,<real>](<xray-expression>)
+      imaximize[_<variable>,<real>,<real>,<real>](<xray-expression>)
+
+      <variable> :== <word>
+
+      <reciprocal-space-function> :==
+
+        d --{Returns bragg spacing for reflection.}
+        s --{Returns scattering vector amplitude for reflection.}
+        acentric --{true if reflection is acentric.}
+        scale(<any>,<any>) --{scale(x,y), returns scale array.}
+        shape(<any>,<any>) --{shape(x,y), returns shape array.}
+        epsilon --{returns epsilon for reflection.}
+        norm(<real>) --{normalizes structure factor.}
+        mult --{returns multiplicity of reflection.}
+        friedel(<any>) --{gets friedel mate of reflection if present.}
+        friedel_pair(<logical>) --{true if both friedel mates present.}
+        type --{type of reflection.}
+        centric --{true if reflection is acentric.}
+        centric_phase --{restricted phase for centric reflect.}
+        corr[overall,binwise,mult=<logical>](<real>,<real>)
+        --{}
+        siga(<real>,<real>) --{compute sigmaa values.}
+        sigacv[sigma=<real>](<real>,<real>) 
+        --{compute cross-validated sigmaa values.}
+        rvalue[overall,binwise,k=<real>,mult=<logical>](<any>,<any>)
+        --{r-value.}
+        sum[overall,binwise](<any>) --{summation.}
+        ave[overall,binwise](<any>) --{average.}
+        save[overall,binwise](<any>) --{statistical average.}
+        distribute(<any>) --{fills all non-zeros by inter/extra-polation.}
+        remap[operator](<any>) 
+        --{applies reciprocal space operation to data. 
+           Operator of form: h,-h-k,-l. Note: reflections are selected first, 
+           and then the remap operation applied to the subset.
+           Important note: If the argument is REAL, the output will be complex,
+           and certain reflections may contain a phase shift. Thus, apply an 
+           ABS() operation after the REMAP operation, otherwise the output
+           array may contain negative entries. }
+
+        --{maximum likelihood target functions:}
+        --{====================================}
+        mlf(fobs,sigmaf,fcalc,d,sigma_delta) --{maximum likelihood target.}
+        dmlf(fobs,sigmaf,fcalc,d,sigma_delta) --{derivative of mlf.}
+        mlff(fobs,sigmaf,fcalc,d,sigma_delta) --{expected value of fobs.}
+        mlvf(fobs,sigmaf,fcalc,d,sigma_delta) --{maximum likelihood variance.}
+        mli(iobs,sigmai,fcalc,d,sigma_delta) --{maximum likelihood target on I}
+        dmli(iobs,sigmai,fcalc,d,sigma_delta) --{derivative of mli.}
+        mlhl[phistep=<real>](fobs,phicalc,fcalc,pa,pb,pc,pd,d,sigma_delta)
+        --{maximum likelihood target on amplitudes with experimental phase
+           probability distribution.}
+        dmlhl[phistep=<real>](fobs,phicalc,fcalc,pa,pb,pc,pd,d,sigma_delta)
+        --{derivative of mlhl.}
+
+        --{residual target functions:}
+        --{==========================}
+        resi[k=<real>](fobs,fcalc,weight) --{residual target.}
+        dresi[k=<real>](fobs,fcalc,weight) --{derivative of residual.}
+        vector[k=<real>](fobs,fcalc,weight) --{vector residual target.}
+        dvector[k=<real>](fobs,fcalc,weight) --{derivative of vector.}
+
+        --{correlation target functions:}
+        --{=============================}
+        f1f1[mult=<logical>](fobs,fcalc) --{F correlation target.}
+        df1f1[mult=<logical>](fobs,fcalc) --{derivative of F1F1.}
+        f2f2[mult=<logical>](fobs,fcalc) --{F^2 correlation target.}
+        df2f2[mult=<logical>](fobs,fcalc) --{derivative of F2F2.}
+        e1e1(fobs,fcalc) --{E correlation target.}
+        de1e1(fobs,fcalc) --{derivative of E1E1.}
+        e2e2(fobs,fcalc) --{E^2 correlation target.}
+        de2e2(fobs,fcalc) --{derivative of E2E2.}
+
+        --{phase probability distribution operations:}
+        --{==========================================}
+        get_fom[phistep=<real>](pa,pb,pc,pd) --{calculate centroid phase & fom}
+        get_norm[phistep=<real>](pa,pb,pc,pd) --{normalization factor for hl}
+
+        --{maximum likelihood lack-of-closure target functions:}
+        --{====================================================}
+        get_ml[phistep=<real>](fp,fh,fph,weight,pk,pa,pb,pc,pd)
+        get_dml[phistep=<real>](fp,fh,fph,weight,pk,pa,pb,pc,pd)
+        get_aml[phistep=<real>](fp,fh,fph,weight,pk,pa,pb,pc,pd)
+        get_daml[phistep=<real>](fp,fh,fph,weight,pk,pa,pb,pc,pd)
+ 
+      <real-space-function> :==
+
+        x | y | z | a | b | c | mult | 
+        gave(<xray-expression>,<xray-expression>) |
+        sdev[radius=<real>](<xray-expression>)
+
+  <operator> :==
+        
+    + | - | ~ | * | / | ^ | **

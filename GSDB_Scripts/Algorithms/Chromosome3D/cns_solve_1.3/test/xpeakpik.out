@@ -1,0 +1,630 @@
+          ============================================================
+          |                                                          |
+          |            Crystallography & NMR System (CNS)            |
+          |                         CNSsolve                         |
+          |                                                          |
+          ============================================================
+           Version: 1.3
+           Status: General release
+          ============================================================
+           Written by: A.T.Brunger, P.D.Adams, G.M.Clore, W.L.DeLano,
+                       P.Gros, R.W.Grosse-Kunstleve,J.-S.Jiang,J.M.Krahn,
+                       J.Kuszewski, M.Nilges, N.S.Pannu, R.J.Read,
+                       L.M.Rice, G.F.Schroeder, T.Simonson, G.L.Warren.
+           Copyright (c) 1997-2010 Yale University
+          ============================================================
+           Running on machine: lewis4-r710-login-node223 (x86_64/Linux,64-bit)
+                               with 16 threads
+           Program started by: oeow39
+           Program started at: 16:08:31 on 05-Jul-2018
+          ============================================================
+
+ FFT3C: Using FFTPACK4.1
+
+ CNSsolve>REMARKS  xpeakpik.inp 
+ CNSsolve>remarks  test peak-picking 
+ CNSsolve> 
+ CNSsolve>{* read a ca trace *} 
+ CNSsolve>struc 
+ STRUcture>data_cns_mtf 
+ REMARKS FILENAME="/data/rwgk/test/tmp.mtf"
+ REMARKS DATE:18-Nov-98  14:17:56       created by user: rwgk
+ REMARKS VERSION:0.4a
+ Status of internal molecular topology database:
+ -> NATOM=         20(MAXA=     1000000)  NBOND=          0(MAXB=     1000000)
+ -> NTHETA=         0(MAXT=     2000000)  NGRP=          20(MAXGRP=   1000000)
+ -> NPHI=           0(MAXP=     2000000)  NIMPHI=         0(MAXIMP=   1000000)
+ -> NNB=            0(MAXNB=    1000000) 
+ STRUcture> 
+ STRUcture>end 
+ CNSsolve> 
+ CNSsolve>coor 
+ COOR>ATOM      1  CA  ALA     1       0.000   0.000   0.000  1.00  5.00 
+ COOR>ATOM      2  CA  ALA     2       0.000   0.000   3.000  2.00  5.00 
+ CNSsolve> 
+ CNSsolve>do (b=20) ( all ) 
+ SELRPN:     20 atoms have been selected out of     20
+ CNSsolve> 
+ CNSsolve>{===================================================================} 
+ CNSsolve>{* test with arbitrary unit cell, P1 space group *} 
+ CNSsolve>{===================================================================} 
+ CNSsolve> 
+ CNSsolve>xray 
+ XRAY>   declare name=fobs type=complex domain=reciprocal end 
+ XDECLARE: Object FOBS has been declared.
+ XRAY>   declare name=fpart domain=reciprocal type=complex end 
+ XDECLARE: Object FPART has been declared.
+ XRAY>   declare name=fcalc domain=reciprocal type=complex end 
+ XDECLARE: Object FCALC has been declared.
+ XRAY>   declare name=fom domain=reciprocal type=real end 
+ XDECLARE: Object FOM has been declared.
+ XRAY>   declare name=weight domain=reciprocal type=real end 
+ XDECLARE: Object WEIGHT has been declared.
+ XRAY>   declare name=sigma domain=reciprocal type=real end 
+ XDECLARE: Object SIGMA has been declared.
+ XRAY>   declare name=test domain=reciprocal type=integer end 
+ XDECLARE: Object TEST has been declared.
+ XRAY> 
+ XRAY>  a=16.2 b=16.5 c=20. alpha=90.  beta=90. gamma=90. 
+ XRAY> 
+ XRAY>  symmetry=(x,y,z) 
+ XRAY>  asymmetric=( 0<=x<=1 and 0<=y<=1 and 0<=z<=1 ) 
+ XRAY> 
+ XRAY>  SCATter ( chemical C* ) 
+ SELRPN:     20 atoms have been selected out of     20
+ SCATTER_A1=       2.31000 20.8439 1.02000 10.2075 1.58860 .568700 .865000 51.6512 .215600 
+ XRAY>  method=fft 
+ XRAY> 
+ XRAY>  evaluate ($lr=10.) 
+ EVALUATE: symbol $LR set to    10.0000     (real)
+ XRAY>  evaluate ($hr=2.) 
+ EVALUATE: symbol $HR set to    2.00000     (real)
+ XRAY>  binresolution $lr $hr 
+ XRAY>  mapresolution $hr 
+ XRAY>  tselection=( $hr <= d <= $lr and 10000. >= amplitude(fobs)>=0.01 ) 
+ XRAY> 
+ XRAY>  nreflections=10000 
+ XRAY: allocating space for   10000 reflections.
+ XRAY>  generate  10. 2. 
+ XGENER: generating reflections to produce a full set
+         for the specified resolution range.
+ XGENE2:     1373 new reflections have been generated.
+ XRAY>  do (fobs=1) ( all ) 
+ XSFAL: allocating space for complex reciprocal space object.
+ Total of      1373 structure factor elements were selected.
+ XRAY>  do (weight=1) ( all ) 
+ XSFAL: allocating space for real reciprocal space object.
+ Total of      1373 structure factor elements were selected.
+ XRAY> 
+ XRAY>  fft 
+ XFFT>    grid=0.25 
+ XFFT>  end 
+ XRAY> 
+ XRAY>  declare name=e_map domain=real end 
+ XRAY> 
+ XRAY>  associate fcalc ( resid 1:20 ) 
+ SELRPN:     20 atoms have been selected out of     20
+ XRAY>  predict 
+ PREDict>    mode=real 
+ PREDict>    to=e_map 
+ PREDict>    atomselection=( resid 1:20 ) 
+ SELRPN:     20 atoms have been selected out of     20
+ PREDict>  end 
+ FCALC: #scatt.=     20 #anomalous=   0 #special pos.=  0 occupancies <> 1
+ XMAPASU: using grid [  32,  36,  40] and sublattice [  32,  36,  40]
+ Minimum brick that covers asymmetric unit:
+   A=     0,...,    32  B=     0,...,    36  C=     0,...,    40
+ XMAPAL: allocating space for real space object.
+ XRAY> 
+ XRAY>  do (e_map=e_map * 100 ) ( all ) 
+ Total of     46080 map elements were selected.
+ XRAY> 
+ XRAY>  peakpik 
+ PEAKpik>      from=e_map 
+ PEAKpik>      mpeak=10 
+ PEAKpik>      selection=( all ) 
+ XMPSELE: total of    46080 map elements were selected.
+ PEAKpik>      output=OUTPUT 
+ PEAKpik>  end 
+ peak no.  interpolated (x,y,z,height)     grid point (x,y,z,rho) (cartesian coordinates)
+      1     0.00     0.00     3.00   319.4839      0.00     0.00     3.00   319.4839
+      2     0.00    14.00     0.00   315.3328      0.00    14.21     0.00   300.8831
+      3     9.01     9.01     9.00   312.5158      9.11     9.17     9.00   300.6105
+      4    12.01     3.00     3.00   309.4780     12.15     3.21     3.00   289.3567
+      5     0.00    12.03     0.00   163.1088      0.00    11.92     0.00   160.8316
+      6     0.00     0.00    13.98   161.5544      0.00     0.00    14.00   161.4556
+      7     0.00     0.00    12.02   161.5477      0.00     0.00    12.00   161.4556
+      8    -0.01    -0.01     0.00   161.2591      0.00     0.00     0.00   161.2253
+      9     0.00     5.99     0.00   159.7718      0.00     5.96     0.00   159.5257
+     10     0.00     0.00     6.00   159.7421      0.00     0.00     6.00   159.7420
+ XRAY> 
+ XRAY>  display  $peak_height[F10.4]  $peak_x[F10.4]  $peak_y[F10.4]  \ 
+   $peak_z[F10.4]  $npeaks 
+   319.4839      0.0000      0.0000       3.0000  10
+ XRAY> 
+ XRAY>  peakpik 
+ PEAKpik>      from=e_map 
+ PEAKpik>      mpeak=25 
+ PEAKpik>      selection=( all ) 
+ XMPSELE: total of    46080 map elements were selected.
+ PEAKpik>      output=OUTPUT 
+ PEAKpik>  end 
+ peak no.  interpolated (x,y,z,height)     grid point (x,y,z,rho) (cartesian coordinates)
+      1     0.00     0.00     3.00   319.4839      0.00     0.00     3.00   319.4839
+      2     0.00    14.00     0.00   315.3328      0.00    14.21     0.00   300.8831
+      3     9.01     9.01     9.00   312.5158      9.11     9.17     9.00   300.6105
+      4    12.01     3.00     3.00   309.4780     12.15     3.21     3.00   289.3567
+      5     0.00    12.03     0.00   163.1088      0.00    11.92     0.00   160.8316
+      6     0.00     0.00    13.98   161.5544      0.00     0.00    14.00   161.4556
+      7     0.00     0.00    12.02   161.5477      0.00     0.00    12.00   161.4556
+      8    -0.01    -0.01     0.00   161.2591      0.00     0.00     0.00   161.2253
+      9     0.00     5.99     0.00   159.7718      0.00     5.96     0.00   159.5257
+     10     0.00     0.00     6.00   159.7421      0.00     0.00     6.00   159.7420
+     11     0.00     0.00     9.00   159.7420      0.00     0.00     9.00   159.7420
+     12     3.01     0.00     0.00   159.7081      3.04     0.00     0.00   159.5257
+     13     3.01     5.99     9.00   159.5789      3.04     5.96     9.00   159.1431
+     14     6.01     0.00     0.00   159.2651      6.07     0.00     0.00   158.5310
+     15     6.01     5.99     6.00   159.2286      6.07     5.96     6.00   158.2489
+     16     9.02     0.00     0.00   158.6839      9.11     0.00     0.00   156.9832
+     17     0.00     9.01     0.00   157.5323      0.00     9.17     0.00   153.3020
+     18    14.03     0.00     0.00   157.4523     14.17     0.00     0.00   154.2131
+     19     0.00     3.01     0.00   156.5831      0.00     3.21     0.00   149.7055
+     20     3.00     3.01     3.00   156.4151      3.04     3.21     3.00   149.3471
+ XRAY> 
+ XRAY>  peakpik 
+ PEAKpik>      from=e_map 
+ PEAKpik>      mpeak=25 
+ PEAKpik>      selection=( b < 18  ) 
+ XMPSELE: total of    23040 map elements were selected.
+ PEAKpik>      output=OUTPUT 
+ PEAKpik>  end 
+ peak no.  interpolated (x,y,z,height)     grid point (x,y,z,rho) (cartesian coordinates)
+      1     0.00     0.13     3.00   336.2079      0.00     0.00     3.00   319.4839
+      2    12.01     3.00     3.00   309.4780     12.15     3.21     3.00   289.3567
+      3     0.00     0.13    13.97   170.0649      0.00     0.00    14.00   161.4556
+      4     0.00     0.13    12.02   170.0565      0.00     0.00    12.00   161.4556
+      5    -0.01     0.13     0.00   169.7041      0.00     0.00     0.00   161.2253
+      6     0.00     0.13     6.00   168.1041      0.00     0.00     6.00   159.7420
+      7     0.00     0.13     9.00   168.1040      0.00     0.00     9.00   159.7420
+      8     3.00     0.13     0.00   168.0910      3.04     0.00     0.00   159.5257
+      9     6.01     0.13     0.00   167.7147      6.07     0.00     0.00   158.5310
+     10     9.01     0.13     0.00   167.2544      9.11     0.00     0.00   156.9832
+     11    14.02     0.14     0.00   166.2728     14.17     0.00     0.00   154.2131
+     12     0.00     5.99     0.00   159.7718      0.00     5.96     0.00   159.5257
+     13     3.01     5.99     9.00   159.5789      3.04     5.96     9.00   159.1431
+     14     6.01     5.99     6.00   159.2286      6.07     5.96     6.00   158.2489
+     15     0.00     3.01     0.00   156.5831      0.00     3.21     0.00   149.7055
+     16     3.00     3.01     3.00   156.4151      3.04     3.21     3.00   149.3471
+     17     9.01     7.76     9.00    43.4062      9.11     7.79     9.00    42.8225
+     18     0.00     7.64     0.00    26.8777      0.00     7.79     0.00    25.1927
+ XRAY> 
+ XRAY>end 
+ CNSsolve> 
+ CNSsolve> 
+ CNSsolve>{===================================================================} 
+ CNSsolve>{* test with P21 space group *} 
+ CNSsolve>{===================================================================} 
+ CNSsolve> 
+ CNSsolve>xray 
+ XRAY>  reset 
+ XRAY: whole xray database erased and reset
+ XRAY>   declare name=fobs type=complex domain=reciprocal end 
+ XDECLARE: Object FOBS has been declared.
+ XRAY>   declare name=fpart domain=reciprocal type=complex end 
+ XDECLARE: Object FPART has been declared.
+ XRAY>   declare name=fcalc domain=reciprocal type=complex end 
+ XDECLARE: Object FCALC has been declared.
+ XRAY>   declare name=fom domain=reciprocal type=real end 
+ XDECLARE: Object FOM has been declared.
+ XRAY>   declare name=weight domain=reciprocal type=real end 
+ XDECLARE: Object WEIGHT has been declared.
+ XRAY>   declare name=sigma domain=reciprocal type=real end 
+ XDECLARE: Object SIGMA has been declared.
+ XRAY>   declare name=test domain=reciprocal type=integer end 
+ XDECLARE: Object TEST has been declared.
+ XRAY> 
+ XRAY>  a=16.2 b=16.5 c=20. alpha=90.  beta=130. gamma=90.0 
+ XRAY> 
+ XRAY>  symmetry=(x,y,z) 
+ XRAY>  symmetry=(-x,y+1/2,-z) 
+ XRAY>  asymm=( 0<=x<=1 
+ ASYMmetric>     and  0<=y<1/2 
+ ASYMmetric>     and  0<=z<=1 ) 
+ XRAY>  SCATter ( chemical C* ) 
+ SELRPN:     20 atoms have been selected out of     20
+ SCATTER_A1=       2.31000 20.8439 1.02000 10.2075 1.58860 .568700 .865000 51.6512 .215600 
+ XRAY> 
+ XRAY>  method=fft 
+ XRAY> 
+ XRAY>  evaluate ($lr=10.) 
+ EVALUATE: symbol $LR set to    10.0000     (real)
+ XRAY>  evaluate ($hr=2.) 
+ EVALUATE: symbol $HR set to    2.00000     (real)
+ XRAY>  binresolution $lr $hr 
+ XRAY>  mapresolution $hr 
+ XRAY>  tselection=( $hr <= d <= $lr and 10000. >= amplitude(fobs)>=0.01 ) 
+ XRAY> 
+ XRAY>  nreflections=10000 
+ XRAY: allocating space for   10000 reflections.
+ XRAY>  generate  10. 2. 
+ XGENER: generating reflections to produce a full set
+         for the specified resolution range.
+ XGENE2:      577 new reflections have been generated.
+ XRAY>  do (fobs=1) ( all ) 
+ XSFAL: allocating space for complex reciprocal space object.
+ Total of       577 structure factor elements were selected.
+ XRAY>  do (weight=1) ( all ) 
+ XSFAL: allocating space for real reciprocal space object.
+ Total of       577 structure factor elements were selected.
+ XRAY> 
+ XRAY>  fft 
+ XFFT>    grid=0.3333 
+ XFFT>  end 
+ XRAY>  declare name=e_map domain=real end 
+ XRAY> 
+ XRAY>  associate fcalc ( resid 1:5 ) 
+ SELRPN:      5 atoms have been selected out of     20
+ XRAY>  predict 
+ PREDict>    mode=real 
+ PREDict>    to=e_map 
+ PREDict>    atomselection=( resid 1:5 ) 
+ SELRPN:      5 atoms have been selected out of     20
+ PREDict>  end 
+ FCALC: #scatt.=      5 #anomalous=   0 #special pos.=  0 occupancies <> 1
+ XMAPASU: using grid [  24,  24,  30] and sublattice [  24,  24,  30]
+ Minimum brick that covers asymmetric unit:
+   A=     0,...,    24  B=     0,...,    11  C=     0,...,    30
+ XMAPAL: allocating space for real space object.
+ XRAY> 
+ XRAY>  do (e_map=e_map * 100 ) ( all ) 
+ Total of      8640 map elements were selected.
+ XRAY> 
+ XRAY>  peakpik 
+ PEAKpik>      from=e_map 
+ PEAKpik>      mpeak=10 
+ PEAKpik>      selection=( all ) 
+ XMPSELE: total of     8640 map elements were selected.
+ PEAKpik>      output=OUTPUT 
+ PEAKpik>  end 
+ peak no.  interpolated (x,y,z,height)     grid point (x,y,z,rho) (cartesian coordinates)
+      1     0.04     0.00     3.06   312.7137      0.13     0.00     3.06   310.0162
+      2     0.00     0.00     0.00   159.7422      0.00     0.00     0.00   159.7420
+      3     0.06     0.00    12.06   148.5767     -0.16     0.00    12.26   139.1427
+      4     0.05     0.00     6.12   147.0016      0.26     0.00     6.13   140.9725
+      5    -0.08     0.00     8.93   145.1675      0.14     0.00     8.68   133.3712
+ XRAY> 
+ XRAY>  display  $peak_height[F10.4]  $peak_x[F10.4]  $peak_y[F10.4]  \ 
+   $peak_z[F10.4]  $npeaks 
+   312.7137      0.0372      0.0000       3.0643  5
+ XRAY> 
+ XRAY>  peakpik 
+ PEAKpik>      from=e_map 
+ PEAKpik>      mpeak=25 
+ PEAKpik>      selection=( all ) 
+ XMPSELE: total of     8640 map elements were selected.
+ PEAKpik>      output=OUTPUT 
+ PEAKpik>      atom=true 
+ PEAKpik>      ? 
+ |----------------------- peakpik ------------------------------------
+ | FROM = E_MAP                MPEAk=    25
+ | OUTPut=OUTPUT
+ | ATOM=T selected proximity atoms =     0
+ |--------------------------------------------------------------------
+ PEAKpik>      help 
+ ASSFIL: file cns-xray-peakpick opened.
+
+ peakpick {<xray-peakpick-statement>} end
+ 
+ <xray-peakpick-statement> :==
+ 
+   from=<real-space-object>
+   --{Real space object to pick peaks from.}
+   mpeak=<integer>
+   --{Number of peaks to pick. Default=100}
+   selection=<map-selection>
+   --{Map points to pick peaks from. Default=(all)}
+   output=<filename>
+   --{Output to write picked peaks. Default=output}
+   proximity=<atom-selection>
+   --{Atom selection around which picked peaks will be mapped.
+      Symmetry and lattice operations are applied to the selected
+      peaks in order to find the symmetry-related peak closest to the
+      atoms selected by proximity. Default=(none)}
+   atom=<logical>
+   --{Create a dummy atom for each peak. Interpolated coordinates are
+      stored in x, y and z, the interpolated height is stored in the
+      B-factor array. <segid> <resname> <type> and <atom> are all set to PEAK.
+      The residue numbers run from 1 to the number of peaks picked.
+      Default=false}
+   symbols=<logical>
+   --{Declare symbols for each peak picked. Default=false
+      symbols are: $peak_x $peak_y $peak_z $peak_height
+      The number of peaks picked is always declared in $npeaks.}
+   fractional=<logical>
+   --{Output peaks in fractional coordinates. Default=false}
+
+ PEAKpik>  end 
+ peak no.  interpolated (x,y,z,height)     grid point (x,y,z,rho) (cartesian coordinates)
+      1     0.04     0.00     3.06   312.7137      0.13     0.00     3.06   310.0162
+      2     0.00     0.00     0.00   159.7422      0.00     0.00     0.00   159.7420
+      3     0.06     0.00    12.06   148.5767     -0.16     0.00    12.26   139.1427
+      4     0.05     0.00     6.12   147.0016      0.26     0.00     6.13   140.9725
+      5    -0.08     0.00     8.93   145.1675      0.14     0.00     8.68   133.3712
+ PEAKpik:      5 atoms were appended to molecular structure.
+ SCRATC-warning: XRAY SCATter database erased.
+ XRAY>end 
+ CNSsolve> 
+ CNSsolve>do (b=b/10) ( segid PEAK ) 
+ SELRPN:      5 atoms have been selected out of     25
+ CNSsolve>do (bcomp=bcomp/10) ( segid PEAK ) 
+ SELRPN:      5 atoms have been selected out of     25
+ CNSsolve> 
+ CNSsolve>write coordinates sele=( segid PEAK ) end 
+ SELRPN:      5 atoms have been selected out of     25
+ CWRITE: using atom subset.
+REMARK FILENAME="OUTPUT"
+REMARK DATE:05-Jul-2018  16:08:31       created by user: oeow39
+REMARK VERSION:1.3
+ATOM     21 PEAK PEAK    1       0.037   0.000   3.064  1.00 31.27      PEAK
+ATOM     22 PEAK PEAK    2      -0.001   0.000   0.001  1.00 15.97      PEAK
+ATOM     23 PEAK PEAK    3       0.058   0.000  12.057  1.00 14.86      PEAK
+ATOM     24 PEAK PEAK    4       0.045   0.000   6.119  1.00 14.70      PEAK
+ATOM     25 PEAK PEAK    5      -0.085   0.000   8.933  1.00 14.52      PEAK
+END
+ CNSsolve> 
+ CNSsolve>delete sele=( not resid 16:20) end 
+ SELRPN:     20 atoms have been selected out of     25
+ Status of internal molecular topology database:
+ -> NATOM=          5(MAXA=     1000000)  NBOND=          0(MAXB=     1000000)
+ -> NTHETA=         0(MAXT=     2000000)  NGRP=           5(MAXGRP=   1000000)
+ -> NPHI=           0(MAXP=     2000000)  NIMPHI=         0(MAXIMP=   1000000)
+ -> NNB=            0(MAXNB=    1000000) 
+ CNSsolve> 
+ CNSsolve>do (chemical=C) ( all ) 
+ Assuming literal string "C"
+ SELRPN:      5 atoms have been selected out of      5
+ CNSsolve>xray 
+ XRAY>  SCATter ( chemical C* ) 
+ SELRPN:      5 atoms have been selected out of      5
+ SCATTER_A1=       2.31000 20.8439 1.02000 10.2075 1.58860 .568700 .865000 51.6512 .215600 
+ XRAY>  associate fcalc ( all ) 
+ SELRPN:      5 atoms have been selected out of      5
+ XRAY> 
+ XRAY>  predict 
+ PREDict>    mode=real 
+ PREDict>    to=e_map 
+ PREDict>    atomselection=( all ) 
+ SELRPN:      5 atoms have been selected out of      5
+ PREDict>  end 
+ FCALC: #scatt.=      5 #anomalous=   0 #special pos.=  0 occupancies <> 1
+ XRAY> 
+ XRAY>  do (e_map=e_map * 100 ) ( all ) 
+ Total of      8640 map elements were selected.
+ XRAY> 
+ XRAY>  peakpik 
+ PEAKpik>      from=e_map 
+ PEAKpik>      mpeak=5 
+ PEAKpik>      selection=( all ) 
+ XMPSELE: total of     8640 map elements were selected.
+ PEAKpik>      output=OUTPUT 
+ PEAKpik>  end 
+ peak no.  interpolated (x,y,z,height)     grid point (x,y,z,rho) (cartesian coordinates)
+      1    10.48     0.73     6.18   294.9411     10.38     0.69     6.13   288.8968
+      2    12.00     2.98     3.09   283.0004     12.28     2.75     3.06   257.2721
+      3     3.00     2.97     2.99   147.3628      2.83     2.75     3.06   138.2226
+      4     3.06     6.04     9.12   146.1186      3.09     6.19     9.19   141.6870
+      5     5.99     6.02     6.12   139.2477      6.33     6.19     6.13   125.1963
+ XRAY>end 
+ CNSsolve> 
+ CNSsolve>coor symmetry=(-x,y+1/2,-z) sele=( all ) end 
+ SELRPN:      5 atoms have been selected out of      5
+ COOR: applied symmetry operator to selected coordinates
+ CNSsolve>coor fract end 
+ FRACT: transformation matrix =
+     0.061728     0.000000     0.051796
+     0.000000     0.060606     0.000000
+     0.000000     0.000000     0.065270
+ CNSsolve>do (x=x+1.) ( all ) 
+ SELRPN:      5 atoms have been selected out of      5
+ CNSsolve>do (y=y-4.) ( all ) 
+ SELRPN:      5 atoms have been selected out of      5
+ CNSsolve>do (z=z+2.) ( all ) 
+ SELRPN:      5 atoms have been selected out of      5
+ CNSsolve>coor orth end 
+ ORTHO: transformation matrix =
+    16.200000     0.000000   -12.855752
+     0.000000    16.500000     0.000000
+     0.000000     0.000000    15.320889
+ CNSsolve> 
+ CNSsolve>write coor end 
+REMARK FILENAME="OUTPUT"
+REMARK DATE:05-Jul-2018  16:08:31       created by user: oeow39
+REMARK VERSION:1.3
+ATOM      1  CA  ALA    16     -12.512 -51.750  21.642  1.00 20.00          
+ATOM      2  CA  ALA    17     -21.512 -54.750  27.642  2.00 20.00          
+ATOM      3  CA  ALA    18     -12.512 -54.750  27.642  1.00 20.00          
+ATOM      4  CA  ALA    19     -15.512 -51.750  24.642  1.00 20.00          
+ATOM      5  CA  ALA    20     -18.512 -48.750  21.642  2.00 20.00          
+END
+ CNSsolve> 
+ CNSsolve>xray 
+ XRAY>  peakpik 
+ PEAKpik>      from=e_map 
+ PEAKpik>      mpeak=6 
+ PEAKpik>      selection=( all ) 
+ XMPSELE: total of     8640 map elements were selected.
+ PEAKpik>      output=OUTPUT 
+ PEAKpik>  end 
+ peak no.  interpolated (x,y,z,height)     grid point (x,y,z,rho) (cartesian coordinates)
+      1    10.48     0.73     6.18   294.9411     10.38     0.69     6.13   288.8968
+      2    12.00     2.98     3.09   283.0004     12.28     2.75     3.06   257.2721
+      3     3.00     2.97     2.99   147.3628      2.83     2.75     3.06   138.2226
+      4     3.06     6.04     9.12   146.1186      3.09     6.19     9.19   141.6870
+      5     5.99     6.02     6.12   139.2477      6.33     6.19     6.13   125.1963
+ XRAY>  peakpik 
+ PEAKpik>      from=e_map 
+ PEAKpik>      mpeak=6 
+ PEAKpik>      selection=( all ) 
+ XMPSELE: total of     8640 map elements were selected.
+ PEAKpik>      output=OUTPUT 
+ PEAKpik>      proximity=( all ) 
+ SELRPN:      5 atoms have been selected out of      5
+ PEAKpik>  end 
+ peak no.  interpolated (x,y,z,height)     grid point (x,y,z,rho) (cartesian coordinates)
+      1   -18.58   -48.77    21.50   294.9411     10.38     0.69     6.13   288.8968
+      2   -21.51   -54.77    27.55   283.0004     12.28     2.75     3.06   257.2721
+      3   -12.52   -54.78    27.65   147.3628      2.83     2.75     3.06   138.2226
+      4   -12.57   -51.71    21.52   146.1186      3.09     6.19     9.19   141.6870
+      5   -15.50   -51.73    24.52   139.2477      6.33     6.19     6.13   125.1963
+ XRAY>  peakpik 
+ PEAKpik>      from=e_map 
+ PEAKpik>      mpeak=6 
+ PEAKpik>      selection=( all ) 
+ XMPSELE: total of     8640 map elements were selected.
+ PEAKpik>      output=OUTPUT 
+ PEAKpik>      proximity=( resid 17:20 ) 
+ SELRPN:      4 atoms have been selected out of      5
+ PEAKpik>  end 
+ peak no.  interpolated (x,y,z,height)     grid point (x,y,z,rho) (cartesian coordinates)
+      1   -18.58   -48.77    21.50   294.9411     10.38     0.69     6.13   288.8968
+      2   -21.51   -54.77    27.55   283.0004     12.28     2.75     3.06   257.2721
+      3   -12.52   -54.78    27.65   147.3628      2.83     2.75     3.06   138.2226
+      4   -12.57   -51.71    21.52   146.1186      3.09     6.19     9.19   141.6870
+      5   -15.50   -51.73    24.52   139.2477      6.33     6.19     6.13   125.1963
+ XRAY> 
+ XRAY>  peakpik 
+ PEAKpik>      from=e_map 
+ PEAKpik>      mpeak=6 
+ PEAKpik>      selection=( all ) 
+ XMPSELE: total of     8640 map elements were selected.
+ PEAKpik>      output=OUTPUT 
+ PEAKpik>      proximity=( resid 17:20 ) 
+ SELRPN:      4 atoms have been selected out of      5
+ PEAKpik>      symbols=true 
+ PEAKpik>  end 
+ peak no.  interpolated (x,y,z,height)     grid point (x,y,z,rho) (cartesian coordinates)
+      1   -18.58   -48.77    21.50   294.9411     10.38     0.69     6.13   288.8968
+      2   -21.51   -54.77    27.55   283.0004     12.28     2.75     3.06   257.2721
+      3   -12.52   -54.78    27.65   147.3628      2.83     2.75     3.06   138.2226
+      4   -12.57   -51.71    21.52   146.1186      3.09     6.19     9.19   141.6870
+      5   -15.50   -51.73    24.52   139.2477      6.33     6.19     6.13   125.1963
+ XRAY> 
+ XRAY>  $? 
+ Current Symbol Table
+ NOTE: The scope number (#) of $<name> is shown as $_#_<name> 
+ $_1_PEAK_Z_5=   24.5189     (real)
+ $_1_PEAK_Y_5=  -51.7283     (real)
+ $_1_PEAK_X_5=  -15.5033     (real)
+ $_1_PEAK_HEIGHT_5=   139.248     (real)
+ $_1_PEAK_Z_4=   21.5193     (real)
+ $_1_PEAK_Y_4=  -51.7056     (real)
+ $_1_PEAK_X_4=  -12.5688     (real)
+ $_1_PEAK_HEIGHT_4=   146.119     (real)
+ $_1_PEAK_Z_3=   27.6537     (real)
+ $_1_PEAK_Y_3=  -54.7849     (real)
+ $_1_PEAK_X_3=  -12.5165     (real)
+ $_1_PEAK_HEIGHT_3=   147.363     (real)
+ $_1_PEAK_Z_2=   27.5495     (real)
+ $_1_PEAK_Y_2=  -54.7718     (real)
+ $_1_PEAK_X_2=  -21.5134     (real)
+ $_1_PEAK_HEIGHT_2=   283.000     (real)
+ $_1_PEAK_Z_1=   21.5023     (real)
+ $_1_PEAK_Y_1=  -48.7687     (real)
+ $_1_PEAK_X_1=  -18.5778     (real)
+ $_1_PEAK_HEIGHT_1=   294.941     (real)
+ $_1_NPEAKS=   5.00000     (real)
+ $_1_PEAK_Z=   21.5023     (real)
+ $_1_PEAK_Y=  -48.7687     (real)
+ $_1_PEAK_X=  -18.5778     (real)
+ $_1_PEAK_HEIGHT=   294.941     (real)
+ $_1_NC=   30.0000     (real)
+ $_1_NB=   24.0000     (real)
+ $_1_NA=   24.0000     (real)
+ $_1_BIN_RESOLUTION_HIGH=   2.00000     (real)
+ $_1_BIN_RESOLUTION_LOW=   10.0000     (real)
+ $_1_HR=   2.00000     (real)
+ $_1_LR=   10.0000     (real)
+ $_1_SYMMETRY_OP_1="(X,Y,Z)" (string) 
+ $_1_CENTRIC_SPACEGROUP="FALSE" (logical) 
+ $_1_SYMMETRY_OP_2="(-X,Y+1/2,-Z)" (string) 
+ $_1_SELECT=   4.00000     (real)
+ $_1_NCS=   1.00000     (real)
+ $_1_EFLAG.VEAN="FALSE" (logical) 
+ $_1_EFLAG.DANI="FALSE" (logical) 
+ $_1_EFLAG.SANI="FALSE" (logical) 
+ $_1_EFLAG.RAMA="FALSE" (logical) 
+ $_1_EFLAG.ONEB="FALSE" (logical) 
+ $_1_EFLAG.PROT="FALSE" (logical) 
+ $_1_EFLAG.CARB="FALSE" (logical) 
+ $_1_EFLAG.COUP="FALSE" (logical) 
+ $_1_EFLAG.ANDB="FALSE" (logical) 
+ $_1_EFLAG.DG="FALSE" (logical) 
+ $_1_EFLAG.PLAN="FALSE" (logical) 
+ $_1_EFLAG.XREF="FALSE" (logical) 
+ $_1_EFLAG.NOE="FALSE" (logical) 
+ $_1_EFLAG.NCS="FALSE" (logical) 
+ $_1_EFLAG.CDIH="FALSE" (logical) 
+ $_1_EFLAG.HARM="FALSE" (logical) 
+ $_1_EFLAG.PELE="FALSE" (logical) 
+ $_1_EFLAG.PVDW="FALSE" (logical) 
+ $_1_EFLAG.ELEC="TRUE" (logical) 
+ $_1_EFLAG.VDW="TRUE" (logical) 
+ $_1_EFLAG.IMPR="TRUE" (logical) 
+ $_1_EFLAG.DIHE="TRUE" (logical) 
+ $_1_EFLAG.ANGL="TRUE" (logical) 
+ $_1_EFLAG.BOND="TRUE" (logical) 
+ $_1_EFLAG.GRAD="FALSE" (logical) 
+ $_1_EFLAG.TEMP="FALSE" (logical) 
+ $_1_EFLAG.ENER="FALSE" (logical) 
+ $_1_EFLAG.TOTK="FALSE" (logical) 
+ $_1_EFLAG.TOTE="FALSE" (logical) 
+ $_1_BIN_NUMBER=   8.00000     (real)
+ $_1_SYMMETRY=   2.00000     (real)
+ $_1_CSTAR=  0.652704E-01 (real)
+ $_1_BSTAR=  0.606061E-01 (real)
+ $_1_ASTAR=  0.805807E-01 (real)
+ $_1_XRINTR_3_3=   15.3209     (real)
+ $_1_XRINTR_3_2=   0.00000     (real)
+ $_1_XRINTR_3_1=   0.00000     (real)
+ $_1_XRINTR_2_3= -0.114715E-12 (real)
+ $_1_XRINTR_2_2=   16.5000     (real)
+ $_1_XRINTR_2_1=   0.00000     (real)
+ $_1_XRINTR_1_3=  -12.8558     (real)
+ $_1_XRINTR_1_2= -0.576094E-13 (real)
+ $_1_XRINTR_1_1=   16.2000     (real)
+ $_1_XRTR_3_3=  0.652704E-01 (real)
+ $_1_XRTR_3_2=   0.00000     (real)
+ $_1_XRTR_3_1=   0.00000     (real)
+ $_1_XRTR_2_3=  0.453788E-15 (real)
+ $_1_XRTR_2_2=  0.606061E-01 (real)
+ $_1_XRTR_2_1=   0.00000     (real)
+ $_1_XRTR_1_3=  0.517963E-01 (real)
+ $_1_XRTR_1_2=  0.215524E-15 (real)
+ $_1_XRTR_1_1=  0.617284E-01 (real)
+ $_1_XRCELL_6=   90.0000     (real)
+ $_1_XRCELL_5=   130.000     (real)
+ $_1_XRCELL_4=   90.0000     (real)
+ $_1_XRCELL_3=   20.0000     (real)
+ $_1_XRCELL_2=   16.5000     (real)
+ $_1_XRCELL_1=   16.2000     (real)
+ $_1_VOLUME=   4095.27     (real)
+ $_1_FP_EPSILON=  0.222045E-15 (real)
+ $_1_CNS_PATCH="0" (string) 
+ $_1_CNS_VERSION="1.3" (string) 
+ $_1_LOG_LEVEL="QUIET" (string) 
+ $_1_SYSTEM="x86_64/Linux" (string) 
+ $_1_NAME="oeow39" (string) 
+ $_1_TIMFAC=  0.488882E-01 (real)
+ $_1_PI=   3.14159     (real)
+ $_1_KBOLTZ=  0.198719E-02 (real)
+ XRAY> 
+ XRAY>end 
+ CNSsolve> 
+ CNSsolve>stop 
+          ============================================================
+           Maximum dynamic memory allocation:    11239920 bytes
+           Maximum dynamic memory overhead:           768 bytes
+           Program started at: 16:08:31 on 05-Jul-2018
+           Program stopped at: 16:08:31 on 05-Jul-2018
+           CPU time used:       0.0923 seconds
+          ============================================================

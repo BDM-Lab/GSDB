@@ -1,0 +1,204 @@
+
+! basic testing of the procedure facility 
+
+set abort = off end
+
+! no parameters
+
+procedure test1()
+display in procedure test1
+display some text
+endp
+
+call test1()
+inline call test1()
+
+! check redefinition
+
+procedure test1()
+display in new procedure test1
+display more text
+endp
+
+call test1()
+
+! with parameters
+
+procedure test2 ( par1; par2 = hi )
+display in procedure test2, par1: &par1 par2: &par2
+display even more text
+eval ( $hi = hi )
+eval ( $ya = ya )
+endp
+
+call test2 ( par1 = doh )
+
+call test2 ( par1 = doh; par2 = you )
+
+! check inlining of functions...
+
+! if scope is working properly, these will be false...
+
+display &EXIST_par1 &EXIST_par2 $EXIST_hi $EXIST_ya
+
+! check inlining...
+
+inline call test2 ( par1 = loo; par2 = too ) 
+
+! now the last two will be true
+
+display &EXIST_par1 &EXIST_par2 $EXIST_hi $EXIST_ya
+$?hi
+$?ya
+
+! check print out of procedures 
+
+proc ?
+
+proc ?test1
+proc ?test2
+
+! check procedure calls inside loops
+
+procedure show_count( count=; )
+display &count
+endp
+
+eval ( $count = 1 )
+while ( $count lt 3 ) loop main
+call show_count(count=$count)
+call show_count (count=$count)
+eval ( $count = $count + 1 )
+end loop main
+
+! procedure definition inside loops 
+
+eval ( $count = 1 )
+while ( $count lt 3 ) loop main
+procedure show_count( count=; )
+display &count
+endp
+call show_count(count=$count)
+eval ( $count = $count + 1 )
+end loop main
+
+! procedure definition and invocation inside @ and @@ files 
+
+set display=procedures.dat end
+literal procedure show_count( count=; )
+literal display &count
+literal endp
+literal call show_count(count=$count)
+set display=OUTPUT end
+close procedures.dat end
+
+eval ( $count = 1 )
+while ( $count lt 3 ) loop main
+@procedures.dat
+eval ( $count = $count + 1 )
+end loop main
+
+eval ( $count = 1 )
+while ( $count lt 3 ) loop main
+@@procedures.dat
+eval ( $count = $count + 1 )
+end loop main
+
+
+! exist function inside scopes
+
+procedure exist_check ( par = ; sym = ; )
+display &EXIST%par.why
+display &EXIST%_1_par.why
+display &EXIST%sym.why
+display $EXIST%sym.why 
+endp
+
+define ( &par.why = 1 )
+eval ( $sym.why = 1 )
+
+call exist_check ( par = &par ; sym = $sym ) 
+
+! proper scoping inside nested normal and inline procedures
+
+procedure change_value2 ( symm=; value=;)
+display &symm   
+eval ( &symm = &value )
+display &symm  
+endp
+
+procedure change_value1 ( symm=; value=;)
+inline call change_value2 ( symm=&symm; value=&value;)
+endp
+
+eval ( $symm = 1 )
+call change_value1 ( symm=$symm; value=2)
+display $symm ! <===== should be 2 
+inline call change_value1 ( symm=$symm; value=3)
+display $symm ! <===== should be 3
+
+! global scope for internally defined symbols
+
+procedure change_xray2 ( symm=; value=;)
+xray symmetry ? end
+endp
+
+procedure change_xray1 ( symm=; value=;)
+eval ($centric_spacegroup=true) 
+$?centric_spacegroup
+call change_xray2 ( symm=&symm; value=&value;)
+$?centric_spacegroup
+eval ($centric_spacegroup=true)
+$?centric_spacegroup
+endp
+
+eval ( $symm = 1 )
+call change_xray1 ( symm=$symm; value=2)
+$?centric_spacegroup
+
+! error conditions
+
+call test2()
+
+call test2( notaparam = 1 )
+
+! conditionals
+
+procedure ctest1( cond;)
+  eval ( $ctsym = 1 )
+  $?ctsym
+  display &cond $ctsym
+endp
+
+procedure ctest2()
+
+for $ix in ( 1 2 3 )  loop test2
+ if ( $ix = 1 ) then
+   call ctest1(cond=True) 
+ else
+   call ctest1(cond=False) 
+ end if
+ $?ix
+ display $ix
+ if ( $EXIST%ix ne TRUE ) then
+   display ERR: this should not happen
+   stop
+ end if
+end loop test2
+endp
+
+call ctest2()
+
+
+
+
+stop
+
+
+
+
+
+
+
+
+

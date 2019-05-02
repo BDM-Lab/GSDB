@@ -1,0 +1,369 @@
+{+ file: self_rotation.inp +}
+{+ directory: xtal_mr +}
+{+ description: Self-rotation function +}
+{+ comment:
+           Real-space self-rotation function with origin removal +}
+{+ authors: Axel T. Brunger +}
+{+ copyright: Yale University +}
+
+{+ reference: R. Huber, Die Automatisierte Faltmolekuelmethode. 
+              Acta Cryst. A19, 353-356 (1965) +}
+
+{+ reference: W. Steigemann, Ph.D. Thesis, Technische 
+              Universitaet Muenchen. (1974) +}
+
+{+ reference: L.Tong and M.G. Rossmann, Rotation function calculations
+              with GLRF program.  Meth. Enzymol. 276, 594-611 +}
+
+{- Guidelines for using this file:
+   - all strings must be quoted by double-quotes
+   - logical variables (true/false) are not quoted
+   - do not remove any evaluate statements from the file  -}
+
+{- begin block parameter definition -} define(
+
+{====================== crystallographic data ========================}
+
+{* space group *}
+{* use International Table conventions with subscripts substituted
+   by parenthesis *}
+{===>} sg="P2(1)";
+
+{* unit cell parameters in Angstroms and degrees *}
+{+ table: rows=1 "cell" cols=6 "a" "b" "c" "alpha" "beta" "gamma" +}
+{===>} a=44.144;
+{===>} b=164.69;
+{===>} c=70.17;
+{===>} alpha=90;
+{===>} beta=108.50;
+{===>} gamma=90;
+
+{* reflection file *}
+{===>} reflection_infile="fab2hfl.hkl";
+
+{* reciprocal space array containing observed amplitudes: required *}
+{===>} obs_f="fobs";
+
+{* reciprocal space array containing sigma values for amplitudes: required *}
+{===>} obs_sigf="sigma";
+
+{* resolution limits *}
+{+ table: rows=1 "resolution" cols=2 "lowest" "highest" +}
+{===>} low_res=15.0;
+{===>} high_res=4.;
+
+{* Observed data cutoff criteria: applied to amplitudes *}
+{* reflections with magnitude(Obs)/sigma < cutoff are rejected. *}
+{===>} sigma_cut=0.0;
+
+{* rms outlier cutoff: applied to amplitudes *}
+{* reflections with magnitude(Obs) > cutoff*rms(Obs) will be rejected *}
+{===>} obs_rms=10;
+
+{============ rotation function angle range to be searched ==========}
+
+{+ list:
+   Definition of spherical polar angles: 
+     psi and phi specify the rotation axis. 
+     psi is the inclination versus the y-axis; 
+     phi is the azimuthal angle, i.e., the angle between the x-axis and the
+       projection of the axis into the x,z plane; 
+     kappa is the rotation around the rotation axis. 
+   The maximum range is 0<psi<180, 0<phi<180, 0<kappa<360 degrees.  
+   All rotations are counterclockwise when looking in the direction 
+   of the rotation axis. +}
+{+ table: rows=3 "psi" "phi" "kappa" cols=2 "minimum" "maximum" +}
+
+{===>} psimin=0.;
+{===>} psimax=180.;
+
+{===>} phimin=0.;
+{===>} phimax=180.;
+
+{===>} kappamin=160.;
+{===>} kappamax=180.;
+
+{============ rotation function parameters ===========================}
+
+{* Patterson vector range. Patterson vectors with lengths between the 
+   two limits are included.  *}
+   
+{* minimum Patterson vector length (in A) *}
+{===>} patterson_low=5;
+
+{* maximum Patterson vector length (in A) *}
+{===>} patterson_high=45;
+
+{* Number of Patterson function peaks used - for real-space rotation 
+   function only.  The specified number of highest peaks are used. *}
+{===>} npeaks=3000;
+
+{* rotation function angular grid size. *}
+{* If the parameter is set to -1, the grid will be automatically 
+   set to 2 ArcSin[ high resol / (2(a+b+c)/3) ]. *}
+{===>} angle_grid=-1;
+
+{* number of highest grid points that will be analysed by the 
+   cluster procedure. *}
+{===>} nlist=1000;
+
+{* peak cluster analysis threshold (in degrees).  Two peaks are
+   defined to belong to the same cluster if the corresponding 
+   orientations differ by less than the specified amount. *}
+{===>} cluster_threshold=10;
+
+{* memory allocation for FFT calculation *}
+{* this will be determined automatically if a negative value is given
+   otherwise the specified number of words will be allocated *}
+{===>} fft_memory=-1;
+
+{* number of bins for bin-wise resolution-dependent operations 
+   and functions *}
+{===>} bins=10;
+
+{=========================== output files ============================}
+
+{* Rotation function list file *}
+{===>} rf_list_outfile="self_rotation.list";
+
+{* Rotation function 3d-matrix file *}
+{* a 3d-matrix of the rotation function is written in Mathematica format *}
+{* this file will be written if a file name is provided *}
+{===>} matrix_outfile="self_rotation.3dmatrix";
+
+{===========================================================================}
+{        things below this line do not normally need to be changed          }
+{===========================================================================}
+
+ ) {- end block parameter definition -}
+
+ checkversion 1.3
+
+ evaluate ($log_level=quiet)
+
+ evaluate ($cluster_epsilon=sqrt(4*(1-cos(&cluster_threshold))))
+
+ evaluate ($angle_grid=&angle_grid) 
+ if (&angle_grid=-1) then
+    evaluate ($angle_grid= 2 * asin(&high_res/(2*(&a+&b+&c)/3)))
+ end if
+
+ evaluate ($grid=0.25)
+
+{- Specify location of Patterson map files.-}			 
+ evaluate ( $p1_map="self_rotation_p1.map" )
+ evaluate ( $p2_map="self_rotation_p2.map" )
+ 
+ xray
+   
+   @CNS_XTALLIB:spacegroup.lib (sg=&sg; sgparam = $sgparam )
+
+   a=&a b=&b c=&c  alpha=&alpha beta=&beta gamma=&gamma
+  
+   reflection @&reflection_infile end
+
+   binresolution &low_res &high_res
+   mapresolution &high_res
+
+   set echo=off end
+   if ( &BLANK%obs_f = true ) then
+      display 
+      display  *********************************************************
+      display  Error: required observed amplitude array is not specified
+      display  *********************************************************
+      display
+      abort
+   else
+      query name=&STRIP%obs_f domain=reciprocal end
+      if ( $object_exist = false ) then
+         display 
+         display  **************************************************************
+         display  Error: required observed amplitude array &obs_f does not exist
+         display  **************************************************************
+         display
+         abort
+      end if
+      {- note: this array can be of any type -}
+    end if
+
+   if ( &BLANK%obs_sigf = true ) then
+      display 
+      display  *****************************************************
+      display  Error: required observed sigma array is not specified
+      display  *****************************************************
+      display
+      abort
+   else
+      query name=&STRIP%obs_sigf domain=reciprocal end
+      if ( $object_exist = false ) then
+         display 
+         display  *************************************************************
+         display  Error: required observed sigma array &obs_sigf does not exist
+         display  *************************************************************
+         display
+         abort
+      end if
+      if ( $object_type # "REAL" ) then
+         display 
+         display  **********************************************************************
+         display  Error: required observed sigma array &obs_sigf has the wrong data type
+         display  **********************************************************************
+         display
+         abort
+      end if
+   end if
+   set echo=on end
+
+   evaluate ($reject_obs=&obs_f)
+   evaluate ($reject_sig=&obs_sigf)
+
+   declare name=ref_active domain=reciprocal type=integer end
+
+   do (ref_active=0) ( all )
+   do (ref_active=1) ( ( $STRIP%reject_sig # 0 ) and
+                      ( &low_res >= d >= &high_res ) )
+
+   statistics overall
+     completeness
+     selection=( ref_active=1 )
+   end
+   evaluate ($total_compl=$expression1)
+
+   show sum(1) ( ref_active=1 )
+   evaluate ($total_read=$select)
+   evaluate ($total_theor=int(1./$total_compl * $total_read))
+
+   show rms (amplitude($STRIP%reject_obs)) ( ref_active=1 )
+   evaluate ($obs_high=$result*&obs_rms)
+   show min (amplitude($STRIP%reject_obs)) ( ref_active=1 )
+   evaluate ($obs_low=$result)
+
+   do (ref_active=0) ( all )
+   do (ref_active=1)
+                  ( ( amplitude($STRIP%reject_obs) > &sigma_cut*$STRIP%reject_sig ) and
+                    ( $STRIP%reject_sig # 0 ) and
+                    ( $obs_low <= amplitude($STRIP%reject_obs) <= $obs_high ) and
+                    ( &low_res >= d >= &high_res ) )
+
+   show sum(1) ( ref_active=1 )
+   evaluate ($total_used=$select)
+
+   evaluate ($unobserved=$total_theor-$total_read)
+   evaluate ($rejected=$total_read-$total_used)
+   evaluate ($per_unobs=100*($unobserved/$total_theor))
+   evaluate ($per_reject=100*($rejected/$total_theor))
+   evaluate ($per_used=100*($total_used/$total_theor))
+
+   tselection=( ref_active=1 )
+
+   method=FFT          
+ 
+   fft
+     grid=$grid
+     if ( &fft_memory < 0 ) then
+       automemory=true
+     else
+       memory=&fft_memory
+     end if
+   end
+ 
+   bins=&bins
+        
+ end                  
+
+ set display=&rf_list_outfile end
+
+ display ! real-space rotation search: 
+ display ! Patterson lengths between &patterson_low and &patterson_high
+ display ! npeaks= &npeaks
+ display ! at resolution: &low_res - &high_res A  
+ display ! angular grid= $angle_grid    nlist= &nlist  cluster_threshold= &cluster_threshold
+ display ! sg= &STRIP%sg a= &a b= &b c= &c alpha= &alpha beta= &beta gamma= &gamma
+ display ! reflection file= &STRIP%reflection_infile
+ display ! reflections with |Fobs|/sigma_Fobs < &sigma_cut rejected
+ display ! reflections with |Fobs| > &obs_rms * rms(Fobs) rejected
+ display ! theoretical total number of refl. in resol. range:    $total_theor[I6] ( 100.0 % )
+ display ! number of unobserved reflections (no entry):          $unobserved[I6] ( $per_unobs[f5.1] % )
+ display ! number of reflections rejected:                       $rejected[I6] ( $per_reject[f5.1] % )
+ display ! total number of reflections used:                     $total_used[I6] ( $per_used[f5.1] % )
+ 
+ set display=OUTPUT end
+ 
+ xray {- Make Patterson map of crystal.-}
+
+    evaluate ($sg_patt=$sgparam.patt_symm)
+    symmetry reset
+ 			   {- Switch to Patterson symmetry space group. -}
+    @@CNS_XTALLIB:spacegroup.lib (sg=$sg_patt; sgparam = $sgparam )
+
+ 		     {- Compute Patterson function with origin removal. -}
+ 		     
+    query name=fcalc domain=reciprocal end
+    if ( $object_exist = false ) then
+      declare name=fcalc domain=reciprocal type=complex end
+    end if
+    
+    do (fcalc=0) ( all ) 
+    do (fcalc=combine(amplitude(&STRIP%obs_f)^2-sAVE(amplitude(&STRIP%obs_f)^2) ,0))  
+                     (ref_active=1)
+
+    declare name=map1 domain=real end 
+    
+    do (map1=ft(fcalc))  ( amplitude(fcalc)>0 )
+
+    evaluate ( $m_patterson_high=-&patterson_high )
+    write map 
+      from=map1                                          
+                             {- Write a hemisphere of Patterson vectors with -}
+      extend=box             {- lengths less than &patterson_high.           -}
+      xmin=$m_patterson_high xmax=&patterson_high 
+      ymin=$m_patterson_high ymax=&patterson_high
+      zmin=0.0 zmax=&patterson_high
+  
+      automatic=true    
+
+      formatted=false 
+      output=$p1_map      
+    end               
+   
+    write map 
+       from=map1					  
+       extend=unit
+       automatic=true			   
+       formatted=false
+       output=$p2_map  
+    end 		  
+
+    undeclare name=map1 domain=real end
+    
+    set abort=off end
+
+    search rotation 
+
+       p1input=$p1_map    formatted=false
+       p2input=$p2_map
+
+       range=&patterson_low &patterson_high
+       threshold=0.0
+       npeaks=&npeaks
+
+       psimin=&psimin      psimax=&psimax                 
+       phimin=&phimin      phimax=&phimax
+       kappamin=&kappamin  kappamax=&kappamax
+ 
+       delta=$angle_grid       
+       list=&rf_list_outfile 
+       nlist=&nlist
+       epsilon=$cluster_epsilon  
+
+       if ( &BLANK%matrix_outfile = false ) then
+         output=&matrix_outfile
+       end if
+       
+       self_symmetry=true
+    		       
+    end 	    
+ end
+ 
+
+stop

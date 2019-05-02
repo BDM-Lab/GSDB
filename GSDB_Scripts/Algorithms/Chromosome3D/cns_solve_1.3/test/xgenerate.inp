@@ -1,0 +1,419 @@
+remarks  test file xgenerate.inp
+remarks  By Axel T. Brunger
+                           
+{* ============================= *}
+{* tedpst xray generation option *}
+{* ============================= *}
+
+xray
+   reset
+   declare name=fobs type=complex domain=reciprocal end
+   declare name=fpart domain=reciprocal type=complex end
+   declare name=fcalc domain=reciprocal type=complex end
+   declare name=fom domain=reciprocal type=real end
+   declare name=weight domain=reciprocal type=real end
+   declare name=sigma domain=reciprocal type=real end
+   declare name=test domain=reciprocal type=integer end
+
+   a=10.01 b=10.01 c=10.01 alpha=90. beta=120. gamma=90.
+   symmetry=(x,y,z)
+   
+   evaluate ($lr=10.)
+   evaluate ($hr=2) 
+   binresolution $lr $hr 
+   mapresolution $hr
+   tselection=( $hr <= d <= $lr ) 
+
+   generate 2. 10.
+   do (fobs=1) ( all )
+   do (weight=s) ( all ) 
+   write reflection weight  sele=( all ) end
+end
+
+xray
+   reset
+   declare name=fobs type=complex domain=reciprocal end
+   declare name=fpart domain=reciprocal type=complex end
+   declare name=fcalc domain=reciprocal type=complex end
+   declare name=fom domain=reciprocal type=real end
+   declare name=weight domain=reciprocal type=real end
+   declare name=sigma domain=reciprocal type=real end
+   declare name=test domain=reciprocal type=integer end
+
+   a=10.01 b=10.01 c=10.01 alpha=90. beta=120. gamma=90.
+   symmetry=(x,y,z)
+   symmetry=(-x,y+1/2,-z)
+   
+   evaluate ($lr=10.)
+   evaluate ($hr=2) 
+   binresolution $lr $hr 
+   mapresolution $hr
+   tselection=( $hr <= d <= $lr and 10000. >= amplitude(fobs)>=0.01 ) 
+
+   generate 2. 10.
+   do (fobs=1) ( all )
+
+   do (weight=s) ( all ) 
+   write reflection weight  sele=( all ) end
+end
+
+xray
+   reset
+   declare name=fobs type=complex domain=reciprocal end
+   declare name=fpart domain=reciprocal type=complex end
+   declare name=fcalc domain=reciprocal type=complex end
+   declare name=fom domain=reciprocal type=real end
+   declare name=weight domain=reciprocal type=real end
+   declare name=sigma domain=reciprocal type=real end
+   declare name=test domain=reciprocal type=integer end
+
+   a=10.01 b=10.01 c=10.01 alpha=90. beta=90. gamma=120.
+   symmetry=(x,y,z)   
+   symmetry=(-y,x-y,z+1/3)
+   symmetry=(-x+y,-x,z+2/3)
+
+   symmetry=(-x,-y,z+1/2)
+   symmetry=(y,-x+y,z+5/6)
+   symmetry=(x-y,x,z+1/6)
+
+   symmetry=(y,x,-z+1/3)
+   symmetry=(x-y,-y,-z)
+   symmetry=(-x,-x+y,-z+2/3)
+
+   symmetry=(-y,-x,-z+5/6)
+   symmetry=(-x+y,y,-z+1/2)
+   symmetry=(x,x-y,-z+1/6)
+   
+   evaluate ($lr=10.)
+   evaluate ($hr=2) 
+   binresolution $lr $hr 
+   mapresolution $hr
+   tselection=( $hr <= d <= $lr and 10000. >= amplitude(fobs)>=0.01 ) 
+
+   generate 2. 10. 
+   do (fobs=1) ( all )
+   do (weight=s) ( all ) 
+   write reflection weight  sele=( all ) end
+end
+
+{* read a ca trace *}
+struc 
+data_cns_mtf
+
+_cns_mtf.title
+; FILENAME="/data/rwgk/test/tmp.mtf"
+  DATE:18-Nov-98  14:17:52       created by user: rwgk
+  VERSION:0.4a
+;
+
+loop_
+_cns_mtf_atom.id
+_cns_mtf_atom.segment_id
+_cns_mtf_atom.residue_id
+_cns_mtf_atom.residue_name
+_cns_mtf_atom.atom_name
+_cns_mtf_atom.chemical_type
+_cns_mtf_atom.charge
+_cns_mtf_atom.atom_mass
+1 ' ' '1' 'LYS' 'CA' 'CH1E' 0.250000 13.0190
+2 ' ' '2' 'LYS' 'CA' 'CH1E' 0.250000 13.0190
+3 ' ' '3' 'LYS' 'CA' 'CH1E' 0.250000 13.0190
+-1 ' ' ' ' ' ' ' ' ' ' -1.00000 -1.00000
+
+loop_
+_cns_mtf_bond.id[1]
+_cns_mtf_bond.id[2]
+-1 -1
+
+loop_
+_cns_mtf_angle.id[1]
+_cns_mtf_angle.id[2]
+_cns_mtf_angle.id[3]
+-1 -1 -1
+
+loop_
+_cns_mtf_dihedral.id[1]
+_cns_mtf_dihedral.id[2]
+_cns_mtf_dihedral.id[3]
+_cns_mtf_dihedral.id[4]
+-1 -1 -1 -1
+
+loop_
+_cns_mtf_improper.id[1]
+_cns_mtf_improper.id[2]
+_cns_mtf_improper.id[3]
+_cns_mtf_improper.id[4]
+-1 -1 -1 -1
+
+loop_
+_cns_mtf_explicit_nonbonded_exclusion.inb
+-1
+
+loop_
+_cns_mtf_explicit_nonbonded_exclusion.iblo
+0
+0
+0
+-1
+
+loop_
+_cns_mtf_group_linked_list.first_atom_id
+0
+1
+-1
+
+end
+
+coor 
+ATOM      1  CA  LYS     1       8.000   8.000   8.000  1.00 15.00          
+ATOM      2  CA  LYS     2       1.400   6.200  18.000  1.00 15.00          
+ATOM      3  CA  LYS     3       2.400   9.200  16.000  1.00 15.00          
+END 
+
+xray 
+  reset 
+   declare name=fobs type=complex domain=reciprocal end
+   declare name=fpart domain=reciprocal type=complex end
+   declare name=fcalc domain=reciprocal type=complex end
+   declare name=fom domain=reciprocal type=real end
+   declare name=weight domain=reciprocal type=real end
+   declare name=sigma domain=reciprocal type=real end
+   declare name=test domain=reciprocal type=integer end
+
+   a=16.001 b=16.001 c=8.001 alpha=90.0 beta=90.00 gamma=120.0
+   symmetry=(x,y,z)   
+   symmetry=(-y,x-y,z+1/3)
+   symmetry=(-x+y,-x,z+2/3)
+
+   symmetry=(-x,-y,z+1/2)
+   symmetry=(y,-x+y,z+5/6)
+   symmetry=(x-y,x,z+1/6)
+
+   symmetry=(y,x,-z+1/3)
+   symmetry=(x-y,-y,-z)
+   symmetry=(-x,-x+y,-z+2/3)
+
+   symmetry=(-y,-x,-z+5/6)
+   symmetry=(-x+y,y,-z+1/2)
+   symmetry=(x,x-y,-z+1/6)
+   
+   evaluate ($lr=10.)
+   evaluate ($hr=2) 
+   binresolution $lr $hr 
+   mapresolution $hr
+   tselection=( $hr <= d <= $lr and 10000. >= amplitude(fobs)>=0.01 ) 
+
+   generate 2. 10.
+   do (fobs=1) ( all )
+   do (weight=1) ( all )
+
+
+   SCATter ( chemical C* ) 
+       2.31000 20.8439 1.02000 10.2075 1.58860 .568700 .865000 51.6512 .215600
+   method=direct lookup=false
+   
+   predict 
+      mode=reciprocal 
+      to=fcalc 
+      selection=( $hr <= d <= $lr and 10000. >= amplitude(fobs)>=0.01 ) 
+      atomselection=( not hydrogen  ) 
+   end 
+   
+   fft 
+      prime=5 avoid=2
+   end
+   
+   declare name=map1 domain=real end
+   do (map1=ft(fcalc) ) ( all )
+   
+   write map
+      from=map1
+      output=OUTPUT
+      extend=box
+      xmin=0. xmax=10.
+      ymin=0. ymax=10.
+      zmin=1. zmax=1. 
+   end
+end
+
+xray 
+  reset 
+   declare name=fobs type=complex domain=reciprocal end
+   declare name=fpart domain=reciprocal type=complex end
+   declare name=fcalc domain=reciprocal type=complex end
+   declare name=fom domain=reciprocal type=real end
+   declare name=weight domain=reciprocal type=real end
+   declare name=sigma domain=reciprocal type=real end
+   declare name=test domain=reciprocal type=integer end
+
+  a=16.001 b=16.001 c=8.001 alpha=90.0 beta=90.00 gamma=120.0
+  evaluate ($lr=10.)
+  evaluate ($hr=2) 
+  binresolution $lr $hr 
+  mapresolution $hr
+  tselection=( $hr <= d <= $lr and 10000. >= amplitude(fobs)>=0.01 ) 
+
+  generate 2. 10.
+  do (fobs=1) ( all )
+  do (weight=1) ( all )
+
+
+   symmetry=(x,y,z)   
+   symmetry=(-y,x-y,z+1/3)
+   symmetry=(-x+y,-x,z+2/3)
+
+   symmetry=(-x,-y,z+1/2)
+   symmetry=(y,-x+y,z+5/6)
+   symmetry=(x-y,x,z+1/6)
+
+   symmetry=(y,x,-z+1/3)
+   symmetry=(x-y,-y,-z)
+   symmetry=(-x,-x+y,-z+2/3)
+
+   symmetry=(-y,-x,-z+5/6)
+   symmetry=(-x+y,y,-z+1/2)
+   symmetry=(x,x-y,-z+1/6)
+  evaluate ($lr=10.)
+  evaluate ($hr=2) 
+  binresolution $lr $hr 
+  mapresolution $hr
+  tselection=( $hr <= d <= $lr and 10000. >= amplitude(fobs)>=0.01 ) 
+
+   SCATter ( chemical C* ) 
+       2.31000 20.8439 1.02000 10.2075 1.58860 .568700 .865000 51.6512 .215600
+   method=direct lookup=false
+   predict 
+      mode=reciprocal 
+      to=fcalc 
+      selection=( $hr <= d <= $lr and 10000. >= amplitude(fobs)>=0.01 ) 
+      atomselection=( not hydrogen  ) 
+   end 
+   fft 
+      prime=5 avoid=2
+   end
+   declare name=map1 domain=real end
+   do (map1=ft(fcalc) ) ( all )
+   
+   write map
+       output=OUTPUT
+      extend=box
+      xmin=0. xmax=10.
+      ymin=0. ymax=10.
+      zmin=1. zmax=1. 
+   end
+end
+
+xray 
+  reset 
+   declare name=fobs type=complex domain=reciprocal end
+   declare name=fpart domain=reciprocal type=complex end
+   declare name=fcalc domain=reciprocal type=complex end
+   declare name=fom domain=reciprocal type=real end
+   declare name=weight domain=reciprocal type=real end
+   declare name=sigma domain=reciprocal type=real end
+   declare name=test domain=reciprocal type=integer end
+
+  a=16.001 b=16.001 c=8.001 alpha=90.0 beta=90.00 gamma=120.0
+
+  symmetry=(x,y,z)
+  symmetry=(-y,x-y,z)
+  symmetry=(y-x,-x,z) 
+!  symmetry=(y,x,1/2+z) 
+!  symmetry=(-x,y-x,1/2+z) 
+!  symmetry=(x-y,-y,1/2+z) 
+
+  evaluate ($lr=10.)
+  evaluate ($hr=2) 
+  binresolution $lr $hr 
+  mapresolution $hr
+  tselection=( $hr <= d <= $lr and 10000. >= amplitude(fobs)>=0.01 ) 
+
+   generate 2. 10. 
+  do (fobs=1) ( all )
+  do (weight=1) ( all )
+
+
+   SCATter ( chemical C* ) 
+       2.31000 20.8439 1.02000 10.2075 1.58860 .568700 .865000 51.6512 .215600
+   method=direct lookup=false
+   predict 
+      mode=reciprocal 
+      to=fcalc 
+      selection=( $hr <= d <= $lr and 10000. >= amplitude(fobs)>=0.01 ) 
+      atomselection=( not hydrogen  ) 
+   end 
+   fft 
+      prime=5 avoid=2
+   end
+   declare name=map1 domain=real end
+   do (map1=ft(fcalc) ) ( all )
+   
+   write map
+       output=OUTPUT
+      extend=box
+      xmin=0. xmax=10.
+      ymin=0. ymax=10.
+      zmin=1. zmax=1. 
+   end
+end
+
+xray 
+  reset 
+   declare name=fobs type=complex domain=reciprocal end
+   declare name=fpart domain=reciprocal type=complex end
+   declare name=fcalc domain=reciprocal type=complex end
+   declare name=fom domain=reciprocal type=real end
+   declare name=weight domain=reciprocal type=real end
+   declare name=sigma domain=reciprocal type=real end
+   declare name=test domain=reciprocal type=integer end
+
+  a=16.001 b=16.001 c=8.001 alpha=90.0 beta=90.00 gamma=120.0
+  evaluate ($lr=10.)
+  evaluate ($hr=2) 
+  binresolution $lr $hr 
+  mapresolution $hr
+  tselection=( $hr <= d <= $lr and 10000. >= amplitude(fobs)>=0.01 ) 
+
+  generate 2. 10.
+  do (fobs=1) ( all )
+  do (weight=1) ( all )
+
+
+  symmetry=(x,y,z)
+  symmetry=(-y,x-y,z)
+  symmetry=(y-x,-x,z) 
+!  symmetry=(y,x,1/2+z) 
+!  symmetry=(-x,y-x,1/2+z) 
+!  symmetry=(x-y,-y,1/2+z) 
+
+  evaluate ($lr=10.)
+  evaluate ($hr=2) 
+  binresolution $lr $hr 
+  mapresolution $hr
+  tselection=( $hr <= d <= $lr and 10000. >= amplitude(fobs)>=0.01 ) 
+
+   SCATter ( chemical C* ) 
+       2.31000 20.8439 1.02000 10.2075 1.58860 .568700 .865000 51.6512 .215600
+   method=direct lookup=false
+   predict 
+      mode=reciprocal 
+      to=fcalc 
+      selection=( $hr <= d <= $lr and 10000. >= amplitude(fobs)>=0.01 ) 
+      atomselection=( not hydrogen  ) 
+   end 
+   fft 
+      prime=5 avoid=2
+   end
+   declare name=map1 domain=real end
+   do (map1=ft(fcalc) ) ( all )
+   
+   write map
+       output=OUTPUT
+      extend=box
+      xmin=0. xmax=10.
+      ymin=0. ymax=10.
+      zmin=1. zmax=1. 
+   end
+end
+
+stop

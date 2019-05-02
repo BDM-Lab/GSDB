@@ -1,0 +1,54 @@
+topology {<topology-statement>} end
+
+<topology-statement> :==
+
+  mass <type> <real>
+  --{Atom type and default mass.}
+  residue <resname> {<residue-specification>} end
+  --{Define the topology of a residue.}
+  presidue <resname> {delete|add|modify|omit <residue-specification>} end
+  --{Define the topology of a patch residue.}
+  autogenerate [angle=<logical>] [dihedral=<logical>] end
+  --{Enable autogeneration of angle and dihedral topology
+     entries based on bond list. This is not active for patch
+     residue, thus angles and dihedrals must be explicitly defined.}
+  reset
+  --{Ignore all previous entries into topology database.}
+  ?
+  --{Print current topology database.}
+
+  <residue-specification> :==
+
+    atom [<reference>]<atom> {<atom-specification>} end
+    --{Define an atom in the residue.}
+    bond [<reference>]<atom> [<reference>]<atom>
+    --{Define a pair of atoms in the residue which are connected by a bond.}
+    angle [<reference>]<atom> [<reference>]<atom> [<reference>]<atom>
+    --{Define a triple of atoms in the residue which are connected by 2 bonds.}
+    dihedral [<reference>]<atom> [<reference>]<atom> 
+             [<reference>]<atom> [<reference>]<atom> [multiplicity <integer>]
+    --{Define a quadruple of atoms in the residue which form a torsion
+       angle around a common central bond.}
+    improper [<reference>]<atom> [<reference>]<atom> 
+             [<reference>]<atom> [<reference>]<atom> [multiplicity <integer>]
+    --{Define a quadruple of atoms in the residue which will be treated as
+       if there is a bond between the centre 2 atoms.}
+    donor [<reference>]<atom> [<reference>]<atom>
+    --{Define a hydrogen bond donor. Hydrogen atom followed by connected
+       heavy atom.}
+    acceptor [<reference>]<atom> [<reference>]<atom>|none
+    --{Define a hydrogen bond acceptor. Bond acceptor followed by optional
+       connected heavy atom.}
+
+    <atom-specification> :==
+
+      type=<type>
+      --{Type of this atom.}
+      charge=<real>
+      --{Charge of this atom.}
+      mass=<real>
+      --{Mass of this atom.}
+      exclude=( {[<reference>]<atom>} )
+      --{Exclude the following atoms from interactions with this atom.}
+
+    --{The <reference> character is only required for patch residues.}

@@ -1,0 +1,349 @@
+{+ file: rmsd_pm.inp +}
+{+ directory: nmr_calc +}
+{+ description: splits multi-conformer structures in single-conformer files, 
+                computes the average structure, atomic rms differences on 
+                monomeric, dimers, and loops of macromolecules +}
+{+ authors: Alexandre Bonvin, Axel T. Brunger and Gregory Warren +}
+{+ copyright: Yale University +}
+
+{+ reference: Bonvin AMJJ  and Brunger AT, Conformational variability 
+              of solution Nuclear Magnetic Resonance structures,
+              J. Mol. Biol., 250, 80-93 (1995) +}
+
+{+ reference: DeLano, WL and Brunger AT, Helix packing in proteins:
+              prediction and energetic analysis of dimeric, trimeric,
+              and tetrameric GCN4 coiled coil structures, Proteins, 20,
+              105-123 (1994) +}
+
+{- Guidelines for using this file:
+   - all strings must be quoted by double-quotes
+   - logical variables (true/false) are not quoted
+   - do not remove any evaluate statements from the file 
+   - this script is currently set to fit for only one loop -}
+   
+{- begin block parameter definition -} define(
+
+{======================= molecular structure =========================}
+
+{* parameter file(s) *}
+{===>} par.1="CNS_TOPPAR:protein-allhdg5-4.param";
+{===>} par.2="";
+{===>} par.3="";
+{===>} par.4="";
+{===>} par.5="";
+
+{* single conformer structure file(s) *}
+{===>} struct.1="ambtv.mtf";
+{===>} struct.2="";
+{===>} struct.3="";
+{===>} struct.4="";
+{===>} struct.5="";
+
+{* input reference single conformer coordinate file *}
+{===>} pdb.in.file.1="ambtv.pdb";
+
+{========================== atom selection ===========================}
+
+{* input atom selection for average structure generation *}
+{* for protein      (name n or name ca or name c)
+   for nucleic acid (name O5' or name C5' or name C4' or name C3' 
+                     or name O3' or name P) *}
+{===>} pdb.atom.select=(name n or name ca or name c);
+
+{====================== refinement parameters ========================}
+
+{* number of structures from multi-conformer refinement *}
+{===>} pdb.end.count=10;
+
+{======================== ensemble-averaging ==========================}
+
+{* number of conformers *}
+{===>} nmr.ens.copy.num=( 2 );
+{* is the macromolecule a multimer? *}
+{* the current implimentation only works for dimers *}
+{+ choice: true false +}
+{===>} nmr.ens.multi.flag=false;
+{* input the first segid prefix *}
+{===>} nmr.ens.multi.segid.1="A";
+{* input the second segid prefix *}
+{===>} nmr.ens.multi.segid.2="B";
+{* multi-conformer refinement for loops? *}
+{+ choice: true false +}
+{===>} nmr.ens.loop.flag=false;
+
+{* Loop 1 *}
+
+{* starting residue number *}
+{===>} nmr.ens.loop.low.1=21;
+{* final residue number *}
+{===>} nmr.ens.loop.high.1=27;
+
+{======================== input/output files ==========================}
+
+{* base name for ensemble coordinate files *}
+{* e.g. il4_multi_2_#.pdb -> il4_multi *}
+{===>} pdb.ens.name="ambtv_full";
+
+{* base name for single structure output coordinate files *}
+{===>} pdb.out.name="ambtv_full_sngl";
+
+{===========================================================================}
+{         things below this line do not normally need to be changed         }
+{         except for the torsion angle topology setup if you have           }
+{         molecules other than protein or nucleic acid                      }
+{===========================================================================}
+flg.cv.flag=false;
+flg.cv.noe=false;
+flg.cv.coup=false;
+flg.cv.cdih=false;
+flg.dgsa.flag=false;
+nmr.cv.numpart=10;
+nmr.dani.axis="";
+nmr.dani.file.1="";
+nmr.sani.axis="";
+nmr.sani.file.1="";
+
+ ) {- end block parameter definition -}
+
+checkversion 1.3
+
+evaluate ($log_level=quiet)
+
+parameter
+   reset
+   if (&par.1 # "") then
+      @@&par.1
+   end if
+   if (&par.2 # "") then
+      @@&par.2
+   end if
+   if (&par.3 # "") then
+      @@&par.3
+   end if
+   if (&par.4 # "") then
+      @@&par.4
+   end if
+   if (&par.5 # "") then
+      @@&par.5
+   end if
+end
+
+if ( $log_level = verbose ) then
+  set message=normal echo=on end
+else
+  set message=off echo=off end
+end if
+
+parameter
+   nbonds
+      repel=0.80
+      rexp=2 irexp=2 rcon=1.
+      nbxmod=3
+      wmin=0.01
+      cutnb=6.0 ctonnb=2.99 ctofnb=3.
+      tolerance=1.5
+   end
+end
+
+for $nmr.copies in &nmr.ens.copy.num loop multi
+
+   structure reset end
+   coor init end
+   
+   evaluate ($structname = &pdb.ens.name+encode($nmr.copies)+".mtf")
+   structure @@$structname end
+   
+   evaluate ($nmr.trial.count = 0)    {- Initialize current structure number -}
+   evaluate ($nmr.model.number = 0)    {- Initialize current structure number -}
+
+   while ($nmr.trial.count < &pdb.end.count ) loop struc
+
+      evaluate ($nmr.trial.count = $nmr.trial.count + 1)
+      evaluate ($filename = &pdb.ens.name+"_"+encode($nmr.copies)
+                            +"_"+encode($nmr.trial.count)+".pdb")
+      
+
+      if (&nmr.ens.loop.flag=false) then      
+         set remarks=reset end 
+         coor init end
+         coor @@$filename
+      end if 
+      
+      evaluate ($count = 0)
+      while ($count < $nmr.copies) loop wrtou
+         evaluate ($count = $count + 1)
+         evaluate ($nmr.model.number = $nmr.model.number + 1)
+         evaluate ($outname = &pdb.out.name+"_"+encode($nmr.copies)
+                              +"_"+encode($nmr.model.number)+".pdb")
+
+         evaluate ($nmr.ens.dimer.flag=false)
+         if (&nmr.ens.multi.flag=true) then
+            evaluate ($nmr.ens.dimer.flag=true)
+            evaluate ($nmr.ens.multi.tmp.1 = &nmr.ens.multi.segid.1 + encode($count))
+            evaluate ($nmr.ens.multi.tmp.2 = &nmr.ens.multi.segid.2 + encode($count))
+            do (segid = &nmr.ens.multi.segid.1) (segid $nmr.ens.multi.tmp.1)
+            do (segid = &nmr.ens.multi.segid.2) (segid $nmr.ens.multi.tmp.2)
+            write coor sele=( segid &nmr.ens.multi.segid.1 or segid &nmr.ens.multi.segid.2)
+               output=$outname format=PDBO end
+            do (segid = $nmr.ens.multi.tmp.1) (segid &nmr.ens.multi.segid.1)
+            do (segid = $nmr.ens.multi.tmp.2) (segid &nmr.ens.multi.segid.2)
+         elseif (&nmr.ens.loop.flag=true) then
+            structure reset @@$structname end            
+            set remarks=reset end 
+            coor init end
+            coor @@$filename 
+            evaluate ($nmr.ens.dimer.flag=true)
+            evaluate ($chainname = "C"+encode($count) )
+            do (segid = "    ") (segid $chainname or segid C0)
+            write coor sele=( segid = "    " ) output=$outname format=PDBO end
+         else
+            evaluate ($chainname = "C"+encode($count) )
+            do (segid = "    ") (segid $chainname)
+            write coor sele=(segid "    ") output=$outname format=PDBO end
+            do (segid = $chainname) (segid "    ")
+         end if
+
+      end loop wrtou
+
+   end loop struc
+   
+   structure reset end
+   coor init end
+   
+   if ($nmr.model.number > 0 ) then
+   
+      structure 
+         if  (&struct.1 # "") then
+            @@&struct.1
+         end if
+         if  (&struct.2 # "") then
+            @@&struct.2
+         end if
+         if  (&struct.3 # "") then
+            @@&struct.3
+         end if
+         if  (&struct.4 # "") then
+            @@&struct.4
+         end if
+         if  (&struct.5 # "") then
+            @@&struct.5
+         end if
+      end
+      
+      do (store1=0) (all)
+      do (store2=0) (all)
+      do (store3=0) (all)
+      do (store4=0) (all)
+
+      evaluate ($count = 0)
+      while ($count < $nmr.model.number) loop ANAL
+
+         evaluate ($count = $count + 1)
+         evaluate ($filename = &pdb.out.name+"_"+encode($nmr.copies)
+                              +"_"+encode($count)+".pdb")
+         
+         coor @@$filename
+         
+         if ($count = 1) then
+            do (xcomp = x) ( all )
+            do (ycomp = y) ( all )
+            do (zcomp = z) ( all )
+         end if
+
+         coor fit sele=(&pdb.atom.select) end
+ 
+         do (store1=store1+x) (all)
+         do (store2=store2+y) (all)
+         do (store3=store3+z) (all)
+         do (store4=store4+x^2+y^2+z^2) (all)
+      
+      end loop ANAL
+      
+      do (refx = store1 / $nmr.model.number) (all)
+      do (refy = store2 / $nmr.model.number) (all)
+      do (refz = store3 / $nmr.model.number) (all)
+      do (bcomp =sqrt(max(0,store4/$nmr.model.number-(x^2+y^2+z^2)))) (all)
+      
+     {- rmsd from initial or reference structure -}
+      do (store1=0) (all)
+      do (store2=0) (all)
+      do (store3=0) (all)
+      do (store4=0) (all)
+      evaluate ($ave.rms.atom.slct=0.)
+      evaluate ($ave.rms.atom.all=0.)
+      evaluate ($ave2.rms.atom.slct=0.)
+      evaluate ($ave2.rms.atom.all=0.)
+      
+      coor @@&pdb.in.file.1
+      coor copy end
+      
+      evaluate ($nmr.prefix=&pdb.out.name+"_"+encode($nmr.copies)+"_")
+      @CNS_NMRMODULE:rmsdavecoord ( ave=$ave;
+                                    ave2=$ave2;
+                                    count=$nmr.model.number;
+                                    nmr=&nmr;
+                                    output=$nmr;
+                                    pdb=&pdb; )
+
+      evaluate ($ave.rms.ref.atom.slct=$ave.rms.atom.slct)
+      evaluate ($ave2.rms.ref.atom.slct=$ave2.rms.atom.slct)
+      evaluate ($ave.rms.ref.atom.all=$ave.rms.atom.all)
+      evaluate ($ave2.rms.ref.atom.all=$ave2.rms.atom.all)
+      
+     {- rmsd for the ensemble around the mean -}
+      do (store1=0) (all)
+      do (store2=0) (all)
+      do (store3=0) (all)
+      do (store4=0) (all)
+      evaluate ($ave.rms.atom.slct=0.)
+      evaluate ($ave.rms.atom.all=0.)
+      evaluate ($ave2.rms.atom.slct=0.)
+      evaluate ($ave2.rms.atom.all=0.)
+
+      do (xcomp=refx) ( all )
+      do (ycomp=refy) ( all )
+      do (zcomp=refz) ( all )
+      
+      @CNS_NMRMODULE:rmsdavecoord ( ave=$ave;
+                                    ave2=$ave2;
+                                    count=$nmr.model.number;
+                                    nmr=&nmr;
+                                    output=$nmr;
+                                    pdb=&pdb; )
+
+      do (b=bcomp) ( all )
+
+     {- print remarks/diplay header and coordinates -}
+
+      set remarks=reset end
+      set remarks=accu end
+      
+      buffer calccoor
+         reset
+	 display unminimized average over $nmr.model.number files for ensemble-averaged refinement 
+	 display with $nmr.copies models
+         display ===============================================================
+         display Ave. rmsd from starting structure
+         display   atom selection = $ave.rms.ref.atom.slct[F6.3] +/- $ave2.rms.ref.atom.slct[F6.4]
+         display   non-h atoms    = $ave.rms.ref.atom.all[F6.3] +/- $ave2.rms.ref.atom.all[F6.4]
+         display ===============================================================
+         display rms around the mean for selection   = $ave.rms.atom.slct[F6.3] +/- $ave2.rms.atom.slct[F6.4]
+         display rms around the mean for non-h atoms = $ave.rms.atom.all[F6.3] +/- $ave2.rms.atom.all[F6.4]
+      end
+      
+      buffer calccoor
+         to remarks
+         flush
+      end
+      remarks ===============================================================
+      
+      evaluate ($outfile = $nmr.prefix+"single_ave.pdb")
+      write coordinates output=$outfile format=PDBO end
+      
+   end if
+   
+end loop MULTI
+
+stop
+
+      

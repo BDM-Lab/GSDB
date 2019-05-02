@@ -1,0 +1,112 @@
+{+ file: split_structure.inp +}
+{+ directory: general +}
+{+ description: Split coordinate and molecular structure information
+                into separate files +}
+{+ comment: 
+           Writes out two or more coordinate and structure files +}
+{+ authors: Axel T. Brunger, and Paul D. Adams +}
+{+ copyright: Yale University +}
+
+{- Guidelines for using this file:
+   - all strings must be quoted by double-quotes
+   - logical variables (true/false) are not quoted
+   - do not remove any evaluate statements from the file -}
+
+{- begin block parameter definition -} define(
+
+{======================= molecular structure =========================}
+
+{* structure file *}
+{===>} structure_infile="eg1_dimer.mtf";
+
+{* coordinate file *}
+{===>} coordinate_infile="eg1_dimer.pdb";
+
+{========================== atom selection ===========================}
+
+{* select atoms to be written (use (none) if not used) *}
+{===>} atom_select_1=(segid AAAA or segid BBBB);
+{* root file name for coordinates and structure files *}
+{===>} output_root_1="eg1_mol1";
+
+{* select atoms to be written (use (none) if not used) *}
+{===>} atom_select_2=(segid CCCC or segid DDDD);
+{* root file name for coordinates and structure files *}
+{===>} output_root_2="eg1_mol2";
+
+{* select atoms to be written (use (none) if not used) *}
+{===>} atom_select_3=(none);
+{* root file name for coordinates and structure files *}
+{===>} output_root_3="";
+
+{* select atoms to be written (use (none) if not used) *}
+{===>} atom_select_4=(none);
+{* root file name for coordinates and structure files *}
+{===>} output_root_4="";
+
+{* select atoms to be written (use (none) if not used) *}
+{===>} atom_select_5=(none);
+{* root file name for coordinates and structure files *}
+{===>} output_root_5="";
+
+{* select atoms to be written (use (none) if not used) *}
+{===>} atom_select_6=(none);
+{* root file name for coordinates and structure files *}
+{===>} output_root_6="";
+
+{* select atoms to be written (use (none) if not used) *}
+{===>} atom_select_7=(none);
+{* root file name for coordinates and structure files *}
+{===>} output_root_7="";
+
+{* select atoms to be written (use (none) if not used) *}
+{===>} atom_select_8=(none);
+{* root file name for coordinates and structure files *}
+{===>} output_root_8="";
+
+{===========================================================================}
+{        things below this line do not normally need to be changed          }
+{===========================================================================}
+
+ ) {- end block parameter definition -}
+
+ checkversion 1.3
+
+ evaluate ($log_level=quiet)
+
+ evaluate ($struct=1)
+ evaluate ($done=false)
+
+ while ( $done = false ) loop struct
+
+   structure @@&structure_infile end
+
+   coordinates @@&coordinate_infile
+
+   if ( &exist_atom_select_$struct = true ) then
+
+     show sum(1) (&atom_select_$struct)
+
+     if ( $result > 0 ) then
+
+       evaluate ($struct_output=&output_root_$struct + ".mtf")
+       evaluate ($coord_output=&output_root_$struct + ".pdb")
+
+       delete sele=(not(&atom_select_$struct)) end
+
+       write structure output=$struct_output end
+       write coordinate output=$coord_output format=PDBO end
+
+     end if
+
+     evaluate ($struct=$struct+1)
+
+   else
+     evaluate ($done=true)
+   end if
+
+   structure reset end
+
+ end loop struct
+
+ stop

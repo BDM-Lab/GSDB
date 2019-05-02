@@ -1,0 +1,572 @@
+          ============================================================
+          |                                                          |
+          |            Crystallography & NMR System (CNS)            |
+          |                         CNSsolve                         |
+          |                                                          |
+          ============================================================
+           Version: 1.3
+           Status: General release
+          ============================================================
+           Written by: A.T.Brunger, P.D.Adams, G.M.Clore, W.L.DeLano,
+                       P.Gros, R.W.Grosse-Kunstleve,J.-S.Jiang,J.M.Krahn,
+                       J.Kuszewski, M.Nilges, N.S.Pannu, R.J.Read,
+                       L.M.Rice, G.F.Schroeder, T.Simonson, G.L.Warren.
+           Copyright (c) 1997-2010 Yale University
+          ============================================================
+           Running on machine: lewis4-r710-login-node223 (x86_64/Linux,64-bit)
+                               with 16 threads
+           Program started by: oeow39
+           Program started at: 16:08:22 on 05-Jul-2018
+          ============================================================
+
+ FFT3C: Using FFTPACK4.1
+
+ CNSsolve>remarks VECTORTES 
+ CNSsolve>remarks test case for DO and SHOW commands 
+ CNSsolve> 
+ CNSsolve>topology 
+ RTFRDR>   ! 
+ RTFRDR>   mass A   1.0 
+ RTFRDR>   mass B   2.0 
+ RTFRDR>   mass C   3.0 
+ RTFRDR>   mass D   4.0 
+ RTFRDR>   mass E   5.0 
+ RTFRDR>   mass F   6.0 
+ RTFRDR>   mass G   7.0 
+ RTFRDR>   mass H   8.0 
+ RTFRDR>   mass I   9.0 
+ RTFRDR>   ! 
+ RTFRDR>   residue test 
+ RESIDUE>     atom A  type A  charge 10.0 end 
+ RESIDUE>     atom B  type B  charge 20.0 end 
+ RESIDUE>     atom C  type C  charge 30.0 end 
+ RESIDUE>     atom D  type D  charge 40.0 end 
+ RESIDUE>     atom E  type E  charge 50.0 end 
+ RESIDUE>     atom F  type F  charge 60.0 end 
+ RESIDUE>     atom G  type G  charge 70.0 end 
+ RESIDUE>     atom H  type H  charge 80.0 end 
+ RESIDUE>     atom I  type I  charge 90.0 end 
+ RESIDUE>   end 
+ RTFRDR>   ! 
+ RTFRDR>end !topology 
+ CNSsolve> 
+ CNSsolve>segment 
+ SEGMENT>   name=test 
+ SEGMENT>   molecule name=test number=1 end 
+ SEGMENT>end 
+ Status of internal molecular topology database:
+ -> NATOM=          9(MAXA=     1000000)  NBOND=          0(MAXB=     1000000)
+ -> NTHETA=         0(MAXT=     2000000)  NGRP=           1(MAXGRP=   1000000)
+ -> NPHI=           0(MAXP=     2000000)  NIMPHI=         0(MAXIMP=   1000000)
+ -> NNB=            0(MAXNB=    1000000) 
+ CNSsolve> 
+ CNSsolve>show element ( charge )( all ) 
+ SELRPN:      9 atoms have been selected out of      9
+ ( TEST TEST 1    A    )    10.000    
+ ( TEST TEST 1    B    )    20.000    
+ ( TEST TEST 1    C    )    30.000    
+ ( TEST TEST 1    D    )    40.000    
+ ( TEST TEST 1    E    )    50.000    
+ ( TEST TEST 1    F    )    60.000    
+ ( TEST TEST 1    G    )    70.000    
+ ( TEST TEST 1    H    )    80.000    
+ ( TEST TEST 1    I    )    90.000    
+ CNSsolve> 
+ CNSsolve>do ( x = 0.0 ) ( all ) 
+ SELRPN:      9 atoms have been selected out of      9
+ CNSsolve>do ( y = 9.0 ) ( all ) 
+ SELRPN:      9 atoms have been selected out of      9
+ CNSsolve>do ( z = 99.0 )( all ) 
+ SELRPN:      9 atoms have been selected out of      9
+ CNSsolve> 
+ CNSsolve>do ( x = 1.0 ) ( name A or name E ) 
+ SELRPN:      2 atoms have been selected out of      9
+ CNSsolve>show element ( x ) ( all ) 
+ SELRPN:      9 atoms have been selected out of      9
+ ( TEST TEST 1    A    )    1.0000    
+ ( TEST TEST 1    B    )    0.0000    
+ ( TEST TEST 1    C    )    0.0000    
+ ( TEST TEST 1    D    )    0.0000    
+ ( TEST TEST 1    E    )    1.0000    
+ ( TEST TEST 1    F    )    0.0000    
+ ( TEST TEST 1    G    )    0.0000    
+ ( TEST TEST 1    H    )    0.0000    
+ ( TEST TEST 1    I    )    0.0000    
+ CNSsolve> 
+ CNSsolve>do ( x = x + 10.0 ) ( name B or name E ) 
+ SELRPN:      2 atoms have been selected out of      9
+ CNSsolve>show element ( x )  ( name B or name E ) 
+ SELRPN:      2 atoms have been selected out of      9
+ ( TEST TEST 1    B    )    10.000    
+ ( TEST TEST 1    E    )    11.000    
+ CNSsolve> 
+ CNSsolve>do ( x = x * 2.0 ) ( name B ) 
+ SELRPN:      1 atoms have been selected out of      9
+ CNSsolve>show element ( x ) ( name B ) 
+ SELRPN:      1 atoms have been selected out of      9
+ ( TEST TEST 1    B    )    20.000    
+ CNSsolve> 
+ CNSsolve>do ( x = x / 4.0 ) ( name B ) 
+ SELRPN:      1 atoms have been selected out of      9
+ CNSsolve>show element ( x ) ( name B ) 
+ SELRPN:      1 atoms have been selected out of      9
+ ( TEST TEST 1    B    )    5.0000    
+ CNSsolve> 
+ CNSsolve>do ( x = x * 4.0 ) ( name B ) 
+ SELRPN:      1 atoms have been selected out of      9
+ CNSsolve> 
+ CNSsolve>do ( x = 1.0 / x ) ( name E ) 
+ SELRPN:      1 atoms have been selected out of      9
+ CNSsolve>show element ( x ) ( name E ) 
+ SELRPN:      1 atoms have been selected out of      9
+ ( TEST TEST 1    E    )   0.90909E-01
+ CNSsolve> 
+ CNSsolve>do ( x = log( x ) ) ( name E ) 
+ SELRPN:      1 atoms have been selected out of      9
+ CNSsolve>show element ( x )  ( name E ) 
+ SELRPN:      1 atoms have been selected out of      9
+ ( TEST TEST 1    E    )   -2.3979    
+ CNSsolve> 
+ CNSsolve>do ( x = exp( x ) )  ( all ) 
+ SELRPN:      9 atoms have been selected out of      9
+ CNSsolve>show element ( x ) ( all ) 
+ SELRPN:      9 atoms have been selected out of      9
+ ( TEST TEST 1    A    )    2.7183    
+ ( TEST TEST 1    B    )   0.48517E+09
+ ( TEST TEST 1    C    )    1.0000    
+ ( TEST TEST 1    D    )    1.0000    
+ ( TEST TEST 1    E    )   0.90909E-01
+ ( TEST TEST 1    F    )    1.0000    
+ ( TEST TEST 1    G    )    1.0000    
+ ( TEST TEST 1    H    )    1.0000    
+ ( TEST TEST 1    I    )    1.0000    
+ CNSsolve> 
+ CNSsolve>do ( x = x * -1.0 ) ( all ) 
+ SELRPN:      9 atoms have been selected out of      9
+ CNSsolve>do ( x = abs( x ) ) ( all ) 
+ SELRPN:      9 atoms have been selected out of      9
+ CNSsolve>show element ( x )  ( all ) 
+ SELRPN:      9 atoms have been selected out of      9
+ ( TEST TEST 1    A    )    2.7183    
+ ( TEST TEST 1    B    )   0.48517E+09
+ ( TEST TEST 1    C    )    1.0000    
+ ( TEST TEST 1    D    )    1.0000    
+ ( TEST TEST 1    E    )   0.90909E-01
+ ( TEST TEST 1    F    )    1.0000    
+ ( TEST TEST 1    G    )    1.0000    
+ ( TEST TEST 1    H    )    1.0000    
+ ( TEST TEST 1    I    )    1.0000    
+ CNSsolve> 
+ CNSsolve>do ( store1 = x ) ( all ) 
+ SELRPN:      9 atoms have been selected out of      9
+ CNSsolve> 
+ CNSsolve>do ( x = min( x, 2.0 ) ) ( all ) 
+ SELRPN:      9 atoms have been selected out of      9
+ CNSsolve>show element ( x ) ( all ) 
+ SELRPN:      9 atoms have been selected out of      9
+ ( TEST TEST 1    A    )    2.0000    
+ ( TEST TEST 1    B    )    2.0000    
+ ( TEST TEST 1    C    )    1.0000    
+ ( TEST TEST 1    D    )    1.0000    
+ ( TEST TEST 1    E    )   0.90909E-01
+ ( TEST TEST 1    F    )    1.0000    
+ ( TEST TEST 1    G    )    1.0000    
+ ( TEST TEST 1    H    )    1.0000    
+ ( TEST TEST 1    I    )    1.0000    
+ CNSsolve> 
+ CNSsolve>do ( x = store1 ) ( all ) 
+ SELRPN:      9 atoms have been selected out of      9
+ CNSsolve>do ( x = max( x, 20.0 ) ) ( all ) 
+ SELRPN:      9 atoms have been selected out of      9
+ CNSsolve>show element ( x ) ( all ) 
+ SELRPN:      9 atoms have been selected out of      9
+ ( TEST TEST 1    A    )    20.000    
+ ( TEST TEST 1    B    )   0.48517E+09
+ ( TEST TEST 1    C    )    20.000    
+ ( TEST TEST 1    D    )    20.000    
+ ( TEST TEST 1    E    )    20.000    
+ ( TEST TEST 1    F    )    20.000    
+ ( TEST TEST 1    G    )    20.000    
+ ( TEST TEST 1    H    )    20.000    
+ ( TEST TEST 1    I    )    20.000    
+ CNSsolve> 
+ CNSsolve>do ( x = 2.0 ) ( name B ) 
+ SELRPN:      1 atoms have been selected out of      9
+ CNSsolve>show norm ( x ) ( name B or name C ) 
+ SELRPN:      2 atoms have been selected out of      9
+ SHOW: norm of selected elements =      14.212670
+ CNSsolve>do (x = x / ( $RESULT* sqrt($SELECT) ) ) ( name B or name C) 
+ SELRPN:      2 atoms have been selected out of      9
+ CNSsolve> 
+ CNSsolve>show element ( x ) ( name B  or  name C ) 
+ SELRPN:      2 atoms have been selected out of      9
+ ( TEST TEST 1    B    )   0.99504E-01
+ ( TEST TEST 1    C    )   0.99504    
+ CNSsolve> 
+ CNSsolve>do ( x = x^2.0 ) ( all ) 
+ SELRPN:      9 atoms have been selected out of      9
+ CNSsolve>show element ( x )( all ) 
+ SELRPN:      9 atoms have been selected out of      9
+ ( TEST TEST 1    A    )    400.00    
+ ( TEST TEST 1    B    )   0.99010E-02
+ ( TEST TEST 1    C    )   0.99010    
+ ( TEST TEST 1    D    )    400.00    
+ ( TEST TEST 1    E    )    400.00    
+ ( TEST TEST 1    F    )    400.00    
+ ( TEST TEST 1    G    )    400.00    
+ ( TEST TEST 1    H    )    400.00    
+ ( TEST TEST 1    I    )    400.00    
+ CNSsolve>display  $result 
+ 400
+ CNSsolve> 
+ CNSsolve>show sum  ( x ) ( all ) 
+ SELRPN:      9 atoms have been selected out of      9
+ SHOW: sum over selected elements =    2801.000000
+ CNSsolve>display  $result 
+ 2801
+ CNSsolve>show max  ( x ) ( all ) 
+ SELRPN:      9 atoms have been selected out of      9
+ SHOW: maximum of selected elements =     400.000000
+ CNSsolve>display  $result 
+ 400
+ CNSsolve>show min  ( x ) ( all ) 
+ SELRPN:      9 atoms have been selected out of      9
+ SHOW: minimum of selected elements =       0.009901
+ CNSsolve>display  $result 
+ 9.90099E-03
+ CNSsolve>show ave  ( x ) ( all ) 
+ SELRPN:      9 atoms have been selected out of      9
+ SHOW: average of selected elements =     311.222222
+ CNSsolve>display  $result 
+ 311.222
+ CNSsolve>show rms  ( x ) ( all ) 
+ SELRPN:      9 atoms have been selected out of      9
+ SHOW: rms deviation from aver of selected elements =     166.088175
+ CNSsolve>display  $result 
+ 166.088
+ CNSsolve>show norm ( x ) ( all ) 
+ SELRPN:      9 atoms have been selected out of      9
+ SHOW: norm of selected elements =     352.766996
+ CNSsolve>display  $result 
+ 352.767
+ CNSsolve> 
+ CNSsolve>show element ( mass ) ( all ) 
+ SELRPN:      9 atoms have been selected out of      9
+ ( TEST TEST 1    A    )    1.0000    
+ ( TEST TEST 1    B    )    2.0000    
+ ( TEST TEST 1    C    )    3.0000    
+ ( TEST TEST 1    D    )    4.0000    
+ ( TEST TEST 1    E    )    5.0000    
+ ( TEST TEST 1    F    )    6.0000    
+ ( TEST TEST 1    G    )    7.0000    
+ ( TEST TEST 1    H    )    8.0000    
+ ( TEST TEST 1    I    )    9.0000    
+ CNSsolve>do ( store1 = store1 + mass ) ( all ) 
+ SELRPN:      9 atoms have been selected out of      9
+ CNSsolve>do ( bcomp = store1 ) ( all ) 
+ SELRPN:      9 atoms have been selected out of      9
+ CNSsolve>show element ( bcomp ) ( all ) 
+ SELRPN:      9 atoms have been selected out of      9
+ ( TEST TEST 1    A    )    3.7183    
+ ( TEST TEST 1    B    )   0.48517E+09
+ ( TEST TEST 1    C    )    4.0000    
+ ( TEST TEST 1    D    )    5.0000    
+ ( TEST TEST 1    E    )    5.0909    
+ ( TEST TEST 1    F    )    7.0000    
+ ( TEST TEST 1    G    )    8.0000    
+ ( TEST TEST 1    H    )    9.0000    
+ ( TEST TEST 1    I    )    10.000    
+ CNSsolve> 
+ CNSsolve>show element ( charge )( all ) 
+ SELRPN:      9 atoms have been selected out of      9
+ ( TEST TEST 1    A    )    10.000    
+ ( TEST TEST 1    B    )    20.000    
+ ( TEST TEST 1    C    )    30.000    
+ ( TEST TEST 1    D    )    40.000    
+ ( TEST TEST 1    E    )    50.000    
+ ( TEST TEST 1    F    )    60.000    
+ ( TEST TEST 1    G    )    70.000    
+ ( TEST TEST 1    H    )    80.000    
+ ( TEST TEST 1    I    )    90.000    
+ CNSsolve>do ( store1 = store1 * charge ) ( all ) 
+ SELRPN:      9 atoms have been selected out of      9
+ CNSsolve>do ( bcomp = store1 ) ( all ) 
+ SELRPN:      9 atoms have been selected out of      9
+ CNSsolve>show element ( bcomp ) ( all ) 
+ SELRPN:      9 atoms have been selected out of      9
+ ( TEST TEST 1    A    )    37.183    
+ ( TEST TEST 1    B    )   0.97033E+10
+ ( TEST TEST 1    C    )    120.00    
+ ( TEST TEST 1    D    )    200.00    
+ ( TEST TEST 1    E    )    254.55    
+ ( TEST TEST 1    F    )    420.00    
+ ( TEST TEST 1    G    )    560.00    
+ ( TEST TEST 1    H    )    720.00    
+ ( TEST TEST 1    I    )    900.00    
+ CNSsolve> 
+ CNSsolve>identity ( b ) ( name A  or  name C  or  name E ) 
+ SELRPN:      3 atoms have been selected out of      9
+ CNSsolve>do ( store2 = b ) ( all ) 
+ SELRPN:      9 atoms have been selected out of      9
+ CNSsolve> 
+ CNSsolve>show element ( b ) ( recall 2 ) 
+ SELRPN:      3 atoms have been selected out of      9
+ ( TEST TEST 1    A    )    1.0000    
+ ( TEST TEST 1    C    )    3.0000    
+ ( TEST TEST 1    E    )    5.0000    
+ CNSsolve> 
+ CNSsolve>write coor end 
+REMARK FILENAME="OUTPUT"
+REMARK VECTORTES
+REMARK test case for DO and SHOW commands
+REMARK DATE:05-Jul-2018  16:08:22       created by user: oeow39
+REMARK VERSION:1.3
+ATOM      1  A   TEST    1     400.000   9.000  99.000  1.00  1.00      TEST
+ATOM      2  B   TEST    1       0.010   9.000  99.000  1.00  0.00      TEST
+ATOM      3  C   TEST    1       0.990   9.000  99.000  1.00  3.00      TEST
+ATOM      4  D   TEST    1     400.000   9.000  99.000  1.00  0.00      TEST
+ATOM      5  E   TEST    1     400.000   9.000  99.000  1.00  5.00      TEST
+ATOM      6  F   TEST    1     400.000   9.000  99.000  1.00  0.00      TEST
+ATOM      7  G   TEST    1     400.000   9.000  99.000  1.00  0.00      TEST
+ATOM      8  H   TEST    1     400.000   9.000  99.000  1.00  0.00      TEST
+ATOM      9  I   TEST    1     400.000   9.000  99.000  1.00  0.00      TEST
+END
+ CNSsolve> 
+ CNSsolve>do ( segid = "NEW" )( segid test ) 
+ SELRPN:      9 atoms have been selected out of      9
+ CNSsolve>do ( resid = "10" ) ( resid 1 ) 
+ SELRPN:      9 atoms have been selected out of      9
+ CNSsolve>do ( resname = "JUNK" ) ( resname test ) 
+ SELRPN:      9 atoms have been selected out of      9
+ CNSsolve>do ( name = "X" ) ( name A ) 
+ SELRPN:      1 atoms have been selected out of      9
+ CNSsolve>do ( chemical = "J" ) ( chemical I ) 
+ SELRPN:      1 atoms have been selected out of      9
+ CNSsolve>show elem ( segid ) ( all ) 
+ SELRPN:      9 atoms have been selected out of      9
+ ( NEW  JUNK 10   X    )  NEW 
+ ( NEW  JUNK 10   B    )  NEW 
+ ( NEW  JUNK 10   C    )  NEW 
+ ( NEW  JUNK 10   D    )  NEW 
+ ( NEW  JUNK 10   E    )  NEW 
+ ( NEW  JUNK 10   F    )  NEW 
+ ( NEW  JUNK 10   G    )  NEW 
+ ( NEW  JUNK 10   H    )  NEW 
+ ( NEW  JUNK 10   I    )  NEW 
+ CNSsolve>display   $result 
+  NEW
+ CNSsolve> 
+ CNSsolve>show element ( name ) ( name X ) 
+ SELRPN:      1 atoms have been selected out of      9
+ ( NEW  JUNK 10   X    )  X   
+ CNSsolve>show element ( segid ) ( segid NEW ) 
+ SELRPN:      9 atoms have been selected out of      9
+ ( NEW  JUNK 10   X    )  NEW 
+ ( NEW  JUNK 10   B    )  NEW 
+ ( NEW  JUNK 10   C    )  NEW 
+ ( NEW  JUNK 10   D    )  NEW 
+ ( NEW  JUNK 10   E    )  NEW 
+ ( NEW  JUNK 10   F    )  NEW 
+ ( NEW  JUNK 10   G    )  NEW 
+ ( NEW  JUNK 10   H    )  NEW 
+ ( NEW  JUNK 10   I    )  NEW 
+ CNSsolve> 
+ CNSsolve>write structure end 
+data_cns_mtf
+
+_cns_mtf.title
+; FILENAME="OUTPUT"
+  VECTORTES
+  test case for DO and SHOW commands
+  DATE:05-Jul-2018  16:08:22       created by user: oeow39
+  VERSION:1.3
+;
+
+loop_
+_cns_mtf_atom.id
+_cns_mtf_atom.segment_id
+_cns_mtf_atom.residue_id
+_cns_mtf_atom.residue_name
+_cns_mtf_atom.atom_name
+_cns_mtf_atom.chemical_type
+_cns_mtf_atom.charge
+_cns_mtf_atom.atom_mass
+1 'NEW' '10' 'JUNK' 'X' 'A' 10.0000 1.00000
+2 'NEW' '10' 'JUNK' 'B' 'B' 20.0000 2.00000
+3 'NEW' '10' 'JUNK' 'C' 'C' 30.0000 3.00000
+4 'NEW' '10' 'JUNK' 'D' 'D' 40.0000 4.00000
+5 'NEW' '10' 'JUNK' 'E' 'E' 50.0000 5.00000
+6 'NEW' '10' 'JUNK' 'F' 'F' 60.0000 6.00000
+7 'NEW' '10' 'JUNK' 'G' 'G' 70.0000 7.00000
+8 'NEW' '10' 'JUNK' 'H' 'H' 80.0000 8.00000
+9 'NEW' '10' 'JUNK' 'I' 'J' 90.0000 9.00000
+-1 ' ' ' ' ' ' ' ' ' ' -1.00000 -1.00000
+
+loop_
+_cns_mtf_bond.id[1]
+_cns_mtf_bond.id[2]
+-1 -1
+
+loop_
+_cns_mtf_angle.id[1]
+_cns_mtf_angle.id[2]
+_cns_mtf_angle.id[3]
+-1 -1 -1
+
+loop_
+_cns_mtf_dihedral.id[1]
+_cns_mtf_dihedral.id[2]
+_cns_mtf_dihedral.id[3]
+_cns_mtf_dihedral.id[4]
+-1 -1 -1 -1
+
+loop_
+_cns_mtf_improper.id[1]
+_cns_mtf_improper.id[2]
+_cns_mtf_improper.id[3]
+_cns_mtf_improper.id[4]
+-1 -1 -1 -1
+
+loop_
+_cns_mtf_explicit_nonbonded_exclusion.inb
+-1
+
+loop_
+_cns_mtf_explicit_nonbonded_exclusion.iblo
+0
+0
+0
+0
+0
+0
+0
+0
+0
+-1
+
+loop_
+_cns_mtf_group_linked_list.first_atom_id
+0
+-1
+
+ CNSsolve> 
+ CNSsolve>do ( b = gauss( 1.0 ) ) ( all ) 
+ SELRPN:      9 atoms have been selected out of      9
+ CNSsolve>show element ( b ) ( all ) 
+ SELRPN:      9 atoms have been selected out of      9
+ ( NEW  JUNK 10   X    )  -0.68810    
+ ( NEW  JUNK 10   B    )  -0.32288    
+ ( NEW  JUNK 10   C    )    1.4803    
+ ( NEW  JUNK 10   D    )  -0.91716    
+ ( NEW  JUNK 10   E    )    1.6787    
+ ( NEW  JUNK 10   F    )    1.0821    
+ ( NEW  JUNK 10   G    )    1.6937    
+ ( NEW  JUNK 10   H    )    1.8476    
+ ( NEW  JUNK 10   I    )   0.49574    
+ CNSsolve> 
+ CNSsolve>do ( b = maxw( 100.0 ) ) ( all ) 
+ SELRPN:      9 atoms have been selected out of      9
+ CNSsolve>show element ( b ) ( all ) 
+ SELRPN:      9 atoms have been selected out of      9
+ ( NEW  JUNK 10   X    )   -8.8887    
+ ( NEW  JUNK 10   B    )   -6.9404    
+ ( NEW  JUNK 10   C    )   -7.7582    
+ ( NEW  JUNK 10   D    )  -0.53643    
+ ( NEW  JUNK 10   E    )    1.6395    
+ ( NEW  JUNK 10   F    )   -3.0550    
+ ( NEW  JUNK 10   G    )   -2.9303    
+ ( NEW  JUNK 10   H    )   -4.7861    
+ ( NEW  JUNK 10   I    )   -5.0141    
+ CNSsolve> 
+ CNSsolve>do ( resid = encode ( integer (b + 100) ) ) ( all ) 
+ SELRPN:      9 atoms have been selected out of      9
+ CNSsolve>show ( decode(resid) + 11 ) ( all ) 
+ SELRPN:      9 atoms have been selected out of      9
+ ( NEW  JUNK 91   X    )    102.00    
+ ( NEW  JUNK 93   B    )    104.00    
+ ( NEW  JUNK 92   C    )    103.00    
+ ( NEW  JUNK 99   D    )    110.00    
+ ( NEW  JUNK 101  E    )    112.00    
+ ( NEW  JUNK 96   F    )    107.00    
+ ( NEW  JUNK 97   G    )    108.00    
+ ( NEW  JUNK 95   H    )    106.00    
+ ( NEW  JUNK 94   I    )    105.00    
+ CNSsolve>show ( encode ( decode(resid) + 11 ) ) ( all ) 
+ SELRPN:      9 atoms have been selected out of      9
+ ( NEW  JUNK 91   X    )  102 
+ ( NEW  JUNK 93   B    )  104 
+ ( NEW  JUNK 92   C    )  103 
+ ( NEW  JUNK 99   D    )  110 
+ ( NEW  JUNK 101  E    )  112 
+ ( NEW  JUNK 96   F    )  107 
+ ( NEW  JUNK 97   G    )  108 
+ ( NEW  JUNK 95   H    )  106 
+ ( NEW  JUNK 94   I    )  105 
+ CNSsolve>do ( segid =  encode ( integer ( decode(resid) - 10 ) ) )  ( all ) 
+ SELRPN:      9 atoms have been selected out of      9
+ CNSsolve>show ( segid ) ( all ) 
+ SELRPN:      9 atoms have been selected out of      9
+ ( 81   JUNK 91   X    )  81  
+ ( 83   JUNK 93   B    )  83  
+ ( 82   JUNK 92   C    )  82  
+ ( 89   JUNK 99   D    )  89  
+ ( 91   JUNK 101  E    )  91  
+ ( 86   JUNK 96   F    )  86  
+ ( 87   JUNK 97   G    )  87  
+ ( 85   JUNK 95   H    )  85  
+ ( 84   JUNK 94   I    )  84  
+ CNSsolve> 
+ CNSsolve>do (store2=b ) ( name F ) 
+ SELRPN:      1 atoms have been selected out of      9
+ CNSsolve>do (store2=store2+1.0) ( all ) 
+ SELRPN:      9 atoms have been selected out of      9
+ CNSsolve>show ( store2 ) ( all ) 
+ SELRPN:      9 atoms have been selected out of      9
+ ( 81   JUNK 91   X    )    2.0000    
+ ( 83   JUNK 93   B    )    1.0000    
+ ( 82   JUNK 92   C    )    4.0000    
+ ( 89   JUNK 99   D    )    1.0000    
+ ( 91   JUNK 101  E    )    6.0000    
+ ( 86   JUNK 96   F    )   -2.0550    
+ ( 87   JUNK 97   G    )    1.0000    
+ ( 85   JUNK 95   H    )    1.0000    
+ ( 84   JUNK 94   I    )    1.0000    
+ CNSsolve> 
+ CNSsolve>do (resid="abCD" ) ( all ) 
+ SELRPN:      9 atoms have been selected out of      9
+ CNSsolve>do (resid= capitalize (resid) )  ( all ) 
+ SELRPN:      9 atoms have been selected out of      9
+ CNSsolve>show ( resid ) ( all ) 
+ SELRPN:      9 atoms have been selected out of      9
+ ( 81   JUNK ABCD X    )  ABCD
+ ( 83   JUNK ABCD B    )  ABCD
+ ( 82   JUNK ABCD C    )  ABCD
+ ( 89   JUNK ABCD D    )  ABCD
+ ( 91   JUNK ABCD E    )  ABCD
+ ( 86   JUNK ABCD F    )  ABCD
+ ( 87   JUNK ABCD G    )  ABCD
+ ( 85   JUNK ABCD H    )  ABCD
+ ( 84   JUNK ABCD I    )  ABCD
+ CNSsolve> 
+ CNSsolve>do (resid= capitalize ("abCD") )  ( all ) 
+ SELRPN:      9 atoms have been selected out of      9
+ CNSsolve>show ( resid ) ( all ) 
+ SELRPN:      9 atoms have been selected out of      9
+ ( 81   JUNK ABCD X    )  ABCD
+ ( 83   JUNK ABCD B    )  ABCD
+ ( 82   JUNK ABCD C    )  ABCD
+ ( 89   JUNK ABCD D    )  ABCD
+ ( 91   JUNK ABCD E    )  ABCD
+ ( 86   JUNK ABCD F    )  ABCD
+ ( 87   JUNK ABCD G    )  ABCD
+ ( 85   JUNK ABCD H    )  ABCD
+ ( 84   JUNK ABCD I    )  ABCD
+ CNSsolve> 
+ CNSsolve>stop 
+          ============================================================
+           Maximum dynamic memory allocation:     8201488 bytes
+           Maximum dynamic memory overhead:           224 bytes
+           Program started at: 16:08:22 on 05-Jul-2018
+           Program stopped at: 16:08:22 on 05-Jul-2018
+           CPU time used:       0.0099 seconds
+          ============================================================

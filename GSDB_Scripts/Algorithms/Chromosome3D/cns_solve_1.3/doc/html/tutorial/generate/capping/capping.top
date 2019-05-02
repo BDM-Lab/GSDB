@@ -1,0 +1,75 @@
+set message ? end eval ($old_message=$result) set echo ? end eval ($old_echo=$result)
+set message=off echo=off end
+
+mass  NHHE  16.02270 ! extended atom nitrogen with two hydrogen
+
+residue NHH
+  group
+    atom N   type=NHHE  charge=0.00  end
+end
+
+
+presidue NHHL { link for all amino acids except proline }
+  add bond -C +N
+
+  add angle -CA -C +N
+  add angle -O  -C +N
+
+  add improper  -C -CA +N -O  {planar -C}
+end
+
+
+presidue NHHP  { link for proline }
+ add bond -C +N
+
+ add angle -CA -C +N
+ add angle -O  -C +N
+
+ add dihedral  -N -CA -C +N
+
+ add improper  -C -CA +N -O  {planar -C}
+end
+
+
+residue ACE
+  group
+    atom CA   type=CH3E  charge=0.00  end
+    atom C    type=C     charge=0.00  end
+    atom O    type=O     charge=0.00  end
+
+  bond C   CA
+  bond C   O
+end
+
+presidue ACEL { link for all amino acids except proline }
+  add bond -C +N
+
+  add angle -CA -C +N
+  add angle -O  -C +N
+  add angle -C  +N +CA
+  add angle -C  +N +H
+
+  add dihedral  -C +N +CA +C
+  add dihedral  -CA -C +N +CA
+
+  add improper  -C -CA +N -O  {planar -C}
+  add improper  +N -C +CA +H  {planar +N}
+end
+
+presidue ACEP { link for proline }
+ add bond -C +N
+
+ add angle -CA -C +N
+ add angle -O  -C +N
+ add angle -C  +N +CA
+ add angle -C  +N +CD
+
+ add dihedral  -C +N +CA +C
+ add dihedral  -CA -C +N +CA
+
+ add improper  -C -CA +N -O  {planar -C}
+ add improper  +N +CA +CD -C  {planar +N}
+end
+
+set message=$old_message echo=$old_echo end
+

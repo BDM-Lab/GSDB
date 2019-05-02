@@ -1,0 +1,86 @@
+search rotation {<xray-search-rotation-statement>} end
+
+<xray-search-rotation-statement> :==
+
+  p1input=<filename>
+  --{First map p1 - which rotated.}
+  p2input=<filename>
+  --{Second map p2 - which remains stationary.}
+  formatted=<logical>
+  --{If true map files are formatted ascii files otherwise they are
+     unformatted binary files.}
+  range <real> <real>
+  --{Select peaks of map p1 based on the distance of the peaks from
+     the origin (in orthogonal Angstroms).}
+  threshold=<real>
+  --{Select peaks of map p1 based on peak height.}
+  npeaks=<integer>
+  --{Select specified number of highest peaks of map p1.}
+
+  --{Rotation search:}
+  --{================}
+  target=product|correlation
+  --{Target function for rotation search:
+     product = 1/npeaks sum(i=1 to npeaks) [(R*peak(i,p1)) interpolated(i,p2)]
+     correlation is the correlation between R*peaks(p1) and interpolated(p2)
+     Default=product}
+  delta=<real>
+  --{Angular grid step interval for rotation of map p1.}
+  t1min=<real> t1max=<real>
+  t2min=<real> t2max=<real>
+  t3min=<real> t3max=<real>
+  --{The sampling is equidistant in this Euler angle range using the
+     interval delta:
+     t1min, t1max = theta1 minimum and maximum values
+     t2min, t2max = theta2 minimum and maximum values
+     t3min, t3max = theta3 minimum and maximum values}
+  tpmin=<real> tpmax=<real>
+  tmmin=<real> tmmax=<real>
+  t2min=<real> t2max=<real>
+  --{The sampling will be by the quasi-orthogonal method of Lattman. The
+     interval delta is used for theta2
+     tpmin, tpmax = theta+ minimum and maximum values
+     t2min, t2max = theta2 minimum and maximum values
+     tmmin, tmmax = theta- minimum and maximum values}
+  psimin=<real> psimax=<real>
+  phimin=<real> phimax=<real> 
+  kappamin=<real> kappamax=<real>
+  --{The sampling will by spherical polar angles
+     psimin, psimax = psi minimum and maximum values
+     phimin, phimax = phi minimum and maximum values
+     kappamin, kappamax = kappa minimum and maximum values}
+  self_symmetry=<logical>
+  --{If false map p1 is treated with P1 symmetry, whereas map p2 is
+     treated with symmetry as defined by the symmetry operators.
+     If true both p1 and p2 are treated with the same symmetry as
+     defined by the symmetry operators.
+  output=<filename>
+  --{Rotation function output filename.}
+  list=<filename>
+  --{File for list of highest peaks.}
+  nlist=<integer>
+  --{Specifies the number of highest peaks of the rotation function that
+     will be listed.}
+  epsilon=<real>
+  --{Epsilon for cluster analysis. This defines a matrix norm to
+     determine whether two rotation matrices are close. The default
+     value is reasonable for 10 degree grids.}
+  symbol=<string>
+  --{Root name for the symbol table. If blank to table is created (this is
+     the default.}
+  symmetry=?|reset|<symmetry-operator>
+  --{Define symmetry operators which are required for proper grouping of
+     symmetry related peaks during cluster analysis.}
+  ?
+  --{Prints current parameters and options.}
+
+  --{The following symbols are created upon completion:
+       $<symbolname>_nlist - number of peaks
+       $<symbolname>_rfvalue_<i> - rotation function value
+       $<symbolname>_theta1_<i> - for Eulerian and Lattman mode
+       $<symbolname>_theta2_<i> - for Eulerian and Lattman mode
+       $<symbolname>_theta3_<i> - for Eulerian and Lattman mode
+       $<symbolname>_phi_<i> - for spherical polar angle mode
+       $<symbolname>_psi_<i> - for spherical polar angle mode
+       $<symbolname>_kappa_<i> - for spherical polar angle mode
+     where <i> runs through the clustered peak list.}

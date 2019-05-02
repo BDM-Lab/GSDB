@@ -1,0 +1,275 @@
+<HTML>
+<HEAD>
+   <TITLE>Crystallography & NMR System</TITLE>
+</HEAD>
+<BODY BGCOLOR=#8ebf8e>
+
+<HR WIDTH="100%"></P>
+
+<H3><U>Selecting atoms</U></H3>
+
+<P>Selecting atoms in CNS is performed using a matching
+operation. This means that an expression is written which is matched
+against the properties of the atoms currently stored in memory. Those
+atoms which match the expression are selected.</P>
+
+<P>Selections may be simple, selecting atoms on the basis of residue
+number for example. However, the creation of more complex expressions
+requires the combination of one or more simple expressions with the
+operators <TT>AND</TT>, <TT>OR</TT> and <TT>NOT</TT>. The meaning of
+these basic operators must be understood for construction of
+meaningful selection expressions.</P>
+
+<P><B>OR</B>: The union between the two sets of atoms selected in
+the two enclosing expressions.</P>
+<P>Example:</P>
+<PRE>
+      (segid A <TT>or</TT> residue 10)
+</PRE>
+<P>All atoms which have the segid A <B>OR</B> the residue number 10
+are selected. This would select all atoms with the segid A and also
+any atoms which have the residue number 10.</P>
+   
+<P><B>AND</B>: The intersection between the two sets of atoms
+selected in the two enclosing expressions.</P>
+<P>Example:</P>
+<PRE>
+      (segid A <TT>and</TT> residue 10)
+</PRE>
+<P>All atoms which have the segid A <B>AND</B> the residue number 10
+are selected. This would only select those atoms which have both the
+segid A and the residue number 10.</P>
+
+<P><B>NOT</B>: All atoms outside the set of atoms selected in the
+following expression.</P>
+<P>Example:</P>
+<PRE>
+      (<TT>not</TT> (residue 10))
+</PRE>
+<P>All atoms which do not have the residue number 10 are selected.</P>
+
+<P>Simple expressions are grouped using parentheses to make clear the
+order of selection.</P>
+<P>Example:</P>
+<PRE>
+      ((segid A <TT>or</TT> residue 10) <TT>and</TT> resname TYR)
+</PRE>
+<P>This would select any atoms with either segid A or residue number
+10, which also have the residue name TYR. This should be compared
+with:</P>
+<PRE>
+      (segid A <TT>or</TT> (residue 10 <TT>and</TT> resname TYR))
+</PRE>
+<P>This would select all atoms with segid A, and also any atoms which
+have residue number 10 and residue name TYR.</P>
+
+<H4>Examples</H4>
+
+<P>Please see the syntax manual for a full description of the atom
+selection syntax. Below are some examples which cover many of the
+common atom selection concepts.</P>
+
+<LI>Selection of all atoms:</LI>
+<UL>
+(all)
+</UL>
+   
+<LI>Selection of no atoms:</LI>
+<UL>
+(none)
+</UL>
+   
+<LI>Selection of all atoms whose coordinates are known:</LI>
+<UL>
+(known)
+</UL>
+   
+<LI>Selection of all atoms whose coordinates are not known:</LI>
+<UL>
+(not(known))
+</UL>
+   
+<LI>Selection of all hydrogen atoms (selects all atoms with a mass of
+1 AMU):</LI>
+<UL>
+(hydrogen)
+</UL>
+   
+<LI>Selection by segid:</LI>
+<UL>
+(segid A)
+</UL>
+   
+<LI>Selection by range of segids (all atoms with a segid between A and
+D inclusive are selected):</LI>
+<UL>
+(segid A:D)
+</UL>
+   
+<LI>Selection by residue number:</LI>
+<UL>
+(residue 10)
+</UL>
+   
+<LI>Selection by a range of residue numbers (all atoms with their
+residue number between 10 and 50 inclusive are selected):</LI>
+<UL>
+(residue 10:50)
+</UL>
+   
+<LI>Selection by residue name (selects all atoms with the name
+MET):</LI>
+<UL>
+(resname MET)
+</UL>
+   
+<LI>Selection by atom name (selects all atoms with the name CA):</LI>
+<UL>
+(name CA)
+</UL>
+   
+<LI>Selection by chemical type (selects all atoms with the chemical
+type ZN):</LI>
+<UL>
+(chemical ZN)
+</UL>
+
+<LI>Selection by atom id (should only be used when the id has been
+returned by a previous <TT>show</TT> expression or inside a <TT>FOR
+$ID IN ID</TT> loop construct):</LI>
+<UL>
+(id 100)
+</UL>
+
+<LI>Selection of all atoms in a residue given a subset of atoms unique
+to that residue:</LI>
+<UL>
+(byresidue(residue 10 and name CA))
+</UL>
+
+<LI>Selection of all atoms bonded to an atom:</LI>
+<UL>
+(bondedto(residue 10 and name CA))
+</UL>
+
+<LI>Selection of one unique atom per residue (the <TT>TAG</TT>
+modifier selects only one atom per residue):</LI>
+<UL>
+(tag and (residue 10:50))
+</UL>
+
+<LI>Selection of all atoms within a specified distance of another atom
+selection (atoms within 5.0 &Aring; of any atom in the preceeding
+selection are selected):</LI>
+<UL>
+((residue 10 and name CA) around 5.0)
+</UL>
+
+<LI>Selection of all atoms within a specified distance of another atom
+selection taking into account crystallographic symmetry (atoms within
+5.0 &Aring; of any atom or its symmetry mate in the preceeding
+selection are selected):</LI>
+<UL>
+((residue 10 and name CA) saround 5.0)
+</UL>
+
+<H3><U>Atomic attributes</U></H3>
+
+<P>Selections can also be made on the basis of atomic attributes such
+as coordinates or B-factors. The <TT>ATTRIBUTE</TT> operator is
+used:</P>
+<P>Example:</P>
+<PRE>
+      (attribute(b > 50))
+</PRE>
+<P>All atoms which have an atomic B-factor greater than 50 are
+selected.</P>
+
+<H4>Examples</H4>
+
+<P>Please see the syntax manual for a full description of the
+attribute syntax and the full set of atomic attributes which can be
+used for selection. Below are some examples which cover many of the
+common attribute concepts.</P>
+
+<LI>Selection of all atoms whose X coordinates are equal to 0:</LI>
+<UL>
+(atttribute(x = 0))
+</UL>
+
+<LI>Selection of all atoms whose B-factors are not equal to 0:</LI>
+<UL>
+(atttribute(b # 0))
+</UL>
+
+<LI>Selection of all atoms whose masses are greater than 20:</LI>
+<UL>
+(atttribute(mass > 20))
+</UL>
+
+<LI>Selection of all atoms whose charges are negative:</LI>
+<UL>
+(atttribute(charge < 0))
+</UL>
+
+<P>Note that all attribute operators are single character only, there
+are no such operators as <TT><=</TT> or <TT>>=</TT>. A compound
+expression must be used instead:</P>
+<P>Example:</P>
+<PRE>
+      (attribute(b = 50) or attribute(b > 50))
+</PRE>
+<P>All atoms which have an atomic B-factor greater than or equal to 50
+are selected.</P>
+
+<H3><U>Complex selections</U></H3>
+
+<P>Selection expressions can be compounded to form more complex
+expressions.</P>
+<P>Example:</P>
+<PRE>
+      (attribute(b > 50) and (segid A <TT>or</TT> residue 10))
+</PRE>
+<P>All atoms which have an atomic B-factor greater than 50 and segid A
+or residue number 10 are selected.</P>
+
+<H4>Examples</H4>
+
+<LI>Selection of atoms in the mainchain of a protein:</LI>
+<UL>
+(name N or name CA or name C or name O)
+</UL>
+
+<LI>Selection of atoms in a protein which are equivalent to
+poly-alanine:</LI>
+<UL>
+(name N or name CA or name C or name O or name CB)
+</UL>
+
+<LI>Selection of atoms other that the mainchain of a protein (i.e. the
+atoms in the protein sidechains, and any atoms not in protein):</LI>
+<UL>
+(not(name N or name CA or name C or name O))
+</UL>
+
+<LI>Selection of non-hydrogen atoms whose coordinates are known:</LI>
+<UL>
+(known and not(hydrogen))
+</UL>
+
+<LI>Selection of non-hydrogen atoms whose coordinates are known which
+are within a 5 &Aring; radius of residue 10 in segid B:</LI>
+<UL>
+((known and not(hydrogen)) and ((segid B and residue 10) around 5.0))
+</UL>
+
+<HR WIDTH="100%"></P>
+
+<A HREF="../../text.html">Back to tutorials</A>&nbsp;&nbsp;
+<A HREF="../atom_sele/text.html">Next section</A>
+
+<HR WIDTH="100%"></P>
+   
+</BODY>
+</HTML>
+

@@ -1,0 +1,76 @@
+remarks file toppar/water.param 
+remarks   water parameters for structure determination 
+remarks
+
+set message ? end eval ($old_message=$result) set echo ? end eval ($old_echo=$result)
+set message=off echo=off end
+
+ checkversion 1.3
+
+
+bond ht   ot     450.0       0.9572    ! from TIPS3P geometry 
+bond ht   ht       0.0       1.5139    ! from TIPS3P geometry 
+
+angle ht   ot   ht      55.0     104.52    ! FROM TIPS3P geometry
+
+
+{* nonbonding parameter section *}
+{* ============================ *}
+!!
+!  This uses a new form of the REPEL function:
+!    fVDW(R) =  RCON *( Rmin ^ IREX - R  ^ IREX ) ^ REXP
+!
+!  PROLSQ uses a function of the form:
+!    fVDW(R) =  (1 / 0.5) ^ 4 * ( Rmin - R  ) ^ 4
+!
+!  The epsilon values are arbitrary since the repel function does not depend
+!   on epsilon.  The sigma values come from converting the Van der Waals 
+!   radii of the PROLSQ program into sigma values using the formula:
+!     Rmin = sigma * 2 ^ (1/6)
+!   Note:  Prolsq decrements Van der Waals radii for non-bonded contacts
+!           that involve torsion angles (1:4 contacts) by .30 A, and
+!           hydrogen bonds (X...Y) by .2 A (X-H...Y) by .9.  The former
+!           decrement is accomplished in CNS by using the
+!           1-4 nonbonded terms.  The latter decrement is accomplished by
+!           decreasing the van der Waals radius of hydrogens by 0.8 
+!           and that of O and N by 0.1 A.
+!
+
+ NBONds
+  CUTNB=7.0   WMIN=1.5
+  REPEl = 1.0          
+  REXPonent = 4
+  IREXponent = 1
+  RCONst = 16.0
+  TOLErance = 0.5      NBXMOD = 5
+  ctonnb=5.5 ctofnb=6.0 {* for consistency only, not needed for repel *}
+END
+
+!                  type    2 x van der Waals radius     correction applied for hbond
+evaluate ($vdw_radius_O=        2.9)                             {-0.1}
+evaluate ($vdw_radius_HH=       1.6)                             {-0.8}
+
+{ convert radii into sigmas }
+evaluate ($vdw_radius_O   = $vdw_radius_O    / 2^(1/6))
+evaluate ($vdw_radius_HH  = $vdw_radius_HH   / 2^(1/6))
+
+{ compute 1-4 sigmas }
+evaluate ($vdw_radius14_O   = $vdw_radius_O    -0.3/ 2^(1/6))
+evaluate ($vdw_radius14_HH  = $vdw_radius_HH   -0.3/ 2^(1/6))
+
+evaluate ($vdw_eps=0.1)
+
+!
+! sigma= vdw radius / 2 ^ (1/6)
+!
+!                  eps     sigma              eps(1:4) sigma(1:4)
+!                  (kcal/mol) (A)             (kcal/mol) (A)
+!                   --------------------------------------------------
+
+NONBonded  HT      $vdw_eps $vdw_radius_HH   $vdw_eps $vdw_radius14_HH
+!
+NONBonded  OT      $vdw_eps $vdw_radius_O    $vdw_eps $vdw_radius14_O
+!
+ 
+set message=$old_message echo=$old_echo end
+

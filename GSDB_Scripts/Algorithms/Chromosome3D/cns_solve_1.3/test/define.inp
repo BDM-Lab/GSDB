@@ -1,0 +1,356 @@
+!set abort = off end
+
+!======================================================================
+! define names contained in symbols
+
+eval ( $one = 1 )
+
+eval ( $sym_bol = 45 )
+
+define ( syname = test )
+define ( synam2.$one = hello ) 
+
+define ( synam2.option.$sym_bol.end = hello ; ? ) 
+
+define ( synam2.option_$sym_bol.end = hello ; ? ) 
+
+!======================================================================
+! conditional expansion of parameters
+
+define ( test = expanded )
+
+if ( FALSE = TRUE) then
+
+&test
+&error
+
+display &test &error
+
+else
+
+display &test
+
+end if
+
+
+!======================================================================
+! scope
+set display=define1.dat end
+
+display display file 1 before definition: &test1
+display define ( ? )
+display define ( &test1 = "file 1 test scope" )
+display display file 1 after definition: &test1
+display define ( ? )
+display @define2.dat
+display display file 1 after file 2: &test1 
+display define ( ? )
+close define1.dat end
+
+set display=define2.dat end
+
+display display file 2 before definition: &test1
+display define ( ? )
+display define ( &test1 = "file 2 test scope" )
+display display file 2 after definition: &test1
+display define ( ? )
+close define2.dat end
+
+set display=OUTPUT end
+
+define ( &test1 = "root file test scope" )
+
+display root file before invocation:  &test1
+
+define ( ? )
+
+@define1.dat 
+
+display root file after invocation:  &test1
+define ( ? )
+
+!======================================================================
+! define statement
+
+define ( 
+  test="ttt";
+  ewww=iii;
+  junk="uuu"; 
+  rrrr=$tnt; )   xray ? end
+
+if (&junk="uuu") then
+display simple replacement works
+end if
+
+evaluate ($tnt=40) 
+
+if (&rrrr=40) then 
+display symbol replacement works
+end if
+
+display  &ewww   &test  (<=== should be:  iii   "ttt")
+
+!======================================================================
+! defines without definition
+
+define ( nada; zilch; ? )
+
+!======================================================================
+! crossing a line
+
+define ( 
+  test=(none and
+             not(known));)
+
+show sum(1) (&test)
+
+!======================================================================
+! loops and indexed define substitutions
+
+
+define (
+   abcd_1="new_1";
+   abcd_2="new_2";
+   abcd_3="new_3";
+     )
+
+eval ($1=1)
+while ($1 <= 4 ) loop main
+   display  &abcd_$1
+   eval ($1=$1+1)
+end loop main
+
+!======================================================================
+!exist statement
+
+define (
+  rrrr=uuu;
+  uuuu_1=xxxx;
+     )
+     
+display  &exist_rrrr  (<=== should be TRUE)
+display  &exist_srwe  (<=== should be FALSE)
+
+eval ($rrr=&exist_rrrr)
+eval ($ttt=&exist_uuuu_1)
+
+display  &exist_uuuu_1  (<=== should be TRUE)
+
+eval ($ttt=&exist_uuuu_1) 
+
+eval ($ttt=&exist_uuuu_2) 
+
+!======================================================================
+!double hash marks (removal of quotes)
+
+define (
+  abcd="test";
+     )
+
+display  &abcd        (<= should be "test" )
+display  &&abcd   (<= should be test )
+
+evaluate ($test=&abcd)
+evaluate ($test=&&abcd)
+
+define (
+  defg = &abcd 
+    )
+
+display  &defg        (<= should be "test" )
+display  &&defg   (<= should be test )
+
+evaluate ($test=&defg)
+evaluate ($test=&&defg)
+
+eval ( $name = "hello" )
+
+define ( 
+  hijk = $name 
+  )
+
+display  &hijk        (<= should be hello )
+display  &&hijk   (<= should be hello )
+
+evaluate ($test=&hijk)
+evaluate ($test=&&hijk)
+
+!======================================================================
+!
+
+define ( 
+   abcd="new";
+   ?
+     )
+     
+display  &abcd   (<= should be "new" )
+
+display  &ttt &rrrr  (<= should be FALSE uuu )
+
+
+!======================================================================
+! pass over unknowns without error
+
+eval ( $1 = &not.an.error )
+
+!======================================================================
+! compound names
+
+define ( are.you.a.dog ;
+ are.you.a.cat = maybe ;
+ are.you.the.parrot = definitely not;
+ are.you.alive = check for pulse; ? )
+
+define ( ? )
+
+! check for replacebility
+
+define ( are.you.a.cat = still maybe; ?)
+
+set abort = off end
+
+define ( are.you = should bomb )
+
+define ( are = should also bomb )
+
+define ( one )
+
+define ( one.cannot.do.this )
+
+!======================================================================
+! long lines (assuming that COMMAX = 264 in precns.dim )
+
+! check simple wrapping
+
+define ( short = eval ( $short = "no wrap" ) ;)
+define ( long = eval ( $long = "should be long enough to cause a wrapped line" ) ;)
+
+{23456789 123456789 123456789 123456789 123456789 123456789 123456789 123456789 123456789 123456789 123456789 123456789 123456789 123456789 123456789 123456789 123456789 123456789 123456789 123456789 123456789 123456789 123456789 } &short
+
+{23456789 123456789 123456789 123456789 123456789 123456789 123456789 123456789 123456789 123456789 123456789 123456789 123456789 123456789 123456789 123456789 123456789 123456789 123456789 123456789 123456789 123456789 123456789 } &long
+
+! check wrapping of substituted parameter names
+
+define ( verylongparametername = "hi" )
+define ( v = "lo" ) 
+
+define ( vlong = &verylongparametername )
+define ( vshort = &v )
+
+{23456789 123456789 123456789 123456789 123456789 123456789 123456789 123456789 123456789 123456789 123456789 123456789 123456789 123456789 123456789 123456789 123456789 123456789 123456789 123456789 123456789 123456789 123456789 } eval ( $1 = &vshort )
+
+{23456789 123456789 123456789 123456789 123456789 123456789 123456789 123456789 123456789 123456789 123456789 123456789 123456789 123456789 123456789 123456789 123456789 123456789 123456789 123456789 123456789 123456789 123456789 } eval ( $1 = &vlong )
+
+! check compound parameter substitution on lines one character short of being wrapped
+
+define ( compoundpara.a = "ma" )
+define ( plong = &compoundpara )
+
+{23456789 123456789 123456789 123456789 123456789 123456789 123456789 123456789 123456789 123456789 123456789 123456789 123456789 123456789 123456789 123456789 123456789 123456789 123456789 123456789 123456789 123456789 123456789 } eval ( $1 = &plong.a )
+
+! with double specification
+
+{23456789 123456789 123456789 123456789 123456789 123456789 123456789 123456789 123456789 123456789 123456789 123456789 123456789 123456789 123456789 123456789 123456789 123456789 123456789 123456789 123456789 123456789 123456789 } eval ( $1 = &&plong.a )
+
+! check compound parameter substitution on wrapped lines
+
+define ( longcompoundpara.a = "ti" )
+define ( clong = &longcompoundpara )
+
+{23456789 123456789 123456789 123456789 123456789 123456789 123456789 123456789 123456789 123456789 123456789 123456789 123456789 123456789 123456789 123456789 123456789 123456789 123456789 123456789 123456789 123456789 123456789 } eval ( $1 = &clong.a )
+
+! with double specification
+
+{23456789 123456789 123456789 123456789 123456789 123456789 123456789 123456789 123456789 123456789 123456789 123456789 123456789 123456789 123456789 123456789 123456789 123456789 123456789 123456789 123456789 123456789 123456789 } eval ( $1 = &&clong.a )
+
+! check wrapping of the &EXIST_ construct
+
+{23456789 123456789 123456789 123456789 123456789 123456789 123456789 123456789 123456789 123456789 123456789 123456789 123456789 123456789 123456789 123456789 123456789 123456789 123456789 123456789 123456789 123456789 123456789 } eval ( $1 = &exist_clong.a )
+
+
+!======================================================================
+! &? construct
+
+&?
+
+define ( testpar = hi )
+
+&?testpar
+
+define ( testcmpd.1 = wow1 )
+define ( testcmpd.2 = wow2 )
+define ( testcmpd.3.6 = wow36 )
+define ( testcmpd.3.4 = wow74 )
+
+&?testcmpd 
+
+&?testcmpd.3
+
+!======================================================================
+! test immediate expansion of parameters and symbols
+
+eval ( $immed = 1 )
+
+define ( par1 = $expand%immed )
+
+eval ( $immed = 2 )
+
+define ( par2 = $immed )
+
+eval ( $immed = 3 )
+
+display &par1 &par2 
+
+define ( par1 = hi )
+
+define ( par1 = &expand%par1 &expand%par1 )
+
+display &par1
+
+!======================================================================
+! test transfer of directives from parameters to symbols
+
+define ( ckblank = $isblank )
+define ( ckckblank = &ckblank )
+
+display should two errors and then: $ISBLANK $STRIP%_1_ISBLANK  FALSE FALSE
+display &ckckblank &strip%ckckblank &blank%ckckblank &exist%ckckblank 
+
+eval ( $isblank = "hi" )
+display &ckckblank &strip%ckckblank &blank%ckckblank &exist%ckckblank \
+(should be: hi hi FALSE TRUE)
+
+eval ( $isblank = "" )
+display &ckckblank &strip%ckckblank &blank%ckckblank &exist%ckckblank \
+(should be:   TRUE TRUE)
+
+!======================================================================
+! test quoting directive
+
+define ( test = hi )
+
+display &quote%test
+
+define ( test = "hi" )
+
+display &quote%test
+
+
+!========================================================================
+! test parameters too long in define statement:
+
+define(param="
+1234567890123456789012345678901234567890123456789012345678901234567890123456789012345678901234567890
+1234567890123456789012345678901234567890123456789012345678901234567890123456789012345678901234567890
+1234567890123456789012345678901234567890123456789012345678901234567890123456789012345678901234567890
+1234567890123456789012345678901234567890123456789012345678901234567890123456789012345678901234567890
+123456789012345678901234567890123456789012345678901234567890123456789012345                         
+abcde";
+)
+
+stop
+
+
+
+
+

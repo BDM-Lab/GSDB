@@ -1,0 +1,52 @@
+optimize overall <xray-optimize-overall-statement> end
+
+<xray-optimize-overall-statement> :==
+
+  name=<reciprocal-space-object>
+  --{Structure factor whose overall B-factor is optimized. Default=fcalc}
+  drop=<real>
+  --{Expected initial drop in energy (only for POWELL method). Default=40}
+  nstep=<integer>
+  --{Number of optimization steps. Default=20}
+  tolerance=<real>
+  --{Minimum gradient that forces exit of optimization. Default=0.0001}
+  maxfevaluations=<integer>
+  --{For LBFGS method only: Maximum number of energy evalulations during 
+     line search. Default=10}
+  method=powell|lbfgs
+  --{Minimization method: POWELL or LBFGS. Default=POWELL}
+  anisotropic=<logical>
+  --{If true then the anisotropic components are refined. Default=false}
+  isotropic=<logical>
+  --{If true then the isotropic thermal factor is refined.
+     If false, the trace is restricted to zero. Default=true}
+  kscale=<logical>
+  --{Refine overall scale. Default=false}
+  bscale=<logical>
+  --{Refine overall B-tensor. Default=true}
+  k=<real>
+  --{Initial overall scale. Default=1.0}
+  b=<real>
+  --{Starting isotropic B-factor shift. Default=0}
+  b11=<real> b22=<real> b33=<real> b12=<real> b13=<real> b23=<real>
+  --{Starting anisotropic B-factor shifts. Default=0}
+  restriction=all|offd|none
+  --{Restrictions due to symmetry:
+     - all: all parameters (this is the default).
+     - offd: off-diagonal elements only.
+     - none: no restrictions.}
+
+  --{The following must be defined:
+     - the reciprocal space object <reciprocal-space-object>.
+     - target and dtarget(<reciprocal-space-object>).
+     The following symbols will be declared:
+     - for isotropic B-factor refinement:
+       $kscale * exp(-$bscale s^2 )/4.0 * <reciprocal-space-object>
+     - for anisotropic B-factor refinement:
+       $kscale * exp(-( $b2_11*h*h*$astar*$astar
+                       +$b2_22*k*k*$bstar*$bstar
+                       +$b2_33*l*l*$cstar*$cstar
+                   +2.0*$b2_12*h*k*$astar*$bstar
+                   +2.0*$b2_13*h*l*$astar*$cstar
+                   +2.0*$b2_23*k*l*$bstar*$cstar)/4.0)
+               * <reciprocal-space-object>}

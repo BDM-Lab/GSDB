@@ -1,0 +1,252 @@
+<HTML>
+<HEAD>
+   <TITLE>Crystallography & NMR System</TITLE>
+</HEAD>
+<BODY BGCOLOR=#8ebf8e>
+
+<HR WIDTH="100%"></P>
+
+<h1>Distributed topology and parameter files</h1>
+
+<HR WIDTH="100%"></P>
+
+<P>This section describes the parameter and topology files that are
+distributed with CNS. Topology and parameter files together represents
+a particular force field or empirical energy function. Files are
+supplied for proteins, nucleic acids, carbohydrates, water and
+ions. Some topology and parameter files contain polar hydrogen atoms (i.e.,exchangeable
+hydrogen atoms that can form hydrogen bonds) explicitly, whereas aliphatic
+hydrogen atoms are either explicitly included or implicitly modeled by
+appropriate modification of the heavy-atom van der Waals
+parameters. There are also files that contain all hydrogen atoms. 
+<P>For most crystallographic applications hydrogen atoms
+are typically not used. Although most topology and parameter files contain at least polar hydrogen atoms, they are generally ignored since the coordinates are unknown. However, it is possible to add hydrogen atoms using the generate.inp or generate_easy.inp input files in the &quot;general&quot; section. Then, crystallographic refinement can be performed in the presence of polar (or all hydrogen atoms if the corresponding all hydrogen topology and parameter files are used).
+<H2>&nbsp;</H2>
+<H2><U>Standard protein and nucleic acid files (with polar hydrogen atoms</U>)</H2>
+
+<H3>Protein</H3>
+<p>Note, that these standard  topology and parameter files allow both <em>cis</em> and <em>trans</em> XXX-PRO peptide bonds.  If other <em>cis </em>peptide bonds are present, the <tt>cns_peptide.inp </tt>task file must be used in order to generate a special parameter file (usually called &quot;<tt>cis_peptide.param</tt>&quot;) that must be read as the last file in the list of parameter files.
+</p>
+<p><U>protein.top</U>
+  
+</p>
+<P>This describes the topology for protein building blocks (amino
+  acids) including polar hydrogen atoms It also contains patches for peptide
+  linkages, N- and C-terminal ending groups, the disulfide bond and
+histidine protonation states.</P>
+<P> <U>protein.link</U></P>
+<P>This describes the linkage between protein building blocks (amino
+  acids). It also contains the information about which N- and C-terminal
+  ending groups are to be applied. This is not specific to
+crystallography or NMR.</P>
+
+<U>protein_rep.param</U>
+
+<P>This parameter file describes the parameters for proteins and
+should be used in conjunction with other parameter files which use a
+repulsive force field (protein_rep.param and dna-rna_rep.param). This
+is the suggested parameter set for crystallographic refinement if no hydrogen atoms are included in the model.</P>
+
+<U>protein.param</U>
+
+<P>This parameter file describes the parameters for proteins and
+should be used in conjunction with other parameter files which do not
+use a repulsive force field (protein.param and dna-rna.param).</P>
+
+<U>protein_break.top</U>
+
+<P>This describes patches for the deletion of peptide linkages.</P>
+
+<H3>Nucleic acids</H3>
+
+<U>dna-rna.top</U>
+
+<P>This describes the topology for nucleic acid building blocks
+(nucleotides) including polar hydrogen atoms It also contains patches for
+nucleotide linkages, and 3' and 5'-terminal ending groups.</P>
+
+<U>dna-rna.link</U>
+
+<P>This describes the linkage between nucleic acid building blocks
+(nucleotides). It also contains the information about which 3' and
+5'-terminal ending groups are to be applied. Neither 3' or 5' ends of
+the nucleic acid have a phosphate attached. </P>
+
+<U>dna-rna-pho.link</U>
+
+<P>This describes the linkage between nucleic acid building blocks
+(nucleotides). It also contains the information about which 3' and
+5'-terminal ending groups are to be applied. A phosphate group is
+applied to the 5' end of the nucleic acid. </P>
+
+<U>dna-rna_rep.param</U>
+
+<P>This parameter file describes the parameters for nucleic acids and
+should be used in conjunction with other parameter files which use a
+repulsive force field (protein_rep.param and dna-rna_rep.param). This
+is the suggested parameter set for crystallographic refinement if no hydrogen atoms are included in the model.</P>
+
+<U>dna-rna.param</U>
+
+<P>This parameter file describes the parameters for nucleic acids and
+should be used in conjunction with other parameter files which do not
+use a repulsive force field (protein.param and dna-rna.param).</P>
+<H2>&nbsp;</H2>
+<H2><U>Protein and nucleic acid files with all hydrogen atoms</U></H2>
+<H3>Protein</H3>
+<p>Note, that the CNS all hydrogen topology and parameter files fix the XXX-PRO peptide bond in the <em>trans</em> conformation. If <em>cis </em>prolines or other<em> cis </em>peptide bonds are present, the <tt>cns_peptide.inp </tt>task file must be used in order to generate a special parameter file (usually called &quot;<tt>cis_peptide.param</tt>&quot;) that must be read as the last file in the list of parameter files.  It is generally advisable to run the task file &quot;<tt>model_stats.inp</tt>&quot; on the starting model and make sure that there are no large  improper violations or angle violations.</p>
+<p><u>protein-allhdg5-4.top</u>
+</p>
+<P>These files describe the topology for protein building blocks (amino
+  acids) including all hydrogen atoms It also contains patches for peptide
+  linkages, N- and C-terminal ending groups, the disulfide bond,
+  histidine protonation states and L- to D-amino acid conversion.</P>
+<u>protein-allhdg5-4.param</u>
+<P>These parameter files describe the parameters for proteins and
+  should be used in conjunction with other parameter files which use an
+  all atom force field. </P>
+<p><U>protein-allhdg5-4.link</U></p>
+<p><u>protein-allhdg5-4-noter.link</u></p>
+<p><u>protein-allhdg5-4-noCter.link</u></p>
+<p><u>protein-allhdg5-4-noNter.link</u></p>
+<P>These files describe the linkage between protein building blocks (amino
+  acids). It also contains the information about which N- and C-terminal
+  ending groups are to be applied. </P>
+<H3>Nucleic acids</H3>
+<u>dna-rna-allatom-hj-opls.top</u>
+<P>These files describe the topology for nucleic acid building blocks
+  (nucleotides) including all hydrogen atoms It also contains patches for
+  nucleotide linkages, and 3' and 5'-terminal ending groups.</P>
+<u>dna-rna-allatom-hj-opls.param</u>
+<P>These parameter files describe the parameters for nucleic acids and
+  should be used in conjunction with other parameter files which use an
+  all atom force field. </P>
+<U>dna-rna.link</U>
+<P>This describes the linkage between nucleic acid building blocks
+  (nucleotides). It also contains the information about which 3' and
+  5'-terminal ending groups are to be applied. Neither 3' or 5' ends of
+  the nucleic acid have a phosphate attached. </P>
+<U>dna-rna-pho.link</U>
+<P>This describes the linkage between nucleic acid building blocks
+  (nucleotides). It also contains the information about which 3' and
+  5'-terminal ending groups are to be applied. A phosphate group is
+  applied to the 5' end of the nucleic acid. </P>
+<P>&nbsp;</P>
+
+<h2><u>Carbohydrate</u></h2>
+
+<U>carbohydrate.top</U>
+
+<P>This describes the topology for carbohydrate building blocks
+(sugars) including all hydrogen atoms. It also contains patches for
+linkages between different sugars.</P>
+
+<U>carbohydrate.param</U>
+
+<P>This parameter file describes the parameters for carbohydrates and
+can be used in conjunction with any other parameter files. The
+parameters may need modification to be consistent with other parameter
+sets (in particular the force constants for impropers and dihedrals
+are relatively low compared to the parameter sets that use a repulsive nonbonded potential function). </P>
+
+<h2>&nbsp;</h2>
+<h2><u>Ions</u></h2>
+
+<U>ion.top</U>
+
+<P>This describes the topology for many elements and ionic species of
+elements. Topology definitions also exist for ions such as sulphate,
+phosphate and tungstate.</P>
+
+<U>ion.param</U>
+
+<P>This parameter file describes the parameters for ions and can be
+used in conjunction with any other parameter files.</P>
+
+<h2>&nbsp;</h2>
+<h2><u>Water</u></h2>
+
+<U>water.top</U>
+
+<P>This describes the water molecule topology to be used in combination with polar hydrogen protein and nucleic acid files. </P>
+<P><U>water_rep.param</U></P>
+<P>This parameter file can be used in conjunction with other parameter
+  files which use a repulsive force field (protein_rep.param and
+  dna-rna_rep.param). This is the suggested file for crystallographic
+refinement if no hydrogen atoms are included.</P>
+
+<U>water.param</U>
+
+<P>This describes the water molecule parameter file that is to be used in combination with polar hydrogen protein and nucleic acid files.</P>
+<P><U>water-allhdg5-4.top</U> </P>
+<P>This describes the water molecule topology file that is to be used in combination with all hydrogen protein and nucleic acid files.</P>
+<P><U>water-allhdg5-4.param</U></P>
+<P>This describes the water molecule parameter file that is to be used in combination with all hydrogen protein and nucleic acid files.</P>
+<h2>&nbsp;</h2>
+<h2><u>Fluorescent dyes</u></h2>
+<blockquote>
+  <p><u>dyes.top</u></p>
+  <p><u>dyes.param</u></p>
+</blockquote>
+<p>These files contain topology and parameter information for the Cy3 and Cy5 fluorescent dyes, along with patch residues to link them to CYS residues. </p>
+<H2>&nbsp;</H2>
+<h2><u>Pseudo atoms</u></h2>
+<blockquote>
+  <p><u>pseudo.top</u></p>
+  <p><u>pseudo.param</u></p>
+</blockquote>
+<p>These files contain topology and parameter information for pseudo atoms that are used in docking calculations with FRET data.</p>
+<p>&nbsp;</p>
+<H2><u>Single atoms</u></H2>
+<blockquote>
+  <p><u>single_atoms.top</u></p>
+  <p><u>single_atoms.param</u></p>
+</blockquote>
+<p>These files contain topology and parameter information for isolated carbon and oxygen atoms to be used to provide a scattering model when the topology is unknown: example molecular replacement with a cryo EM mas</p>
+<p>&nbsp;</p>
+<H2><u>Axis system</u></H2>
+<blockquote>
+  <p><u>axis.top</u></p>
+  <p><u>axis.param</u></p>
+</blockquote>
+<p>These files contain topology and parameter information for the axis system required for NMR residual dipolar couplings. </p>
+<p>&nbsp;</p>
+<H2><u>Force field settings</u></H2>
+<H2>The default nonbonded parameters and enegy term flags can be modified by reading a force field settings file in many CNS input files. </H2>
+<blockquote>
+  <p><u>electrostatics.settings</u></p>
+</blockquote>
+<p>This force field setings file should be used in conjunction with the protein-allhdg5-4.* and dna-rna-allatom-hj.*   parameter and topology files. It turns on the electrostatics terms. Reference: J.P. Linge, M.A. Williams, C.A.E.M. Spronk, A.M.J.J. Bonvin, M. Nilges, Refinement of protein structures in explicit solvent.  Proteins 50, 496-506, 2003. </p>
+<blockquote>&nbsp;</blockquote>
+<H2><U>Other information</U></H2>
+
+<U>Van der Waals radii</U>
+
+<P>The sigma values in the parameter file protein-allhdg.param are
+different from those used in the other all-hydrogen force fields. The
+changes were made to make the van der Waals radii more consistent with
+those used by other NMR refinement programs. The sigma values have
+been set such that the van der Waals radii will be exactly like those
+used by the DISGEO program (Havel and Wuthrich 1984) when REPEl is set
+to 0.8. In addition, van der Waals radii of potential hydrogen bond
+donor-acceptor pairs have been reduced by appropriate NBFIx
+statements. The actual van der Waals radii used for different values
+of REPEl are given in the table below (in A).</P>
+
+<TABLE BORDER=2 ALIGN=CENTER>
+<TR><TD>type</TD><TD>repel=1.0</TD><TD>repel=0.9</TD><TD>repel=0.8</TD><TD>repel=0.75</TD></TR>
+<TR><TD>H</TD><TD> 1.250</TD><TD> 1.125</TD><TD> 1.0</TD><TD> 0.938</TD></TR>
+<TR><TD>C</TD><TD> 1.875</TD><TD> 1.688</TD><TD> 1.5</TD><TD> 1.406</TD></TR>
+<TR><TD>N</TD><TD> 1.688</TD><TD> 1.519</TD><TD> 1.350</TD><TD> 1.266</TD></TR>
+<TR><TD>O</TD><TD> 1.558</TD><TD> 1.402</TD><TD> 1.246</TD><TD> 1.168</TD></TR>
+<TR><TD>S</TD><TD> 2.102</TD><TD> 1.892</TD><TD> 1.682</TD><TD> 1.577</TD></TR>
+</TABLE>
+<HR WIDTH="100%"></P>
+
+<A HREF="../../text.html">Back to tutorials</A>&nbsp;&nbsp;
+<A HREF="../cis-peptides/text.html">Previous section</A>&nbsp;&nbsp;
+
+<HR WIDTH="100%"></P>
+
+</BODY>
+</HTML>

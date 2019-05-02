@@ -1,0 +1,85 @@
+<HTML>
+<HEAD>
+   <TITLE>Crystallography & NMR System</TITLE>
+</HEAD>
+<BODY BGCOLOR=#8ebf8e>
+
+<HR WIDTH="100%">
+
+<h2>Heavy-atom refinement/MAD phasing</h2>
+
+<HR WIDTH="100%">
+
+The information present in the anomalous diffraction at several
+different wavelengths can be used to derive phases. In order to do this
+the crystal must contain sufficient anomalous scatterers, and data must
+be collected at the appropriate wavelengths. Phasing using the
+anomalous diffraction from a seleno-methionine labelled protein is now
+common practice.
+
+<p>
+
+The heavy-atom sites are usually found using an automated method (see
+previous tutorial). It is important to remember that there is an <a
+href="../../other/ambiguities_in_phasing.html#enantiomorph" >enantiomorph
+ambiguity</a> in the location of the sites. The search procedures are
+based purely on amplitude information. However, a given heavy-atom
+configuration and its inverse image give rise to identical diffraction
+amplitudes. The enantiomorph ambiguity can be resolved by MAD phasing
+with both choices, followed by inspection of the resulting electron
+density maps. Only the correct hand will produce an interpretable map.
+
+<p>
+
+For the two independent MAD phasing jobs, two site database files
+are needed, one with the original heavy atom configuration and another
+with its inverse image. The file with the inverse image is generated
+with the <tt>flip_sites.inp</tt> task file.
+
+<PRE>
+      cns_solve &lt; <A HREF="flip_sites.inp">flip_sites.inp</A> &gt; flip_sites.out
+</PRE>
+
+The task files for the two independent MAD phasing jobs are identical
+except for the definitions of the file names for the heavy atom sites
+and the output file names.
+
+<PRE>
+      cns_solve &lt; <A HREF="mad_phase.inp">mad_phase.inp</A> &gt; mad_phase.out
+      cns_solve &lt; <A HREF="mad_phase_flip.inp">mad_phase_flip.inp</A> &gt; mad_phase_flip.out
+</PRE>
+
+There are two sets of output files, one for each input file:
+<PRE>
+        mad_phase.summary       mad_phase_flip.summary
+        mad_phase.fp            mad_phase_flip.fp
+        mad_phase.sdb           mad_phase_flip.sdb
+        mad_phase.hkl           mad_phase_flip.hkl
+        mad_phase_grad.hkl      mad_phase_flip_grad.hkl
+</PRE>
+
+The <tt>*.summary</tt> files contain information about the progress of
+the MAD phasing procedure. The refined f' and f&quot can be found in
+the <tt>*.fp</tt> files, and the refined heavy-atom parameters are
+stored in the <tt>*.sdb</tt> site database files. The refined phases
+are written to the <tt>*.hkl</tt> files as Hendrickson-Lattman
+coefficients, and also as centroid phases and corresponding figures of
+merit. The Fourier coefficients for the gradient maps are stored in the
+<tt>*_flip_grad.hkl</tt> files. The use of the <tt>hkl</tt> files for
+the determination of the correct hand and the detection of additional
+heavy-atom sites is shown in the following tutorials.
+
+<p>
+
+<A HREF="tutorial.csh">Script to run this tutorial</A>
+
+<HR WIDTH="100%">
+
+<A HREF="../../text.html">Back to tutorials</A>&nbsp;&nbsp;
+<A HREF="../heavy_search/text.html">Previous section</A>&nbsp;&nbsp;
+<A HREF="../enantiomorph/text.html">Next section</A>
+
+<HR WIDTH="100%"></P>
+
+</BODY>
+</HTML>

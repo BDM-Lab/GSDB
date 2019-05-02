@@ -1,0 +1,695 @@
+{+ file: scale.inp +}
+{+ directory: xtal_util +}
+{+ description: Relative and quasi-absolute dataset scaling. +}
+{+ comments:
+             Scales specified datasets relative to a reference dataset.
+             Optionally computes Wilson scale factor for specified 
+             "reference" dataset and applies the k(wilson) scale factor 
+             to it before relative scaling. Scaling factors are applied
+             to both Fs and corresponding sigmas. +}
+{+ authors: Axel T. Brunger +}
+{+ copyright: Yale University +}
+
+{+ reference: Wilson, A. J. C.  The probability distibution of X-ray 
+              intensities, Acta. Cryst. (1949) vol 2, 318 +}
+
+{- Guidelines for using this file:
+   - all strings must be quoted by double-quotes
+   - logical variables (true/false) are not quoted
+   - do not remove any evaluate statements from the file -}
+
+{- begin block parameter definition -} define(
+
+{====================== crystallographic data ========================}
+
+{* space group *}
+{* use International Table conventions with subscripts substituted
+   by parenthesis *}
+{===>} sg="P6";
+
+{* unit cell parameters in Angstroms and degrees *}
+{+ table: rows=1 "cell" cols=6 "a" "b" "c" "alpha" "beta" "gamma" +}
+{===>} a=116.097;
+{===>} b=116.097;
+{===>} c=44.175;
+{===>} alpha=90;
+{===>} beta=90;
+{===>} gamma=120;
+
+{* reflection file(s) *}
+{* specify non-anomalous reflection file(s) (if any)
+   before anomalous reflection file(s) *}
+{===>} reflection_infile_1="w3.hkl";
+{===>} reflection_infile_2="";
+{===>} reflection_infile_3="";
+{===>} reflection_infile_4="";
+
+{====================== reference dataset ============================}
+
+{* amplitude *}
+{===>} f_ref="fobs";
+{* sigma *}
+{===>} s_ref="sigma";
+
+{============= optional Wilson scaling of reference dataset ==========}
+
+{* apply Wilson scaling to reference dataset *}
+{+ choice: true false +}
+{===>} wilson_scale=true;
+
+{* resolution range for Wilson statistics computation *}
+{* Note: Wilson statistics are invalid below 3 A resolution for
+         macromolecules *}
+{+ table: rows=1 "Wilson resolution" cols=2 "lowest" "highest" +}
+{===>} low_res_wilson=3.0;
+{===>} high_res_wilson=2.4;
+
+{* approximate number of amino acid residues in the asymmetric unit *}
+{===>} aa_residues=247;
+
+{* give any additional atoms of the specified chemical type
+   and the number of these atoms in the asymmetric unit *}
+{+ table: rows=9 cols=2 "chemical type" "number of atoms in ASU" +}
+{===>} atom_type_1="SE";
+{===>} atom_number_1=9;
+
+{===>} atom_type_2="";
+{===>} atom_number_2=0;
+
+{===>} atom_type_3="";
+{===>} atom_number_3=0;
+
+{===>} atom_type_4="";
+{===>} atom_number_4=0;
+
+{===>} atom_type_5="";
+{===>} atom_number_5=0;
+
+{===>} atom_type_6="";
+{===>} atom_number_6=0;
+
+{===>} atom_type_7="";
+{===>} atom_number_7=0;
+
+{===>} atom_type_8="";
+{===>} atom_number_8=0;
+
+{===>} atom_type_9="";
+{===>} atom_number_9=0;
+
+{=========== datasets to be scaled relative to reference set ==========}
+
+{* list datasets which are to be scaled to the reference data set *}
+{+ table: rows=15 cols=2 "amplitude array" "sigma array" +}
+
+{===>} f_1="";
+{===>} s_1="";
+
+{===>} f_2="";
+{===>} s_2="";
+
+{===>} f_3="";
+{===>} s_3="";
+
+{===>} f_4="";
+{===>} s_4="";
+
+{===>} f_5="";
+{===>} s_5="";
+
+{===>} f_6="";
+{===>} s_6="";
+
+{===>} f_7="";
+{===>} s_7="";
+
+{===>} f_8="";
+{===>} s_8="";
+
+{===>} f_9="";
+{===>} s_9="";
+
+{===>} f_10="";
+{===>} s_10="";
+
+{===>} f_11="";
+{===>} s_11="";
+
+{===>} f_12="";
+{===>} s_12="";
+
+{===>} f_13="";
+{===>} s_13="";
+
+{===>} f_14="";
+{===>} s_14="";
+
+{===>} f_15="";
+{===>} s_15="";
+
+{===================== relative scaling options ======================}
+
+{* note: scale factors will be computed iteratively using rejection criteria,
+   but will be applied to all reflections *}
+
+{* resolution range for relative scaling *}
+{+ table: rows=1 "resolution" cols=2 "lowest" "highest" +}
+{===>} low_res_scale=500.;
+{===>} high_res_scale=2.4;
+
+{* overall k-scaling between each dataset and reference dataset *}
+{+ choice: "yes" "no" +}
+{===>} kscale="yes";
+
+{* overall B-scaling between each dataset and reference dataset *}
+{+ choice: "no" "isotropic" "anisotropic" +}
+{===>} bscale="anisotropic";
+
+{* scaling iterations *}
+{* number of iterations using rejection criteria listed below *}
+{===>} nscale_iter=3;
+
+{* |F|/sigma{F} amplitude cutoff for relative scaling *}
+{* reflections with |F|/Sigma{F} < cutoff will be rejected if
+   true for one or both F *}
+{===>} cut_f=1.;
+
+{* rms outlier cutoff for relative scaling *}
+{* reflections with |delta F| > cutoff*rms(|delta F|) will be rejected *}
+{===>} max_df=8;
+
+{* delta F cutoff criterion for relative scaling *}
+{* reflections with |delta F|/Sigma{delta F} < cutoff will be rejected *}
+{===>} cut_df=0.0;
+
+{=========================== output files ============================}
+
+{* merge input data arrays with output arrays, otherwise only the scaled
+   data will be written *}
+{+ choice: true false +}
+{===>} merge_inout=false;
+
+{* reflection filename for scaled data *}
+{===>} reflection_outfile="sad_scale.hkl";
+
+{* list file for scale factor information *}
+{===>} list_outfile="scale.list";
+
+{===========================================================================}
+{         things below this line do not normally need to be changed         }
+{===========================================================================}
+
+ ) {- end block parameter definition -}
+
+checkversion 1.3
+
+evaluate ($log_level=quiet)
+
+if (&wilson_scale=true) then
+
+{- BEGIN MODIFICATION -}
+
+   topology
+      {- create a dummy residue for isolated point atoms -}
+      residue scat
+         atom=scat type scat mass 10. end
+      end
+   end
+
+   if (&aa_residues>0) then
+     {- approximate number of atoms: 5 C + 3 N + 1 O -}
+
+      evaluate ($atom_number=&aa_residues * 5)
+      
+
+      if ($atom_number > 9999999 ) then
+         display ERROR: number of residues too large (resulting in more than 999,9999 atoms)
+         abort
+      else
+         evaluate ($counter=0)
+         evaluate ($atom_nn=$atom_number)
+         while ($atom_nn > 0) loop aac
+            evaluate ($atom_ii=min(9999,$atom_nn))
+            evaluate ($atom_nn=$atom_nn-$atom_ii)
+            evaluate ($counter=$counter+1)
+            evaluate ($seg="C" + encode ( $counter ))
+            segment
+               name= $seg
+               mole
+                  number=$atom_ii
+                  name=scat
+               end
+             end
+            do (chemical="C") ( segid $seg )
+         end loop aac
+      end if
+
+      evaluate ($atom_number=&aa_residues * 3)
+
+      if ($atom_number > 9999999 ) then
+         display ERROR: number of residues too large (resulting in more than 999,9999 atoms)
+         abort
+      else
+         evaluate ($counter=0)
+         evaluate ($atom_nn=$atom_number)
+         while ($atom_nn > 0) loop aan
+            evaluate ($atom_ii=min(9999,$atom_nn))
+            evaluate ($atom_nn=$atom_nn-$atom_ii)
+            evaluate ($counter=$counter+1)
+            evaluate ($seg="N" + encode ( $counter ))
+            segment
+               name=$seg
+               mole
+                  number=$atom_ii
+                  name=scat
+               end
+             end
+            do (chemical="N") ( segid $seg )
+         end loop aan
+      end if
+
+      evaluate ($atom_number=&aa_residues )
+      
+      if ($atom_number > 9999999 ) then
+         display ERROR: number of residues too large (resulting in more than 999,9999 atoms)
+         abort
+      else
+         evaluate ($counter=0)
+         evaluate ($atom_nn=$atom_number)
+         while ($atom_nn > 0) loop aao
+            evaluate ($atom_ii=min(9999,$atom_nn))
+            evaluate ($atom_nn=$atom_nn-$atom_ii)
+            evaluate ($counter=$counter+1)
+            evaluate ($seg="O" + encode ( $counter ))     
+            segment
+               name=$seg
+               mole
+                  number=$atom_ii
+                  name=scat
+               end
+             end
+             do (chemical="O") ( segid $seg )
+          end loop aao
+       end if
+   end if
+
+   evaluate ($ii=1)
+   while (&exist_&atom_type_$ii=true) loop atm
+      if ( &BLANK%atom_type_$ii = false ) then
+         if (&atom_number_$ii > 9999) then
+            display ERROR: number of atoms too large (> 9999) for &atom_type_$ii
+            abort
+         elseif (&atom_number_$ii > 0) then
+            evaluate ($atom_type_$ii=capitalize(&atom_type_$ii))
+            segment
+               name=$atom_type_$ii
+               mole
+                  number=&atom_number_$ii
+                  name=scat
+               end
+             end
+             do (chemical=$atom_type_$ii) ( segid $atom_type_$ii )
+          end if
+       end if
+       evaluate ($ii=$ii+1)
+   end loop atm
+
+   {- coordinates are not required for Wilson scaling
+      but we must initialize the coordinates in order
+      to avoid warning messages -}
+   do (x=0.) ( all )
+   do (y=0.) ( all )
+   do (z=0.) ( all )
+
+{- END MODIFICATION -}
+end if
+
+xray                                   
+
+   a=&a b=&b c=&c  alpha=&alpha beta=&beta gamma=&gamma
+
+   @CNS_XTALLIB:spacegroup.lib (sg=&sg;) 
+
+   @CNS_XRAYLIB:scatter.lib
+
+   evaluate ($counter=1)
+   evaluate ($done=false)
+   while ( $done = false ) loop read
+    if ( &exist_reflection_infile_$counter = true ) then
+      if ( &BLANK%reflection_infile_$counter = false ) then
+       reflection
+         @@&reflection_infile_$counter
+       end
+      end if
+    else
+     evaluate ($done=true)
+    end if
+    evaluate ($counter=$counter+1)
+   end loop read
+
+   set echo=off end
+   if ( &BLANK%f_ref = true ) then
+     display 
+     display  *******************************************************
+     display  Error: reference data set amplitude array not specified
+     display  *******************************************************
+     display
+     abort
+   else
+      query name=&STRIP%f_ref domain=reciprocal end
+      if ( $object_exist = false ) then
+          display
+          display ****************************************************************
+          display Error : reference data set amplitude array &f_ref does not exist
+          display ****************************************************************
+          display 
+          abort
+      end if
+      {- note: this array can be of any type -}
+   end if
+   
+   if ( &BLANK%s_ref = true ) then
+     display 
+     display  ***************************************************
+     display  Error: reference data set sigma array not specified
+     display  ***************************************************
+     display
+     abort
+   else
+      query name=&STRIP%s_ref domain=reciprocal end
+      if ( $object_exist = false ) then
+         display
+         display ************************************************************
+         display Error : reference data set sigma array &s_ref does not exist
+         display ************************************************************
+         display 
+         abort
+      end if
+      if ( $object_type # "REAL" ) then
+         display 
+         display *********************************************************************
+         display Error : reference data set sigma array &s_ref has the wrong data type
+         display *********************************************************************
+         display
+         abort
+      end if
+   end if
+   
+   evaluate ($ii=1)
+   while (&exist_&f_$ii=true) loop ccc
+      if ( &BLANK%f_$ii = false ) then
+         query name=&STRIP%f_$ii domain=reciprocal end
+         if ( $object_exist = false ) then
+            display
+            display **********************************************************
+            display Error : data set $ii amplitude array &f_$ii does not exist
+            display **********************************************************
+            display 
+            abort
+         end if
+         {- note: this array can be of any type -}
+         
+         if ( &BLANK%s_$ii = true ) then
+            display 
+            display  *********************************************
+            display  Error: data set $ii sigma array not specified
+            display  *********************************************
+            display
+            abort
+         else
+            query name=&STRIP%s_$ii domain=reciprocal end
+            if ( $object_exist = false ) then
+               display
+               display ******************************************************
+               display Error : data set $ii sigma array &s_$ii does not exist
+               display ******************************************************
+               display 
+               abort
+            end if
+            if ( $object_type # "REAL" ) then
+               display 
+               display ***************************************************************
+               display Error : data set $ii sigma array &s_$ii has the wrong data type
+               display ***************************************************************
+               display
+               abort
+            end if
+          end if
+       end if
+      evaluate ($ii=$ii+1) 
+   end loop ccc 
+   set echo=on end
+ 
+   binresolution &low_res_scale  &high_res_scale
+
+   statistics overall
+     completeness
+     selection=( &low_res_scale >= d >= &high_res_scale )
+   end
+   evaluate ($total_compl=$expression1)
+
+   show sum (1) ( &low_res_scale >= d >= &high_res_scale )
+   evaluate ($total_read=$select)
+   evaluate ($total=int(1./$total_compl * $total_read))
+
+end
+
+
+if ( $log_level = verbose ) then
+  set message=normal echo=on end
+else
+  set message=off echo=off end
+end if
+
+if (&wilson_scale=true) then
+   xray
+      associate fcalc ( all ) 
+
+      {- put reference dataset on an quasi-absolute scale using 
+         Wilson statistics -}
+
+      @CNS_XTALMODULE:wilsonplot 
+   (
+         bins=8;
+         f1=&STRIP%f_ref;
+         wilson_low_res=&low_res_wilson;  
+         wilson_high_res=&high_res_wilson;
+         sel=( &low_res_wilson > d > &high_res_wilson and 
+               amplitude(&STRIP%f_ref)>0  );
+         disp=OUTPUT;                  
+         mess=LONG;                    
+         KW=$absolute_scale;
+         BW=$absolute_bw;
+         atom_sel=( all ); 
+   )
+
+       evaluate ($absolute_scale=sqrt($absolute_scale))
+       
+       buffer harvest
+          display
+          display ********************************************************************
+          display quasi-absolute scale factor $absolute_scale was applied to reference 
+          display data set &STRIP%f_ref (sigma= &STRIP%s_ref) 
+          display ********************************************************************
+          display 
+       end
+
+       do (&STRIP%f_ref=$absolute_scale * &STRIP%f_ref ) ( all )
+       do (&STRIP%s_ref=$absolute_scale * &STRIP%s_ref ) ( all )
+
+   end
+else
+    buffer harvest 
+       display ********************************************************************
+       display no scaling applied to reference dataset &STRIP%f_ref (sigma= &STRIP%s_ref)  
+       display ********************************************************************
+    end
+end if
+
+
+xray
+   {- scale all data sets relative to the reference dataset -}
+
+   declare name=df     domain=reciprocal  type=real end
+   declare name=s_df   domain=reciprocal  type=real end
+
+   evaluate ($ii=1)
+   while (&exist_&f_$ii=true) loop rsc
+     if ( &BLANK%f_$ii = false ) then
+
+         buffer harvest       
+          display 
+          display ************************************************************************
+          display dataset &STRIP%f_$ii (sigma= &STRIP%s_$ii ) was scaled to reference dataset &STRIP%f_ref (sigma= &STRIP%s_ref)  
+          display 
+          display k-scaling = &kscale   b-scaling = &bscale
+          display                                             
+          display all reflections of both &STRIP%f_$ii and &STRIP%s_$ii were iteratively scaled using :
+          display 
+          display  k*exp(-(B11 h^2 a*^2 + B22 k^2 b*^2 + B33 l^2 c*^2 
+          display    + 2 B12 h k a* b* + 2 B13 h l a* c* + 2 B23 k l b* c*)/4)
+          display
+         end
+
+         @CNS_XTALMODULE:scalef (   
+            kscale=&kscale;               
+            bscale=&bscale;                
+            sel=( amplitude(&STRIP%f_ref)>0 and amplitude(&STRIP%f_$ii)>0  
+                  and &low_res_scale > d > &high_res_scale);  
+            apply="all";
+            f=&STRIP%f_$ii;
+            fref=&STRIP%f_ref;
+            s=&STRIP%s_$ii;
+            buffer_name=harvest;
+            )
+         buffer harvest
+            concatenate  (iteration no. 0)
+         end
+
+
+         {- compute differences for rejection criteria -}
+         
+         do (df=abs( amplitude(&STRIP%f_ref) - amplitude(&STRIP%f_$ii) ))  ( all ) 
+
+         do (s_df=sqrt(&STRIP%s_ref^2 + &STRIP%s_$ii^2) )        ( all )
+
+         show rms (df) ( amplitude(df)>0) 
+         evaluate ($rms_df=$result)
+         
+         if ($rms_df=0) then
+            display 
+            display  Datasets &STRIP%f_ref  and &STRIP%f_$ii are identical
+            display 
+         else 
+   
+          evaluate ($iter=0)
+         
+          {- iterate scale factor using rejection criteria -}
+          while ($iter < &nscale_iter) loop sitr
+
+
+            evaluate ($iter=$iter+1)
+
+            @CNS_XTALMODULE:scalef (     
+               kscale=&kscale;               
+               bscale=&bscale;                
+               sel=(  amplitude(&STRIP%f_ref) > &cut_f * &STRIP%s_ref
+                  and amplitude(&STRIP%f_$ii) > &cut_f * &STRIP%s_$ii 
+                  and df > &cut_df * s_df 
+                  and df < &max_df * $rms_df 
+                  and &low_res_scale >= d >= &high_res_scale ) ;
+               apply="all";
+               f=&STRIP%f_$ii;
+               fref=&STRIP%f_ref;
+               s=&STRIP%s_$ii;
+               buffer_name=harvest
+               )
+            buffer harvest
+               concatenate  (iteration no. $iter)
+            end
+
+            do (df=abs( amplitude(&STRIP%f_ref) - amplitude(&STRIP%f_$ii) ))  ( all ) 
+
+            do (s_df=sqrt(&STRIP%s_ref^2 + &STRIP%s_$ii^2) )        ( all )
+
+            show rms (df) ( amplitude(df)>0) 
+            evaluate ($rms_df=$result)
+ 
+            
+          end loop sitr
+
+          show ave (1) (  amplitude(&STRIP%f_ref) > &cut_f * &STRIP%s_ref
+                   and amplitude(&STRIP%f_$ii) > &cut_f * &STRIP%s_$ii 
+                   and df > &cut_df * s_df 
+                   and df < &max_df * $rms_df 
+                   and &low_res_scale >= d >= &high_res_scale )
+
+          eval ($total_used=$select) 
+          eval ($per_used=100*$total_used/$total) 
+          show sum ( 1 ) ( &low_res_scale >= d >= &high_res_scale 
+                           and ( amplitude(&STRIP%f_ref)>0 and amplitude(&STRIP%f_$ii)>0 ) )
+          eval ($total_rejected=$select-$total_used) 
+          eval ($per_rejected=100*($total_rejected)/$total) 
+          eval ($total_unobserved=$total-$select)
+          eval ($per_unobserved=100*($total_unobserved)/$total)
+
+          buffer harvest
+           display
+           display reflections used for computing the scale factor:
+           display resolution range &low_res_scale > d > &high_res_scale
+           display reflections with  &STRIP%f_ref / &STRIP%s_ref < &cut_f \
+and/or  &STRIP%f_$ii / &STRIP%s_$ii < &cut_f rejected
+           display reflections with | &STRIP%f_ref-&STRIP%f_$ii | / \
+sigma(| &STRIP%f_ref-&STRIP%f_$ii |) < &cut_df rejected
+           display reflections with | &STRIP%f_ref-&STRIP%f_$ii | > \
+&max_df * rms(| &STRIP%f_ref-&STRIP%f_$ii |) rejected
+           display
+           display theoretical total number of refl. in resol. range: \
+$total[I7] ( 100.0  % )
+           display number of unobserved reflections (no entry or f=0):\
+$total_unobserved[I7] ( $per_unobserved[F5.1]  % )
+           display number of reflections rejected:                    \
+$total_rejected[I7] ( $per_rejected[F5.1]  % )
+           display total number of reflections used:                  \
+$total_used[I7] ( $per_used[F5.1]  % )
+           display
+ 
+           display 
+           display ************************************************************************
+           display
+          end
+ 
+         end if
+      end if
+      evaluate ($ii=$ii+1) 
+
+   end loop rsc
+
+   undeclare name=df     domain=reciprocal  end
+   undeclare name=s_df   domain=reciprocal  end
+
+   set message=on end
+   set echo=on end
+
+   set display=&list_outfile end
+   buffer harvest
+      to=display
+      dump
+   end
+
+   set display=&reflection_outfile end
+
+  end
+  
+  @CNS_XTALMODULE:write_hkl_header (sg=&STRIP%sg;
+                                    sgparam=$sgparam;)
+
+  xray
+
+   if ( &merge_inout = true ) then
+      write reflection
+        output=&reflection_outfile  
+        sele=( all ) 
+      end
+   else
+      write reflection
+        &STRIP%f_ref
+        &STRIP%s_ref
+        evaluate ($ii=1)
+        while (&exist_&f_$ii=true) loop rsc
+          if ( &BLANK%f_$ii = false ) then
+            &STRIP%f_$ii
+            &STRIP%s_$ii
+          end if
+          evaluate ($ii=$ii+1)
+        end loop rsc
+        output=&reflection_outfile  
+        sele=(all)
+      end
+   end if
+
+   set display=OUTPUT end   
+
+end
+
+stop

@@ -1,0 +1,118 @@
+<HTML>
+<HEAD>
+   <TITLE>Crystallography & NMR System</TITLE>
+</HEAD>
+<BODY BGCOLOR=#8ebf8e>
+
+<HR WIDTH="100%">
+
+<h2>Completion of the heavy-atom model</h2>
+
+<HR WIDTH="100%">
+
+The MIR phases can be used in combination with the isomorphous
+amplitude differences to compute an isomorphous difference
+Fourier map.  This map is useful in the search for additional
+heavy-atoms sites. However, a more powerful method for the location of
+missing sites is the computation of a double-difference or
+log-likelihood gradient map. To this end, the structure factors in
+<tt>mir_phase_2deriv_grad.hkl</tt> can be used.
+
+<PRE>
+      cns_solve &lt; <A HREF="fourier_phga.inp">fourier_phga.inp</A> &gt; fourier_phga.out
+      cns_solve &lt; <A HREF="gradient_phga.inp">gradient_phga.inp</A> &gt; gradient_phga.out</PRE>
+Each job produces three output files.
+<PRE>
+      fourier_phga.map             gradient_phga.map
+      fourier_phga_negative.peaks  gradient_phga_negative.peaks
+      fourier_phga_positive.peaks  gradient_phga_positive.peaks
+</PRE>
+
+The 30 highest positive and negative peaks in both maps are
+written in PDB format to the <tt>*.peaks</tt> files.
+<p>
+Here are the maps:
+
+<HR WIDTH="67%">
+<TABLE ALIGN=CENTER>
+<TR>
+<TD ALIGN=CENTER><IMG SRC="iso_grad.jpeg"></TD>
+</TR>
+<TR>
+<TD ALIGN=CENTER>Isomorphous difference map (cyan) and
+gradient map (red). Both maps are contoured at 7 sigma.</TD>
+</TR>
+</TABLE>
+<HR WIDTH="67%">
+
+<p>
+
+Additional heavy-atom sites are usually characterized by peaks in both
+the isomorphous difference and the gradient map. In the image above,
+the two highest peaks in the gradient map are at locations with high
+densities in the isomorphous difference map. Inspection of
+<tt>gradient_phga_positive.peaks</tt> reveals that these are
+significantly greater than the other peaks:</P>
+
+<PRE>
+ATOM      1 PEAK PEAK    1      25.916  22.511  26.861  1.00 13.45      PEAK
+ATOM      2 PEAK PEAK    2      14.713   9.913  39.363  1.00 10.43      PEAK
+ATOM      3 PEAK PEAK    3      -7.468   9.754  25.417  1.00  7.80      PEAK
+ATOM      4 PEAK PEAK    4      11.119   4.834  44.493  1.00  7.55      PEAK
+</PRE>
+
+These 2 top peaks are therefore added to the heavy atom model for the
+mercury derivative. With isomorphous replacement using heavy atoms we
+cannot be sure how many sites we will obtain. In particular, heavy
+atoms may bind weakly resulting in poorly occupied sites. It is
+difficult to decide at which point to ignore further peaks in the
+gradient and isomorphous difference maps. Fortunately, weak sites will
+contribute little to the phasing, and will refine to a low
+occupancy. Sites which are incorrectly assigned will usually refine to
+occupancies close to zero. Inspection of the negative peaks in the
+gradient map may also help indicate sites which are incorrectly
+placed.
+<p>
+
+<p>
+The 2 top peaks from the gradient map must be added to the exisiting
+mercury sites. The CNS task file <tt>sdb_manipulate.inp</tt> is used
+to add two more entries to the <tt>phga_sites.sdb</tt> site database
+file:</P>
+
+<PRE>
+      cns_solve &lt; <A HREF="sdb_manipulate.inp">sdb_manipulate.inp</A> &gt; sdb_manipulate.out</PRE>
+
+The name of the expanded file is <tt>phga_five_sites.sdb</tt>.  Use
+<tt>cns_edit</tt> and copy-and-paste the coordinates from
+<code>gradient_phga_positive.peaks</code>:
+
+<PRE>
+      cns_edit phga_five_sites.sdb
+</PRE>
+
+<P>We will assume that the same methods are used to locate further
+sites in the other derivative datasets. When all heavy atom models are
+updated then a final round of MIR phasing can be performed. In this
+example the CNS task file <TT>mir_phase_final.inp</TT> is used:</P>
+
+<PRE>
+      cns_solve &lt; <A HREF="mir_phase_final.inp">mir_phase_final.inp</A> &gt; mir_phase_final.out</PRE>
+
+The new MIR phases can then be used to compute an electron density
+map, or as starting phases for density modification (see next
+tutorial).
+
+<P>
+<A HREF="tutorial.csh">Script to run this tutorial</A>
+
+<HR WIDTH="100%">
+
+<A HREF="../../text.html">Back to tutorials</A>&nbsp;&nbsp;
+<A HREF="../cross_phase/text.html">Previous section</A>&nbsp;&nbsp;
+<A HREF="../density_modify/text.html">Next section</A>
+
+<HR WIDTH="100%"></P>
+
+</BODY>
+</HTML>

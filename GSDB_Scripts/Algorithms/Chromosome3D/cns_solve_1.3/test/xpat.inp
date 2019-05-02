@@ -1,0 +1,835 @@
+remarks  test file xpat.inp
+remarks  By Axel T. Brunger
+                           
+{* ===================== *}
+{* test expansion option *}
+{* ===================== *}
+xray
+
+   reset
+   declare name=fobs type=complex domain=reciprocal end
+   declare name=fpart domain=reciprocal type=complex end
+   declare name=fcalc domain=reciprocal type=complex end
+   declare name=fom domain=reciprocal type=real end
+   declare name=weight domain=reciprocal type=real end
+   declare name=sigma domain=reciprocal type=real end
+   declare name=test domain=reciprocal type=integer end
+   
+   evaluate ($lr=30.)
+   evaluate ($hr=1) 
+   binresolution $lr $hr 
+   mapresolution $hr
+   tselection=( $hr <= d <= $lr  )
+   
+   a=16.00 b=16.00 c=8.00 alpha=90.0 beta=120.00 gamma=90.0
+   reflection
+     index 0 6 0 fobs 60.  40. fom 0.3  fcalc 1. 2.
+     index 1 2 3 fobs 40.  90. fom 0.5  fcalc 2. 3.
+     index 2 3 4 fobs 30.  60. fom 0.4  fcalc 3. 4.  
+     index 3 4 5 fobs 20.  50. fom 0.3  fcalc 4. 5. 
+   end
+   symmetry=(x,y,z)
+   symmetry=(-x,y+1/2,-z)
+   expand
+   hermitian=true
+   do (sigma=0) ( all )
+   do (fpart=0) ( all ) 
+   write reflection fobs fcalc fpart sigma fom  sele=( all ) end
+   ?
+   symmetry=(x,y,z)
+   symmetry=(-x,y+1/2,-z)
+   write reflection fobs fcalc fpart sigma fom  sele=( all ) end
+   ?
+end
+
+
+
+parameter @CNS_TOPPAR:protein.param end
+
+{* read a ca trace *}
+struc 
+data_cns_mtf
+
+_cns_mtf.title
+; FILENAME="/data/rwgk/test/tmp.mtf"
+  DATE:18-Nov-98  14:17:55       created by user: rwgk
+  VERSION:0.4a
+;
+
+loop_
+_cns_mtf_atom.id
+_cns_mtf_atom.segment_id
+_cns_mtf_atom.residue_id
+_cns_mtf_atom.residue_name
+_cns_mtf_atom.atom_name
+_cns_mtf_atom.chemical_type
+_cns_mtf_atom.charge
+_cns_mtf_atom.atom_mass
+1 ' ' '1' 'LYS' 'CA' 'CH1E' 0.250000 13.0190
+2 ' ' '2' 'LYS' 'CA' 'CH1E' 0.250000 13.0190
+3 ' ' '3' 'LYS' 'CA' 'CH1E' 0.250000 13.0190
+-1 ' ' ' ' ' ' ' ' ' ' -1.00000 -1.00000
+
+loop_
+_cns_mtf_bond.id[1]
+_cns_mtf_bond.id[2]
+-1 -1
+
+loop_
+_cns_mtf_angle.id[1]
+_cns_mtf_angle.id[2]
+_cns_mtf_angle.id[3]
+-1 -1 -1
+
+loop_
+_cns_mtf_dihedral.id[1]
+_cns_mtf_dihedral.id[2]
+_cns_mtf_dihedral.id[3]
+_cns_mtf_dihedral.id[4]
+-1 -1 -1 -1
+
+loop_
+_cns_mtf_improper.id[1]
+_cns_mtf_improper.id[2]
+_cns_mtf_improper.id[3]
+_cns_mtf_improper.id[4]
+-1 -1 -1 -1
+
+loop_
+_cns_mtf_explicit_nonbonded_exclusion.inb
+-1
+
+loop_
+_cns_mtf_explicit_nonbonded_exclusion.iblo
+0
+0
+0
+-1
+
+loop_
+_cns_mtf_group_linked_list.first_atom_id
+0
+1
+-1
+
+end
+
+coor 
+ATOM      1  CA  LYS     1       7.000   5.000   4.000  1.00 15.00          
+ATOM      2  CA  LYS     2       1.400   6.200  18.000  1.00 15.00          
+ATOM      3  CA  LYS     3       2.400   9.200  16.000  1.00 15.00          
+END 
+
+{* another test for expansion (space group P6322) *}
+xray 
+  reset 
+   declare name=fobs type=complex domain=reciprocal end
+   declare name=fpart domain=reciprocal type=complex end
+   declare name=fcalc domain=reciprocal type=complex end
+   declare name=fom domain=reciprocal type=real end
+   declare name=weight domain=reciprocal type=real end
+   declare name=sigma domain=reciprocal type=real end
+   declare name=test domain=reciprocal type=integer end
+   
+  a=16.00 b=16.00 c=8.00 alpha=90.0 beta=90.00 gamma=120.0
+  SCATter ( chemical C* ) 
+       2.31000 20.8439 1.02000 10.2075 1.58860 .568700 .865000 51.6512 .215600
+  method=fft  lookup=false
+  symmetry=(x,y,z)
+  symmetry=(-y,x-y,z+2/3)
+  symmetry=(-x+y,-x,z+1/3)
+  symmetry=(-x,-y,z)
+  symmetry=(y,-x+y,z+2/3)
+  symmetry=(x-y,x,z+1/3)
+  symmetry=(y,x,-z+2/3)
+  symmetry=(x-y,-y,-z)
+  symmetry=(-x,-x+y,-z+1/3)
+  symmetry=(-y,-x,-z+2/3)
+  symmetry=(-x+y,y,-z)
+  symmetry=(x,x-y,-z+1/3)
+  fft 
+    prime=5 avoid=2
+  end
+  nreflections=1000 
+ 
+   evaluate ($lr=10.)
+   evaluate ($hr=3) 
+   binresolution $lr $hr 
+   mapresolution $hr
+   tselection=( $hr <= d <= $lr  )
+  
+  generate  3. 10. 
+  do (fobs=1) ( all )
+  do (weight=1) ( all )
+  do (fpart=0) ( all ) 
+
+   predict 
+      mode=reciprocal 
+      to=fcalc 
+      selection=( $hr <= d <= $lr  ) 
+      atomselection=( not hydrogen ) 
+   end 
+  do (fobs=fcalc) ( all ) 
+  do (fom=1.0)  ( all ) 
+  wa=1.
+   predict 
+      mode=reciprocal 
+      to=fcalc 
+      selection=( $hr <= d <= $lr  ) 
+      atomselection=( not hydrogen ) 
+   end 
+  print target 
+  
+  declare name=map1 domain=real end
+  do (map1=ft(fcalc) ) ( all )
+  
+  write map
+    from=map1
+    extend=molecule
+    selection=( id 1 )
+    output=OUTPUT
+  end
+
+  expand
+  hermitian=true
+
+  symmetry=(x,y,z)
+  symmetry=(-y,x-y,z+2/3)
+  symmetry=(-x+y,-x,z+1/3)
+  symmetry=(-x,-y,z)
+  symmetry=(y,-x+y,z+2/3)
+  symmetry=(x-y,x,z+1/3)
+  symmetry=(y,x,-z+2/3)
+  symmetry=(x-y,-y,-z)
+  symmetry=(-x,-x+y,-z+1/3)
+  symmetry=(-y,-x,-z+2/3)
+  symmetry=(-x+y,y,-z)
+  symmetry=(x,x-y,-z+1/3)
+ 
+   predict 
+      mode=reciprocal 
+      to=fcalc 
+      selection=( $hr <= d <= $lr  ) 
+      atomselection=( not hydrogen ) 
+   end 
+  print target 
+
+  do (map1=ft(fcalc) ) ( all )
+  
+  write map
+    from=map1
+    extend=molecule
+    selection=( id 1 )
+    output=OUTPUT
+  end
+
+end
+
+{===============================}
+{*  test with P31c space group *}
+{==============================*}
+                 
+xray 
+  reset 
+   declare name=fobs type=complex domain=reciprocal end
+   declare name=fpart domain=reciprocal type=complex end
+   declare name=fcalc domain=reciprocal type=complex end
+   declare name=fom domain=reciprocal type=real end
+   declare name=weight domain=reciprocal type=real end
+   declare name=sigma domain=reciprocal type=real end
+   declare name=test domain=reciprocal type=integer end
+   
+  a=16.00 b=16.00 c=8.00 alpha=90.0 beta=90.00 gamma=120.0
+  symmetry=(x,y,z)
+  symmetry=(-y,x-y,z)
+  symmetry=(y-x,-x,z) 
+  symmetry=(y,x,1/2+z) 
+  symmetry=(-x,y-x,1/2+z) 
+  symmetry=(x-y,-y,1/2+z) 
+  SCATter ( chemical C* ) 
+       2.31000 20.8439 1.02000 10.2075 1.58860 .568700 .865000 51.6512 .215600
+  method=fft  lookup=false
+  fft 
+    prime=5 avoid=2
+  end
+  nreflections=1000 
+
+  evaluate ($lr=10.)
+  evaluate ($hr=3.) 
+  binresolution $lr $hr 
+  mapresolution $hr
+  tselection=( $hr <= d <= $lr )
+   
+  generate  3. 10. 
+  do (fobs=1) ( all )
+  do (weight=1) ( all )
+
+   predict 
+      mode=reciprocal 
+      to=fcalc 
+      selection=( $hr <= d <= $lr  ) 
+      atomselection=( not hydrogen ) 
+   end 
+  do (fobs=fcalc) ( all )
+  do (fpart=fcalc/3.) ( all ) 
+
+  tselection=( $hr <= d <= $lr  )
+
+  wa=1. 
+  tolerance=0.0
+
+   evaluate ($lr=10.001)
+   evaluate ($hr=3.001) 
+   binresolution $lr $hr 
+   mapresolution $hr
+   tselection=( $hr <= d <= $lr  )
+
+   expand     
+   hermitian=true
+  
+   mbins=1 
+   target=(F2F2[mult=false](amplitude(fobs),fcalc+fpart))
+   dtarget=(dF2F2[mult=false](amplitude(fobs),fcalc+fpart))
+   monitor=(corr[overall,mult=false](
+          (amplitude(fobs))^2,(amplitude(fcalc+fpart))^2 ))
+
+end
+
+
+
+flags exclu * inclu xref end  
+energy end
+
+
+test first sele=( id 1 ) step=0.00002 tolerance=0.0 end
+
+coor translate vector=( 1.1  0.8 1.4 ) sele=(  all  ) end
+
+test first sele=( id 1 ) step=0.00002 tolerance=0.0 end
+
+coor translate vector=( 1.1  0.8 1.4 ) sele=(  resid 1 ) end
+
+test first sele=( id 1 ) step=0.00002 tolerance=0.0 end
+
+{=========================================================}
+{ test of <E(obs)^2 E(calc)^2> }                 
+xray 
+  reset 
+   declare name=fobs type=complex domain=reciprocal end
+   declare name=fpart domain=reciprocal type=complex end
+   declare name=fcalc domain=reciprocal type=complex end
+   declare name=fom domain=reciprocal type=real end
+   declare name=weight domain=reciprocal type=real end
+   declare name=sigma domain=reciprocal type=real end
+   declare name=test domain=reciprocal type=integer end
+   
+  a=16.00 b=16.00 c=8.00 alpha=90.0 beta=90.00 gamma=120.0
+  symmetry=(x,y,z)
+  symmetry=(-y,x-y,z)
+  symmetry=(y-x,-x,z) 
+  symmetry=(y,x,1/2+z) 
+  symmetry=(-x,y-x,1/2+z) 
+  symmetry=(x-y,-y,1/2+z) 
+  SCATter ( chemical C* ) 
+       2.31000 20.8439 1.02000 10.2075 1.58860 .568700 .865000 51.6512 .215600
+  method=fft   lookup=false
+  fft 
+    prime=5 avoid=2
+  end
+  nreflections=1000 
+ 
+  evaluate ($lr=10.)
+  evaluate ($hr=3) 
+  binresolution $lr $hr 
+  mapresolution $hr
+  tselection=( $hr <= d <= $lr  )
+
+  generate  3. 10. 
+  do (fobs=1) ( all )
+  do (weight=1) ( all )
+
+   predict 
+      mode=reciprocal 
+      to=fcalc 
+      selection=( $hr <= d <= $lr  ) 
+      atomselection=( not hydrogen ) 
+   end 
+  do (fobs=fcalc)   ( all ) 
+  do (fpart=fcalc/3.) ( all ) 
+  wa=1. 
+  tolerance=0.0
+  
+  evaluate ($lr=10.001)
+  evaluate ($hr=3.001) 
+  binresolution $lr $hr 
+  mapresolution $hr
+  tselection=( $hr <= d <= $lr )
+  
+  expand 
+  hermitian=true
+  mbins=20
+  target=(E2E2(amplitude(fobs),fcalc+fpart))
+  dtarget=(dE2E2(amplitude(fobs),fcalc+fpart))
+  monitor=(corr[overall,mult=false](
+        (norm(amplitude(fobs)))^2,(norm(amplitude(fcalc+fpart)))^2 ))
+  print target
+  
+end
+
+
+
+flags exclu * inclu xref end  
+energy end
+
+test first sele=( id 1 ) step=0.000004 tolerance=0.0 end
+
+coor translate vector=( 1.1  0.8 1.4 ) sele=(  all  ) end
+
+test first sele=( id 1 ) step=0.000004 tolerance=0.0 end
+ 
+coor translate vector=( 1.1  0.8 1.4 ) sele=(  resid 1 ) end
+
+test first sele=( id 1 ) step=0.000004 tolerance=0.0 end
+
+
+{=========================================================}
+{ test of <|E(obs)| |E(calc)|> }                 
+xray 
+  reset 
+   declare name=fobs type=complex domain=reciprocal end
+   declare name=fpart domain=reciprocal type=complex end
+   declare name=fcalc domain=reciprocal type=complex end
+   declare name=fom domain=reciprocal type=real end
+   declare name=weight domain=reciprocal type=real end
+   declare name=sigma domain=reciprocal type=real end
+   declare name=test domain=reciprocal type=integer end
+
+  a=16.00 b=16.00 c=8.00 alpha=90.0 beta=90.00 gamma=120.0
+  symmetry=(x,y,z)
+  symmetry=(-y,x-y,z)
+  symmetry=(y-x,-x,z) 
+  symmetry=(y,x,1/2+z) 
+  symmetry=(-x,y-x,1/2+z) 
+  symmetry=(x-y,-y,1/2+z) 
+  SCATter ( chemical C* ) 
+       2.31000 20.8439 1.02000 10.2075 1.58860 .568700 .865000 51.6512 .215600
+  method=fft   lookup=false
+  fft 
+    prime=5 avoid=2
+  end
+  nreflections=1000 
+  
+  evaluate ($lr=10.)
+  evaluate ($hr=3) 
+  binresolution $lr $hr 
+  mapresolution $hr
+  tselection=( $hr <= d <= $lr )
+  
+  generate  3. 10.
+  do (fobs=1) ( all )
+  do (weight=1) ( all )
+
+   predict 
+      mode=reciprocal 
+      to=fcalc 
+      selection=( $hr <= d <= $lr  ) 
+      atomselection=( not hydrogen ) 
+   end 
+  do (fobs=fcalc)  ( all )  
+  do (fpart=fcalc/3.) ( all ) 
+  wa=1. 
+  tolerance=0.0
+  
+  evaluate ($lr=10.001)
+  evaluate ($hr=3.001) 
+  binresolution $lr $hr 
+  mapresolution $hr
+  tselection=( $hr <= d <= $lr  )
+  
+  expand 
+  hermitian=true
+  mbins=20
+  
+  target=(E1E1(amplitude(fobs),fcalc+fpart))
+  dtarget=(dE1E1(amplitude(fobs),fcalc+fpart))
+  monitor=(corr[overall,mult=false](
+    (norm(amplitude(fobs))),(norm(amplitude(fcalc+fpart))) ))
+  evaluate ($lr=10.001)
+  evaluate ($hr=3.001) 
+  binresolution $lr $hr 
+  mapresolution $hr
+  tselection=( $hr <= d <= $lr )
+  
+  print target
+end
+
+
+
+flags exclu * inclu xref end  
+energy end
+
+test first sele=( id 1 ) step=0.000004 tolerance=0.0 end
+
+coor translate vector=( 1.1  0.8 1.4 ) sele=(  all  ) end
+
+test first sele=( id 1 ) step=0.000004 tolerance=0.0 end
+ 
+coor translate vector=( 1.1  0.8 1.4 ) sele=(  resid 1 ) end
+
+test first sele=( id 1 ) step=0.000004 tolerance=0.0 end
+   
+{=========================================================}
+{ test of <|F(obs)| |F(calc)|> }                 
+xray 
+  reset 
+   declare name=fobs type=complex domain=reciprocal end
+   declare name=fpart domain=reciprocal type=complex end
+   declare name=fcalc domain=reciprocal type=complex end
+   declare name=fom domain=reciprocal type=real end
+   declare name=weight domain=reciprocal type=real end
+   declare name=sigma domain=reciprocal type=real end
+   declare name=test domain=reciprocal type=integer end
+   
+  a=16.00 b=16.00 c=8.00 alpha=90.0 beta=90.00 gamma=120.0
+  symmetry=(x,y,z)
+  symmetry=(-y,x-y,z)
+  symmetry=(y-x,-x,z) 
+  symmetry=(y,x,1/2+z) 
+  symmetry=(-x,y-x,1/2+z) 
+  symmetry=(x-y,-y,1/2+z) 
+  SCATter ( chemical C* ) 
+       2.31000 20.8439 1.02000 10.2075 1.58860 .568700 .865000 51.6512 .215600
+  method=fft   lookup=false
+  fft 
+    prime=5 avoid=2
+  end
+  nreflections=1000 
+  
+  evaluate ($lr=10.)
+  evaluate ($hr=3) 
+  binresolution $lr $hr 
+  mapresolution $hr
+  tselection=( $hr <= d <= $lr )
+  
+  generate  3. 10. 
+  do (fobs=1) ( all )
+  do (weight=1) ( all )
+
+   predict 
+      mode=reciprocal 
+      to=fcalc 
+      selection=( $hr <= d <= $lr  ) 
+      atomselection=( not hydrogen ) 
+   end 
+  do (fobs=fcalc) ( all )    
+  do (fpart=fcalc/3.)  ( all ) 
+  
+  tselection=( $hr <= d <= $lr )
+  
+  wa=1. 
+  tolerance=0.0
+  
+  evaluate ($lr=10.001)
+  evaluate ($hr=3.001) 
+  binresolution $lr $hr 
+  mapresolution $hr
+  tselection=( $hr <= d <= $lr  )
+  
+  expand 
+  hermitian=true
+  mbins=20
+  target=(F1F1[mult=false](amplitude(fobs),fcalc+fpart))
+  dtarget=(dF1F1[mult=false](amplitude(fobs),fcalc+fpart))
+  monitor=(corr[overall,mult=false](
+          (amplitude(fobs)),(amplitude(fcalc+fpart)) ))
+
+  evaluate ($lr=10.001)
+  evaluate ($hr=3.001) 
+  binresolution $lr $hr 
+  mapresolution $hr
+  tselection=( $hr <= d <= $lr  )
+  
+  print target
+end
+
+
+
+flags exclu * inclu xref end  
+energy end
+
+test first sele=( id 1 ) step=0.000004 tolerance=0.0 end
+
+coor translate vector=( 1.1  0.8 1.4 ) sele=(  all  ) end
+
+test first sele=( id 1 ) step=0.000004 tolerance=0.0 end
+ 
+coor translate vector=( 1.1  0.8 1.4 ) sele=(  resid 1 ) end
+
+test first sele=( id 1 ) step=0.000004 tolerance=0.0 end
+ 
+
+   
+{=========================================================}
+{ test of residual}                 
+xray 
+  reset 
+   declare name=fobs type=complex domain=reciprocal end
+   declare name=fpart domain=reciprocal type=complex end
+   declare name=fcalc domain=reciprocal type=complex end
+   declare name=fom domain=reciprocal type=real end
+   declare name=weight domain=reciprocal type=real end
+   declare name=sigma domain=reciprocal type=real end
+   declare name=test domain=reciprocal type=integer end
+
+  a=16.00 b=16.00 c=8.00 alpha=90.0 beta=90.00 gamma=120.0
+  symmetry=(x,y,z)
+  symmetry=(-y,x-y,z)
+  symmetry=(y-x,-x,z) 
+  symmetry=(y,x,1/2+z) 
+  symmetry=(-x,y-x,1/2+z) 
+  symmetry=(x-y,-y,1/2+z) 
+  SCATter ( chemical C* ) 
+       2.31000 20.8439 1.02000 10.2075 1.58860 .568700 .865000 51.6512 .215600
+  method=fft   lookup=false
+  fft 
+    prime=5 avoid=2
+  end
+  nreflections=1000  
+  
+  evaluate ($lr=10.)
+  evaluate ($hr=3) 
+  binresolution $lr $hr 
+  mapresolution $hr
+  tselection=( $hr <= d <= $lr )
+  
+  generate  3. 10.
+  do (fobs=1) ( all )
+  do (weight=1) ( all )
+
+   predict 
+      mode=reciprocal 
+      to=fcalc 
+      selection=( $hr <= d <= $lr  ) 
+      atomselection=( not hydrogen ) 
+   end 
+  do (fobs=fcalc) ( all )    
+  do (fpart=fcalc/3.) ( all ) 
+  wa=1. 
+  tolerance=0.0
+  
+  evaluate ($lr=10.001)
+  evaluate ($hr=3.001) 
+  binresolution $lr $hr 
+  mapresolution $hr
+  tselection=( $hr <= d <= $lr  )
+  
+  expand 
+  hermitian=true
+  mbins=20
+  
+  target=( resi(amplitude(fobs),fcalc+fpart,1)) 
+  dtarget=( dresi(amplitude(fobs),fcalc+fpart,1)) 
+  monitor=( rvalue[overall](fobs,fcalc+fpart)) 
+  
+  evaluate ($lr=10.001)
+  evaluate ($hr=3.001) 
+  binresolution $lr $hr 
+  mapresolution $hr
+  tselection=( $hr <= d <= $lr  )
+  
+  print target
+end
+
+
+
+flags exclu * inclu xref end  
+energy end
+
+test first sele=( id 1 ) step=0.000004 tolerance=0.0 end
+
+coor translate vector=( 1.1  0.8 1.4 ) sele=(  all  ) end
+
+test first sele=( id 1 ) step=0.000004 tolerance=0.0 end
+ 
+coor translate vector=( 1.1  0.8 1.4 ) sele=(  resid 1 ) end
+
+test first sele=( id 1 ) step=0.000004 tolerance=0.0 end
+   
+   
+  
+
+{=========================================================}
+{ test of vector residual}                 
+xray 
+  reset 
+   declare name=fobs type=complex domain=reciprocal end
+   declare name=fpart domain=reciprocal type=complex end
+   declare name=fcalc domain=reciprocal type=complex end
+   declare name=fom domain=reciprocal type=real end
+   declare name=weight domain=reciprocal type=real end
+   declare name=sigma domain=reciprocal type=real end
+   declare name=test domain=reciprocal type=integer end
+
+  a=16.00 b=16.00 c=8.00 alpha=90.0 beta=90.00 gamma=120.0
+  symmetry=(x,y,z)
+  symmetry=(-y,x-y,z)
+  symmetry=(y-x,-x,z) 
+  symmetry=(y,x,1/2+z) 
+  symmetry=(-x,y-x,1/2+z) 
+  symmetry=(x-y,-y,1/2+z) 
+  SCATter ( chemical C* ) 
+       2.31000 20.8439 1.02000 10.2075 1.58860 .568700 .865000 51.6512 .215600
+  method=fft   lookup=false
+  fft 
+    prime=5 avoid=2
+  end
+  nreflections=1000  
+  
+  evaluate ($lr=10.)
+  evaluate ($hr=3) 
+  binresolution $lr $hr 
+  mapresolution $hr
+  tselection=( $hr <= d <= $lr  )
+  
+  generate  3. 10.
+  do (fobs=1) ( all )
+  do (weight=1) ( all )
+
+   predict 
+      mode=reciprocal 
+      to=fcalc 
+      selection=( $hr <= d <= $lr  ) 
+      atomselection=( not hydrogen ) 
+   end 
+  do (fobs=fcalc)  ( all )   
+  do (fpart=fcalc/3.) ( all ) 
+  wa=1. 
+  tolerance=0.0
+
+  evaluate ($lr=10.001)
+  evaluate ($hr=3.001) 
+  binresolution $lr $hr 
+  mapresolution $hr
+  tselection=( $hr <= d <= $lr  )
+  expand 
+  hermitian=true
+  mbins=10
+  
+  target=(vector(fobs,fcalc+fpart,1))
+  dtarget=(dvector(fobs,fcalc+fpart,1))
+  monitor=(sum[overall]
+   ( abs(fobs 
+       -
+       sum[overall](amplitude(fobs)*amplitude(fcalc+fpart))/sum[overall](amplitude(fcalc+fpart)^2)
+       (fcalc+fpart)) 
+       / sum[overall](abs(fobs))) )
+
+  evaluate ($lr=10.001)
+  evaluate ($hr=3.001) 
+  binresolution $lr $hr 
+  mapresolution $hr
+  tselection=( $hr <= d <= $lr )
+  
+  print target
+  do (fom=1) ( all )
+  
+  statistics { print phase differences }
+     (abs(mod(phase(fobs)-phase(fcalc)+540,360) -180.))
+     selection=( $hr <= d <= $lr )
+      output=OUTPUT
+  end
+end
+
+
+
+flags exclu * inclu xref end  
+energy end
+
+test first sele=( id 1 ) step=0.000004 tolerance=0.0 end
+
+coor translate vector=( 1.1  0.8 1.4 ) sele=(  all  ) end
+
+test first sele=( id 1 ) step=0.000004 tolerance=0.0 end
+ 
+coor translate vector=( 1.1  0.8 1.4 ) sele=(  resid 1 ) end
+
+test first sele=( id 1 ) step=0.000004 tolerance=0.0 end
+
+xray
+  target=(vector[k=30](fobs,fcalc+fpart,1))
+  dtarget=(dvector[k=30](fobs,fcalc+fpart,1))
+  monitor=(sum[overall]
+   ( abs(fobs - 30 (fcalc+Fpart)) 
+       / sum[overall](abs(fobs))) )
+end
+test first sele=( id 1 ) step=0.000004 tolerance=0.0 end
+xray
+  target=(vector(fobs,fcalc+fpart,1))
+  dtarget=(dvector(fobs,fcalc+fpart,1))
+  monitor=(sum[overall]
+   ( abs(fobs 
+       -
+       sum[overall](amplitude(fobs)*amplitude(fcalc+fpart))/sum[overall](amplitude(fcalc+fpart)^2)
+       (fcalc+fpart) ) 
+       / sum[overall](abs(fobs))) )
+end
+   
+xray
+   predict 
+      mode=reciprocal 
+      to=fcalc 
+      selection=( $hr <= d <= $lr  ) 
+      atomselection=( not hydrogen ) 
+   end 
+   do (fom=1) ( all )
+   statistics { print phase differences }
+     (abs(mod(phase(fobs)-phase(fcalc+fpart)+540,360) -180.))
+     selection=( $hr <= d <= $lr )
+      output=OUTPUT
+   end
+   do (fobs=fcalc) ( all ) 
+   do (fpart=0.0) ( all ) 
+   statistics { print phase differences }
+     (abs(mod(phase(fobs)-phase(fcalc)+540,360) -180.))
+     selection=( $hr <= d <= $lr )
+      output=OUTPUT
+   end
+end
+
+coor copy end   
+coor translate vector=( 1.1  0.8 1.4 ) sele=(  resid 1 ) end
+coor translate vector=( 0.5  0.2 -1.0 ) sele=(  resid 2 ) end
+coor rms end
+
+xray
+   predict 
+      mode=reciprocal 
+      to=fcalc 
+      selection=( $hr <= d <= $lr  ) 
+      atomselection=( not hydrogen ) 
+   end 
+   statistics { print phase differences }
+     (abs(mod(phase(fobs)-phase(fcalc)+540,360) -180.))
+     selection=( $hr <= d <= $lr )
+      output=OUTPUT
+   end
+end
+
+minimize powell nstep=20 drop=20. end
+
+xray
+   predict 
+      mode=reciprocal 
+      to=fcalc 
+      selection=( $hr <= d <= $lr  ) 
+      atomselection=( not hydrogen ) 
+   end 
+   statistics { print phase differences }
+     (abs(mod(phase(fobs)-phase(fcalc)+540,360) -180.))
+     selection=( $hr <= d <= $lr )
+      output=OUTPUT
+   end
+end
+coor rms end
+   
+stop

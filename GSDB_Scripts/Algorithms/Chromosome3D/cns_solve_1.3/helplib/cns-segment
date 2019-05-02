@@ -1,0 +1,34 @@
+segment {<segment-statement>} end
+
+<segment-statement> :==
+
+  name=<segid>
+  --{Segid of newly created structure. default="    "}
+  molecule name=<resname> number=<integer> end
+  --{Create independent copies of named molecule.}
+  chain {<segment-chain-statement>} end
+  --{Setup sequence and connectivity between residues.}
+
+  <segment-chain-statement> :==
+
+    first <resname> tail=<reference>=<resname> end
+    --{Define patch that will be applied to the first residue in a sequence.}
+    last <resname> head=<reference>=<resname> end
+    --{Define patch that will be applied to the last residue in a sequence.}
+    link <resname>
+      head=<reference>=<resname>
+      tail=<reference>=<resname>
+    end
+    --{Define patch that will be applied between 2 residues in a sequence. 
+       If no matching link is found, the chain is restarted.}
+    separate-by-segid=<logical>
+    --{When reading the sequence from a file, if a new segid is encountered
+       restart the chain.}
+    convert-chainid-to-segid=<logical>
+    --{When reading a sequence from a file, take the segid from the chainid
+       column if it is non-blank.}
+    coordinates {<pdb-atom-record>} end
+    --{Read sequence from PDB file.}
+    sequence {<resname>} end
+    --{Read this sequence.}
+

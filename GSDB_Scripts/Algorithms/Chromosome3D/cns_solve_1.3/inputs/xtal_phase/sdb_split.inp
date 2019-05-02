@@ -1,0 +1,115 @@
+{+ file: sdb_split.inp +}
+{+ directory: xtal_phase +}
+{+ description: Based on derivative name split CNS heavy atom site
+                database file into separate database files. +}
+{+ comment: 
+           Derivatives can only be separated on the basis of the
+           derivative name, which cannot be blank. +}
+{+ authors: Axel T. Brunger, and Paul D. Adams +}
+{+ copyright: Yale University +}
+
+{- Guidelines for using this file:
+   - all strings must be quoted by double-quotes
+   - logical variables (true/false) are not quoted
+   - do not remove any evaluate statements from the file -}
+
+{- begin block parameter definition -} define(
+
+{============================ space group ============================}
+
+{* space group *}
+{* use International Table conventions with subscripts substituted
+   by parenthesis *}
+{===>} sg="P2(1)2(1)2(1)";
+
+{======================= heavy atom database ========================}
+
+{* heavy atom database file *}
+{===>} sitedatabase_infile.1="sdb_manipulate.sdb";
+
+{=========================== output files ============================}
+
+{* derivative name *}
+{===>} derivative.1="MBP";
+{* output heavy atom database file *}
+{===>} sitedatabase_outfile.1="mbp.sdb";
+
+{* derivative name *}
+{===>} derivative.2="KUOF";
+{* output heavy atom database file *}
+{===>} sitedatabase_outfile.2="kuof.sdb";
+
+{* derivative name *}
+{===>} derivative.3="";
+{* output heavy atom database file *}
+{===>} sitedatabase_outfile.3="";
+
+{* derivative name *}
+{===>} derivative.4="";
+{* output heavy atom database file *}
+{===>} sitedatabase_outfile.4="";
+
+{* derivative name *}
+{===>} derivative.5="";
+{* output heavy atom database file *}
+{===>} sitedatabase_outfile.5="";
+
+{===========================================================================}
+{        things below this line do not normally need to be changed          }
+{===========================================================================}
+
+ ) {- end block parameter definition -}
+
+ checkversion 1.3
+
+ evaluate ($log_level=quiet)
+
+ @CNS_XTALMODULE:read_multi_sdb (filegroup=&sitedatabase_infile;
+                                 use_array=store3;
+                                 fix_array=store4;
+                                 sg_expected=&sg;
+                                 sg_read=$sg_read;)
+
+ evaluate ($counter=1)
+ evaluate ($done=false)
+
+ while ($done = false ) loop main
+
+   if ( &EXIST%derivative.$counter = true ) then
+
+     if ( &BLANK%derivative.$counter # true ) then
+
+       identity (store1) (segid &derivative.$counter)
+
+       @CNS_XTALMODULE:coord_to_sdb (sitedb=$allsites.$counter;
+                                     use_array=store3;
+                                     fix_array=store4;
+                                     selection=(store1);)
+
+       buffer comment
+         reset
+         display            This site database created by extracting sites for
+         display            derivative &derivative.$counter from site database
+         display            file &sitedatabase_infile.1
+       end
+
+       @CNS_XTALMODULE:write_cns_header 
+            (output=&sitedatabase_outfile.$counter;
+             description="CNS heavy atom site database";
+             buffer=comment;)
+
+       @CNS_XTALMODULE:write_sdb (sitedb=$allsites.$counter;
+                                  sg=$sg_read;
+                                  output=&sitedatabase_outfile.$counter;)
+
+     end if
+
+   else
+     evaluate ($done=true)
+   end if
+
+   evaluate ($counter=$counter+1)
+
+ end loop main
+
+ stop

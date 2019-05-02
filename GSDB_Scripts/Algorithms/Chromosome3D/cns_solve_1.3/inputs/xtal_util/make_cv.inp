@@ -1,0 +1,160 @@
+{+ file: make_cv.inp +}
+{+ directory: xtal_util +}
+{+ description: Setup test array for cross-validation (free R) using a
+                random selection of data. +}
+{+ comment:
+            The test set is defined by 1 in the test set array.
+            The working set is defined by 0 in the test set array.
+            Friedel mates are conserved for anomalous data.
+            The test set array can also be extended if it already 
+            exists in the data set.  In this case, a resolution range
+            or selection should be specified for the generation of 
+            the test set. +}
+{+ authors: Axel T. Brunger +}
+{+ copyright: Yale University +}
+
+{+ reference: A.T. Brunger, The Free R Value: a Novel Statistical 
+              Quantity for Assessing the Accuracy of Crystal Structures, 
+              Nature 355, 472-474 (1992) +}
+ 
+{- Guidelines for using this file:
+   - all strings must be quoted by double-quotes
+   - logical variables (true/false) are not quoted
+   - do not remove any evaluate statements from the file -}
+
+{- begin block parameter definition -} define(
+
+{====================== crystallographic data ========================}
+
+{* space group *}
+{* use International Table conventions with subscripts substituted
+   by parenthesis *}
+{===>} sg="P2(1)2(1)2(1)";
+
+{* unit cell parameters in Angstroms and degrees *}
+{+ table: rows=1 "cell" cols=6 "a" "b" "c" "alpha" "beta" "gamma" +}
+{===>} a=61.76;
+{===>} b=40.73;
+{===>} c=26.74;
+{===>} alpha=90;
+{===>} beta=90;
+{===>} gamma=90;
+
+{* reciprocal space array containing test set for cross-validation *}
+{* this array will be created if it does not already exist and 
+   defined for the selected reflections.  If it exists the 
+   test set will be (re)defined for the selected reflections. *}
+{===>} test_set="test";
+
+{* reflection file - to which test set array will be added *}
+{===>} reflection_infile="make_cv.hkl";
+
+{======================= test set generation ==========================}
+{* To generate a new test set, use the whole resolution range and
+   select all reflections.  To extend a test array (e.g. to a higher 
+   resolution data set), use the xtal_util/merge.inp task file 
+   to merge the test set and the new diffraction data, and then use 
+   this task file to extend the test set. *}
+
+{* percentage of reflections to be used for TEST set - ie. 10% *}
+{===>} percentage=10.0;
+
+{* Resolution limits for generation of test set *}
+{* Normally, the full resolution range (or larger) of observed data
+   should be used. Use a restricted set when extending an existing test
+   array (e.g, to high resolution). *}
+{+ table: rows=1 "resolution" cols=2 "lowest" "highest" +}
+{===>} low_res=500.0;
+{===>} high_res=1.0;
+
+{* Additional selection for generation of test set *}
+{* Normally, select all reflections.  Specify this additional selection 
+   if the test set needs to be expanded for specific subset(s) of 
+   reflections. *}
+{===>} ref_sel=( all );
+
+{=========================== output files ============================}
+
+{* output reflection file *}
+{===>} reflection_outfile="amy_start.cv";
+
+{===========================================================================}
+{        things below this line do not normally need to be changed          }
+{===========================================================================}
+
+ ) {- end block parameter definition -}
+
+ checkversion 1.3
+
+ evaluate ($log_level=quiet)
+
+ xray
+
+   @CNS_XTALLIB:spacegroup.lib (sg=&sg;sgparam=$sgparam;)
+
+   a=&a b=&b c=&c  alpha=&alpha beta=&beta gamma=&gamma 
+
+   reflection @&reflection_infile end 
+
+   set echo=off end 
+   if ( &BLANK%test_set = true ) then
+     display 
+     display  ***********************************
+     display  Error: test set array not specified
+     display  ***********************************
+     display
+     abort
+   else
+      query name=&STRIP%test_set domain=reciprocal end
+      if ( $object_exist = false ) then
+         declare name=&STRIP%test_set domain=reciprocal type=integer end
+         do ( &STRIP%test_set = 0 ) ( all )
+      else
+         {- test array can be of type INTEGER or REAL -}
+         if ( $object_type = "COMPLEX" ) then
+            display 
+            display ********************************************************
+            display Error : test set array &test_set has the wrong data type
+            display ********************************************************
+            display
+            abort
+        end if
+      end if
+   end if
+   set echo=on end
+
+   do ( &STRIP%test_set = 0 )
+      ( &low_res >= d >= &high_res and &ref_sel ) 
+   
+   anomalous ?
+   
+   if ($result=FALSE) then
+      do (&STRIP%test_set=int(random()+&percentage/100.)) 
+             ( &low_res >= d >= &high_res and &ref_sel ) 
+   else
+      {- make sure both Friedel mates are included for each test reflection -}
+      do (&STRIP%test_set=int(random()+&percentage/100.))  
+             ( centric  and &low_res >= d >= &high_res and &ref_sel )
+      do (&STRIP%test_set=int(random()+&percentage/200.))  
+             ( acentric and &low_res >= d >= &high_res and &ref_sel )
+      do (&STRIP%test_set=max(&STRIP%test_set,friedel(&STRIP%test_set)))
+             ( acentric and &low_res >= d >= &high_res and &ref_sel ) 
+   end if   
+
+ end
+
+ set display=&reflection_outfile end
+
+ @CNS_XTALMODULE:write_hkl_header (sg=&STRIP%sg;
+                                   sgparam=$sgparam;)
+
+ xray
+   write reflection 
+      output=&reflection_outfile
+   end  
+
+   set display=OUTPUT end
+
+ end
+
+ stop

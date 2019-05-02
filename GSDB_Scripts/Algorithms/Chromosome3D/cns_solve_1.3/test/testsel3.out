@@ -1,0 +1,250 @@
+          ============================================================
+          |                                                          |
+          |            Crystallography & NMR System (CNS)            |
+          |                         CNSsolve                         |
+          |                                                          |
+          ============================================================
+           Version: 1.3
+           Status: General release
+          ============================================================
+           Written by: A.T.Brunger, P.D.Adams, G.M.Clore, W.L.DeLano,
+                       P.Gros, R.W.Grosse-Kunstleve,J.-S.Jiang,J.M.Krahn,
+                       J.Kuszewski, M.Nilges, N.S.Pannu, R.J.Read,
+                       L.M.Rice, G.F.Schroeder, T.Simonson, G.L.Warren.
+           Copyright (c) 1997-2010 Yale University
+          ============================================================
+           Running on machine: lewis4-r710-login-node223 (x86_64/Linux,64-bit)
+                               with 16 threads
+           Program started by: oeow39
+           Program started at: 16:08:09 on 05-Jul-2018
+          ============================================================
+
+ FFT3C: Using FFTPACK4.1
+
+ CNSsolve>remarks testsel3.inp 
+ CNSsolve>! This scipts tests residue selections with hybrid-36 and large integer 
+ CNSsolve>! numbers, processing of iCode characters, wildcard selections with 
+ CNSsolve>! backslash escapes, and names with special characters. 
+ CNSsolve>! Some of the exmaples here are not intended as normal input. 
+ CNSsolve>topology 
+ RTFRDR>  resi "Fe3" 
+ RESIDUE>    atom "Fe+3" mass=10 end 
+ RESIDUE>  end 
+ RTFRDR>  resi "Cl1" 
+ RESIDUE>    atom "Cl-1" mass=10 end 
+ RESIDUE>  end 
+ RTFRDR>  resi "Na1" 
+ RESIDUE>    atom "Na+1" mass=10 end 
+ RESIDUE>  end 
+ RTFRDR>! 
+ RTFRDR>  resi "{X}" 
+ RESIDUE>    atom "{+1}" mass=10 end 
+ RESIDUE>  end 
+ RTFRDR>! NOTE: the lexer (NEXTWD) will accept the double-quote below, and pass 
+ RTFRDR>! F\" to the parsing routines. However, only the wildcard routine 
+ RTFRDR>! processes the backslash. the current implementation only supports backslash 
+ RTFRDR>! for wildcards and line continuations. Behavior elsewhere is "undefined". 
+ RTFRDR>  resi FPP 
+ RESIDUE>    atom F\" mass=10 end 
+ RESIDUE>  end 
+ RTFRDR>end 
+ CNSsolve>! NOTE: Quoting allows lower case and other special characters, 
+ CNSsolve>! but the topology WRITE routines currently do not quote them. 
+ CNSsolve>write topology end 
+ 
+ !-----------------------------------------------------------
+ 
+ RESIdue Fe3 
+ 
+ GROUp
+       ATOM  Fe+3   CHARge=    0.0000 MASS=   10.0000   END
+ !END GROUp
+ 
+ 
+ END ! RESIdue Fe3 
+ !-----------------------------------------------------------
+ 
+ RESIdue Cl1 
+ 
+ GROUp
+       ATOM  Cl-1   CHARge=    0.0000 MASS=   10.0000   END
+ !END GROUp
+ 
+ 
+ END ! RESIdue Cl1 
+ !-----------------------------------------------------------
+ 
+ RESIdue Na1 
+ 
+ GROUp
+       ATOM  Na+1   CHARge=    0.0000 MASS=   10.0000   END
+ !END GROUp
+ 
+ 
+ END ! RESIdue Na1 
+ !-----------------------------------------------------------
+ 
+ RESIdue {X} 
+ 
+ GROUp
+       ATOM  {+1}   CHARge=    0.0000 MASS=   10.0000   END
+ !END GROUp
+ 
+ 
+ END ! RESIdue {X} 
+ !-----------------------------------------------------------
+ 
+ RESIdue FPP 
+ 
+ GROUp
+       ATOM  F\"    CHARge=    0.0000 MASS=   10.0000   END
+ !END GROUp
+ 
+ 
+ END ! RESIdue FPP 
+ CNSsolve>segment 
+ SEGMENT>  chain 
+ CHAIN>    separate=true 
+ CHAIN>    coor 
+ COOR>! Note that CNS iCode handling only looks at the 5-char string, 
+ COOR>! and will accept mis-aligned resSeq+iCode. However, all 
+ COOR>! proper syntax works, except that len(resSeq+iCode)>4 is rejected. 
+ COOR>ATOM      1 Fe+3 Fe3  XXXA       0.000   0.000   0.000  1.00  0.00 
+ SEGMNT-info: auto chain termination due to unavailable link.     1 residues were inserted into segid "    "
+ SEGMNT-info: auto chain termination due to unavailable link.     1 residues were inserted into segid "    "
+ SEGMNT-info: auto chain termination due to unavailable link.     1 residues were inserted into segid "    "
+ SEGMNT-info: auto chain termination due to unavailable link.     1 residues were inserted into segid "    "
+ SEGMNT-info: auto chain termination due to unavailable link.     1 residues were inserted into segid "    "
+ SEGMNT-info: auto chain termination due to unavailable link.     1 residues were inserted into segid "    "
+ SEGMNT-info: auto chain termination due to unavailable link.     1 residues were inserted into segid "    "
+ SEGMNT-info: auto chain termination due to unavailable link.     1 residues were inserted into segid "    "
+ SEGMNT-info: auto chain termination due to unavailable link.     1 residues were inserted into segid "    "
+ SEGMNT-info: auto chain termination due to unavailable link.     1 residues were inserted into segid "    "
+ SEGMNT-info: chain termination due to END keyword.     1 residues were inserted into segid "    "
+ CHAIN>  end 
+ SEGMENT>end 
+ Status of internal molecular topology database:
+ -> NATOM=         11(MAXA=     1000000)  NBOND=          0(MAXB=     1000000)
+ -> NTHETA=         0(MAXT=     2000000)  NGRP=          11(MAXGRP=   1000000)
+ -> NPHI=           0(MAXP=     2000000)  NIMPHI=         0(MAXIMP=   1000000)
+ -> NNB=            0(MAXNB=    1000000) 
+ CNSsolve>! Ranges accept normal base 10 or 4-char Hybrid-36: 
+ CNSsolve>show (resid) (resid 1127055:XXXD) 
+ SELRPN:      3 atoms have been selected out of     11
+ (      Fe3  XXXB Fe+3 )  XXXB
+ (      Fe3  XXXC Fe+3 )  XXXC
+ (      Fe3  XXXD Fe+3 )  XXXD
+ CNSsolve>show (resid) (resid XXXB:1127057) 
+ SELRPN:      3 atoms have been selected out of     11
+ (      Fe3  XXXB Fe+3 )  XXXB
+ (      Fe3  XXXC Fe+3 )  XXXC
+ (      Fe3  XXXD Fe+3 )  XXXD
+ CNSsolve>show (resid) (resid 999F:XXXA) 
+ SELRPN:      4 atoms have been selected out of     11
+ (      Fe3  XXXA Fe+3 )  XXXA
+ (      Fe3  999F Fe+3 )  999F
+ (      Fe3  ABC1 Fe+3 )  ABC1
+ (      {X}  ABC1 {+1} )  ABC1
+ CNSsolve> 
+ CNSsolve>! invalid values will fail (uncommented for testing purposes) 
+ CNSsolve>!!show (resid) (resid 1127055:XXD) 
+ CNSsolve>!!show (resid) (resid XXB:1127057) 
+ CNSsolve> 
+ CNSsolve>! As before, decode() fails with an error when an iCode is present: 
+ CNSsolve>show (decode(resid)) (resid 999*) 
+ SELRPN:      2 atoms have been selected out of     11
+ (      Fe3  999E Fe+3 )    999.00    
+ %XRDECODE-ERR: Illegal argument(s).:
+ show (decode(resid)) (resid 999*) 
+                                 ^
+ %SHOW-ERR: Assignment aborted:
+ show (decode(resid)) (resid 999*) 
+                                 ^
+  Starting with array index:                      9
+ CNSsolve>! Otherwise, decode() accepts a Hybrid-36 resid: 
+ CNSsolve>show (decode(resid)) (not resid 999*) 
+ SELRPN:      9 atoms have been selected out of     11
+ (      Fe3  XXXA Fe+3 )   0.11271E+07
+ (      Fe3  XXXB Fe+3 )   0.11271E+07
+ (      Fe3  XXXC Fe+3 )   0.11271E+07
+ (      Cl1  1    Cl-1 )    1.0000    
+ (      Na1  2    Na+1 )    2.0000    
+ (      Fe3  XXXD Fe+3 )   0.11271E+07
+ (      Fe3  XXXE Fe+3 )   0.11271E+07
+ (      Fe3  ABC1 Fe+3 )    24689.    
+ (      {X}  ABC1 {+1} )    24689.    
+ CNSsolve>! Convert back to 4-char Hybrid-36 with FORMAT function when it is valid: 
+ CNSsolve>show (format("I4",decode(resid))) (not resid 999*) 
+ SELRPN:      9 atoms have been selected out of     11
+ (      Fe3  XXXA Fe+3 )  XXXA
+ (      Fe3  XXXB Fe+3 )  XXXB
+ (      Fe3  XXXC Fe+3 )  XXXC
+ (      Cl1  1    Cl-1 )     1
+ (      Na1  2    Na+1 )     2
+ (      Fe3  XXXD Fe+3 )  XXXD
+ (      Fe3  XXXE Fe+3 )  XXXE
+ (      Fe3  ABC1 Fe+3 )  ABC1
+ (      {X}  ABC1 {+1} )  ABC1
+ CNSsolve>! Full integer values can be used, but currently only with the range syntax: 
+ CNSsolve>show elem (decode(resid)) (resid 1127055) 
+ SELRPN:      0 atoms have been selected out of     11
+ SHOW: zero atoms selected
+ CNSsolve>show elem (decode(resid)) (resid 1127055:1127055) 
+ SELRPN:      1 atoms have been selected out of     11
+ (      Fe3  XXXB Fe+3 )   0.11271E+07
+ CNSsolve>! Display formatting reverts to Hybrid-36 for I4 or I5 formatting 
+ CNSsolve>! when the value would otherwise overflow: 
+ CNSsolve>display $result[I10] $result[I4] $result[I5] 
+   1127055 XXXB AM0HB
+ CNSsolve> 
+ CNSsolve>! Wildcard selections with backslash escapes. This allows wildcard 
+ CNSsolve>! characters in the pattern, as well as lower case and other special 
+ CNSsolve>! characters that would normally delimit a token. 
+ CNSsolve>show (name) (name *\+#) 
+ SELRPN:      9 atoms have been selected out of     11
+ (      Fe3  XXXA Fe+3 )  Fe+3
+ (      Fe3  XXXB Fe+3 )  Fe+3
+ (      Fe3  XXXC Fe+3 )  Fe+3
+ (      Na1  2    Na+1 )  Na+1
+ (      Fe3  XXXD Fe+3 )  Fe+3
+ (      Fe3  XXXE Fe+3 )  Fe+3
+ (      Fe3  999E Fe+3 )  Fe+3
+ (      Fe3  999F Fe+3 )  Fe+3
+ (      Fe3  ABC1 Fe+3 )  Fe+3
+ CNSsolve>show (name) (name *\-#) 
+ SELRPN:      1 atoms have been selected out of     11
+ (      Cl1  1    Cl-1 )  Cl-1
+ CNSsolve>show (name) (name *\a*) 
+ SELRPN:      1 atoms have been selected out of     11
+ (      Na1  2    Na+1 )  Na+1
+ CNSsolve>show (name) (name *\l*) 
+ SELRPN:      1 atoms have been selected out of     11
+ (      Cl1  1    Cl-1 )  Cl-1
+ CNSsolve>show (name) (name \{*) 
+ SELRPN:      1 atoms have been selected out of     11
+ (      {X}  ABC1 {+1} )  {+1}
+ CNSsolve>write coor end 
+REMARK FILENAME="OUTPUT"
+REMARK testsel3.inp
+REMARK DATE:05-Jul-2018  16:08:09       created by user: oeow39
+REMARK VERSION:1.3
+ATOM      1 Fe+3 Fe3  XXXA    9999.0009999.0009999.000  1.00  0.00          
+ATOM      2 Fe+3 Fe3  XXXB    9999.0009999.0009999.000  1.00  0.00          
+ATOM      3 Fe+3 Fe3  XXXC    9999.0009999.0009999.000  1.00  0.00          
+ATOM      4 Cl-1 Cl1     1    9999.0009999.0009999.000  1.00  0.00          
+ATOM      5 Na+1 Na1     2    9999.0009999.0009999.000  1.00  0.00          
+ATOM      6 Fe+3 Fe3  XXXD    9999.0009999.0009999.000  1.00  0.00          
+ATOM      7 Fe+3 Fe3  XXXE    9999.0009999.0009999.000  1.00  0.00          
+ATOM      8 Fe+3 Fe3   999E   9999.0009999.0009999.000  1.00  0.00          
+ATOM      9 Fe+3 Fe3   999F   9999.0009999.0009999.000  1.00  0.00          
+ATOM     10 Fe+3 Fe3  ABC1    9999.0009999.0009999.000  1.00  0.00          
+ATOM     11 {+1} {X}  ABC1    9999.0009999.0009999.000  1.00  0.00          
+END
+ CNSsolve>stop 
+          ============================================================
+           Maximum dynamic memory allocation:     8201488 bytes
+           Maximum dynamic memory overhead:           208 bytes
+           Program started at: 16:08:09 on 05-Jul-2018
+           Program stopped at: 16:08:09 on 05-Jul-2018
+           CPU time used:       0.0067 seconds
+          ============================================================

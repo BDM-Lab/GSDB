@@ -1,0 +1,976 @@
+{+ file: cross_rotation.inp +}
+{+ directory: xtal_mr +}
+{+ description: Cross-rotation function for molecular replacement +}
+{+ comment:
+           Real-space rotation function or direct rotation function +}
+{+ authors: Axel T. Brunger and Paul D. Adams +}
+{+ copyright: Yale University +}
+
+{+ reference: R. Huber, Die Automatisierte Faltmolekuelmethode. 
+              Acta Cryst. A19, 353-356 (1965) +}
+
+{+ reference: W. Steigemann, Ph.D. Thesis, Technische 
+              Universitaet Muenchen. (1974) +}
+
+{+ reference: W.L. DeLano and A.T. Brunger, The Direct Rotation Function: 
+              Rotational Patterson Correlation Search Applied to 
+              Molecular Replacement, Acta Cryst. D 51, 740-748 (1995). +}
+              
+{+ reference: L.Tong and M.G. Rossmann, Rotation function calculations
+              with GLRF program.  Meth. Enzymol. 276, 594-611 +}
+
+{- Guidelines for using this file:
+   - all strings must be quoted by double-quotes
+   - logical variables (true/false) are not quoted
+   - do not remove any evaluate statements from the file  -}
+
+{- begin block parameter definition -} define(
+
+{============================ coordinates ============================}
+
+{* coordinate file *}
+{===>} coordinate_infile="mbp_cns.pdb";
+
+{==================== molecular information ==========================}
+
+{* topology files *}
+{===>} topology_infile_1="CNS_TOPPAR:protein.top";
+{===>} topology_infile_2="CNS_TOPPAR:dna-rna.top";
+{===>} topology_infile_3="CNS_TOPPAR:water.top";
+{===>} topology_infile_4="CNS_TOPPAR:ion.top";
+{===>} topology_infile_5="CNS_TOPPAR:carbohydrate.top";
+{===>} topology_infile_6="";
+{===>} topology_infile_7="";
+{===>} topology_infile_8="";
+
+{* linkage files for linear, continuous polymers (protein, DNA, RNA) *}
+{===>} link_infile_1="CNS_TOPPAR:protein.link";
+{===>} link_infile_2="CNS_TOPPAR:dna-rna-pho.link";
+{===>} link_infile_3="";
+
+{* parameter files *}
+{===>} parameter_infile_1="CNS_TOPPAR:protein_rep.param";
+{===>} parameter_infile_2="CNS_TOPPAR:dna-rna_rep.param";
+{===>} parameter_infile_3="CNS_TOPPAR:water_rep.param";
+{===>} parameter_infile_4="CNS_TOPPAR:ion.param";
+{===>} parameter_infile_5="CNS_TOPPAR:carbohydrate.param";
+{===>} parameter_infile_6="";
+{===>} parameter_infile_7="";
+{===>} parameter_infile_8="";
+
+{* molecular topology file: optional (leave blank for auto generation) *}
+{* 
+   Auto generation of the molecular topology from the coordinates should only 
+   be used if:
+   (1) Each distinct protein, DNA, or RNA chain must have a separate segid 
+       (or chainid if the chainid is non-blank). 
+   (2) Each contiguous protein, RNA, or RNA chain must not be disrupted by 
+       other types of residues or ligands.  Rather, these other residues 
+       should be listed after protein, RNA/DNA chains. 
+   (3) Disulphides are automatically detected based on distances between the sulfur atoms
+      (must be less than 3 A apart).
+   (4) Broken protein/RNA/DNA chains without terminii must be more than 2.5 A apart to be recognized as such.
+   (5) N-linked glycan links are automatically recognized if the bonded atoms are less than 2.5 A apart.
+   (6) Automatic generation cannot be used with alternate conformations. 
+   For ligands, the user must make suitable topology and parameter files.
+   For non-standard covalent linkages, the custom patch file should be used.
+   Alternatively, the generate.inp or generate_easy.inp task files
+   can be used to generated the mtf prior to running this task file.
+    *}
+{===>} structure_infile="";
+
+{* for auto generation: extra linkages and modifications by custom patches *}
+{===>} patch_infile="";
+
+{====================== crystallographic data ========================}
+
+{* space group *}
+{* use International Table conventions with subscripts substituted
+   by parenthesis *}
+{===>} sg="P2(1)2(1)2(1)";
+
+{* unit cell parameters in Angstroms and degrees *}
+{+ table: rows=1 "cell" cols=6 "a" "b" "c" "alpha" "beta" "gamma" +}
+{===>} a=65.508;
+{===>} b=72.216;
+{===>} c=45.035;
+{===>} alpha=90;
+{===>} beta=90;
+{===>} gamma=90;
+
+{* reflection file *}
+{===>} reflection_infile="mbp_mr.hkl";
+
+{* reciprocal space array containing observed amplitudes: required *}
+{===>} obs_f="fobs";
+
+{* reciprocal space array containing sigma values for amplitudes: required *}
+{===>} obs_sigf="sigma";
+
+{* resolution limits *}
+{+ table: rows=1 "resolution" cols=2 "lowest" "highest" +}
+{===>} low_res=15;
+{===>} high_res=4;
+
+{* Observed data cutoff criteria: applied to amplitudes *}
+{* reflections with magnitude(Obs)/sigma < cutoff are rejected. *}
+{===>} sigma_cut=0.0;
+
+{* rms outlier cutoff: applied to amplitudes *}
+{* reflections with magnitude(Obs) > cutoff*rms(Obs) will be rejected *}
+{===>} obs_rms=10;
+
+{* number of bins for bin-wise resolution-dependent operations 
+   and functions *}
+{===>} bins=10;
+
+{* memory allocation for FFT calculation *}
+{* this will be determined automatically if a negative value is given
+   otherwise the specified number of words will be allocated *}
+{===>} fft_memory=-1;
+
+{========================== atom selection ===========================}
+
+{* Select atoms to be included in rotation function. *}
+{===>} atom_select=(known and not hydrogen);
+
+{======================== rotation function ==========================}
+
+{* method for cross-rotation function. *}
+{* The realspace search is fastest, whereas a full direct search takes a 
+   long time but is more likely to find a correct solution when the 
+   realspace method fails. The fastdirect search takes significantly
+   less time while still preserving much of the accuracy of the full
+   direct search *}
+{+ list: time requirement for searches
+   "realspace": short
+   "fastdirect": short
+   "direct": long +}
+{+ choice: "realspace" "fastdirect" "direct" +}
+{===>} rot_method="fastdirect";
+
+{===================== extent of rotation search =====================}
+
+{* use the automatically determined asymmetric unit for the cross-rotation
+   function *}
+{* if this is disabled the limits defined below will be used instead *}
+{+ choice: true false +}
+{===>} auto_asu=true;
+
+{* rotation convention for user defined limits *}
+{+ choice: "lattman" "euler" "spherical" +}
+{===>} rot_mode="lattman";
+
+{* user defined limits on the extent of the rotation search *}
+{* these are used if automatic extent determination is disabled *}
+{+ list: limits depend on the rotation convention used. 
+         If the Euler mode is used then the limits are expressed in
+         equidistant Euler angles:
+           (1) theta_1 = rotation around the initial Z-axis
+           (2) theta_2 = rotation around the new X-axis
+           (3) theta_3 = rotation around the new Z-axis
+         If the Lattman mode is used then the limits are expressed in 
+         pseudo-orthogonal Lattman angles:
+           (1) theta_minus = theta_1 - theta_3
+           (2) theta_2 = theta_2
+           (3) theta_plus = theta_1 + theta_3
+         If the Spherical mode is used then the limits are expressed in
+         spherical polar angles:
+           (1) psi = the inclination versus the Y-axis
+           (2) phi = the angle between the x-axis and its projection onto
+                     the x,z plane
+           (3) kappa = rotation about the axis +}
+{+ table: rows=3 "rotation 1" "rotation 2" "rotation 3" 
+          cols=2 "minimum" "maximum" +}
+{===>} rot1_min=-10; rot1_max=10;
+{===>} rot2_min=-10; rot2_max=10;
+{===>} rot3_min=-10; rot3_max=10;
+
+{* rotation function angular grid size. *}
+{* If the parameter is set to -1, the grid will be automatically 
+   set to 2 ArcSin[ high resol / (2(a+b+c)/3) ] for the realspace and
+   fastdirect searches. For the direct search the grid will be set to
+   3 ArcSin[ high resol / (2(a+b+c)/3) ]. *}
+{===>} angle_grid=-1;
+
+{=============== fastdirect rotation search parameters ===============}
+
+{* fastdirect: coarseness of initial grid search *}
+{* the initial coarse search will use the fine angular grid size,
+   defined above, multiplied by this factor *}
+{+ choice: 3 4 5 6 +}
+{===>} fastd_gridfac=5;
+
+{* fastdirect: maximum number of peaks from coarse direct search 
+   to be analysed in subsequent fine grid searches *}
+{===>} fastd_npeaks=20;
+
+{=============== real-space rotation search parameters ===============}
+
+{* Patterson vector range - for real-space rotation function only. 
+   Patterson vectors with lengths between the two limits are included. 
+   Note: the direct rotation function includes all Patterson vectors. *}
+   
+{* minimum Patterson vector length (in A) *}
+{===>} patterson_low=5;
+
+{* maximum Patterson vector length (in A), if set to -1, the maximum 
+   length will be set to the maximum distance between the geometric 
+   center of the molecule and any atom in the model.  *}
+{===>} patterson_high=-1;
+
+{* Number of Patterson function peaks used - for real-space rotation 
+   function only.  The specified number of highest peaks are used. *}
+{===>} npeaks=3000;
+
+{========================= cluster analysis ==========================}
+
+{* peak cluster analysis threshold (in degrees). Two peaks are
+   defined to belong to the same cluster if the corresponding 
+   orientations differ by less than the specified amount. *}
+{===>} cluster_threshold=10;
+
+{* number of highest grid points that will be analysed by the 
+   cluster procedure. *}
+{===>} nlist=1000;
+
+{=========================== output files ============================}
+
+{+ list:
+   Definition of Eulerian angles appearing in the list file: 
+         theta_1 is the rotation around the z axis
+         theta_2 is the rotation around the new x axis
+         theta_3 is the rotation around the new z axis.  
+   The maximum range is:
+       0<theta_1<360 degrees
+       0<theta_2<90  degrees
+       0<theta_3<360 degrees
+   All rotations are counterclockwise when looking in the direction of 
+   the rotation axis. All rotations apply to the search model. +}
+
+{* Rotation function list file *}
+{===>} rf_list_outfile="cross_rotation.list";
+
+{===========================================================================}
+{        things below this line do not normally need to be changed          }
+{===========================================================================}
+
+ ) {- end block parameter definition -}
+
+ checkversion 1.3
+
+ evaluate ($log_level=quiet)
+
+ if ( $log_level = verbose ) then
+   set message=normal echo=on end
+ else
+   set message=off echo=off end
+ end if
+
+ if ( &BLANK%structure_infile = true ) then
+ 
+    {- read topology files -}
+    topology
+     evaluate ($counter=1)
+     evaluate ($done=false)
+     while ( $done = false ) loop read
+      if ( &exist_topology_infile_$counter = true ) then
+         if ( &BLANK%topology_infile_$counter = false ) then
+            @@&topology_infile_$counter
+         end if
+      else
+        evaluate ($done=true)
+      end if
+      evaluate ($counter=$counter+1)
+     end loop read
+    end
+    
+    @CNS_XTALMODULE:mtfautogenerate (
+                                  coordinate_infile=&coordinate_infile;
+                                  convert=true;
+                                  separate=true;
+                                  atom_delete=(not known);
+                                  hydrogen_flag=true;
+                                  break_cutoff=2.5;
+                                  disulphide_dist=3.0;
+                                  carbo_dist=2.5;
+                                  patch_infile=&patch_infile;
+                                  O5_becomes="O";
+                                 )
+
+ else
+
+   structure @&structure_infile end
+   coordinates @&coordinate_infile
+
+ end if
+
+ {- read parameter files -}
+ parameter
+  evaluate ($counter=1)
+  evaluate ($done=false)
+  while ( $done = false ) loop read
+   if ( &exist_parameter_infile_$counter = true ) then
+      if ( &BLANK%parameter_infile_$counter = false ) then
+         @@&parameter_infile_$counter
+      end if
+   else
+     evaluate ($done=true)
+   end if
+   evaluate ($counter=$counter+1)
+  end loop read
+ end
+
+ set message=normal echo=on end
+
+ evaluate ($sg_crystal=&sg) 
+ 
+ evaluate ($cluster_epsilon=sqrt(4*(1-cos(&cluster_threshold))))
+ 
+ evaluate ($angle_grid=&angle_grid)
+ if (&angle_grid=-1) then
+    evaluate ($angle_grid= 2 * asin(&high_res/(2*(&a+&b+&c)/3)))
+    if ( &rot_method = "direct" ) then
+      evaluate ($angle_grid= 1.5 * $angle_grid)
+    end if
+ end if
+ 
+ if ( &rot_method = "realspace" ) then
+   evaluate ($grid=0.25)
+ else
+   evaluate ($grid=0.33)
+ end if
+
+ xray
+ 
+    @CNS_XRAYLIB:scatter.lib
+
+    method=fft
+
+    fft
+       grid=$grid
+       if ( &fft_memory < 0 ) then
+    	  automemory=true
+       else
+    	  memory=&fft_memory
+       end if
+    end
+    
+    bins=&bins
+ 
+    query name=fcalc domain=reciprocal end
+    if ( $object_exist = false ) then
+       declare name=fcalc domain=reciprocal type=complex end
+    end if
+      
+   
+ end
+ 
+ if (&rot_method="realspace") then
+  
+    {- Specify location of Patterson map files.-}                    
+    evaluate ( $p1_map="cross_rotation_p1.map" )
+    evaluate ( $p2_map="cross_rotation_p2.map" )
+
+    {- Compute center of geometric center. -}
+    show ave (x) ( &atom_select )
+    evaluate ($xcent=$result) 
+    show ave (y) ( &atom_select )
+    evaluate ($ycent=$result) 
+    show ave (z) ( &atom_select )
+    evaluate ($zcent=$result) 
+
+        {- Compute maximum distance between geometric center and any atom. -} 
+    show max  (sqrt ((x-$xcent)^2 + (y-$ycent)^2 + (z-$zcent)^2) )
+              ( &atom_select )
+
+          {- Set the outer radius of the integration volume to this value. -} 
+    evaluate ( $max_vector = $result )
+
+    evaluate ($box_size=3 * $max_vector) 
+ 
+    if (&patterson_high > 0) then
+       evaluate ( $max_vector=&patterson_high )
+    end if  
+                                                    {- Set the P1 box size. -}
+    xray {- Make Patterson map of model in P1 box.-}
+
+       a=$box_size b=$box_size c=$box_size alpha=90.0 beta=90.0 gamma=90.0
+
+       @@CNS_XTALLIB:spacegroup.lib (sg="P1"; sgparam = $sgparam )
+  
+       binresolution &low_res &high_res
+       mapresolution &high_res
+
+       generate &low_res &high_res                         
+
+       tselection=( &low_res >= d >= &high_res )
+
+       predict 
+          mode=reciprocal
+          to=fcalc
+          atomselection=( &atom_select )
+          selection=( &low_res >= d >= &high_res )
+       end
+       
+                                  {- Get corresponding Patterson symmetry. -}
+       evaluate ($sg_patt=$sgparam.patt_symm)
+       symmetry reset
+       @@CNS_XTALLIB:spacegroup.lib (sg=$sg_patt; sgparam = $sgparam )
+
+                        {- Compute Patterson function with origin removal. -}
+       do (fcalc=combine(
+                amplitude(fcalc)^2-sAVE(amplitude(fcalc)^2) ,
+                    0))  ( &low_res >= d >= &high_res )
+
+       declare name=map1 domain=real end
+       
+       do (map1=ft(fcalc)) ( &low_res >= d >= &high_res )
+
+       write map 
+          from=map1                                          
+                           {- Write a hemisphere of Patterson vectors with -}
+          extend=box       {- lengths less than $max_vector.               -}
+
+          evaluate ( $m_max_vector=-$max_vector )
+          xmin=$m_max_vector xmax=$max_vector 
+          ymin=$m_max_vector ymax=$max_vector
+          zmin=0.0 zmax=$max_vector
+  
+          automatic=true  
+
+          formatted=false 
+          output=$p1_map                       
+       end
+         
+       undeclare name=map1 domain=real end
+       
+       symmetry reset
+       reflection reset end
+                        
+    end
+ end if
+
+ xray
+
+   @CNS_XTALLIB:spacegroup.lib (sg=&sg; sgparam = $sgparam )
+
+   a=&a b=&b c=&c  alpha=&alpha beta=&beta gamma=&gamma
+  
+   reflection @&reflection_infile end
+
+   binresolution &low_res &high_res
+   mapresolution &high_res
+
+   set echo=off end
+   if ( &BLANK%obs_f = true ) then
+      display 
+      display  *********************************************************
+      display  Error: required observed amplitude array is not specified
+      display  *********************************************************
+      display
+      abort
+   else
+      query name=&STRIP%obs_f domain=reciprocal end
+      if ( $object_exist = false ) then
+         display 
+         display  **************************************************************
+         display  Error: required observed amplitude array &obs_f does not exist
+         display  **************************************************************
+         display
+         abort
+      end if
+      {- note: this array can be of any type -}
+    end if
+
+   if ( &BLANK%obs_sigf = true ) then
+      display 
+      display  *****************************************************
+      display  Error: required observed sigma array is not specified
+      display  *****************************************************
+      display
+      abort
+   else
+      query name=&STRIP%obs_sigf domain=reciprocal end
+      if ( $object_exist = false ) then
+         display 
+         display  *************************************************************
+         display  Error: required observed sigma array &obs_sigf does not exist
+         display  *************************************************************
+         display
+         abort
+      end if
+      if ( $object_type # "REAL" ) then
+         display 
+         display  **********************************************************************
+         display  Error: required observed sigma array &obs_sigf has the wrong data type
+         display  **********************************************************************
+         display
+         abort
+      end if
+   end if
+   set echo=on end
+
+   evaluate ($reject_obs=&obs_f)
+   evaluate ($reject_sig=&obs_sigf)
+
+   declare name=ref_active domain=reciprocal type=integer end
+
+   do (ref_active=0) ( all )
+   do (ref_active=1) ( ( $STRIP%reject_sig # 0 ) and
+                      ( &low_res >= d >= &high_res ) )
+
+   statistics overall
+     completeness
+     selection=( ref_active=1 )
+   end
+   evaluate ($total_compl=$expression1)
+
+   show sum(1) ( ref_active=1 )
+   evaluate ($total_read=$select)
+   evaluate ($total_theor=int(1./$total_compl * $total_read))
+
+   show rms (amplitude($STRIP%reject_obs)) ( ref_active=1 )
+   evaluate ($obs_high=$result*&obs_rms)
+   show min (amplitude($STRIP%reject_obs)) ( ref_active=1 )
+   evaluate ($obs_low=$result)
+
+   do (ref_active=0) ( all )
+   do (ref_active=1)
+                  ( ( amplitude($STRIP%reject_obs) > &sigma_cut*$STRIP%reject_sig ) and
+                    ( $STRIP%reject_sig # 0 ) and
+                    ( $obs_low <= amplitude($STRIP%reject_obs) <= $obs_high ) and
+                    ( &low_res >= d >= &high_res ) )
+
+   show sum(1) ( ref_active=1 )
+   evaluate ($total_used=$select)
+
+   evaluate ($unobserved=$total_theor-$total_read)
+   evaluate ($rejected=$total_read-$total_used)
+   evaluate ($per_unobs=100*($unobserved/$total_theor))
+   evaluate ($per_reject=100*($rejected/$total_theor))
+   evaluate ($per_used=100*($total_used/$total_theor))
+
+   associate fcalc ( &atom_select )
+
+   tselection=( ref_active=1 )
+
+ end                  
+
+ evaluate ($dcoarse_grid=$angle_grid*&fastd_gridfac)
+
+ set display=&rf_list_outfile end
+
+ if (&rot_method="fastdirect") then
+    display ! fast direct rotation search: 
+    display ! target= E2E2   bins= &bins
+    display ! coarse angular grid= $dcoarse_grid
+    display ! maximum number of coarse grid peaks analysed= &fastd_npeaks
+ elseif (&rot_method="direct") then
+    display ! direct rotation search:
+    display ! target= E2E2   bins= &bins
+ else
+    display ! real-space rotation search:
+    display ! Patterson lengths between &patterson_low and $max_vector
+    display ! npeaks= &npeaks
+ end if
+ display ! at resolution: &low_res - &high_res A
+ if ( &auto_asu = true ) then
+   display ! extent of search: automatic
+ else
+   display ! extent of search:
+   if ( &rot_mode = "lattman" ) then
+     display !      theta_minus: min=&rot1_min max=&rot1_max
+     display !      theta_2:     min=&rot2_min max=&rot2_max
+     display !      theta_plus:  min=&rot3_min max=&rot3_max
+   elseif ( &rot_mode = "euler" ) then
+     display !      theta_1: min=&rot1_min max=&rot1_max
+     display !      theta_2: min=&rot2_min max=&rot2_max
+     display !      theta_2: min=&rot3_min max=&rot3_max
+   elseif ( &rot_mode = "spherical" ) then
+     display !      psi:   min=&rot1_min max=&rot1_max
+     display !      phi:   min=&rot2_min max=&rot2_max
+     display !      kappa: min=&rot3_min max=&rot3_max
+   end if
+ end if
+ display ! angular grid= $angle_grid    nlist= &nlist  cluster_threshold= &cluster_threshold
+ display ! sg= &STRIP%sg a= &a b= &b c= &c alpha= &alpha beta= &beta gamma= &gamma
+
+ if ( &BLANK%structure_infile = true ) then
+   display ! molecular structure file: automatic
+
+   evaluate ($counter=1)
+   evaluate ($done=false)
+   while ( $done = false ) loop read
+    if ( &exist_topology_infile_$counter = true ) then
+      if ( &BLANK%topology_infile_$counter = false ) then
+        display ! topology file $counter  : &STRIP%topology_infile_$counter
+      end if
+    else
+     evaluate ($done=true)
+    end if
+    evaluate ($counter=$counter+1)
+   end loop read
+
+   evaluate ($counter=1)
+   evaluate ($done=false)
+   while ( $done = false ) loop read
+    if ( &exist_link_infile_$counter = true ) then
+      if ( &BLANK%link_infile_$counter = false ) then
+        display ! linkage file $counter  : &STRIP%link_infile_$counter
+      end if
+    else
+     evaluate ($done=true)
+    end if
+    evaluate ($counter=$counter+1)
+   end loop read
+
+   if ( &BLANK%patch_infile = false ) then
+      display ! custom patch file = &STRIP%patch_infile
+   end if
+
+ else
+   display ! molecular structure file: &STRIP%structure_infile
+ end if
+
+ display ! input coordinates: &STRIP%coordinate_infile
+ display ! reflection file= &STRIP%reflection_infile
+ display ! reflections with |Fobs|/sigma_F < &sigma_cut rejected
+ display ! reflections with |Fobs| > &obs_rms * rms(Fobs) rejected
+ display ! theoretical total number of refl. in resol. range:    $total_theor[I6] ( 100.0 % )
+ display ! number of unobserved reflections (no entry or |F|=0): $unobserved[I6] ( $per_unobs[f5.1] % )
+ display ! number of reflections rejected:                       $rejected[I6] ( $per_reject[f5.1] % )
+ display ! total number of reflections used:                     $total_used[I6] ( $per_used[f5.1] % )
+ 
+ set display=OUTPUT end
+
+ if (&rot_method="realspace") then
+ 
+    xray {- Make Patterson map of crystal.-}
+
+       evaluate ($sg_patt=$sgparam.patt_symm)
+       symmetry reset
+                              {- Switch to Patterson symmetry space group. -}
+       @@CNS_XTALLIB:spacegroup.lib (sg=$sg_patt; &sgparam = $sgparam )
+
+                        {- Compute Patterson function with origin removal. -}
+       do (fcalc=0) ( all ) 
+       do (fcalc=combine(amplitude(&STRIP%obs_f)^2-sAVE(amplitude(&STRIP%obs_f)^2),0))  
+                        (ref_active=1)
+
+       declare name=map1 domain=real end 
+       
+       do (map1=ft(fcalc))  ( amplitude(fcalc)>0 )
+   
+       write map 
+          from=map1                                          
+          extend=unit
+          automatic=true                      
+          formatted=false
+          output=$p2_map  
+       end                   
+
+       undeclare name=map1 domain=real end
+       
+       set abort=off end
+
+       search rotation 
+          p1input=$p1_map    formatted=false
+          p2input=$p2_map
+
+          range=&patterson_low $max_vector      
+          threshold=0.0 
+          npeaks=&npeaks               
+
+          if ( &auto_asu = true ) then
+            @@CNS_XTALLIB:cross-rf-asu.lib (  laue_class = $sgparam.laue_class;
+                                              rfparam = $rfparam )
+                                         
+            tmmin=$rfparam.tmmin tmmax=$rfparam.tmmax
+            t2min=$rfparam.t2min t2max=$rfparam.t2max
+            tpmin=$rfparam.tpmin tpmax=$rfparam.tpmax
+          else
+            if ( &rot_mode = "lattman" ) then
+              tmmin=&rot1_min tmmax=&rot1_max
+              t2min=&rot2_min t2max=&rot2_max
+              tpmin=&rot3_min tpmax=&rot3_max
+            elseif ( &rot_mode = "euler" ) then
+              t1min=&rot1_min t1max=&rot1_max
+              t2min=&rot2_min t2max=&rot2_max
+              t3min=&rot3_min t3max=&rot3_max
+            elseif ( &rot_mode = "spherical" ) then
+              psimin=  &rot1_min psimax=  &rot1_max
+              phimin=  &rot2_min phimax=  &rot2_max
+              kappamin=&rot3_min kappamax=&rot3_max
+            end if
+          end if
+
+          delta=$angle_grid       
+          list=&rf_list_outfile 
+          nlist=&nlist
+          epsilon=$cluster_epsilon  
+                          
+       end             
+    end
+ elseif (&rot_method="fastdirect") then
+
+    evaluate ($rfave=0.)
+    evaluate ($rf2ave=0.)
+    evaluate ($rfcount=0.)
+
+    xray
+
+       tolerance=0.0 lookup=false
+       expand  {- Expand data to a P1 hemisphere.-}
+       
+       associate fcalc (&atom_select) 
+       bins=10
+       target=(E2E2(amplitude(&STRIP%obs_f),fcalc))
+       
+       search direct 
+      
+          @@CNS_XTALLIB:spacegroup.lib (sg=&sg; sgparam = $sgparam)
+
+          if ( &auto_asu = true ) then
+            @@CNS_XTALLIB:cross-rf-asu.lib (  laue_class = $sgparam.laue_class;
+                                              rfparam = $rfparam )
+                                         
+            tmmin=$rfparam.tmmin tmmax=$rfparam.tmmax
+            t2min=$rfparam.t2min t2max=$rfparam.t2max
+            tpmin=$rfparam.tpmin tpmax=$rfparam.tpmax
+          else
+            if ( &rot_mode = "lattman" ) then
+              tmmin=&rot1_min tmmax=&rot1_max
+              t2min=&rot2_min t2max=&rot2_max
+              tpmin=&rot3_min tpmax=&rot3_max
+            elseif ( &rot_mode = "euler" ) then
+              t1min=&rot1_min t1max=&rot1_max
+              t2min=&rot2_min t2max=&rot2_max
+              t3min=&rot3_min t3max=&rot3_max
+            elseif ( &rot_mode = "spherical" ) then
+              psimin=  &rot1_min psimax=  &rot1_max
+              phimin=  &rot2_min phimax=  &rot2_max
+              kappamin=&rot3_min kappamax=&rot3_max
+            end if
+          end if
+
+          if ( $log_level = verbose ) then
+            set message=normal end
+          else
+            set message=off end
+          end if
+
+          delta=$dcoarse_grid
+          symbol=dcoarse
+          nlist=&nlist
+          epsilon=$cluster_epsilon
+                        
+       end             
+       set message=on end
+
+       if ( &fastd_npeaks > $dcoarse_nlist ) then
+         evaluate ($fastd_npeaks=$dcoarse_nlist) 
+       else
+         evaluate ($fastd_npeaks=&fastd_npeaks)
+       end if
+
+       evaluate ($peak=1)
+       while ( $peak < $fastd_npeaks ) loop peaks
+
+         if ( &auto_asu = true ) then
+           evaluate ($d_tp=$dcoarse_theta1_$peak+$dcoarse_theta3_$peak)
+           evaluate ($d_t2=$dcoarse_theta2_$peak)
+           evaluate ($d_tm=$dcoarse_theta1_$peak-$dcoarse_theta3_$peak)
+
+           evaluate ($d_tmmin=$d_tm-$dcoarse_grid)
+           evaluate ($d_tmmax=$d_tm+$dcoarse_grid)
+           evaluate ($d_t2min=$d_t2-$dcoarse_grid)
+           evaluate ($d_t2max=$d_t2+$dcoarse_grid)
+           evaluate ($d_tpmin=$d_tp-$dcoarse_grid)
+           evaluate ($d_tpmax=$d_tp+$dcoarse_grid)
+         else
+           if ( &rot_mode = "spherical" ) then
+             evaluate ($d_psimin=$dcoarse_psi_$peak-$dcoarse_grid)
+             evaluate ($d_psimax=$dcoarse_psi_$peak+$dcoarse_grid)
+             evaluate ($d_phimin=$dcoarse_phi_$peak-$dcoarse_grid)
+             evaluate ($d_phimax=$dcoarse_phi_$peak+$dcoarse_grid)
+             evaluate ($d_kapmin=$dcoarse_kappa_$peak-$dcoarse_grid)
+             evaluate ($d_kapmax=$dcoarse_kappa_$peak+$dcoarse_grid)
+           else
+             evaluate ($d_tp=$dcoarse_theta1_$peak+$dcoarse_theta3_$peak)
+             evaluate ($d_t2=$dcoarse_theta2_$peak)
+             evaluate ($d_tm=$dcoarse_theta1_$peak-$dcoarse_theta3_$peak)
+
+             evaluate ($d_tmmin=$d_tm-$dcoarse_grid)
+             evaluate ($d_tmmax=$d_tm+$dcoarse_grid)
+             evaluate ($d_t2min=$d_t2-$dcoarse_grid)
+             evaluate ($d_t2max=$d_t2+$dcoarse_grid)
+             evaluate ($d_tpmin=$d_tp-$dcoarse_grid)
+             evaluate ($d_tpmax=$d_tp+$dcoarse_grid)
+           end if
+         end if
+
+         search direct
+
+            @@CNS_XTALLIB:spacegroup.lib (sg=&sg; sgparam = $sgparam)
+
+            if ( &auto_asu = true ) then
+              tmmin=$d_tmmin tmmax=$d_tmmax
+              t2min=$d_t2min t2max=$d_t2max
+              tpmin=$d_tpmin tpmax=$d_tpmax
+            else
+              if ( &rot_mode = "spherical" ) then
+                psimin=  $d_psimin psimax=  $d_psimax
+                phimin=  $d_phimin phimax=  $d_phimax
+                kappamin=$d_kapmin kappamax=$d_kapmax
+              else
+                tmmin=$d_tmmin tmmax=$d_tmmax
+                t2min=$d_t2min t2max=$d_t2max
+                tpmin=$d_tpmin tpmax=$d_tpmax
+              end if
+            end if
+
+            if ( $log_level = verbose ) then
+              set message=normal end
+            else
+              set message=off end
+            end if
+
+            delta=$angle_grid
+            nlist=&nlist
+            epsilon=$cluster_epsilon
+            symbol=dfine
+
+         end
+
+         search cluster
+
+            if ( &auto_asu = true ) then
+              mode=euler
+            else
+              if ( &rot_mode = "spherical" ) then
+                mode=spherical
+              else
+                mode=euler
+              end if
+            end if
+
+            set echo=off end
+            evaluate ($fpeak=1)
+            while ($fpeak <= $dfine_nlist) loop fine
+              if ( &auto_asu = true ) then
+                peak $dfine_theta1_$fpeak
+                     $dfine_theta2_$fpeak
+                     $dfine_theta3_$fpeak
+                     $dfine_rfvalue_$fpeak
+              else
+                if ( &rot_mode = "spherical" ) then
+                  peak $dfine_psi_$fpeak
+                       $dfine_phi_$fpeak
+                       $dfine_kappa_$fpeak
+                       $dfine_rfvalue_$fpeak
+                else
+                  peak $dfine_theta1_$fpeak
+                       $dfine_theta2_$fpeak
+                       $dfine_theta3_$fpeak
+                       $dfine_rfvalue_$fpeak
+                end if
+              end if
+              evaluate ($rfave=$rfave+$dfine_rfvalue_$fpeak)
+              evaluate ($rf2ave=$rf2ave+($dfine_rfvalue_$fpeak)^2)
+              evaluate ($rfcount=$rfcount+1)
+              evaluate ($fpeak=$fpeak+1)
+            end loop fine
+            set echo=on end
+
+         end
+         evaluate ($peak=$peak+1)
+       end loop peaks
+
+       evaluate ($rfave=$rfave/$rfcount)
+       evaluate ($rf2ave=sqrt($rf2ave/$rfcount-$rfave^2))
+
+       set display=&rf_list_outfile end       
+       display ! mean of rotation function:      $rfave[F9.4]
+       display ! standard deviation around mean: $rf2ave[F9.4]
+       set display=OUTPUT end
+
+       set message=on end
+
+       search cluster
+
+          @@CNS_XTALLIB:spacegroup.lib (sg=&sg; sgparam = $sgparam)
+
+          if ( &auto_asu = true ) then
+            mode=euler
+          else
+            if ( &rot_mode = "spherical" ) then
+              mode=spherical
+            else
+              mode=euler
+            end if
+          end if
+
+          list=&rf_list_outfile
+          nlist=&nlist
+          epsilon=$cluster_epsilon
+          cluster=true
+
+       end
+    end
+ elseif (&rot_method="direct") then
+    xray
+       tolerance=0.0 lookup=false
+       expand  {- Expand data to a P1 hemisphere.-}
+
+       associate fcalc (&atom_select)
+       bins=10
+       target=(E2E2(amplitude(&STRIP%obs_f),fcalc))
+
+       search direct
+
+          @@CNS_XTALLIB:spacegroup.lib (sg=&sg; sgparam = $sgparam)
+
+          if ( &auto_asu = true ) then
+            @@CNS_XTALLIB:cross-rf-asu.lib (  laue_class = $sgparam.laue_class;
+                                              rfparam = $rfparam )
+                                         
+            tmmin=$rfparam.tmmin tmmax=$rfparam.tmmax
+            t2min=$rfparam.t2min t2max=$rfparam.t2max
+            tpmin=$rfparam.tpmin tpmax=$rfparam.tpmax
+          else
+            if ( &rot_mode = "lattman" ) then
+              tmmin=&rot1_min tmmax=&rot1_max
+              t2min=&rot2_min t2max=&rot2_max
+              tpmin=&rot3_min tpmax=&rot3_max
+            elseif ( &rot_mode = "euler" ) then
+              t1min=&rot1_min t1max=&rot1_max
+              t2min=&rot2_min t2max=&rot2_max
+              t3min=&rot3_min t3max=&rot3_max
+            elseif ( &rot_mode = "spherical" ) then
+              psimin=  &rot1_min psimax=  &rot1_max
+              phimin=  &rot2_min phimax=  &rot2_max
+              kappamin=&rot3_min kappamax=&rot3_max
+            end if
+          end if
+
+          if ( $log_level = verbose ) then
+            set message=normal end
+          else
+            set message=off end
+          end if
+
+          delta=$angle_grid
+          list=&rf_list_outfile
+          nlist=&nlist
+          epsilon=$cluster_epsilon
+
+       end
+       set message=on end
+
+    end
+ else
+    display "unknown search method"
+ end if
+ 
+ stop

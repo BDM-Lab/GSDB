@@ -1,0 +1,183 @@
+<HTML>
+<HEAD>
+   <TITLE>Crystallography & NMR System</TITLE>
+</HEAD>
+<BODY BGCOLOR=#8ebf8e>
+
+<HR WIDTH="100%">
+
+<H2>Detection of twinning</H2>
+
+<HR WIDTH="100%"></P>
+
+<P>Please note that only true hemihedral twinning treated
+correctly in CNS. Data with pseudo-merohedral twinning can not be used
+(the program SHELXL is suggested instead).</P>
+
+<P>Prior to refinement the twinning operator must be identified and
+the twinning fraction calculated. One of the best ways to do this is
+with Todd Yeates's web-based Merohedral Crystal Twinning Server. This
+is currently located at the following URL:</P>
+
+<A HREF="http://www.doe-mbi.ucla.edu/Services/Twinning">http://www.doe-mbi.ucla.edu/Services/Twinning</A>
+
+<P>Experimental diffraction data is given in either CIF or X-PLOR
+format. Various tests are performed for perfect or partial twinning.</P>
+
+<P>Alternatively, twinning can be identified in CNS using the
+<TT>detect_twinning.inp</TT> task file:</P>
+
+<PRE>
+      cns_solve &lt; <A HREF="detect_twinning.inp">detect_twinning.inp</A> &gt; detect_twinning.out
+</PRE>
+
+<P>Perfect twinning is tested for by analysis of intensity
+statistics:</P>
+
+<TABLE BORDER=2 ALIGN=CENTER>
+<TR><TD>Statistic</TD><TD>Untwinned data</TD><TD>Twinned data</TD></TR>
+<TR><TD>&lt;I<sup>2</sup>&gt;/&lt;I&gt;<sup>2</sup></TD><TD ALIGN=CENTER>2.0</TD><TD ALIGN=CENTER>1.5</TD></TR>
+<TR><TD>&lt;F&gt;<sup>2</sup>/&lt;F<sup>2</sup>&gt;</TD><TD ALIGN=CENTER>0.785</TD><TD ALIGN=CENTER>0.865</TD></TR></TABLE>
+
+<P>Partial twinning is tested by application of the possible twin laws
+and calculation of the twinning fraction. The possible hemihedral
+twinning operators for different point groups are:</P>
+
+<TABLE ALIGN=CENTER BORDER=2 CELLPADDING=2>
+<TR><TD><B>True point group</B></TD>
+    <TD><B>Twin operation  </B></TD>
+    <TD><B><I>hkl</I> related to</B></TD></TR>
+<TR><TD>3  </TD><TD>2 along a,b      </TD><TD><I>  h,-h-k,-l</I></TD></TR>
+<TR><TD>   </TD><TD>2 along a*,b*    </TD><TD><I>h+k,-k  ,-l</I></TD></TR>
+<TR><TD>   </TD><TD>2 along c        </TD><TD><I> -h,-k  , l</I></TD></TR>
+<TR><TD>4  </TD><TD>2 along a,b,a*,b*</TD><TD><I>  h,-k  ,-l</I></TD></TR>
+<TR><TD>6  </TD><TD>2 along a,b,a*,b*</TD><TD><I>  h,-h-k,-l</I></TD></TR>
+<TR><TD>321</TD><TD>2 along a*,b*,c  </TD><TD><I> -h,-k  , l</I></TD></TR>
+<TR><TD>312</TD><TD>2 along a,b,c    </TD><TD><I> -h,-k  , l</I></TD></TR>
+<TR><TD>23 </TD><TD>4 along a,b,c    </TD><TD><I>  k,-h  , l</I></TD></TR>
+</TABLE>
+
+<P>A listing file (<A HREF="detect_twinning.list">detect_twinning.list</A>) is
+produced:</P>
+
+<PRE>
+==============================================================================
+
+                        testing for perfect twinning
+
+ column  1:     bin number
+ columns 2:     upper resolution limit
+ columns 3:     lower resolution limit
+ column  4:     number of reflections in bin
+ column  5:     average resolution in bin
+ column  6:     &lt;|I|^2&gt; /(&lt;|I|&gt;)^2
+ column  7:     (&lt;|F|&gt;)^2/&lt;|F|^2&gt;
+ column  8:     fraction of theoretically complete data
+
+ &lt;|I|^2&gt; /(&lt;|I|&gt;)^2 is 2.0 for untwinned data, 1.5 for twinned data
+ (&lt;|F|&gt;)^2/&lt;|F|^2&gt; is 0.785 for untwinned data, 0.865 for twinned data
+
+ #bin | resolution range | #refl |
+    1   8.12  500.01        481     11.6016    1.8597    0.8063    0.9469
+    2   6.44    8.12        509      7.1613    1.8921    0.8264    0.9864
+    3   5.63    6.44        502      6.0042    1.6015    0.8615    0.9941
+    4   5.12    5.63        509      5.3576    1.8113    0.8416    0.9903
+    5   4.75    5.12        509      4.9234    1.6795    0.8545    0.9941
+    6   4.47    4.75        514      4.6003    1.9726    0.8228    0.9942
+    7   4.24    4.47        510      4.3488    1.6194    0.8617    0.9961
+    8   4.06    4.24        494      4.1487    1.6394    0.8653    0.9940
+    9   3.90    4.06        518      3.9796    1.6701    0.8542    0.9942
+   10   3.77    3.90        511      3.8322    1.6527    0.8594    1.0000
+   11   3.65    3.77        485      3.7096    1.6670    0.8597    1.0000
+   12   3.55    3.65        523      3.6004    2.0337    0.8147    0.9962
+   13   3.45    3.55        496      3.5000    1.6600    0.8540    1.0000
+   14   3.37    3.45        513      3.4134    1.7394    0.8433    1.0000
+   15   3.29    3.37        525      3.3305    1.6369    0.8724    1.0000
+   16   3.22    3.29        516      3.2567    1.6324    0.8653    1.0000
+   17   3.16    3.22        504      3.1882    1.5324    0.8773    1.0000
+   18   3.10    3.16        502      3.1285    1.5510    0.8686    1.0000
+   19   3.04    3.10        507      3.0710    1.5434    0.8649    1.0000
+   20   2.99    3.04        519      3.0172    1.5979    0.8639    1.0000
+   21   2.94    2.99        490      2.9684    1.6205    0.8555    1.0000
+   22   2.90    2.94        501      2.9218    1.6645    0.8544    1.0000
+   23   2.86    2.90        549      2.8778    1.7637    0.8524    1.0000
+   24   2.81    2.86        496      2.8342    1.5402    0.8710    1.0000
+   25   2.78    2.81        520      2.7956    1.5934    0.8699    1.0000
+   26   2.74    2.78        508      2.7584    1.6435    0.8508    1.0000
+   27   2.71    2.74        479      2.7245    1.5868    0.8674    1.0000
+   28   2.67    2.71        544      2.6904    1.5539    0.8720    1.0000
+   29   2.64    2.67        507      2.6584    1.6037    0.8625    1.0000
+   30   2.61    2.64        481      2.6283    1.5426    0.8727    1.0000
+   31   2.58    2.61        546      2.5990    1.6387    0.8533    1.0000
+   32   2.56    2.58        502      2.5710    1.6343    0.8585    1.0000
+   33   2.53    2.56        501      2.5443    1.6461    0.8594    1.0000
+   34   2.51    2.53        514      2.5190    1.7216    0.8447    1.0000
+   35   2.48    2.51        521      2.4938    1.7390    0.8439    1.0000
+   36   2.46    2.48        497      2.4710    1.6592    0.8554    1.0000
+   37   2.44    2.46        500      2.4479    1.5611    0.8739    1.0000
+   38   2.42    2.44        532      2.4256    1.6924    0.8597    1.0000
+   39   2.39    2.42        512      2.4049    1.6382    0.8568    1.0000
+   40   2.37    2.39        497      2.3840    1.5590    0.8614    1.0000
+   41   2.35    2.37        498      2.3645    1.6063    0.8553    1.0000
+   42   2.34    2.35        531      2.3455    1.6451    0.8616    1.0000
+   43   2.32    2.34        494      2.3267    1.5962    0.8643    1.0000
+   44   2.30    2.32        541      2.3088    1.7558    0.8438    1.0000
+   45   2.28    2.30        477      2.2910    1.6323    0.8609    1.0000
+   46   2.27    2.28        513      2.2744    1.5182    0.8894    1.0000
+   47   2.25    2.27        535      2.2580    1.5523    0.8878    0.9853
+
+---------------------------averages-over-all-bins-----------------------------
+  &lt;|I|^2&gt; /(&lt;|I|&gt;)^2  =    1.6581 (2.0   for untwinned, 1.5   for twinned)
+  (&lt;|F|&gt;)^2/&lt;|F|^2&gt; =    0.8574 (0.785 for untwinned, 0.865 for twinned)
+------------------------------------------------------------------------------
+
+==============================================================================
+
+      testing for partial twinning (using statistical method of Yeates)
+
+
+>>>> testing for twinning operator= h,-h-k,-l
+
+
+   &lt;H&gt; =  0.19495: twinning fraction= 0.305 (10554 reflections used)
+   &lt;H<sup>2</sup>&gt; =  0.05152: twinning fraction= 0.303 (10554 reflections used)
+
+
+>>>> testing for twinning operator= h+k,-k,-l
+
+
+   &lt;H&gt; =  0.39128: twinning fraction= 0.109 (3670 reflections used)
+   &lt;H<sup>2</sup>&gt; =  0.21541: twinning fraction= 0.098 (3670 reflections used)
+
+
+>>>> testing for twinning operator= -h,-k,l
+
+
+   &lt;H&gt; =  0.38104: twinning fraction= 0.119 (3878 reflections used)
+   &lt;H<sup>2</sup>&gt; =  0.20745: twinning fraction= 0.106 (3878 reflections used)
+
+==============================================================================
+</PRE>
+
+<P>The twinning operator h,-h-k,-l indicates a high twinning fraction
+(0.304). This is used in the subsequent refinement steps.</P>
+
+<P>If the twinning fraction is greater than 0.45 it becomes very
+difficult to detwin the data. In such cases it may be better to
+average twin related reflections to generate perfectly twinned
+data. For further information see T.O. Yeates, Detecting and
+Overcoming crystal twinning, Meth. Enzym. 276, 344-358 (1997).</P>
+<P>&nbsp;</P>
+<P>Before you proceed with the next sections, please read the tutorials on &quot;Refinement at high to medium resolution&quot; and &quot;Refinement with experimental phases&quot;. </P>
+
+<A HREF="tutorial.csh">Script to run this tutorial</A>
+
+<HR WIDTH="100%">
+
+<A HREF="../../text.html">Back to tutorials</A>&nbsp;&nbsp;
+<A HREF="../data_prep/text.html">Next section</A>
+
+<HR WIDTH="100%"></P>
+
+</BODY>
+</HTML>

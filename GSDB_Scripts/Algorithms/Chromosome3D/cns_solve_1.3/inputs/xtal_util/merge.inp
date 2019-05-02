@@ -1,0 +1,459 @@
+{+ file: merge.inp +}
+{+ directory: xtal_util +}
+{+ description: Dataset merging, renaming, data set expansion and reduction +}
+{+ authors: Axel T. Brunger +}
+{+ copyright: Yale University +}
+
+{- Guidelines for using this file:
+   - all strings must be quoted by double-quotes
+   - logical variables (true/false) are not quoted
+   - do not remove any evaluate statements from the file -}
+
+{- begin block parameter definition -} define(
+
+{====================== crystallographic data ========================}
+
+{* space group *}
+{* use International Table conventions with subscripts substituted 
+   by parenthesis *}
+{===>} sg="P2(1)2(1)2(1)";
+
+{* unit cell parameters in Angstroms and degrees *}
+{+ table: rows=1 "cell" cols=6 "a" "b" "c" "alpha" "beta" "gamma" +}
+{===>} a=65.508;
+{===>} b=72.216;
+{===>} c=45.035;
+{===>} alpha=90;
+{===>} beta=90;
+{===>} gamma=90;
+
+{* reflection input files followed by the names of reciprocal-space 
+   objects as they appear in the file, and, optionally, new names and 
+   data types as they will appear in the merged file.  Only specified 
+   objects will be written to the merged file  *}
+{* leave the "new_name_xxx" and/or "new_type_xxx" entries blank if the 
+   name and/or type is to be inherited from the original data file *}
+{* possible data types are: complex, real or integer *}
+{* important: specify non-anomalous files (if any) first *}
+
+{======================== reflection file 1 ==========================}
+
+{* reflection file *}
+{===>} reflection_infile_1="mbp_w1.hkl";
+{* arrays *}
+{+ table: rows=20 cols=3 "old name" "new name" "new type" +}
+{===>} old_name_1_1="fobs";    new_name_1_1="f_w1";     new_type_1_1="real";
+{===>} old_name_2_1="sigma";   new_name_2_1="s_w1";     new_type_2_1="";
+{===>} old_name_3_1="";        new_name_3_1="";         new_type_3_1="";
+{===>} old_name_4_1="";        new_name_4_1="";         new_type_4_1="";
+{===>} old_name_5_1="";        new_name_5_1="";         new_type_5_1="";
+{===>} old_name_6_1="";        new_name_6_1="";         new_type_6_1="";
+{===>} old_name_7_1="";        new_name_7_1="";         new_type_7_1="";
+{===>} old_name_8_1="";        new_name_8_1="";         new_type_8_1="";
+{===>} old_name_9_1="";        new_name_9_1="";         new_type_9_1="";
+{===>} old_name_10_1="";       new_name_10_1="";        new_type_10_1="";
+{===>} old_name_11_1="";       new_name_11_1="";        new_type_11_1="";
+{===>} old_name_12_1="";       new_name_12_1="";        new_type_12_1="";
+{===>} old_name_13_1="";       new_name_13_1="";        new_type_13_1="";
+{===>} old_name_14_1="";       new_name_14_1="";        new_type_14_1="";
+{===>} old_name_15_1="";       new_name_15_1="";        new_type_15_1="";
+{===>} old_name_16_1="";       new_name_16_1="";        new_type_16_1="";
+{===>} old_name_17_1="";       new_name_17_1="";        new_type_17_1="";
+{===>} old_name_18_1="";       new_name_18_1="";        new_type_18_1="";
+{===>} old_name_19_1="";       new_name_19_1="";        new_type_19_1="";
+{===>} old_name_20_1="";       new_name_20_1="";        new_type_20_1="";
+
+{======================== reflection file 2 ==========================}
+
+{* reflection file *}
+{===>} reflection_infile_2="mbp_w2.hkl";
+{* arrays *}
+{+ table: rows=20 cols=3 "old name" "new name" "new type" +}
+{===>} old_name_1_2="fobs";    new_name_1_2="f_w2";     new_type_1_2="real";
+{===>} old_name_2_2="sigma";   new_name_2_2="s_w2";     new_type_2_2="";
+{===>} old_name_3_2="";        new_name_3_2="";         new_type_3_2="";
+{===>} old_name_4_2="";        new_name_4_2="";         new_type_4_2="";
+{===>} old_name_5_2="";        new_name_5_2="";         new_type_5_2="";
+{===>} old_name_6_2="";        new_name_6_2="";         new_type_6_2="";
+{===>} old_name_7_2="";        new_name_7_2="";         new_type_7_2="";
+{===>} old_name_8_2="";        new_name_8_2="";         new_type_8_2="";
+{===>} old_name_9_2="";        new_name_9_2="";         new_type_9_2="";
+{===>} old_name_10_2="";       new_name_10_2="";        new_type_10_2="";
+{===>} old_name_11_2="";       new_name_11_2="";        new_type_11_2="";
+{===>} old_name_12_2="";       new_name_12_2="";        new_type_12_2="";
+{===>} old_name_13_2="";       new_name_13_2="";        new_type_13_2="";
+{===>} old_name_14_2="";       new_name_14_2="";        new_type_14_2="";
+{===>} old_name_15_2="";       new_name_15_2="";        new_type_15_2="";
+{===>} old_name_16_2="";       new_name_16_2="";        new_type_16_2="";
+{===>} old_name_17_2="";       new_name_17_2="";        new_type_17_2="";
+{===>} old_name_18_2="";       new_name_18_2="";        new_type_18_2="";
+{===>} old_name_19_2="";       new_name_19_2="";        new_type_19_2="";
+{===>} old_name_20_2="";       new_name_20_2="";        new_type_20_2="";
+
+{======================== reflection file 3 ==========================}
+
+{* reflection file *}  
+{===>} reflection_infile_3="mbp_w3.hkl";
+{* arrays *}
+{+ table: rows=8 cols=3 "old name" "new name" "new type" +}
+{===>} old_name_1_3="fobs";    new_name_1_3="f_w3";     new_type_1_3="real"; 
+{===>} old_name_2_3="sigma";   new_name_2_3="s_w3";     new_type_2_3=""; 
+{===>} old_name_3_3="";        new_name_3_3="";         new_type_3_3=""; 
+{===>} old_name_4_3="";        new_name_4_3="";         new_type_4_3=""; 
+{===>} old_name_5_3="";        new_name_5_3="";         new_type_5_3=""; 
+{===>} old_name_6_3="";        new_name_6_3="";         new_type_6_3="";
+{===>} old_name_7_3="";        new_name_7_3="";         new_type_7_3="";
+{===>} old_name_8_3="";        new_name_8_3="";         new_type_8_3="";
+
+{======================== reflection file 4 ==========================}
+
+{* reflection file *}
+{===>} reflection_infile_4="mbp_w4.hkl";
+{* arrays *}
+{+ table: rows=8 cols=3 "old name" "new name" "new type" +}
+{===>} old_name_1_4="fobs";    new_name_1_4="f_w4";     new_type_1_4="real"; 
+{===>} old_name_2_4="sigma";   new_name_2_4="s_w4";     new_type_2_4=""; 
+{===>} old_name_3_4="";        new_name_3_4="";         new_type_3_4=""; 
+{===>} old_name_4_4="";        new_name_4_4="";         new_type_4_4=""; 
+{===>} old_name_5_4="";        new_name_5_4="";         new_type_5_4=""; 
+{===>} old_name_6_4="";        new_name_6_4="";         new_type_6_4="";
+{===>} old_name_7_4="";        new_name_7_4="";         new_type_7_4="";
+{===>} old_name_8_4="";        new_name_8_4="";         new_type_8_4="";
+
+{======================== reflection file 5 ==========================}
+
+{* reflection file *}
+{===>} reflection_infile_5="";
+{* arrays *}
+{+ table: rows=8 cols=3 "old name" "new name" "new type" +}
+{===>} old_name_1_5="";        new_name_1_5="";         new_type_1_5=""; 
+{===>} old_name_2_5="";        new_name_2_5="";         new_type_2_5=""; 
+{===>} old_name_3_5="";        new_name_3_5="";         new_type_3_5=""; 
+{===>} old_name_4_5="";        new_name_4_5="";         new_type_4_5=""; 
+{===>} old_name_5_5="";        new_name_5_5="";         new_type_5_5=""; 
+{===>} old_name_6_5="";        new_name_6_5="";         new_type_6_5="";
+{===>} old_name_7_5="";        new_name_7_5="";         new_type_7_5="";
+{===>} old_name_8_5="";        new_name_8_5="";         new_type_8_5="";
+
+{======================== reflection file 6 ==========================}
+
+{* reflection file *}
+{===>} reflection_infile_6="";
+{* arrays *}
+{+ table: rows=8 cols=3 "old name" "new name" "new type" +}
+{===>} old_name_1_6=""; new_name_1_6=""; new_type_1_6="";
+{===>} old_name_2_6=""; new_name_2_6=""; new_type_2_6="";
+{===>} old_name_3_6=""; new_name_3_6=""; new_type_3_6="";
+{===>} old_name_4_6=""; new_name_4_6=""; new_type_4_6="";
+{===>} old_name_5_6=""; new_name_5_6=""; new_type_5_6="";
+{===>} old_name_6_6=""; new_name_6_6=""; new_type_6_6="";
+{===>} old_name_7_6=""; new_name_7_6=""; new_type_7_6="";
+{===>} old_name_8_6=""; new_name_8_6=""; new_type_8_6="";
+
+{======================== reflection file 7 ==========================}
+
+{* reflection file *}
+{===>} reflection_infile_7="";
+{* arrays *}
+{+ table: rows=8 cols=3 "old name" "new name" "new type" +}
+{===>} old_name_1_7=""; new_name_1_7=""; new_type_1_7="";
+{===>} old_name_2_7=""; new_name_2_7=""; new_type_2_7="";
+{===>} old_name_3_7=""; new_name_3_7=""; new_type_3_7="";
+{===>} old_name_4_7=""; new_name_4_7=""; new_type_4_7="";
+{===>} old_name_5_7=""; new_name_5_7=""; new_type_5_7="";
+{===>} old_name_6_7=""; new_name_6_7=""; new_type_6_7="";
+{===>} old_name_7_7=""; new_name_7_7=""; new_type_7_7="";
+{===>} old_name_8_7=""; new_name_8_7=""; new_type_8_7="";
+
+{======================== reflection file 8 ==========================}
+
+{* reflection file *}
+{===>} reflection_infile_8="";
+{* arrays *}
+{+ table: rows=8 cols=3 "old name" "new name" "new type" +}
+{===>} old_name_1_8=""; new_name_1_8=""; new_type_1_8="";
+{===>} old_name_2_8=""; new_name_2_8=""; new_type_2_8="";
+{===>} old_name_3_8=""; new_name_3_8=""; new_type_3_8="";
+{===>} old_name_4_8=""; new_name_4_8=""; new_type_4_8="";
+{===>} old_name_5_8=""; new_name_5_8=""; new_type_5_8="";
+{===>} old_name_6_8=""; new_name_6_8=""; new_type_6_8="";
+{===>} old_name_7_8=""; new_name_7_8=""; new_type_7_8="";
+{===>} old_name_8_8=""; new_name_8_8=""; new_type_8_8="";
+
+{======================== reflection file 9 ==========================}
+
+{* reflection file *}
+{===>} reflection_infile_9="";
+{* arrays *}
+{+ table: rows=8 cols=3 "old name" "new name" "new type" +}
+{===>} old_name_1_9=""; new_name_1_9=""; new_type_1_9="";
+{===>} old_name_2_9=""; new_name_2_9=""; new_type_2_9="";
+{===>} old_name_3_9=""; new_name_3_9=""; new_type_3_9="";
+{===>} old_name_4_9=""; new_name_4_9=""; new_type_4_9="";
+{===>} old_name_5_9=""; new_name_5_9=""; new_type_5_9="";
+{===>} old_name_6_9=""; new_name_6_9=""; new_type_6_9="";
+{===>} old_name_7_9=""; new_name_7_9=""; new_type_7_9="";
+{===>} old_name_8_9=""; new_name_8_9=""; new_type_8_9="";
+
+{======================== reflection file 10 ==========================}
+
+{* reflection file *}
+{===>} reflection_infile_10="";
+{* arrays *}
+{+ table: rows=8 cols=3 "old name" "new name" "new type" +}
+{===>} old_name_1_10=""; new_name_1_10=""; new_type_1_10="";
+{===>} old_name_2_10=""; new_name_2_10=""; new_type_2_10="";
+{===>} old_name_3_10=""; new_name_3_10=""; new_type_3_10="";
+{===>} old_name_4_10=""; new_name_4_10=""; new_type_4_10="";
+{===>} old_name_5_10=""; new_name_5_10=""; new_type_5_10="";
+{===>} old_name_6_10=""; new_name_6_10=""; new_type_6_10="";
+{===>} old_name_7_10=""; new_name_7_10=""; new_type_7_10="";
+{===>} old_name_8_10=""; new_name_8_10=""; new_type_8_10="";
+
+{======================== reflection file 11 ==========================}
+
+{* reflection file *}
+{===>} reflection_infile_11="";
+{* arrays *}
+{+ table: rows=8 cols=3 "old name" "new name" "new type" +}
+{===>} old_name_1_11=""; new_name_1_11=""; new_type_1_11="";
+{===>} old_name_2_11=""; new_name_2_11=""; new_type_2_11="";
+{===>} old_name_3_11=""; new_name_3_11=""; new_type_3_11="";
+{===>} old_name_4_11=""; new_name_4_11=""; new_type_4_11="";
+{===>} old_name_5_11=""; new_name_5_11=""; new_type_5_11="";
+{===>} old_name_6_11=""; new_name_6_11=""; new_type_6_11="";
+{===>} old_name_7_11=""; new_name_7_11=""; new_type_7_11="";
+{===>} old_name_8_11=""; new_name_8_11=""; new_type_8_11="";
+
+{======================== reflection file 12 ==========================}
+
+{* reflection file *}
+{===>} reflection_infile_12="";
+{* arrays *}
+{+ table: rows=8 cols=3 "old name" "new name" "new type" +}
+{===>} old_name_1_12=""; new_name_1_12=""; new_type_1_12="";
+{===>} old_name_2_12=""; new_name_2_12=""; new_type_2_12="";
+{===>} old_name_3_12=""; new_name_3_12=""; new_type_3_12="";
+{===>} old_name_4_12=""; new_name_4_12=""; new_type_4_12="";
+{===>} old_name_5_12=""; new_name_5_12=""; new_type_5_12="";
+{===>} old_name_6_12=""; new_name_6_12=""; new_type_6_12="";
+{===>} old_name_7_12=""; new_name_7_12=""; new_type_7_12="";
+{===>} old_name_8_12=""; new_name_8_12=""; new_type_8_12="";
+
+{======================== reflection file 13 ==========================}
+
+{* reflection file *}
+{===>} reflection_infile_13="";
+{* arrays *}
+{+ table: rows=8 cols=3 "old name" "new name" "new type" +}
+{===>} old_name_1_13=""; new_name_1_13=""; new_type_1_13="";
+{===>} old_name_2_13=""; new_name_2_13=""; new_type_2_13="";
+{===>} old_name_3_13=""; new_name_3_13=""; new_type_3_13="";
+{===>} old_name_4_13=""; new_name_4_13=""; new_type_4_13="";
+{===>} old_name_5_13=""; new_name_5_13=""; new_type_5_13="";
+{===>} old_name_6_13=""; new_name_6_13=""; new_type_6_13="";
+{===>} old_name_7_13=""; new_name_7_13=""; new_type_7_13="";
+{===>} old_name_8_13=""; new_name_8_13=""; new_type_8_13="";
+
+{======================== reflection file 14 ==========================}
+
+{* reflection file *}
+{===>} reflection_infile_14="";
+{* arrays *}
+{+ table: rows=8 cols=3 "old name" "new name" "new type" +}
+{===>} old_name_1_14=""; new_name_1_14=""; new_type_1_14="";
+{===>} old_name_2_14=""; new_name_2_14=""; new_type_2_14="";
+{===>} old_name_3_14=""; new_name_3_14=""; new_type_3_14="";
+{===>} old_name_4_14=""; new_name_4_14=""; new_type_4_14="";
+{===>} old_name_5_14=""; new_name_5_14=""; new_type_5_14="";
+{===>} old_name_6_14=""; new_name_6_14=""; new_type_6_14="";
+{===>} old_name_7_14=""; new_name_7_14=""; new_type_7_14="";
+{===>} old_name_8_14=""; new_name_8_14=""; new_type_8_14="";
+
+{======================== reflection file 15 ==========================}
+
+{* reflection file *}
+{===>} reflection_infile_15="";
+{* arrays *}
+{+ table: rows=8 cols=3 "old name" "new name" "new type" +}
+{===>} old_name_1_15=""; new_name_1_15=""; new_type_1_15="";
+{===>} old_name_2_15=""; new_name_2_15=""; new_type_2_15="";
+{===>} old_name_3_15=""; new_name_3_15=""; new_type_3_15="";
+{===>} old_name_4_15=""; new_name_4_15=""; new_type_4_15="";
+{===>} old_name_5_15=""; new_name_5_15=""; new_type_5_15="";
+{===>} old_name_6_15=""; new_name_6_15=""; new_type_6_15="";
+{===>} old_name_7_15=""; new_name_7_15=""; new_type_7_15="";
+{===>} old_name_8_15=""; new_name_8_15=""; new_type_8_15="";
+
+{========================expansion/reduction==========================}
+
+{* average Friedel mates and write a non-anomalous diffraction file *}
+{* operates on real, integer, complex and HL reciprocal space objects *}
+{+ choice: true false +}
+{===>} make_non_anomalous=false;
+ 
+{* create Friedel mates starting from non-anomalous data *}
+{+ choice: true false +}
+{===>} make_anomalous=false;
+          
+{* expand data set to P1 *}
+{+ choice: true false +}
+{===>} expand=false;
+
+{========================== output options ===========================}
+
+{* resolution range of reflections that will be written *}  
+{+ table: rows=1 "resolution" cols=2 "lowest" "highest" +}
+{===>} low_res=500;
+{===>} high_res=1.0;
+
+{* merged/renamed/expanded/reduced data output file *}
+{===>} reflection_outfile="merge.hkl";
+
+{===========================================================================}
+{         things below this line do not normally need to be changed         }
+{===========================================================================}
+
+ ) {- end block parameter definition -}
+
+checkversion 1.3
+
+evaluate ($log_level=quiet)
+
+xray
+
+   @CNS_XTALLIB:spacegroup.lib (sg=&sg;sgparam=$sgparam;)
+
+   a=&a b=&b c=&c  alpha=&alpha beta=&beta gamma=&gamma      
+
+   {- first step: read all data and copy into temporary arrays -}
+  
+   if ( $log_level = verbose ) then
+     set message=normal echo=on end
+   else
+     set message=off echo=off end
+   end if
+      
+   evaluate ($ii=1)   
+   while (&exist%reflection_infile_$ii=true) loop firs
+      if ( &BLANK%reflection_infile_$ii = false ) then
+
+         reflection @@&reflection_infile_$ii end
+
+         evaluate ($jj=1)
+         while (&exist%old_name_$jj_$ii=true) loop cpp
+            if ( &BLANK%old_name_$jj_$ii = false ) then
+            
+               query name=&strip%old_name_$jj_$ii domain=reciprocal end
+               if ( $object_exist = false ) then
+                  display  Error: specified reciprocal space array &old_name_$jj_$ii is missing
+                  abort
+               end if
+               
+               evaluate ($temp_name_$jj_$ii="tmpx_"+encode($jj)+"_"+encode($ii))
+               
+               if ( &BLANK%new_type_$jj_$ii = true ) then
+                  {- no new type specified: just rename into temporary name -}
+                  rename old=&strip%old_name_$jj_$ii new=$strip%temp_name_$jj_$ii domain=reciprocal end
+                  
+               elseif ($object_type = &strip%new_type_$jj_$ii) then
+                  {- new type specified but same type as old type: just rename -}
+                  rename old=&strip%old_name_$jj_$ii new=$strip%temp_name_$jj_$ii domain=reciprocal end   
+                              
+               elseif (&new_type_$jj_$ii="real") then
+                  {- new type specified: copy and delete old object -}
+                  declare name=$strip%temp_name_$jj_$ii domain=reciprocal type=real end
+                  do ($strip%temp_name_$jj_$ii=amplitude(&strip%old_name_$jj_$ii)) ( all )
+                  undeclare name=&strip%old_name_$jj_$ii domain=reciprocal end
+                  
+               elseif (&new_type_$jj_$ii="complex") then 
+                  {- new type specified: copy and delete old object -}
+                  declare name=$strip%temp_name_$jj_$ii domain=reciprocal type=complex end
+                  do ($strip%temp_name_$jj_$ii=&strip%old_name_$jj_$ii) ( all )
+                  undeclare name=&strip%old_name_$jj_$ii domain=reciprocal end
+                  
+               elseif (&new_type_$jj_$ii="integer") then
+                  {- new type specified: copy and delete old object -}
+                  declare name=$strip%temp_name_$jj_$ii domain=reciprocal type=integer end
+                  do ($strip%temp_name_$jj_$ii=int(amplitude(&strip%old_name_$jj_$ii))) ( all )
+                  undeclare name=&strip%old_name_$jj_$ii domain=reciprocal end
+
+               else
+                  {- unknown type - abort -}
+                  display Error: unrecognized data type &new_type_$jj_$ii for &strip%old_name_$jj_$ii
+                  abort
+
+               end if
+
+            end if 
+            evaluate ($jj=$jj+1)
+         end loop cpp 
+         
+         {- undeclare all unspecified objects -}
+         undeclare name # tmpx* domain=reciprocal end
+         
+      end if
+      evaluate ($ii=$ii+1)
+   end loop firs
+
+   {- second step: rename arrays into target destinations -}
+   evaluate ($ii=1)   
+   while (&exist%reflection_infile_$ii=true) loop seco
+     if ( &BLANK%reflection_infile_$ii = false ) then
+
+         evaluate ($jj=1)
+         while (&exist%old_name_$jj_$ii=true) loop cpp2
+            if ( &BLANK%old_name_$jj_$ii = false ) then
+               if ( &BLANK%new_name_$jj_$ii = false ) then
+                  rename old=$strip%temp_name_$jj_$ii new=&strip%new_name_$jj_$ii domain=reciprocal end
+               else
+                  rename old=$strip%temp_name_$jj_$ii new=&strip%old_name_$jj_$ii domain=reciprocal end
+               end if
+            end if 
+            evaluate ($jj=$jj+1)
+         end loop cpp2 
+      end if
+      evaluate ($ii=$ii+1)
+   end loop seco
+
+   set message=on echo=on end
+      
+   anomalous ?
+   evaluate ($current_ano=$result)
+   
+   if (&make_non_anomalous=true) then
+      if ($current_ano=true) then
+         anomalous=false
+      end if
+   end if
+
+   if (&make_anomalous=true) then
+      if ($current_ano=false) then
+         anomalous=true
+      end if
+   end if
+   
+   if (&expand=true) then
+      expand
+   end if
+
+   set display=&reflection_outfile end
+
+end
+  
+@CNS_XTALMODULE:write_hkl_header (sg=&STRIP%sg;
+                                  sgparam=$sgparam;)
+
+xray
+                
+   write reflection                                                                                       
+     output=&reflection_outfile selection=( &low_res > d > &high_res ) 
+   end
+
+   set display=OUTPUT end
+
+end
+
+stop
+
+

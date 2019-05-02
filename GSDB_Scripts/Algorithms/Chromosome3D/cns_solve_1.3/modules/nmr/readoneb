@@ -1,0 +1,49 @@
+! Module file: readonebnd
+!
+! CNS MODULE
+! **********
+!
+! Authors: Gregory L. Warren and Axel T. Brunger
+!
+! copyright Yale University
+!
+! version 2/6/98
+!
+! Function:
+!    Read in 1-bond heteronuclear j-coupling restraint file 
+!    and class (O#) averaging function
+!
+! Requirements:
+! 
+!  
+! 
+!
+
+module { readonebnd }
+(
+     &classname=classname;      {INPUT: one bond class name}
+     &classpoten=classpoten;	{INPUT: one bond force potential}
+     &filename=filename;	{INPUT: restraint file name}
+     &weight=weight; 		{INPUT: force constant}
+)
+
+checkversion 1.3
+
+set message ? end
+evaluate ($message_old=$result)
+set echo ? end
+evaluate ($echo_old=$result)
+if ( $log_level = verbose ) then
+  set echo=on message=normal end
+else
+  set echo=off message=off end
+end if
+
+onebond
+   class=&classname
+   potential=&classpoten
+   force=&weight
+      @@&filename
+end
+     
+set message=$message_old echo=$echo_old end

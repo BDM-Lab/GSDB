@@ -1,0 +1,58 @@
+<atom-selection> :==
+
+  ( <term> [{or <term>}] )
+
+  <term> :==
+
+    <factor> [{and <factor>}]
+
+    <factor> :==
+
+      not <atom-selection>
+      byres <atom-selection>
+      bygroup <atom-selection>
+      bondedto <atom-selection>
+      <atom-selection> around <real>
+      <atom-selection> saround <real>
+      segid <segid>|<wildcard>
+      segid <segid> : <segid>
+      resid <resid>|<wildcard>
+      resid <integer> : <integer>
+       --{ Here, <integer> may be entered as integer or as a 4-char 
+           hybrid-36 string. All atom resids are converted to integers 
+           for numerical comparison, using hybrid-36 decoding where 
+           applicable. Strings that cannot be decoded to an integer 
+           are treated as numerical zero. }
+      resname <resname>|<wildcard>
+      resname <resname> : <resname>
+      name <type>|<wildcard>
+      name <type> : <type>
+      chemical <type>|<wildcard>
+      chemical <type> : <type>
+      atom <segid>|<wildcard> <resid>|<wildcard> <name>|<wildcard>
+      attribute [abs]<attribute-property> <attribute-operator> <real>
+      fbox <real> <real> <real> <real> <real> <real>
+      sfbox <real> <real> <real> <real> <real> <real>
+      point=<vector> [cut <real>]
+      recall store<number>
+      known
+      hydrogen
+      all
+      previous
+      tag
+      none
+      id <integer>
+      id <integer> : <integer>
+
+      <attribute-property> :==
+
+        x | y | z | b | q | xcomp | ycomp | zcomp | bcomp | qcomp |
+        refx | refy | refz | mass | charge | fbeta |
+        dx | dy | dz | vx | vy | vz | rmsd |
+        scatter_a1 | scatter_a2 | scatter_a3 | scatter_a4 |
+        scatter_b1 | scatter_b2 | scatter_b3 | scatter_b4 |
+        scatter_c  | scatter_fp | scatter_fdp
+
+      <attribute-operator> :==
+
+         = | > | >= | < | <= | #

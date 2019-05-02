@@ -1,0 +1,158 @@
+#!/bin/csh -f
+#
+# architecture specific setup file for CNSsolve
+#
+# written by: Axel Brunger, Ralf Grosse-Kunstleve and Paul Adams
+#
+# copyright Yale University
+#
+# machine architecture string for C preprocessor
+#
+setenv CNS_ARCH_TYPE SGI
+#
+# set f77/cc compiler/linker options
+# (this is complicated by all the different SGI hardware and OS versions)
+#
+# Default Optimization Level: -O
+set CNS_OPTFLAG = '-O'
+# Default Mips flag: [blank]
+set CNS_MIPSFLAG = ''
+# Default ABI flag: [blank]
+set CNS_ABIFLAG = ''
+# Default fast math library: [blank]
+set CNS_LFASTM = ''
+# Default pre-processor: -sopt
+set CNS_SOPTPFA = '-sopt,-r=2'
+# Default multiprocessor flag: [blank]
+set CNS_MPFLAG = ''
+# Extra Flags: [blank]
+set CNS_EXTRAFLAG = 
+
+# OS Version:
+set CNS_OSVERS = `uname -r`
+set CNS_OSMAJOR = `uname -r | awk -F. '{print $1}'`
+set CNS_OSMINOR = `uname -r | awk -F. '{print $2}'`
+# OS type:
+set CNS_OSTYPE = `uname -s`
+# Processor:
+set CNS_CPU = `hinv -t cpu | awk '{print $3}' | head -1`
+# Memory:
+set CNS_TMEM = `hinv -t memory | awk '{print $4}' - `
+@ CNS_TMEM += 0
+
+# use CNS_MEM variable if defined
+if ( ! $?CNS_MEM ) then
+  setenv CNS_MEM $CNS_TMEM
+endif
+
+# use CNS_NPROC variable if defined, else use 1 CPU
+if ( ! $?CNS_NPROC ) then
+  setenv CNS_NPROC 1
+endif
+
+# set number of parallel threads
+setenv NUM_THREADS $CNS_NPROC
+setenv MP_SET_NUMTHREADS $CNS_NPROC
+
+# set mp flag if pfa is installed (for FFT library)
+if ( -e /usr/lib/pfa ) then
+  set CNS_MPFLAG = "-mp"
+endif
+
+# use fast math library if it is present
+# some work here to deal with broken libfastm.so library on R5K under Irix6.5
+if ( ! $?CNS_NOFASTM ) then
+  if ( -e /usr/lib/libfastm.a ) then
+    if ( $?CNS_FASTM_STATIC ) then
+      set CNS_LFASTM = '/usr/lib/libfastm.a'
+    else
+      set CNS_LFASTM = '-lfastm'
+    endif
+  endif
+endif
+
+# set CNS_MIPSFLAG and CNS_ABIFLAG
+#
+# machines running anything prior to 6.2
+if ( $CNS_OSMAJOR <= 5 || ( $CNS_OSMAJOR == 6 && $CNS_OSMINOR < 2 ) ) then
+  if ( $CNS_CPU =~ R3000 ) then
+    set CNS_MIPSFLAG = '-mips1'
+  else if ( $CNS_CPU =~ R8000 ) then
+    set CNS_MIPSFLAG = '-mips2'
+    set CNS_ABIFLAG = '-32'
+  else
+    set CNS_MIPSFLAG = '-mips2'
+  endif
+  set CNS_EXTRAFLAG = "-Olimit 2000 -Nc200 -Nn20000"
+endif
+
+# machines running 6.2 or higher
+if ( ( $CNS_OSMAJOR == 6 && $CNS_OSMINOR >= 2 ) || $CNS_OSMAJOR > 6 ) then
+  if ( $CNS_CPU =~ R4?00 || $CNS_CPU =~ R5000 ) then
+    set CNS_MIPSFLAG = '-mips3'
+  else if ( $CNS_CPU =~ R8000 || $CNS_CPU =~ R10000 || $CNS_CPU =~ R12000 ) then
+    set CNS_MIPSFLAG = '-mips4'
+  endif
+  set CNS_ABIFLAG = '-n32'
+  set CNS_OPTFLAG = "-O2 -WK,-o=1,-so=0 -OPT:roundoff=2:IEEE_arithmetic=3:fold_arith_limit=2000"
+endif
+
+# fft library
+if ( ! $?CNS_FFTDIR ) then
+  setenv CNS_FFTDIR ""
+endif
+if ( ! $?CNS_FFTLIB ) then
+# use CNS code by default
+  setenv CNS_FFTLIB ""
+# set library directory to look in
+  if ( $CNS_OSMAJOR == 5 || ( $CNS_OSMAJOR == 6 && $CNS_OSMINOR < 2 ) ) then
+    set cns_fftdir="/usr/lib"
+  else if ( $CNS_OSMAJOR >= 6 ) then
+    set cns_fftdir="/usr/lib32"
+  else
+    set cns_fftdir=""
+  endif
+# set CNS_FFTLIB
+  if ( "$cns_fftdir" != "" ) then
+    if ( "$CNS_MPFLAG" == "-mp" ) then
+      if ( -e $cns_fftdir/libcomplib.sgimath_mp.a || \
+           -e $cns_fftdir/libcomplib.sgimath_mp.so ) then
+        setenv CNS_FFTLIB "-lcomplib.sgimath_mp"
+      endif
+    endif
+    if ( "$CNS_FFTLIB" == "" ) then
+      if ( -e $cns_fftdir/libcomplib.sgimath.a || \
+           -e $cns_fftdir/libcomplib.sgimath.so ) then
+        setenv CNS_FFTLIB "-lcomplib.sgimath"
+      endif
+    endif
+  endif
+endif
+
+# deal with global pointer stack problem on Irix 4
+if ($CNS_OSMAJOR <= 4 ) then
+  set CNS_EXTRAFLAG = "$CNS_EXTRAFLAG -G 0"
+endif
+
+# deal with some annoying warnings at 6.2 and higher 
+if ( ( $CNS_OSMAJOR >= 6 && $CNS_OSMINOR >= 2 ) || ( $CNS_OSMAJOR > 6 ) ) then
+  set CNS_EXTRAFLAG = "$CNS_EXTRAFLAG -woff all"
+  setenv FORTRAN_OPENED_UNITS 1000
+endif
+
+# deal with removal of -sopt at 6.3 and higher 
+if ( ( $CNS_OSMAJOR >= 6 && $CNS_OSMINOR > 2 ) || ( $CNS_OSMAJOR > 6 ) ) then
+  set CNS_SOPTPFA=""
+endif
+
+if ( ! $?CNS_MIPS ) then
+   setenv CNS_MIPS "$CNS_MIPSFLAG"
+endif
+
+if ( ! $?CNS_ABI ) then
+  setenv CNS_ABI "$CNS_ABIFLAG"
+endif
+
+setenv CNS_COMP "$CNS_EXTRAFLAG $CNS_OPTFLAG $CNS_SOPTPFA $CNS_MIPS $CNS_ABI"
+setenv CNS_DEBG "$CNS_EXTRAFLAG $CNS_MIPS $CNS_ABI"
+setenv CNS_LINK "$CNS_MIPS $CNS_ABI $CNS_LFASTM $CNS_MPFLAG"

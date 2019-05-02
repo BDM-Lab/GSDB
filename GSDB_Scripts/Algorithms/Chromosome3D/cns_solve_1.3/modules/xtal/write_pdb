@@ -1,0 +1,57 @@
+! Module file: write_pdb
+!
+! CNS module
+! **********
+!
+! Authors: Axel Brunger and Paul Adams
+!
+! copyright Yale University
+!
+! Function:
+!    Write out a PDB file - in CNS or O format
+!    In O format the segid will be written in the chainid 
+!    column if it is one character
+!
+! Requirements:
+!    Needs to be called from main level
+
+module {write_pdb}
+
+(
+  &pdb_o_format=false;
+  &coordinate_outfile="OUTPUT";  
+  &sgparam;
+)
+
+ if ( &pdb_o_format = true ) then
+
+   @@CNS_XTALMODULE:pdbgetsgname (sg=&sgparam.sg_number;
+                                  sgname=$sg_pdb;)
+
+   set display=? end
+   evaluate ($curr_display=$result)
+
+   set display=&coordinate_outfile end
+
+   display CRYST1 $xrcell_1[f8.3] $xrcell_2[f8.3] $xrcell_3[f8.3] \
+$xrcell_4[f6.2] $xrcell_5[f6.2] $xrcell_6[f6.2] $sg_pdb[a10]
+
+   set display=$curr_display end
+
+   write coordinates
+     {- modification: only known coordinates ATB 11/25/08 -}
+     format=PDBO output=&coordinate_outfile selection=( known ) 
+   end
+ 
+ else
+
+   write coordinates
+     {- modification: only known coordinates ATB 11/25/08 -}
+     output=&coordinate_outfile selection=( known ) 
+   end
+
+ end if
+
+! modification ATB 5/29/08
+! close &coordinate_outfile disp=keep end
+

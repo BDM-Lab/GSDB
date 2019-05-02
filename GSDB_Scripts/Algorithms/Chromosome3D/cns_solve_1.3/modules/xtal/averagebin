@@ -1,0 +1,56 @@
+! Module file: averagebin
+!
+! CNS module
+! **********
+!
+! Authors: Piet Gros and Axel T. Brunger
+!
+! copyright Yale University
+!
+! Function:
+! Average/interpolate/extraplote bin data computed from a subset of reflections
+!
+! Requirements:
+! 1. This module can only be called from xray
+! 
+
+module {averagebin}
+(
+   &sel=(all);          {structure factor selection}
+   &subsel=(all);       {subset of &sel from which average is computed}
+   &epsilon="yes";      {"yes" | "no", use epsilon weighting in summing variances}
+   &anomalous="no";     {"yes" | "no", anomalous data}   			
+   &data;               {data array}
+)
+
+checkversion 1.3
+
+declare name=selected domain=reciprocal type=real end
+declare name=subselected domain=reciprocal type=real end
+
+if (&anomalous = "yes") then
+   do (selected=1) ( friedel_pair(&sel) and acentric )
+   do (subselected=1) ( friedel_pair(&subsel) and acentric )
+elseif (&anomalous = "no") then
+   do (selected=1) (&sel)
+   do (subselected=1) (&subsel)
+else
+   display AVERAGEBIN-ERR: anomalous flag &anomalous not defined
+end if
+
+{ compute bin-wise average }
+
+if (&epsilon = "yes") then
+   do (&data=&data /($symmetry/mult) ) (selected=1)
+end if
+
+{- average over all elements in subselection regardless
+   if they are zero -}
+do (&data=distribute( max(&data,.0000001)*subselected) ) ( selected=1)
+
+if (&epsilon = "yes") then
+   do (&data=&data*$symmetry/mult) (selected=1)
+end if
+
+undeclare name=selected domain=reciprocal end
+undeclare name=subselected domain=reciprocal end

@@ -1,0 +1,259 @@
+#!/bin/csh -f
+#
+# script to automate installation of the CNSsolve HTML interface on
+# a local WWW server - this script makes changes to the WWW server
+# and should be run by the WWW server adminstrator
+#
+# need to know:
+#   - location of the CNSsolve directory
+#   - path to start of WWW tree (directory from which documents are served)
+#   - full path to the cgi-bin directory
+#
+# the CNSsolve directory must be visible from the WWW server
+#
+# the HTML interface will be installed at the root level of the
+# WWW tree
+#
+# Written by: Paul Adams 6-2-98
+#
+# copyright Yale University
+#
+set expert=0
+#
+foreach arg ( $argv[*] )
+ switch ( $arg )
+ case -expert:
+   set expert=1
+   breaksw
+ case -help:
+   echo "usage: www_server_setup [-expert]"
+   exit 0
+ default:
+   echo "www_server_setup: unknown option $arg"
+   exit 1
+ endsw
+end
+#
+# defaults:
+#
+if ( $?CNS_SOLVE ) then
+ set cns_dir=$CNS_SOLVE
+else
+ set cns_dir=$PWD
+endif
+set www_root="/home/httpd/html"
+set cgi_dir="/home/httpd/cgi-bin"
+#
+echo -n "location of CNSsolve directory [default: $cns_dir ]-> "
+set response=$<
+if ( $response != "" ) then
+ set cns_dir=`echo $response | sed -e 's/\/$//'`
+endif
+#
+if ( ! -e $cns_dir ) then
+ echo "CNSsolve directory does not exist"
+ echo "aborting installation"
+ exit 1
+endif
+#
+set version=`grep -i 'parameter *(cnsversion' $cns_dir/source/version.inc | cut -d\' -f2`
+set patch=`grep -i 'parameter *(cnspatch' $cns_dir/source/version.inc | cut -d\' -f2`
+if ( $patch == 0 ) set patch=''
+set version=$version$patch
+#
+echo -n "path to the start of WWW tree [default: $www_root ]-> "
+set response=$<
+if ( $response != "" ) then
+ set www_root=`echo $response | sed -e 's/\/$//'`
+endif
+#
+echo -n "full path to CGI directory [default: $cgi_dir ]-> "
+set response=$<
+if ( $response != "" ) then
+ set cgi_dir=`echo $response | sed -e 's/\/$//'`
+endif
+#
+echo "=============================================================="
+echo "location of the CNSsolve directory is: $cns_dir"
+echo "version of CNSsolve is: $version"
+echo "path to the start of the WWW tree is: $www_root"
+echo "location of the CGI directory is: $cgi_dir"
+echo "=============================================================="
+#
+echo -n "continue with these parameters? [y/n]-> "
+set response=$<
+if ( $response == "y" || $response == "Y" ) then
+ echo "proceeding with CNSsolve HTML interface installation"
+else
+ exit 0
+endif
+#
+if ( ! -e $cgi_dir ) then
+ echo "directory $cgi_dir does not exist"
+ echo "aborting installation"
+ exit 1
+endif
+#
+if ( ! -e $www_root ) then
+ echo "cannot set directory to $www_root"
+ echo "aborting installation"
+ exit 1
+else
+ cd $www_root
+endif
+#
+set cns_www_root=cns_solve_$version
+#
+if ( ! -d $cns_www_root ) then
+ echo "making directory $www_root/$cns_www_root"
+ mkdir $cns_www_root
+endif
+#
+cd $cns_www_root
+#
+echo "making Apache/Httpd authentication file $www_root/$cns_www_root/.htaccess"
+echo 'AuthUserFile /dev/null \
+AuthGroupFile /dev/null \
+AuthName AllowFromNone \
+AuthType Basic \
+\
+<Limit GET> \
+ order deny,allow \
+ deny from all \
+ allow from none \
+</Limit>' > .htaccess
+#
+if ( -e $cns_dir/inputs ) then
+ if ( -e $www_root/$cns_www_root/inputs ) then
+    echo "removing old link for $www_root/$cns_www_root/inputs"
+   /bin/rm $www_root/$cns_www_root/inputs
+ endif
+ echo "adding link from $cns_dir/inputs to $www_root/$cns_www_root/inputs"
+ /bin/ln -s $cns_dir/inputs inputs
+else
+ echo "$cns_dir/inputs does not exist"
+ echo "aborting installation"
+ exit 1
+endif  
+#
+if ( -e $cns_dir/modules ) then
+ if ( -e $www_root/$cns_www_root/modules ) then
+    echo "removing old link for $www_root/$cns_www_root/modules"
+   /bin/rm $www_root/$cns_www_root/modules
+ endif
+ echo "adding link from $cns_dir/modules to $www_root/$cns_www_root/modules"
+ /bin/ln -s $cns_dir/modules modules
+else
+ echo "$cns_dir/modules does not exist"
+ echo "aborting installation"
+ exit 1
+endif  
+#
+if ( -e $cns_dir/libraries ) then
+ if ( -e $www_root/$cns_www_root/libraries ) then
+    echo "removing old link for $www_root/$cns_www_root/libraries"
+   /bin/rm $www_root/$cns_www_root/libraries
+ endif
+ echo "adding link from $cns_dir/libraries to $www_root/$cns_www_root/libraries"
+ /bin/ln -s $cns_dir/libraries libraries
+else
+ echo "$cns_dir/libraries does not exist"
+ echo "aborting installation"
+ exit 1
+endif  
+#
+if ( -e $cns_dir/utils ) then
+ if ( -e $www_root/$cns_www_root/utils ) then
+    echo "removing old link for $www_root/$cns_www_root/utils"
+   /bin/rm $www_root/$cns_www_root/utils
+ endif
+ echo "adding link from $cns_dir/utils to $www_root/$cns_www_root/utils"
+ /bin/ln -s $cns_dir/utils utils
+else
+ echo "$cns_dir/utils does not exist"
+ echo "aborting installation"
+ exit 1
+endif  
+#
+if ( ! -e doc ) then
+ echo "making directory $www_root/$cns_www_root/doc"
+ mkdir doc
+endif
+if ( ! -e doc/html ) then
+ echo "making directory $www_root/$cns_www_root/doc/html"
+ mkdir doc/html
+endif
+#
+echo "making Apache/Httpd authentication file $www_root/$cns_www_root/doc/html/.htaccess"
+echo 'AuthUserFile /dev/null \
+AuthGroupFile /dev/null \
+AuthName AllowFromNone \
+AuthType Basic \
+\
+<Limit GET> \
+ order deny,allow \
+ deny from all \
+ allow from all \
+</Limit>' > doc/html/.htaccess
+#
+if ( -e $cns_dir/doc/html/icons ) then
+ if ( -e $www_root/$cns_www_root/doc/html/icons ) then
+   echo "removing old link for $www_root/$cns_www_root/doc/html/icons"
+   /bin/rm $www_root/$cns_www_root/doc/html/icons
+ endif
+ echo "adding link: $cns_dir/doc/html/icons to $www_root/$cns_www_root/doc/html/icons"
+ /bin/ln -s $cns_dir/doc/html/icons doc/html/icons
+else
+ echo "$cns_dir/doc/html/icons does not exist"
+ echo "aborting installation"
+ exit 1
+endif
+#
+if ( ! $expert ) then
+ if ( ! -e $cns_dir/doc/html/local ) then
+   echo "$cns_dir/doc/html/local does not exist"
+   echo "you need to have already executed make www_cns"
+   echo "aborting installation"
+   exit 1
+ else
+   set cgi_source="$cns_dir/doc/html/local"
+ endif
+else
+ if ( -e $cns_dir/doc/html/local ) then
+   set cgi_source="$cns_dir/doc/html/local"
+ else if ( -e $cns_dir/doc/html/cgi ) then
+   set cgi_source="$cns_dir/doc/html/cgi"
+ else
+   echo "no CGI source directory exists, check CNS installation"
+   echo "aborting installation"
+   exit 1
+ endif
+endif
+#
+if ( -e $cgi_dir/cns_solve_$version ) then
+ echo "a CNSsolve CGI directory already exists: $cgi_dir/cns_solve_$version"
+ echo -n "overwrite the files in this directory? [y/n]-> "
+ set response=$<
+ if ( $response == "y" || $response == "Y" ) then
+   echo "overwriting contents of $cgi_dir/cns_solve_$version"
+ else
+   exit 0
+ endif
+else
+ echo "making subdirectory cns_solve_$version in $cgi_dir"
+ mkdir $cgi_dir/cns_solve_$version
+endif
+#
+cd $cgi_source
+#
+foreach file (*.cgi *.lib)
+ if ( -e $cgi_dir/cns_solve_$version/$file ) then
+   echo "removing old version of $cgi_dir/cns_solve_$version/$file"
+   /bin/rm -f $cgi_dir/cns_solve_$version/$file
+ endif
+ echo "copying $cgi_source/$file to $cgi_dir/cns_solve_$version"
+ /bin/cp $cgi_source/$file $cgi_dir/cns_solve_$version/$file
+end
+#
+echo "Server side of CNSsolve HTML interface installation complete"
+#

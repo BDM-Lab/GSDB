@@ -1,0 +1,27 @@
+#!/bin/csh -f
+#
+# architecture specific setup file for CNSsolve
+#
+# written by: Axel Brunger, Ralf Grosse-Kunstleve and Paul Adams
+#
+# copyright Yale University
+#
+# fft library
+#
+if ( ! $?CNS_FFTDIR ) then
+  setenv CNS_FFTDIR ""
+endif
+# set CNS_FFTLIB
+# use CNS code by default, veclib library if available
+if ( ! $?CNS_FFTLIB ) then
+  setenv CNS_FFTLIB ""
+  if ( -e /usr/lib/libveclib.a || \
+       -e /usr/lib/libveclib.so ) then
+    setenv CNS_FFTLIB "-lveclib"
+  endif
+endif
+#
+# machine architecture string for C preprocessor
+#
+setenv CNS_ARCH_TYPE CONVEX
+#

@@ -1,0 +1,1307 @@
+{+ file: heavy_search.inp +}
+{+ directory: xtal_patterson +}
+{+ description: Combined heavy atom search/PC-refinement against Patterson maps
+                for single-atom isotropic heavy atom sites +}
+{+ comment:
+            Native and difference Pattersons.
+            Differences can be anomalous, dispersive, or isomorphous.
+            Weighted average of up to 4 different Pattersons can be computed.
+            Weights are given by 1/ < df ^2 > for difference maps
+            and 1 / < f^2 > for native Patterson maps. When adding
+            isomorphous/dispersive and anomalous maps this weighting
+            scheme is approximately equal to a weighting by f' : 2f''. +}
+{+ authors: Axel T. Brunger & R.W. Grosse-Kunstleve +}
+{+ copyright: Yale University +}
+
+{+ reference: R.W. Grosse-Kunstleve and A.T. Brunger: A highly automated
+              heavy-atom search procedure for macromolecular structures.
+              Acta Cryst. D55, 1568-1577 (1999). +}
+
+{+ reference: D.E. McRee, Practial Protein Crystallography,
+              Academic Press, San Diego, (1993) pp. 118 +}
+
+{+ reference: A.T. Brunger, Extension of Molecular Replacement: A
+              New Search Strategy based on Patterson Correlation Refinement,
+              Acta Cryst. A46, 46-57 (1990). +}
+
+{+ reference: J.A. Drenth, Principles of X-ray Crystallography,
+              Springer-Verlag, New York, (1994) pp. 155, 158, 161 +}
+
+{+ reference: J. Navaza and E. Vernoslova, On the fast translation
+              function for molecular replacement, Acta Cryst. A51,
+              445-449 (1995) +}
+
+{- Guidelines for using this file:
+   - all strings must be quoted by double-quotes
+   - logical variables (true/false) are not quoted
+   - do not remove any evaluate statements from the file -}
+
+{- begin block parameter definition -} define(
+
+{====================== crystallographic data ========================}
+
+{* space group *}
+{* use International Table conventions with subscripts substituted
+   by parenthesis *}
+{===>} sg="P6";
+
+{* unit cell parameters in Angstroms and degrees *}
+{+ table: rows=1 "cell" cols=6 "a" "b" "c" "alpha" "beta" "gamma" +}
+{===>} a=116.097;
+{===>} b=116.097;
+{===>} c=44.175;
+{===>} alpha=90;
+{===>} beta=90;
+{===>} gamma=120;
+
+{* reflection file(s) *}
+{* specify non-anomalous reflection file(s) (if any)
+   before anomalous reflection file(s) *}
+{===>} reflection_infile_1="sad_scale.hkl";
+{===>} reflection_infile_2="";
+{===>} reflection_infile_3="";
+{===>} reflection_infile_4="";
+
+{==================== search/PC-refinement options ===================}
+
+{* resolution range for search *}
+{+ table: rows=1 "resolution" cols=2 "lowest" "highest" +}
+{===>} low_res=15;
+{===>} high_res=4;
+
+{* target for PC-refinement and criterion for finding the best solution *}
+{* note: the translation function always uses the f2f2 target *}
+{+ choice: "f2f2" "e2e2" +}
+{===>} pc_target="f2f2";
+
+{* number of positional refinement steps *}
+{===>} nstep=15;
+
+{* positional shift damping *}
+{+ choice: true false +}
+{===>} shift_dampen=true;
+
+{* occupancy refinement *}
+{* start refining occupancies after placing the given number of sites.
+   A negative value disables occupancy refinement *}
+{===>} ref_occupancy=-1;
+
+{* B-factor refinement *}
+{* start refining B-factors after placing the given number of sites.
+   A negative value disables B-factor refinement *}
+{===>} ref_bfactor=6;
+
+{* number of b-factor/occupancy refinement steps *}
+{===>} bnstep=15;
+
+{============================== sites ================================}
+
+{* Preexisting sites *}
+{* CNS heavy atom site database files *}
+{===>} sitedatabase_infile.1="";
+{===>} sitedatabase_infile.2="";
+{===>} sitedatabase_infile.3="";
+{===>} sitedatabase_infile.4="";
+{===>} sitedatabase_infile.5="";
+
+{* number of sites to be found *}
+{===>} new_sites=6;
+
+{* type of sites to be found *}
+{===>} site_type="SE";
+
+{* form factor type *}
+{* Use the gaussian option for native or isomorphous difference Patterson maps.
+   Use the constant option for anomalous or dispersive Patterson maps.
+   For the gaussian mode, the form factors are obtained from the atomic form
+   factor library specified below. For the constant mode all sites have a 
+   unit (resolution-independent) form factor. *}
+{* For the automatic option, the constant mode is used if there are only 
+   anomalous or dispersive Patterson maps. If there are one or more native
+   or isomorphous Patterson maps, the gaussian mode is used. *}
+{+ choice: "automatic" "constant" "gaussian" +}
+{===>} scatter_mode="automatic";
+
+{* form factor library for gaussian form factors *}
+{===>} scatter_library="CNS_XRAYLIB:scatter.lib";
+
+{* initial B-factor for sites *}
+{===>} init_bfac=20;
+
+{================== general options for Patterson maps ===============}
+
+{* number of Patterson maps to be averaged *}
+{===>} number_of_maps=1;
+
+{* use diffraction ratios to weigh Patterson maps *}
+{* if false, weights are set to 1 *}
+{+ choice: true false +}
+{===>} weight=true;
+
+{* number of bins for empirical averaging weight calculation *}
+{===>} bins_w_hs=10;
+
+{=========================== Patterson map #1 ============================}
+
+{* type of Patterson map *}
+{+ list:     "native" : map=FT( |f_a|^2 )
+        "isomorphous" : map=FT( (|f_a|-|f_b|)^2  )
+         "dispersive" : map=FT( (|f_a|-|f_b|)^2  )
+          "anomalous" : map=FT( (|f_a+|-|f_a-|)^2  ) +}
+{+ choice: "native" "isomorphous" "dispersive" "anomalous" +}
+{===>} map.1.mode="anomalous";
+
+{* amplitude array f_a (for all Patterson map types) *}
+{===>} map.1.f_a="fobs";
+
+{* corresponding sigma array *}
+{* leave blank if no sigmas are available *}
+{===>} map.1.s_a="sigma";
+
+{* amplitude array f_b *}
+{* for "dispersive" or "isomorphous" Patterson maps only *}
+{===>} map.1.f_b="";
+
+{* corresponding sigma array *}
+{* for "dispersive" or "isomorphous" Patterson maps only *}
+{* leave blank if no sigmas are available *}
+{===>} map.1.s_b="";
+
+{* |F|/sigma{F} amplitude cutoff *}
+{* reflections with |F|/Sigma{F} < cutoff will be rejected if
+   true for one or both F *}
+{===>} map.1.cut_f=1.;
+
+{* rms outlier cutoff *}
+{* native maps: reflections with  |F| > cutoff*rms(|F|) will be rejected
+   difference maps: reflections with |delta F| > cutoff*rms(|delta F|) will
+               be rejected *}
+{===>} map.1.max_df=4;
+
+{* overall k-scaling for all difference Patterson maps *}
+{* f_b will be scaled to f_a *}
+{+ choice: "yes" "no" +}
+{===>} map.1.kscale="yes";
+
+{* overall B-scaling for all difference Patterson maps *}
+{* f_b will be scaled to f_a *}
+{+ choice: "no" "isotropic" "anisotropic" +}
+{===>} map.1.bscale="anisotropic";
+
+{* scaling iterations for all difference Patterson maps *}
+{* number of iterations using rejection criteria *}
+{===>} map.1.nscale_iter=4;
+
+{* delta F cutoff criteria for all difference Patterson maps *}
+{* reflections with |delta F|/Sigma{delta F} < cutoff will be rejected *}
+{===>} map.1.cut_df=0.5;
+
+{=========================== Patterson map #2 ============================}
+
+{* type of Patterson map *}
+{+ list:     "native" : map=FT( |f_a|^2 )
+        "isomorphous" : map=FT( (|f_a|-|f_b|)^2  )
+         "dispersive" : map=FT( (|f_a|-|f_b|)^2  )
+          "anomalous" : map=FT( (|f_a+|-|f_a-|)^2  ) +}
+{+ choice: "native" "isomorphous" "dispersive" "anomalous" +}
+{===>} map.2.mode="anomalous";
+
+{* amplitude array f_a (for all Patterson map types) *}
+{===>} map.2.f_a="";
+
+{* corresponding sigma array *}
+{* leave blank if no sigmas are available *}
+{===>} map.2.s_a="";
+
+{* amplitude array f_b *}
+{* for "dispersive" or "isomorphous" Patterson maps only *}
+{===>} map.2.f_b="";
+
+{* corresponding sigma array *}
+{* for "dispersive" or "isomorphous" Patterson maps only *}
+{* leave blank if no sigmas are available *}
+{===>} map.2.s_b="";
+
+{* |F|/sigma{F} amplitude cutoff *}
+{* reflections with |F|/Sigma{F} < cutoff will be rejected if
+   true for one or both F *}
+{===>} map.2.cut_f=1.;
+
+{* rms outlier cutoff *}
+{* native maps: reflections with  |F| > cutoff*rms(|F|) will be rejected
+   difference maps: reflections with |delta F| > cutoff*rms(|delta F|) will
+               be rejected *}
+{===>} map.2.max_df=4;
+
+{* overall k-scaling for all difference Patterson maps *}
+{* f_b will be scaled to f_a *}
+{+ choice: "yes" "no" +}
+{===>} map.2.kscale="yes";
+
+{* overall B-scaling for all difference Patterson maps *}
+{* f_b will be scaled to f_a *}
+{+ choice: "no" "isotropic" "anisotropic" +}
+{===>} map.2.bscale="anisotropic";
+
+{* scaling iterations for all difference Patterson maps *}
+{* number of iterations using rejection criteria *}
+{===>} map.2.nscale_iter=4;
+
+{* delta F cutoff criteria for all difference Patterson maps *}
+{* reflections with |delta F|/Sigma{delta F} < cutoff will be rejected *}
+{===>} map.2.cut_df=0.5;
+
+{=========================== Patterson map #3 ============================}
+
+{* type of Patterson map *}
+{+ list:     "native" : map=FT( |f_a|^2 )
+        "isomorphous" : map=FT( (|f_a|-|f_b|)^2  )
+         "dispersive" : map=FT( (|f_a|-|f_b|)^2  )
+          "anomalous" : map=FT( (|f_a+|-|f_a-|)^2  ) +}
+{+ choice: "native" "isomorphous" "dispersive" "anomalous" +}
+{===>} map.3.mode="anomalous";
+
+{* amplitude array f_a (for all Patterson map types) *}
+{===>} map.3.f_a="";
+
+{* corresponding sigma array *}
+{* leave blank if no sigmas are available *}
+{===>} map.3.s_a="";
+
+{* amplitude array f_b *}
+{* for "dispersive" or "isomorphous" Patterson maps only *}
+{===>} map.3.f_b="";
+
+{* corresponding sigma array *}
+{* for "dispersive" or "isomorphous" Patterson maps only *}
+{* leave blank if no sigmas are available *}
+{===>} map.3.s_b="";
+
+{* |F|/sigma{F} amplitude cutoff *}
+{* reflections with |F|/Sigma{F} < cutoff will be rejected if
+   true for one or both F *}
+{===>} map.3.cut_f=1.;
+
+{* rms outlier cutoff *}
+{* native maps: reflections with  |F| > cutoff*rms(|F|) will be rejected
+   difference maps: reflections with |delta F| > cutoff*rms(|delta F|) will
+               be rejected *}
+{===>} map.3.max_df=4;
+
+{* overall k-scaling for all difference Patterson maps  *}
+{* f_b will be scaled to f_a *}
+{+ choice: "yes" "no" +}
+{===>} map.3.kscale="yes";
+
+{* overall B-scaling for all difference Patterson maps *}
+{* f_b will be scaled to f_a *}
+{+ choice: "no" "isotropic" "anisotropic" +}
+{===>} map.3.bscale="anisotropic";
+
+{* scaling iterations for all difference Patterson maps *}
+{* number of iterations using rejection criteria *}
+{===>} map.3.nscale_iter=4;
+
+{* delta F cutoff criteria for all difference Patterson maps  *}
+{* reflections with |delta F|/Sigma{delta F} < cutoff will be rejected *}
+{===>} map.3.cut_df=0.5;
+
+{=========================== Patterson map #4 ============================}
+
+{* type of Patterson map *}
+{+ list:     "native" : map=FT( |f_a|^2 )
+        "isomorphous" : map=FT( (|f_a|-|f_b|)^2  )
+         "dispersive" : map=FT( (|f_a|-|f_b|)^2  )
+          "anomalous" : map=FT( (|f_a+|-|f_a-|)^2  ) +}
+{+ choice: "native" "isomorphous" "dispersive" "anomalous" +}
+{===>} map.4.mode="anomalous";
+
+{* amplitude array f_a (for all Patterson map types) *}
+{===>} map.4.f_a="";
+
+{* corresponding sigma array *}
+{* leave blank if no sigmas are available *}
+{===>} map.4.s_a="";
+
+{* amplitude array f_b *}
+{* for "dispersive" or "isomorphous" Patterson maps only *}
+{===>} map.4.f_b="";
+
+{* corresponding sigma array *}
+{* for "dispersive" or "isomorphous" Patterson maps only *}
+{* leave blank if no sigmas are available *}
+{===>} map.4.s_b="";
+
+{* |F|/sigma{F} amplitude cutoff *}
+{* reflections with |F|/Sigma{F} < cutoff will be rejected if
+   true for one or both F *}
+{===>} map.4.cut_f=1.;
+
+{* rms outlier cutoff *}
+{* native maps: reflections with  |F| > cutoff*rms(|F|) will be rejected
+   difference maps: reflections with |delta F| > cutoff*rms(|delta F|) will
+               be rejected *}
+{===>} map.4.max_df=4;
+
+{* overall k-scaling for all difference Patterson maps *}
+{* f_b will be scaled to f_a *}
+{+ choice: "yes" "no" +}
+{===>} map.4.kscale="yes";
+
+{* overall B-scaling for all difference Patterson maps *}
+{* f_b will be scaled to f_a *}
+{+ choice: "no" "isotropic" "anisotropic" +}
+{===>} map.4.bscale="anisotropic";
+
+{* scaling iterations for all difference Patterson maps *}
+{* number of iterations using rejection criteria *}
+{===>} map.4.nscale_iter=4;
+
+{* delta F cutoff criteria for all difference Patterson maps *}
+{* reflections with |delta F|/Sigma{delta F} < cutoff will be rejected *}
+{===>} map.4.cut_df=0.5;
+
+{========================= search options ============================}
+
+{* number of peaks of the first Patterson search that will be used in
+   subsequent searches *}
+{===>} ntrials=100;
+
+{* peak number of the first Patterson search that will be used for the
+   first trial *}
+{* ntrials peaks will be tested after this peak *}
+{===>} first_trial=1;
+
+{* Patterson search method *}
+{+ choice: "reciprocal space" "direct space" "reciprocal*direct" +}
+{===>} search_method="reciprocal*direct";
+
+{* dynamic weight factor for reciprocal*direct Patterson search method *}
+{===>} W_IMF=3;
+
+{* allow special positions *}
+{+ choice: true false +}
+{===>} special=false;
+
+{* lower distance cutoff for symmetry mates *}
+{* a site closer than this to any of its symmetry mates will be ignored *}
+{===>} mate_low_cut=5;
+
+{* lower distance cutoff for site elimination *}
+{* a new site closer than this to any old site will be ignored *}
+{===>} low_cut=3.5;
+
+{* expected increase in correlation coefficient after placing a new site *}
+{* if this criterion is not satisfied more than a given number of times (see
+   next variable) the search will stop with this particular starting site
+   and start with the next site of the first Patterson search *}
+{===>} expected_corr_inc=.01;
+
+{* maximum number of times where it is tolerated that the correlation
+   coefficient does not increase when placing a new site *}
+{===>} max_no_corr_inc=0;
+
+{* grid resolution *}
+{* ideally this should 1/3 of the high-resolution limit *}
+{===>} grid=0.33;
+
+{* use less memory for fast translation search summation *}
+{* for very large high-symmetry structures (cubic) the search is
+   likely to run slower when setting this option to true *}
+{+ choice: true false +}
+{===>} LessMemory=true;
+
+{============================ output files ===========================}
+
+{* root name for output files *}
+{+ list:
+   Summary file will be in: <output_root>_i.summary.
+   Coordinates for each successful trial will be in the site database files:
+     <output_root>_i.sdb
+   Coordinates for the best solution will be in the site database file:
+     <output_root>.sdb
+   The list of trial numbers and correlation coefficients will be in the file:
+     <output_root>.list +}
+{===>} output_root="heavy_search";
+
+{* F_patt output file *}
+{+ list:
+   Optionally the F_patt structure factors used in the search can be
+   exported for use in an external program. The structure factors
+   will be written to a file with the name given below. Leave
+   the field empty if the F_patt structure factors are not needed. +}
+{===>} export_f_patt="";
+
+{===========================================================================}
+{         things below this line do not normally need to be changed         }
+{===========================================================================}
+
+ ) {- end block parameter definition -}
+
+
+define ( {- options which are still under development, NOT for general use -}
+
+{- NCS-restraints/constraints file -}
+{- only strict NCS is allowed. See auxiliary/ncs.def. -}
+{--->} ncs_infile="";
+
+{- avoid heavy-atom clusters -}
+{- if this option is turned on, the approximate number of amino acid
+   residues must also be given -}
+{- choice: true false -}
+{--->} avoid_clusters=false;
+
+{- approximate number of amino acid residues in the asymmetric unit -}
+{- only needed if cluster avoidance is turned on -}
+{--->} aa_residues=0;
+)
+
+ checkversion 1.3
+
+ eval($log_level=quiet)
+
+eval($fprecision="DOUBLE")
+
+{- Number of neighborhood spheres to look at in peak search -}
+{- choice: 0 1 2 3 -}
+eval($psearch_level=1)
+
+
+procedure set_target (target_label)
+  if     (&target_label="f2f2") then
+    bins=1
+    target=(F2F2(amplitude(patt_fob),fcalc+mod_fpart))
+    dtarget=(df2f2(amplitude(patt_fob),fcalc+mod_fpart))
+    monitor=(corr[overall](amplitude(patt_fob)^2,amplitude(fcalc+mod_fpart)^2))
+  elseif (&target_label="f1f1") then
+    bins=1
+    target=(F1F1(amplitude(patt_fob),fcalc+mod_fpart))
+    dtarget=(df1f1(amplitude(patt_fob),fcalc+mod_fpart))
+    monitor=(corr[overall](amplitude(patt_fob)  ,amplitude(fcalc+mod_fpart)  ))
+  elseif (&target_label="e2e2") then
+    bins=10
+    target=(E2E2(amplitude(patt_fob),fcalc+mod_fpart))
+    dtarget=(dE2E2(amplitude(patt_fob),fcalc+mod_fpart))
+    monitor=(corr[overall](norm(amplitude(patt_fob))^2,norm(amplitude(fcalc+mod_fpart)^2)))
+  else
+    display set_target: fatal error: unsupported target_label.
+    abort
+  end if
+endp
+
+
+procedure set_dyn_low_cut (n_sites;
+                           n_half_sites;
+                           low_cut;
+                           avoid_clusters;
+                           start_low_cut;
+                           dyn_low_cut;)
+
+  eval(&dyn_low_cut = &low_cut)
+  if (&avoid_clusters = true) then
+    if (&n_sites <= &n_half_sites) then
+      eval($x = (&n_half_sites - &n_sites + 1) / &n_half_sites)
+      eval(&dyn_low_cut = (&start_low_cut - &low_cut) * $x + &low_cut)
+    end if
+  end if
+endp
+
+procedure hs_mindist (use_arry;
+                      sel_current_site;
+                      special;
+                      mate_low_cut;
+                      low_cut;
+                      avoid_clusters;
+                      start_low_cut;
+                      n_half_sites;
+                      take_it;)
+  mindistance
+    set1=&sel_current_site
+    set2=&sel_current_site
+    mindistance=&mate_low_cut
+    specialpositions=&special
+  end
+  eval(&take_it=$result)
+  if (&take_it=true) then
+    show sum (1) (&use_arry)
+    call set_dyn_low_cut (n_sites=$select;
+                          n_half_sites=&n_half_sites;
+                          low_cut=&low_cut;
+                          avoid_clusters=&avoid_clusters;
+                          start_low_cut=&start_low_cut;
+                          dyn_low_cut=$dyn_low_cut;)
+    mindistance
+      set1=&use_arry
+      set2=&sel_current_site
+      mindistance=$dyn_low_cut
+      specialpositions=&special
+    end
+    eval(&take_it=$result)
+  end if
+endp
+
+
+procedure hs_refine (nstep; shift_dampen;
+                     bnstep; ref_bfactor; ref_occupancy;
+                     use_array; fix_array)
+
+  show sum (1) (&use_array)
+  eval($nsites = $select)
+  eval($ref_bfactor   = &ref_bfactor)
+  eval($ref_occupancy = &ref_occupancy)
+  if ($nsites < $ref_bfactor)   then eval($ref_bfactor   = -1) end if
+  if ($nsites < $ref_occupancy) then eval($ref_occupancy = -1) end if
+
+  xray
+    associate fcalc (&use_array)
+    do (mod_fpart=0) (all)
+  end
+  fix
+    selection=((not &use_array) or &fix_array)
+  end
+
+  if (&nstep > 0) then
+    if (&shift_dampen=true) then
+      do (refx=x+0.001) (all) {- Use shift damping                -}
+      do (refy=y+0.001) (all) {- move the ref. coors. a bit off   -}
+      do (refz=z+0.001) (all) {- in order to avoid zero gradients -}
+      do (harm=100) (all)
+      flags include harm end
+    end if
+    show sum (1) (not (tag and (not &fix_array) and &use_array)
+                  and ((not &fix_array) and &use_array))
+    if ($select > 0) then
+      minimize rigid
+        nstep=&nstep drop=10 tolerance=0.
+        for $id in id (tag and (not &fix_array) and &use_array) loop min
+          group=(byresidue (id $id))
+        end loop min
+      end
+    else
+      minimize lbfgs
+        nstep=&nstep tolgradient=0.
+      end
+    end if
+    if (&shift_dampen=true) then
+      flags exclude harm end
+    end if
+  end if
+  if (&bnstep > 0) then
+    xray
+      optimize group
+        method=lbfgs
+        nstep=&bnstep
+        drop=10.
+        tolerance=0.
+        bmin=0
+        bmax=200
+        qmin=0.1
+        qmax=20
+        for $id in id (tag and (not &fix_array) and &use_array) loop bref
+          if ($ref_bfactor >= 0) then
+            b=(byresidue (id $id))
+          end if
+          if ($ref_occupancy >= 0) then
+            q=(byresidue (id $id))
+          end if
+        end loop bref
+      end
+    end
+  end if
+endp
+
+@CNS_XTALMODULE:read_multi_sdb (filegroup=&sitedatabase_infile;
+                                use_array=store3;
+                                fix_array=store4;
+                                sg_expected=&sg;
+                                sg_read=$sg_read;)
+
+eval($site_type=capitalize(&site_type))
+
+show sum (1) (all)
+eval($old_sites_stop = $select)
+show sum (1) (store3)
+eval($old_active = $select)
+
+if ($old_sites_stop > 0) then
+  {- make sure all preexisting sites are of type "site_type" -}
+  do (chemical=$site_type) (store3)
+
+  do ( segid=IGNR ) ( not ( store3 ) )
+  do ( segid=REFI ) ( store3 and not ( store4 ) )
+  do ( segid=FIXD ) ( store3 and store4 )
+end if
+
+topology
+  residue $site_type
+     atom SITE mass=10. charge=0. type=$site_type end
+  end
+end
+
+segment
+  name = NEW
+  molecule number=&new_sites name=$site_type end
+end
+
+identity (store3) (segid REFI or segid FIXD)
+identity (store4) (segid FIXD)
+identity (store5) (segid NEW)
+
+do (segid=resname) (segid IGNR or segid FIXD or segid REFI)
+do (segid=SITE) (segid NEW)
+
+eval($new_sites_start = $old_active + 1)
+eval($new_sites_stop  = $old_active + &new_sites)
+
+show min (store5) (store5)
+eval($min_resid = $result)
+do (resid = encode(store5 - $min_resid + $new_sites_start)) (store5)
+do (name = resid) (store5)
+
+eval($adj_new_sites = &new_sites)
+if (&sg = "P1") then
+  if ($old_active = 0) then
+    eval($adj_new_sites = $adj_new_sites - 1)
+    eval($old_active = 1)
+    eval($new_sites_start=2)
+    identity (store3) (resid 1)
+    do (x=0) (store3)
+    do (y=0) (store3)
+    do (z=0) (store3)
+    do (q=1) (store3)
+    do (b=&init_bfac) (store3)
+    identity (store4) (store3)
+    identity (store5) (not store3)
+  end if
+end if
+
+eval ($scat_mode = &scatter_mode)
+if ($scat_mode = "automatic") then
+  eval($scat_mode = "constant")
+  eval ($imap = 1)
+  while ($imap <= &number_of_maps) loop imap
+    if (&EXIST%map.$imap.mode = false) then
+      display
+      display  ************************************
+      display  map=$imap : error, map mode not defined.
+      display  ************************************
+      display
+      abort
+    end if
+    if (&map.$imap.mode = "native")      then
+      eval($scat_mode = "gaussian") end if
+    if (&map.$imap.mode = "isomorphous") then
+      eval($scat_mode = "gaussian") end if
+    eval ($imap = $imap + 1)
+  end loop imap
+end if
+
+xray
+  if ($scat_mode="constant") then
+    scatter ( all ) 0 0 0 0 0 0 0 0 0 fp 1 fdp 0
+  else
+    @@&scatter_library
+  end if
+
+  @CNS_XTALLIB:spacegroup.lib (sg=&sg; sgparam = $sgparam)
+
+  a=&a b=&b c=&c  alpha=&alpha beta=&beta gamma=&gamma
+
+   evaluate ($counter=1)
+   evaluate ($done=false)
+   while ( $done = false ) loop read
+    if ( &exist_reflection_infile_$counter = true ) then
+      if ( &BLANK%reflection_infile_$counter = false ) then
+       reflection
+         @@&reflection_infile_$counter
+       end
+      end if
+    else
+     evaluate ($done=true)
+    end if
+    evaluate ($counter=$counter+1)
+   end loop read
+
+  binresolution &low_res &high_res
+  mapresolution &high_res
+
+  delete selection=( not ( &low_res >= d >= &high_res ) )  end
+end
+
+flags exclude * include xref end
+
+xray
+  buffer harvest
+    display $old_active preexisting sites are present.
+    display Search for $adj_new_sites new sites is carried out.
+  end
+
+  if ($scat_mode="gaussian") then
+    buffer harvest
+      display scatter_mode=gaussian  site_type=$site_type  scatter_library=&scatter_library
+    end
+  else
+    buffer harvest
+      display scatter_mode=constant
+    end
+  end if
+
+  buffer harvest
+    display resolution: &low_res - &high_res
+    display sg= &STRIP%sg a= &a b= &b c= &c alpha= &alpha beta= &beta gamma= &gamma
+    display positional refinement: nstep= &nstep  shift_dampen= &shift_dampen
+    display b/q refinement: bnstep= &bnstep  occupancy= &ref_occupancy  bfactor= &ref_bfactor
+    display search_method = &search_method
+    display special = &special  mate_low_cut= &mate_low_cut low_cut= &low_cut
+  end
+  if (&avoid_clusters = true) then
+    buffer harvest
+      display avoid_clusters = &avoid_clusters  aa_residues = &aa_residues
+    end
+  end if
+  buffer harvest
+    display LessMemory = &LessMemory
+    display expected_corr_increase = &expected_corr_inc
+    display max_no_corr_increase = &max_no_corr_inc
+  end
+
+  declare name=df_accum domain=reciprocal type=real end
+
+  @CNS_XTALMODULE:pattersonmap
+   (
+    map=&map;
+    number_of_maps=&number_of_maps;
+    sharpen=false;
+    origin_remove=false;
+    weight=&weight;
+    bins_w=&bins_w_hs;
+    low_res=&low_res;
+    high_res=&high_res;
+    reject_hard=true;
+    df_accum=df_accum;
+    buffer_name=harvest;
+   )
+
+  {- average Friedel mates if any -}
+  do (df_accum=(df_accum+friedel(df_accum))/2 ) ( friedel_pair(abs(df_accum)>0))
+
+  {- the df_accum array now obeys Friedel's law -}
+  anomalous=false
+
+  query name=fcalc domain=reciprocal end
+  if ( $object_exist = false ) then
+    declare name=fcalc domain=reciprocal type=complex end
+  end if
+  declare name=patt_fob domain=reciprocal type=complex end
+  declare name=mod_fpart domain=reciprocal type=complex end
+
+  do (patt_fob=combine(sqrt(df_accum),0)) ( abs(df_accum)>0 )
+  delete selection=(amplitude(patt_fob)=0) end
+
+  {- Specify target -}
+  call set_target (target_label=&pc_target;)
+
+  binresolution &low_res &high_res
+  mapresolution &high_res
+
+  {- Specify target selection -}
+  tselection=(&low_res >= d >= &high_res)
+
+end
+
+if (&export_f_patt # "") then
+
+    set display=&export_f_patt end
+
+    @CNS_XTALMODULE:write_hkl_header (sg=&STRIP%sg;
+                                      sgparam=$sgparam;)
+
+    xray    
+      declare name=f_patt domain=reciprocal type=real end
+      do (f_patt=amplitude(patt_fob)) (all)
+      write reflection f_patt output=&export_f_patt end
+      undeclare name=f_patt domain=reciprocal end
+    end
+    
+    set display=OUTPUT end
+    
+end if
+
+xray
+  method=direct
+  lookup=false
+  tolerance=0.0
+  wa=100000
+end
+
+eval($disp_file=&output_root+".summary")
+set display=$disp_file end
+buffer harvest
+  to display
+  dump
+end
+
+xray
+  display SymGrid $sgparam.SymGrid_x $sgparam.SymGrid_y $sgparam.SymGrid_z
+
+  fft
+    grid=&grid
+    xgridfactor=$sgparam.SymGrid_x
+    ygridfactor=$sgparam.SymGrid_y
+    zgridfactor=$sgparam.SymGrid_z
+    automemory=true
+  end
+end
+
+do (x=0)          (store5)
+do (y=0)          (store5)
+do (z=0)          (store5)
+do (q=1)          (store5)
+do (b=&init_bfac) (store5)
+
+eval($last_trial=&ntrials+&first_trial-1)
+
+{- save positions of preexisting sites -}
+do (xcomp=x) ( all )
+do (ycomp=y) ( all )
+do (zcomp=z) ( all )
+
+if (&blank%ncs_infile = false) then
+  inline @&ncs_infile
+  if (&ncs_type # "strict") then
+    display ERROR: only strict NCS is allowed
+    abort
+  end if
+  display Number of strict NCS operators = $NCS[I4]
+end if
+
+eval($start_low_cut = &low_cut)
+if (&avoid_clusters = true) then
+  {- approximate number of atoms: 5 C + 3 N + 1 O -}
+  eval($natoms = &aa_residues * 9);
+  eval($volume = $natoms * 9.0)
+  eval($r_sphere = ((3 * $volume) / (4 * $pi))**(1/3))
+  eval($start_low_cut = max(&low_cut, $r_sphere))
+  eval($n_half_sites = int($new_sites_stop / 2 + 0.5))
+
+  display Site No.  Dynamic Min. Distance
+  eval($i = $new_sites_start - 1)
+  while ($i < $new_sites_stop) loop disp
+    eval($i = $i + 1)
+    call set_dyn_low_cut (n_sites=$i;
+                          n_half_sites=$n_half_sites;
+                          low_cut=&low_cut;
+                          avoid_clusters=&avoid_clusters;
+                          start_low_cut=$start_low_cut;
+                          dyn_low_cut=$dyn_low_cut;)
+    display  $i[I6]  $dyn_low_cut[F8.2]
+  end loop disp
+end if
+
+xray
+  do (mod_fpart = 0) (all)
+end
+
+if ($old_active > 0) then
+  do (store6 = 0) (all)
+  eval($i = 0)
+  while ($i < $old_sites_stop) loop ccprofile
+    eval($i = $i + 1)
+    show sum (1) (attribute store3 = $i)
+    if ($select > 0) then
+      identity (store6) (store6 or attribute store3 = $i)
+      xray
+        predict
+          mode=reciprocal
+          to=fcalc
+          atomselection=(store6)
+          selection=(all)
+        end
+        print target
+      end
+      show sum (1) (store6)
+      display $select known site(s): correlation coefficient = $monitor[F8.4]
+    end if
+  end loop ccprofile
+
+  write coordinates end
+end if
+
+if ($adj_new_sites < 1) then
+  set display OUTPUT end
+  display ERROR: Number of sites to be found is 0.
+  abort
+end if
+
+eval($preex_corr = -1)
+xray
+  if ($old_active > 0) then
+    predict
+      mode=reciprocal
+      to=fcalc
+      atomselection=(store3)
+      selection=(all)
+    end
+    print target
+    eval($preex_corr = $monitor)
+    do (mod_fpart = fcalc) (all)
+  end if
+end
+
+eval($best_overall_corr=-1)
+eval($fmap_addl2=false)
+eval($nDoneTSMap=0)
+eval($time_tsmap=0)
+
+@CNS_XTALMODULE:pattsearch
+(
+  initial_search=true;
+  fmap_addl2=$fmap_addl2;
+  sg=&sg;
+  search_method=&search_method;
+  W_IMF=&W_IMF;
+  sel_known_sites=store3;
+  sel_current_site=(store5 and resid $new_sites_start);
+  init_bfac=&init_bfac;
+  LessMemory=&LessMemory;
+  psearch_level=$psearch_level;
+  pstore=1;
+  total_peaks=$total_peaks;
+  nDoneTSMap=$nDoneTSMap;
+  time_tsmap=$time_tsmap;
+)
+
+display Total number of peaks in initial search map: $total_peaks
+display =========================================\
+============================================================
+
+if ( $log_level = verbose ) then
+  set message=normal echo=on end
+else
+  set message=off echo=off end
+end if
+
+eval($itrial=0)
+eval($ipeak1=0)
+while ($itrial < $last_trial) loop trial
+  eval($ipeak1=$ipeak1+1)
+
+  xray
+    psearch
+      pstore = 1
+      nlist = $ipeak1
+      symbol = ts1peak
+    end
+  end
+
+  if ($result = false) then
+    exit trial
+  end if
+
+  {- restore positions of preexisting sites -}
+  do (x=xcomp) ( all )
+  do (y=ycomp) ( all )
+  do (z=zcomp) ( all )
+
+  eval($current_site=$new_sites_start)
+  identity (store6) (store3 or (store5 and resid $current_site))
+
+  do (x=$ts1peak_x) ( store5 and resid $current_site )
+  do (y=$ts1peak_y) ( store5 and resid $current_site )
+  do (z=$ts1peak_z) ( store5 and resid $current_site )
+  do (q=1)          ( store5 and resid $current_site )
+  do (b=&init_bfac) ( store5 and resid $current_site )
+
+  show elem ( b ) ( store5 and resid $current_site )
+  display Site no: $current_site .  Testing: position=\
+( $ts1peak_x[F10.4] $ts1peak_y[F10.4] $ts1peak_z[F10.4] )\
+ b= $result[F10.4]
+
+  {- check special position and distance criteria for first site -}
+  call hs_mindist (use_arry=(store6);
+                   sel_current_site=(store5 and resid $current_site);
+                   special=&special;
+                   mate_low_cut=&mate_low_cut;
+                   low_cut = &low_cut;
+                   avoid_clusters = &avoid_clusters;
+                   start_low_cut = $start_low_cut;
+                   n_half_sites = $n_half_sites;
+                   take_it=$take_it;)
+
+  if ($take_it=true) then
+    eval($itrial=$itrial+1)
+    if ($itrial >= &first_trial) then
+      display Site no: $current_site . Accepted position: xyz=\
+( $ts1peak_x[F10.4] $ts1peak_y[F10.4] $ts1peak_z[F10.4] )
+
+      eval($pc_monitor = -1)
+      eval($max_corr = $preex_corr)
+      eval($n_no_corr_inc = 0)
+
+      while (true=true) loop site
+        {- refine all previously placed sites -}
+        call hs_refine (nstep=         &nstep;
+                        shift_dampen=  &shift_dampen;
+                        bnstep=        &bnstep;
+                        ref_bfactor=   &ref_bfactor;
+                        ref_occupancy= &ref_occupancy;
+                        use_array=     store6;
+                        fix_array=     store4;)
+
+        if ($current_site = 1) then
+          if ($sgparam.fix_x = true) then do (x=0) (store5 and resid 1) end if
+          if ($sgparam.fix_y = true) then do (y=0) (store5 and resid 1) end if
+          if ($sgparam.fix_z = true) then do (z=0) (store5 and resid 1) end if
+        end if
+
+        xray
+          predict
+            mode=reciprocal
+            to=fcalc
+            atomselection=( store6 )
+            selection=(all)
+          end
+          print target
+          eval($pc_monitor = $monitor)
+        end
+
+        show elem ( x ) ( store5 and resid $current_site )
+        eval($site_x=$result)
+        show elem ( y ) ( store5 and resid $current_site )
+        eval($site_y=$result)
+        show elem ( z ) ( store5 and resid $current_site )
+        eval($site_z=$result)
+        show elem ( b ) ( store5 and resid $current_site )
+        eval($site_b=$result)
+
+        display Site no: $current_site . After refinement: xyz=\
+( $site_x[F10.4] $site_y[F10.4] $site_z[F10.4] )  b=$site_b[F10.4]  corr= $pc_monitor[F10.4]
+
+        if ($current_site = $new_sites_stop) then
+          exit site
+        end if
+
+        eval($expected_corr=$max_corr+&expected_corr_inc)
+        if ($expected_corr > $pc_monitor) then
+          eval($n_no_corr_inc = $n_no_corr_inc + 1)
+          if ($n_no_corr_inc > &max_no_corr_inc) then
+            display Increase in correlation coefficient less than expected
+            display    highest correlation coefficient: $max_corr
+            display    correlation coefficient after placing this site: $pc_monitor
+            display    expected_corr_increase = &expected_corr_inc
+            display    max_no_corr_increase = &max_no_corr_inc
+            exit site
+          else
+            display n_no_corr_inc = $n_no_corr_inc
+          end if
+        end if
+        if ($max_corr < $pc_monitor) then
+          eval($max_corr=$pc_monitor)
+        end if
+
+        eval($current_site=$current_site+1)
+
+        xray
+          do (mod_fpart = fcalc) (all)
+        end
+
+        @CNS_XTALMODULE:pattsearch
+        (
+          initial_search=false;
+          fmap_addl2=$fmap_addl2;
+          sg=&sg;
+          search_method=&search_method;
+          W_IMF=&W_IMF;
+          sel_known_sites=store6;
+          sel_current_site=(store5 and resid $current_site);
+          init_bfac=&init_bfac;
+          LessMemory=&LessMemory;
+          psearch_level=$psearch_level;
+          pstore=2;
+          total_peaks=$total_peaks;
+          nDoneTSMap=$nDoneTSMap;
+          time_tsmap=$time_tsmap;
+        )
+
+        identity (store6) (store6 or (store5 and resid $current_site))
+
+        eval($take_it=true)
+
+        eval($ipeak2=0)
+        while (true=true) loop tri2
+          eval($ipeak2=$ipeak2+1)
+
+          xray
+            psearch
+              pstore = 2
+              nlist = $ipeak2
+              symbol = ts2peak
+            end
+          end
+
+          if ($result = false) then
+            exit tri2
+          end if
+
+          do (x=$ts2peak_x) (store5 and resid $current_site)
+          do (y=$ts2peak_y) (store5 and resid $current_site)
+          do (z=$ts2peak_z) (store5 and resid $current_site)
+          do (q=1)          (store5 and resid $current_site)
+          do (b=&init_bfac) (store5 and resid $current_site)
+
+          show elem ( b ) ( store5 and resid $current_site )
+          display Site no: $current_site .  Testing: position=\
+( $ts2peak_x[F10.4] $ts2peak_y[F10.4] $ts2peak_z[F10.4] )\
+ b= $result[F10.4]
+
+          call hs_mindist (use_arry=(store6);
+                           sel_current_site=(store5 and resid $current_site);
+                           special=&special;
+                           mate_low_cut=&mate_low_cut;
+                           low_cut = &low_cut;
+                           avoid_clusters = &avoid_clusters;
+                           start_low_cut = $start_low_cut;
+                           n_half_sites = $n_half_sites;
+                           take_it=$take_it;)
+
+          if ($take_it=true) then
+            display Site no: $current_site . Accepted position: xyz=\
+( $ts2peak_x[F10.4] $ts2peak_y[F10.4] $ts2peak_z[F10.4] )
+            exit tri2
+          end if
+        end loop tri2
+
+        if ($take_it=false) then
+          display Could not find additional sites that satisfy the
+          display criteria.
+          do (store6=0) (store5 and resid $current_site)
+          eval($current_site = $current_site - 1)
+          exit site
+        end if
+      end loop site
+
+      eval($new_placed=($current_site - $new_sites_start ) + 1)
+
+      eval($sdb_out=&output_root+"_"+encode($itrial)+".sdb")
+
+      display finished trial no. $itrial
+      display number of new sites placed within criteria:  $new_placed[I8]
+      display correlation coefficient after final refinement of this set = $pc_monitor[F10.4]
+      display this set is written to site database file $sdb_out
+      display =========================================\
+============================================================
+
+      eval($next_site=$current_site+1)
+
+      @CNS_XTALMODULE:coord_to_sdb
+             (sitedb=$currentsites;
+              use_array=store6;
+              fix_array=store4;
+              selection=( not ( resid $next_site:$new_sites_stop ) );)
+
+      buffer comment
+        reset
+        display trial no. $itrial , correlation coefficient &STRIP%pc_target = $pc_monitor[F10.4]
+        display number of new sites placed within criteria:  $new_placed[I8]
+        from buffer=harvest
+      end
+
+      @CNS_XTALMODULE:write_cns_header (output=$sdb_out;
+                                        description="Results from heavy atom search";
+                                        buffer=comment;)
+
+      @CNS_XTALMODULE:write_sdb (sitedb=$currentsites;
+                                 sg=&sg;
+                                 output=$sdb_out;)
+
+      close $sdb_out end
+
+      eval($cclist.$itrial = $pc_monitor)
+
+      if ($pc_monitor > $best_overall_corr) then
+        eval($best_overall_corr=$pc_monitor)
+        eval($best_trial=$itrial)
+        eval($best_sdb_file=$sdb_out)
+        buffer best
+          reset
+          display trial no. $itrial , correlation coefficient &STRIP%pc_target = $pc_monitor[F10.4]
+          display number of new sites placed within criteria:  $new_placed[I8]
+        end
+      end if
+
+    end if
+  end if
+end loop trial
+eval($last_trial = $itrial)
+
+if ($itrial < &first_trial) then
+  display No acceptable initial trial site found!
+  display Please check your input parameters.
+else
+  structure reset end
+
+  eval($sdb_in.1=$best_sdb_file)
+
+  @CNS_XTALMODULE:read_multi_sdb (filegroup=$sdb_in;
+                                  use_array=store6;
+                                  fix_array=store4;
+                                  sg_expected=&sg;
+                                  sg_read=$sg_read;)
+
+  @CNS_XTALMODULE:coord_to_sdb (sitedb=$bestsites;
+                                use_array=store6;
+                                fix_array=store4;
+                                selection=(all);)
+
+  buffer comment
+    reset
+    display Best solution:
+    from buffer=best
+    from buffer=harvest
+  end
+
+  eval($sdb_out=&output_root+".sdb")
+
+  @CNS_XTALMODULE:write_cns_header (output=$sdb_out;
+                                    description="Best results from heavy atom search";
+                                    buffer=comment;)
+
+  @CNS_XTALMODULE:write_sdb (sitedb=$bestsites;
+                             sg=&sg;
+                             output=$sdb_out;)
+
+  eval($list_file=&output_root+".list")
+  set display=$list_file end
+
+  set echo=on end
+  eval($sum = 0)
+    eval($itrial = &first_trial - 1)
+  while ($itrial < $last_trial) loop cclist
+    eval($itrial = $itrial + 1)
+    eval($sum = $sum + $cclist.$itrial)
+  end loop cclist
+  eval($ncclist = $last_trial - &first_trial + 1)
+  eval($mean = $sum / $ncclist)
+
+  eval($sum = 0)
+    eval($itrial = &first_trial - 1)
+  while ($itrial < $last_trial) loop cclist
+    eval($itrial = $itrial + 1)
+    eval($sum = $sum + ($cclist.$itrial - $mean)^2)
+  end loop cclist
+  eval($rms = sqrt($sum / $ncclist))
+
+    eval($itrial = &first_trial - 1)
+  while ($itrial < $last_trial) loop cclist
+    eval($itrial = $itrial + 1)
+    eval($x = ($cclist.$itrial - $mean) / 1.5)
+    if ($x >= $rms) then
+      display +$itrial $cclist.$itrial[F10.4]
+    else
+      display  $itrial $cclist.$itrial[F10.4]
+    end if
+  end loop cclist
+
+end if
+
+stop

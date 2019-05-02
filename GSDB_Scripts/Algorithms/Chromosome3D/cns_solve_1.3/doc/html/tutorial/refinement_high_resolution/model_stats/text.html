@@ -1,0 +1,212 @@
+<HTML>
+<HEAD>
+   <TITLE>Crystallography & NMR System</TITLE>
+</HEAD>
+<BODY BGCOLOR=#8ebf8e>
+
+ <HR WIDTH="100%"></P>
+
+<H2>Checking the initial model</H2>
+
+<HR WIDTH="100%"></P>
+   
+<P>It is always sensible to check the initial model prior to
+starting refinement. If the model has been obtained by molecular replacement it
+should therefore have reasonable geometry, but it may have close packing contacts.  If the model has been obtained by manual building it may
+have distorted geometry so In this example the CNS task file
+<TT>model_stats_start.inp</TT> is used to analyze the model geometry
+and diffraction statistics. The results will indicate if the model has
+poor geometry which can occur in the course of manual rebuilding or
+also due to an error at the generate stage (see previous
+section). Locating any possible problems prior to refinement will save
+time later on (the <tt>model_stats_start.inp</tt> file is taken from the <tt>model_stats.inp</tt> input file, i.e., the only differences are the particular input parameter settings): .</P>
+
+<PRE>
+      cns_solve &lt; <A HREF="model_stats_start.inp">model_stats_start.inp</A> &gt; model_stats_start.out
+</PRE>
+
+<P>The output listing file (<A
+HREF="model_stats_start.list">model_stats_start.list</A>) contains a
+variety of information which is self-explanatory. Important things to
+note are:<P>
+
+<P>Initial R-values:</P>
+
+<PRE>
+=================================== summary ==================================
+
+resolution range: 500 - 1.8 A
+  R-values:<br>  initial                                        r= 0.5121 free_r= 0.4894<br>  after B-factor and/or bulk solvent correction  r= 0.4340 free_r= 0.4436</PRE>
+
+<P>Initial R-values that are very different from expected are usually
+the result of a simple mistake such as incorrect space group, unit
+cell dimensions, input diffraction data or input model.</P>
+
+<P>R-values versus resolution:</P>
+
+<PRE>
+=======> R-values with |Fobs|/sigma cutoff= 0.0
+
+ Test set (test = 1):
+
+ #bin | resolution range | #refl | 
+    1   3.88  500.01        354      0.3626
+    2   3.08    3.88        354      0.4380
+    3   2.69    3.08        375      0.4688
+    4   2.44    2.69        394      0.4157
+    5   2.27    2.44        349      0.4736
+    6   2.13    2.27        384      0.4631
+    7   2.03    2.13        349      0.4803
+    8   1.94    2.03        348      0.5422
+    9   1.86    1.94        374      0.4716
+   10   1.80    1.86        393      0.4757
+
+ Working set:
+
+ #bin | resolution range | #refl | 
+    1   3.88  500.01       3463      0.3592
+    2   3.08    3.88       3468      0.4076
+    3   2.69    3.08       3422      0.4474
+    4   2.44    2.69       3431      0.4597
+    5   2.27    2.44       3444      0.4734
+    6   2.13    2.27       3416      0.4647
+    7   2.03    2.13       3438      0.4707
+    8   1.94    2.03       3443      0.4664
+    9   1.86    1.94       3400      0.4636
+   10   1.80    1.86       3323      0.4835
+</PRE>
+
+<P>This distribution of R-values is reasonable - there is no dramatic
+increase in R-value (in particular free R-value) as resolution
+increases. If there were resolution shells with R-values significantly
+higher than the rest this might indicate possible problems with the
+data processing (ice rings for example). However, the R-values
+indicate the fit to the experimental data and should not be
+manipulated by removing data - in particular by the use of sigma
+cutoffs to exclude weak data.</P>
+
+<P>The overall geometry:</P>
+
+<PRE>
+rmsd bonds= 0.009109 with 2 bond violations > 0.05
+rmsd angles=  1.57655 with 9 angle violations >  8.0
+rmsd dihedrals= 24.18230 with 0 angle violations >  60.0
+rmsd improper=  1.36747 with 37 angle violations >  3.0
+</PRE>
+
+<P>If the model has been through extensive manual rebuilding the
+initial geometry may have significant deviations from ideality. Any
+major problem can be detected by the detailed geometry analysis
+(below).</P>
+
+<P>The geometry in detail:</P>
+
+<PRE>
+================================= geometry ===================================
+
+=======> bond violations
+
+ (atom-i        |atom-j        )    dist.   equil.   delta    energy   const. 
+
+ (A    159  CG1 |A    159  CD1 )    1.569    1.513    0.056    1.222  389.218
+ (B    159  CG1 |B    159  CD1 )    1.568    1.513    0.055    1.181  389.218
+
+=======> angle violations
+
+ (atom-i        |atom-j        |atom-k        )  angle    equil.     delta    energy  const. 
+
+ (A    111  N   |A    111  CA  |A    111  C   )  103.152  111.200   -8.048    4.891  247.886
+ (A    112  N   |A    112  CA  |A    112  C   )  103.195  111.200   -8.005    4.839  247.886
+ (A    182  N   |A    182  CA  |A    182  C   )  101.879  111.200   -9.321    6.561  247.886
+ (A    198  N   |A    198  CA  |A    198  C   )   99.371  111.200  -11.829   10.566  247.886
+ (B    111  N   |B    111  CA  |B    111  C   )  103.139  111.200   -8.061    4.907  247.886
+ (B    112  N   |B    112  CA  |B    112  C   )  103.134  111.200   -8.066    4.913  247.886
+ (B    182  N   |B    182  CA  |B    182  C   )  101.841  111.200   -9.359    6.614  247.886
+ (B    198  N   |B    198  CA  |B    198  C   )   99.325  111.200  -11.875   10.648  247.886
+ (B    206  N   |B    206  CA  |B    206  C   )  103.168  111.200   -8.032    4.872  247.886
+
+=======> improper angle violations
+
+ (atom-i        |atom-j        |atom-k        |atom-L        )    angle    equil.   delta    energy   const.   period
+
+ (A    114  C   |A    114  CA  |A    115  N   |A    114  O   )    3.997    0.000   -3.997    3.649  750.000   0
+ (A    117  CA  |A    117  N   |A    117  C   |A    117  CB  )   31.678   35.264    3.586    2.938  750.000   0
+ (A    120  CA  |A    120  N   |A    120  C   |A    120  CB  )   38.700   35.264   -3.435    2.696  750.000   0
+ (A    120  N   |A    120  CA  |A    120  CD  |A    119  C   )   -5.077    0.000    5.077    0.785  100.000   0
+ (A    129  CA  |A    129  N   |A    129  C   |A    129  CB  )   31.441   35.264    3.824    3.341  750.000   0
+ (A    128  C   |A    128  CA  |A    129  N   |A    128  O   )   -3.184    0.000    3.184    2.316  750.000   0
+ (A    132  CA  |A    132  N   |A    132  C   |A    132  CB  )   32.179   35.264    3.085    2.175  750.000   0
+ (A    138  N   |A    138  CA  |A    138  CD  |A    137  C   )   -6.363    0.000    6.363    1.233  100.000   0
+ (A    149  CA  |A    149  N   |A    149  C   |A    149  CB  )   31.923   35.264    3.341    2.550  750.000   0
+ (A    168  CG  |A    168  CD1 |A    168  CD2 |A    168  CB  )    3.113    0.000   -3.113    2.214  750.000   0
+ (A    177  CA  |A    177  N   |A    177  C   |A    177  CB  )   31.974   35.264    3.290    2.473  750.000   0
+ (A    184  CA  |A    184  N   |A    184  C   |A    184  CB  )   31.826   35.264    3.438    2.701  750.000   0
+ (A    189  CA  |A    189  N   |A    189  C   |A    189  CB  )   31.997   35.264    3.268    2.439  750.000   0
+ (A    197  C   |A    197  CA  |A    198  N   |A    197  O   )    3.834    0.000   -3.834    3.358  750.000   0
+ (A    199  CA  |A    199  N   |A    199  C   |A    199  CB  )   32.237   35.264    3.027    2.094  750.000   0
+ (A    198  C   |A    198  CA  |A    199  N   |A    198  O   )    4.163    0.000   -4.163    3.960  750.000   0
+ (A    204  C   |A    204  CA  |A    205  N   |A    204  O   )   -4.213    0.000    4.213    4.055  750.000   0
+ (A    206  CA  |A    206  N   |A    206  C   |A    206  CB  )   31.123   35.264    4.142    3.919  750.000   0
+ (B    115  CA  |B    115  N   |B    115  C   |B    115  CB  )   32.248   35.264    3.017    2.079  750.000   0
+ (B    114  C   |B    114  CA  |B    115  N   |B    114  O   )    4.034    0.000   -4.034    3.717  750.000   0
+ (B    117  CA  |B    117  N   |B    117  C   |B    117  CB  )   31.640   35.264    3.624    3.001  750.000   0
+ (B    120  CA  |B    120  N   |B    120  C   |B    120  CB  )   38.645   35.264   -3.380    2.611  750.000   0
+ (B    120  N   |B    120  CA  |B    120  CD  |B    119  C   )   -5.044    0.000    5.044    0.775  100.000   0
+ (B    129  CA  |B    129  N   |B    129  C   |B    129  CB  )   31.442   35.264    3.822    3.338  750.000   0
+ (B    128  C   |B    128  CA  |B    129  N   |B    128  O   )   -3.161    0.000    3.161    2.283  750.000   0
+ (B    132  CA  |B    132  N   |B    132  C   |B    132  CB  )   32.189   35.264    3.076    2.161  750.000   0
+ (B    138  N   |B    138  CA  |B    138  CD  |B    137  C   )   -6.391    0.000    6.391    1.244  100.000   0
+ (B    149  CA  |B    149  N   |B    149  C   |B    149  CB  )   31.927   35.264    3.337    2.544  750.000   0
+ (B    168  CG  |B    168  CD1 |B    168  CD2 |B    168  CB  )    3.127    0.000   -3.127    2.234  750.000   0
+ (B    177  CA  |B    177  N   |B    177  C   |B    177  CB  )   31.986   35.264    3.278    2.455  750.000   0
+ (B    184  CA  |B    184  N   |B    184  C   |B    184  CB  )   31.785   35.264    3.479    2.765  750.000   0
+ (B    189  CA  |B    189  N   |B    189  C   |B    189  CB  )   32.013   35.264    3.251    2.415  750.000   0
+ (B    197  C   |B    197  CA  |B    198  N   |B    197  O   )    3.767    0.000   -3.767    3.242  750.000   0
+ (B    199  CA  |B    199  N   |B    199  C   |B    199  CB  )   32.205   35.264    3.060    2.139  750.000   0
+ (B    198  C   |B    198  CA  |B    199  N   |B    198  O   )    4.093    0.000   -4.093    3.827  750.000   0
+ (B    204  C   |B    204  CA  |B    205  N   |B    204  O   )   -4.240    0.000    4.240    4.107  750.000   0
+ (B    206  CA  |B    206  N   |B    206  C   |B    206  CB  )   31.164   35.264    4.100    3.841  750.000   0
+
+=======> dihedral angle violations
+
+ (atom-i        |atom-j        |atom-k        |atom-L        )    angle    equil.   delta    energy   const.   period
+</PRE>
+
+<P>Specific problems with the model geometry can be identified
+here. In particular the deviations for the bond lengths should be
+checked. If there are very long bond lengths the model should be
+checked. This can occur as a result of a mistake at the generate
+stage, in particular forgetting to include a TER or BREAK card between
+separate chains. If present, these unphysical bonds will cause serious
+problems in refinement.</P>
+
+<P>Non-trans peptide bonds:</P>
+
+<PRE>
+============================ non-trans peptides ==============================
+
+cis-peptide: segid=A resid=186 resname=PRO
+             current dihedral value=   -0.443
+
+cis-peptide: segid=B resid=186 resname=PRO
+             current dihedral value=   -0.262
+</PRE>
+
+<P>The presence of non-trans peptides, unless they are proline
+residues, will cause problems in refinement. They can be identified,
+and an appropriate parameter file created using the CNS task file
+<TT>general/cis_peptide.inp</TT>. The parameter file generated is read
+into subsequent refinement task files.</P>
+
+<BR><A HREF="tutorial.csh">Script to run this tutorial</A>
+
+<HR WIDTH="100%"></P>
+
+<A HREF="../../text.html">Back to tutorials</A>&nbsp;&nbsp;
+<A HREF="../data_prep/text.html">Previous section</A>&nbsp;&nbsp;
+<A HREF="../refine_start/text.html">Next section</A>
+
+<HR WIDTH="100%"></P>
+   
+</BODY>
+</HTML>

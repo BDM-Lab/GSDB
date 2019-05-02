@@ -1,0 +1,631 @@
+{+ file: shift_molecules.inp +}
+{+ directory: general +}
+{+ description: Move molecules as close as possible to a reference molecule +}
+{+ authors: Axel T. Brunger, and Paul D. Adams +}
+{+ copyright: Yale University +}
+
+{- Guidelines for using this file:
+   - all strings must be quoted by double-quotes
+   - logical variables (true/false) are not quoted
+   - do not remove any evaluate statements from the file 
+   - the selections store1 through store8 are available for general use -}
+
+{- begin block parameter definition -} define(
+
+{============================ coordinates ============================}
+
+{* coordinate file *}
+{===>} coordinate_infile="eg1_dimer.pdb";
+
+{==================== molecular information ==========================}
+
+{* topology files *}
+{===>} topology_infile_1="CNS_TOPPAR:protein.top";
+{===>} topology_infile_2="CNS_TOPPAR:dna-rna.top";
+{===>} topology_infile_3="CNS_TOPPAR:water.top";
+{===>} topology_infile_4="CNS_TOPPAR:ion.top";
+{===>} topology_infile_5="CNS_TOPPAR:carbohydrate.top";
+{===>} topology_infile_6="";
+{===>} topology_infile_7="";
+{===>} topology_infile_8="";
+
+{* linkage files for linear, continuous polymers (protein, DNA, RNA) *}
+{===>} link_infile_1="CNS_TOPPAR:protein.link";
+{===>} link_infile_2="CNS_TOPPAR:dna-rna-pho.link";
+{===>} link_infile_3="";
+
+{* parameter files *}
+{===>} parameter_infile_1="CNS_TOPPAR:protein_rep.param";
+{===>} parameter_infile_2="CNS_TOPPAR:dna-rna_rep.param";
+{===>} parameter_infile_3="CNS_TOPPAR:water_rep.param";
+{===>} parameter_infile_4="CNS_TOPPAR:ion.param";
+{===>} parameter_infile_5="CNS_TOPPAR:carbohydrate.param";
+{===>} parameter_infile_6="";
+{===>} parameter_infile_7="";
+{===>} parameter_infile_8="";
+
+{* molecular topology file: optional (leave blank for auto generation) *}
+{* 
+   Auto generation of the molecular topology from the coordinates should only 
+   be used if:
+   (1) Each distinct protein, DNA, or RNA chain must have a separate segid 
+       (or chainid if the chainid is non-blank). 
+   (2) Each contiguous protein, RNA, or RNA chain must not be disrupted by 
+       other types of residues or ligands.  Rather, these other residues 
+       should be listed after protein, RNA/DNA chains. 
+   (3) Disulphides are automatically detected based on distances between the sulfur atoms
+      (must be less than 3 A apart).
+   (4) Broken protein/RNA/DNA chains without terminii must be more than 2.5 A apart to be recognized as such.
+   (5) N-linked glycan links are automatically recognized if the bonded atoms are less than 2.5 A apart.
+   (6) Automatic generation cannot be used with alternate conformations. 
+   For ligands, the user must make suitable topology and parameter files.
+   For non-standard covalent linkages, the custom patch file should be used.
+   Alternatively, the generate.inp or generate_easy.inp task files
+   can be used to generated the mtf prior to running this task file.
+    *}
+{===>} structure_infile="eg1_dimer.mtf";
+
+{* for auto generation: extra linkages and modifications by custom patches *}
+{===>} patch_infile="";
+
+{====================== crystallographic data ========================}
+
+{* space group *}
+{* use International Table conventions with subscripts substituted
+   by parenthesis *}
+{===>} sg="P4(1)2(1)2";
+
+{* unit cell parameters in Angstroms and degrees *}
+{+ table: rows=1 "cell" cols=6 "a" "b" "c" "alpha" "beta" "gamma" +}
+{===>} a=101.4;
+{===>} b=101.4;
+{===>} c=199.5;
+{===>} alpha=90;
+{===>} beta=90;
+{===>} gamma=90;
+
+{======================== reference molecule =========================}
+
+{* select atoms in reference molecule *}
+{* this molecule and any others not selected below will remain fixed *}
+{===>} atom_select_ref=(segid AAAA);
+
+{====================== molecules to be shifted ======================}
+
+{* select atoms in 1st molecule to shift *}
+{===>} atom_select.1=(segid CCCC);
+
+{* select atoms in 2nd molecule to shift *}
+{===>} atom_select.2=(none);
+
+{* select atoms in 3rd molecule to shift *}
+{===>} atom_select.3=(none);
+
+{* select atoms in 4th molecule to shift *}
+{===>} atom_select.4=(none);
+
+{* select atoms in 5th molecule to shift *}
+{===>} atom_select.5=(none);
+
+{* select atoms in 6th molecule to shift *}
+{===>} atom_select.6=(none);
+
+{* select atoms in 7th molecule to shift *}
+{===>} atom_select.7=(none);
+
+{* select atoms in 8th molecule to shift *}
+{===>} atom_select.8=(none);
+
+{* select atoms in 9th molecule to shift *}
+{===>} atom_select.9=(none);
+
+{* select atoms in 10th molecule to shift *}
+{===>} atom_select.10=(none);
+
+{============================ parameters =============================}
+
+{* closeness criteria *}
+{+ list:
+        center-center: minimize distance between molecular centres
+        closest-approach: minimize closest distance between molecules
+        buried-area: maximize buried surface area between molecules +}
+{+ choice: "center-center" "closest-approach" "buried-area" +}
+{===>} close_criteria="buried-area";
+
+{* distance cutoff (Angstroms) *}
+{* for "center-center" and "closest-approach" options. Only distances
+   between molecules which are less than this cutoff will be considered.
+   This must be fairly large for the "center-center" closeness criteria *}
+{===>} close_cutoff=50.0;
+
+{=========================== output files ============================}
+
+{* output coordinate file *}
+{===>} coordinate_outfile="shift_molecules.pdb";
+
+{* information to be listed *}
+{* list only best position for each molecule or results for all positions 
+   which are within the distance cutoff criteria or have a buried area
+   greater than zero *}
+{+ choice: "best" "all" +}
+{===>} list_info="best";
+
+{* output listing file *}
+{===>} list_outfile="shift_molecules.list";
+
+{===========================================================================}
+{        things below this line do not normally need to be changed          }
+{===========================================================================}
+
+ ) {- end block parameter definition -}
+
+ checkversion 1.3
+
+ evaluate ($log_level=quiet)
+
+ if ( $log_level = verbose ) then
+   set message=normal echo=on end
+ else
+   set message=off echo=off end
+ end if
+
+ if ( &BLANK%structure_infile = true ) then
+ 
+    {- read topology files -}
+    topology
+     evaluate ($counter=1)
+     evaluate ($done=false)
+     while ( $done = false ) loop read
+      if ( &exist_topology_infile_$counter = true ) then
+         if ( &BLANK%topology_infile_$counter = false ) then
+            @@&topology_infile_$counter
+         end if
+      else
+        evaluate ($done=true)
+      end if
+      evaluate ($counter=$counter+1)
+     end loop read
+    end
+    
+    @CNS_XTALMODULE:mtfautogenerate (
+                                  coordinate_infile=&coordinate_infile;
+                                  convert=true;
+                                  separate=true;
+                                  atom_delete=(not known);
+                                  hydrogen_flag=true;
+                                  break_cutoff=2.5;
+                                  disulphide_dist=3.0;
+                                  carbo_dist=2.5;
+                                  patch_infile=&patch_infile;
+                                  O5_becomes="O";
+                                 )
+
+ else
+
+   structure @&structure_infile end
+   coordinates @&coordinate_infile
+
+ end if
+
+ {- read parameter files -}
+ parameter
+  evaluate ($counter=1)
+  evaluate ($done=false)
+  while ( $done = false ) loop read
+   if ( &exist_parameter_infile_$counter = true ) then
+      if ( &BLANK%parameter_infile_$counter = false ) then
+         @@&parameter_infile_$counter
+      end if
+   else
+     evaluate ($done=true)
+   end if
+   evaluate ($counter=$counter+1)
+  end loop read
+ end
+
+ set message=normal echo=on end
+
+ if ( &close_criteria = "buried-area" ) then
+   parameter
+     nbonds cutnb=5 end
+   end
+ else
+   parameter
+     nbonds cutnb=&close_cutoff end
+   end
+ end if
+
+ xray
+
+   @CNS_XTALLIB:spacegroup.lib (sg=&sg;
+                                sgparam=$sgparam;)
+
+   a=&a b=&b c=&c  alpha=&alpha beta=&beta gamma=&gamma
+  
+ end
+
+ surface
+   mode=access
+   rh2o=1.4
+   selection=(&atom_select_ref and known)
+   radius=vdw
+ end
+ show sum ( rmsd ) ( &atom_select_ref and known )
+ evaluate ($area_ref=$result)
+
+ show ave(x) ( &atom_select_ref and known )
+ evaluate ($orthx=$result)
+ show ave(y) ( &atom_select_ref and known )
+ evaluate ($orthy=$result)
+ show ave(z) ( &atom_select_ref and known )
+ evaluate ($orthz=$result)
+
+ coord fractionalize end
+
+ show ave(x) ( &atom_select_ref and known )
+ evaluate ($refx=$result)
+ show ave(y) ( &atom_select_ref and known )
+ evaluate ($refy=$result)
+ show ave(z) ( &atom_select_ref and known )
+ evaluate ($refz=$result)
+
+ coord orthogonalize end
+
+ set display=&list_outfile end
+
+ if ( &list_info = "all" ) then
+   display ================================================================
+   if ( &close_criteria = "buried-area" ) then
+     display   listing all positions with buried area greater then zero
+   else
+     display   listing all positions closer than &close_cutoff Angstroms
+   end if
+   display ================================================================
+ end if
+
+ evaluate ($count=1)
+ evaluate ($done=false)
+
+ while ( $done = false ) loop shift
+
+   if ( &EXIST%atom_select.$count = true ) then
+
+     show sum(1) ( &atom_select.$count and known )
+
+     if ( $select > 0 ) then
+
+       evaluate ($min.$count=9999)
+       evaluate ($max_buried.$count=0)
+       evaluate ($min_symm.$count=1)
+       evaluate ($min_dx.$count=0)
+       evaluate ($min_dy.$count=0)
+       evaluate ($min_dz.$count=0)
+
+     end if
+
+     evaluate ($count=$count+1)
+
+   else
+
+     evaluate ($done=true)
+     evaluate ($count=$count-1)
+
+   end if
+
+ end loop shift
+
+ evaluate ($nmol=$count)
+
+ if ( $log_level = verbose ) then
+   set message=normal echo=on end
+ else
+   set message=off echo=off end
+ end if
+
+ coord copy end
+
+ evaluate ($symm=1)
+
+ while ( $symm <= $symmetry ) loop symm
+ 
+   coord swap end
+   coord copy end
+
+   coord symmetry $symmetry_op_$symm 
+     selection=( not(&atom_select_ref) and known )
+   end
+
+   coord fractionalize end
+
+   evaluate ($count=1)
+
+   while ( $count <= $nmol ) loop mol
+
+     show sum(1) ( &atom_select.$count and known )
+
+     if ( $result > 0 ) then
+  
+       show ave(x) ( &atom_select.$count and known )
+       evaluate ($molx=$result)
+       show ave(y) ( &atom_select.$count and known )
+       evaluate ($moly=$result)
+       show ave(z) ( &atom_select.$count and known )
+       evaluate ($molz=$result)
+
+       evaluate ($shift_dx.$count=int($refx-$molx))
+       evaluate ($shift_dy.$count=int($refy-$moly))
+       evaluate ($shift_dz.$count=int($refz-$molz))
+ 
+       do (x=x+$shift_dx.$count) ( &atom_select.$count and known )
+       do (y=y+$shift_dy.$count) ( &atom_select.$count and known )
+       do (z=z+$shift_dz.$count) ( &atom_select.$count and known )
+
+     end if
+
+     evaluate ($count=$count+1)
+
+   end loop mol
+
+   coord orthogonalize end
+
+   do ( store4=x ) ( not(&atom_select_ref) and known )
+   do ( store5=y ) ( not(&atom_select_ref) and known )
+   do ( store6=z ) ( not(&atom_select_ref) and known )
+
+   for $dx in ( -1 0 1 ) loop dx
+
+     for $dy in ( -1 0 1 ) loop dy
+
+       for $dz in ( -1 0 1 ) loop dz
+
+         do ( x=store4 ) ( not(&atom_select_ref) and known )
+         do ( y=store5 ) ( not(&atom_select_ref) and known )
+         do ( z=store6 ) ( not(&atom_select_ref) and known )
+
+         coord fractionalize end
+
+         coord translate 
+           vector=( $dx $dy $dz ) selection=( not(&atom_select_ref) and known )
+         end
+
+         coord orthogonalize end
+
+         evaluate ($count=1)
+
+         while ( $count <= $nmol ) loop mol
+
+           show sum(1) ( &atom_select.$count and known )
+
+           if ( $result > 0 ) then
+
+             if ( &close_criteria = "center-center" ) then
+
+               show ave(x) ( &atom_select.$count and known )
+               evaluate ($molx=$result)
+               show ave(y) ( &atom_select.$count and known )
+               evaluate ($moly=$result)
+               show ave(z) ( &atom_select.$count and known )
+               evaluate ($molz=$result)
+
+               evaluate ($min_dist=sqrt( ($orthx-$molx)^2 +
+                                         ($orthy-$moly)^2 +
+                                         ($orthz-$molz)^2 ))
+
+             elseif ( &close_criteria = "closest-approach" ) then
+
+               igroup interaction
+                 ( &atom_select.$count and known )
+                 ( &atom_select_ref and known )
+               end
+
+               distance
+                 from=( &atom_select.$count and known )
+                 to=( &atom_select_ref and known )
+                 cuton=0
+                 cutoff=&close_cutoff
+                 disp=rmsd
+               end           
+
+               show min( rmsd ) ( &atom_select.$count and known and
+                                ( attribute rmsd > 0 ) )
+
+               if ( $select > 0 ) then
+                 evaluate ($min_dist=$result)
+               else
+                 evaluate ($min_dist=9999)
+               end if
+
+             elseif ( &close_criteria = "buried-area" ) then
+
+               igroup interaction
+                 ( &atom_select.$count and known )
+                 ( &atom_select_ref and known )
+               end
+
+               distance
+                 from=( &atom_select.$count and known )
+                 to=( &atom_select_ref and known )
+                 cuton=0
+                 cutoff=5
+                 disp=rmsd
+               end    
+
+               show min(rmsd) ( &atom_select.$count and known and
+                              ( attribute rmsd > 0 ) )
+
+               if ( $select > 0 ) then
+                 surface
+                   mode=access
+                   rh2o=1.4
+                   selection=(&atom_select.$count and known)
+                   radius=vdw
+                 end
+                 show sum ( rmsd ) ( &atom_select.$count and known )
+                 evaluate ($area_mol=$result)
+
+                 surface
+                   mode=access
+                   rh2o=1.4
+                   selection=((&atom_select_ref or 
+                               &atom_select.$count) and known)
+                   radius=vdw
+                 end
+                 show sum ( rmsd ) ( ( &atom_select_ref or 
+                                       &atom_select.$count ) and known )
+                 evaluate ($area_both=$result)
+
+                 evaluate ($buried=($area_ref+$area_mol)-$area_both)
+               else
+                 evaluate ($buried=0)
+               end if
+
+             end if
+
+             if ( &close_criteria = "buried-area" ) then
+               if ( $buried > $max_buried.$count ) then
+                 evaluate ($max_buried.$count=$buried)
+                 evaluate ($min_symm.$count=$symm)
+                 evaluate ($min_dx.$count=$dx+$shift_dx.$count)
+                 evaluate ($min_dy.$count=$dy+$shift_dy.$count)
+                 evaluate ($min_dz.$count=$dz+$shift_dz.$count)
+               end if
+               if ( $buried > 0 ) then
+                 if ( &list_info = "all" ) then
+                   evaluate ($dxtmp=$dx+$shift_dx.$count)
+                   evaluate ($dytmp=$dy+$shift_dy.$count)
+                   evaluate ($dztmp=$dz+$shift_dz.$count)
+                   display molecule $count: &atom_select.$count
+                   display        after-> symmetry operator= $symmetry_op_$symm
+                   display          and-> translation= ( $dxtmp[i2] , \
+$dytmp[i2] , $dztmp[i2] )
+                   display  buried area-> $buried[f8.3] Angstroms^2
+                 end if
+               end if
+             else
+               if ( $min_dist < &close_cutoff ) then
+                 if ( $min_dist < $min.$count ) then
+                   evaluate ($min.$count=$min_dist)
+                   evaluate ($min_symm.$count=$symm)
+                   evaluate ($min_dx.$count=$dx+$shift_dx.$count)
+                   evaluate ($min_dy.$count=$dy+$shift_dy.$count)
+                   evaluate ($min_dz.$count=$dz+$shift_dz.$count)
+                 end if
+                 if ( &list_info = "all" ) then
+                   evaluate ($dxtmp=$dx+$shift_dx.$count)
+                   evaluate ($dytmp=$dy+$shift_dy.$count)
+                   evaluate ($dztmp=$dz+$shift_dz.$count)
+                   display molecule $count: &atom_select.$count
+                   display     after-> symmetry operator= $symmetry_op_$symm
+                   display       and-> translation= ( $dxtmp[i2] , \
+$dytmp[i2] , $dztmp[i2] )
+                   display  distance-> $min_dist[f8.3] Angstroms
+                 end if
+               end if
+             end if
+
+           end if
+
+           evaluate ($count=$count+1)
+
+         end loop mol
+
+       end loop dz
+
+     end loop dy
+
+   end loop dx
+
+   evaluate ($symm=$symm+1)
+
+ end loop symm
+
+ coord swap end
+ coord copy end
+
+ evaluate ($count=1)
+
+ while ( $count <= $nmol ) loop mol
+
+   show sum(1) ( &atom_select.$count and known )
+
+   if ( $result > 0 ) then
+
+     evaluate ($symm=$min_symm.$count)
+     coord symmetry 
+       $symmetry_op_$symm selection=( &atom_select.$count and known )
+     end
+
+     coord fractionalize end
+
+     coord translate 
+       vector=( $min_dx.$count $min_dy.$count $min_dz.$count )
+       selection=( &atom_select.$count and known )
+     end
+
+     coord orthogonalize end
+     
+   end if
+
+   evaluate ($count=$count+1)
+
+ end loop mol
+
+ display
+ display ================================================================
+ display                       optimum positions
+ display ================================================================
+ display
+ display the new position for each molecule is generated by:
+ display
+ display    r_new = ( R_symm * r_old ) + T
+ display
+ display ================================================================
+ display 
+ display reference molecule selection: &atom_select_ref
+ display
+ display criteria for closeness: &close_criteria
+ if ( &close_criteria # "buried-area" ) then
+   display        cutoff distance: &close_cutoff Angstrom
+ end if
+ display
+
+ evaluate ($count=1)
+
+ while ( $count <= $nmol ) loop mol
+
+   show sum(1) ( &atom_select.$count and known )
+
+   if ( $result > 0 ) then
+
+     display ================================================================
+     display
+
+     display molecule $count: &atom_select.$count
+     evaluate ($symm=$min_symm.$count)
+     if ( &close_criteria = "buried-area" ) then
+       display   maximum after-> symmetry operator= $symmetry_op_$symm
+       display             and-> translation= ( $min_dx.$count[i2] , $min_dy.$count[i2] , $min_dz.$count[i2] )
+       display   maximum buried area-> $max_buried.$count[f8.3] Angstroms^2
+     else
+       display   minimimum after-> symmetry operator= $symmetry_op_$symm
+       display               and-> translation= ( $min_dx.$count[i2] , $min_dy.$count[i2] , $min_dz.$count[i2] )
+       display   minimum distance-> $min.$count[f8.3] Angstroms
+     end if
+
+     display
+
+   end if
+
+   evaluate ($count=$count+1)
+
+ end loop mol
+
+ display ================================================================
+
+ set display=OUTPUT end
+
+ @CNS_XTALMODULE:write_pdb (pdb_o_format=true;
+                            coordinate_outfile=&coordinate_outfile;
+                            sgparam=$sgparam;)
+
+ stop

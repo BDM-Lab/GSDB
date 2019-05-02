@@ -1,0 +1,74 @@
+<HTML>
+<HEAD>
+   <TITLE>Crystallography & NMR System</TITLE>
+</HEAD>
+<BODY BGCOLOR=#8ebf8e>
+
+<HR WIDTH="100%">
+
+<H2>Preparation of diffraction data</H2>
+
+<HR WIDTH="100%"></P>
+
+<P>We will assume that the diffraction data has been converted to CNS
+format using to_cns or CCP4. There will then be separate reflection
+files containing information for the native and each derivative.<P>
+
+<P>The information for the native and the derivatives is then merged
+into a single reflection file, at the same time giving each dataset a
+unique name (eg. f_nat, f_kuof, f_phga). The merge and renaming are
+performed with the CNS task file <TT>merge.inp.</TT></P>
+
+<PRE>
+      cns_solve &lt; <A HREF="merge.inp">merge.inp</A> &gt; merge.out
+</PRE>
+
+<P>The output of the <TT>merge.inp</TT> task file is a CNS formatted
+reflection file. This will contain a header which describes the data
+items in the file, followed by the data items themselves. The file is
+plain ASCII and can be viewed with any text viewer/editor. Example
+header from a CNS reflection file contained multiple data sets for
+MIR phasing:
+
+<PRE>
+ NREFlection=      6735
+ ANOMalous=FALSe { equiv. to HERMitian=TRUE}
+ DECLare NAME=S_NAT                  DOMAin=RECIprocal   TYPE=REAL END
+ DECLare NAME=F_KUOF                 DOMAin=RECIprocal   TYPE=REAL END
+ DECLare NAME=S_KUOF                 DOMAin=RECIprocal   TYPE=REAL END
+ DECLare NAME=F_PHGA                 DOMAin=RECIprocal   TYPE=REAL END
+ DECLare NAME=S_PHGA                 DOMAin=RECIprocal   TYPE=REAL END
+ DECLare NAME=F_NAT                  DOMAin=RECIprocal   TYPE=REAL END
+ INDE     4    0    0 S_NAT=   632.700 F_KUOF=     0.000 S_KUOF=   572.276
+                     F_PHGA=   226.494 S_PHGA=     3.728 F_NAT=     0.000
+ INDE     6    0    0 S_NAT=     4.184 F_KUOF=   315.062 S_KUOF=     4.109
+                     F_PHGA=   419.044 S_PHGA=     4.877 F_NAT=   304.297
+ INDE     8    0    0 S_NAT=     3.414 F_KUOF=    73.576 S_KUOF=     2.804
+                     F_PHGA=   166.853 S_PHGA=     2.307 F_NAT=    60.085
+</PRE>
+
+<P>After merging of the native/derivative information the datasets must be
+scaled together (assuming that this has not been done in some other
+way prior to entering CNS). The scaling is performed with the CNS task
+file <TT>scale.inp</TT>.</P>
+
+<PRE>
+      cns_solve &lt; <A HREF="scale.inp">scale.inp</A> &gt; scale.out
+</PRE>
+
+<P>In this case the native data extends to a resolution (2.8&Aring;) which
+is high enough to perform Wilson scaling. The derivative datasets will
+be then scaled to the native. The Wilson scaling will place the data
+on an approximate absolute scale.</P>
+
+<A HREF="tutorial.csh">Script to run this tutorial</A>
+
+<HR WIDTH="100%">
+
+<A HREF="../../text.html">Back to tutorials</A>&nbsp;&nbsp;
+<A HREF="../analyse/text.html">Next section</A>
+
+<HR WIDTH="100%"></P>
+
+</BODY>
+</HTML>

@@ -1,0 +1,29 @@
+danisotropy {<danisotropy-statement>} end
+
+<danisotropy-statement> :==
+
+  assign <atom-selection> <atom-selection> <atom-selection> <atom-selection> 
+         <atom-selection> <atom-selection> <real> <real>
+  --{Atom-i atom-j  atom-k  atom-l  atom-m  atom-n anis-obs  anis-err.
+     Atom-i=center, atom-j=z, atom-k=x, atom-l=y.}
+  class=<classname>
+  --{Starts a new class which applies to all assignment and force
+     entries until another class entry is issued.}
+  coefficient <real> <real> <real> <real> <real>
+  --{Coefficients are: tc anis rhombicity wh wn
+     where,         tc = 1/2(dx+dy+dz) 
+                  anis = dz/0.5*(dx+dy)
+            rhombicity = 1.5*(dy-dx)/(dz-0.5*(dy+dx))
+     tc is in nanoseconds, wh and wn are in MHz.}
+  forceconstant=<real>
+  --{Force constant for all assignments in the current class.
+     Default = 50.}
+  nrestraints=<integer>
+  --{Number of slots for diffusion anisotropy restraints to allocate
+     in memory. Default = 200.}
+  potential=square|harmonic
+  --{Whether to use anisotropy error or not.}
+  print threshold <real>
+  --{Print anisotropy violations greater than the specified value.}
+  reset
+  --{Erase the anisotropy assignment table but keep nrestraints the same.}

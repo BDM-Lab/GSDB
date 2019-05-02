@@ -1,0 +1,1503 @@
+          ============================================================
+          |                                                          |
+          |            Crystallography & NMR System (CNS)            |
+          |                         CNSsolve                         |
+          |                                                          |
+          ============================================================
+           Version: 1.3
+           Status: General release
+          ============================================================
+           Written by: A.T.Brunger, P.D.Adams, G.M.Clore, W.L.DeLano,
+                       P.Gros, R.W.Grosse-Kunstleve,J.-S.Jiang,J.M.Krahn,
+                       J.Kuszewski, M.Nilges, N.S.Pannu, R.J.Read,
+                       L.M.Rice, G.F.Schroeder, T.Simonson, G.L.Warren.
+           Copyright (c) 1997-2010 Yale University
+          ============================================================
+           Running on machine: lewis4-r710-login-node223 (x86_64/Linux,64-bit)
+                               with 16 threads
+           Program started by: oeow39
+           Program started at: 16:07:58 on 05-Jul-2018
+          ============================================================
+
+ FFT3C: Using FFTPACK4.1
+
+ CNSsolve>remarks dgtest1.inp 
+ CNSsolve>remarks test metric matrix distrance geometry module -- 
+ CNSsolve>remarks    basic tests on a TRP amino acid 
+ CNSsolve>remarks John Kuszewski and Axel T. Brunger 
+ CNSsolve>remarks ================================== 
+ CNSsolve> 
+ CNSsolve>topology reset @CNS_TOPPAR:protein-allhdg5-4.top end   {* this is the DG-version of this file *} 
+ ASSFIL: file protein-allhdg5-4.top opened.
+ RTFRDR>remarks file toppar/protein-allhdg5-4.top 
+ RTFRDR>remarks 
+ RTFRDR>remarks   file topallhdg.pro  version 5.4  date 07-July-10 
+ RTFRDR>remarks      for file parallhdg.pro version 5.4 date 07-July-10 or later 
+ RTFRDR>remarks   Geometric energy function parameters for distance geometry and 
+ RTFRDR>remarks      simulated annealing. 
+ RTFRDR>remarks   Author: Michael Nilges, EMBL Heidelberg; Institut Pasteur, Paris 
+ RTFRDR>remarks   This file contains modifications from M. Williams, UCL London 
+ RTFRDR>remarks   and multiple modifications for HADDOCK from A. Bonvin, Utrecht University 
+ RTFRDR>remarks   Last modification 10-01-2012 
+ RTFRDR> 
+ RTFRDR>set message ? end eval ($old_message=$result) set echo ? end eval ($old_echo=$result) 
+ MESSage=NORM
+ EVALUATE: symbol $OLD_MESSAGE set to "NORM" (string)
+ ECHO=TRUE {ON}
+ EVALUATE: symbol $OLD_ECHO set to TRUE (logical)
+ RTFRDR>set message=off echo=off end 
+ RTFRDR> 
+ RTFRDR> end   {* this is the DG-version of this file *} 
+ CNSsolve> 
+ CNSsolve>segment 
+ SEGMENT>   name="TRYP" 
+ SEGMENT>   chain 
+ CHAIN>      @CNS_TOPPAR:protein-allhdg5-4.link 
+ ASSFIL: file protein-allhdg5-4.link opened.
+ CHAIN>remarks file toppar/protein-allhdg5-4.link 
+ CHAIN>remarks 
+ CHAIN>remarks this is a macro to define standard protein peptide bonds 
+ CHAIN>remarks and termini to generate a protein sequence. 
+ CHAIN> 
+ CHAIN>!added links for MSE (8-19-2011, ATB) 
+ CHAIN> 
+ CHAIN>set message ? end eval ($old_message=$result) set echo ? end eval ($old_echo=$result) 
+ MESSage=NORM
+ EVALUATE: symbol $OLD_MESSAGE set to "NORM" (string)
+ ECHO=TRUE {ON}
+ EVALUATE: symbol $OLD_ECHO set to TRUE (logical)
+ CHAIN>set message=off echo=off end 
+ CHAIN> 
+ CHAIN>      sequence trp 
+ SEQUence-element (terminate with END) =      end 
+ SEGMNT:     1 residues were inserted into segment "TRYP"
+ CHAIN>end 
+ SEGMENT>end 
+ Status of internal molecular topology database:
+ -> NATOM=         27(MAXA=     1000000)  NBOND=         28(MAXB=     1000000)
+ -> NTHETA=        48(MAXT=     2000000)  NGRP=           3(MAXGRP=   1000000)
+ -> NPHI=           4(MAXP=     2000000)  NIMPHI=        23(MAXIMP=   1000000)
+ -> NNB=            6(MAXNB=    1000000) 
+ CNSsolve> 
+ CNSsolve>parameter 
+ PARRDR>        @CNS_TOPPAR:protein-allhdg5-4.param 
+ ASSFIL: file protein-allhdg5-4.param opened.
+ PARRDR>remarks file toppar/protein-allhdg5-4.param 
+ PARRDR>remark 
+ PARRDR>remark   for file protein-allhdg-ucl.top  version UCL  date 14-MAR-00 
+ PARRDR>remark   for file protein-allhdg-dih-ucl.top  version UCL  date 07-JUL-01 
+ PARRDR>remark   Geometric energy function parameters for distance geometry and 
+ PARRDR>remark   simulated annealing. 
+ PARRDR>remark   Original author: Michael Nilges, EMBL Heidelberg 
+ PARRDR>remark   Modifications: Mark A. Williams, UCL London 
+ PARRDR>remark   Several modifications for HADDOCK: Alexandre Bonvin, Utrecht Uni 
+ PARRDR>remark   Last modification 8-19-2011 
+ PARRDR> 
+ PARRDR>set message ? end eval ($old_message=$result) set echo ? end eval ($old_echo=$result) 
+ MESSage=NORM
+ EVALUATE: symbol $OLD_MESSAGE set to "NORM" (string)
+ ECHO=TRUE {ON}
+ EVALUATE: symbol $OLD_ECHO set to TRUE (logical)
+ PARRDR>set message=off echo=off end 
+ PARRDR> 
+ PARRDR>        nbonds repel = 0.8 end 
+ PARRDR>end 
+ %PARRDR-info: duplication of bond HC   NC2 
+ %PARRDR-info: duplication of angle CH2P CH2E HA  
+ CNSsolve> 
+ CNSsolve>coor 
+ COOR>ATOM      1  CA  TRP     1       1.331   1.246   0.096  1.00  0.00      TRYP 
+ COOR>ATOM      2  HA  TRP     1       1.571   0.780   1.039  1.00  0.00      TRYP 
+ CNSsolve> 
+ CNSsolve>topology 
+ RTFRDR> 
+ RTFRDR>   pres dimp 
+ RESIDUE>      delete improper HB1 HB2 CA CG 
+ RESIDUE>      delete improper HT1 HT2 CA HT3 
+ RESIDUE>   end 
+ RTFRDR>end 
+ CNSsolve> 
+ CNSsolve>patch dimp  reference=nil=( all ) end 
+ SELRPN:     27 atoms have been selected out of     27
+ Status of internal molecular topology database:
+ -> NATOM=         27(MAXA=     1000000)  NBOND=         28(MAXB=     1000000)
+ -> NTHETA=        48(MAXT=     2000000)  NGRP=           3(MAXGRP=   1000000)
+ -> NPHI=           4(MAXP=     2000000)  NIMPHI=        21(MAXIMP=   1000000)
+ -> NNB=            6(MAXNB=    1000000) 
+ CNSsolve> 
+ CNSsolve>coor copy end 
+ COOR: selected main coordinates copied to comp
+ CNSsolve> 
+ CNSsolve>flags include noe cdih end 
+ CNSsolve> 
+ CNSsolve>{* scale the energies to reduce precision dependencies of the output *} 
+ CNSsolve>igroup 
+ IGROup>    interaction ( all ) ( all ) 
+ SELRPN:     27 atoms have been selected out of     27
+ SELRPN:     27 atoms have been selected out of     27
+ IGROup>        weight bond 0.001 
+ WEIGHT>	       angl 0.001 
+ WEIGHT>	       impr 0.001 
+ WEIGHT>	       dihe 0.001 
+ WEIGHT>	       vdw  0.001 
+ WEIGHT>	       elec 0.001 
+ WEIGHT>	end 
+ IGROup>end 
+ CNSsolve> 
+ CNSsolve>energy end 
+ NBONDS: generating intra-molecular exclusion list with mode= 5
+ MAKINB: mode   5 found     79 exclusions and     59 interactions(1-4)
+ NBONDS: found      207 intra-atom interactions
+ --------------- cycle=     1 --------------------------------------------------
+ | Etotal =0.107      grad(E)=0.152      E(BOND)=0.012      E(ANGL)=0.019      |
+ | E(DIHE)=0.004      E(IMPR)=0.000      E(VDW )=0.072      E(ELEC)=0.000      |
+ | E(CDIH)=0.000      E(NOE )=0.000                                            |
+ -------------------------------------------------------------------------------
+ CNSsolve> 
+ CNSsolve>{* =============================================================== *} 
+ CNSsolve>{*    test 1: generate all possible distances and store as NOEs    *} 
+ CNSsolve>{* =============================================================== *} 
+ CNSsolve>set display prenoes.dat end 
+ ASSFIL: file prenoes.dat opened.
+ CNSsolve> 
+ CNSsolve>set message=off end 
+ CNSsolve>set echo=off end 
+ NOE: allocating space for    2000 restraints.
+ CNSsolve> 
+ CNSsolve>set seed=12345 end 
+ CNSsolve> 
+ CNSsolve>mmdg 
+ MMDG>        verbose off 
+ MMDG>        iacc=5. tacc=5. bacc=0.2 pacc=5. 
+ MMDG>        random 
+ MMDG>        metrize (all) 100 
+ SELRPN:     27 atoms have been selected out of     27
+ MMDG>end 
+ MMDG:     27 atoms will be randomly metrized.
+ DGSETNX: found    152 exclusions (1--2, 1--3) for repulsive lower bounds.
+ CNSsolve> 
+ CNSsolve>set display=OUTPUT end 
+ CNSsolve>display $embedded 
+TRUE
+ CNSsolve>display $non_met_gap 
+0
+ CNSsolve>display $dgscale 
+1.00017
+ CNSsolve> 
+ CNSsolve>do (x = x * $dgscale) (all) 
+ SELRPN:     27 atoms have been selected out of     27
+ CNSsolve>do (y = y * $dgscale) (all) 
+ SELRPN:     27 atoms have been selected out of     27
+ CNSsolve>do (z = z * $dgscale) (all) 
+ SELRPN:     27 atoms have been selected out of     27
+ CNSsolve> 
+ CNSsolve>energy end 
+ NBONDS: found      207 intra-atom interactions
+ --------------- cycle=     2 --------------------------------------------------
+ | Etotal =3.088      grad(E)=2.801      E(BOND)=0.013      E(ANGL)=0.019      |
+ | E(DIHE)=0.004      E(IMPR)=2.684      E(VDW )=0.077      E(ELEC)=0.000      |
+ | E(CDIH)=0.000      E(NOE )=0.291                                            |
+ -------------------------------------------------------------------------------
+ CNSsolve>evaluate ($chi_ener=$impr) 
+ EVALUATE: symbol $CHI_ENER set to    2.68378     (real)
+ CNSsolve>do (z=-z) ( all ) 
+ SELRPN:     27 atoms have been selected out of     27
+ CNSsolve>energy end 
+ NBONDS: found      207 intra-atom interactions
+ --------------- cycle=     3 --------------------------------------------------
+ | Etotal =0.405      grad(E)=2.783      E(BOND)=0.013      E(ANGL)=0.019      |
+ | E(DIHE)=0.004      E(IMPR)=0.001      E(VDW )=0.077      E(ELEC)=0.000      |
+ | E(CDIH)=0.000      E(NOE )=0.291                                            |
+ -------------------------------------------------------------------------------
+ CNSsolve>if ($impr > $chi_ener) then 
+ NEXTCD: condition evaluated as false
+ CNSsolve>   do (z=-z) ( all ) 
+ CNSsolve>end if 
+ CNSsolve> 
+ CNSsolve>set message=off end   coor fit end    set message=on end 
+ R.m.s. diff. between fitted set and comp. set for selected atoms =    0.0072
+ CNSsolve>coor rms end 
+ COOR: ATTENTION: atom rms differences copied to RMSD array. 
+ COOR: rms=     0.007199, square sum=       0.0014, denominator=      27.0000
+ CNSsolve>do (b=rmsd ) ( all ) 
+ SELRPN:     27 atoms have been selected out of     27
+ CNSsolve>write coords end 
+REMARK FILENAME="OUTPUT"
+REMARK file toppar/protein-allhdg5-4.param
+REMARK   for file protein-allhdg-ucl.top  version UCL  date 14-MAR-00
+REMARK   for file protein-allhdg-dih-ucl.top  version UCL  date 07-JUL-01
+REMARK   Geometric energy function parameters for distance geometry and
+REMARK   simulated annealing.
+REMARK   Original author: Michael Nilges, EMBL Heidelberg
+REMARK   Modifications: Mark A. Williams, UCL London
+REMARK   Several modifications for HADDOCK: Alexandre Bonvin, Utrecht Uni
+REMARK   Last modification 8-19-2011
+REMARK DATE:05-Jul-2018  16:07:58       created by user: oeow39
+REMARK VERSION:1.3
+ATOM      1  HA  TRP     1       1.574   0.778   1.044  1.00  0.01      TRYP
+ATOM      2  CB  TRP     1       2.535   2.083  -0.420  1.00  0.00      TRYP
+ATOM      3  HB1 TRP     1       2.243   2.590  -1.315  1.00  0.01      TRYP
+ATOM      4  HB2 TRP     1       2.747   2.846   0.314  1.00  0.01      TRYP
+ATOM      5  CG  TRP     1       3.804   1.230  -0.669  1.00  0.00      TRYP
+ATOM      6  CD1 TRP     1       4.713   0.859   0.305  1.00  0.01      TRYP
+ATOM      7  HD1 TRP     1       4.662   1.102   1.348  1.00  0.01      TRYP
+ATOM      8  CD2 TRP     1       4.349   0.650  -1.939  1.00  0.00      TRYP
+ATOM      9  NE1 TRP     1       5.720   0.116  -0.275  1.00  0.01      TRYP
+ATOM     10  HE1 TRP     1       6.485  -0.264   0.213  1.00  0.01      TRYP
+ATOM     11  CE2 TRP     1       5.557  -0.032  -1.630  1.00  0.00      TRYP
+ATOM     12  CE3 TRP     1       3.937   0.639  -3.305  1.00  0.00      TRYP
+ATOM     13  HE3 TRP     1       3.030   1.136  -3.606  1.00  0.00      TRYP
+ATOM     14  CZ2 TRP     1       6.308  -0.683  -2.603  1.00  0.01      TRYP
+ATOM     15  HZ2 TRP     1       7.224  -1.183  -2.343  1.00  0.02      TRYP
+ATOM     16  CZ3 TRP     1       4.695  -0.024  -4.278  1.00  0.01      TRYP
+ATOM     17  HZ3 TRP     1       4.371  -0.018  -5.309  1.00  0.00      TRYP
+ATOM     18  CH2 TRP     1       5.880  -0.677  -3.933  1.00  0.00      TRYP
+ATOM     19  HH2 TRP     1       6.463  -1.188  -4.687  1.00  0.01      TRYP
+ATOM     20  N   TRP     1       0.942   0.206  -0.897  1.00  0.01      TRYP
+ATOM     21  HT1 TRP     1       1.554  -0.637  -0.776  1.00  0.00      TRYP
+ATOM     22  HT2 TRP     1       1.059   0.564  -1.858  1.00  0.01      TRYP
+ATOM     23  HT3 TRP     1      -0.050  -0.074  -0.737  1.00  0.00      TRYP
+ATOM     24  CA  TRP     1       1.330   1.249   0.093  1.00  0.00      TRYP
+ATOM     25  C   TRP     1       0.139   2.189   0.298  1.00  0.01      TRYP
+ATOM     26  O   TRP     1      -0.624   2.350  -0.623  1.00  0.01      TRYP
+ATOM     27  OXT TRP     1       0.008   2.712   1.392  1.00  0.00      TRYP
+END
+ CNSsolve> 
+ CNSsolve>coor swap end 
+ COOR: selected coordinates swaped (main<->comp)
+ CNSsolve>coor copy end 
+ COOR: selected main coordinates copied to comp
+ CNSsolve> 
+ CNSsolve>{* =============================================================== *} 
+ CNSsolve>{*    test 2: generate all non-h distances and store as NOEs       *} 
+ CNSsolve>{* =============================================================== *} 
+ CNSsolve>set display prenoes.dat end 
+ ASSFIL: file prenoes.dat opened.
+ CNSsolve> 
+ CNSsolve>set message=off end 
+ CNSsolve>set echo=off end 
+ NOE: allocating space for    2000 restraints.
+ CNSsolve> 
+ CNSsolve>set seed=12345 end 
+ CNSsolve> 
+ CNSsolve>mmdg 
+ MMDG>        verbose off 
+ MMDG>	iacc=5. tacc=5. bacc=0.2 pacc=5. 
+ MMDG>        random 
+ MMDG>        metrize (all) 100 
+ SELRPN:     27 atoms have been selected out of     27
+ MMDG>end 
+ MMDG:     27 atoms will be randomly metrized.
+ DGSETNX: found    152 exclusions (1--2, 1--3) for repulsive lower bounds.
+ CNSsolve> 
+ CNSsolve>set display=OUTPUT end 
+ CNSsolve>display $embedded 
+TRUE
+ CNSsolve>display $non_met_gap 
+0
+ CNSsolve>display $dgscale 
+1.04708
+ CNSsolve> 
+ CNSsolve>do (x = x * $dgscale) (all) 
+ SELRPN:     27 atoms have been selected out of     27
+ CNSsolve>do (y = y * $dgscale) (all) 
+ SELRPN:     27 atoms have been selected out of     27
+ CNSsolve>do (z = z * $dgscale) (all) 
+ SELRPN:     27 atoms have been selected out of     27
+ CNSsolve> 
+ CNSsolve>energy end 
+ %atoms "TRYP-1   -TRP -HB2 " and "TRYP-1   -TRP -HT3 " only  1.33 A apart
+ NBONDS: found      212 intra-atom interactions
+ NBONDS: found        1 nonbonded violations
+ --------------- cycle=     4 --------------------------------------------------
+ | Etotal =675.540    grad(E)=127.654    E(BOND)=2.876      E(ANGL)=9.860      |
+ | E(DIHE)=0.009      E(IMPR)=16.021     E(VDW )=3.265      E(ELEC)=0.000      |
+ | E(CDIH)=0.000      E(NOE )=643.508                                          |
+ -------------------------------------------------------------------------------
+ CNSsolve>evaluate ($chi_ener=$impr) 
+ EVALUATE: symbol $CHI_ENER set to    16.0213     (real)
+ CNSsolve>do (z=-z) ( all ) 
+ SELRPN:     27 atoms have been selected out of     27
+ CNSsolve>energy end 
+ %atoms "TRYP-1   -TRP -HB2 " and "TRYP-1   -TRP -HT3 " only  1.33 A apart
+ NBONDS: found      212 intra-atom interactions
+ NBONDS: found        1 nonbonded violations
+ --------------- cycle=     5 --------------------------------------------------
+ | Etotal =676.689    grad(E)=127.654    E(BOND)=2.876      E(ANGL)=9.860      |
+ | E(DIHE)=0.009      E(IMPR)=17.171     E(VDW )=3.265      E(ELEC)=0.000      |
+ | E(CDIH)=0.000      E(NOE )=643.508                                          |
+ -------------------------------------------------------------------------------
+ CNSsolve>if ($impr > $chi_ener) then 
+ NEXTCD: condition evaluated as true
+ CNSsolve>   do (z=-z) ( all ) 
+ SELRPN:     27 atoms have been selected out of     27
+ CNSsolve>end if 
+ CNSsolve> 
+ CNSsolve>set mess=off end   coor fit sele=( not hydro ) end  set mess=on end 
+ R.m.s. diff. between fitted set and comp. set for selected atoms =    0.5757
+ CNSsolve>coor rms end 
+ COOR: ATTENTION: atom rms differences copied to RMSD array. 
+ COOR: rms=     1.310155, square sum=      46.3457, denominator=      27.0000
+ CNSsolve>do (b=rmsd ) ( all ) 
+ SELRPN:     27 atoms have been selected out of     27
+ CNSsolve>write coords end 
+REMARK FILENAME="OUTPUT"
+REMARK file toppar/protein-allhdg5-4.param
+REMARK   for file protein-allhdg-ucl.top  version UCL  date 14-MAR-00
+REMARK   for file protein-allhdg-dih-ucl.top  version UCL  date 07-JUL-01
+REMARK   Geometric energy function parameters for distance geometry and
+REMARK   simulated annealing.
+REMARK   Original author: Michael Nilges, EMBL Heidelberg
+REMARK   Modifications: Mark A. Williams, UCL London
+REMARK   Several modifications for HADDOCK: Alexandre Bonvin, Utrecht Uni
+REMARK   Last modification 8-19-2011
+REMARK DATE:05-Jul-2018  16:07:58       created by user: oeow39
+REMARK VERSION:1.3
+ATOM      1  HA  TRP     1       2.200   2.451   0.783  1.00  1.80      TRYP
+ATOM      2  CB  TRP     1       2.258   1.706  -0.580  1.00  0.50      TRYP
+ATOM      3  HB1 TRP     1       2.548   1.338  -0.852  1.00  1.37      TRYP
+ATOM      4  HB2 TRP     1       1.861   1.008  -2.026  1.00  3.11      TRYP
+ATOM      5  CG  TRP     1       4.034   1.799  -0.575  1.00  0.62      TRYP
+ATOM      6  CD1 TRP     1       4.364   0.114   0.255  1.00  0.83      TRYP
+ATOM      7  HD1 TRP     1       4.193  -0.801   0.112  1.00  2.32      TRYP
+ATOM      8  CD2 TRP     1       4.773   1.327  -1.826  1.00  0.80      TRYP
+ATOM      9  NE1 TRP     1       5.689  -0.009  -0.272  1.00  0.14      TRYP
+ATOM     10  HE1 TRP     1       4.515  -0.838   0.049  1.00  2.06      TRYP
+ATOM     11  CE2 TRP     1       5.825   0.187  -1.549  1.00  0.36      TRYP
+ATOM     12  CE3 TRP     1       4.036   1.013  -3.607  1.00  0.49      TRYP
+ATOM     13  HE3 TRP     1       4.667   1.419  -2.781  1.00  1.85      TRYP
+ATOM     14  CZ2 TRP     1       6.401  -0.874  -2.716  1.00  0.23      TRYP
+ATOM     15  HZ2 TRP     1       5.559  -1.040  -2.073  1.00  1.69      TRYP
+ATOM     16  CZ3 TRP     1       4.674   0.029  -4.431  1.00  0.16      TRYP
+ATOM     17  HZ3 TRP     1       4.611   0.751  -4.196  1.00  1.37      TRYP
+ATOM     18  CH2 TRP     1       5.796  -1.525  -3.950  1.00  0.85      TRYP
+ATOM     19  HH2 TRP     1       4.646  -1.590  -4.308  1.00  1.90      TRYP
+ATOM     20  N   TRP     1       1.004   0.611  -0.482  1.00  0.59      TRYP
+ATOM     21  HT1 TRP     1       1.533  -0.054  -0.026  1.00  0.95      TRYP
+ATOM     22  HT2 TRP     1       1.329   0.245  -0.395  1.00  1.52      TRYP
+ATOM     23  HT3 TRP     1       1.187   0.043  -1.406  1.00  1.41      TRYP
+ATOM     24  CA  TRP     1       1.469   2.092   0.040  1.00  0.86      TRYP
+ATOM     25  C   TRP     1       0.132   2.258   0.425  1.00  0.14      TRYP
+ATOM     26  O   TRP     1      -0.867   1.743  -0.400  1.00  0.69      TRYP
+ATOM     27  OXT TRP     1      -0.286   2.390   1.184  1.00  0.49      TRYP
+END
+ CNSsolve> 
+ CNSsolve>coor swap end 
+ COOR: selected coordinates swaped (main<->comp)
+ CNSsolve>coor copy end 
+ COOR: selected main coordinates copied to comp
+ CNSsolve> 
+ CNSsolve>{* =============================================================== *} 
+ CNSsolve>{*    test 3: use "realistic" NOE data set                         *} 
+ CNSsolve>{* =============================================================== *} 
+ CNSsolve>set display prenoes.dat end 
+ ASSFIL: file prenoes.dat opened.
+ CNSsolve> 
+ CNSsolve>set message=off end 
+ CNSsolve>set echo=off end 
+ NOE: allocating space for    2000 restraints.
+ CNSsolve> 
+ CNSsolve>set seed=12345 end 
+ CNSsolve> 
+ CNSsolve>mmdg 
+ MMDG>        verbose off 
+ MMDG>        iacc=5. tacc=5. bacc=0.2 pacc=5. 
+ MMDG>        random 
+ MMDG>        metrize (all) 100 
+ SELRPN:     27 atoms have been selected out of     27
+ MMDG>end 
+ MMDG:     27 atoms will be randomly metrized.
+ DGSETNX: found    152 exclusions (1--2, 1--3) for repulsive lower bounds.
+ CNSsolve> 
+ CNSsolve>set display=OUTPUT end 
+ CNSsolve>display $embedded 
+TRUE
+ CNSsolve>display $non_met_gap 
+0
+ CNSsolve>display $dgscale 
+1.11263
+ CNSsolve> 
+ CNSsolve>do (x = x * $dgscale) (all) 
+ SELRPN:     27 atoms have been selected out of     27
+ CNSsolve>do (y = y * $dgscale) (all) 
+ SELRPN:     27 atoms have been selected out of     27
+ CNSsolve>do (z = z * $dgscale) (all) 
+ SELRPN:     27 atoms have been selected out of     27
+ CNSsolve> 
+ CNSsolve>energy end 
+ %atoms "TRYP-1   -TRP -HB1 " and "TRYP-1   -TRP -HT2 " only  1.41 A apart
+ %atoms "TRYP-1   -TRP -HB2 " and "TRYP-1   -TRP -HT1 " only  0.86 A apart
+ %atoms "TRYP-1   -TRP -HB2 " and "TRYP-1   -TRP -HT2 " only  1.02 A apart
+ %atoms "TRYP-1   -TRP -HB2 " and "TRYP-1   -TRP -HT3 " only  0.64 A apart
+ %atoms "TRYP-1   -TRP -HT1 " and "TRYP-1   -TRP -O   " only  0.89 A apart
+ %atoms "TRYP-1   -TRP -HT1 " and "TRYP-1   -TRP -OXT " only  1.07 A apart
+ %atoms "TRYP-1   -TRP -HT2 " and "TRYP-1   -TRP -O   " only  1.41 A apart
+ %atoms "TRYP-1   -TRP -HT2 " and "TRYP-1   -TRP -OXT " only  1.06 A apart
+ %atoms "TRYP-1   -TRP -HT3 " and "TRYP-1   -TRP -OXT " only  1.02 A apart
+ NBONDS: found      213 intra-atom interactions
+ NBONDS: found        9 nonbonded violations
+ --------------- cycle=     6 --------------------------------------------------
+ | Etotal =62.483     grad(E)=4.011      E(BOND)=4.191      E(ANGL)=13.105     |
+ | E(DIHE)=0.003      E(IMPR)=21.708     E(VDW )=18.322     E(ELEC)=0.000      |
+ | E(CDIH)=0.000      E(NOE )=5.154                                            |
+ -------------------------------------------------------------------------------
+ CNSsolve>evaluate ($chi_ener=$impr) 
+ EVALUATE: symbol $CHI_ENER set to    21.7081     (real)
+ CNSsolve>do (z=-z) ( all ) 
+ SELRPN:     27 atoms have been selected out of     27
+ CNSsolve>energy end 
+ %atoms "TRYP-1   -TRP -HB1 " and "TRYP-1   -TRP -HT2 " only  1.41 A apart
+ %atoms "TRYP-1   -TRP -HB2 " and "TRYP-1   -TRP -HT1 " only  0.86 A apart
+ %atoms "TRYP-1   -TRP -HB2 " and "TRYP-1   -TRP -HT2 " only  1.02 A apart
+ %atoms "TRYP-1   -TRP -HB2 " and "TRYP-1   -TRP -HT3 " only  0.64 A apart
+ %atoms "TRYP-1   -TRP -HT1 " and "TRYP-1   -TRP -O   " only  0.89 A apart
+ %atoms "TRYP-1   -TRP -HT1 " and "TRYP-1   -TRP -OXT " only  1.07 A apart
+ %atoms "TRYP-1   -TRP -HT2 " and "TRYP-1   -TRP -O   " only  1.41 A apart
+ %atoms "TRYP-1   -TRP -HT2 " and "TRYP-1   -TRP -OXT " only  1.06 A apart
+ %atoms "TRYP-1   -TRP -HT3 " and "TRYP-1   -TRP -OXT " only  1.02 A apart
+ NBONDS: found      213 intra-atom interactions
+ NBONDS: found        9 nonbonded violations
+ --------------- cycle=     7 --------------------------------------------------
+ | Etotal =59.902     grad(E)=3.938      E(BOND)=4.191      E(ANGL)=13.105     |
+ | E(DIHE)=0.003      E(IMPR)=19.127     E(VDW )=18.322     E(ELEC)=0.000      |
+ | E(CDIH)=0.000      E(NOE )=5.154                                            |
+ -------------------------------------------------------------------------------
+ CNSsolve>if ($impr > $chi_ener) then 
+ NEXTCD: condition evaluated as false
+ CNSsolve>   do (z=-z) ( all ) 
+ CNSsolve>end if 
+ CNSsolve> 
+ CNSsolve>set message=off end   coor fit end    set message=on end 
+ R.m.s. diff. between fitted set and comp. set for selected atoms =    2.0127
+ CNSsolve>coor rms end 
+ COOR: ATTENTION: atom rms differences copied to RMSD array. 
+ COOR: rms=     2.012674, square sum=     109.3732, denominator=      27.0000
+ CNSsolve>do (b=rmsd ) ( all ) 
+ SELRPN:     27 atoms have been selected out of     27
+ CNSsolve>write coords end 
+REMARK FILENAME="OUTPUT"
+REMARK file toppar/protein-allhdg5-4.param
+REMARK   for file protein-allhdg-ucl.top  version UCL  date 14-MAR-00
+REMARK   for file protein-allhdg-dih-ucl.top  version UCL  date 07-JUL-01
+REMARK   Geometric energy function parameters for distance geometry and
+REMARK   simulated annealing.
+REMARK   Original author: Michael Nilges, EMBL Heidelberg
+REMARK   Modifications: Mark A. Williams, UCL London
+REMARK   Several modifications for HADDOCK: Alexandre Bonvin, Utrecht Uni
+REMARK   Last modification 8-19-2011
+REMARK DATE:05-Jul-2018  16:07:58       created by user: oeow39
+REMARK VERSION:1.3
+ATOM      1  HA  TRP     1       1.484  -0.057   0.834  1.00  0.87      TRYP
+ATOM      2  CB  TRP     1       2.484   0.697  -0.574  1.00  1.40      TRYP
+ATOM      3  HB1 TRP     1       2.550   0.340  -1.092  1.00  2.28      TRYP
+ATOM      4  HB2 TRP     1       2.513   1.469  -1.661  1.00  2.42      TRYP
+ATOM      5  CG  TRP     1       3.498  -1.014  -0.224  1.00  2.31      TRYP
+ATOM      6  CD1 TRP     1       4.501   0.418   0.528  1.00  0.55      TRYP
+ATOM      7  HD1 TRP     1       4.551   1.060  -0.020  1.00  1.38      TRYP
+ATOM      8  CD2 TRP     1       4.072  -1.418  -1.331  1.00  2.18      TRYP
+ATOM      9  NE1 TRP     1       5.395   0.100   0.537  1.00  0.88      TRYP
+ATOM     10  HE1 TRP     1       5.300   1.235   0.711  1.00  1.97      TRYP
+ATOM     11  CE2 TRP     1       5.177   0.000  -1.016  1.00  0.72      TRYP
+ATOM     12  CE3 TRP     1       3.191  -1.396  -3.378  1.00  2.17      TRYP
+ATOM     13  HE3 TRP     1       3.924  -1.235  -2.369  1.00  2.82      TRYP
+ATOM     14  CZ2 TRP     1       5.783   0.787  -2.726  1.00  1.57      TRYP
+ATOM     15  HZ2 TRP     1       5.768   0.348  -2.264  1.00  2.12      TRYP
+ATOM     16  CZ3 TRP     1       3.388   0.359  -4.209  1.00  1.37      TRYP
+ATOM     17  HZ3 TRP     1       3.243  -0.025  -4.149  1.00  1.62      TRYP
+ATOM     18  CH2 TRP     1       4.888   0.988  -3.973  1.00  1.94      TRYP
+ATOM     19  HH2 TRP     1       5.553   1.706  -3.561  1.00  3.23      TRYP
+ATOM     20  N   TRP     1       1.254   1.278  -0.664  1.00  1.15      TRYP
+ATOM     21  HT1 TRP     1       2.204   2.050  -1.109  1.00  2.78      TRYP
+ATOM     22  HT2 TRP     1       1.759   1.505  -0.977  1.00  1.46      TRYP
+ATOM     23  HT3 TRP     1       1.889   1.549  -1.759  1.00  2.73      TRYP
+ATOM     24  CA  TRP     1       1.201   0.654   0.068  1.00  0.61      TRYP
+ATOM     25  C   TRP     1       1.499   2.163   0.169  1.00  1.37      TRYP
+ATOM     26  O   TRP     1       2.363   2.691  -0.516  1.00  3.01      TRYP
+ATOM     27  OXT TRP     1       1.220   2.268  -1.471  1.00  3.14      TRYP
+END
+ CNSsolve> 
+ CNSsolve>coor swap end 
+ COOR: selected coordinates swaped (main<->comp)
+ CNSsolve>coor copy end 
+ COOR: selected main coordinates copied to comp
+ CNSsolve> 
+ CNSsolve>{* =============================================================== *} 
+ CNSsolve>{*    test 4: test the "rigid" group option                        *} 
+ CNSsolve>{* =============================================================== *} 
+ CNSsolve> 
+ CNSsolve>set seed=12345 end 
+ CNSsolve> 
+ CNSsolve>mmdg 
+ MMDG>        verbose off 
+ MMDG>	iacc=5. tacc=5. bacc=0.2 pacc=5. 
+ MMDG>	group=( all ) 0.1 
+ SELRPN:     27 atoms have been selected out of     27
+ MMDG>        random 
+ MMDG>        metrize (all) 100 
+ SELRPN:     27 atoms have been selected out of     27
+ MMDG>end 
+ MMDG:     27 atoms will be randomly metrized.
+ DGSETNX: found    152 exclusions (1--2, 1--3) for repulsive lower bounds.
+ CNSsolve> 
+ CNSsolve>set display=OUTPUT end 
+ CNSsolve>display $embedded 
+TRUE
+ CNSsolve>display $non_met_gap 
+0
+ CNSsolve>display $dgscale 
+1.00168
+ CNSsolve> 
+ CNSsolve>do (x = x * $dgscale) (all) 
+ SELRPN:     27 atoms have been selected out of     27
+ CNSsolve>do (y = y * $dgscale) (all) 
+ SELRPN:     27 atoms have been selected out of     27
+ CNSsolve>do (z = z * $dgscale) (all) 
+ SELRPN:     27 atoms have been selected out of     27
+ CNSsolve> 
+ CNSsolve>energy end 
+ NBONDS: found      207 intra-atom interactions
+ --------------- cycle=     8 --------------------------------------------------
+ | Etotal =4.118      grad(E)=0.588      E(BOND)=0.075      E(ANGL)=0.084      |
+ | E(DIHE)=0.005      E(IMPR)=2.835      E(VDW )=0.074      E(ELEC)=0.000      |
+ | E(CDIH)=0.000      E(NOE )=1.046                                            |
+ -------------------------------------------------------------------------------
+ CNSsolve>evaluate ($chi_ener=$impr) 
+ EVALUATE: symbol $CHI_ENER set to    2.83502     (real)
+ CNSsolve>do (z=-z) ( all ) 
+ SELRPN:     27 atoms have been selected out of     27
+ CNSsolve>energy end 
+ NBONDS: found      207 intra-atom interactions
+ --------------- cycle=     9 --------------------------------------------------
+ | Etotal =1.432      grad(E)=0.561      E(BOND)=0.075      E(ANGL)=0.084      |
+ | E(DIHE)=0.005      E(IMPR)=0.149      E(VDW )=0.074      E(ELEC)=0.000      |
+ | E(CDIH)=0.000      E(NOE )=1.046                                            |
+ -------------------------------------------------------------------------------
+ CNSsolve>if ($impr > $chi_ener) then 
+ NEXTCD: condition evaluated as false
+ CNSsolve>   do (z=-z) ( all ) 
+ CNSsolve>end if 
+ CNSsolve> 
+ CNSsolve>set message=off end   coor fit end    set message=on end 
+ R.m.s. diff. between fitted set and comp. set for selected atoms =    0.0736
+ CNSsolve>coor rms end 
+ COOR: ATTENTION: atom rms differences copied to RMSD array. 
+ COOR: rms=     0.073565, square sum=       0.1461, denominator=      27.0000
+ CNSsolve>do (b=rmsd ) ( all ) 
+ SELRPN:     27 atoms have been selected out of     27
+ CNSsolve>write coords end 
+REMARK FILENAME="OUTPUT"
+REMARK file toppar/protein-allhdg5-4.param
+REMARK   for file protein-allhdg-ucl.top  version UCL  date 14-MAR-00
+REMARK   for file protein-allhdg-dih-ucl.top  version UCL  date 07-JUL-01
+REMARK   Geometric energy function parameters for distance geometry and
+REMARK   simulated annealing.
+REMARK   Original author: Michael Nilges, EMBL Heidelberg
+REMARK   Modifications: Mark A. Williams, UCL London
+REMARK   Several modifications for HADDOCK: Alexandre Bonvin, Utrecht Uni
+REMARK   Last modification 8-19-2011
+REMARK DATE:05-Jul-2018  16:07:58       created by user: oeow39
+REMARK VERSION:1.3
+ATOM      1  HA  TRP     1       1.550   0.828   1.021  1.00  0.06      TRYP
+ATOM      2  CB  TRP     1       2.566   2.081  -0.398  1.00  0.04      TRYP
+ATOM      3  HB1 TRP     1       2.270   2.583  -1.326  1.00  0.03      TRYP
+ATOM      4  HB2 TRP     1       2.712   2.899   0.233  1.00  0.10      TRYP
+ATOM      5  CG  TRP     1       3.815   1.259  -0.678  1.00  0.03      TRYP
+ATOM      6  CD1 TRP     1       4.698   0.757   0.373  1.00  0.13      TRYP
+ATOM      7  HD1 TRP     1       4.682   1.080   1.324  1.00  0.04      TRYP
+ATOM      8  CD2 TRP     1       4.336   0.534  -1.906  1.00  0.12      TRYP
+ATOM      9  NE1 TRP     1       5.745   0.132  -0.261  1.00  0.03      TRYP
+ATOM     10  HE1 TRP     1       6.471  -0.208   0.215  1.00  0.05      TRYP
+ATOM     11  CE2 TRP     1       5.527  -0.031  -1.639  1.00  0.03      TRYP
+ATOM     12  CE3 TRP     1       3.906   0.583  -3.317  1.00  0.07      TRYP
+ATOM     13  HE3 TRP     1       3.039   1.053  -3.575  1.00  0.09      TRYP
+ATOM     14  CZ2 TRP     1       6.302  -0.571  -2.641  1.00  0.12      TRYP
+ATOM     15  HZ2 TRP     1       7.192  -1.275  -2.341  1.00  0.08      TRYP
+ATOM     16  CZ3 TRP     1       4.624  -0.061  -4.289  1.00  0.09      TRYP
+ATOM     17  HZ3 TRP     1       4.406   0.057  -5.312  1.00  0.08      TRYP
+ATOM     18  CH2 TRP     1       5.864  -0.690  -3.931  1.00  0.02      TRYP
+ATOM     19  HH2 TRP     1       6.541  -1.082  -4.689  1.00  0.13      TRYP
+ATOM     20  N   TRP     1       0.943   0.175  -0.854  1.00  0.05      TRYP
+ATOM     21  HT1 TRP     1       1.556  -0.641  -0.751  1.00  0.03      TRYP
+ATOM     22  HT2 TRP     1       1.064   0.599  -1.847  1.00  0.03      TRYP
+ATOM     23  HT3 TRP     1      -0.052  -0.065  -0.807  1.00  0.07      TRYP
+ATOM     24  CA  TRP     1       1.311   1.282   0.084  1.00  0.04      TRYP
+ATOM     25  C   TRP     1       0.193   2.238   0.364  1.00  0.10      TRYP
+ATOM     26  O   TRP     1      -0.624   2.299  -0.611  1.00  0.05      TRYP
+ATOM     27  OXT TRP     1       0.012   2.707   1.364  1.00  0.03      TRYP
+END
+ CNSsolve> 
+ CNSsolve>coor swap end 
+ COOR: selected coordinates swaped (main<->comp)
+ CNSsolve>coor copy end 
+ COOR: selected main coordinates copied to comp
+ CNSsolve> 
+ CNSsolve>{* =============================================================== *} 
+ CNSsolve>{*    test 4b: test the "rigid" group option with two groups       *} 
+ CNSsolve>{* =============================================================== *} 
+ CNSsolve> 
+ CNSsolve>set seed=12345 end 
+ CNSsolve> 
+ CNSsolve>mmdg 
+ MMDG>        verbose off 
+ MMDG>	iacc=5. tacc=5. bacc=0.2 pacc=5. 
+ MMDG>	group=( not hydrogen ) 0.1 
+ SELRPN:     15 atoms have been selected out of     27
+ MMDG>	group=( hydrogen ) 0.1 
+ SELRPN:     12 atoms have been selected out of     27
+ MMDG>        random 
+ MMDG>        metrize (all) 100 
+ SELRPN:     27 atoms have been selected out of     27
+ MMDG>end 
+ MMDG:     27 atoms will be randomly metrized.
+ DGSETNX: found    152 exclusions (1--2, 1--3) for repulsive lower bounds.
+ CNSsolve> 
+ CNSsolve>set display=OUTPUT end 
+ CNSsolve>display $embedded 
+TRUE
+ CNSsolve>display $non_met_gap 
+0
+ CNSsolve>display $dgscale 
+1.01787
+ CNSsolve> 
+ CNSsolve>do (x = x * $dgscale) (all) 
+ SELRPN:     27 atoms have been selected out of     27
+ CNSsolve>do (y = y * $dgscale) (all) 
+ SELRPN:     27 atoms have been selected out of     27
+ CNSsolve>do (z = z * $dgscale) (all) 
+ SELRPN:     27 atoms have been selected out of     27
+ CNSsolve> 
+ CNSsolve>energy end 
+ %atoms "TRYP-1   -TRP -HB1 " and "TRYP-1   -TRP -HT1 " only  1.35 A apart
+ NBONDS: found      212 intra-atom interactions
+ NBONDS: found        1 nonbonded violations
+ --------------- cycle=    10 --------------------------------------------------
+ | Etotal =28.546     grad(E)=2.024      E(BOND)=6.500      E(ANGL)=5.592      |
+ | E(DIHE)=0.007      E(IMPR)=8.954      E(VDW )=4.300      E(ELEC)=0.000      |
+ | E(CDIH)=0.000      E(NOE )=3.195                                            |
+ -------------------------------------------------------------------------------
+ CNSsolve>evaluate ($chi_ener=$impr) 
+ EVALUATE: symbol $CHI_ENER set to    8.95388     (real)
+ CNSsolve>do (z=-z) ( all ) 
+ SELRPN:     27 atoms have been selected out of     27
+ CNSsolve>energy end 
+ %atoms "TRYP-1   -TRP -HB1 " and "TRYP-1   -TRP -HT1 " only  1.35 A apart
+ NBONDS: found      212 intra-atom interactions
+ NBONDS: found        1 nonbonded violations
+ --------------- cycle=    11 --------------------------------------------------
+ | Etotal =27.345     grad(E)=2.077      E(BOND)=6.500      E(ANGL)=5.592      |
+ | E(DIHE)=0.007      E(IMPR)=7.752      E(VDW )=4.300      E(ELEC)=0.000      |
+ | E(CDIH)=0.000      E(NOE )=3.195                                            |
+ -------------------------------------------------------------------------------
+ CNSsolve>if ($impr > $chi_ener) then 
+ NEXTCD: condition evaluated as false
+ CNSsolve>   do (z=-z) ( all ) 
+ CNSsolve>end if 
+ CNSsolve> 
+ CNSsolve>coor fit sele=( not hydro )  end 
+ SELRPN:     15 atoms have been selected out of     27
+ COOR: using atom subset.
+
+ Fitted coordinate set r' related to original set r by r'=R*r  + T
+ This transformation is applied to all coordinates.
+ Translation vector T = (    3.2551    0.9054   -1.3660)
+
+ Rotation matrix =
+   -0.796430    0.592765   -0.119703
+    0.145130    0.379514    0.913732
+    0.587057    0.710352   -0.388284
+ Corresp. Eulerian angles (theta1,theta2,theta3)   140.4286  112.8478  352.5365
+ Corresp. spherical polar angles (psi,phi,kappa)   145.1748  114.4344  205.4980
+ Corresp. rotation angle   154.5020 about axis       0.2362    0.8209    0.5199
+ Corresp. quaternions     0.2207    0.2304    0.8007    0.5071
+
+ R.m.s. diff. between fitted set and comp. set for selected atoms =    0.7327
+ CNSsolve>coor rms end 
+ COOR: ATTENTION: atom rms differences copied to RMSD array. 
+ COOR: rms=     1.506282, square sum=      61.2599, denominator=      27.0000
+ CNSsolve>do (b=rmsd ) ( all ) 
+ SELRPN:     27 atoms have been selected out of     27
+ CNSsolve>write coords end 
+REMARK FILENAME="OUTPUT"
+REMARK file toppar/protein-allhdg5-4.param
+REMARK   for file protein-allhdg-ucl.top  version UCL  date 14-MAR-00
+REMARK   for file protein-allhdg-dih-ucl.top  version UCL  date 07-JUL-01
+REMARK   Geometric energy function parameters for distance geometry and
+REMARK   simulated annealing.
+REMARK   Original author: Michael Nilges, EMBL Heidelberg
+REMARK   Modifications: Mark A. Williams, UCL London
+REMARK   Several modifications for HADDOCK: Alexandre Bonvin, Utrecht Uni
+REMARK   Last modification 8-19-2011
+REMARK DATE:05-Jul-2018  16:07:58       created by user: oeow39
+REMARK VERSION:1.3
+ATOM      1  HA  TRP     1       1.484   0.914   1.159  1.00  0.20      TRYP
+ATOM      2  CB  TRP     1       2.291   0.722   0.135  1.00  1.49      TRYP
+ATOM      3  HB1 TRP     1       1.883   0.116  -0.516  1.00  2.62      TRYP
+ATOM      4  HB2 TRP     1       1.994   0.867   0.610  1.00  2.14      TRYP
+ATOM      5  CG  TRP     1       3.625   0.427  -0.510  1.00  0.84      TRYP
+ATOM      6  CD1 TRP     1       4.590   0.732   0.272  1.00  0.19      TRYP
+ATOM      7  HD1 TRP     1       4.540   1.558   1.328  1.00  0.47      TRYP
+ATOM      8  CD2 TRP     1       4.402   0.351  -1.835  1.00  0.32      TRYP
+ATOM      9  NE1 TRP     1       5.799   0.649  -0.401  1.00  0.55      TRYP
+ATOM     10  HE1 TRP     1       5.832   3.307  -0.380  1.00  3.67      TRYP
+ATOM     11  CE2 TRP     1       5.708   0.290  -1.705  1.00  0.37      TRYP
+ATOM     12  CE3 TRP     1       3.787  -0.143  -3.186  1.00  0.81      TRYP
+ATOM     13  HE3 TRP     1       2.878  -0.187  -3.285  1.00  1.37      TRYP
+ATOM     14  CZ2 TRP     1       6.541   0.082  -2.859  1.00  0.84      TRYP
+ATOM     15  HZ2 TRP     1       6.775   2.582  -3.237  1.00  3.91      TRYP
+ATOM     16  CZ3 TRP     1       4.523  -0.504  -4.231  1.00  0.52      TRYP
+ATOM     17  HZ3 TRP     1       4.173   0.000  -5.171  1.00  0.24      TRYP
+ATOM     18  CH2 TRP     1       6.108  -0.071  -4.102  1.00  0.67      TRYP
+ATOM     19  HH2 TRP     1       6.329   1.318  -5.194  1.00  2.56      TRYP
+ATOM     20  N   TRP     1       0.961   0.644  -0.865  1.00  0.45      TRYP
+ATOM     21  HT1 TRP     1       1.501   1.285  -1.073  1.00  1.94      TRYP
+ATOM     22  HT2 TRP     1       0.931   0.094  -1.726  1.00  0.51      TRYP
+ATOM     23  HT3 TRP     1       0.264  -0.270  -0.914  1.00  0.41      TRYP
+ATOM     24  CA  TRP     1       1.101   1.164  -0.057  1.00  0.29      TRYP
+ATOM     25  C   TRP     1       0.326   2.289   0.677  1.00  0.43      TRYP
+ATOM     26  O   TRP     1      -0.214   3.242  -0.322  1.00  1.03      TRYP
+ATOM     27  OXT TRP     1      -0.244   2.988   0.502  1.00  0.97      TRYP
+END
+ CNSsolve> 
+ CNSsolve>coor swap end 
+ COOR: selected coordinates swaped (main<->comp)
+ CNSsolve>coor copy end 
+ COOR: selected main coordinates copied to comp
+ CNSsolve> 
+ CNSsolve>{* =============================================================== *} 
+ CNSsolve>{*    test 4c: test substructures                                  *} 
+ CNSsolve>{* =============================================================== *} 
+ CNSsolve> 
+ CNSsolve>set seed=12345 end 
+ CNSsolve> 
+ CNSsolve>do (refx=x) ( all ) 
+ SELRPN:     27 atoms have been selected out of     27
+ CNSsolve>do (refy=y) ( all ) 
+ SELRPN:     27 atoms have been selected out of     27
+ CNSsolve>do (refz=z) ( all ) 
+ SELRPN:     27 atoms have been selected out of     27
+ CNSsolve> 
+ CNSsolve>mmdg 
+ MMDG>        verbose off 
+ MMDG>	iacc=5. tacc=5. bacc=0.2 pacc=5. 
+ MMDG>	group=( not hydrogen ) 0.01 
+ SELRPN:     15 atoms have been selected out of     27
+ MMDG>	group=( hydrogen ) 0.01 
+ SELRPN:     12 atoms have been selected out of     27
+ MMDG>	substructure=( not hydrogen ) 
+ SELRPN:     15 atoms have been selected out of     27
+ MMDG>        random 
+ MMDG>        metrize (all) 100 
+ SELRPN:     27 atoms have been selected out of     27
+ MMDG>end 
+ DGSMOOT: number of connections:   476
+ DGSMOOT: using full matrix bound smoothing algorithm.
+ MMDG:     15 atoms will be randomly metrized.
+ DGSETNX: found    152 exclusions (1--2, 1--3) for repulsive lower bounds.
+ DGNOMET: number of connections:   210
+ DGNOMET: using full matrix bound smoothing algorithm.
+ CNSsolve> 
+ CNSsolve>set display=OUTPUT end 
+ CNSsolve>display $embedded 
+TRUE
+ CNSsolve>display $non_met_gap 
+0
+ CNSsolve>display $dgscale 
+0.999615
+ CNSsolve> 
+ CNSsolve>do (x = x * $dgscale) (not hydrogen) 
+ SELRPN:     15 atoms have been selected out of     27
+ CNSsolve>do (y = y * $dgscale) (not hydrogen) 
+ SELRPN:     15 atoms have been selected out of     27
+ CNSsolve>do (z = z * $dgscale) (not hydrogen) 
+ SELRPN:     15 atoms have been selected out of     27
+ CNSsolve> 
+ CNSsolve>set mess=off end   coor fit sele=( not hydro ) end  set mess=on end 
+ R.m.s. diff. between fitted set and comp. set for selected atoms =    0.0106
+ CNSsolve> 
+ CNSsolve>do (z=-z) ( all ) 
+ SELRPN:     27 atoms have been selected out of     27
+ CNSsolve>set mess=off end   coor fit sele=( not hydro ) end  set mess=on end 
+ R.m.s. diff. between fitted set and comp. set for selected atoms =    0.9433
+ CNSsolve> 
+ CNSsolve>coor swap end 
+ COOR: selected coordinates swaped (main<->comp)
+ CNSsolve>coor copy end 
+ COOR: selected main coordinates copied to comp
+ CNSsolve> 
+ CNSsolve>{* =============================================================== *} 
+ CNSsolve>{*    test 4d: test substructures with storage in memory           *} 
+ CNSsolve>{* =============================================================== *} 
+ CNSsolve> 
+ CNSsolve>set seed=12345 end 
+ CNSsolve> 
+ CNSsolve>do (refx=x) ( all ) 
+ SELRPN:     27 atoms have been selected out of     27
+ CNSsolve>do (refy=y) ( all ) 
+ SELRPN:     27 atoms have been selected out of     27
+ CNSsolve>do (refz=z) ( all ) 
+ SELRPN:     27 atoms have been selected out of     27
+ CNSsolve> 
+ CNSsolve>mmdg 
+ MMDG>        verbose off 
+ MMDG>	iacc=5. tacc=5. bacc=0.2 pacc=5. 
+ MMDG>	group=( not hydrogen ) 0.01 
+ SELRPN:     15 atoms have been selected out of     27
+ MMDG>	group=( hydrogen ) 0.01 
+ SELRPN:     12 atoms have been selected out of     27
+ MMDG>	storebounds 
+ MMDG>end 
+ DGSMOOT: number of connections:   476
+ DGSMOOT: using full matrix bound smoothing algorithm.
+ MMDG: storing smoothed bounds matrix in memory. 
+        No metrization or embedding performed. 
+ CNSsolve> 
+ CNSsolve>set seed=12345 end 
+ CNSsolve> 
+ CNSsolve>mmdg 
+ MMDG>        recallbounds 
+ MMDG>	substructure=( not hydrogen ) 
+ SELRPN:     15 atoms have been selected out of     27
+ MMDG>        random 
+ MMDG>        metrize (all) 100 
+ SELRPN:     27 atoms have been selected out of     27
+ MMDG>end 
+ MMDG:     15 atoms will be randomly metrized.
+ DGSETNX: found    152 exclusions (1--2, 1--3) for repulsive lower bounds.
+ DGNOMET: number of connections:   210
+ DGNOMET: using full matrix bound smoothing algorithm.
+ CNSsolve> 
+ CNSsolve>set display=OUTPUT end 
+ CNSsolve>display $embedded 
+TRUE
+ CNSsolve>display $non_met_gap 
+0
+ CNSsolve>display $dgscale 
+0.999615
+ CNSsolve> 
+ CNSsolve>do (x = x * $dgscale) (not hydrogen) 
+ SELRPN:     15 atoms have been selected out of     27
+ CNSsolve>do (y = y * $dgscale) (not hydrogen) 
+ SELRPN:     15 atoms have been selected out of     27
+ CNSsolve>do (z = z * $dgscale) (not hydrogen) 
+ SELRPN:     15 atoms have been selected out of     27
+ CNSsolve> 
+ CNSsolve>set mess=off end   coor fit sele=( not hydro ) end  set mess=on end 
+ R.m.s. diff. between fitted set and comp. set for selected atoms =    0.0106
+ CNSsolve> 
+ CNSsolve>do (z=-z) ( all ) 
+ SELRPN:     27 atoms have been selected out of     27
+ CNSsolve>set mess=off end   coor fit sele=( not hydro ) end  set mess=on end 
+ R.m.s. diff. between fitted set and comp. set for selected atoms =    0.9433
+ CNSsolve> 
+ CNSsolve>set seed=12345 end 
+ CNSsolve> 
+ CNSsolve>mmdg 
+ MMDG>        recallbounds 
+ MMDG>	substructure=( not hydrogen ) 
+ SELRPN:     15 atoms have been selected out of     27
+ MMDG>        random 
+ MMDG>        metrize (all) 100 
+ SELRPN:     27 atoms have been selected out of     27
+ MMDG>end 
+ MMDG:     15 atoms will be randomly metrized.
+ DGSETNX: found    152 exclusions (1--2, 1--3) for repulsive lower bounds.
+ DGNOMET: number of connections:   210
+ DGNOMET: using full matrix bound smoothing algorithm.
+ CNSsolve> 
+ CNSsolve>set display=OUTPUT end 
+ CNSsolve>display $embedded 
+TRUE
+ CNSsolve>display $non_met_gap 
+0
+ CNSsolve>display $dgscale 
+0.999615
+ CNSsolve> 
+ CNSsolve>do (x = x * $dgscale) (not hydrogen) 
+ SELRPN:     15 atoms have been selected out of     27
+ CNSsolve>do (y = y * $dgscale) (not hydrogen) 
+ SELRPN:     15 atoms have been selected out of     27
+ CNSsolve>do (z = z * $dgscale) (not hydrogen) 
+ SELRPN:     15 atoms have been selected out of     27
+ CNSsolve> 
+ CNSsolve>set mess=off end   coor fit sele=( not hydro ) end  set mess=on end 
+ R.m.s. diff. between fitted set and comp. set for selected atoms =    0.0106
+ CNSsolve> 
+ CNSsolve>do (z=-z) ( all ) 
+ SELRPN:     27 atoms have been selected out of     27
+ CNSsolve>set mess=off end   coor fit sele=( not hydro ) end  set mess=on end 
+ R.m.s. diff. between fitted set and comp. set for selected atoms =    0.9433
+ CNSsolve> 
+ CNSsolve>coor swap end 
+ COOR: selected coordinates swaped (main<->comp)
+ CNSsolve>coor copy end 
+ COOR: selected main coordinates copied to comp
+ CNSsolve> 
+ CNSsolve> 
+ CNSsolve>{* =============================================================== *} 
+ CNSsolve>{*    test 4e: test substructures with storage in file             *} 
+ CNSsolve>{* =============================================================== *} 
+ CNSsolve> 
+ CNSsolve>set seed=12345 end 
+ CNSsolve> 
+ CNSsolve>do (refx=x) ( all ) 
+ SELRPN:     27 atoms have been selected out of     27
+ CNSsolve>do (refy=y) ( all ) 
+ SELRPN:     27 atoms have been selected out of     27
+ CNSsolve>do (refz=z) ( all ) 
+ SELRPN:     27 atoms have been selected out of     27
+ CNSsolve> 
+ CNSsolve>mmdg 
+ MMDG>        verbose off 
+ MMDG>	iacc=5. tacc=5. bacc=0.2 pacc=5. 
+ MMDG>	group=( not hydrogen ) 0.01 
+ SELRPN:     15 atoms have been selected out of     27
+ MMDG>	group=( hydrogen ) 0.01 
+ SELRPN:     12 atoms have been selected out of     27
+ MMDG>	writebounds=dgtest1.dat 
+ ASSFIL: file dgtest1.dat opened.
+ MMDG>end 
+ DGSMOOT: number of connections:   476
+ DGSMOOT: using full matrix bound smoothing algorithm.
+ MMDG: writing smoothed bounds matrices to binary file. 
+        No metrization or embedding performed. 
+ CNSsolve> 
+ CNSsolve>set seed=12345 end 
+ CNSsolve> 
+ CNSsolve>mmdg 
+ MMDG>        readbounds=dgtest1.dat 
+ ASSFIL: file dgtest1.dat opened.
+ MMDG>	substructure=( not hydrogen ) 
+ SELRPN:     15 atoms have been selected out of     27
+ MMDG>        random 
+ MMDG>        metrize (all) 100 
+ SELRPN:     27 atoms have been selected out of     27
+ MMDG>end 
+ MMDG:     15 atoms will be randomly metrized.
+ DGSETNX: found    152 exclusions (1--2, 1--3) for repulsive lower bounds.
+ DGNOMET: number of connections:   210
+ DGNOMET: using full matrix bound smoothing algorithm.
+ CNSsolve> 
+ CNSsolve>set display=OUTPUT end 
+ CNSsolve>display $embedded 
+TRUE
+ CNSsolve>display $non_met_gap 
+0
+ CNSsolve>display $dgscale 
+0.999615
+ CNSsolve> 
+ CNSsolve>do (x = x * $dgscale) (not hydrogen) 
+ SELRPN:     15 atoms have been selected out of     27
+ CNSsolve>do (y = y * $dgscale) (not hydrogen) 
+ SELRPN:     15 atoms have been selected out of     27
+ CNSsolve>do (z = z * $dgscale) (not hydrogen) 
+ SELRPN:     15 atoms have been selected out of     27
+ CNSsolve> 
+ CNSsolve>set mess=off end   coor fit sele=( not hydro ) end  set mess=on end 
+ R.m.s. diff. between fitted set and comp. set for selected atoms =    0.0106
+ CNSsolve> 
+ CNSsolve>do (z=-z) ( all ) 
+ SELRPN:     27 atoms have been selected out of     27
+ CNSsolve>set mess=off end   coor fit sele=( not hydro ) end  set mess=on end 
+ R.m.s. diff. between fitted set and comp. set for selected atoms =    0.9433
+ CNSsolve> 
+ CNSsolve>set seed=12345 end 
+ CNSsolve> 
+ CNSsolve>mmdg 
+ MMDG>        readbounds=dgtest1.dat 
+ MMDG>	substructure=( not hydrogen ) 
+ SELRPN:     15 atoms have been selected out of     27
+ MMDG>        random 
+ MMDG>        metrize (all) 100 
+ SELRPN:     27 atoms have been selected out of     27
+ MMDG>end 
+ MMDG:     15 atoms will be randomly metrized.
+ DGSETNX: found    152 exclusions (1--2, 1--3) for repulsive lower bounds.
+ DGNOMET: number of connections:   210
+ DGNOMET: using full matrix bound smoothing algorithm.
+ CNSsolve> 
+ CNSsolve>set display=OUTPUT end 
+ CNSsolve>display $embedded 
+TRUE
+ CNSsolve>display $non_met_gap 
+0
+ CNSsolve>display $dgscale 
+0.999615
+ CNSsolve> 
+ CNSsolve>do (x = x * $dgscale) (not hydrogen) 
+ SELRPN:     15 atoms have been selected out of     27
+ CNSsolve>do (y = y * $dgscale) (not hydrogen) 
+ SELRPN:     15 atoms have been selected out of     27
+ CNSsolve>do (z = z * $dgscale) (not hydrogen) 
+ SELRPN:     15 atoms have been selected out of     27
+ CNSsolve> 
+ CNSsolve>set mess=off end   coor fit sele=( not hydro ) end  set mess=on end 
+ R.m.s. diff. between fitted set and comp. set for selected atoms =    0.0106
+ CNSsolve> 
+ CNSsolve>do (z=-z) ( all ) 
+ SELRPN:     27 atoms have been selected out of     27
+ CNSsolve>set mess=off end   coor fit sele=( not hydro ) end  set mess=on end 
+ R.m.s. diff. between fitted set and comp. set for selected atoms =    0.9433
+ CNSsolve> 
+ CNSsolve>coor swap end 
+ COOR: selected coordinates swaped (main<->comp)
+ CNSsolve>coor copy end 
+ COOR: selected main coordinates copied to comp
+ CNSsolve> 
+ CNSsolve> 
+ CNSsolve>{* =============================================================== *} 
+ CNSsolve>{*    test 5: test partial metrization                             *} 
+ CNSsolve>{* =============================================================== *} 
+ CNSsolve> 
+ CNSsolve>set seed=12345 end 
+ CNSsolve> 
+ CNSsolve>mmdg 
+ MMDG>        verbose off 
+ MMDG>	iacc=5. tacc=5. bacc=0.2 pacc=5. 
+ MMDG>        random 
+ MMDG>        metrize (all) 4 
+ SELRPN:     27 atoms have been selected out of     27
+ MMDG>end 
+ MMDG:      4 atoms will be randomly metrized.
+ DGSETNX: found    152 exclusions (1--2, 1--3) for repulsive lower bounds.
+ DGNOMET: number of connections:   390
+ DGNOMET: using full matrix bound smoothing algorithm.
+ CNSsolve> 
+ CNSsolve>set display=OUTPUT end 
+ CNSsolve>display $embedded 
+TRUE
+ CNSsolve>display $non_met_gap 
+1.92964
+ CNSsolve>display $dgscale 
+1.08817
+ CNSsolve> 
+ CNSsolve>do (x = x * $dgscale) (all) 
+ SELRPN:     27 atoms have been selected out of     27
+ CNSsolve>do (y = y * $dgscale) (all) 
+ SELRPN:     27 atoms have been selected out of     27
+ CNSsolve>do (z = z * $dgscale) (all) 
+ SELRPN:     27 atoms have been selected out of     27
+ CNSsolve> 
+ CNSsolve>energy end 
+ %atoms "TRYP-1   -TRP -HB2 " and "TRYP-1   -TRP -HT3 " only  1.05 A apart
+ %atoms "TRYP-1   -TRP -HB2 " and "TRYP-1   -TRP -O   " only  1.36 A apart
+ %atoms "TRYP-1   -TRP -HT1 " and "TRYP-1   -TRP -O   " only  1.35 A apart
+ NBONDS: found      213 intra-atom interactions
+ NBONDS: found        3 nonbonded violations
+ --------------- cycle=    12 --------------------------------------------------
+ | Etotal =71.750     grad(E)=5.616      E(BOND)=8.821      E(ANGL)=14.026     |
+ | E(DIHE)=0.011      E(IMPR)=16.369     E(VDW )=17.680     E(ELEC)=0.000      |
+ | E(CDIH)=0.000      E(NOE )=14.843                                           |
+ -------------------------------------------------------------------------------
+ CNSsolve>evaluate ($chi_ener=$impr) 
+ EVALUATE: symbol $CHI_ENER set to    16.3690     (real)
+ CNSsolve>do (z=-z) ( all ) 
+ SELRPN:     27 atoms have been selected out of     27
+ CNSsolve>energy end 
+ %atoms "TRYP-1   -TRP -HB2 " and "TRYP-1   -TRP -HT3 " only  1.05 A apart
+ %atoms "TRYP-1   -TRP -HB2 " and "TRYP-1   -TRP -O   " only  1.36 A apart
+ %atoms "TRYP-1   -TRP -HT1 " and "TRYP-1   -TRP -O   " only  1.35 A apart
+ NBONDS: found      213 intra-atom interactions
+ NBONDS: found        3 nonbonded violations
+ --------------- cycle=    13 --------------------------------------------------
+ | Etotal =74.789     grad(E)=5.652      E(BOND)=8.821      E(ANGL)=14.026     |
+ | E(DIHE)=0.011      E(IMPR)=19.408     E(VDW )=17.680     E(ELEC)=0.000      |
+ | E(CDIH)=0.000      E(NOE )=14.843                                           |
+ -------------------------------------------------------------------------------
+ CNSsolve>if ($impr > $chi_ener) then 
+ NEXTCD: condition evaluated as true
+ CNSsolve>   do (z=-z) ( all ) 
+ SELRPN:     27 atoms have been selected out of     27
+ CNSsolve>end if 
+ CNSsolve> 
+ CNSsolve>set message=off end   coor fit end    set message=on end 
+ R.m.s. diff. between fitted set and comp. set for selected atoms =    1.7404
+ CNSsolve>coor rms end 
+ COOR: ATTENTION: atom rms differences copied to RMSD array. 
+ COOR: rms=     1.740380, square sum=      81.7809, denominator=      27.0000
+ CNSsolve>do (b=rmsd ) ( all ) 
+ SELRPN:     27 atoms have been selected out of     27
+ CNSsolve>write coords end 
+REMARK FILENAME="OUTPUT"
+REMARK file toppar/protein-allhdg5-4.param
+REMARK   for file protein-allhdg-ucl.top  version UCL  date 14-MAR-00
+REMARK   for file protein-allhdg-dih-ucl.top  version UCL  date 07-JUL-01
+REMARK   Geometric energy function parameters for distance geometry and
+REMARK   simulated annealing.
+REMARK   Original author: Michael Nilges, EMBL Heidelberg
+REMARK   Modifications: Mark A. Williams, UCL London
+REMARK   Several modifications for HADDOCK: Alexandre Bonvin, Utrecht Uni
+REMARK   Last modification 8-19-2011
+REMARK DATE:05-Jul-2018  16:07:58       created by user: oeow39
+REMARK VERSION:1.3
+ATOM      1  HA  TRP     1       1.584   1.915   0.941  1.00  1.14      TRYP
+ATOM      2  CB  TRP     1       2.771   1.639  -0.902  1.00  0.70      TRYP
+ATOM      3  HB1 TRP     1       3.214   2.908  -0.962  1.00  1.09      TRYP
+ATOM      4  HB2 TRP     1       2.245   0.960  -1.636  1.00  2.76      TRYP
+ATOM      5  CG  TRP     1       4.567   2.268  -0.308  1.00  1.34      TRYP
+ATOM      6  CD1 TRP     1       4.551   0.754   0.591  1.00  0.35      TRYP
+ATOM      7  HD1 TRP     1       4.328   0.374   0.166  1.00  1.43      TRYP
+ATOM      8  CD2 TRP     1       5.027   1.867  -1.466  1.00  1.47      TRYP
+ATOM      9  NE1 TRP     1       4.734   0.739  -0.041  1.00  1.19      TRYP
+ATOM     10  HE1 TRP     1       5.132   0.400  -0.231  1.00  1.57      TRYP
+ATOM     11  CE2 TRP     1       5.323  -0.512  -1.077  1.00  0.77      TRYP
+ATOM     12  CE3 TRP     1       4.268   0.739  -3.290  1.00  0.34      TRYP
+ATOM     13  HE3 TRP     1       3.764   1.855  -2.977  1.00  1.20      TRYP
+ATOM     14  CZ2 TRP     1       5.738  -0.050  -2.906  1.00  0.91      TRYP
+ATOM     15  HZ2 TRP     1       5.243  -2.132  -1.607  1.00  2.30      TRYP
+ATOM     16  CZ3 TRP     1       4.355  -0.222  -3.752  1.00  0.66      TRYP
+ATOM     17  HZ3 TRP     1       4.020   1.617  -3.431  1.00  2.51      TRYP
+ATOM     18  CH2 TRP     1       4.370  -0.343  -3.824  1.00  1.55      TRYP
+ATOM     19  HH2 TRP     1       3.307  -0.240  -4.067  1.00  3.35      TRYP
+ATOM     20  N   TRP     1       1.524  -0.235  -0.574  1.00  0.79      TRYP
+ATOM     21  HT1 TRP     1       1.861  -0.471  -0.930  1.00  0.38      TRYP
+ATOM     22  HT2 TRP     1       2.298  -1.270   0.089  1.00  2.95      TRYP
+ATOM     23  HT3 TRP     1       2.332  -0.091  -1.643  1.00  2.55      TRYP
+ATOM     24  CA  TRP     1       1.483   0.948   0.195  1.00  0.35      TRYP
+ATOM     25  C   TRP     1       0.800   1.918  -0.351  1.00  0.97      TRYP
+ATOM     26  O   TRP     1       1.350   0.743  -0.638  1.00  2.55      TRYP
+ATOM     27  OXT TRP     1       0.466   2.440  -1.563  1.00  3.00      TRYP
+END
+ CNSsolve> 
+ CNSsolve>coor swap end 
+ COOR: selected coordinates swaped (main<->comp)
+ CNSsolve>coor copy end 
+ COOR: selected main coordinates copied to comp
+ CNSsolve> 
+ CNSsolve>{* =============================================================== *} 
+ CNSsolve>{*    test 6: test ordered metrization                             *} 
+ CNSsolve>{* =============================================================== *} 
+ CNSsolve> 
+ CNSsolve>set seed=12345 end 
+ CNSsolve> 
+ CNSsolve>mmdg 
+ MMDG>        verbose off 
+ MMDG>	iacc=5. tacc=5. bacc=0.2 pacc=5. 
+ MMDG>        ordered 
+ MMDG>        metrize (all) 4 
+ SELRPN:     27 atoms have been selected out of     27
+ MMDG>end 
+ MMDG:      4 atoms will be metrized in order.
+ DGSETNX: found    152 exclusions (1--2, 1--3) for repulsive lower bounds.
+ DGNOMET: number of connections:   390
+ DGNOMET: using full matrix bound smoothing algorithm.
+ CNSsolve> 
+ CNSsolve>set display=OUTPUT end 
+ CNSsolve>display $embedded 
+TRUE
+ CNSsolve>display $non_met_gap 
+2.12236
+ CNSsolve>display $dgscale 
+1.07386
+ CNSsolve> 
+ CNSsolve>do (x = x * $dgscale) (all) 
+ SELRPN:     27 atoms have been selected out of     27
+ CNSsolve>do (y = y * $dgscale) (all) 
+ SELRPN:     27 atoms have been selected out of     27
+ CNSsolve>do (z = z * $dgscale) (all) 
+ SELRPN:     27 atoms have been selected out of     27
+ CNSsolve> 
+ CNSsolve>energy end 
+ %atoms "TRYP-1   -TRP -HB1 " and "TRYP-1   -TRP -HT1 " only  0.98 A apart
+ %atoms "TRYP-1   -TRP -HB1 " and "TRYP-1   -TRP -HT2 " only  0.49 A apart
+ %atoms "TRYP-1   -TRP -HB1 " and "TRYP-1   -TRP -HT3 " only  1.18 A apart
+ %atoms "TRYP-1   -TRP -HB2 " and "TRYP-1   -TRP -HT2 " only  1.40 A apart
+ NBONDS: found      213 intra-atom interactions
+ NBONDS: found        4 nonbonded violations
+ --------------- cycle=    14 --------------------------------------------------
+ | Etotal =84.352     grad(E)=8.449      E(BOND)=9.442      E(ANGL)=11.792     |
+ | E(DIHE)=0.003      E(IMPR)=17.388     E(VDW )=18.255     E(ELEC)=0.000      |
+ | E(CDIH)=0.000      E(NOE )=27.472                                           |
+ -------------------------------------------------------------------------------
+ CNSsolve>evaluate ($chi_ener=$impr) 
+ EVALUATE: symbol $CHI_ENER set to    17.3882     (real)
+ CNSsolve>do (z=-z) ( all ) 
+ SELRPN:     27 atoms have been selected out of     27
+ CNSsolve>energy end 
+ %atoms "TRYP-1   -TRP -HB1 " and "TRYP-1   -TRP -HT1 " only  0.98 A apart
+ %atoms "TRYP-1   -TRP -HB1 " and "TRYP-1   -TRP -HT2 " only  0.49 A apart
+ %atoms "TRYP-1   -TRP -HB1 " and "TRYP-1   -TRP -HT3 " only  1.18 A apart
+ %atoms "TRYP-1   -TRP -HB2 " and "TRYP-1   -TRP -HT2 " only  1.40 A apart
+ NBONDS: found      213 intra-atom interactions
+ NBONDS: found        4 nonbonded violations
+ --------------- cycle=    15 --------------------------------------------------
+ | Etotal =82.517     grad(E)=8.478      E(BOND)=9.442      E(ANGL)=11.792     |
+ | E(DIHE)=0.003      E(IMPR)=15.553     E(VDW )=18.255     E(ELEC)=0.000      |
+ | E(CDIH)=0.000      E(NOE )=27.472                                           |
+ -------------------------------------------------------------------------------
+ CNSsolve>if ($impr > $chi_ener) then 
+ NEXTCD: condition evaluated as false
+ CNSsolve>   do (z=-z) ( all ) 
+ CNSsolve>end if 
+ CNSsolve> 
+ CNSsolve>set message=off end   coor fit end    set message=on end 
+ R.m.s. diff. between fitted set and comp. set for selected atoms =    2.1562
+ CNSsolve>coor rms end 
+ COOR: ATTENTION: atom rms differences copied to RMSD array. 
+ COOR: rms=     2.156175, square sum=     125.5254, denominator=      27.0000
+ CNSsolve>do (b=rmsd ) ( all ) 
+ SELRPN:     27 atoms have been selected out of     27
+ CNSsolve>write coords end 
+REMARK FILENAME="OUTPUT"
+REMARK file toppar/protein-allhdg5-4.param
+REMARK   for file protein-allhdg-ucl.top  version UCL  date 14-MAR-00
+REMARK   for file protein-allhdg-dih-ucl.top  version UCL  date 07-JUL-01
+REMARK   Geometric energy function parameters for distance geometry and
+REMARK   simulated annealing.
+REMARK   Original author: Michael Nilges, EMBL Heidelberg
+REMARK   Modifications: Mark A. Williams, UCL London
+REMARK   Several modifications for HADDOCK: Alexandre Bonvin, Utrecht Uni
+REMARK   Last modification 8-19-2011
+REMARK DATE:05-Jul-2018  16:07:58       created by user: oeow39
+REMARK VERSION:1.3
+ATOM      1  HA  TRP     1       2.608   1.065  -1.001  1.00  2.31      TRYP
+ATOM      2  CB  TRP     1       1.952   1.555  -0.932  1.00  0.94      TRYP
+ATOM      3  HB1 TRP     1       2.346   1.299  -1.211  1.00  1.30      TRYP
+ATOM      4  HB2 TRP     1       1.841   1.149  -0.451  1.00  2.08      TRYP
+ATOM      5  CG  TRP     1       3.629   1.531  -0.101  1.00  0.67      TRYP
+ATOM      6  CD1 TRP     1       4.300   1.832  -0.230  1.00  1.18      TRYP
+ATOM      7  HD1 TRP     1       3.398   2.752  -0.414  1.00  2.73      TRYP
+ATOM      8  CD2 TRP     1       4.867   0.708  -1.924  1.00  0.52      TRYP
+ATOM      9  NE1 TRP     1       5.040   0.648   0.062  1.00  0.93      TRYP
+ATOM     10  HE1 TRP     1       5.486   0.146   1.223  1.00  1.48      TRYP
+ATOM     11  CE2 TRP     1       5.635   0.730  -1.658  1.00  0.77      TRYP
+ATOM     12  CE3 TRP     1       4.602   1.356  -2.682  1.00  1.16      TRYP
+ATOM     13  HE3 TRP     1       4.934   1.026  -2.522  1.00  2.19      TRYP
+ATOM     14  CZ2 TRP     1       4.807  -0.756  -2.640  1.00  1.50      TRYP
+ATOM     15  HZ2 TRP     1       5.191  -1.785  -1.352  1.00  2.33      TRYP
+ATOM     16  CZ3 TRP     1       4.763   0.196  -3.626  1.00  0.69      TRYP
+ATOM     17  HZ3 TRP     1       2.684   0.865  -4.912  1.00  1.94      TRYP
+ATOM     18  CH2 TRP     1       4.567  -1.405  -3.171  1.00  1.68      TRYP
+ATOM     19  HH2 TRP     1       2.862  -1.371  -2.504  1.00  4.21      TRYP
+ATOM     20  N   TRP     1       1.379   1.805  -2.076  1.00  2.04      TRYP
+ATOM     21  HT1 TRP     1       2.960   1.658  -1.881  1.00  2.91      TRYP
+ATOM     22  HT2 TRP     1       2.573   1.281  -1.640  1.00  1.69      TRYP
+ATOM     23  HT3 TRP     1       2.032   1.871  -2.189  1.00  3.20      TRYP
+ATOM     24  CA  TRP     1       1.397   1.055  -0.838  1.00  0.96      TRYP
+ATOM     25  C   TRP     1       1.845  -0.169   0.170  1.00  2.91      TRYP
+ATOM     26  O   TRP     1       0.803  -1.670   0.270  1.00  4.36      TRYP
+ATOM     27  OXT TRP     1       2.151   1.148   2.036  1.00  2.73      TRYP
+END
+ CNSsolve> 
+ CNSsolve>coor swap end 
+ COOR: selected coordinates swaped (main<->comp)
+ CNSsolve>coor copy end 
+ COOR: selected main coordinates copied to comp
+ CNSsolve> 
+ CNSsolve>{* =============================================================== *} 
+ CNSsolve>{*    test 7: test no metrization                                  *} 
+ CNSsolve>{* =============================================================== *} 
+ CNSsolve> 
+ CNSsolve>set seed=12345 end 
+ CNSsolve> 
+ CNSsolve>mmdg 
+ MMDG>        verbose off 
+ MMDG>	iacc=5. tacc=5. bacc=0.2 pacc=5. 
+ MMDG>	? 
+ ---------------------------------------------------------------------------
+ REFErence=PARAmeter
+ SHORtest-path-algorithm=AUTO
+ BACCuracy=0.2000 TACCuracy=5.0000 PACCuracy=5.0000 IACCuracy=5.0000
+ Number of rigid groups=    0
+ Bound smoothing being used for     27 atoms.
+ All atoms are embedded.
+ DG-energy term:
+     SCALe=1.0000 EXPOnent=   2
+     Number of selected atoms=     0
+ ---------------------------------------------------------------------------
+ MMDG>end 
+ MMDG: no atoms will be metrized.
+ DGSETNX: found    152 exclusions (1--2, 1--3) for repulsive lower bounds.
+ DGNOMET: number of connections:   286
+ DGNOMET: using full matrix bound smoothing algorithm.
+ CNSsolve> 
+ CNSsolve>set display=OUTPUT end 
+ CNSsolve>display $embedded 
+TRUE
+ CNSsolve>display $non_met_gap 
+3.59839
+ CNSsolve>display $dgscale 
+0.880237
+ CNSsolve> 
+ CNSsolve>do (x = x * $dgscale) (all) 
+ SELRPN:     27 atoms have been selected out of     27
+ CNSsolve>do (y = y * $dgscale) (all) 
+ SELRPN:     27 atoms have been selected out of     27
+ CNSsolve>do (z = z * $dgscale) (all) 
+ SELRPN:     27 atoms have been selected out of     27
+ CNSsolve> 
+ CNSsolve>energy end 
+ %atoms "TRYP-1   -TRP -HB1 " and "TRYP-1   -TRP -HD1 " only  1.37 A apart
+ %atoms "TRYP-1   -TRP -HB2 " and "TRYP-1   -TRP -HT2 " only  1.47 A apart
+ %atoms "TRYP-1   -TRP -HE3 " and "TRYP-1   -TRP -CZ2 " only  0.59 A apart
+ NBONDS: found      208 intra-atom interactions
+ NBONDS: found        3 nonbonded violations
+ --------------- cycle=    16 --------------------------------------------------
+ | Etotal =286.259    grad(E)=16.921     E(BOND)=52.963     E(ANGL)=19.488     |
+ | E(DIHE)=0.008      E(IMPR)=32.868     E(VDW )=34.770     E(ELEC)=0.000      |
+ | E(CDIH)=0.000      E(NOE )=146.162                                          |
+ -------------------------------------------------------------------------------
+ CNSsolve>evaluate ($chi_ener=$impr) 
+ EVALUATE: symbol $CHI_ENER set to    32.8683     (real)
+ CNSsolve>do (z=-z) ( all ) 
+ SELRPN:     27 atoms have been selected out of     27
+ CNSsolve>energy end 
+ %atoms "TRYP-1   -TRP -HB1 " and "TRYP-1   -TRP -HD1 " only  1.37 A apart
+ %atoms "TRYP-1   -TRP -HB2 " and "TRYP-1   -TRP -HT2 " only  1.47 A apart
+ %atoms "TRYP-1   -TRP -HE3 " and "TRYP-1   -TRP -CZ2 " only  0.59 A apart
+ NBONDS: found      208 intra-atom interactions
+ NBONDS: found        3 nonbonded violations
+ --------------- cycle=    17 --------------------------------------------------
+ | Etotal =286.475    grad(E)=16.921     E(BOND)=52.963     E(ANGL)=19.488     |
+ | E(DIHE)=0.008      E(IMPR)=33.084     E(VDW )=34.770     E(ELEC)=0.000      |
+ | E(CDIH)=0.000      E(NOE )=146.162                                          |
+ -------------------------------------------------------------------------------
+ CNSsolve>if ($impr > $chi_ener) then 
+ NEXTCD: condition evaluated as true
+ CNSsolve>   do (z=-z) ( all ) 
+ SELRPN:     27 atoms have been selected out of     27
+ CNSsolve>end if 
+ CNSsolve> 
+ CNSsolve>set message=off end   coor fit end    set message=on end 
+ R.m.s. diff. between fitted set and comp. set for selected atoms =    2.1755
+ CNSsolve>coor rms end 
+ COOR: ATTENTION: atom rms differences copied to RMSD array. 
+ COOR: rms=     2.175465, square sum=     127.7815, denominator=      27.0000
+ CNSsolve>do (b=rmsd ) ( all ) 
+ SELRPN:     27 atoms have been selected out of     27
+ CNSsolve>write coords end 
+REMARK FILENAME="OUTPUT"
+REMARK file toppar/protein-allhdg5-4.param
+REMARK   for file protein-allhdg-ucl.top  version UCL  date 14-MAR-00
+REMARK   for file protein-allhdg-dih-ucl.top  version UCL  date 07-JUL-01
+REMARK   Geometric energy function parameters for distance geometry and
+REMARK   simulated annealing.
+REMARK   Original author: Michael Nilges, EMBL Heidelberg
+REMARK   Modifications: Mark A. Williams, UCL London
+REMARK   Several modifications for HADDOCK: Alexandre Bonvin, Utrecht Uni
+REMARK   Last modification 8-19-2011
+REMARK DATE:05-Jul-2018  16:07:58       created by user: oeow39
+REMARK VERSION:1.3
+ATOM      1  HA  TRP     1       1.247   0.377  -1.205  1.00  2.30      TRYP
+ATOM      2  CB  TRP     1       2.507   1.736  -1.375  1.00  1.02      TRYP
+ATOM      3  HB1 TRP     1       2.596   0.303  -0.897  1.00  2.35      TRYP
+ATOM      4  HB2 TRP     1       2.443   1.198  -0.828  1.00  2.03      TRYP
+ATOM      5  CG  TRP     1       3.749   1.153  -0.493  1.00  0.20      TRYP
+ATOM      6  CD1 TRP     1       4.155   0.935  -1.176  1.00  1.58      TRYP
+ATOM      7  HD1 TRP     1       3.051  -0.590   0.034  1.00  2.68      TRYP
+ATOM      8  CD2 TRP     1       4.222   1.014  -2.197  1.00  0.46      TRYP
+ATOM      9  NE1 TRP     1       5.407   0.510  -0.156  1.00  0.51      TRYP
+ATOM     10  HE1 TRP     1       5.750   1.912  -0.363  1.00  2.36      TRYP
+ATOM     11  CE2 TRP     1       5.081  -0.234  -1.163  1.00  0.69      TRYP
+ATOM     12  CE3 TRP     1       4.608  -0.590  -1.415  1.00  2.35      TRYP
+ATOM     13  HE3 TRP     1       5.127  -0.596  -1.882  1.00  3.22      TRYP
+ATOM     14  CZ2 TRP     1       4.793  -0.427  -2.334  1.00  1.56      TRYP
+ATOM     15  HZ2 TRP     1       6.333   2.010  -2.384  1.00  3.33      TRYP
+ATOM     16  CZ3 TRP     1       5.124  -0.503  -3.381  1.00  1.11      TRYP
+ATOM     17  HZ3 TRP     1       3.244  -2.461  -4.884  1.00  2.73      TRYP
+ATOM     18  CH2 TRP     1       6.801  -1.172  -1.788  1.00  2.39      TRYP
+ATOM     19  HH2 TRP     1       5.031   2.298  -6.077  1.00  4.01      TRYP
+ATOM     20  N   TRP     1       0.548  -0.253  -1.350  1.00  0.75      TRYP
+ATOM     21  HT1 TRP     1       1.076  -0.996   0.953  1.00  1.83      TRYP
+ATOM     22  HT2 TRP     1       1.692   1.333  -2.080  1.00  1.02      TRYP
+ATOM     23  HT3 TRP     1      -0.159   1.044  -2.238  1.00  1.87      TRYP
+ATOM     24  CA  TRP     1       1.195   1.278  -1.194  1.00  1.30      TRYP
+ATOM     25  C   TRP     1       2.454   1.594   1.209  1.00  2.56      TRYP
+ATOM     26  O   TRP     1       1.130   5.246  -1.168  1.00  3.43      TRYP
+ATOM     27  OXT TRP     1       1.448   2.400   3.637  1.00  2.68      TRYP
+END
+ CNSsolve> 
+ CNSsolve>coor swap end 
+ COOR: selected coordinates swaped (main<->comp)
+ CNSsolve>coor copy end 
+ COOR: selected main coordinates copied to comp
+ CNSsolve> 
+ CNSsolve>{* =============================================================== *} 
+ CNSsolve>{*    test 8: test pseudoatom correction                           *} 
+ CNSsolve>{* =============================================================== *} 
+ CNSsolve> 
+ CNSsolve>do (refx=x) ( all ) 
+ SELRPN:     27 atoms have been selected out of     27
+ CNSsolve>do (refy=y) ( all ) 
+ SELRPN:     27 atoms have been selected out of     27
+ CNSsolve>do (refz=z) ( all ) 
+ SELRPN:     27 atoms have been selected out of     27
+ CNSsolve> 
+ CNSsolve>noe 
+ NOE>  reset 
+ NOE>  nres=100 
+ NOE: allocating space for     100 restraints.
+ NOE>  assign ( name hb* ) ( name ca )  4. 1. 2. 
+ SELRPN:      2 atoms have been selected out of     27
+ SELRPN:      1 atoms have been selected out of     27
+ NOE>  assign ( name ca  ) ( name hb* ) 7. 1. 2. 
+ SELRPN:      1 atoms have been selected out of     27
+ SELRPN:      2 atoms have been selected out of     27
+ NOE>  assign ( name hb* ) ( name ht* )  8. 1. 2. 
+ SELRPN:      2 atoms have been selected out of     27
+ SELRPN:      3 atoms have been selected out of     27
+ NOE>end 
+ CNSsolve> 
+ CNSsolve>flags exclude * include noe end 
+ CNSsolve> 
+ CNSsolve>mmdg 
+ MMDG>   verbose=on 
+ MMDG>   storebounds 
+ MMDG>end 
+ Pseudoatom correction applied to NOE #     1
+ Pseudoatom correction applied to atom pair 
+       "TRYP-1   -TRP -HB1 "       "TRYP-1   -TRP -CA  "
+ distance range before correction:     6.0000    3.0000
+ distance range after correction:     6.8663    2.1337
+ Pseudoatom correction applied to atom pair 
+       "TRYP-1   -TRP -HB2 "       "TRYP-1   -TRP -CA  "
+ distance range before correction:     6.0000    3.0000
+ distance range after correction:     6.8663    2.1337
+ Pseudoatom correction applied to NOE #     2
+ Pseudoatom correction applied to atom pair 
+       "TRYP-1   -TRP -CA  "       "TRYP-1   -TRP -HB1 "
+ distance range before correction:     9.0000    6.0000
+ distance range after correction:     9.8663    5.1337
+ Pseudoatom correction applied to atom pair 
+       "TRYP-1   -TRP -CA  "       "TRYP-1   -TRP -HB2 "
+ distance range before correction:     9.0000    6.0000
+ distance range after correction:     9.8663    5.1337
+ Pseudoatom correction applied to NOE #     3
+ Pseudoatom correction applied to atom pair 
+       "TRYP-1   -TRP -HB1 "       "TRYP-1   -TRP -HT1 "
+ distance range before correction:    10.0000    7.0000
+ distance range after correction:    11.8458    5.1542
+ Pseudoatom correction applied to atom pair 
+       "TRYP-1   -TRP -HB1 "       "TRYP-1   -TRP -HT2 "
+ distance range before correction:    10.0000    7.0000
+ distance range after correction:    11.8460    5.1540
+ Pseudoatom correction applied to atom pair 
+       "TRYP-1   -TRP -HB1 "       "TRYP-1   -TRP -HT3 "
+ distance range before correction:    10.0000    7.0000
+ distance range after correction:    11.8478    5.1522
+ Pseudoatom correction applied to atom pair 
+       "TRYP-1   -TRP -HB2 "       "TRYP-1   -TRP -HT1 "
+ distance range before correction:    10.0000    7.0000
+ distance range after correction:    11.8458    5.1542
+ Pseudoatom correction applied to atom pair 
+       "TRYP-1   -TRP -HB2 "       "TRYP-1   -TRP -HT2 "
+ distance range before correction:    10.0000    7.0000
+ distance range after correction:    11.8460    5.1540
+ Pseudoatom correction applied to atom pair 
+       "TRYP-1   -TRP -HB2 "       "TRYP-1   -TRP -HT3 "
+ distance range before correction:    10.0000    7.0000
+ distance range after correction:    11.8478    5.1522
+finished initialization
+ DGSMOOT: number of connections:    16
+ DGSMOOT: using sparse matrix bound smoothing algorithm.
+ DGSMOOT: max. size of network (upper, lower):     4    4
+ MMDG: storing smoothed bounds matrix in memory. 
+        No metrization or embedding performed. 
+ CNSsolve> 
+ CNSsolve>stop 
+          ============================================================
+           Maximum dynamic memory allocation:     8652872 bytes
+           Maximum dynamic memory overhead:          1152 bytes
+           Program started at: 16:07:58 on 05-Jul-2018
+           Program stopped at: 16:07:58 on 05-Jul-2018
+           CPU time used:       0.1549 seconds
+          ============================================================

@@ -1,0 +1,117 @@
+! Module file: definemonitor
+!
+! CNS module
+! **********
+!
+! Authors: Axel Brunger and Paul Adams
+!
+! copyright Yale University
+!
+! Function:
+!    Defines the monitor expression
+!
+! Requirements:
+!    Needs to be called within xray
+
+module {definemonitor}
+(
+  &monitor="residual";    {string}
+  &fobs=fobs;             {reciprocal space array}
+  &fcalc=fcalc;           {reciprocal space array}
+  &fpart=fpart;           {reciprocal space array}
+  &phase=phase;           {reciprocal space array}
+  &monitortype;           {string}
+)
+
+set message ? end
+evaluate ($message_old=$result)
+set echo ? end
+evaluate ($echo_old=$result)
+if ( $log_level = verbose ) then
+  set echo=on message=normal end
+else
+  set echo=off message=off end
+end if
+
+checkversion 1.3
+
+{- Residual -}
+if ( &monitor = "residual" ) then
+
+  monitor=(rvalue[overall](amplitude(&fobs),amplitude((&fcalc+&fpart))))
+  evaluate (&monitortype="R-value")
+
+{- Vector residual -}
+elseif ( &monitor = "vector" ) then
+
+  monitor=(sum[overall]
+          (abs(combine(amplitude(&fobs),phase(&phase)) - 
+          sum[overall](amplitude(&fobs)*amplitude(&fcalc+&fpart))
+         /sum[overall](amplitude(&fcalc+&fpart)^2) (&fcalc+&fpart))
+         /sum[overall](abs(combine(amplitude(&fobs),phase(&phase))))) )
+  evaluate (&monitortype="vector R-value")
+
+{- Mixed vector residual -}
+elseif ( &monitor = "mixed" ) then
+
+  monitor=(sum[overall]
+          (abs(combine(amplitude(&fobs),phase(&phase)) - 
+          sum[overall](amplitude(&fobs)*amplitude(&fcalc+&fpart))
+         /sum[overall](amplitude(&fcalc+&fpart)^2) (&fcalc+&fpart))
+         /sum[overall](abs(combine(amplitude(&fobs),phase(&phase))))) )
+  evaluate (&monitortype="vector R-value")
+
+{- F correlation -}
+elseif ( &monitor = "f1f1" ) then
+
+  monitor=(corr[overall](amplitude(&fobs),amplitude(&fcalc+&fpart)))
+  evaluate (&monitortype="F1F1 correlation")
+
+{- F^2 correlation -}
+elseif ( &monitor = "f2f2" ) then
+
+  monitor=(corr[overall](amplitude(&fobs)^2,amplitude(&fcalc+&fpart)^2))
+  evaluate (&monitortype="F2F2 correlation")
+
+{- E correlation -}
+elseif ( &monitor = "e1e1" ) then
+
+  monitor=(corr[overall](norm(amplitude(&fobs)),
+                         norm(amplitude(&fcalc+&fpart))))
+  evaluate (&monitortype="E1E1 correlation")
+
+{- E^2 correlation -}
+elseif ( &monitor = "e2e2" ) then
+
+  monitor=(corr[overall](norm(amplitude(&fobs))^2,
+                         norm(amplitude(&fcalc+&fpart))^2 ))
+  evaluate (&monitortype="E2E2 correlation")
+
+{- Maximum likelihood - MLF -}
+elseif ( &monitor = "mlf" ) then
+
+  monitor=(rvalue[overall](amplitude(&fobs),amplitude((&fcalc+&fpart))))
+  evaluate (&monitortype="R-value")
+
+{- Maximum likelihood - MLI -}
+elseif ( &monitor = "mli" ) then
+
+  monitor=(rvalue[overall](amplitude(&fobs),amplitude((&fcalc+&fpart))))
+  evaluate (&monitortype="R-value")
+
+{- Maximum likelihood - MLHL -}
+elseif ( &monitor = "mlhl" ) then
+
+  monitor=(rvalue[overall](amplitude(&fobs),amplitude((&fcalc+&fpart))))
+  evaluate (&monitortype="R-value")
+
+else
+  
+  display Monitor-error: unknown monitor definition, defaulting to residual
+
+  monitor=(rvalue[overall](amplitude(&fobs),amplitude((&fcalc+&fpart))))
+  evaluate (&monitortype="R-value")
+
+end if
+
+set message=$message_old echo=$echo_old end

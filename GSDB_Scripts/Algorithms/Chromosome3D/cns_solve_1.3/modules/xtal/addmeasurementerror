@@ -1,0 +1,124 @@
+! Module file: addmeasurementerror
+!
+! CNS module
+! **********
+!
+! Authors: Piet Gros and Axel T. Brunger
+!
+! copyright Yale University
+!
+! Function:
+! Add measurement errors to variance 
+!
+! Requirements:
+! 1. This module can only be used from within xray.
+! 2. For anomalous differences ANOMalous must be TRUE and, thus, the
+!    arrays of domain=reciprocal (like structure factors) contain both
+!    the (+) and the (-) elements.
+! 
+
+module {addmeasurementerror}
+(
+   &anomalous="no";{"yes" | "no", anomalous data}
+   &epsilon="yes"; {"yes" | "no", use epsilon weighting in summing variances}
+   &messages="normal";  {set verbosity "normal" | "all" | "off"}
+
+   &sel=(all);  {structure factor selection}
+
+   &var;        {variance array}
+   &sp=null;    {measurement error of native data}
+   &sph=null;   {measurement error of derivative data}
+)
+
+checkversion 1.3
+
+declare domain=reci type=real name=selected end  {selected reflections}
+
+if (&anomalous = "yes") then  {*set flags for Bijvoet pairs*}
+   do (selected=0) ( all )
+   do (selected=1) ( friedel_pair(&sel) and acentric )
+elseif (&anomalous = "no") then
+   do (selected=0) (all)
+   do (selected=1) (&sel)
+else
+   display ADDMEASUREMENTERROR-ERR: anomalous flag &anomalous not defined
+end if
+
+		{*sum up variances*}
+
+if (&epsilon = "yes") then		{add variances using epsilon}
+
+   if (&anomalous = "no") then
+!
+! use epsilon' for non-anomalous data    
+! (R. Read, Dealing with imperfect isomorphism in multiple isomorphous replacement
+! In: Isomorphous replacement, proceedings of the CCP4 study weekend, 25-26 January, 1991.
+! Science & Engineering Research Council, Daresbury Laboratory, 1991).
+!  
+      anomalous ?
+      if ($result=FALSE) then
+         do (&var=&sp^2+&sph^2+epsilon *&var) (selected=1 and acentric)  
+         do (&var=&sp^2+&sph^2+epsilon *&var) (selected=1 and centric)  
+      else
+!
+         do (&var=&sp^2+&sph^2+epsilon*&var) (selected=1)  
+      end if
+
+      if (&messages = "all") then
+         display ADDMEASUREMENTERROR: total standard deviation
+         display ADDMEASUREMENTERROR: expr= sqrt( eps' &var + &sp^2 + &sph^2)
+         show min (sqrt(&var)) (selected=1)
+         show max (sqrt(&var)) (selected=1)
+         show ave (sqrt(&var)) (selected=1)
+      end if
+
+   elseif (&anomalous ="yes") then
+!
+! use epsilon' for this term (Fave, delta F formulation)
+      do (&var=&sp^2+friedel(&sp)^2+&sph^2+friedel(&sph)^2
+               +(epsilon/2)*&var) (selected=1) 
+
+      if (&messages = "all") then
+         display ADDMEASUREMENTERROR: total standard deviation
+         display ADDMEASUREMENTERROR: expr= sqrt( eps' &var + 2 &sp^2 + 2 &sph^2)
+         show min (sqrt(&var)) (selected=1)
+         show max (sqrt(&var)) (selected=1)
+         show ave (sqrt(&var)) (selected=1)
+      end if
+
+   end if
+
+
+elseif (&epsilon = "no") then  {add variances without epsilon}
+
+   if (&anomalous = "no") then
+
+      do (&var=&sp^2+&sph^2+&var) (selected=1)  
+
+      if (&messages = "all") then
+         display ADDMEASUREMENTERROR: total standard deviation
+         display ADDMEASUREMENTERROR: expr= sqrt( &var + &sp^2 + &sph^2)
+         show min (sqrt(&var)) (selected=1)
+         show max (sqrt(&var)) (selected=1)
+         show ave (sqrt(&var)) (selected=1)
+      end if
+
+   elseif (&anomalous ="yes") then
+
+      do (&var=&sp^2+friedel(&sp)^2+&sph^2+friedel(&sph)^2+&var) (selected=1) 
+
+      if (&messages = "all") then
+         display ADDMEASUREMENTERROR: total standard deviation
+         display ADDMEASUREMENTERROR: expr= sqrt( &var + 2 &sp^2 + 2 &sph^2)
+         show min (sqrt(&var)) (selected=1)
+         show max (sqrt(&var)) (selected=1)
+         show ave (sqrt(&var)) (selected=1)
+      end if
+
+   end if
+
+else
+   display ADDMEASUREMENTERROR-ERR: epsilon &epsilon not recognized
+end if
+
+undeclare domain=reci name=selected end  {selected reflections}

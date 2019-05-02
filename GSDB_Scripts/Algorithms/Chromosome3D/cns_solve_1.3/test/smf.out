@@ -1,0 +1,4840 @@
+          ============================================================
+          |                                                          |
+          |            Crystallography & NMR System (CNS)            |
+          |                         CNSsolve                         |
+          |                                                          |
+          ============================================================
+           Version: 1.3
+           Status: General release
+          ============================================================
+           Written by: A.T.Brunger, P.D.Adams, G.M.Clore, W.L.DeLano,
+                       P.Gros, R.W.Grosse-Kunstleve,J.-S.Jiang,J.M.Krahn,
+                       J.Kuszewski, M.Nilges, N.S.Pannu, R.J.Read,
+                       L.M.Rice, G.F.Schroeder, T.Simonson, G.L.Warren.
+           Copyright (c) 1997-2010 Yale University
+          ============================================================
+           Running on machine: lewis4-r710-login-node223 (x86_64/Linux,64-bit)
+                               with 16 threads
+           Program started by: oeow39
+           Program started at: 16:08:07 on 05-Jul-2018
+          ============================================================
+
+ FFT3C: Using FFTPACK4.1
+
+ CNSsolve>remarks  SMF.INP 
+ CNSsolve>remarks  tests smf command in XRAY 
+ CNSsolve>remarks  By R.W.Grosse-Kunstleve 
+ CNSsolve> 
+ CNSsolve>{* Generate a two-atom dummy structure 
+ CNSsolve> *} 
+ CNSsolve>topology 
+ RTFRDR>  residue SI 
+ RESIDUE>    atom SI mass=14 charge=0 {chemical}type="SI+4" end 
+ RESIDUE>  end 
+ RTFRDR>  residue O 
+ RESIDUE>    atom O  mass=8  charge=0 {chemical}type="O-1"  end 
+ RESIDUE>  end 
+ RTFRDR>end 
+ CNSsolve> 
+ CNSsolve>segment 
+ SEGMENT>  name = QZ 
+ SEGMENT>  molecule {res}name=SI number=1 end 
+ SEGMENT>  molecule {res}name=O  number=1 end 
+ SEGMENT>end 
+ Status of internal molecular topology database:
+ -> NATOM=          2(MAXA=     1000000)  NBOND=          0(MAXB=     1000000)
+ -> NTHETA=         0(MAXT=     2000000)  NGRP=           2(MAXGRP=   1000000)
+ -> NPHI=           0(MAXP=     2000000)  NIMPHI=         0(MAXIMP=   1000000)
+ -> NNB=            0(MAXNB=    1000000) 
+ CNSsolve> 
+ CNSsolve>do (name="SI1") (resid=1) 
+ SELRPN:      1 atoms have been selected out of      2
+ CNSsolve>do (name="O1")  (resid=2) 
+ SELRPN:      1 atoms have been selected out of      2
+ CNSsolve> 
+ CNSsolve>{* loop over some space groups 
+ CNSsolve> *} 
+ CNSsolve>for $sg in ("P1" "C2/c" "Fddd" "I-4c2" "P3(1)21" "P6(3)/mcm" "P2(1)3") loop sg 
+ FOR LOOP: symbol SG set to "P1" (string)
+ CNSsolve>  do (x=0.499   ) (name=SI1) 
+ SELRPN:      1 atoms have been selected out of      2
+ CNSsolve>  do (y=0.000   ) (name=SI1) 
+ SELRPN:      1 atoms have been selected out of      2
+ CNSsolve>  do (z=0.333333) (name=SI1) 
+ SELRPN:      1 atoms have been selected out of      2
+ CNSsolve>  do (q=1.0     ) (name=SI1) 
+ SELRPN:      1 atoms have been selected out of      2
+ CNSsolve>  do (b=2.0     ) (name=SI1) 
+ SELRPN:      1 atoms have been selected out of      2
+ CNSsolve> 
+ CNSsolve>  do (x=0.427   ) (name=O1) 
+ SELRPN:      1 atoms have been selected out of      2
+ CNSsolve>  do (y=0.187   ) (name=O1) 
+ SELRPN:      1 atoms have been selected out of      2
+ CNSsolve>  do (z=0.128   ) (name=O1) 
+ SELRPN:      1 atoms have been selected out of      2
+ CNSsolve>  do (q=1.0     ) (name=O1) 
+ SELRPN:      1 atoms have been selected out of      2
+ CNSsolve>  do (b=4.0     ) (name=O1) 
+ SELRPN:      1 atoms have been selected out of      2
+ CNSsolve> 
+ CNSsolve>  {* reset all xray settings 
+ CNSsolve>   *} 
+ CNSsolve>  xray 
+ XRAY>    reset 
+ XRAY: whole xray database erased and reset
+ XRAY>  end 
+ CNSsolve> 
+ CNSsolve>  {* define some general xray settings 
+ CNSsolve>   *} 
+ CNSsolve>  xray 
+ XRAY>    bins=1 
+ XRAY>    method=direct 
+ XRAY> 
+ XRAY>    evaluate ($lr=10000.) 
+ EVALUATE: symbol $LR set to    10000.0     (real)
+ XRAY>    evaluate ($hr=1) 
+ EVALUATE: symbol $HR set to    1.00000     (real)
+ XRAY>    binresolution $lr $hr 
+ XRAY>    mapresolution $hr 
+ XRAY>    tselection=( $hr <= d <= $lr ) 
+ XRAY>  end 
+ CNSsolve> 
+ CNSsolve>  {* define scattering factors and symmetry 
+ CNSsolve>   *} 
+ CNSsolve>  xray 
+ XRAY>    @@CNS_XRAYLIB:scatter.lib 
+ ASSFIL: file scatter.lib opened.
+ XRAY>! file libraries/xray/scatter.lib 
+ XRAY>! Atomic scattering factors without anomalous contribution 
+ XRAY>! Library for CNS 
+ XRAY> 
+ XRAY>! Authors: Paul Adams, Joe Jaeger, and Axel T. Brunger 
+ XRAY> 
+ XRAY>!BEWARE: 
+ XRAY>!(1) element Cf (Californium) has to be referred to as Cff 
+ XRAY>!(2) element Sm (Samarium) has to be referred to as Smm 
+ XRAY>!(3) element Np (Neptunium) has to be referred to as Npp 
+ XRAY>!(3) types of elements with ionic state (i.e., +/-) specifications have 
+ XRAY>!    to be put in double quotes in selection statements. 
+ XRAY> 
+ XRAY>set message ? end 
+ MESSage=NORM
+ XRAY>evaluate ($message_old_sclib=$result) 
+ EVALUATE: symbol $MESSAGE_OLD_SCLIB set to "NORM" (string)
+ XRAY>set echo ? end 
+ ECHO=TRUE {ON}
+ XRAY>evaluate ($echo_old_sclib=$result) 
+ EVALUATE: symbol $ECHO_OLD_SCLIB set to TRUE (logical)
+ XRAY>set echo=off message=off end 
+ XRAY>    @@CNS_XTALLIB:spacegroup.lib (sg=$sg; sgparam = $sgparam) 
+ ASSFIL: file spacegroup.lib opened.
+ XRAY>! file  libraries/xtal/spacegroup.lib 
+ XRAY>! library of symmetry operators for CNS 
+ XRAY>! Automatically generated with SgInfo Version 2.00a13 
+ XRAY> 
+ XRAY>module 
+ MODULE-DECLARATION>( 
+ MODULE-DECLARATION>  &sg=$sg; 
+ MODULE-DECLARATION>  &sgparam=$sgparam; 
+ MODULE-DECLARATION>) 
+ &_2_SG set to $_1_SG 
+ &_2_SGPARAM set to $_1_SGPARAM 
+ XRAY> 
+ XRAY>set message ? end 
+ MESSage=NORM
+ XRAY>evaluate ($message_old=$result) 
+ EVALUATE: symbol $MESSAGE_OLD set to "NORM" (string)
+ XRAY>set echo ? end 
+ ECHO=TRUE {ON}
+ XRAY>evaluate ($echo_old=$result) 
+ EVALUATE: symbol $ECHO_OLD set to TRUE (logical)
+ XRAY>set echo=off message=off end 
+SYMMETRY: found symmetry operators for space group P1 in library
+ XRAY> 
+ XRAY>  end 
+ CNSsolve> 
+ CNSsolve>  {* define dummy unit cell dimensions based on space group number 
+ CNSsolve>   *} 
+ CNSsolve>  if     ($sgparam.sg_number <=   2) then 
+ NEXTCD: condition evaluated as true
+ CNSsolve>    evaluate ($a = 5.01) 
+ EVALUATE: symbol $A set to    5.01000     (real)
+ CNSsolve>    evaluate ($b = 6.25) 
+ EVALUATE: symbol $B set to    6.25000     (real)
+ CNSsolve>    evaluate ($c = 5.47) 
+ EVALUATE: symbol $C set to    5.47000     (real)
+ CNSsolve>    evaluate ($alpha = 100) 
+ EVALUATE: symbol $ALPHA set to    100.000     (real)
+ CNSsolve>    evaluate ($beta  =  80) 
+ EVALUATE: symbol $BETA set to    80.0000     (real)
+ CNSsolve>    evaluate ($gamma = 110) 
+ EVALUATE: symbol $GAMMA set to    110.000     (real)
+ CNSsolve>  elseif ($sgparam.sg_number <=  15) then 
+ CNSsolve>    evaluate ($a = 5.01) 
+ CNSsolve>    evaluate ($b = 6.25) 
+ CNSsolve>    evaluate ($c = 5.47) 
+ CNSsolve>    evaluate ($alpha =  90) 
+ CNSsolve>    evaluate ($beta  =  80) 
+ CNSsolve>    evaluate ($gamma =  90) 
+ CNSsolve>  elseif ($sgparam.sg_number <=  74) then 
+ CNSsolve>    evaluate ($a = 5.01) 
+ CNSsolve>    evaluate ($b = 6.25) 
+ CNSsolve>    evaluate ($c = 5.47) 
+ CNSsolve>    evaluate ($alpha =  90) 
+ CNSsolve>    evaluate ($beta  =  90) 
+ CNSsolve>    evaluate ($gamma =  90) 
+ CNSsolve>  elseif ($sgparam.sg_number <= 142) then 
+ CNSsolve>    evaluate ($a = 5.01) 
+ CNSsolve>    evaluate ($b = $a) 
+ CNSsolve>    evaluate ($c = 5.47) 
+ CNSsolve>    evaluate ($alpha =  90) 
+ CNSsolve>    evaluate ($beta  =  90) 
+ CNSsolve>    evaluate ($gamma =  90) 
+ CNSsolve>  elseif ($sgparam.sg_number <= 194) then 
+ CNSsolve>    evaluate ($a = 5.01) 
+ CNSsolve>    evaluate ($b = $a) 
+ CNSsolve>    evaluate ($c = 5.47) 
+ CNSsolve>    evaluate ($alpha =  90) 
+ CNSsolve>    evaluate ($beta  =  90) 
+ CNSsolve>    evaluate ($gamma = 120) 
+ CNSsolve>  else 
+ CNSsolve>    evaluate ($a = 5.01) 
+ CNSsolve>    evaluate ($b = $a) 
+ CNSsolve>    evaluate ($c = $a) 
+ CNSsolve>    evaluate ($alpha =  90) 
+ CNSsolve>    evaluate ($beta  =  90) 
+ CNSsolve>    evaluate ($gamma =  90) 
+ CNSsolve>  end if 
+ CNSsolve> 
+ CNSsolve>  xray 
+ XRAY>    a=$a b=$b c=$c alpha=$alpha beta=$beta gamma=$gamma 
+ XRAY>  end 
+ CNSsolve> 
+ CNSsolve>  coordinates orthogonalize end 
+ ORTHO: transformation matrix =
+     5.010000    -2.137626     0.949856
+     0.000000     5.873079    -0.665096
+     0.000000     0.000000     5.345683
+ CNSsolve> 
+ CNSsolve>  xray 
+ XRAY>    {* set space-group dependent restrictions for map-grid dimensions 
+ XRAY>     *} 
+ XRAY>    fft 
+ XFFT>      grid=0.4 
+ XFFT>      xgridfactor=$sgparam.SymGrid_x 
+ XFFT>      ygridfactor=$sgparam.SymGrid_y 
+ XFFT>      zgridfactor=$sgparam.SymGrid_z 
+ XFFT>    end 
+ XRAY> 
+ XRAY>    {* generate reflections 
+ XRAY>     *} 
+ XRAY>    anomalous = false 
+ XRAY>    generate 100000. 1.0 
+ XGENER: generating reflections to produce a full set
+         for the specified resolution range.
+ XGENE2:      330 new reflections have been generated.
+ XRAY> 
+ XRAY>    {* compute dummy "fobs" 
+ XRAY>     *} 
+ XRAY>    declare name=fobs domain=reciprocal type=complex end 
+ XDECLARE: Object FOBS has been declared.
+ XRAY>    predict 
+ PREDict>      mode=reciprocal 
+ PREDict>      to=fobs 
+ PREDict>      selection=(all) 
+ Total of       330 structure factor elements were selected.
+ PREDict>      atomselection=(all) 
+ SELRPN:      2 atoms have been selected out of      2
+ PREDict>    end 
+ FOBS: #scatt.=      2 #anomalous=   0 #special pos.=  0 occupancies=1
+ XSFAL: allocating space for complex reciprocal space object.
+ XRAY> 
+ XRAY>    {* expand to P1 
+ XRAY>     *} 
+ XRAY>    expand 
+ XEXPA2:        0 new reflections have been generated.
+ XRAY: data expanded and symmetry reset to P1.
+ XRAY>  end 
+ CNSsolve> 
+ CNSsolve>  xray 
+ XRAY>    {* declare maps 
+ XRAY>     *} 
+ XRAY>    declare name=patmap  domain=real end 
+ XRAY>    declare name=smfmap1 domain=real end 
+ XRAY>    declare name=smfmap2 domain=real end 
+ XRAY>  end 
+ CNSsolve> 
+ CNSsolve>  xray 
+ XRAY>    do (patmap=FT(combine(amplitude(fobs)^2, 0))) (all) 
+ XSFAL: allocating space for complex reciprocal space object.
+ Total of       330 structure factor elements were selected.
+ XMAPASU: using grid [  12,  15,  16] and sublattice [  12,  15,  16]
+ Maps will be stored in P1:
+   A=     0,...,    11  B=     0,...,    14  C=     0,...,    15
+ XMAPAL: allocating space for real space object.
+ XRAY>    show min (real(patmap)) (all) 
+ Minimum of      2880 elements =                -4.1031
+ XRAY>    show max (real(patmap)) (all) 
+ Maximum of      2880 elements =               171.9257
+ XRAY>  end 
+ CNSsolve> 
+ CNSsolve>  xray 
+ XRAY>    {* define symmetry for flagmap 
+ XRAY>     *} 
+ XRAY>    fmap 
+ XMAPASU: using grid [  12,  15,  16] and sublattice [  12,  15,  16]
+ Minimum brick that covers asymmetric unit:
+   A=     0,...,    12  B=     0,...,    15  C=     0,...,    16
+ FMAP>      @@CNS_XTALLIB:spacegroup.lib (sg=$sg; sgparam = $sgparam) 
+ ASSFIL: file spacegroup.lib opened.
+ FMAP>! file  libraries/xtal/spacegroup.lib 
+ FMAP>! library of symmetry operators for CNS 
+ FMAP>! Automatically generated with SgInfo Version 2.00a13 
+ FMAP> 
+ FMAP>module 
+ MODULE-DECLARATION>( 
+ MODULE-DECLARATION>  &sg=$sg; 
+ MODULE-DECLARATION>  &sgparam=$sgparam; 
+ MODULE-DECLARATION>) 
+ &_2_SG set to $_1_SG 
+ &_2_SGPARAM set to $_1_SGPARAM 
+ FMAP> 
+ FMAP>set message ? end 
+ MESSage=NORM
+ FMAP>evaluate ($message_old=$result) 
+ EVALUATE: symbol $MESSAGE_OLD set to "NORM" (string)
+ FMAP>set echo ? end 
+ ECHO=TRUE {ON}
+ FMAP>evaluate ($echo_old=$result) 
+ EVALUATE: symbol $ECHO_OLD set to TRUE (logical)
+ FMAP>set echo=off message=off end 
+SYMMETRY: found symmetry operators for space group P1 in library
+ FMAP> 
+ FMAP>      if ($sgparam.ssVM_1 # "VOID") then ssVM = $sgparam.ssVM_1 end if 
+ NEXTCD: condition evaluated as true
+ FMAP>      if ($sgparam.ssVM_2 # "VOID") then ssVM = $sgparam.ssVM_2 end if 
+ NEXTCD: condition evaluated as true
+ FMAP>      if ($sgparam.ssVM_3 # "VOID") then ssVM = $sgparam.ssVM_3 end if 
+ NEXTCD: condition evaluated as true
+ FMAP>      if ($sgparam.GenK2L # "VOID") then Addl = $sgparam.GenK2L end if 
+ NEXTCD: condition evaluated as true
+ FMAP>      ? 
+ --------------FMAP-parameters--------------------------------------------------
+ Number of symmetry operations =   1
+ Number of s.s.Vectors & Moduli =   3
+   s.s.Vector  Modulus
+     1  0  0   0
+     0  1  0   0
+     0  0  1   0
+ Number of ADDLgenerators =   1
+ USESym=FALSE
+ USE_ss=FALSE
+ USEAddl=FALSE
+ -------------------------------------------------------------------------------
+ FMAP>      Symmetry ? 
+ --------------FMAP-symmetry----------------------------------------------------
+ | SYMMetry=(X,Y,Z)
+ -------------------------------------------------------------------------------
+ FMAP>      AddlGenerators ? 
+ --------------FMAP-ADDLgenerators----------------------------------------------
+ | SYMMetry=(-X,-Y,-Z)
+ -------------------------------------------------------------------------------
+ FMAP>    end 
+ XRAY>  end 
+ CNSsolve> 
+ CNSsolve>  set message=all end 
+ CNSsolve> 
+ CNSsolve>  xray 
+ XRAY>    {* Build flagmap 
+ XRAY>     *} 
+ XRAY>    fmap 
+ XMAPASU: using grid [  12,  15,  16] and sublattice [  12,  15,  16]
+ Minimum brick that covers asymmetric unit:
+   A=     0,...,    12  B=     0,...,    15  C=     0,...,    16
+ Number of deleted points in ASU=           0
+ Number of non-zero lattice points in ASU=        2880
+ Number of special positions in ASU=           0
+ FMAP>      UseSym = true 
+ FMAP>      Use_ss  = true 
+ FMAP>      UseAddl = true 
+ FMAP>      Action=Build 
+ FMAP>    end 
+ FMAP: Building FlagMap
+ FMAP: Removing grid points related by symmetry operations
+ FMAP:       Total number of grid points =      2880
+ FMAP: Remaining independent grid points =      2880
+ FMAP: Removing grid points related by allowed origin shifts
+ FMAP: s.s.Vector  Grid-Adjusted-Modulus
+ FMAP:   1  0  0  12
+ FMAP:   0  1  0  15
+ FMAP:   0  0  1  16
+ FMAP:       Total number of grid points =      2880
+ FMAP: Remaining independent grid points =         1
+ FMAP: Removing grid points related by operations due to ADDLgenerators
+ FMAP:       Total number of grid points =      2880
+ FMAP: Remaining independent grid points =         1
+ FMAP: Independent grid points =         1
+ XRAY> 
+ XRAY>    {* Get Harker operators from library 
+ XRAY>     *} 
+ XRAY>    @@CNS_XTALLIB:harker_ops.lib (sg=$sg; harker=$harker) 
+ ASSFIL: file harker_ops.lib opened.
+ XRAY>! file  libraries/xtal/harker.lib 
+ XRAY>! library of Harker operators for CNS 
+ XRAY>! Automatically generated with SgInfo Version 2.00a12 
+ XRAY> 
+ XRAY>module 
+ MODULE-DECLARATION>( 
+ MODULE-DECLARATION>  &sg=$sg; 
+ &_2_SG set to $_2_SG 
+ MODULE-DECLARATION>  &harker=$harker; 
+ &_2_HARKER set to $_2_HARKER 
+ MODULE-DECLARATION>) 
+ &_2_SG set to $_1_SG 
+ &_2_HARKER set to $_1_HARKER 
+ XRAY> 
+ XRAY>set message ? end 
+ MESSage=ALL 
+ XRAY>evaluate ($message_old=$result) 
+ EVALUATE: symbol $MESSAGE_OLD set to "ALL " (string)
+ XRAY>set echo ? end 
+ ECHO=TRUE {ON}
+ XRAY>evaluate ($echo_old=$result) 
+ EVALUATE: symbol $ECHO_OLD set to TRUE (logical)
+ XRAY>set echo=off message=off end 
+HARKER: found Harker operators for space group P1 in library
+ XRAY> 
+ XRAY> 
+ XRAY>    {* Compute smfmap1, all grid points, use FlagMap only for check 
+ XRAY>     *} 
+ XRAY>    smf 
+ SMF>      patmap=patmap 
+ SMF>      smfmap=smfmap1 
+ SMF>      eval($i = 0) 
+ EVALUATE: symbol $I set to    0.00000     (real)
+ SMF>      while ($i < $harker.nOps) loop HarkerOps 
+ NEXTCD: condition evaluated as false
+ SMF>        eval($i = $i + 1) 
+ SMF>        HarkerOperator=$harker.Op_$i 
+ SMF>      end loop HarkerOps 
+ SMF>      ChkInDep=true 
+ SMF>      {* test the debug option *} 
+ SMF>      ? 
+ --------------smf-parameters---------------------------------------------------
+ PATMap=PATMAP
+ SMFMap=SMFMAP1
+ SGORderP= 1
+ Number of unique Harker operators =  0
+ UnitWeights=false
+ -------------------------------------------------------------------------------
+ SMF>    end 
+ XMAPAL: allocating space for real space object.
+ SMF: Correlation of dependent and independent grid points =  1.00000
+ SMF: PATmap min =     -4.10314    
+ SMF: PATmap max =      171.926    
+ SMF: PATmap ave =    -0.494086E-08
+ SMF: PATmap sigma =    9.28284    
+ SMF: SMFmap min =      171.926    
+ SMF: SMFmap max =      171.926    
+ SMF: SMFmap ave =      171.926    
+ SMF: SMFmap sigma =    0.00000    
+ XRAY> 
+ XRAY>    {* Compute smfmap2, only at grid points indicated by FlagMap 
+ XRAY>     *} 
+ XRAY>    smf 
+ SMF>      patmap=patmap 
+ SMF>      smfmap=smfmap2 
+ SMF>      eval($i = 0) 
+ EVALUATE: symbol $I set to    0.00000     (real)
+ SMF>      while ($i < $harker.nOps) loop HarkerOps 
+ NEXTCD: condition evaluated as false
+ SMF>        eval($i = $i + 1) 
+ SMF>        HarkerOperator=$harker.Op_$i 
+ SMF>      end loop HarkerOps 
+ SMF>      ? 
+ --------------smf-parameters---------------------------------------------------
+ PATMap=PATMAP
+ SMFMap=SMFMAP2
+ SGORderP= 1
+ Number of unique Harker operators =  0
+ UnitWeights=false
+ -------------------------------------------------------------------------------
+ SMF>    end 
+ XMAPAL: allocating space for real space object.
+ SMF: PATmap min =     -4.10314    
+ SMF: PATmap max =      171.926    
+ SMF: PATmap ave =    -0.494086E-08
+ SMF: PATmap sigma =    9.28284    
+ SMF: SMFmap min =      171.926    
+ SMF: SMFmap max =      171.926    
+ SMF: SMFmap ave =      171.926    
+ SMF: SMFmap sigma =    0.00000    
+ XRAY> 
+ XRAY>    {* make sure smfmap1 and smfmap2 are exactly equal 
+ XRAY>     *} 
+ XRAY>    show max (abs(smfmap1-smfmap2)) (all) 
+ Maximum of      2880 elements =                 0.0000
+ XRAY>    if ($result # 0) then 
+ NEXTCD: condition evaluated as false
+ XRAY>      abort 
+ XRAY>    end if 
+ XRAY> 
+ XRAY>    {* list the 10 non-redundant highest peaks 
+ XRAY>     *} 
+ XRAY>    psearch 
+ PSEARCH>      From=smfmap1 
+ PSEARCH>      level = 0 
+ PSEARCH>      nList = 10 
+ PSEARCH>      Fractional = true 
+ PSEARCH>      Site=0.49900 0.00000 0.33330 
+ PSEARCH>      Site=0.42700 0.18700 0.12800 
+ PSEARCH>      Site=0.22830 0.44290 0.40670 
+ PSEARCH>      Site=0.07540 0.30950 0.15860 
+ PSEARCH>      Fractional = false 
+ PSEARCH>      ? 
+ -----------psearch-parameters--------------------------------------------------
+ FROM=SMFMAP1
+ LEVEl=  0
+ NLISt=    10
+ FRACtional=FALSE
+ Symbol=<undefined>
+ PSTOre=     0
+ SITE     2.82    -0.22     1.78
+ SITE     1.86     1.01     0.68
+ SITE     0.58     2.33     2.17
+ SITE    -0.13     1.71     0.85
+ -------------------------------------------------------------------------------
+ PSEARCH>      Fractional = true 
+ PSEARCH>      ? 
+ -----------psearch-parameters--------------------------------------------------
+ FROM=SMFMAP1
+ LEVEl=  0
+ NLISt=    10
+ FRACtional=TRUE
+ Symbol=<undefined>
+ PSTOre=     0
+ SITE  0.49900  0.00000  0.33330
+ SITE  0.42700  0.18700  0.12800
+ SITE  0.22830  0.44290  0.40670
+ SITE  0.07540  0.30950  0.15860
+ -------------------------------------------------------------------------------
+ PSEARCH>    end 
+ PSEARCH: DensCutOff =    171.926    
+ PSEARCH: Number of peaks in overstore buffer =        1
+ PSEARCH: Number of peaks listed              =        1
+ PSEARCH:                                   (  Fractional Coordinates  )
+ PSEARCH:     1 Dens =    171.926     Pos = ( 0.00000, 0.00000, 0.00000)
+ PSEARCH:    -3 Dens =    171.926     Pos = ( 0.22830, 0.44290, 0.40670)   0.221114        171.926    
+ PSEARCH:    -4 Dens =    171.926     Pos = ( 0.07540, 0.30950, 0.15860)   0.196756        171.926    
+ PSEARCH:    -2 Dens =    171.926     Pos = ( 0.42700, 0.18700, 0.12800)   0.114832        171.926    
+ PSEARCH:    -1 Dens =    171.926     Pos = ( 0.49900, 0.00000, 0.33330)   0.113014        171.926    
+ XRAY> 
+ XRAY>    {* again with cartesian coordinates 
+ XRAY>     *} 
+ XRAY>    psearch 
+ PSEARCH>      From=smfmap1 
+ PSEARCH>      level = 0 
+ PSEARCH>      nList = 10 
+ PSEARCH>      SITE     2.82    -0.22     1.78 
+ PSEARCH>      SITE     1.86     1.01     0.68 
+ PSEARCH>      SITE     0.58     2.33     2.17 
+ PSEARCH>      SITE    -0.13     1.71     0.85 
+ PSEARCH>      Fractional = true 
+ PSEARCH>      ? 
+ -----------psearch-parameters--------------------------------------------------
+ FROM=SMFMAP1
+ LEVEl=  0
+ NLISt=    10
+ FRACtional=TRUE
+ Symbol=<undefined>
+ PSTOre=     0
+ SITE  0.49985  0.00025  0.33298
+ SITE  0.42666  0.18638  0.12721
+ SITE  0.22769  0.44270  0.40594
+ SITE  0.07582  0.30917  0.15901
+ -------------------------------------------------------------------------------
+ PSEARCH>      Fractional = false 
+ PSEARCH>      ? 
+ -----------psearch-parameters--------------------------------------------------
+ FROM=SMFMAP1
+ LEVEl=  0
+ NLISt=    10
+ FRACtional=FALSE
+ Symbol=<undefined>
+ PSTOre=     0
+ SITE     2.82    -0.22     1.78
+ SITE     1.86     1.01     0.68
+ SITE     0.58     2.33     2.17
+ SITE    -0.13     1.71     0.85
+ -------------------------------------------------------------------------------
+ PSEARCH>    end 
+ PSEARCH: DensCutOff =    171.926    
+ PSEARCH: Number of peaks in overstore buffer =        1
+ PSEARCH: Number of peaks listed              =        1
+ PSEARCH:                                   (  Cartesian Coordinates   )
+ PSEARCH:     1 Dens =    171.926     Pos = (    0.00,    0.00,    0.00)
+ PSEARCH:    -3 Dens =    171.926     Pos = (    0.58,    2.33,    2.17)   0.225859        171.926    
+ PSEARCH:    -4 Dens =    171.926     Pos = (   -0.13,    1.71,    0.85)   0.196205        171.926    
+ PSEARCH:    -2 Dens =    171.926     Pos = (    1.86,    1.01,    0.68)   0.115700        171.926    
+ PSEARCH:    -1 Dens =    171.926     Pos = (    2.82,   -0.22,    1.78)   0.111636        171.926    
+ XRAY>  end 
+ CNSsolve> 
+ CNSsolve>  set message=on end 
+ CNSsolve>end loop sg 
+ CNSsolve>for $sg in ("P1" "C2/c" "Fddd" "I-4c2" "P3(1)21" "P6(3)/mcm" "P2(1)3") loop sg 
+ FOR LOOP: symbol SG set to "C2/c" (string)
+ CNSsolve>  do (x=0.499   ) (name=SI1) 
+ SELRPN:      1 atoms have been selected out of      2
+ CNSsolve>  do (y=0.000   ) (name=SI1) 
+ SELRPN:      1 atoms have been selected out of      2
+ CNSsolve>  do (z=0.333333) (name=SI1) 
+ SELRPN:      1 atoms have been selected out of      2
+ CNSsolve>  do (q=1.0     ) (name=SI1) 
+ SELRPN:      1 atoms have been selected out of      2
+ CNSsolve>  do (b=2.0     ) (name=SI1) 
+ SELRPN:      1 atoms have been selected out of      2
+ CNSsolve> 
+ CNSsolve>  do (x=0.427   ) (name=O1) 
+ SELRPN:      1 atoms have been selected out of      2
+ CNSsolve>  do (y=0.187   ) (name=O1) 
+ SELRPN:      1 atoms have been selected out of      2
+ CNSsolve>  do (z=0.128   ) (name=O1) 
+ SELRPN:      1 atoms have been selected out of      2
+ CNSsolve>  do (q=1.0     ) (name=O1) 
+ SELRPN:      1 atoms have been selected out of      2
+ CNSsolve>  do (b=4.0     ) (name=O1) 
+ SELRPN:      1 atoms have been selected out of      2
+ CNSsolve> 
+ CNSsolve>  {* reset all xray settings 
+ CNSsolve>   *} 
+ CNSsolve>  xray 
+ XRAY>    reset 
+ XRAY: whole xray database erased and reset
+ XRAY>  end 
+ CNSsolve> 
+ CNSsolve>  {* define some general xray settings 
+ CNSsolve>   *} 
+ CNSsolve>  xray 
+ XRAY>    bins=1 
+ XRAY>    method=direct 
+ XRAY> 
+ XRAY>    evaluate ($lr=10000.) 
+ EVALUATE: symbol $LR set to    10000.0     (real)
+ XRAY>    evaluate ($hr=1) 
+ EVALUATE: symbol $HR set to    1.00000     (real)
+ XRAY>    binresolution $lr $hr 
+ XRAY>    mapresolution $hr 
+ XRAY>    tselection=( $hr <= d <= $lr ) 
+ XRAY>  end 
+ CNSsolve> 
+ CNSsolve>  {* define scattering factors and symmetry 
+ CNSsolve>   *} 
+ CNSsolve>  xray 
+ XRAY>    @@CNS_XRAYLIB:scatter.lib 
+ ASSFIL: file scatter.lib opened.
+ XRAY>! file libraries/xray/scatter.lib 
+ XRAY>! Atomic scattering factors without anomalous contribution 
+ XRAY>! Library for CNS 
+ XRAY> 
+ XRAY>! Authors: Paul Adams, Joe Jaeger, and Axel T. Brunger 
+ XRAY> 
+ XRAY>!BEWARE: 
+ XRAY>!(1) element Cf (Californium) has to be referred to as Cff 
+ XRAY>!(2) element Sm (Samarium) has to be referred to as Smm 
+ XRAY>!(3) element Np (Neptunium) has to be referred to as Npp 
+ XRAY>!(3) types of elements with ionic state (i.e., +/-) specifications have 
+ XRAY>!    to be put in double quotes in selection statements. 
+ XRAY> 
+ XRAY>set message ? end 
+ MESSage=NORM
+ XRAY>evaluate ($message_old_sclib=$result) 
+ EVALUATE: symbol $MESSAGE_OLD_SCLIB set to "NORM" (string)
+ XRAY>set echo ? end 
+ ECHO=TRUE {ON}
+ XRAY>evaluate ($echo_old_sclib=$result) 
+ EVALUATE: symbol $ECHO_OLD_SCLIB set to TRUE (logical)
+ XRAY>set echo=off message=off end 
+ XRAY>    @@CNS_XTALLIB:spacegroup.lib (sg=$sg; sgparam = $sgparam) 
+ ASSFIL: file spacegroup.lib opened.
+ XRAY>! file  libraries/xtal/spacegroup.lib 
+ XRAY>! library of symmetry operators for CNS 
+ XRAY>! Automatically generated with SgInfo Version 2.00a13 
+ XRAY> 
+ XRAY>module 
+ MODULE-DECLARATION>( 
+ MODULE-DECLARATION>  &sg=$sg; 
+ MODULE-DECLARATION>  &sgparam=$sgparam; 
+ MODULE-DECLARATION>) 
+ &_2_SG set to $_1_SG 
+ &_2_SGPARAM set to $_1_SGPARAM 
+ XRAY> 
+ XRAY>set message ? end 
+ MESSage=NORM
+ XRAY>evaluate ($message_old=$result) 
+ EVALUATE: symbol $MESSAGE_OLD set to "NORM" (string)
+ XRAY>set echo ? end 
+ ECHO=TRUE {ON}
+ XRAY>evaluate ($echo_old=$result) 
+ EVALUATE: symbol $ECHO_OLD set to TRUE (logical)
+ XRAY>set echo=off message=off end 
+SYMMETRY: found symmetry operators for space group C2/c in library
+ XRAY> 
+ XRAY>  end 
+ CNSsolve> 
+ CNSsolve>  {* define dummy unit cell dimensions based on space group number 
+ CNSsolve>   *} 
+ CNSsolve>  if     ($sgparam.sg_number <=   2) then 
+ NEXTCD: condition evaluated as false
+ CNSsolve>    evaluate ($a = 5.01) 
+ CNSsolve>    evaluate ($b = 6.25) 
+ CNSsolve>    evaluate ($c = 5.47) 
+ CNSsolve>    evaluate ($alpha = 100) 
+ CNSsolve>    evaluate ($beta  =  80) 
+ CNSsolve>    evaluate ($gamma = 110) 
+ CNSsolve>  elseif ($sgparam.sg_number <=  15) then 
+ NEXTCD: condition evaluated as true
+ CNSsolve>    evaluate ($a = 5.01) 
+ EVALUATE: symbol $A set to    5.01000     (real)
+ CNSsolve>    evaluate ($b = 6.25) 
+ EVALUATE: symbol $B set to    6.25000     (real)
+ CNSsolve>    evaluate ($c = 5.47) 
+ EVALUATE: symbol $C set to    5.47000     (real)
+ CNSsolve>    evaluate ($alpha =  90) 
+ EVALUATE: symbol $ALPHA set to    90.0000     (real)
+ CNSsolve>    evaluate ($beta  =  80) 
+ EVALUATE: symbol $BETA set to    80.0000     (real)
+ CNSsolve>    evaluate ($gamma =  90) 
+ EVALUATE: symbol $GAMMA set to    90.0000     (real)
+ CNSsolve>  elseif ($sgparam.sg_number <=  74) then 
+ CNSsolve>    evaluate ($a = 5.01) 
+ CNSsolve>    evaluate ($b = 6.25) 
+ CNSsolve>    evaluate ($c = 5.47) 
+ CNSsolve>    evaluate ($alpha =  90) 
+ CNSsolve>    evaluate ($beta  =  90) 
+ CNSsolve>    evaluate ($gamma =  90) 
+ CNSsolve>  elseif ($sgparam.sg_number <= 142) then 
+ CNSsolve>    evaluate ($a = 5.01) 
+ CNSsolve>    evaluate ($b = $a) 
+ CNSsolve>    evaluate ($c = 5.47) 
+ CNSsolve>    evaluate ($alpha =  90) 
+ CNSsolve>    evaluate ($beta  =  90) 
+ CNSsolve>    evaluate ($gamma =  90) 
+ CNSsolve>  elseif ($sgparam.sg_number <= 194) then 
+ CNSsolve>    evaluate ($a = 5.01) 
+ CNSsolve>    evaluate ($b = $a) 
+ CNSsolve>    evaluate ($c = 5.47) 
+ CNSsolve>    evaluate ($alpha =  90) 
+ CNSsolve>    evaluate ($beta  =  90) 
+ CNSsolve>    evaluate ($gamma = 120) 
+ CNSsolve>  else 
+ CNSsolve>    evaluate ($a = 5.01) 
+ CNSsolve>    evaluate ($b = $a) 
+ CNSsolve>    evaluate ($c = $a) 
+ CNSsolve>    evaluate ($alpha =  90) 
+ CNSsolve>    evaluate ($beta  =  90) 
+ CNSsolve>    evaluate ($gamma =  90) 
+ CNSsolve>  end if 
+ CNSsolve> 
+ CNSsolve>  xray 
+ XRAY>    a=$a b=$b c=$c alpha=$alpha beta=$beta gamma=$gamma 
+ XRAY>  end 
+ CNSsolve> 
+ CNSsolve>  coordinates orthogonalize end 
+ ORTHO: transformation matrix =
+     5.010000     0.000000     0.949856
+     0.000000     6.250000     0.000000
+     0.000000     0.000000     5.386898
+ CNSsolve> 
+ CNSsolve>  xray 
+ XRAY>    {* set space-group dependent restrictions for map-grid dimensions 
+ XRAY>     *} 
+ XRAY>    fft 
+ XFFT>      grid=0.4 
+ XFFT>      xgridfactor=$sgparam.SymGrid_x 
+ XFFT>      ygridfactor=$sgparam.SymGrid_y 
+ XFFT>      zgridfactor=$sgparam.SymGrid_z 
+ XFFT>    end 
+ XRAY> 
+ XRAY>    {* generate reflections 
+ XRAY>     *} 
+ XRAY>    anomalous = false 
+ XRAY>    generate 100000. 1.0 
+ XGENER: generating reflections to produce a full set
+         for the specified resolution range.
+ XGENE2:       87 new reflections have been generated.
+ XRAY> 
+ XRAY>    {* compute dummy "fobs" 
+ XRAY>     *} 
+ XRAY>    declare name=fobs domain=reciprocal type=complex end 
+ XDECLARE: Object FOBS has been declared.
+ XRAY>    predict 
+ PREDict>      mode=reciprocal 
+ PREDict>      to=fobs 
+ PREDict>      selection=(all) 
+ Total of        87 structure factor elements were selected.
+ PREDict>      atomselection=(all) 
+ SELRPN:      2 atoms have been selected out of      2
+ PREDict>    end 
+ FOBS: #scatt.=      2 #anomalous=   0 #special pos.=  0 occupancies=1
+ XSFAL: allocating space for complex reciprocal space object.
+ XRAY> 
+ XRAY>    {* expand to P1 
+ XRAY>     *} 
+ XRAY>    expand 
+ XEXPA2:       73 new reflections have been generated.
+ XREDUC: some reflection(s) converted to CNS standard asymm. unit.
+ XRAY: data expanded and symmetry reset to P1.
+ XRAY>  end 
+ CNSsolve> 
+ CNSsolve>  xray 
+ XRAY>    {* declare maps 
+ XRAY>     *} 
+ XRAY>    declare name=patmap  domain=real end 
+ XRAY>    declare name=smfmap1 domain=real end 
+ XRAY>    declare name=smfmap2 domain=real end 
+ XRAY>  end 
+ CNSsolve> 
+ CNSsolve>  xray 
+ XRAY>    do (patmap=FT(combine(amplitude(fobs)^2, 0))) (all) 
+ XSFAL: allocating space for complex reciprocal space object.
+ Total of       160 structure factor elements were selected.
+ XMAPASU: using grid [  12,  16,  16] and sublattice [  12,  16,  16]
+ Maps will be stored in P1:
+   A=     0,...,    11  B=     0,...,    15  C=     0,...,    15
+ XMAPAL: allocating space for real space object.
+ XRAY>    show min (real(patmap)) (all) 
+ Minimum of      3072 elements =              -145.7890
+ XRAY>    show max (real(patmap)) (all) 
+ Maximum of      3072 elements =              1272.1117
+ XRAY>  end 
+ CNSsolve> 
+ CNSsolve>  xray 
+ XRAY>    {* define symmetry for flagmap 
+ XRAY>     *} 
+ XRAY>    fmap 
+ XMAPASU: using grid [  12,  16,  16] and sublattice [  12,  16,  16]
+ Minimum brick that covers asymmetric unit:
+   A=     0,...,     6  B=     0,...,     8  C=     0,...,     8
+ FMAP>      @@CNS_XTALLIB:spacegroup.lib (sg=$sg; sgparam = $sgparam) 
+ ASSFIL: file spacegroup.lib opened.
+ FMAP>! file  libraries/xtal/spacegroup.lib 
+ FMAP>! library of symmetry operators for CNS 
+ FMAP>! Automatically generated with SgInfo Version 2.00a13 
+ FMAP> 
+ FMAP>module 
+ MODULE-DECLARATION>( 
+ MODULE-DECLARATION>  &sg=$sg; 
+ MODULE-DECLARATION>  &sgparam=$sgparam; 
+ MODULE-DECLARATION>) 
+ &_2_SG set to $_1_SG 
+ &_2_SGPARAM set to $_1_SGPARAM 
+ FMAP> 
+ FMAP>set message ? end 
+ MESSage=NORM
+ FMAP>evaluate ($message_old=$result) 
+ EVALUATE: symbol $MESSAGE_OLD set to "NORM" (string)
+ FMAP>set echo ? end 
+ ECHO=TRUE {ON}
+ FMAP>evaluate ($echo_old=$result) 
+ EVALUATE: symbol $ECHO_OLD set to TRUE (logical)
+ FMAP>set echo=off message=off end 
+SYMMETRY: found symmetry operators for space group C2/c in library
+ FMAP> 
+ FMAP>      if ($sgparam.ssVM_1 # "VOID") then ssVM = $sgparam.ssVM_1 end if 
+ NEXTCD: condition evaluated as true
+ FMAP>      if ($sgparam.ssVM_2 # "VOID") then ssVM = $sgparam.ssVM_2 end if 
+ NEXTCD: condition evaluated as true
+ FMAP>      if ($sgparam.ssVM_3 # "VOID") then ssVM = $sgparam.ssVM_3 end if 
+ NEXTCD: condition evaluated as false
+ FMAP>      if ($sgparam.GenK2L # "VOID") then Addl = $sgparam.GenK2L end if 
+ NEXTCD: condition evaluated as false
+ FMAP>      ? 
+ --------------FMAP-parameters--------------------------------------------------
+ Number of symmetry operations =   8
+ Number of s.s.Vectors & Moduli =   2
+   s.s.Vector  Modulus
+     1  0  0   2
+     0  0  1   2
+ Number of ADDLgenerators =   0
+ USESym=FALSE
+ USE_ss=FALSE
+ USEAddl=FALSE
+ -------------------------------------------------------------------------------
+ FMAP>      Symmetry ? 
+ --------------FMAP-symmetry----------------------------------------------------
+ | SYMMetry=(X,Y,Z)
+ | SYMMetry=(-X,Y,-Z+1/2)
+ | SYMMetry=(-X,-Y,-Z)
+ | SYMMetry=(X,-Y,Z+1/2)
+ | SYMMetry=(X+1/2,Y+1/2,Z)
+ | SYMMetry=(-X+1/2,Y+1/2,-Z+1/2)
+ | SYMMetry=(-X+1/2,-Y+1/2,-Z)
+ | SYMMetry=(X+1/2,-Y+1/2,Z+1/2)
+ -------------------------------------------------------------------------------
+ FMAP>      AddlGenerators ? 
+ --------------FMAP-ADDLgenerators----------------------------------------------
+ -------------------------------------------------------------------------------
+ FMAP>    end 
+ XRAY>  end 
+ CNSsolve> 
+ CNSsolve>  set message=all end 
+ CNSsolve> 
+ CNSsolve>  xray 
+ XRAY>    {* Build flagmap 
+ XRAY>     *} 
+ XRAY>    fmap 
+ XMAPASU: using grid [  12,  16,  16] and sublattice [  12,  16,  16]
+ Minimum brick that covers asymmetric unit:
+   A=     0,...,     6  B=     0,...,     8  C=     0,...,     8
+ Number of deleted points in ASU=         173
+ Number of non-zero lattice points in ASU=         394
+ Number of special positions in ASU=          20
+ FMAP>      UseSym = true 
+ FMAP>      Use_ss  = true 
+ FMAP>      UseAddl = true 
+ FMAP>      Action=Build 
+ FMAP>    end 
+ FMAP: Building FlagMap
+ FMAP: Removing grid points related by symmetry operations
+ FMAP:       Total number of grid points =      3072
+ FMAP: Remaining independent grid points =       394
+ FMAP: Removing grid points related by allowed origin shifts
+ FMAP: s.s.Vector  Grid-Adjusted-Modulus
+ FMAP:   1  0  0   2
+ FMAP:   0  0  1   2
+ FMAP:       Total number of grid points =      3072
+ FMAP: Remaining independent grid points =       130
+ FMAP: Removing grid points related by operations due to ADDLgenerators
+ FMAP:       Total number of grid points =      3072
+ FMAP: Remaining independent grid points =       130
+ FMAP: Independent grid points =       130
+ XRAY> 
+ XRAY>    {* Get Harker operators from library 
+ XRAY>     *} 
+ XRAY>    @@CNS_XTALLIB:harker_ops.lib (sg=$sg; harker=$harker) 
+ ASSFIL: file harker_ops.lib opened.
+ XRAY>! file  libraries/xtal/harker.lib 
+ XRAY>! library of Harker operators for CNS 
+ XRAY>! Automatically generated with SgInfo Version 2.00a12 
+ XRAY> 
+ XRAY>module 
+ MODULE-DECLARATION>( 
+ MODULE-DECLARATION>  &sg=$sg; 
+ &_2_SG set to $_2_SG 
+ MODULE-DECLARATION>  &harker=$harker; 
+ &_2_HARKER set to $_2_HARKER 
+ MODULE-DECLARATION>) 
+ &_2_SG set to $_1_SG 
+ &_2_HARKER set to $_1_HARKER 
+ XRAY> 
+ XRAY>set message ? end 
+ MESSage=ALL 
+ XRAY>evaluate ($message_old=$result) 
+ EVALUATE: symbol $MESSAGE_OLD set to "ALL " (string)
+ XRAY>set echo ? end 
+ ECHO=TRUE {ON}
+ XRAY>evaluate ($echo_old=$result) 
+ EVALUATE: symbol $ECHO_OLD set to TRUE (logical)
+ XRAY>set echo=off message=off end 
+HARKER: found Harker operators for space group C2/c in library
+ XRAY> 
+ XRAY> 
+ XRAY>    {* Compute smfmap1, all grid points, use FlagMap only for check 
+ XRAY>     *} 
+ XRAY>    smf 
+ SMF>      patmap=patmap 
+ SMF>      smfmap=smfmap1 
+ SMF>      eval($i = 0) 
+ EVALUATE: symbol $I set to    0.00000     (real)
+ SMF>      while ($i < $harker.nOps) loop HarkerOps 
+ NEXTCD: condition evaluated as true
+ SMF>        eval($i = $i + 1) 
+ EVALUATE: symbol $I set to    1.00000     (real)
+ SMF>        HarkerOperator=$harker.Op_$i 
+ SMF>      end loop HarkerOps 
+ SMF>      while ($i < $harker.nOps) loop HarkerOps 
+ NEXTCD: condition evaluated as true
+ SMF>        eval($i = $i + 1) 
+ EVALUATE: symbol $I set to    2.00000     (real)
+ SMF>        HarkerOperator=$harker.Op_$i 
+ SMF>      end loop HarkerOps 
+ SMF>      while ($i < $harker.nOps) loop HarkerOps 
+ NEXTCD: condition evaluated as true
+ SMF>        eval($i = $i + 1) 
+ EVALUATE: symbol $I set to    3.00000     (real)
+ SMF>        HarkerOperator=$harker.Op_$i 
+ SMF>      end loop HarkerOps 
+ SMF>      while ($i < $harker.nOps) loop HarkerOps 
+ NEXTCD: condition evaluated as false
+ SMF>        eval($i = $i + 1) 
+ SMF>        HarkerOperator=$harker.Op_$i 
+ SMF>      end loop HarkerOps 
+ SMF>      ChkInDep=true 
+ SMF>      {* test the debug option *} 
+ SMF>      ? 
+ --------------smf-parameters---------------------------------------------------
+ PATMap=PATMAP
+ SMFMap=SMFMAP1
+ SGORderP= 1
+ Number of unique Harker operators =  3
+ HARKerOperator=(  1  2  0  0  0  2  0  0  0  2  0  0  0)
+ HARKerOperator=(  2  2  0  0  0  0  0  0  0  2  0  0  6)
+ HARKerOperator=(  2  0  0  0  0  2  0  0  0  0  0  0  6)
+ UnitWeights=false
+ -------------------------------------------------------------------------------
+ SMF>    end 
+ XMAPAL: allocating space for real space object.
+ SMF: Correlation of dependent and independent grid points =  1.00000
+ SMF: PATmap min =     -145.789    
+ SMF: PATmap max =      1272.11    
+ SMF: PATmap ave =     0.170432E-06
+ SMF: PATmap sigma =    155.184    
+ SMF: SMFmap min =     -116.513    
+ SMF: SMFmap max =      528.607    
+ SMF: SMFmap ave =     -45.2788    
+ SMF: SMFmap sigma =    75.3317    
+ XRAY> 
+ XRAY>    {* Compute smfmap2, only at grid points indicated by FlagMap 
+ XRAY>     *} 
+ XRAY>    smf 
+ SMF>      patmap=patmap 
+ SMF>      smfmap=smfmap2 
+ SMF>      eval($i = 0) 
+ EVALUATE: symbol $I set to    0.00000     (real)
+ SMF>      while ($i < $harker.nOps) loop HarkerOps 
+ NEXTCD: condition evaluated as true
+ SMF>        eval($i = $i + 1) 
+ EVALUATE: symbol $I set to    1.00000     (real)
+ SMF>        HarkerOperator=$harker.Op_$i 
+ SMF>      end loop HarkerOps 
+ SMF>      while ($i < $harker.nOps) loop HarkerOps 
+ NEXTCD: condition evaluated as true
+ SMF>        eval($i = $i + 1) 
+ EVALUATE: symbol $I set to    2.00000     (real)
+ SMF>        HarkerOperator=$harker.Op_$i 
+ SMF>      end loop HarkerOps 
+ SMF>      while ($i < $harker.nOps) loop HarkerOps 
+ NEXTCD: condition evaluated as true
+ SMF>        eval($i = $i + 1) 
+ EVALUATE: symbol $I set to    3.00000     (real)
+ SMF>        HarkerOperator=$harker.Op_$i 
+ SMF>      end loop HarkerOps 
+ SMF>      while ($i < $harker.nOps) loop HarkerOps 
+ NEXTCD: condition evaluated as false
+ SMF>        eval($i = $i + 1) 
+ SMF>        HarkerOperator=$harker.Op_$i 
+ SMF>      end loop HarkerOps 
+ SMF>      ? 
+ --------------smf-parameters---------------------------------------------------
+ PATMap=PATMAP
+ SMFMap=SMFMAP2
+ SGORderP= 1
+ Number of unique Harker operators =  3
+ HARKerOperator=(  1  2  0  0  0  2  0  0  0  2  0  0  0)
+ HARKerOperator=(  2  2  0  0  0  0  0  0  0  2  0  0  6)
+ HARKerOperator=(  2  0  0  0  0  2  0  0  0  0  0  0  6)
+ UnitWeights=false
+ -------------------------------------------------------------------------------
+ SMF>    end 
+ XMAPAL: allocating space for real space object.
+ SMF: PATmap min =     -145.789    
+ SMF: PATmap max =      1272.11    
+ SMF: PATmap ave =     0.170432E-06
+ SMF: PATmap sigma =    155.184    
+ SMF: SMFmap min =     -116.513    
+ SMF: SMFmap max =      528.607    
+ SMF: SMFmap ave =     -45.2788    
+ SMF: SMFmap sigma =    75.3317    
+ XRAY> 
+ XRAY>    {* make sure smfmap1 and smfmap2 are exactly equal 
+ XRAY>     *} 
+ XRAY>    show max (abs(smfmap1-smfmap2)) (all) 
+ Maximum of      3072 elements =                 0.0000
+ XRAY>    if ($result # 0) then 
+ NEXTCD: condition evaluated as false
+ XRAY>      abort 
+ XRAY>    end if 
+ XRAY> 
+ XRAY>    {* list the 10 non-redundant highest peaks 
+ XRAY>     *} 
+ XRAY>    psearch 
+ PSEARCH>      From=smfmap1 
+ PSEARCH>      level = 0 
+ PSEARCH>      nList = 10 
+ PSEARCH>      Fractional = true 
+ PSEARCH>      Site=0.49900 0.00000 0.33330 
+ PSEARCH>      Site=0.42700 0.18700 0.12800 
+ PSEARCH>      Site=0.22830 0.44290 0.40670 
+ PSEARCH>      Site=0.07540 0.30950 0.15860 
+ PSEARCH>      Fractional = false 
+ PSEARCH>      ? 
+ -----------psearch-parameters--------------------------------------------------
+ FROM=SMFMAP1
+ LEVEl=  0
+ NLISt=    10
+ FRACtional=FALSE
+ Symbol=<undefined>
+ PSTOre=     0
+ SITE     2.82     0.00     1.80
+ SITE     2.26     1.17     0.69
+ SITE     1.53     2.77     2.19
+ SITE     0.53     1.93     0.85
+ -------------------------------------------------------------------------------
+ PSEARCH>      Fractional = true 
+ PSEARCH>      ? 
+ -----------psearch-parameters--------------------------------------------------
+ FROM=SMFMAP1
+ LEVEl=  0
+ NLISt=    10
+ FRACtional=TRUE
+ Symbol=<undefined>
+ PSTOre=     0
+ SITE  0.49900  0.00000  0.33330
+ SITE  0.42700  0.18700  0.12800
+ SITE  0.22830  0.44290  0.40670
+ SITE  0.07540  0.30950  0.15860
+ -------------------------------------------------------------------------------
+ PSEARCH>    end 
+ PSEARCH: DensCutOff =   -98.2425    
+ PSEARCH: Number of peaks in overstore buffer =      110
+ PSEARCH: Number of peaks listed              =       10
+ PSEARCH:                                   (  Fractional Coordinates  )
+ PSEARCH:     1 Dens =    528.607     Pos = ( 0.00000, 0.00000, 0.00000)
+ PSEARCH:     2 Dens =    528.607     Pos = ( 0.00000, 0.00000, 0.25000)
+ PSEARCH:     3 Dens =    336.895     Pos = ( 0.00000, 0.00000, 0.18750)
+ PSEARCH:    -1 Dens =    336.895     Pos = ( 0.49900, 0.00000, 0.33330)   0.113014        307.990    
+ PSEARCH:     4 Dens =    297.249     Pos = ( 0.00000, 0.00000, 0.06250)
+ PSEARCH:     5 Dens =    262.451     Pos = ( 0.00000, 0.00000, 0.12500)
+ PSEARCH:     6 Dens =    87.0596     Pos = ( 0.00000, 0.06250, 0.00000)
+ PSEARCH:     7 Dens =    87.0596     Pos = ( 0.00000, 0.06250, 0.06250)
+ PSEARCH:     8 Dens =    87.0596     Pos = ( 0.00000, 0.06250, 0.12500)
+ PSEARCH:     9 Dens =    87.0596     Pos = ( 0.00000, 0.06250, 0.25000)
+ PSEARCH:    10 Dens =    71.3212     Pos = ( 0.00000, 0.06250, 0.18750)
+ PSEARCH:    -2 Dens =   -55.8889     Pos = ( 0.42700, 0.18700, 0.12800)   0.570459E-01   -58.7880    
+ PSEARCH:    -3 Dens =   -80.6648     Pos = ( 0.22830, 0.44290, 0.40670)   0.190994       -93.8836    
+ PSEARCH:    -4 Dens =   -81.8564     Pos = ( 0.07540, 0.30950, 0.15860)   0.170598       -94.6519    
+ XRAY> 
+ XRAY>    {* again with cartesian coordinates 
+ XRAY>     *} 
+ XRAY>    psearch 
+ PSEARCH>      From=smfmap1 
+ PSEARCH>      level = 0 
+ PSEARCH>      nList = 10 
+ PSEARCH>      SITE     2.82    -0.22     1.78 
+ PSEARCH>      SITE     1.86     1.01     0.68 
+ PSEARCH>      SITE     0.58     2.33     2.17 
+ PSEARCH>      SITE    -0.13     1.71     0.85 
+ PSEARCH>      Fractional = true 
+ PSEARCH>      ? 
+ -----------psearch-parameters--------------------------------------------------
+ FROM=SMFMAP1
+ LEVEl=  0
+ NLISt=    10
+ FRACtional=TRUE
+ Symbol=<undefined>
+ PSTOre=     0
+ SITE  0.50023 -0.03520  0.33043
+ SITE  0.34732  0.16160  0.12623
+ SITE  0.03940  0.37280  0.40283
+ SITE -0.05586  0.27360  0.15779
+ -------------------------------------------------------------------------------
+ PSEARCH>      Fractional = false 
+ PSEARCH>      ? 
+ -----------psearch-parameters--------------------------------------------------
+ FROM=SMFMAP1
+ LEVEl=  0
+ NLISt=    10
+ FRACtional=FALSE
+ Symbol=<undefined>
+ PSTOre=     0
+ SITE     2.82    -0.22     1.78
+ SITE     1.86     1.01     0.68
+ SITE     0.58     2.33     2.17
+ SITE    -0.13     1.71     0.85
+ -------------------------------------------------------------------------------
+ PSEARCH>    end 
+ PSEARCH: DensCutOff =   -98.2425    
+ PSEARCH: Number of peaks in overstore buffer =      110
+ PSEARCH: Number of peaks listed              =       10
+ PSEARCH:                                   (  Cartesian Coordinates   )
+ PSEARCH:     1 Dens =    528.607     Pos = (    0.00,    0.00,    0.00)
+ PSEARCH:     2 Dens =    528.607     Pos = (    0.24,    0.00,    1.35)
+ PSEARCH:     3 Dens =    336.895     Pos = (    0.18,    0.00,    1.01)
+ PSEARCH:     4 Dens =    297.249     Pos = (    0.06,    0.00,    0.34)
+ PSEARCH:     5 Dens =    262.451     Pos = (    0.12,    0.00,    0.67)
+ PSEARCH:     6 Dens =    87.0596     Pos = (    0.00,    0.39,    0.00)
+ PSEARCH:     7 Dens =    87.0596     Pos = (    0.06,    0.39,    0.34)
+ PSEARCH:     8 Dens =    87.0596     Pos = (    0.12,    0.39,    0.67)
+ PSEARCH:     9 Dens =    87.0596     Pos = (    0.24,    0.39,    1.35)
+ PSEARCH:    10 Dens =    71.3212     Pos = (    0.18,    0.39,    1.01)
+ PSEARCH:    -1 Dens =    71.3212     Pos = (    2.82,   -0.22,    1.78)   0.196910        179.898    
+ PSEARCH:    -3 Dens =   -28.9133     Pos = (    0.58,    2.33,    2.17)   0.245318       -3.93326    
+ PSEARCH:    -2 Dens =   -30.0784     Pos = (    1.86,    1.01,    0.68)   0.176994       -36.0860    
+ PSEARCH:    -4 Dens =   -89.3822     Pos = (   -0.13,    1.71,    0.85)   0.243596       -72.3069    
+ XRAY>  end 
+ CNSsolve> 
+ CNSsolve>  set message=on end 
+ CNSsolve>end loop sg 
+ CNSsolve>for $sg in ("P1" "C2/c" "Fddd" "I-4c2" "P3(1)21" "P6(3)/mcm" "P2(1)3") loop sg 
+ FOR LOOP: symbol SG set to "Fddd" (string)
+ CNSsolve>  do (x=0.499   ) (name=SI1) 
+ SELRPN:      1 atoms have been selected out of      2
+ CNSsolve>  do (y=0.000   ) (name=SI1) 
+ SELRPN:      1 atoms have been selected out of      2
+ CNSsolve>  do (z=0.333333) (name=SI1) 
+ SELRPN:      1 atoms have been selected out of      2
+ CNSsolve>  do (q=1.0     ) (name=SI1) 
+ SELRPN:      1 atoms have been selected out of      2
+ CNSsolve>  do (b=2.0     ) (name=SI1) 
+ SELRPN:      1 atoms have been selected out of      2
+ CNSsolve> 
+ CNSsolve>  do (x=0.427   ) (name=O1) 
+ SELRPN:      1 atoms have been selected out of      2
+ CNSsolve>  do (y=0.187   ) (name=O1) 
+ SELRPN:      1 atoms have been selected out of      2
+ CNSsolve>  do (z=0.128   ) (name=O1) 
+ SELRPN:      1 atoms have been selected out of      2
+ CNSsolve>  do (q=1.0     ) (name=O1) 
+ SELRPN:      1 atoms have been selected out of      2
+ CNSsolve>  do (b=4.0     ) (name=O1) 
+ SELRPN:      1 atoms have been selected out of      2
+ CNSsolve> 
+ CNSsolve>  {* reset all xray settings 
+ CNSsolve>   *} 
+ CNSsolve>  xray 
+ XRAY>    reset 
+ XRAY: whole xray database erased and reset
+ XRAY>  end 
+ CNSsolve> 
+ CNSsolve>  {* define some general xray settings 
+ CNSsolve>   *} 
+ CNSsolve>  xray 
+ XRAY>    bins=1 
+ XRAY>    method=direct 
+ XRAY> 
+ XRAY>    evaluate ($lr=10000.) 
+ EVALUATE: symbol $LR set to    10000.0     (real)
+ XRAY>    evaluate ($hr=1) 
+ EVALUATE: symbol $HR set to    1.00000     (real)
+ XRAY>    binresolution $lr $hr 
+ XRAY>    mapresolution $hr 
+ XRAY>    tselection=( $hr <= d <= $lr ) 
+ XRAY>  end 
+ CNSsolve> 
+ CNSsolve>  {* define scattering factors and symmetry 
+ CNSsolve>   *} 
+ CNSsolve>  xray 
+ XRAY>    @@CNS_XRAYLIB:scatter.lib 
+ ASSFIL: file scatter.lib opened.
+ XRAY>! file libraries/xray/scatter.lib 
+ XRAY>! Atomic scattering factors without anomalous contribution 
+ XRAY>! Library for CNS 
+ XRAY> 
+ XRAY>! Authors: Paul Adams, Joe Jaeger, and Axel T. Brunger 
+ XRAY> 
+ XRAY>!BEWARE: 
+ XRAY>!(1) element Cf (Californium) has to be referred to as Cff 
+ XRAY>!(2) element Sm (Samarium) has to be referred to as Smm 
+ XRAY>!(3) element Np (Neptunium) has to be referred to as Npp 
+ XRAY>!(3) types of elements with ionic state (i.e., +/-) specifications have 
+ XRAY>!    to be put in double quotes in selection statements. 
+ XRAY> 
+ XRAY>set message ? end 
+ MESSage=NORM
+ XRAY>evaluate ($message_old_sclib=$result) 
+ EVALUATE: symbol $MESSAGE_OLD_SCLIB set to "NORM" (string)
+ XRAY>set echo ? end 
+ ECHO=TRUE {ON}
+ XRAY>evaluate ($echo_old_sclib=$result) 
+ EVALUATE: symbol $ECHO_OLD_SCLIB set to TRUE (logical)
+ XRAY>set echo=off message=off end 
+ XRAY>    @@CNS_XTALLIB:spacegroup.lib (sg=$sg; sgparam = $sgparam) 
+ ASSFIL: file spacegroup.lib opened.
+ XRAY>! file  libraries/xtal/spacegroup.lib 
+ XRAY>! library of symmetry operators for CNS 
+ XRAY>! Automatically generated with SgInfo Version 2.00a13 
+ XRAY> 
+ XRAY>module 
+ MODULE-DECLARATION>( 
+ MODULE-DECLARATION>  &sg=$sg; 
+ MODULE-DECLARATION>  &sgparam=$sgparam; 
+ MODULE-DECLARATION>) 
+ &_2_SG set to $_1_SG 
+ &_2_SGPARAM set to $_1_SGPARAM 
+ XRAY> 
+ XRAY>set message ? end 
+ MESSage=NORM
+ XRAY>evaluate ($message_old=$result) 
+ EVALUATE: symbol $MESSAGE_OLD set to "NORM" (string)
+ XRAY>set echo ? end 
+ ECHO=TRUE {ON}
+ XRAY>evaluate ($echo_old=$result) 
+ EVALUATE: symbol $ECHO_OLD set to TRUE (logical)
+ XRAY>set echo=off message=off end 
+SYMMETRY: found symmetry operators for space group Fddd in library
+ XRAY> 
+ XRAY>  end 
+ CNSsolve> 
+ CNSsolve>  {* define dummy unit cell dimensions based on space group number 
+ CNSsolve>   *} 
+ CNSsolve>  if     ($sgparam.sg_number <=   2) then 
+ NEXTCD: condition evaluated as false
+ CNSsolve>    evaluate ($a = 5.01) 
+ CNSsolve>    evaluate ($b = 6.25) 
+ CNSsolve>    evaluate ($c = 5.47) 
+ CNSsolve>    evaluate ($alpha = 100) 
+ CNSsolve>    evaluate ($beta  =  80) 
+ CNSsolve>    evaluate ($gamma = 110) 
+ CNSsolve>  elseif ($sgparam.sg_number <=  15) then 
+ NEXTCD: condition evaluated as false
+ CNSsolve>    evaluate ($a = 5.01) 
+ CNSsolve>    evaluate ($b = 6.25) 
+ CNSsolve>    evaluate ($c = 5.47) 
+ CNSsolve>    evaluate ($alpha =  90) 
+ CNSsolve>    evaluate ($beta  =  80) 
+ CNSsolve>    evaluate ($gamma =  90) 
+ CNSsolve>  elseif ($sgparam.sg_number <=  74) then 
+ NEXTCD: condition evaluated as true
+ CNSsolve>    evaluate ($a = 5.01) 
+ EVALUATE: symbol $A set to    5.01000     (real)
+ CNSsolve>    evaluate ($b = 6.25) 
+ EVALUATE: symbol $B set to    6.25000     (real)
+ CNSsolve>    evaluate ($c = 5.47) 
+ EVALUATE: symbol $C set to    5.47000     (real)
+ CNSsolve>    evaluate ($alpha =  90) 
+ EVALUATE: symbol $ALPHA set to    90.0000     (real)
+ CNSsolve>    evaluate ($beta  =  90) 
+ EVALUATE: symbol $BETA set to    90.0000     (real)
+ CNSsolve>    evaluate ($gamma =  90) 
+ EVALUATE: symbol $GAMMA set to    90.0000     (real)
+ CNSsolve>  elseif ($sgparam.sg_number <= 142) then 
+ CNSsolve>    evaluate ($a = 5.01) 
+ CNSsolve>    evaluate ($b = $a) 
+ CNSsolve>    evaluate ($c = 5.47) 
+ CNSsolve>    evaluate ($alpha =  90) 
+ CNSsolve>    evaluate ($beta  =  90) 
+ CNSsolve>    evaluate ($gamma =  90) 
+ CNSsolve>  elseif ($sgparam.sg_number <= 194) then 
+ CNSsolve>    evaluate ($a = 5.01) 
+ CNSsolve>    evaluate ($b = $a) 
+ CNSsolve>    evaluate ($c = 5.47) 
+ CNSsolve>    evaluate ($alpha =  90) 
+ CNSsolve>    evaluate ($beta  =  90) 
+ CNSsolve>    evaluate ($gamma = 120) 
+ CNSsolve>  else 
+ CNSsolve>    evaluate ($a = 5.01) 
+ CNSsolve>    evaluate ($b = $a) 
+ CNSsolve>    evaluate ($c = $a) 
+ CNSsolve>    evaluate ($alpha =  90) 
+ CNSsolve>    evaluate ($beta  =  90) 
+ CNSsolve>    evaluate ($gamma =  90) 
+ CNSsolve>  end if 
+ CNSsolve> 
+ CNSsolve>  xray 
+ XRAY>    a=$a b=$b c=$c alpha=$alpha beta=$beta gamma=$gamma 
+ XRAY>  end 
+ CNSsolve> 
+ CNSsolve>  coordinates orthogonalize end 
+ ORTHO: transformation matrix =
+     5.010000     0.000000     0.000000
+     0.000000     6.250000     0.000000
+     0.000000     0.000000     5.470000
+ CNSsolve> 
+ CNSsolve>  xray 
+ XRAY>    {* set space-group dependent restrictions for map-grid dimensions 
+ XRAY>     *} 
+ XRAY>    fft 
+ XFFT>      grid=0.4 
+ XFFT>      xgridfactor=$sgparam.SymGrid_x 
+ XFFT>      ygridfactor=$sgparam.SymGrid_y 
+ XFFT>      zgridfactor=$sgparam.SymGrid_z 
+ XFFT>    end 
+ XRAY> 
+ XRAY>    {* generate reflections 
+ XRAY>     *} 
+ XRAY>    anomalous = false 
+ XRAY>    generate 100000. 1.0 
+ XGENER: generating reflections to produce a full set
+         for the specified resolution range.
+ XGENE2:       22 new reflections have been generated.
+ XRAY> 
+ XRAY>    {* compute dummy "fobs" 
+ XRAY>     *} 
+ XRAY>    declare name=fobs domain=reciprocal type=complex end 
+ XDECLARE: Object FOBS has been declared.
+ XRAY>    predict 
+ PREDict>      mode=reciprocal 
+ PREDict>      to=fobs 
+ PREDict>      selection=(all) 
+ Total of        22 structure factor elements were selected.
+ PREDict>      atomselection=(all) 
+ SELRPN:      2 atoms have been selected out of      2
+ PREDict>    end 
+ FOBS: #scatt.=      2 #anomalous=   0 #special pos.=  1 occupancies=1
+ XSFAL: allocating space for complex reciprocal space object.
+ XRAY> 
+ XRAY>    {* expand to P1 
+ XRAY>     *} 
+ XRAY>    expand 
+ XEXPA2:       49 new reflections have been generated.
+ XREDUC: some reflection(s) converted to CNS standard asymm. unit.
+ XRAY: data expanded and symmetry reset to P1.
+ XRAY>  end 
+ CNSsolve> 
+ CNSsolve>  xray 
+ XRAY>    {* declare maps 
+ XRAY>     *} 
+ XRAY>    declare name=patmap  domain=real end 
+ XRAY>    declare name=smfmap1 domain=real end 
+ XRAY>    declare name=smfmap2 domain=real end 
+ XRAY>  end 
+ CNSsolve> 
+ CNSsolve>  xray 
+ XRAY>    do (patmap=FT(combine(amplitude(fobs)^2, 0))) (all) 
+ XSFAL: allocating space for complex reciprocal space object.
+ Total of        71 structure factor elements were selected.
+ XMAPASU: using grid [  16,  16,  16] and sublattice [  16,  16,  16]
+ Maps will be stored in P1:
+   A=     0,...,    15  B=     0,...,    15  C=     0,...,    15
+ XMAPAL: allocating space for real space object.
+ XRAY>    show min (real(patmap)) (all) 
+ Minimum of      4096 elements =              -636.6610
+ XRAY>    show max (real(patmap)) (all) 
+ Maximum of      4096 elements =              2415.3860
+ XRAY>  end 
+ CNSsolve> 
+ CNSsolve>  xray 
+ XRAY>    {* define symmetry for flagmap 
+ XRAY>     *} 
+ XRAY>    fmap 
+ XMAPASU: using grid [  16,  16,  16] and sublattice [  16,  16,  16]
+ Minimum brick that covers asymmetric unit:
+   A=     0,...,     2  B=     0,...,     4  C=     0,...,    16
+ FMAP>      @@CNS_XTALLIB:spacegroup.lib (sg=$sg; sgparam = $sgparam) 
+ ASSFIL: file spacegroup.lib opened.
+ FMAP>! file  libraries/xtal/spacegroup.lib 
+ FMAP>! library of symmetry operators for CNS 
+ FMAP>! Automatically generated with SgInfo Version 2.00a13 
+ FMAP> 
+ FMAP>module 
+ MODULE-DECLARATION>( 
+ MODULE-DECLARATION>  &sg=$sg; 
+ MODULE-DECLARATION>  &sgparam=$sgparam; 
+ MODULE-DECLARATION>) 
+ &_2_SG set to $_1_SG 
+ &_2_SGPARAM set to $_1_SGPARAM 
+ FMAP> 
+ FMAP>set message ? end 
+ MESSage=NORM
+ FMAP>evaluate ($message_old=$result) 
+ EVALUATE: symbol $MESSAGE_OLD set to "NORM" (string)
+ FMAP>set echo ? end 
+ ECHO=TRUE {ON}
+ FMAP>evaluate ($echo_old=$result) 
+ EVALUATE: symbol $ECHO_OLD set to TRUE (logical)
+ FMAP>set echo=off message=off end 
+SYMMETRY: found symmetry operators for space group Fddd in library
+ FMAP> 
+ FMAP>      if ($sgparam.ssVM_1 # "VOID") then ssVM = $sgparam.ssVM_1 end if 
+ NEXTCD: condition evaluated as true
+ FMAP>      if ($sgparam.ssVM_2 # "VOID") then ssVM = $sgparam.ssVM_2 end if 
+ NEXTCD: condition evaluated as false
+ FMAP>      if ($sgparam.ssVM_3 # "VOID") then ssVM = $sgparam.ssVM_3 end if 
+ NEXTCD: condition evaluated as false
+ FMAP>      if ($sgparam.GenK2L # "VOID") then Addl = $sgparam.GenK2L end if 
+ NEXTCD: condition evaluated as false
+ FMAP>      ? 
+ --------------FMAP-parameters--------------------------------------------------
+ Number of symmetry operations =  32
+ Number of s.s.Vectors & Moduli =   1
+   s.s.Vector  Modulus
+     1  0  0   2
+ Number of ADDLgenerators =   0
+ USESym=FALSE
+ USE_ss=FALSE
+ USEAddl=FALSE
+ -------------------------------------------------------------------------------
+ FMAP>      Symmetry ? 
+ --------------FMAP-symmetry----------------------------------------------------
+ | SYMMetry=(X,Y,Z)
+ | SYMMetry=(-X+1/4,-Y+1/4,-Z+1/4)
+ | SYMMetry=(-X,-Y,Z)
+ | SYMMetry=(X,-Y,-Z)
+ | SYMMetry=(-X,Y,-Z)
+ | SYMMetry=(X+1/4,Y+1/4,-Z+1/4)
+ | SYMMetry=(-X+1/4,Y+1/4,Z+1/4)
+ | SYMMetry=(X+1/4,-Y+1/4,Z+1/4)
+ | SYMMetry=(X,Y+1/2,Z+1/2)
+ | SYMMetry=(-X+1/4,-Y+3/4,-Z+3/4)
+ | SYMMetry=(-X,-Y+1/2,Z+1/2)
+ | SYMMetry=(X,-Y+1/2,-Z+1/2)
+ | SYMMetry=(-X,Y+1/2,-Z+1/2)
+ | SYMMetry=(X+1/4,Y+3/4,-Z+3/4)
+ | SYMMetry=(-X+1/4,Y+3/4,Z+3/4)
+ | SYMMetry=(X+1/4,-Y+3/4,Z+3/4)
+ | SYMMetry=(X+1/2,Y,Z+1/2)
+ | SYMMetry=(-X+3/4,-Y+1/4,-Z+3/4)
+ | SYMMetry=(-X+1/2,-Y,Z+1/2)
+ | SYMMetry=(X+1/2,-Y,-Z+1/2)
+ | SYMMetry=(-X+1/2,Y,-Z+1/2)
+ | SYMMetry=(X+3/4,Y+1/4,-Z+3/4)
+ | SYMMetry=(-X+3/4,Y+1/4,Z+3/4)
+ | SYMMetry=(X+3/4,-Y+1/4,Z+3/4)
+ | SYMMetry=(X+1/2,Y+1/2,Z)
+ | SYMMetry=(-X+3/4,-Y+3/4,-Z+1/4)
+ | SYMMetry=(-X+1/2,-Y+1/2,Z)
+ | SYMMetry=(X+1/2,-Y+1/2,-Z)
+ | SYMMetry=(-X+1/2,Y+1/2,-Z)
+ | SYMMetry=(X+3/4,Y+3/4,-Z+1/4)
+ | SYMMetry=(-X+3/4,Y+3/4,Z+1/4)
+ | SYMMetry=(X+3/4,-Y+3/4,Z+1/4)
+ -------------------------------------------------------------------------------
+ FMAP>      AddlGenerators ? 
+ --------------FMAP-ADDLgenerators----------------------------------------------
+ -------------------------------------------------------------------------------
+ FMAP>    end 
+ XRAY>  end 
+ CNSsolve> 
+ CNSsolve>  set message=all end 
+ CNSsolve> 
+ CNSsolve>  xray 
+ XRAY>    {* Build flagmap 
+ XRAY>     *} 
+ XRAY>    fmap 
+ XMAPASU: using grid [  16,  16,  16] and sublattice [  16,  16,  16]
+ Minimum brick that covers asymmetric unit:
+   A=     0,...,     2  B=     0,...,     4  C=     0,...,    16
+ Number of deleted points in ASU=          99
+ Number of non-zero lattice points in ASU=         141
+ Number of special positions in ASU=          25
+ FMAP>      UseSym = true 
+ FMAP>      Use_ss  = true 
+ FMAP>      UseAddl = true 
+ FMAP>      Action=Build 
+ FMAP>    end 
+ FMAP: Building FlagMap
+ FMAP: Removing grid points related by symmetry operations
+ FMAP:       Total number of grid points =      4096
+ FMAP: Remaining independent grid points =       141
+ FMAP: Removing grid points related by allowed origin shifts
+ FMAP: s.s.Vector  Grid-Adjusted-Modulus
+ FMAP:   1  0  0   2
+ FMAP:       Total number of grid points =      4096
+ FMAP: Remaining independent grid points =        77
+ FMAP: Removing grid points related by operations due to ADDLgenerators
+ FMAP:       Total number of grid points =      4096
+ FMAP: Remaining independent grid points =        77
+ FMAP: Independent grid points =        77
+ XRAY> 
+ XRAY>    {* Get Harker operators from library 
+ XRAY>     *} 
+ XRAY>    @@CNS_XTALLIB:harker_ops.lib (sg=$sg; harker=$harker) 
+ ASSFIL: file harker_ops.lib opened.
+ XRAY>! file  libraries/xtal/harker.lib 
+ XRAY>! library of Harker operators for CNS 
+ XRAY>! Automatically generated with SgInfo Version 2.00a12 
+ XRAY> 
+ XRAY>module 
+ MODULE-DECLARATION>( 
+ MODULE-DECLARATION>  &sg=$sg; 
+ &_2_SG set to $_2_SG 
+ MODULE-DECLARATION>  &harker=$harker; 
+ &_2_HARKER set to $_2_HARKER 
+ MODULE-DECLARATION>) 
+ &_2_SG set to $_1_SG 
+ &_2_HARKER set to $_1_HARKER 
+ XRAY> 
+ XRAY>set message ? end 
+ MESSage=ALL 
+ XRAY>evaluate ($message_old=$result) 
+ EVALUATE: symbol $MESSAGE_OLD set to "ALL " (string)
+ XRAY>set echo ? end 
+ ECHO=TRUE {ON}
+ XRAY>evaluate ($echo_old=$result) 
+ EVALUATE: symbol $ECHO_OLD set to TRUE (logical)
+ XRAY>set echo=off message=off end 
+HARKER: found Harker operators for space group Fddd in library
+ XRAY> 
+ XRAY> 
+ XRAY>    {* Compute smfmap1, all grid points, use FlagMap only for check 
+ XRAY>     *} 
+ XRAY>    smf 
+ SMF>      patmap=patmap 
+ SMF>      smfmap=smfmap1 
+ SMF>      eval($i = 0) 
+ EVALUATE: symbol $I set to    0.00000     (real)
+ SMF>      while ($i < $harker.nOps) loop HarkerOps 
+ NEXTCD: condition evaluated as true
+ SMF>        eval($i = $i + 1) 
+ EVALUATE: symbol $I set to    1.00000     (real)
+ SMF>        HarkerOperator=$harker.Op_$i 
+ SMF>      end loop HarkerOps 
+ SMF>      while ($i < $harker.nOps) loop HarkerOps 
+ NEXTCD: condition evaluated as true
+ SMF>        eval($i = $i + 1) 
+ EVALUATE: symbol $I set to    2.00000     (real)
+ SMF>        HarkerOperator=$harker.Op_$i 
+ SMF>      end loop HarkerOps 
+ SMF>      while ($i < $harker.nOps) loop HarkerOps 
+ NEXTCD: condition evaluated as true
+ SMF>        eval($i = $i + 1) 
+ EVALUATE: symbol $I set to    3.00000     (real)
+ SMF>        HarkerOperator=$harker.Op_$i 
+ SMF>      end loop HarkerOps 
+ SMF>      while ($i < $harker.nOps) loop HarkerOps 
+ NEXTCD: condition evaluated as true
+ SMF>        eval($i = $i + 1) 
+ EVALUATE: symbol $I set to    4.00000     (real)
+ SMF>        HarkerOperator=$harker.Op_$i 
+ SMF>      end loop HarkerOps 
+ SMF>      while ($i < $harker.nOps) loop HarkerOps 
+ NEXTCD: condition evaluated as true
+ SMF>        eval($i = $i + 1) 
+ EVALUATE: symbol $I set to    5.00000     (real)
+ SMF>        HarkerOperator=$harker.Op_$i 
+ SMF>      end loop HarkerOps 
+ SMF>      while ($i < $harker.nOps) loop HarkerOps 
+ NEXTCD: condition evaluated as true
+ SMF>        eval($i = $i + 1) 
+ EVALUATE: symbol $I set to    6.00000     (real)
+ SMF>        HarkerOperator=$harker.Op_$i 
+ SMF>      end loop HarkerOps 
+ SMF>      while ($i < $harker.nOps) loop HarkerOps 
+ NEXTCD: condition evaluated as true
+ SMF>        eval($i = $i + 1) 
+ EVALUATE: symbol $I set to    7.00000     (real)
+ SMF>        HarkerOperator=$harker.Op_$i 
+ SMF>      end loop HarkerOps 
+ SMF>      while ($i < $harker.nOps) loop HarkerOps 
+ NEXTCD: condition evaluated as false
+ SMF>        eval($i = $i + 1) 
+ SMF>        HarkerOperator=$harker.Op_$i 
+ SMF>      end loop HarkerOps 
+ SMF>      ChkInDep=true 
+ SMF>      {* test the debug option *} 
+ SMF>      ? 
+ --------------smf-parameters---------------------------------------------------
+ PATMap=PATMAP
+ SMFMap=SMFMAP1
+ SGORderP= 1
+ Number of unique Harker operators =  7
+ HARKerOperator=(  1  2  0  0  0  2  0  0  0  2  9  9  9)
+ HARKerOperator=(  2  2  0  0  0  2  0  0  0  0  0  0  0)
+ HARKerOperator=(  2  0  0  0  0  2  0  0  0  2  0  0  0)
+ HARKerOperator=(  2  2  0  0  0  0  0  0  0  2  0  0  0)
+ HARKerOperator=(  2  0  0  0  0  0  0  0  0  2  9  9  9)
+ HARKerOperator=(  2  2  0  0  0  0  0  0  0  0  9  9  9)
+ HARKerOperator=(  2  0  0  0  0  2  0  0  0  0  9  9  9)
+ UnitWeights=false
+ -------------------------------------------------------------------------------
+ SMF>    end 
+ XMAPAL: allocating space for real space object.
+ SMF: Correlation of dependent and independent grid points =  1.00000
+ SMF: PATmap min =     -636.661    
+ SMF: PATmap max =      2415.39    
+ SMF: PATmap ave =    -0.646338E-06
+ SMF: PATmap sigma =    294.978    
+ SMF: SMFmap min =     -616.493    
+ SMF: SMFmap max =      345.562    
+ SMF: SMFmap ave =     -153.279    
+ SMF: SMFmap sigma =    149.564    
+ XRAY> 
+ XRAY>    {* Compute smfmap2, only at grid points indicated by FlagMap 
+ XRAY>     *} 
+ XRAY>    smf 
+ SMF>      patmap=patmap 
+ SMF>      smfmap=smfmap2 
+ SMF>      eval($i = 0) 
+ EVALUATE: symbol $I set to    0.00000     (real)
+ SMF>      while ($i < $harker.nOps) loop HarkerOps 
+ NEXTCD: condition evaluated as true
+ SMF>        eval($i = $i + 1) 
+ EVALUATE: symbol $I set to    1.00000     (real)
+ SMF>        HarkerOperator=$harker.Op_$i 
+ SMF>      end loop HarkerOps 
+ SMF>      while ($i < $harker.nOps) loop HarkerOps 
+ NEXTCD: condition evaluated as true
+ SMF>        eval($i = $i + 1) 
+ EVALUATE: symbol $I set to    2.00000     (real)
+ SMF>        HarkerOperator=$harker.Op_$i 
+ SMF>      end loop HarkerOps 
+ SMF>      while ($i < $harker.nOps) loop HarkerOps 
+ NEXTCD: condition evaluated as true
+ SMF>        eval($i = $i + 1) 
+ EVALUATE: symbol $I set to    3.00000     (real)
+ SMF>        HarkerOperator=$harker.Op_$i 
+ SMF>      end loop HarkerOps 
+ SMF>      while ($i < $harker.nOps) loop HarkerOps 
+ NEXTCD: condition evaluated as true
+ SMF>        eval($i = $i + 1) 
+ EVALUATE: symbol $I set to    4.00000     (real)
+ SMF>        HarkerOperator=$harker.Op_$i 
+ SMF>      end loop HarkerOps 
+ SMF>      while ($i < $harker.nOps) loop HarkerOps 
+ NEXTCD: condition evaluated as true
+ SMF>        eval($i = $i + 1) 
+ EVALUATE: symbol $I set to    5.00000     (real)
+ SMF>        HarkerOperator=$harker.Op_$i 
+ SMF>      end loop HarkerOps 
+ SMF>      while ($i < $harker.nOps) loop HarkerOps 
+ NEXTCD: condition evaluated as true
+ SMF>        eval($i = $i + 1) 
+ EVALUATE: symbol $I set to    6.00000     (real)
+ SMF>        HarkerOperator=$harker.Op_$i 
+ SMF>      end loop HarkerOps 
+ SMF>      while ($i < $harker.nOps) loop HarkerOps 
+ NEXTCD: condition evaluated as true
+ SMF>        eval($i = $i + 1) 
+ EVALUATE: symbol $I set to    7.00000     (real)
+ SMF>        HarkerOperator=$harker.Op_$i 
+ SMF>      end loop HarkerOps 
+ SMF>      while ($i < $harker.nOps) loop HarkerOps 
+ NEXTCD: condition evaluated as false
+ SMF>        eval($i = $i + 1) 
+ SMF>        HarkerOperator=$harker.Op_$i 
+ SMF>      end loop HarkerOps 
+ SMF>      ? 
+ --------------smf-parameters---------------------------------------------------
+ PATMap=PATMAP
+ SMFMap=SMFMAP2
+ SGORderP= 1
+ Number of unique Harker operators =  7
+ HARKerOperator=(  1  2  0  0  0  2  0  0  0  2  9  9  9)
+ HARKerOperator=(  2  2  0  0  0  2  0  0  0  0  0  0  0)
+ HARKerOperator=(  2  0  0  0  0  2  0  0  0  2  0  0  0)
+ HARKerOperator=(  2  2  0  0  0  0  0  0  0  2  0  0  0)
+ HARKerOperator=(  2  0  0  0  0  0  0  0  0  2  9  9  9)
+ HARKerOperator=(  2  2  0  0  0  0  0  0  0  0  9  9  9)
+ HARKerOperator=(  2  0  0  0  0  2  0  0  0  0  9  9  9)
+ UnitWeights=false
+ -------------------------------------------------------------------------------
+ SMF>    end 
+ XMAPAL: allocating space for real space object.
+ SMF: PATmap min =     -636.661    
+ SMF: PATmap max =      2415.39    
+ SMF: PATmap ave =    -0.646338E-06
+ SMF: PATmap sigma =    294.978    
+ SMF: SMFmap min =     -616.493    
+ SMF: SMFmap max =      345.562    
+ SMF: SMFmap ave =     -153.279    
+ SMF: SMFmap sigma =    149.564    
+ XRAY> 
+ XRAY>    {* make sure smfmap1 and smfmap2 are exactly equal 
+ XRAY>     *} 
+ XRAY>    show max (abs(smfmap1-smfmap2)) (all) 
+ Maximum of      4096 elements =                 0.0000
+ XRAY>    if ($result # 0) then 
+ NEXTCD: condition evaluated as false
+ XRAY>      abort 
+ XRAY>    end if 
+ XRAY> 
+ XRAY>    {* list the 10 non-redundant highest peaks 
+ XRAY>     *} 
+ XRAY>    psearch 
+ PSEARCH>      From=smfmap1 
+ PSEARCH>      level = 0 
+ PSEARCH>      nList = 10 
+ PSEARCH>      Fractional = true 
+ PSEARCH>      Site=0.49900 0.00000 0.33330 
+ PSEARCH>      Site=0.42700 0.18700 0.12800 
+ PSEARCH>      Site=0.22830 0.44290 0.40670 
+ PSEARCH>      Site=0.07540 0.30950 0.15860 
+ PSEARCH>      Fractional = false 
+ PSEARCH>      ? 
+ -----------psearch-parameters--------------------------------------------------
+ FROM=SMFMAP1
+ LEVEl=  0
+ NLISt=    10
+ FRACtional=FALSE
+ Symbol=<undefined>
+ PSTOre=     0
+ SITE     2.50     0.00     1.82
+ SITE     2.14     1.17     0.70
+ SITE     1.14     2.77     2.22
+ SITE     0.38     1.93     0.87
+ -------------------------------------------------------------------------------
+ PSEARCH>      Fractional = true 
+ PSEARCH>      ? 
+ -----------psearch-parameters--------------------------------------------------
+ FROM=SMFMAP1
+ LEVEl=  0
+ NLISt=    10
+ FRACtional=TRUE
+ Symbol=<undefined>
+ PSTOre=     0
+ SITE  0.49900  0.00000  0.33330
+ SITE  0.42700  0.18700  0.12800
+ SITE  0.22830  0.44290  0.40670
+ SITE  0.07540  0.30950  0.15860
+ -------------------------------------------------------------------------------
+ PSEARCH>    end 
+ PSEARCH: DensCutOff =   -616.493    
+ PSEARCH: Number of peaks in overstore buffer =       77
+ PSEARCH: Number of peaks listed              =       10
+ PSEARCH:                                   (  Fractional Coordinates  )
+ PSEARCH:     1 Dens =    345.562     Pos = ( 0.00000, 0.00000, 0.00000)
+ PSEARCH:     2 Dens =    142.121     Pos = ( 0.12500, 0.12500, 0.12500)
+ PSEARCH:     3 Dens =    128.386     Pos = ( 0.06250, 0.00000, 0.00000)
+ PSEARCH:     4 Dens =    100.416     Pos = ( 0.06250, 0.12500, 0.12500)
+ PSEARCH:     5 Dens =    66.2822     Pos = ( 0.00000, 0.00000, 0.18750)
+ PSEARCH:    -1 Dens =    66.2822     Pos = ( 0.49900, 0.00000, 0.33330)   0.113886        56.9667    
+ PSEARCH:     6 Dens =    64.1436     Pos = ( 0.00000, 0.12500, 0.00000)
+ PSEARCH:     7 Dens =    64.1436     Pos = ( 0.06250, 0.12500, 0.00000)
+ PSEARCH:     8 Dens =    43.3775     Pos = ( 0.00000, 0.00000, 0.12500)
+ PSEARCH:     9 Dens =    43.3775     Pos = ( 0.06250, 0.00000, 0.12500)
+ PSEARCH:    10 Dens =    43.3775     Pos = ( 0.00000, 0.12500, 0.12500)
+ PSEARCH:    -2 Dens =    15.4305     Pos = ( 0.42700, 0.18700, 0.12800)   0.551937E-01   -1.17446    
+ PSEARCH:    -3 Dens =   -182.223     Pos = ( 0.22830, 0.44290, 0.40670)   0.203329       -168.255    
+ PSEARCH:    -4 Dens =   -262.660     Pos = ( 0.07540, 0.30950, 0.15860)   0.171810       -124.251    
+ XRAY> 
+ XRAY>    {* again with cartesian coordinates 
+ XRAY>     *} 
+ XRAY>    psearch 
+ PSEARCH>      From=smfmap1 
+ PSEARCH>      level = 0 
+ PSEARCH>      nList = 10 
+ PSEARCH>      SITE     2.82    -0.22     1.78 
+ PSEARCH>      SITE     1.86     1.01     0.68 
+ PSEARCH>      SITE     0.58     2.33     2.17 
+ PSEARCH>      SITE    -0.13     1.71     0.85 
+ PSEARCH>      Fractional = true 
+ PSEARCH>      ? 
+ -----------psearch-parameters--------------------------------------------------
+ FROM=SMFMAP1
+ LEVEl=  0
+ NLISt=    10
+ FRACtional=TRUE
+ Symbol=<undefined>
+ PSTOre=     0
+ SITE  0.56287 -0.03520  0.32541
+ SITE  0.37126  0.16160  0.12431
+ SITE  0.11577  0.37280  0.39671
+ SITE -0.02595  0.27360  0.15539
+ -------------------------------------------------------------------------------
+ PSEARCH>      Fractional = false 
+ PSEARCH>      ? 
+ -----------psearch-parameters--------------------------------------------------
+ FROM=SMFMAP1
+ LEVEl=  0
+ NLISt=    10
+ FRACtional=FALSE
+ Symbol=<undefined>
+ PSTOre=     0
+ SITE     2.82    -0.22     1.78
+ SITE     1.86     1.01     0.68
+ SITE     0.58     2.33     2.17
+ SITE    -0.13     1.71     0.85
+ -------------------------------------------------------------------------------
+ PSEARCH>    end 
+ PSEARCH: DensCutOff =   -616.493    
+ PSEARCH: Number of peaks in overstore buffer =       77
+ PSEARCH: Number of peaks listed              =       10
+ PSEARCH:                                   (  Cartesian Coordinates   )
+ PSEARCH:     1 Dens =    345.562     Pos = (    0.00,    0.00,    0.00)
+ PSEARCH:     2 Dens =    142.121     Pos = (    0.63,    0.78,    0.68)
+ PSEARCH:    -3 Dens =    142.121     Pos = (    0.58,    2.33,    2.17)   0.128178        43.2511    
+ PSEARCH:     3 Dens =    128.386     Pos = (    0.31,    0.00,    0.00)
+ PSEARCH:     4 Dens =    100.416     Pos = (    0.31,    0.78,    0.68)
+ PSEARCH:     5 Dens =    66.2822     Pos = (    0.00,    0.00,    1.03)
+ PSEARCH:     6 Dens =    64.1436     Pos = (    0.00,    0.78,    0.00)
+ PSEARCH:     7 Dens =    64.1436     Pos = (    0.31,    0.78,    0.00)
+ PSEARCH:     8 Dens =    43.3775     Pos = (    0.00,    0.00,    0.68)
+ PSEARCH:     9 Dens =    43.3775     Pos = (    0.31,    0.00,    0.68)
+ PSEARCH:    10 Dens =    43.3775     Pos = (    0.00,    0.78,    0.68)
+ PSEARCH:    -2 Dens =    15.4305     Pos = (    1.86,    1.01,    0.68)   0.163000       -247.831    
+ PSEARCH:    -4 Dens =   -308.247     Pos = (   -0.13,    1.71,    0.85)   0.257479       -246.519    
+ PSEARCH:    -1 Dens =   -343.548     Pos = (    2.82,   -0.22,    1.78)   0.184673       -208.613    
+ XRAY>  end 
+ CNSsolve> 
+ CNSsolve>  set message=on end 
+ CNSsolve>end loop sg 
+ CNSsolve>for $sg in ("P1" "C2/c" "Fddd" "I-4c2" "P3(1)21" "P6(3)/mcm" "P2(1)3") loop sg 
+ FOR LOOP: symbol SG set to "I-4c2" (string)
+ CNSsolve>  do (x=0.499   ) (name=SI1) 
+ SELRPN:      1 atoms have been selected out of      2
+ CNSsolve>  do (y=0.000   ) (name=SI1) 
+ SELRPN:      1 atoms have been selected out of      2
+ CNSsolve>  do (z=0.333333) (name=SI1) 
+ SELRPN:      1 atoms have been selected out of      2
+ CNSsolve>  do (q=1.0     ) (name=SI1) 
+ SELRPN:      1 atoms have been selected out of      2
+ CNSsolve>  do (b=2.0     ) (name=SI1) 
+ SELRPN:      1 atoms have been selected out of      2
+ CNSsolve> 
+ CNSsolve>  do (x=0.427   ) (name=O1) 
+ SELRPN:      1 atoms have been selected out of      2
+ CNSsolve>  do (y=0.187   ) (name=O1) 
+ SELRPN:      1 atoms have been selected out of      2
+ CNSsolve>  do (z=0.128   ) (name=O1) 
+ SELRPN:      1 atoms have been selected out of      2
+ CNSsolve>  do (q=1.0     ) (name=O1) 
+ SELRPN:      1 atoms have been selected out of      2
+ CNSsolve>  do (b=4.0     ) (name=O1) 
+ SELRPN:      1 atoms have been selected out of      2
+ CNSsolve> 
+ CNSsolve>  {* reset all xray settings 
+ CNSsolve>   *} 
+ CNSsolve>  xray 
+ XRAY>    reset 
+ XRAY: whole xray database erased and reset
+ XRAY>  end 
+ CNSsolve> 
+ CNSsolve>  {* define some general xray settings 
+ CNSsolve>   *} 
+ CNSsolve>  xray 
+ XRAY>    bins=1 
+ XRAY>    method=direct 
+ XRAY> 
+ XRAY>    evaluate ($lr=10000.) 
+ EVALUATE: symbol $LR set to    10000.0     (real)
+ XRAY>    evaluate ($hr=1) 
+ EVALUATE: symbol $HR set to    1.00000     (real)
+ XRAY>    binresolution $lr $hr 
+ XRAY>    mapresolution $hr 
+ XRAY>    tselection=( $hr <= d <= $lr ) 
+ XRAY>  end 
+ CNSsolve> 
+ CNSsolve>  {* define scattering factors and symmetry 
+ CNSsolve>   *} 
+ CNSsolve>  xray 
+ XRAY>    @@CNS_XRAYLIB:scatter.lib 
+ ASSFIL: file scatter.lib opened.
+ XRAY>! file libraries/xray/scatter.lib 
+ XRAY>! Atomic scattering factors without anomalous contribution 
+ XRAY>! Library for CNS 
+ XRAY> 
+ XRAY>! Authors: Paul Adams, Joe Jaeger, and Axel T. Brunger 
+ XRAY> 
+ XRAY>!BEWARE: 
+ XRAY>!(1) element Cf (Californium) has to be referred to as Cff 
+ XRAY>!(2) element Sm (Samarium) has to be referred to as Smm 
+ XRAY>!(3) element Np (Neptunium) has to be referred to as Npp 
+ XRAY>!(3) types of elements with ionic state (i.e., +/-) specifications have 
+ XRAY>!    to be put in double quotes in selection statements. 
+ XRAY> 
+ XRAY>set message ? end 
+ MESSage=NORM
+ XRAY>evaluate ($message_old_sclib=$result) 
+ EVALUATE: symbol $MESSAGE_OLD_SCLIB set to "NORM" (string)
+ XRAY>set echo ? end 
+ ECHO=TRUE {ON}
+ XRAY>evaluate ($echo_old_sclib=$result) 
+ EVALUATE: symbol $ECHO_OLD_SCLIB set to TRUE (logical)
+ XRAY>set echo=off message=off end 
+ XRAY>    @@CNS_XTALLIB:spacegroup.lib (sg=$sg; sgparam = $sgparam) 
+ ASSFIL: file spacegroup.lib opened.
+ XRAY>! file  libraries/xtal/spacegroup.lib 
+ XRAY>! library of symmetry operators for CNS 
+ XRAY>! Automatically generated with SgInfo Version 2.00a13 
+ XRAY> 
+ XRAY>module 
+ MODULE-DECLARATION>( 
+ MODULE-DECLARATION>  &sg=$sg; 
+ MODULE-DECLARATION>  &sgparam=$sgparam; 
+ MODULE-DECLARATION>) 
+ &_2_SG set to $_1_SG 
+ &_2_SGPARAM set to $_1_SGPARAM 
+ XRAY> 
+ XRAY>set message ? end 
+ MESSage=NORM
+ XRAY>evaluate ($message_old=$result) 
+ EVALUATE: symbol $MESSAGE_OLD set to "NORM" (string)
+ XRAY>set echo ? end 
+ ECHO=TRUE {ON}
+ XRAY>evaluate ($echo_old=$result) 
+ EVALUATE: symbol $ECHO_OLD set to TRUE (logical)
+ XRAY>set echo=off message=off end 
+SYMMETRY: found symmetry operators for space group I-4c2 in library
+ XRAY> 
+ XRAY>  end 
+ CNSsolve> 
+ CNSsolve>  {* define dummy unit cell dimensions based on space group number 
+ CNSsolve>   *} 
+ CNSsolve>  if     ($sgparam.sg_number <=   2) then 
+ NEXTCD: condition evaluated as false
+ CNSsolve>    evaluate ($a = 5.01) 
+ CNSsolve>    evaluate ($b = 6.25) 
+ CNSsolve>    evaluate ($c = 5.47) 
+ CNSsolve>    evaluate ($alpha = 100) 
+ CNSsolve>    evaluate ($beta  =  80) 
+ CNSsolve>    evaluate ($gamma = 110) 
+ CNSsolve>  elseif ($sgparam.sg_number <=  15) then 
+ NEXTCD: condition evaluated as false
+ CNSsolve>    evaluate ($a = 5.01) 
+ CNSsolve>    evaluate ($b = 6.25) 
+ CNSsolve>    evaluate ($c = 5.47) 
+ CNSsolve>    evaluate ($alpha =  90) 
+ CNSsolve>    evaluate ($beta  =  80) 
+ CNSsolve>    evaluate ($gamma =  90) 
+ CNSsolve>  elseif ($sgparam.sg_number <=  74) then 
+ NEXTCD: condition evaluated as false
+ CNSsolve>    evaluate ($a = 5.01) 
+ CNSsolve>    evaluate ($b = 6.25) 
+ CNSsolve>    evaluate ($c = 5.47) 
+ CNSsolve>    evaluate ($alpha =  90) 
+ CNSsolve>    evaluate ($beta  =  90) 
+ CNSsolve>    evaluate ($gamma =  90) 
+ CNSsolve>  elseif ($sgparam.sg_number <= 142) then 
+ NEXTCD: condition evaluated as true
+ CNSsolve>    evaluate ($a = 5.01) 
+ EVALUATE: symbol $A set to    5.01000     (real)
+ CNSsolve>    evaluate ($b = $a) 
+ EVALUATE: symbol $B set to    5.01000     (real)
+ CNSsolve>    evaluate ($c = 5.47) 
+ EVALUATE: symbol $C set to    5.47000     (real)
+ CNSsolve>    evaluate ($alpha =  90) 
+ EVALUATE: symbol $ALPHA set to    90.0000     (real)
+ CNSsolve>    evaluate ($beta  =  90) 
+ EVALUATE: symbol $BETA set to    90.0000     (real)
+ CNSsolve>    evaluate ($gamma =  90) 
+ EVALUATE: symbol $GAMMA set to    90.0000     (real)
+ CNSsolve>  elseif ($sgparam.sg_number <= 194) then 
+ CNSsolve>    evaluate ($a = 5.01) 
+ CNSsolve>    evaluate ($b = $a) 
+ CNSsolve>    evaluate ($c = 5.47) 
+ CNSsolve>    evaluate ($alpha =  90) 
+ CNSsolve>    evaluate ($beta  =  90) 
+ CNSsolve>    evaluate ($gamma = 120) 
+ CNSsolve>  else 
+ CNSsolve>    evaluate ($a = 5.01) 
+ CNSsolve>    evaluate ($b = $a) 
+ CNSsolve>    evaluate ($c = $a) 
+ CNSsolve>    evaluate ($alpha =  90) 
+ CNSsolve>    evaluate ($beta  =  90) 
+ CNSsolve>    evaluate ($gamma =  90) 
+ CNSsolve>  end if 
+ CNSsolve> 
+ CNSsolve>  xray 
+ XRAY>    a=$a b=$b c=$c alpha=$alpha beta=$beta gamma=$gamma 
+ XRAY>  end 
+ CNSsolve> 
+ CNSsolve>  coordinates orthogonalize end 
+ ORTHO: transformation matrix =
+     5.010000     0.000000     0.000000
+     0.000000     5.010000     0.000000
+     0.000000     0.000000     5.470000
+ CNSsolve> 
+ CNSsolve>  xray 
+ XRAY>    {* set space-group dependent restrictions for map-grid dimensions 
+ XRAY>     *} 
+ XRAY>    fft 
+ XFFT>      grid=0.4 
+ XFFT>      xgridfactor=$sgparam.SymGrid_x 
+ XFFT>      ygridfactor=$sgparam.SymGrid_y 
+ XFFT>      zgridfactor=$sgparam.SymGrid_z 
+ XFFT>    end 
+ XRAY> 
+ XRAY>    {* generate reflections 
+ XRAY>     *} 
+ XRAY>    anomalous = false 
+ XRAY>    generate 100000. 1.0 
+ XGENER: generating reflections to produce a full set
+         for the specified resolution range.
+ XGENE2:       26 new reflections have been generated.
+ XRAY> 
+ XRAY>    {* compute dummy "fobs" 
+ XRAY>     *} 
+ XRAY>    declare name=fobs domain=reciprocal type=complex end 
+ XDECLARE: Object FOBS has been declared.
+ XRAY>    predict 
+ PREDict>      mode=reciprocal 
+ PREDict>      to=fobs 
+ PREDict>      selection=(all) 
+ Total of        26 structure factor elements were selected.
+ PREDict>      atomselection=(all) 
+ SELRPN:      2 atoms have been selected out of      2
+ PREDict>    end 
+ FOBS: #scatt.=      2 #anomalous=   0 #special pos.=  1 occupancies=1
+ XSFAL: allocating space for complex reciprocal space object.
+ XRAY> 
+ XRAY>    {* expand to P1 
+ XRAY>     *} 
+ XRAY>    expand 
+ XEXPA2:       98 new reflections have been generated.
+ XREDUC: some reflection(s) converted to CNS standard asymm. unit.
+ XRAY: data expanded and symmetry reset to P1.
+ XRAY>  end 
+ CNSsolve> 
+ CNSsolve>  xray 
+ XRAY>    {* declare maps 
+ XRAY>     *} 
+ XRAY>    declare name=patmap  domain=real end 
+ XRAY>    declare name=smfmap1 domain=real end 
+ XRAY>    declare name=smfmap2 domain=real end 
+ XRAY>  end 
+ CNSsolve> 
+ CNSsolve>  xray 
+ XRAY>    do (patmap=FT(combine(amplitude(fobs)^2, 0))) (all) 
+ XSFAL: allocating space for complex reciprocal space object.
+ Total of       124 structure factor elements were selected.
+ XMAPASU: using grid [  12,  12,  16] and sublattice [  12,  12,  16]
+ Maps will be stored in P1:
+   A=     0,...,    11  B=     0,...,    11  C=     0,...,    15
+ XMAPAL: allocating space for real space object.
+ XRAY>    show min (real(patmap)) (all) 
+ Minimum of      2304 elements =              -253.7032
+ XRAY>    show max (real(patmap)) (all) 
+ Maximum of      2304 elements =              1427.8032
+ XRAY>  end 
+ CNSsolve> 
+ CNSsolve>  xray 
+ XRAY>    {* define symmetry for flagmap 
+ XRAY>     *} 
+ XRAY>    fmap 
+ XMAPASU: using grid [  12,  12,  16] and sublattice [  12,  12,  16]
+ Minimum brick that covers asymmetric unit:
+   A=     0,...,     6  B=     0,...,     6  C=     0,...,     4
+ FMAP>      @@CNS_XTALLIB:spacegroup.lib (sg=$sg; sgparam = $sgparam) 
+ ASSFIL: file spacegroup.lib opened.
+ FMAP>! file  libraries/xtal/spacegroup.lib 
+ FMAP>! library of symmetry operators for CNS 
+ FMAP>! Automatically generated with SgInfo Version 2.00a13 
+ FMAP> 
+ FMAP>module 
+ MODULE-DECLARATION>( 
+ MODULE-DECLARATION>  &sg=$sg; 
+ MODULE-DECLARATION>  &sgparam=$sgparam; 
+ MODULE-DECLARATION>) 
+ &_2_SG set to $_1_SG 
+ &_2_SGPARAM set to $_1_SGPARAM 
+ FMAP> 
+ FMAP>set message ? end 
+ MESSage=NORM
+ FMAP>evaluate ($message_old=$result) 
+ EVALUATE: symbol $MESSAGE_OLD set to "NORM" (string)
+ FMAP>set echo ? end 
+ ECHO=TRUE {ON}
+ FMAP>evaluate ($echo_old=$result) 
+ EVALUATE: symbol $ECHO_OLD set to TRUE (logical)
+ FMAP>set echo=off message=off end 
+SYMMETRY: found symmetry operators for space group I-4c2 in library
+ FMAP> 
+ FMAP>      if ($sgparam.ssVM_1 # "VOID") then ssVM = $sgparam.ssVM_1 end if 
+ NEXTCD: condition evaluated as true
+ FMAP>      if ($sgparam.ssVM_2 # "VOID") then ssVM = $sgparam.ssVM_2 end if 
+ NEXTCD: condition evaluated as false
+ FMAP>      if ($sgparam.ssVM_3 # "VOID") then ssVM = $sgparam.ssVM_3 end if 
+ NEXTCD: condition evaluated as false
+ FMAP>      if ($sgparam.GenK2L # "VOID") then Addl = $sgparam.GenK2L end if 
+ NEXTCD: condition evaluated as true
+ FMAP>      ? 
+ --------------FMAP-parameters--------------------------------------------------
+ Number of symmetry operations =  16
+ Number of s.s.Vectors & Moduli =   1
+   s.s.Vector  Modulus
+     2  0  1   4
+ Number of ADDLgenerators =   1
+ USESym=FALSE
+ USE_ss=FALSE
+ USEAddl=FALSE
+ -------------------------------------------------------------------------------
+ FMAP>      Symmetry ? 
+ --------------FMAP-symmetry----------------------------------------------------
+ | SYMMetry=(X,Y,Z)
+ | SYMMetry=(Y,-X,-Z)
+ | SYMMetry=(-X,-Y,Z)
+ | SYMMetry=(-Y,X,-Z)
+ | SYMMetry=(Y,X,-Z+1/2)
+ | SYMMetry=(-Y,-X,-Z+1/2)
+ | SYMMetry=(-X,Y,Z+1/2)
+ | SYMMetry=(X,-Y,Z+1/2)
+ | SYMMetry=(X+1/2,Y+1/2,Z+1/2)
+ | SYMMetry=(Y+1/2,-X+1/2,-Z+1/2)
+ | SYMMetry=(-X+1/2,-Y+1/2,Z+1/2)
+ | SYMMetry=(-Y+1/2,X+1/2,-Z+1/2)
+ | SYMMetry=(Y+1/2,X+1/2,-Z)
+ | SYMMetry=(-Y+1/2,-X+1/2,-Z)
+ | SYMMetry=(-X+1/2,Y+1/2,Z)
+ | SYMMetry=(X+1/2,-Y+1/2,Z)
+ -------------------------------------------------------------------------------
+ FMAP>      AddlGenerators ? 
+ --------------FMAP-ADDLgenerators----------------------------------------------
+ | SYMMetry=(-X,-Y,-Z)
+ -------------------------------------------------------------------------------
+ FMAP>    end 
+ XRAY>  end 
+ CNSsolve> 
+ CNSsolve>  set message=all end 
+ CNSsolve> 
+ CNSsolve>  xray 
+ XRAY>    {* Build flagmap 
+ XRAY>     *} 
+ XRAY>    fmap 
+ XMAPASU: using grid [  12,  12,  16] and sublattice [  12,  12,  16]
+ Minimum brick that covers asymmetric unit:
+   A=     0,...,     6  B=     0,...,     6  C=     0,...,     4
+ Number of deleted points in ASU=          90
+ Number of non-zero lattice points in ASU=         155
+ Number of special positions in ASU=          20
+ FMAP>      UseSym = true 
+ FMAP>      Use_ss  = true 
+ FMAP>      UseAddl = true 
+ FMAP>      Action=Build 
+ FMAP>    end 
+ FMAP: Building FlagMap
+ FMAP: Removing grid points related by symmetry operations
+ FMAP:       Total number of grid points =      2304
+ FMAP: Remaining independent grid points =       155
+ FMAP: Removing grid points related by allowed origin shifts
+ FMAP: s.s.Vector  Grid-Adjusted-Modulus
+ FMAP:   2  0  1   4
+ FMAP:       Total number of grid points =      2304
+ FMAP: Remaining independent grid points =        54
+ FMAP: Removing grid points related by operations due to ADDLgenerators
+ FMAP:       Total number of grid points =      2304
+ FMAP: Remaining independent grid points =        42
+ FMAP: Independent grid points =        42
+ XRAY> 
+ XRAY>    {* Get Harker operators from library 
+ XRAY>     *} 
+ XRAY>    @@CNS_XTALLIB:harker_ops.lib (sg=$sg; harker=$harker) 
+ ASSFIL: file harker_ops.lib opened.
+ XRAY>! file  libraries/xtal/harker.lib 
+ XRAY>! library of Harker operators for CNS 
+ XRAY>! Automatically generated with SgInfo Version 2.00a12 
+ XRAY> 
+ XRAY>module 
+ MODULE-DECLARATION>( 
+ MODULE-DECLARATION>  &sg=$sg; 
+ &_2_SG set to $_2_SG 
+ MODULE-DECLARATION>  &harker=$harker; 
+ &_2_HARKER set to $_2_HARKER 
+ MODULE-DECLARATION>) 
+ &_2_SG set to $_1_SG 
+ &_2_HARKER set to $_1_HARKER 
+ XRAY> 
+ XRAY>set message ? end 
+ MESSage=ALL 
+ XRAY>evaluate ($message_old=$result) 
+ EVALUATE: symbol $MESSAGE_OLD set to "ALL " (string)
+ XRAY>set echo ? end 
+ ECHO=TRUE {ON}
+ XRAY>evaluate ($echo_old=$result) 
+ EVALUATE: symbol $ECHO_OLD set to TRUE (logical)
+ XRAY>set echo=off message=off end 
+HARKER: found Harker operators for space group I-4c2 in library
+ XRAY> 
+ XRAY> 
+ XRAY>    {* Compute smfmap1, all grid points, use FlagMap only for check 
+ XRAY>     *} 
+ XRAY>    smf 
+ SMF>      patmap=patmap 
+ SMF>      smfmap=smfmap1 
+ SMF>      eval($i = 0) 
+ EVALUATE: symbol $I set to    0.00000     (real)
+ SMF>      while ($i < $harker.nOps) loop HarkerOps 
+ NEXTCD: condition evaluated as true
+ SMF>        eval($i = $i + 1) 
+ EVALUATE: symbol $I set to    1.00000     (real)
+ SMF>        HarkerOperator=$harker.Op_$i 
+ SMF>      end loop HarkerOps 
+ SMF>      while ($i < $harker.nOps) loop HarkerOps 
+ NEXTCD: condition evaluated as true
+ SMF>        eval($i = $i + 1) 
+ EVALUATE: symbol $I set to    2.00000     (real)
+ SMF>        HarkerOperator=$harker.Op_$i 
+ SMF>      end loop HarkerOps 
+ SMF>      while ($i < $harker.nOps) loop HarkerOps 
+ NEXTCD: condition evaluated as true
+ SMF>        eval($i = $i + 1) 
+ EVALUATE: symbol $I set to    3.00000     (real)
+ SMF>        HarkerOperator=$harker.Op_$i 
+ SMF>      end loop HarkerOps 
+ SMF>      while ($i < $harker.nOps) loop HarkerOps 
+ NEXTCD: condition evaluated as true
+ SMF>        eval($i = $i + 1) 
+ EVALUATE: symbol $I set to    4.00000     (real)
+ SMF>        HarkerOperator=$harker.Op_$i 
+ SMF>      end loop HarkerOps 
+ SMF>      while ($i < $harker.nOps) loop HarkerOps 
+ NEXTCD: condition evaluated as true
+ SMF>        eval($i = $i + 1) 
+ EVALUATE: symbol $I set to    5.00000     (real)
+ SMF>        HarkerOperator=$harker.Op_$i 
+ SMF>      end loop HarkerOps 
+ SMF>      while ($i < $harker.nOps) loop HarkerOps 
+ NEXTCD: condition evaluated as true
+ SMF>        eval($i = $i + 1) 
+ EVALUATE: symbol $I set to    6.00000     (real)
+ SMF>        HarkerOperator=$harker.Op_$i 
+ SMF>      end loop HarkerOps 
+ SMF>      while ($i < $harker.nOps) loop HarkerOps 
+ NEXTCD: condition evaluated as false
+ SMF>        eval($i = $i + 1) 
+ SMF>        HarkerOperator=$harker.Op_$i 
+ SMF>      end loop HarkerOps 
+ SMF>      ChkInDep=true 
+ SMF>      {* test the debug option *} 
+ SMF>      ? 
+ --------------smf-parameters---------------------------------------------------
+ PATMap=PATMAP
+ SMFMap=SMFMAP1
+ SGORderP= 1
+ Number of unique Harker operators =  6
+ HARKerOperator=(  1  1  1  0 -1  1  0  0  0  2  0  0  0)
+ HARKerOperator=(  1  2  0  0  0  2  0  0  0  0  0  0  0)
+ HARKerOperator=(  1  1 -1  0 -1  1  0  0  0  2  0  0  6)
+ HARKerOperator=(  1  1  1  0  1  1  0  0  0  2  0  0  6)
+ HARKerOperator=(  2  2  0  0  0  0  0  0  0  0  0  0  6)
+ HARKerOperator=(  2  0  0  0  0  2  0  0  0  0  0  0  6)
+ UnitWeights=false
+ -------------------------------------------------------------------------------
+ SMF>    end 
+ XMAPAL: allocating space for real space object.
+ SMF: Correlation of dependent and independent grid points =  1.00000
+ SMF: PATmap min =     -253.703    
+ SMF: PATmap max =      1427.80    
+ SMF: PATmap ave =     0.195992E-06
+ SMF: PATmap sigma =    205.224    
+ SMF: SMFmap min =     -248.602    
+ SMF: SMFmap max =      579.940    
+ SMF: SMFmap ave =     -91.7774    
+ SMF: SMFmap sigma =    145.640    
+ XRAY> 
+ XRAY>    {* Compute smfmap2, only at grid points indicated by FlagMap 
+ XRAY>     *} 
+ XRAY>    smf 
+ SMF>      patmap=patmap 
+ SMF>      smfmap=smfmap2 
+ SMF>      eval($i = 0) 
+ EVALUATE: symbol $I set to    0.00000     (real)
+ SMF>      while ($i < $harker.nOps) loop HarkerOps 
+ NEXTCD: condition evaluated as true
+ SMF>        eval($i = $i + 1) 
+ EVALUATE: symbol $I set to    1.00000     (real)
+ SMF>        HarkerOperator=$harker.Op_$i 
+ SMF>      end loop HarkerOps 
+ SMF>      while ($i < $harker.nOps) loop HarkerOps 
+ NEXTCD: condition evaluated as true
+ SMF>        eval($i = $i + 1) 
+ EVALUATE: symbol $I set to    2.00000     (real)
+ SMF>        HarkerOperator=$harker.Op_$i 
+ SMF>      end loop HarkerOps 
+ SMF>      while ($i < $harker.nOps) loop HarkerOps 
+ NEXTCD: condition evaluated as true
+ SMF>        eval($i = $i + 1) 
+ EVALUATE: symbol $I set to    3.00000     (real)
+ SMF>        HarkerOperator=$harker.Op_$i 
+ SMF>      end loop HarkerOps 
+ SMF>      while ($i < $harker.nOps) loop HarkerOps 
+ NEXTCD: condition evaluated as true
+ SMF>        eval($i = $i + 1) 
+ EVALUATE: symbol $I set to    4.00000     (real)
+ SMF>        HarkerOperator=$harker.Op_$i 
+ SMF>      end loop HarkerOps 
+ SMF>      while ($i < $harker.nOps) loop HarkerOps 
+ NEXTCD: condition evaluated as true
+ SMF>        eval($i = $i + 1) 
+ EVALUATE: symbol $I set to    5.00000     (real)
+ SMF>        HarkerOperator=$harker.Op_$i 
+ SMF>      end loop HarkerOps 
+ SMF>      while ($i < $harker.nOps) loop HarkerOps 
+ NEXTCD: condition evaluated as true
+ SMF>        eval($i = $i + 1) 
+ EVALUATE: symbol $I set to    6.00000     (real)
+ SMF>        HarkerOperator=$harker.Op_$i 
+ SMF>      end loop HarkerOps 
+ SMF>      while ($i < $harker.nOps) loop HarkerOps 
+ NEXTCD: condition evaluated as false
+ SMF>        eval($i = $i + 1) 
+ SMF>        HarkerOperator=$harker.Op_$i 
+ SMF>      end loop HarkerOps 
+ SMF>      ? 
+ --------------smf-parameters---------------------------------------------------
+ PATMap=PATMAP
+ SMFMap=SMFMAP2
+ SGORderP= 1
+ Number of unique Harker operators =  6
+ HARKerOperator=(  1  1  1  0 -1  1  0  0  0  2  0  0  0)
+ HARKerOperator=(  1  2  0  0  0  2  0  0  0  0  0  0  0)
+ HARKerOperator=(  1  1 -1  0 -1  1  0  0  0  2  0  0  6)
+ HARKerOperator=(  1  1  1  0  1  1  0  0  0  2  0  0  6)
+ HARKerOperator=(  2  2  0  0  0  0  0  0  0  0  0  0  6)
+ HARKerOperator=(  2  0  0  0  0  2  0  0  0  0  0  0  6)
+ UnitWeights=false
+ -------------------------------------------------------------------------------
+ SMF>    end 
+ XMAPAL: allocating space for real space object.
+ SMF: PATmap min =     -253.703    
+ SMF: PATmap max =      1427.80    
+ SMF: PATmap ave =     0.195992E-06
+ SMF: PATmap sigma =    205.224    
+ SMF: SMFmap min =     -248.602    
+ SMF: SMFmap max =      579.940    
+ SMF: SMFmap ave =     -91.7774    
+ SMF: SMFmap sigma =    145.640    
+ XRAY> 
+ XRAY>    {* make sure smfmap1 and smfmap2 are exactly equal 
+ XRAY>     *} 
+ XRAY>    show max (abs(smfmap1-smfmap2)) (all) 
+ Maximum of      2304 elements =                 0.0000
+ XRAY>    if ($result # 0) then 
+ NEXTCD: condition evaluated as false
+ XRAY>      abort 
+ XRAY>    end if 
+ XRAY> 
+ XRAY>    {* list the 10 non-redundant highest peaks 
+ XRAY>     *} 
+ XRAY>    psearch 
+ PSEARCH>      From=smfmap1 
+ PSEARCH>      level = 0 
+ PSEARCH>      nList = 10 
+ PSEARCH>      Fractional = true 
+ PSEARCH>      Site=0.49900 0.00000 0.33330 
+ PSEARCH>      Site=0.42700 0.18700 0.12800 
+ PSEARCH>      Site=0.22830 0.44290 0.40670 
+ PSEARCH>      Site=0.07540 0.30950 0.15860 
+ PSEARCH>      Fractional = false 
+ PSEARCH>      ? 
+ -----------psearch-parameters--------------------------------------------------
+ FROM=SMFMAP1
+ LEVEl=  0
+ NLISt=    10
+ FRACtional=FALSE
+ Symbol=<undefined>
+ PSTOre=     0
+ SITE     2.50     0.00     1.82
+ SITE     2.14     0.94     0.70
+ SITE     1.14     2.22     2.22
+ SITE     0.38     1.55     0.87
+ -------------------------------------------------------------------------------
+ PSEARCH>      Fractional = true 
+ PSEARCH>      ? 
+ -----------psearch-parameters--------------------------------------------------
+ FROM=SMFMAP1
+ LEVEl=  0
+ NLISt=    10
+ FRACtional=TRUE
+ Symbol=<undefined>
+ PSTOre=     0
+ SITE  0.49900  0.00000  0.33330
+ SITE  0.42700  0.18700  0.12800
+ SITE  0.22830  0.44290  0.40670
+ SITE  0.07540  0.30950  0.15860
+ -------------------------------------------------------------------------------
+ PSEARCH>    end 
+ PSEARCH: DensCutOff =   -248.602    
+ PSEARCH: Number of peaks in overstore buffer =       42
+ PSEARCH: Number of peaks listed              =       10
+ PSEARCH:                                   (  Fractional Coordinates  )
+ PSEARCH:     1 Dens =    579.940     Pos = ( 0.00000, 0.00000, 0.00000)
+ PSEARCH:     2 Dens =    579.940     Pos = ( 0.50000, 0.00000, 0.00000)
+ PSEARCH:     3 Dens =    570.539     Pos = ( 0.00000, 0.00000, 0.06250)
+ PSEARCH:     4 Dens =    570.539     Pos = ( 0.50000, 0.00000, 0.06250)
+ PSEARCH:    -1 Dens =    570.539     Pos = ( 0.49900, 0.00000, 0.33330)   0.113886        540.890    
+ PSEARCH:     5 Dens =    497.584     Pos = ( 0.00000, 0.00000, 0.12500)
+ PSEARCH:     6 Dens =    98.7559     Pos = ( 0.00000, 0.08333, 0.00000)
+ PSEARCH:     7 Dens =    98.7559     Pos = ( 0.50000, 0.08333, 0.00000)
+ PSEARCH:     8 Dens =    98.7559     Pos = ( 0.08333, 0.00000, 0.06250)
+ PSEARCH:     9 Dens =    98.7559     Pos = ( 0.41667, 0.00000, 0.06250)
+ PSEARCH:    10 Dens =    98.7559     Pos = ( 0.08333, 0.00000, 0.12500)
+ PSEARCH:    -2 Dens =   -132.361     Pos = ( 0.42700, 0.18700, 0.12800)   0.115442       -122.990    
+ PSEARCH:    -4 Dens =   -149.762     Pos = ( 0.07540, 0.30950, 0.15860)   0.202058       -136.613    
+ PSEARCH:    -3 Dens =   -159.774     Pos = ( 0.22830, 0.44290, 0.40670)   0.239744       -128.702    
+ XRAY> 
+ XRAY>    {* again with cartesian coordinates 
+ XRAY>     *} 
+ XRAY>    psearch 
+ PSEARCH>      From=smfmap1 
+ PSEARCH>      level = 0 
+ PSEARCH>      nList = 10 
+ PSEARCH>      SITE     2.82    -0.22     1.78 
+ PSEARCH>      SITE     1.86     1.01     0.68 
+ PSEARCH>      SITE     0.58     2.33     2.17 
+ PSEARCH>      SITE    -0.13     1.71     0.85 
+ PSEARCH>      Fractional = true 
+ PSEARCH>      ? 
+ -----------psearch-parameters--------------------------------------------------
+ FROM=SMFMAP1
+ LEVEl=  0
+ NLISt=    10
+ FRACtional=TRUE
+ Symbol=<undefined>
+ PSTOre=     0
+ SITE  0.56287 -0.04391  0.32541
+ SITE  0.37126  0.20160  0.12431
+ SITE  0.11577  0.46507  0.39671
+ SITE -0.02595  0.34132  0.15539
+ -------------------------------------------------------------------------------
+ PSEARCH>      Fractional = false 
+ PSEARCH>      ? 
+ -----------psearch-parameters--------------------------------------------------
+ FROM=SMFMAP1
+ LEVEl=  0
+ NLISt=    10
+ FRACtional=FALSE
+ Symbol=<undefined>
+ PSTOre=     0
+ SITE     2.82    -0.22     1.78
+ SITE     1.86     1.01     0.68
+ SITE     0.58     2.33     2.17
+ SITE    -0.13     1.71     0.85
+ -------------------------------------------------------------------------------
+ PSEARCH>    end 
+ PSEARCH: DensCutOff =   -248.602    
+ PSEARCH: Number of peaks in overstore buffer =       42
+ PSEARCH: Number of peaks listed              =       10
+ PSEARCH:                                   (  Cartesian Coordinates   )
+ PSEARCH:     1 Dens =    579.940     Pos = (    0.00,    0.00,    0.00)
+ PSEARCH:     2 Dens =    579.940     Pos = (    2.50,    0.00,    0.00)
+ PSEARCH:     3 Dens =    570.539     Pos = (    0.00,    0.00,    0.34)
+ PSEARCH:     4 Dens =    570.539     Pos = (    2.50,    0.00,    0.34)
+ PSEARCH:     5 Dens =    497.584     Pos = (    0.00,    0.00,    0.68)
+ PSEARCH:     6 Dens =    98.7559     Pos = (    0.00,    0.42,    0.00)
+ PSEARCH:     7 Dens =    98.7559     Pos = (    2.50,    0.42,    0.00)
+ PSEARCH:     8 Dens =    98.7559     Pos = (    0.42,    0.00,    0.34)
+ PSEARCH:     9 Dens =    98.7559     Pos = (    2.09,    0.00,    0.34)
+ PSEARCH:    10 Dens =    98.7559     Pos = (    0.42,    0.00,    0.68)
+ PSEARCH:    -3 Dens =    98.7559     Pos = (    0.58,    2.33,    2.17)   0.266707       -18.4805    
+ PSEARCH:    -1 Dens =   -3.43903     Pos = (    2.82,   -0.22,    1.78)   0.233453        112.298    
+ PSEARCH:    -4 Dens =   -137.725     Pos = (   -0.13,    1.71,    0.85)   0.214800       -118.778    
+ PSEARCH:    -2 Dens =   -147.185     Pos = (    1.86,    1.01,    0.68)   0.258339       -154.059    
+ XRAY>  end 
+ CNSsolve> 
+ CNSsolve>  set message=on end 
+ CNSsolve>end loop sg 
+ CNSsolve>for $sg in ("P1" "C2/c" "Fddd" "I-4c2" "P3(1)21" "P6(3)/mcm" "P2(1)3") loop sg 
+ FOR LOOP: symbol SG set to "P3(1)21" (string)
+ CNSsolve>  do (x=0.499   ) (name=SI1) 
+ SELRPN:      1 atoms have been selected out of      2
+ CNSsolve>  do (y=0.000   ) (name=SI1) 
+ SELRPN:      1 atoms have been selected out of      2
+ CNSsolve>  do (z=0.333333) (name=SI1) 
+ SELRPN:      1 atoms have been selected out of      2
+ CNSsolve>  do (q=1.0     ) (name=SI1) 
+ SELRPN:      1 atoms have been selected out of      2
+ CNSsolve>  do (b=2.0     ) (name=SI1) 
+ SELRPN:      1 atoms have been selected out of      2
+ CNSsolve> 
+ CNSsolve>  do (x=0.427   ) (name=O1) 
+ SELRPN:      1 atoms have been selected out of      2
+ CNSsolve>  do (y=0.187   ) (name=O1) 
+ SELRPN:      1 atoms have been selected out of      2
+ CNSsolve>  do (z=0.128   ) (name=O1) 
+ SELRPN:      1 atoms have been selected out of      2
+ CNSsolve>  do (q=1.0     ) (name=O1) 
+ SELRPN:      1 atoms have been selected out of      2
+ CNSsolve>  do (b=4.0     ) (name=O1) 
+ SELRPN:      1 atoms have been selected out of      2
+ CNSsolve> 
+ CNSsolve>  {* reset all xray settings 
+ CNSsolve>   *} 
+ CNSsolve>  xray 
+ XRAY>    reset 
+ XRAY: whole xray database erased and reset
+ XRAY>  end 
+ CNSsolve> 
+ CNSsolve>  {* define some general xray settings 
+ CNSsolve>   *} 
+ CNSsolve>  xray 
+ XRAY>    bins=1 
+ XRAY>    method=direct 
+ XRAY> 
+ XRAY>    evaluate ($lr=10000.) 
+ EVALUATE: symbol $LR set to    10000.0     (real)
+ XRAY>    evaluate ($hr=1) 
+ EVALUATE: symbol $HR set to    1.00000     (real)
+ XRAY>    binresolution $lr $hr 
+ XRAY>    mapresolution $hr 
+ XRAY>    tselection=( $hr <= d <= $lr ) 
+ XRAY>  end 
+ CNSsolve> 
+ CNSsolve>  {* define scattering factors and symmetry 
+ CNSsolve>   *} 
+ CNSsolve>  xray 
+ XRAY>    @@CNS_XRAYLIB:scatter.lib 
+ ASSFIL: file scatter.lib opened.
+ XRAY>! file libraries/xray/scatter.lib 
+ XRAY>! Atomic scattering factors without anomalous contribution 
+ XRAY>! Library for CNS 
+ XRAY> 
+ XRAY>! Authors: Paul Adams, Joe Jaeger, and Axel T. Brunger 
+ XRAY> 
+ XRAY>!BEWARE: 
+ XRAY>!(1) element Cf (Californium) has to be referred to as Cff 
+ XRAY>!(2) element Sm (Samarium) has to be referred to as Smm 
+ XRAY>!(3) element Np (Neptunium) has to be referred to as Npp 
+ XRAY>!(3) types of elements with ionic state (i.e., +/-) specifications have 
+ XRAY>!    to be put in double quotes in selection statements. 
+ XRAY> 
+ XRAY>set message ? end 
+ MESSage=NORM
+ XRAY>evaluate ($message_old_sclib=$result) 
+ EVALUATE: symbol $MESSAGE_OLD_SCLIB set to "NORM" (string)
+ XRAY>set echo ? end 
+ ECHO=TRUE {ON}
+ XRAY>evaluate ($echo_old_sclib=$result) 
+ EVALUATE: symbol $ECHO_OLD_SCLIB set to TRUE (logical)
+ XRAY>set echo=off message=off end 
+ XRAY>    @@CNS_XTALLIB:spacegroup.lib (sg=$sg; sgparam = $sgparam) 
+ ASSFIL: file spacegroup.lib opened.
+ XRAY>! file  libraries/xtal/spacegroup.lib 
+ XRAY>! library of symmetry operators for CNS 
+ XRAY>! Automatically generated with SgInfo Version 2.00a13 
+ XRAY> 
+ XRAY>module 
+ MODULE-DECLARATION>( 
+ MODULE-DECLARATION>  &sg=$sg; 
+ MODULE-DECLARATION>  &sgparam=$sgparam; 
+ MODULE-DECLARATION>) 
+ &_2_SG set to $_1_SG 
+ &_2_SGPARAM set to $_1_SGPARAM 
+ XRAY> 
+ XRAY>set message ? end 
+ MESSage=NORM
+ XRAY>evaluate ($message_old=$result) 
+ EVALUATE: symbol $MESSAGE_OLD set to "NORM" (string)
+ XRAY>set echo ? end 
+ ECHO=TRUE {ON}
+ XRAY>evaluate ($echo_old=$result) 
+ EVALUATE: symbol $ECHO_OLD set to TRUE (logical)
+ XRAY>set echo=off message=off end 
+SYMMETRY: found symmetry operators for space group P3(1)21 in library
+ XRAY> 
+ XRAY>  end 
+ CNSsolve> 
+ CNSsolve>  {* define dummy unit cell dimensions based on space group number 
+ CNSsolve>   *} 
+ CNSsolve>  if     ($sgparam.sg_number <=   2) then 
+ NEXTCD: condition evaluated as false
+ CNSsolve>    evaluate ($a = 5.01) 
+ CNSsolve>    evaluate ($b = 6.25) 
+ CNSsolve>    evaluate ($c = 5.47) 
+ CNSsolve>    evaluate ($alpha = 100) 
+ CNSsolve>    evaluate ($beta  =  80) 
+ CNSsolve>    evaluate ($gamma = 110) 
+ CNSsolve>  elseif ($sgparam.sg_number <=  15) then 
+ NEXTCD: condition evaluated as false
+ CNSsolve>    evaluate ($a = 5.01) 
+ CNSsolve>    evaluate ($b = 6.25) 
+ CNSsolve>    evaluate ($c = 5.47) 
+ CNSsolve>    evaluate ($alpha =  90) 
+ CNSsolve>    evaluate ($beta  =  80) 
+ CNSsolve>    evaluate ($gamma =  90) 
+ CNSsolve>  elseif ($sgparam.sg_number <=  74) then 
+ NEXTCD: condition evaluated as false
+ CNSsolve>    evaluate ($a = 5.01) 
+ CNSsolve>    evaluate ($b = 6.25) 
+ CNSsolve>    evaluate ($c = 5.47) 
+ CNSsolve>    evaluate ($alpha =  90) 
+ CNSsolve>    evaluate ($beta  =  90) 
+ CNSsolve>    evaluate ($gamma =  90) 
+ CNSsolve>  elseif ($sgparam.sg_number <= 142) then 
+ NEXTCD: condition evaluated as false
+ CNSsolve>    evaluate ($a = 5.01) 
+ CNSsolve>    evaluate ($b = $a) 
+ CNSsolve>    evaluate ($c = 5.47) 
+ CNSsolve>    evaluate ($alpha =  90) 
+ CNSsolve>    evaluate ($beta  =  90) 
+ CNSsolve>    evaluate ($gamma =  90) 
+ CNSsolve>  elseif ($sgparam.sg_number <= 194) then 
+ NEXTCD: condition evaluated as true
+ CNSsolve>    evaluate ($a = 5.01) 
+ EVALUATE: symbol $A set to    5.01000     (real)
+ CNSsolve>    evaluate ($b = $a) 
+ EVALUATE: symbol $B set to    5.01000     (real)
+ CNSsolve>    evaluate ($c = 5.47) 
+ EVALUATE: symbol $C set to    5.47000     (real)
+ CNSsolve>    evaluate ($alpha =  90) 
+ EVALUATE: symbol $ALPHA set to    90.0000     (real)
+ CNSsolve>    evaluate ($beta  =  90) 
+ EVALUATE: symbol $BETA set to    90.0000     (real)
+ CNSsolve>    evaluate ($gamma = 120) 
+ EVALUATE: symbol $GAMMA set to    120.000     (real)
+ CNSsolve>  else 
+ CNSsolve>    evaluate ($a = 5.01) 
+ CNSsolve>    evaluate ($b = $a) 
+ CNSsolve>    evaluate ($c = $a) 
+ CNSsolve>    evaluate ($alpha =  90) 
+ CNSsolve>    evaluate ($beta  =  90) 
+ CNSsolve>    evaluate ($gamma =  90) 
+ CNSsolve>  end if 
+ CNSsolve> 
+ CNSsolve>  xray 
+ XRAY>    a=$a b=$b c=$c alpha=$alpha beta=$beta gamma=$gamma 
+ XRAY>  end 
+ CNSsolve> 
+ CNSsolve>  coordinates orthogonalize end 
+ ORTHO: transformation matrix =
+     5.010000    -2.505000     0.000000
+     0.000000     4.338787     0.000000
+     0.000000     0.000000     5.470000
+ CNSsolve> 
+ CNSsolve>  xray 
+ XRAY>    {* set space-group dependent restrictions for map-grid dimensions 
+ XRAY>     *} 
+ XRAY>    fft 
+ XFFT>      grid=0.4 
+ XFFT>      xgridfactor=$sgparam.SymGrid_x 
+ XFFT>      ygridfactor=$sgparam.SymGrid_y 
+ XFFT>      zgridfactor=$sgparam.SymGrid_z 
+ XFFT>    end 
+ XRAY> 
+ XRAY>    {* generate reflections 
+ XRAY>     *} 
+ XRAY>    anomalous = false 
+ XRAY>    generate 100000. 1.0 
+ XGENER: generating reflections to produce a full set
+         for the specified resolution range.
+ XGENE2:       59 new reflections have been generated.
+ XRAY> 
+ XRAY>    {* compute dummy "fobs" 
+ XRAY>     *} 
+ XRAY>    declare name=fobs domain=reciprocal type=complex end 
+ XDECLARE: Object FOBS has been declared.
+ XRAY>    predict 
+ PREDict>      mode=reciprocal 
+ PREDict>      to=fobs 
+ PREDict>      selection=(all) 
+ Total of        59 structure factor elements were selected.
+ PREDict>      atomselection=(all) 
+ SELRPN:      2 atoms have been selected out of      2
+ PREDict>    end 
+ FOBS: #scatt.=      2 #anomalous=   0 #special pos.=  1 occupancies=1
+ XSFAL: allocating space for complex reciprocal space object.
+ XRAY> 
+ XRAY>    {* expand to P1 
+ XRAY>     *} 
+ XRAY>    expand 
+ XEXPA2:      188 new reflections have been generated.
+ XREDUC: some reflection(s) converted to CNS standard asymm. unit.
+ XRAY: data expanded and symmetry reset to P1.
+ XRAY>  end 
+ CNSsolve> 
+ CNSsolve>  xray 
+ XRAY>    {* declare maps 
+ XRAY>     *} 
+ XRAY>    declare name=patmap  domain=real end 
+ XRAY>    declare name=smfmap1 domain=real end 
+ XRAY>    declare name=smfmap2 domain=real end 
+ XRAY>  end 
+ CNSsolve> 
+ CNSsolve>  xray 
+ XRAY>    do (patmap=FT(combine(amplitude(fobs)^2, 0))) (all) 
+ XSFAL: allocating space for complex reciprocal space object.
+ Total of       247 structure factor elements were selected.
+ XMAPASU: using grid [  12,  12,  18] and sublattice [  12,  12,  18]
+ Maps will be stored in P1:
+   A=     0,...,    11  B=     0,...,    11  C=     0,...,    17
+ XMAPAL: allocating space for real space object.
+ XRAY>    show min (real(patmap)) (all) 
+ Minimum of      2592 elements =               -52.3771
+ XRAY>    show max (real(patmap)) (all) 
+ Maximum of      2592 elements =               564.4262
+ XRAY>  end 
+ CNSsolve> 
+ CNSsolve>  xray 
+ XRAY>    {* define symmetry for flagmap 
+ XRAY>     *} 
+ XRAY>    fmap 
+ XMAPASU: using grid [  12,  12,  18] and sublattice [  12,  12,  18]
+ Minimum brick that covers asymmetric unit:
+   A=     0,...,    12  B=     0,...,    12  C=     0,...,     3
+ FMAP>      @@CNS_XTALLIB:spacegroup.lib (sg=$sg; sgparam = $sgparam) 
+ ASSFIL: file spacegroup.lib opened.
+ FMAP>! file  libraries/xtal/spacegroup.lib 
+ FMAP>! library of symmetry operators for CNS 
+ FMAP>! Automatically generated with SgInfo Version 2.00a13 
+ FMAP> 
+ FMAP>module 
+ MODULE-DECLARATION>( 
+ MODULE-DECLARATION>  &sg=$sg; 
+ MODULE-DECLARATION>  &sgparam=$sgparam; 
+ MODULE-DECLARATION>) 
+ &_2_SG set to $_1_SG 
+ &_2_SGPARAM set to $_1_SGPARAM 
+ FMAP> 
+ FMAP>set message ? end 
+ MESSage=NORM
+ FMAP>evaluate ($message_old=$result) 
+ EVALUATE: symbol $MESSAGE_OLD set to "NORM" (string)
+ FMAP>set echo ? end 
+ ECHO=TRUE {ON}
+ FMAP>evaluate ($echo_old=$result) 
+ EVALUATE: symbol $ECHO_OLD set to TRUE (logical)
+ FMAP>set echo=off message=off end 
+SYMMETRY: found symmetry operators for space group P3(1)21 in library
+ FMAP> 
+ FMAP>      if ($sgparam.ssVM_1 # "VOID") then ssVM = $sgparam.ssVM_1 end if 
+ NEXTCD: condition evaluated as true
+ FMAP>      if ($sgparam.ssVM_2 # "VOID") then ssVM = $sgparam.ssVM_2 end if 
+ NEXTCD: condition evaluated as false
+ FMAP>      if ($sgparam.ssVM_3 # "VOID") then ssVM = $sgparam.ssVM_3 end if 
+ NEXTCD: condition evaluated as false
+ FMAP>      if ($sgparam.GenK2L # "VOID") then Addl = $sgparam.GenK2L end if 
+ NEXTCD: condition evaluated as false
+ FMAP>      ? 
+ --------------FMAP-parameters--------------------------------------------------
+ Number of symmetry operations =   6
+ Number of s.s.Vectors & Moduli =   1
+   s.s.Vector  Modulus
+     0  0  1   2
+ Number of ADDLgenerators =   0
+ USESym=FALSE
+ USE_ss=FALSE
+ USEAddl=FALSE
+ -------------------------------------------------------------------------------
+ FMAP>      Symmetry ? 
+ --------------FMAP-symmetry----------------------------------------------------
+ | SYMMetry=(X,Y,Z)
+ | SYMMetry=(-Y,X-Y,Z+1/3)
+ | SYMMetry=(-X+Y,-X,Z+2/3)
+ | SYMMetry=(X-Y,-Y,-Z+2/3)
+ | SYMMetry=(-X,-X+Y,-Z+1/3)
+ | SYMMetry=(Y,X,-Z)
+ -------------------------------------------------------------------------------
+ FMAP>      AddlGenerators ? 
+ --------------FMAP-ADDLgenerators----------------------------------------------
+ -------------------------------------------------------------------------------
+ FMAP>    end 
+ XRAY>  end 
+ CNSsolve> 
+ CNSsolve>  set message=all end 
+ CNSsolve> 
+ CNSsolve>  xray 
+ XRAY>    {* Build flagmap 
+ XRAY>     *} 
+ XRAY>    fmap 
+ XMAPASU: using grid [  12,  12,  18] and sublattice [  12,  12,  18]
+ Minimum brick that covers asymmetric unit:
+   A=     0,...,    12  B=     0,...,    12  C=     0,...,     3
+ Number of deleted points in ASU=         132
+ Number of non-zero lattice points in ASU=         444
+ Number of special positions in ASU=          24
+ FMAP>      UseSym = true 
+ FMAP>      Use_ss  = true 
+ FMAP>      UseAddl = true 
+ FMAP>      Action=Build 
+ FMAP>    end 
+ FMAP: Building FlagMap
+ FMAP: Removing grid points related by symmetry operations
+ FMAP:       Total number of grid points =      2592
+ FMAP: Remaining independent grid points =       444
+ FMAP: Removing grid points related by allowed origin shifts
+ FMAP: s.s.Vector  Grid-Adjusted-Modulus
+ FMAP:   0  0  1   2
+ FMAP:       Total number of grid points =      2592
+ FMAP: Remaining independent grid points =       222
+ FMAP: Removing grid points related by operations due to ADDLgenerators
+ FMAP:       Total number of grid points =      2592
+ FMAP: Remaining independent grid points =       222
+ FMAP: Independent grid points =       222
+ XRAY> 
+ XRAY>    {* Get Harker operators from library 
+ XRAY>     *} 
+ XRAY>    @@CNS_XTALLIB:harker_ops.lib (sg=$sg; harker=$harker) 
+ ASSFIL: file harker_ops.lib opened.
+ XRAY>! file  libraries/xtal/harker.lib 
+ XRAY>! library of Harker operators for CNS 
+ XRAY>! Automatically generated with SgInfo Version 2.00a12 
+ XRAY> 
+ XRAY>module 
+ MODULE-DECLARATION>( 
+ MODULE-DECLARATION>  &sg=$sg; 
+ &_2_SG set to $_2_SG 
+ MODULE-DECLARATION>  &harker=$harker; 
+ &_2_HARKER set to $_2_HARKER 
+ MODULE-DECLARATION>) 
+ &_2_SG set to $_1_SG 
+ &_2_HARKER set to $_1_HARKER 
+ XRAY> 
+ XRAY>set message ? end 
+ MESSage=ALL 
+ XRAY>evaluate ($message_old=$result) 
+ EVALUATE: symbol $MESSAGE_OLD set to "ALL " (string)
+ XRAY>set echo ? end 
+ ECHO=TRUE {ON}
+ XRAY>evaluate ($echo_old=$result) 
+ EVALUATE: symbol $ECHO_OLD set to TRUE (logical)
+ XRAY>set echo=off message=off end 
+HARKER: found Harker operators for space group P3(1)21 in library
+ XRAY> 
+ XRAY> 
+ XRAY>    {* Compute smfmap1, all grid points, use FlagMap only for check 
+ XRAY>     *} 
+ XRAY>    smf 
+ SMF>      patmap=patmap 
+ SMF>      smfmap=smfmap1 
+ SMF>      eval($i = 0) 
+ EVALUATE: symbol $I set to    0.00000     (real)
+ SMF>      while ($i < $harker.nOps) loop HarkerOps 
+ NEXTCD: condition evaluated as true
+ SMF>        eval($i = $i + 1) 
+ EVALUATE: symbol $I set to    1.00000     (real)
+ SMF>        HarkerOperator=$harker.Op_$i 
+ SMF>      end loop HarkerOps 
+ SMF>      while ($i < $harker.nOps) loop HarkerOps 
+ NEXTCD: condition evaluated as true
+ SMF>        eval($i = $i + 1) 
+ EVALUATE: symbol $I set to    2.00000     (real)
+ SMF>        HarkerOperator=$harker.Op_$i 
+ SMF>      end loop HarkerOps 
+ SMF>      while ($i < $harker.nOps) loop HarkerOps 
+ NEXTCD: condition evaluated as true
+ SMF>        eval($i = $i + 1) 
+ EVALUATE: symbol $I set to    3.00000     (real)
+ SMF>        HarkerOperator=$harker.Op_$i 
+ SMF>      end loop HarkerOps 
+ SMF>      while ($i < $harker.nOps) loop HarkerOps 
+ NEXTCD: condition evaluated as true
+ SMF>        eval($i = $i + 1) 
+ EVALUATE: symbol $I set to    4.00000     (real)
+ SMF>        HarkerOperator=$harker.Op_$i 
+ SMF>      end loop HarkerOps 
+ SMF>      while ($i < $harker.nOps) loop HarkerOps 
+ NEXTCD: condition evaluated as false
+ SMF>        eval($i = $i + 1) 
+ SMF>        HarkerOperator=$harker.Op_$i 
+ SMF>      end loop HarkerOps 
+ SMF>      ChkInDep=true 
+ SMF>      {* test the debug option *} 
+ SMF>      ? 
+ --------------smf-parameters---------------------------------------------------
+ PATMap=PATMAP
+ SMFMap=SMFMAP1
+ SGORderP= 1
+ Number of unique Harker operators =  4
+ HARKerOperator=(  1  1 -1  0  1  2  0  0  0  0  0  0  8)
+ HARKerOperator=(  1  0  0  0  1  2  0  0  0  2  0  0  4)
+ HARKerOperator=(  1  2  1  0  0  0  0  0  0  2  0  0  8)
+ HARKerOperator=(  1  1 -1  0 -1  1  0  0  0  2  0  0  0)
+ UnitWeights=false
+ -------------------------------------------------------------------------------
+ SMF>    end 
+ XMAPAL: allocating space for real space object.
+ SMF: Correlation of dependent and independent grid points =  1.00000
+ SMF: PATmap min =     -52.3771    
+ SMF: PATmap max =      564.426    
+ SMF: PATmap ave =     0.129948E-06
+ SMF: PATmap sigma =    42.7571    
+ SMF: SMFmap min =     -45.9845    
+ SMF: SMFmap max =      128.918    
+ SMF: SMFmap ave =     -30.1199    
+ SMF: SMFmap sigma =    17.0697    
+ XRAY> 
+ XRAY>    {* Compute smfmap2, only at grid points indicated by FlagMap 
+ XRAY>     *} 
+ XRAY>    smf 
+ SMF>      patmap=patmap 
+ SMF>      smfmap=smfmap2 
+ SMF>      eval($i = 0) 
+ EVALUATE: symbol $I set to    0.00000     (real)
+ SMF>      while ($i < $harker.nOps) loop HarkerOps 
+ NEXTCD: condition evaluated as true
+ SMF>        eval($i = $i + 1) 
+ EVALUATE: symbol $I set to    1.00000     (real)
+ SMF>        HarkerOperator=$harker.Op_$i 
+ SMF>      end loop HarkerOps 
+ SMF>      while ($i < $harker.nOps) loop HarkerOps 
+ NEXTCD: condition evaluated as true
+ SMF>        eval($i = $i + 1) 
+ EVALUATE: symbol $I set to    2.00000     (real)
+ SMF>        HarkerOperator=$harker.Op_$i 
+ SMF>      end loop HarkerOps 
+ SMF>      while ($i < $harker.nOps) loop HarkerOps 
+ NEXTCD: condition evaluated as true
+ SMF>        eval($i = $i + 1) 
+ EVALUATE: symbol $I set to    3.00000     (real)
+ SMF>        HarkerOperator=$harker.Op_$i 
+ SMF>      end loop HarkerOps 
+ SMF>      while ($i < $harker.nOps) loop HarkerOps 
+ NEXTCD: condition evaluated as true
+ SMF>        eval($i = $i + 1) 
+ EVALUATE: symbol $I set to    4.00000     (real)
+ SMF>        HarkerOperator=$harker.Op_$i 
+ SMF>      end loop HarkerOps 
+ SMF>      while ($i < $harker.nOps) loop HarkerOps 
+ NEXTCD: condition evaluated as false
+ SMF>        eval($i = $i + 1) 
+ SMF>        HarkerOperator=$harker.Op_$i 
+ SMF>      end loop HarkerOps 
+ SMF>      ? 
+ --------------smf-parameters---------------------------------------------------
+ PATMap=PATMAP
+ SMFMap=SMFMAP2
+ SGORderP= 1
+ Number of unique Harker operators =  4
+ HARKerOperator=(  1  1 -1  0  1  2  0  0  0  0  0  0  8)
+ HARKerOperator=(  1  0  0  0  1  2  0  0  0  2  0  0  4)
+ HARKerOperator=(  1  2  1  0  0  0  0  0  0  2  0  0  8)
+ HARKerOperator=(  1  1 -1  0 -1  1  0  0  0  2  0  0  0)
+ UnitWeights=false
+ -------------------------------------------------------------------------------
+ SMF>    end 
+ XMAPAL: allocating space for real space object.
+ SMF: PATmap min =     -52.3771    
+ SMF: PATmap max =      564.426    
+ SMF: PATmap ave =     0.129948E-06
+ SMF: PATmap sigma =    42.7571    
+ SMF: SMFmap min =     -45.9845    
+ SMF: SMFmap max =      128.918    
+ SMF: SMFmap ave =     -30.1199    
+ SMF: SMFmap sigma =    17.0697    
+ XRAY> 
+ XRAY>    {* make sure smfmap1 and smfmap2 are exactly equal 
+ XRAY>     *} 
+ XRAY>    show max (abs(smfmap1-smfmap2)) (all) 
+ Maximum of      2592 elements =                 0.0000
+ XRAY>    if ($result # 0) then 
+ NEXTCD: condition evaluated as false
+ XRAY>      abort 
+ XRAY>    end if 
+ XRAY> 
+ XRAY>    {* list the 10 non-redundant highest peaks 
+ XRAY>     *} 
+ XRAY>    psearch 
+ PSEARCH>      From=smfmap1 
+ PSEARCH>      level = 0 
+ PSEARCH>      nList = 10 
+ PSEARCH>      Fractional = true 
+ PSEARCH>      Site=0.49900 0.00000 0.33330 
+ PSEARCH>      Site=0.42700 0.18700 0.12800 
+ PSEARCH>      Site=0.22830 0.44290 0.40670 
+ PSEARCH>      Site=0.07540 0.30950 0.15860 
+ PSEARCH>      Fractional = false 
+ PSEARCH>      ? 
+ -----------psearch-parameters--------------------------------------------------
+ FROM=SMFMAP1
+ LEVEl=  0
+ NLISt=    10
+ FRACtional=FALSE
+ Symbol=<undefined>
+ PSTOre=     0
+ SITE     2.50     0.00     1.82
+ SITE     1.67     0.81     0.70
+ SITE     0.03     1.92     2.22
+ SITE    -0.40     1.34     0.87
+ -------------------------------------------------------------------------------
+ PSEARCH>      Fractional = true 
+ PSEARCH>      ? 
+ -----------psearch-parameters--------------------------------------------------
+ FROM=SMFMAP1
+ LEVEl=  0
+ NLISt=    10
+ FRACtional=TRUE
+ Symbol=<undefined>
+ PSTOre=     0
+ SITE  0.49900  0.00000  0.33330
+ SITE  0.42700  0.18700  0.12800
+ SITE  0.22830  0.44290  0.40670
+ SITE  0.07540  0.30950  0.15860
+ -------------------------------------------------------------------------------
+ PSEARCH>    end 
+ PSEARCH: DensCutOff =   -33.3451    
+ PSEARCH: Number of peaks in overstore buffer =      108
+ PSEARCH: Number of peaks listed              =       10
+ PSEARCH:                                   (  Fractional Coordinates  )
+ PSEARCH:     1 Dens =    128.918     Pos = ( 0.50000, 0.50000, 0.00000)
+ PSEARCH:    -1 Dens =    128.918     Pos = ( 0.49900, 0.00000, 0.33330)   0.501332E-02    127.177    
+ PSEARCH:     2 Dens =    35.2592     Pos = ( 0.33333, 0.33333, 0.00000)
+ PSEARCH:     3 Dens =    33.7720     Pos = ( 0.16667, 0.33333, 0.05556)
+ PSEARCH:     4 Dens =    12.9066     Pos = ( 0.08333, 0.25000, 0.05556)
+ PSEARCH:     5 Dens =    11.4828     Pos = ( 0.50000, 0.50000, 0.05556)
+ PSEARCH:     6 Dens =    8.53701     Pos = ( 0.41667, 0.41667, 0.00000)
+ PSEARCH:     7 Dens =    6.57144     Pos = ( 0.50000, 0.58333, 0.05556)
+ PSEARCH:     8 Dens =    3.68138     Pos = ( 0.83333, 0.75000, 0.05556)
+ PSEARCH:     9 Dens =    3.57572     Pos = ( 0.50000, 0.41667, 0.00000)
+ PSEARCH:    10 Dens =    3.57572     Pos = ( 0.16667, 0.25000, 0.05556)
+ PSEARCH:    -3 Dens =   -10.6351     Pos = ( 0.22830, 0.44290, 0.40670)   0.229942       -17.8420    
+ PSEARCH:    -2 Dens =   -15.3991     Pos = ( 0.42700, 0.18700, 0.12800)   0.127743       -17.5694    
+ PSEARCH:    -4 Dens =   -22.5192     Pos = ( 0.07540, 0.30950, 0.15860)   0.114186       -22.1775    
+ XRAY> 
+ XRAY>    {* again with cartesian coordinates 
+ XRAY>     *} 
+ XRAY>    psearch 
+ PSEARCH>      From=smfmap1 
+ PSEARCH>      level = 0 
+ PSEARCH>      nList = 10 
+ PSEARCH>      SITE     2.82    -0.22     1.78 
+ PSEARCH>      SITE     1.86     1.01     0.68 
+ PSEARCH>      SITE     0.58     2.33     2.17 
+ PSEARCH>      SITE    -0.13     1.71     0.85 
+ PSEARCH>      Fractional = true 
+ PSEARCH>      ? 
+ -----------psearch-parameters--------------------------------------------------
+ FROM=SMFMAP1
+ LEVEl=  0
+ NLISt=    10
+ FRACtional=TRUE
+ Symbol=<undefined>
+ PSTOre=     0
+ SITE  0.53752 -0.05071  0.32541
+ SITE  0.48765  0.23278  0.12431
+ SITE  0.38428  0.53702  0.39671
+ SITE  0.17111  0.39412  0.15539
+ -------------------------------------------------------------------------------
+ PSEARCH>      Fractional = false 
+ PSEARCH>      ? 
+ -----------psearch-parameters--------------------------------------------------
+ FROM=SMFMAP1
+ LEVEl=  0
+ NLISt=    10
+ FRACtional=FALSE
+ Symbol=<undefined>
+ PSTOre=     0
+ SITE     2.82    -0.22     1.78
+ SITE     1.86     1.01     0.68
+ SITE     0.58     2.33     2.17
+ SITE    -0.13     1.71     0.85
+ -------------------------------------------------------------------------------
+ PSEARCH>    end 
+ PSEARCH: DensCutOff =   -33.3451    
+ PSEARCH: Number of peaks in overstore buffer =      108
+ PSEARCH: Number of peaks listed              =       10
+ PSEARCH:                                   (  Cartesian Coordinates   )
+ PSEARCH:     1 Dens =    128.918     Pos = (    1.25,    2.17,    0.00)
+ PSEARCH:     2 Dens =    35.2592     Pos = (    0.83,    1.45,    0.00)
+ PSEARCH:     3 Dens =    33.7720     Pos = (    0.00,    1.45,    0.30)
+ PSEARCH:     4 Dens =    12.9066     Pos = (   -0.21,    1.08,    0.30)
+ PSEARCH:     5 Dens =    11.4828     Pos = (    1.25,    2.17,    0.30)
+ PSEARCH:     6 Dens =    8.53701     Pos = (    1.04,    1.81,    0.00)
+ PSEARCH:     7 Dens =    6.57144     Pos = (    1.04,    2.53,    0.30)
+ PSEARCH:     8 Dens =    3.68138     Pos = (    2.30,    3.25,    0.30)
+ PSEARCH:     9 Dens =    3.57572     Pos = (    1.46,    1.81,    0.00)
+ PSEARCH:    10 Dens =    3.57572     Pos = (    0.21,    1.08,    0.30)
+ PSEARCH:    -1 Dens =    3.57572     Pos = (    2.82,   -0.22,    1.78)   0.182230        25.3466    
+ PSEARCH:    -4 Dens =   -22.5192     Pos = (   -0.13,    1.71,    0.85)   0.139909       -22.3958    
+ PSEARCH:    -2 Dens =   -24.6862     Pos = (    1.86,    1.01,    0.68)   0.105580       -23.0577    
+ PSEARCH:    -3 Dens =   -37.8568     Pos = (    0.58,    2.33,    2.17)   0.210603       -28.8949    
+ XRAY>  end 
+ CNSsolve> 
+ CNSsolve>  set message=on end 
+ CNSsolve>end loop sg 
+ CNSsolve>for $sg in ("P1" "C2/c" "Fddd" "I-4c2" "P3(1)21" "P6(3)/mcm" "P2(1)3") loop sg 
+ FOR LOOP: symbol SG set to "P6(3)/mcm" (string)
+ CNSsolve>  do (x=0.499   ) (name=SI1) 
+ SELRPN:      1 atoms have been selected out of      2
+ CNSsolve>  do (y=0.000   ) (name=SI1) 
+ SELRPN:      1 atoms have been selected out of      2
+ CNSsolve>  do (z=0.333333) (name=SI1) 
+ SELRPN:      1 atoms have been selected out of      2
+ CNSsolve>  do (q=1.0     ) (name=SI1) 
+ SELRPN:      1 atoms have been selected out of      2
+ CNSsolve>  do (b=2.0     ) (name=SI1) 
+ SELRPN:      1 atoms have been selected out of      2
+ CNSsolve> 
+ CNSsolve>  do (x=0.427   ) (name=O1) 
+ SELRPN:      1 atoms have been selected out of      2
+ CNSsolve>  do (y=0.187   ) (name=O1) 
+ SELRPN:      1 atoms have been selected out of      2
+ CNSsolve>  do (z=0.128   ) (name=O1) 
+ SELRPN:      1 atoms have been selected out of      2
+ CNSsolve>  do (q=1.0     ) (name=O1) 
+ SELRPN:      1 atoms have been selected out of      2
+ CNSsolve>  do (b=4.0     ) (name=O1) 
+ SELRPN:      1 atoms have been selected out of      2
+ CNSsolve> 
+ CNSsolve>  {* reset all xray settings 
+ CNSsolve>   *} 
+ CNSsolve>  xray 
+ XRAY>    reset 
+ XRAY: whole xray database erased and reset
+ XRAY>  end 
+ CNSsolve> 
+ CNSsolve>  {* define some general xray settings 
+ CNSsolve>   *} 
+ CNSsolve>  xray 
+ XRAY>    bins=1 
+ XRAY>    method=direct 
+ XRAY> 
+ XRAY>    evaluate ($lr=10000.) 
+ EVALUATE: symbol $LR set to    10000.0     (real)
+ XRAY>    evaluate ($hr=1) 
+ EVALUATE: symbol $HR set to    1.00000     (real)
+ XRAY>    binresolution $lr $hr 
+ XRAY>    mapresolution $hr 
+ XRAY>    tselection=( $hr <= d <= $lr ) 
+ XRAY>  end 
+ CNSsolve> 
+ CNSsolve>  {* define scattering factors and symmetry 
+ CNSsolve>   *} 
+ CNSsolve>  xray 
+ XRAY>    @@CNS_XRAYLIB:scatter.lib 
+ ASSFIL: file scatter.lib opened.
+ XRAY>! file libraries/xray/scatter.lib 
+ XRAY>! Atomic scattering factors without anomalous contribution 
+ XRAY>! Library for CNS 
+ XRAY> 
+ XRAY>! Authors: Paul Adams, Joe Jaeger, and Axel T. Brunger 
+ XRAY> 
+ XRAY>!BEWARE: 
+ XRAY>!(1) element Cf (Californium) has to be referred to as Cff 
+ XRAY>!(2) element Sm (Samarium) has to be referred to as Smm 
+ XRAY>!(3) element Np (Neptunium) has to be referred to as Npp 
+ XRAY>!(3) types of elements with ionic state (i.e., +/-) specifications have 
+ XRAY>!    to be put in double quotes in selection statements. 
+ XRAY> 
+ XRAY>set message ? end 
+ MESSage=NORM
+ XRAY>evaluate ($message_old_sclib=$result) 
+ EVALUATE: symbol $MESSAGE_OLD_SCLIB set to "NORM" (string)
+ XRAY>set echo ? end 
+ ECHO=TRUE {ON}
+ XRAY>evaluate ($echo_old_sclib=$result) 
+ EVALUATE: symbol $ECHO_OLD_SCLIB set to TRUE (logical)
+ XRAY>set echo=off message=off end 
+ XRAY>    @@CNS_XTALLIB:spacegroup.lib (sg=$sg; sgparam = $sgparam) 
+ ASSFIL: file spacegroup.lib opened.
+ XRAY>! file  libraries/xtal/spacegroup.lib 
+ XRAY>! library of symmetry operators for CNS 
+ XRAY>! Automatically generated with SgInfo Version 2.00a13 
+ XRAY> 
+ XRAY>module 
+ MODULE-DECLARATION>( 
+ MODULE-DECLARATION>  &sg=$sg; 
+ MODULE-DECLARATION>  &sgparam=$sgparam; 
+ MODULE-DECLARATION>) 
+ &_2_SG set to $_1_SG 
+ &_2_SGPARAM set to $_1_SGPARAM 
+ XRAY> 
+ XRAY>set message ? end 
+ MESSage=NORM
+ XRAY>evaluate ($message_old=$result) 
+ EVALUATE: symbol $MESSAGE_OLD set to "NORM" (string)
+ XRAY>set echo ? end 
+ ECHO=TRUE {ON}
+ XRAY>evaluate ($echo_old=$result) 
+ EVALUATE: symbol $ECHO_OLD set to TRUE (logical)
+ XRAY>set echo=off message=off end 
+SYMMETRY: found symmetry operators for space group P6(3)/mcm in library
+ XRAY> 
+ XRAY>  end 
+ CNSsolve> 
+ CNSsolve>  {* define dummy unit cell dimensions based on space group number 
+ CNSsolve>   *} 
+ CNSsolve>  if     ($sgparam.sg_number <=   2) then 
+ NEXTCD: condition evaluated as false
+ CNSsolve>    evaluate ($a = 5.01) 
+ CNSsolve>    evaluate ($b = 6.25) 
+ CNSsolve>    evaluate ($c = 5.47) 
+ CNSsolve>    evaluate ($alpha = 100) 
+ CNSsolve>    evaluate ($beta  =  80) 
+ CNSsolve>    evaluate ($gamma = 110) 
+ CNSsolve>  elseif ($sgparam.sg_number <=  15) then 
+ NEXTCD: condition evaluated as false
+ CNSsolve>    evaluate ($a = 5.01) 
+ CNSsolve>    evaluate ($b = 6.25) 
+ CNSsolve>    evaluate ($c = 5.47) 
+ CNSsolve>    evaluate ($alpha =  90) 
+ CNSsolve>    evaluate ($beta  =  80) 
+ CNSsolve>    evaluate ($gamma =  90) 
+ CNSsolve>  elseif ($sgparam.sg_number <=  74) then 
+ NEXTCD: condition evaluated as false
+ CNSsolve>    evaluate ($a = 5.01) 
+ CNSsolve>    evaluate ($b = 6.25) 
+ CNSsolve>    evaluate ($c = 5.47) 
+ CNSsolve>    evaluate ($alpha =  90) 
+ CNSsolve>    evaluate ($beta  =  90) 
+ CNSsolve>    evaluate ($gamma =  90) 
+ CNSsolve>  elseif ($sgparam.sg_number <= 142) then 
+ NEXTCD: condition evaluated as false
+ CNSsolve>    evaluate ($a = 5.01) 
+ CNSsolve>    evaluate ($b = $a) 
+ CNSsolve>    evaluate ($c = 5.47) 
+ CNSsolve>    evaluate ($alpha =  90) 
+ CNSsolve>    evaluate ($beta  =  90) 
+ CNSsolve>    evaluate ($gamma =  90) 
+ CNSsolve>  elseif ($sgparam.sg_number <= 194) then 
+ NEXTCD: condition evaluated as true
+ CNSsolve>    evaluate ($a = 5.01) 
+ EVALUATE: symbol $A set to    5.01000     (real)
+ CNSsolve>    evaluate ($b = $a) 
+ EVALUATE: symbol $B set to    5.01000     (real)
+ CNSsolve>    evaluate ($c = 5.47) 
+ EVALUATE: symbol $C set to    5.47000     (real)
+ CNSsolve>    evaluate ($alpha =  90) 
+ EVALUATE: symbol $ALPHA set to    90.0000     (real)
+ CNSsolve>    evaluate ($beta  =  90) 
+ EVALUATE: symbol $BETA set to    90.0000     (real)
+ CNSsolve>    evaluate ($gamma = 120) 
+ EVALUATE: symbol $GAMMA set to    120.000     (real)
+ CNSsolve>  else 
+ CNSsolve>    evaluate ($a = 5.01) 
+ CNSsolve>    evaluate ($b = $a) 
+ CNSsolve>    evaluate ($c = $a) 
+ CNSsolve>    evaluate ($alpha =  90) 
+ CNSsolve>    evaluate ($beta  =  90) 
+ CNSsolve>    evaluate ($gamma =  90) 
+ CNSsolve>  end if 
+ CNSsolve> 
+ CNSsolve>  xray 
+ XRAY>    a=$a b=$b c=$c alpha=$alpha beta=$beta gamma=$gamma 
+ XRAY>  end 
+ CNSsolve> 
+ CNSsolve>  coordinates orthogonalize end 
+ ORTHO: transformation matrix =
+     5.010000    -2.505000     0.000000
+     0.000000     4.338787     0.000000
+     0.000000     0.000000     5.470000
+ CNSsolve> 
+ CNSsolve>  xray 
+ XRAY>    {* set space-group dependent restrictions for map-grid dimensions 
+ XRAY>     *} 
+ XRAY>    fft 
+ XFFT>      grid=0.4 
+ XFFT>      xgridfactor=$sgparam.SymGrid_x 
+ XFFT>      ygridfactor=$sgparam.SymGrid_y 
+ XFFT>      zgridfactor=$sgparam.SymGrid_z 
+ XFFT>    end 
+ XRAY> 
+ XRAY>    {* generate reflections 
+ XRAY>     *} 
+ XRAY>    anomalous = false 
+ XRAY>    generate 100000. 1.0 
+ XGENER: generating reflections to produce a full set
+         for the specified resolution range.
+ XGENE2:       31 new reflections have been generated.
+ XRAY> 
+ XRAY>    {* compute dummy "fobs" 
+ XRAY>     *} 
+ XRAY>    declare name=fobs domain=reciprocal type=complex end 
+ XDECLARE: Object FOBS has been declared.
+ XRAY>    predict 
+ PREDict>      mode=reciprocal 
+ PREDict>      to=fobs 
+ PREDict>      selection=(all) 
+ Total of        31 structure factor elements were selected.
+ PREDict>      atomselection=(all) 
+ SELRPN:      2 atoms have been selected out of      2
+ PREDict>    end 
+ FOBS: #scatt.=      2 #anomalous=   0 #special pos.=  1 occupancies=1
+ XSFAL: allocating space for complex reciprocal space object.
+ XRAY> 
+ XRAY>    {* expand to P1 
+ XRAY>     *} 
+ XRAY>    expand 
+ XEXPA2:      169 new reflections have been generated.
+ XREDUC: some reflection(s) converted to CNS standard asymm. unit.
+ XRAY: data expanded and symmetry reset to P1.
+ XRAY>  end 
+ CNSsolve> 
+ CNSsolve>  xray 
+ XRAY>    {* declare maps 
+ XRAY>     *} 
+ XRAY>    declare name=patmap  domain=real end 
+ XRAY>    declare name=smfmap1 domain=real end 
+ XRAY>    declare name=smfmap2 domain=real end 
+ XRAY>  end 
+ CNSsolve> 
+ CNSsolve>  xray 
+ XRAY>    do (patmap=FT(combine(amplitude(fobs)^2, 0))) (all) 
+ XSFAL: allocating space for complex reciprocal space object.
+ Total of       200 structure factor elements were selected.
+ XMAPASU: using grid [  12,  12,  16] and sublattice [  12,  12,  16]
+ Maps will be stored in P1:
+   A=     0,...,    11  B=     0,...,    11  C=     0,...,    15
+ XMAPAL: allocating space for real space object.
+ XRAY>    show min (real(patmap)) (all) 
+ Minimum of      2304 elements =              -297.9581
+ XRAY>    show max (real(patmap)) (all) 
+ Maximum of      2304 elements =              1834.0647
+ XRAY>  end 
+ CNSsolve> 
+ CNSsolve>  xray 
+ XRAY>    {* define symmetry for flagmap 
+ XRAY>     *} 
+ XRAY>    fmap 
+ XMAPASU: using grid [  12,  12,  16] and sublattice [  12,  12,  16]
+ Minimum brick that covers asymmetric unit:
+   A=     0,...,     8  B=     0,...,     6  C=     0,...,     4
+ FMAP>      @@CNS_XTALLIB:spacegroup.lib (sg=$sg; sgparam = $sgparam) 
+ ASSFIL: file spacegroup.lib opened.
+ FMAP>! file  libraries/xtal/spacegroup.lib 
+ FMAP>! library of symmetry operators for CNS 
+ FMAP>! Automatically generated with SgInfo Version 2.00a13 
+ FMAP> 
+ FMAP>module 
+ MODULE-DECLARATION>( 
+ MODULE-DECLARATION>  &sg=$sg; 
+ MODULE-DECLARATION>  &sgparam=$sgparam; 
+ MODULE-DECLARATION>) 
+ &_2_SG set to $_1_SG 
+ &_2_SGPARAM set to $_1_SGPARAM 
+ FMAP> 
+ FMAP>set message ? end 
+ MESSage=NORM
+ FMAP>evaluate ($message_old=$result) 
+ EVALUATE: symbol $MESSAGE_OLD set to "NORM" (string)
+ FMAP>set echo ? end 
+ ECHO=TRUE {ON}
+ FMAP>evaluate ($echo_old=$result) 
+ EVALUATE: symbol $ECHO_OLD set to TRUE (logical)
+ FMAP>set echo=off message=off end 
+SYMMETRY: found symmetry operators for space group P6(3)/mcm in library
+ FMAP> 
+ FMAP>      if ($sgparam.ssVM_1 # "VOID") then ssVM = $sgparam.ssVM_1 end if 
+ NEXTCD: condition evaluated as true
+ FMAP>      if ($sgparam.ssVM_2 # "VOID") then ssVM = $sgparam.ssVM_2 end if 
+ NEXTCD: condition evaluated as false
+ FMAP>      if ($sgparam.ssVM_3 # "VOID") then ssVM = $sgparam.ssVM_3 end if 
+ NEXTCD: condition evaluated as false
+ FMAP>      if ($sgparam.GenK2L # "VOID") then Addl = $sgparam.GenK2L end if 
+ NEXTCD: condition evaluated as false
+ FMAP>      ? 
+ --------------FMAP-parameters--------------------------------------------------
+ Number of symmetry operations =  24
+ Number of s.s.Vectors & Moduli =   1
+   s.s.Vector  Modulus
+     0  0  1   2
+ Number of ADDLgenerators =   0
+ USESym=FALSE
+ USE_ss=FALSE
+ USEAddl=FALSE
+ -------------------------------------------------------------------------------
+ FMAP>      Symmetry ? 
+ --------------FMAP-symmetry----------------------------------------------------
+ | SYMMetry=(X,Y,Z)
+ | SYMMetry=(X-Y,X,Z+1/2)
+ | SYMMetry=(-Y,X-Y,Z)
+ | SYMMetry=(-X,-Y,Z+1/2)
+ | SYMMetry=(-X+Y,-X,Z)
+ | SYMMetry=(Y,-X+Y,Z+1/2)
+ | SYMMetry=(X-Y,-Y,-Z+1/2)
+ | SYMMetry=(-X,-X+Y,-Z+1/2)
+ | SYMMetry=(Y,X,-Z+1/2)
+ | SYMMetry=(-Y,-X,-Z)
+ | SYMMetry=(-X+Y,Y,-Z)
+ | SYMMetry=(X,X-Y,-Z)
+ | SYMMetry=(-X,-Y,-Z)
+ | SYMMetry=(-X+Y,-X,-Z+1/2)
+ | SYMMetry=(Y,-X+Y,-Z)
+ | SYMMetry=(X,Y,-Z+1/2)
+ | SYMMetry=(X-Y,X,-Z)
+ | SYMMetry=(-Y,X-Y,-Z+1/2)
+ | SYMMetry=(-X+Y,Y,Z+1/2)
+ | SYMMetry=(X,X-Y,Z+1/2)
+ | SYMMetry=(-Y,-X,Z+1/2)
+ | SYMMetry=(Y,X,Z)
+ | SYMMetry=(X-Y,-Y,Z)
+ | SYMMetry=(-X,-X+Y,Z)
+ -------------------------------------------------------------------------------
+ FMAP>      AddlGenerators ? 
+ --------------FMAP-ADDLgenerators----------------------------------------------
+ -------------------------------------------------------------------------------
+ FMAP>    end 
+ XRAY>  end 
+ CNSsolve> 
+ CNSsolve>  set message=all end 
+ CNSsolve> 
+ CNSsolve>  xray 
+ XRAY>    {* Build flagmap 
+ XRAY>     *} 
+ XRAY>    fmap 
+ XMAPASU: using grid [  12,  12,  16] and sublattice [  12,  12,  16]
+ Minimum brick that covers asymmetric unit:
+   A=     0,...,     8  B=     0,...,     6  C=     0,...,     4
+ Number of deleted points in ASU=          22
+ Number of non-zero lattice points in ASU=         143
+ Number of special positions in ASU=          82
+ FMAP>      UseSym = true 
+ FMAP>      Use_ss  = true 
+ FMAP>      UseAddl = true 
+ FMAP>      Action=Build 
+ FMAP>    end 
+ FMAP: Building FlagMap
+ FMAP: Removing grid points related by symmetry operations
+ FMAP:       Total number of grid points =      2304
+ FMAP: Remaining independent grid points =       143
+ FMAP: Removing grid points related by allowed origin shifts
+ FMAP: s.s.Vector  Grid-Adjusted-Modulus
+ FMAP:   0  0  1   2
+ FMAP:       Total number of grid points =      2304
+ FMAP: Remaining independent grid points =        95
+ FMAP: Removing grid points related by operations due to ADDLgenerators
+ FMAP:       Total number of grid points =      2304
+ FMAP: Remaining independent grid points =        95
+ FMAP: Independent grid points =        95
+ XRAY> 
+ XRAY>    {* Get Harker operators from library 
+ XRAY>     *} 
+ XRAY>    @@CNS_XTALLIB:harker_ops.lib (sg=$sg; harker=$harker) 
+ ASSFIL: file harker_ops.lib opened.
+ XRAY>! file  libraries/xtal/harker.lib 
+ XRAY>! library of Harker operators for CNS 
+ XRAY>! Automatically generated with SgInfo Version 2.00a12 
+ XRAY> 
+ XRAY>module 
+ MODULE-DECLARATION>( 
+ MODULE-DECLARATION>  &sg=$sg; 
+ &_2_SG set to $_2_SG 
+ MODULE-DECLARATION>  &harker=$harker; 
+ &_2_HARKER set to $_2_HARKER 
+ MODULE-DECLARATION>) 
+ &_2_SG set to $_1_SG 
+ &_2_HARKER set to $_1_HARKER 
+ XRAY> 
+ XRAY>set message ? end 
+ MESSage=ALL 
+ XRAY>evaluate ($message_old=$result) 
+ EVALUATE: symbol $MESSAGE_OLD set to "ALL " (string)
+ XRAY>set echo ? end 
+ ECHO=TRUE {ON}
+ XRAY>evaluate ($echo_old=$result) 
+ EVALUATE: symbol $ECHO_OLD set to TRUE (logical)
+ XRAY>set echo=off message=off end 
+HARKER: found Harker operators for space group P6(3)/mcm in library
+ XRAY> 
+ XRAY> 
+ XRAY>    {* Compute smfmap1, all grid points, use FlagMap only for check 
+ XRAY>     *} 
+ XRAY>    smf 
+ SMF>      patmap=patmap 
+ SMF>      smfmap=smfmap1 
+ SMF>      eval($i = 0) 
+ EVALUATE: symbol $I set to    0.00000     (real)
+ SMF>      while ($i < $harker.nOps) loop HarkerOps 
+ NEXTCD: condition evaluated as true
+ SMF>        eval($i = $i + 1) 
+ EVALUATE: symbol $I set to    1.00000     (real)
+ SMF>        HarkerOperator=$harker.Op_$i 
+ SMF>      end loop HarkerOps 
+ SMF>      while ($i < $harker.nOps) loop HarkerOps 
+ NEXTCD: condition evaluated as true
+ SMF>        eval($i = $i + 1) 
+ EVALUATE: symbol $I set to    2.00000     (real)
+ SMF>        HarkerOperator=$harker.Op_$i 
+ SMF>      end loop HarkerOps 
+ SMF>      while ($i < $harker.nOps) loop HarkerOps 
+ NEXTCD: condition evaluated as true
+ SMF>        eval($i = $i + 1) 
+ EVALUATE: symbol $I set to    3.00000     (real)
+ SMF>        HarkerOperator=$harker.Op_$i 
+ SMF>      end loop HarkerOps 
+ SMF>      while ($i < $harker.nOps) loop HarkerOps 
+ NEXTCD: condition evaluated as true
+ SMF>        eval($i = $i + 1) 
+ EVALUATE: symbol $I set to    4.00000     (real)
+ SMF>        HarkerOperator=$harker.Op_$i 
+ SMF>      end loop HarkerOps 
+ SMF>      while ($i < $harker.nOps) loop HarkerOps 
+ NEXTCD: condition evaluated as true
+ SMF>        eval($i = $i + 1) 
+ EVALUATE: symbol $I set to    5.00000     (real)
+ SMF>        HarkerOperator=$harker.Op_$i 
+ SMF>      end loop HarkerOps 
+ SMF>      while ($i < $harker.nOps) loop HarkerOps 
+ NEXTCD: condition evaluated as true
+ SMF>        eval($i = $i + 1) 
+ EVALUATE: symbol $I set to    6.00000     (real)
+ SMF>        HarkerOperator=$harker.Op_$i 
+ SMF>      end loop HarkerOps 
+ SMF>      while ($i < $harker.nOps) loop HarkerOps 
+ NEXTCD: condition evaluated as true
+ SMF>        eval($i = $i + 1) 
+ EVALUATE: symbol $I set to    7.00000     (real)
+ SMF>        HarkerOperator=$harker.Op_$i 
+ SMF>      end loop HarkerOps 
+ SMF>      while ($i < $harker.nOps) loop HarkerOps 
+ NEXTCD: condition evaluated as true
+ SMF>        eval($i = $i + 1) 
+ EVALUATE: symbol $I set to    8.00000     (real)
+ SMF>        HarkerOperator=$harker.Op_$i 
+ SMF>      end loop HarkerOps 
+ SMF>      while ($i < $harker.nOps) loop HarkerOps 
+ NEXTCD: condition evaluated as true
+ SMF>        eval($i = $i + 1) 
+ EVALUATE: symbol $I set to    9.00000     (real)
+ SMF>        HarkerOperator=$harker.Op_$i 
+ SMF>      end loop HarkerOps 
+ SMF>      while ($i < $harker.nOps) loop HarkerOps 
+ NEXTCD: condition evaluated as true
+ SMF>        eval($i = $i + 1) 
+ EVALUATE: symbol $I set to    10.0000     (real)
+ SMF>        HarkerOperator=$harker.Op_$i 
+ SMF>      end loop HarkerOps 
+ SMF>      while ($i < $harker.nOps) loop HarkerOps 
+ NEXTCD: condition evaluated as true
+ SMF>        eval($i = $i + 1) 
+ EVALUATE: symbol $I set to    11.0000     (real)
+ SMF>        HarkerOperator=$harker.Op_$i 
+ SMF>      end loop HarkerOps 
+ SMF>      while ($i < $harker.nOps) loop HarkerOps 
+ NEXTCD: condition evaluated as true
+ SMF>        eval($i = $i + 1) 
+ EVALUATE: symbol $I set to    12.0000     (real)
+ SMF>        HarkerOperator=$harker.Op_$i 
+ SMF>      end loop HarkerOps 
+ SMF>      while ($i < $harker.nOps) loop HarkerOps 
+ NEXTCD: condition evaluated as true
+ SMF>        eval($i = $i + 1) 
+ EVALUATE: symbol $I set to    13.0000     (real)
+ SMF>        HarkerOperator=$harker.Op_$i 
+ SMF>      end loop HarkerOps 
+ SMF>      while ($i < $harker.nOps) loop HarkerOps 
+ NEXTCD: condition evaluated as true
+ SMF>        eval($i = $i + 1) 
+ EVALUATE: symbol $I set to    14.0000     (real)
+ SMF>        HarkerOperator=$harker.Op_$i 
+ SMF>      end loop HarkerOps 
+ SMF>      while ($i < $harker.nOps) loop HarkerOps 
+ NEXTCD: condition evaluated as true
+ SMF>        eval($i = $i + 1) 
+ EVALUATE: symbol $I set to    15.0000     (real)
+ SMF>        HarkerOperator=$harker.Op_$i 
+ SMF>      end loop HarkerOps 
+ SMF>      while ($i < $harker.nOps) loop HarkerOps 
+ NEXTCD: condition evaluated as true
+ SMF>        eval($i = $i + 1) 
+ EVALUATE: symbol $I set to    16.0000     (real)
+ SMF>        HarkerOperator=$harker.Op_$i 
+ SMF>      end loop HarkerOps 
+ SMF>      while ($i < $harker.nOps) loop HarkerOps 
+ NEXTCD: condition evaluated as true
+ SMF>        eval($i = $i + 1) 
+ EVALUATE: symbol $I set to    17.0000     (real)
+ SMF>        HarkerOperator=$harker.Op_$i 
+ SMF>      end loop HarkerOps 
+ SMF>      while ($i < $harker.nOps) loop HarkerOps 
+ NEXTCD: condition evaluated as true
+ SMF>        eval($i = $i + 1) 
+ EVALUATE: symbol $I set to    18.0000     (real)
+ SMF>        HarkerOperator=$harker.Op_$i 
+ SMF>      end loop HarkerOps 
+ SMF>      while ($i < $harker.nOps) loop HarkerOps 
+ NEXTCD: condition evaluated as true
+ SMF>        eval($i = $i + 1) 
+ EVALUATE: symbol $I set to    19.0000     (real)
+ SMF>        HarkerOperator=$harker.Op_$i 
+ SMF>      end loop HarkerOps 
+ SMF>      while ($i < $harker.nOps) loop HarkerOps 
+ NEXTCD: condition evaluated as false
+ SMF>        eval($i = $i + 1) 
+ SMF>        HarkerOperator=$harker.Op_$i 
+ SMF>      end loop HarkerOps 
+ SMF>      ChkInDep=true 
+ SMF>      {* test the debug option *} 
+ SMF>      ? 
+ --------------smf-parameters---------------------------------------------------
+ PATMap=PATMAP
+ SMFMap=SMFMAP1
+ SGORderP= 1
+ Number of unique Harker operators = 19
+ HARKerOperator=(  2  1  1  0 -1  0  0  0  0  2  0  0  0)
+ HARKerOperator=(  2  2  1  0 -1  1  0  0  0  2  0  0  6)
+ HARKerOperator=(  1  2  0  0  0  2  0  0  0  2  0  0  0)
+ HARKerOperator=(  4  1 -1  0  1  2  0  0  0  0  0  0  0)
+ HARKerOperator=(  4  0 -1  0  1  1  0  0  0  0  0  0  6)
+ HARKerOperator=(  2  2  0  0  0  2  0  0  0  0  0  0  6)
+ HARKerOperator=(  2  0  0  0  1  2  0  0  0  2  0  0  6)
+ HARKerOperator=(  2  2  1  0  0  0  0  0  0  2  0  0  6)
+ HARKerOperator=(  2  1 -1  0 -1  1  0  0  0  2  0  0  6)
+ HARKerOperator=(  2  1  1  0  1  1  0  0  0  2  0  0  0)
+ HARKerOperator=(  2  2  0  0 -1  0  0  0  0  2  0  0  0)
+ HARKerOperator=(  2  0 -1  0  0  2  0  0  0  2  0  0  0)
+ HARKerOperator=( 12  0  0  0  0  0  0  0  0  2  0  0  6)
+ HARKerOperator=(  4  2  0  0 -1  0  0  0  0  0  0  0  6)
+ HARKerOperator=(  4  0 -1  0  0  2  0  0  0  0  0  0  6)
+ HARKerOperator=(  4  1  1  0  1  1  0  0  0  0  0  0  6)
+ HARKerOperator=(  4  1 -1  0 -1  1  0  0  0  0  0  0  0)
+ HARKerOperator=(  4  0  0  0  1  2  0  0  0  0  0  0  0)
+ HARKerOperator=(  4  2  1  0  0  0  0  0  0  0  0  0  0)
+ UnitWeights=false
+ -------------------------------------------------------------------------------
+ SMF>    end 
+ XMAPAL: allocating space for real space object.
+ SMF: Correlation of dependent and independent grid points =  1.00000
+ SMF: PATmap min =     -297.958    
+ SMF: PATmap max =      1834.06    
+ SMF: PATmap ave =    -0.388051E-07
+ SMF: PATmap sigma =    207.901    
+ SMF: SMFmap min =     -297.958    
+ SMF: SMFmap max =      152.839    
+ SMF: SMFmap ave =     -105.860    
+ SMF: SMFmap sigma =    108.050    
+ XRAY> 
+ XRAY>    {* Compute smfmap2, only at grid points indicated by FlagMap 
+ XRAY>     *} 
+ XRAY>    smf 
+ SMF>      patmap=patmap 
+ SMF>      smfmap=smfmap2 
+ SMF>      eval($i = 0) 
+ EVALUATE: symbol $I set to    0.00000     (real)
+ SMF>      while ($i < $harker.nOps) loop HarkerOps 
+ NEXTCD: condition evaluated as true
+ SMF>        eval($i = $i + 1) 
+ EVALUATE: symbol $I set to    1.00000     (real)
+ SMF>        HarkerOperator=$harker.Op_$i 
+ SMF>      end loop HarkerOps 
+ SMF>      while ($i < $harker.nOps) loop HarkerOps 
+ NEXTCD: condition evaluated as true
+ SMF>        eval($i = $i + 1) 
+ EVALUATE: symbol $I set to    2.00000     (real)
+ SMF>        HarkerOperator=$harker.Op_$i 
+ SMF>      end loop HarkerOps 
+ SMF>      while ($i < $harker.nOps) loop HarkerOps 
+ NEXTCD: condition evaluated as true
+ SMF>        eval($i = $i + 1) 
+ EVALUATE: symbol $I set to    3.00000     (real)
+ SMF>        HarkerOperator=$harker.Op_$i 
+ SMF>      end loop HarkerOps 
+ SMF>      while ($i < $harker.nOps) loop HarkerOps 
+ NEXTCD: condition evaluated as true
+ SMF>        eval($i = $i + 1) 
+ EVALUATE: symbol $I set to    4.00000     (real)
+ SMF>        HarkerOperator=$harker.Op_$i 
+ SMF>      end loop HarkerOps 
+ SMF>      while ($i < $harker.nOps) loop HarkerOps 
+ NEXTCD: condition evaluated as true
+ SMF>        eval($i = $i + 1) 
+ EVALUATE: symbol $I set to    5.00000     (real)
+ SMF>        HarkerOperator=$harker.Op_$i 
+ SMF>      end loop HarkerOps 
+ SMF>      while ($i < $harker.nOps) loop HarkerOps 
+ NEXTCD: condition evaluated as true
+ SMF>        eval($i = $i + 1) 
+ EVALUATE: symbol $I set to    6.00000     (real)
+ SMF>        HarkerOperator=$harker.Op_$i 
+ SMF>      end loop HarkerOps 
+ SMF>      while ($i < $harker.nOps) loop HarkerOps 
+ NEXTCD: condition evaluated as true
+ SMF>        eval($i = $i + 1) 
+ EVALUATE: symbol $I set to    7.00000     (real)
+ SMF>        HarkerOperator=$harker.Op_$i 
+ SMF>      end loop HarkerOps 
+ SMF>      while ($i < $harker.nOps) loop HarkerOps 
+ NEXTCD: condition evaluated as true
+ SMF>        eval($i = $i + 1) 
+ EVALUATE: symbol $I set to    8.00000     (real)
+ SMF>        HarkerOperator=$harker.Op_$i 
+ SMF>      end loop HarkerOps 
+ SMF>      while ($i < $harker.nOps) loop HarkerOps 
+ NEXTCD: condition evaluated as true
+ SMF>        eval($i = $i + 1) 
+ EVALUATE: symbol $I set to    9.00000     (real)
+ SMF>        HarkerOperator=$harker.Op_$i 
+ SMF>      end loop HarkerOps 
+ SMF>      while ($i < $harker.nOps) loop HarkerOps 
+ NEXTCD: condition evaluated as true
+ SMF>        eval($i = $i + 1) 
+ EVALUATE: symbol $I set to    10.0000     (real)
+ SMF>        HarkerOperator=$harker.Op_$i 
+ SMF>      end loop HarkerOps 
+ SMF>      while ($i < $harker.nOps) loop HarkerOps 
+ NEXTCD: condition evaluated as true
+ SMF>        eval($i = $i + 1) 
+ EVALUATE: symbol $I set to    11.0000     (real)
+ SMF>        HarkerOperator=$harker.Op_$i 
+ SMF>      end loop HarkerOps 
+ SMF>      while ($i < $harker.nOps) loop HarkerOps 
+ NEXTCD: condition evaluated as true
+ SMF>        eval($i = $i + 1) 
+ EVALUATE: symbol $I set to    12.0000     (real)
+ SMF>        HarkerOperator=$harker.Op_$i 
+ SMF>      end loop HarkerOps 
+ SMF>      while ($i < $harker.nOps) loop HarkerOps 
+ NEXTCD: condition evaluated as true
+ SMF>        eval($i = $i + 1) 
+ EVALUATE: symbol $I set to    13.0000     (real)
+ SMF>        HarkerOperator=$harker.Op_$i 
+ SMF>      end loop HarkerOps 
+ SMF>      while ($i < $harker.nOps) loop HarkerOps 
+ NEXTCD: condition evaluated as true
+ SMF>        eval($i = $i + 1) 
+ EVALUATE: symbol $I set to    14.0000     (real)
+ SMF>        HarkerOperator=$harker.Op_$i 
+ SMF>      end loop HarkerOps 
+ SMF>      while ($i < $harker.nOps) loop HarkerOps 
+ NEXTCD: condition evaluated as true
+ SMF>        eval($i = $i + 1) 
+ EVALUATE: symbol $I set to    15.0000     (real)
+ SMF>        HarkerOperator=$harker.Op_$i 
+ SMF>      end loop HarkerOps 
+ SMF>      while ($i < $harker.nOps) loop HarkerOps 
+ NEXTCD: condition evaluated as true
+ SMF>        eval($i = $i + 1) 
+ EVALUATE: symbol $I set to    16.0000     (real)
+ SMF>        HarkerOperator=$harker.Op_$i 
+ SMF>      end loop HarkerOps 
+ SMF>      while ($i < $harker.nOps) loop HarkerOps 
+ NEXTCD: condition evaluated as true
+ SMF>        eval($i = $i + 1) 
+ EVALUATE: symbol $I set to    17.0000     (real)
+ SMF>        HarkerOperator=$harker.Op_$i 
+ SMF>      end loop HarkerOps 
+ SMF>      while ($i < $harker.nOps) loop HarkerOps 
+ NEXTCD: condition evaluated as true
+ SMF>        eval($i = $i + 1) 
+ EVALUATE: symbol $I set to    18.0000     (real)
+ SMF>        HarkerOperator=$harker.Op_$i 
+ SMF>      end loop HarkerOps 
+ SMF>      while ($i < $harker.nOps) loop HarkerOps 
+ NEXTCD: condition evaluated as true
+ SMF>        eval($i = $i + 1) 
+ EVALUATE: symbol $I set to    19.0000     (real)
+ SMF>        HarkerOperator=$harker.Op_$i 
+ SMF>      end loop HarkerOps 
+ SMF>      while ($i < $harker.nOps) loop HarkerOps 
+ NEXTCD: condition evaluated as false
+ SMF>        eval($i = $i + 1) 
+ SMF>        HarkerOperator=$harker.Op_$i 
+ SMF>      end loop HarkerOps 
+ SMF>      ? 
+ --------------smf-parameters---------------------------------------------------
+ PATMap=PATMAP
+ SMFMap=SMFMAP2
+ SGORderP= 1
+ Number of unique Harker operators = 19
+ HARKerOperator=(  2  1  1  0 -1  0  0  0  0  2  0  0  0)
+ HARKerOperator=(  2  2  1  0 -1  1  0  0  0  2  0  0  6)
+ HARKerOperator=(  1  2  0  0  0  2  0  0  0  2  0  0  0)
+ HARKerOperator=(  4  1 -1  0  1  2  0  0  0  0  0  0  0)
+ HARKerOperator=(  4  0 -1  0  1  1  0  0  0  0  0  0  6)
+ HARKerOperator=(  2  2  0  0  0  2  0  0  0  0  0  0  6)
+ HARKerOperator=(  2  0  0  0  1  2  0  0  0  2  0  0  6)
+ HARKerOperator=(  2  2  1  0  0  0  0  0  0  2  0  0  6)
+ HARKerOperator=(  2  1 -1  0 -1  1  0  0  0  2  0  0  6)
+ HARKerOperator=(  2  1  1  0  1  1  0  0  0  2  0  0  0)
+ HARKerOperator=(  2  2  0  0 -1  0  0  0  0  2  0  0  0)
+ HARKerOperator=(  2  0 -1  0  0  2  0  0  0  2  0  0  0)
+ HARKerOperator=( 12  0  0  0  0  0  0  0  0  2  0  0  6)
+ HARKerOperator=(  4  2  0  0 -1  0  0  0  0  0  0  0  6)
+ HARKerOperator=(  4  0 -1  0  0  2  0  0  0  0  0  0  6)
+ HARKerOperator=(  4  1  1  0  1  1  0  0  0  0  0  0  6)
+ HARKerOperator=(  4  1 -1  0 -1  1  0  0  0  0  0  0  0)
+ HARKerOperator=(  4  0  0  0  1  2  0  0  0  0  0  0  0)
+ HARKerOperator=(  4  2  1  0  0  0  0  0  0  0  0  0  0)
+ UnitWeights=false
+ -------------------------------------------------------------------------------
+ SMF>    end 
+ XMAPAL: allocating space for real space object.
+ SMF: PATmap min =     -297.958    
+ SMF: PATmap max =      1834.06    
+ SMF: PATmap ave =    -0.388051E-07
+ SMF: PATmap sigma =    207.901    
+ SMF: SMFmap min =     -297.958    
+ SMF: SMFmap max =      152.839    
+ SMF: SMFmap ave =     -105.860    
+ SMF: SMFmap sigma =    108.050    
+ XRAY> 
+ XRAY>    {* make sure smfmap1 and smfmap2 are exactly equal 
+ XRAY>     *} 
+ XRAY>    show max (abs(smfmap1-smfmap2)) (all) 
+ Maximum of      2304 elements =                 0.0000
+ XRAY>    if ($result # 0) then 
+ NEXTCD: condition evaluated as false
+ XRAY>      abort 
+ XRAY>    end if 
+ XRAY> 
+ XRAY>    {* list the 10 non-redundant highest peaks 
+ XRAY>     *} 
+ XRAY>    psearch 
+ PSEARCH>      From=smfmap1 
+ PSEARCH>      level = 0 
+ PSEARCH>      nList = 10 
+ PSEARCH>      Fractional = true 
+ PSEARCH>      Site=0.49900 0.00000 0.33330 
+ PSEARCH>      Site=0.42700 0.18700 0.12800 
+ PSEARCH>      Site=0.22830 0.44290 0.40670 
+ PSEARCH>      Site=0.07540 0.30950 0.15860 
+ PSEARCH>      Fractional = false 
+ PSEARCH>      ? 
+ -----------psearch-parameters--------------------------------------------------
+ FROM=SMFMAP1
+ LEVEl=  0
+ NLISt=    10
+ FRACtional=FALSE
+ Symbol=<undefined>
+ PSTOre=     0
+ SITE     2.50     0.00     1.82
+ SITE     1.67     0.81     0.70
+ SITE     0.03     1.92     2.22
+ SITE    -0.40     1.34     0.87
+ -------------------------------------------------------------------------------
+ PSEARCH>      Fractional = true 
+ PSEARCH>      ? 
+ -----------psearch-parameters--------------------------------------------------
+ FROM=SMFMAP1
+ LEVEl=  0
+ NLISt=    10
+ FRACtional=TRUE
+ Symbol=<undefined>
+ PSTOre=     0
+ SITE  0.49900  0.00000  0.33330
+ SITE  0.42700  0.18700  0.12800
+ SITE  0.22830  0.44290  0.40670
+ SITE  0.07540  0.30950  0.15860
+ -------------------------------------------------------------------------------
+ PSEARCH>    end 
+ PSEARCH: DensCutOff =   -297.958    
+ PSEARCH: Number of peaks in overstore buffer =       95
+ PSEARCH: Number of peaks listed              =       10
+ PSEARCH:                                   (  Fractional Coordinates  )
+ PSEARCH:     1 Dens =    152.839     Pos = ( 0.00000, 0.00000, 0.25000)
+ PSEARCH:     2 Dens =    152.839     Pos = ( 0.50000, 0.50000, 0.25000)
+ PSEARCH:     3 Dens =    145.357     Pos = ( 0.00000, 0.00000, 0.00000)
+ PSEARCH:     4 Dens =    145.357     Pos = ( 0.50000, 0.50000, 0.00000)
+ PSEARCH:     5 Dens =    78.5894     Pos = ( 0.00000, 0.00000, 0.18750)
+ PSEARCH:     6 Dens =    78.5894     Pos = ( 0.50000, 0.50000, 0.18750)
+ PSEARCH:    -1 Dens =    78.5894     Pos = ( 0.49900, 0.00000, 0.33330)   0.113886        73.4977    
+ PSEARCH:     7 Dens =    75.7094     Pos = ( 0.00000, 0.00000, 0.06250)
+ PSEARCH:     8 Dens =    75.7094     Pos = ( 0.50000, 0.50000, 0.06250)
+ PSEARCH:     9 Dens =    70.5937     Pos = ( 0.00000, 0.00000, 0.12500)
+ PSEARCH:    10 Dens =    70.5937     Pos = ( 0.50000, 0.50000, 0.12500)
+ PSEARCH:    -2 Dens =   -97.4095     Pos = ( 0.42700, 0.18700, 0.12800)   0.897391E-01   -98.8015    
+ PSEARCH:    -3 Dens =   -294.703     Pos = ( 0.22830, 0.44290, 0.40670)   0.267891       -153.774    
+ PSEARCH:    -4 Dens =   -297.958     Pos = ( 0.07540, 0.30950, 0.15860)   0.189952       -192.108    
+ XRAY> 
+ XRAY>    {* again with cartesian coordinates 
+ XRAY>     *} 
+ XRAY>    psearch 
+ PSEARCH>      From=smfmap1 
+ PSEARCH>      level = 0 
+ PSEARCH>      nList = 10 
+ PSEARCH>      SITE     2.82    -0.22     1.78 
+ PSEARCH>      SITE     1.86     1.01     0.68 
+ PSEARCH>      SITE     0.58     2.33     2.17 
+ PSEARCH>      SITE    -0.13     1.71     0.85 
+ PSEARCH>      Fractional = true 
+ PSEARCH>      ? 
+ -----------psearch-parameters--------------------------------------------------
+ FROM=SMFMAP1
+ LEVEl=  0
+ NLISt=    10
+ FRACtional=TRUE
+ Symbol=<undefined>
+ PSTOre=     0
+ SITE  0.53752 -0.05071  0.32541
+ SITE  0.48765  0.23278  0.12431
+ SITE  0.38428  0.53702  0.39671
+ SITE  0.17111  0.39412  0.15539
+ -------------------------------------------------------------------------------
+ PSEARCH>      Fractional = false 
+ PSEARCH>      ? 
+ -----------psearch-parameters--------------------------------------------------
+ FROM=SMFMAP1
+ LEVEl=  0
+ NLISt=    10
+ FRACtional=FALSE
+ Symbol=<undefined>
+ PSTOre=     0
+ SITE     2.82    -0.22     1.78
+ SITE     1.86     1.01     0.68
+ SITE     0.58     2.33     2.17
+ SITE    -0.13     1.71     0.85
+ -------------------------------------------------------------------------------
+ PSEARCH>    end 
+ PSEARCH: DensCutOff =   -297.958    
+ PSEARCH: Number of peaks in overstore buffer =       95
+ PSEARCH: Number of peaks listed              =       10
+ PSEARCH:                                   (  Cartesian Coordinates   )
+ PSEARCH:     1 Dens =    152.839     Pos = (    0.00,    0.00,    1.37)
+ PSEARCH:     2 Dens =    152.839     Pos = (    1.25,    2.17,    1.37)
+ PSEARCH:     3 Dens =    145.357     Pos = (    0.00,    0.00,    0.00)
+ PSEARCH:     4 Dens =    145.357     Pos = (    1.25,    2.17,    0.00)
+ PSEARCH:     5 Dens =    78.5894     Pos = (    0.00,    0.00,    1.03)
+ PSEARCH:     6 Dens =    78.5894     Pos = (    1.25,    2.17,    1.03)
+ PSEARCH:     7 Dens =    75.7094     Pos = (    0.00,    0.00,    0.34)
+ PSEARCH:     8 Dens =    75.7094     Pos = (    1.25,    2.17,    0.34)
+ PSEARCH:     9 Dens =    70.5937     Pos = (    0.00,    0.00,    0.68)
+ PSEARCH:    10 Dens =    70.5937     Pos = (    1.25,    2.17,    0.68)
+ PSEARCH:    -2 Dens =    4.55516     Pos = (    1.86,    1.01,    0.68)   0.771054E-01   -21.1433    
+ PSEARCH:    -3 Dens =   -36.6472     Pos = (    0.58,    2.33,    2.17)   0.237961       -98.4270    
+ PSEARCH:    -4 Dens =   -97.4095     Pos = (   -0.13,    1.71,    0.85)   0.208353       -143.305    
+ PSEARCH:    -1 Dens =   -171.509     Pos = (    2.82,   -0.22,    1.78)   0.190572       -91.1224    
+ XRAY>  end 
+ CNSsolve> 
+ CNSsolve>  set message=on end 
+ CNSsolve>end loop sg 
+ CNSsolve>for $sg in ("P1" "C2/c" "Fddd" "I-4c2" "P3(1)21" "P6(3)/mcm" "P2(1)3") loop sg 
+ FOR LOOP: symbol SG set to "P2(1)3" (string)
+ CNSsolve>  do (x=0.499   ) (name=SI1) 
+ SELRPN:      1 atoms have been selected out of      2
+ CNSsolve>  do (y=0.000   ) (name=SI1) 
+ SELRPN:      1 atoms have been selected out of      2
+ CNSsolve>  do (z=0.333333) (name=SI1) 
+ SELRPN:      1 atoms have been selected out of      2
+ CNSsolve>  do (q=1.0     ) (name=SI1) 
+ SELRPN:      1 atoms have been selected out of      2
+ CNSsolve>  do (b=2.0     ) (name=SI1) 
+ SELRPN:      1 atoms have been selected out of      2
+ CNSsolve> 
+ CNSsolve>  do (x=0.427   ) (name=O1) 
+ SELRPN:      1 atoms have been selected out of      2
+ CNSsolve>  do (y=0.187   ) (name=O1) 
+ SELRPN:      1 atoms have been selected out of      2
+ CNSsolve>  do (z=0.128   ) (name=O1) 
+ SELRPN:      1 atoms have been selected out of      2
+ CNSsolve>  do (q=1.0     ) (name=O1) 
+ SELRPN:      1 atoms have been selected out of      2
+ CNSsolve>  do (b=4.0     ) (name=O1) 
+ SELRPN:      1 atoms have been selected out of      2
+ CNSsolve> 
+ CNSsolve>  {* reset all xray settings 
+ CNSsolve>   *} 
+ CNSsolve>  xray 
+ XRAY>    reset 
+ XRAY: whole xray database erased and reset
+ XRAY>  end 
+ CNSsolve> 
+ CNSsolve>  {* define some general xray settings 
+ CNSsolve>   *} 
+ CNSsolve>  xray 
+ XRAY>    bins=1 
+ XRAY>    method=direct 
+ XRAY> 
+ XRAY>    evaluate ($lr=10000.) 
+ EVALUATE: symbol $LR set to    10000.0     (real)
+ XRAY>    evaluate ($hr=1) 
+ EVALUATE: symbol $HR set to    1.00000     (real)
+ XRAY>    binresolution $lr $hr 
+ XRAY>    mapresolution $hr 
+ XRAY>    tselection=( $hr <= d <= $lr ) 
+ XRAY>  end 
+ CNSsolve> 
+ CNSsolve>  {* define scattering factors and symmetry 
+ CNSsolve>   *} 
+ CNSsolve>  xray 
+ XRAY>    @@CNS_XRAYLIB:scatter.lib 
+ ASSFIL: file scatter.lib opened.
+ XRAY>! file libraries/xray/scatter.lib 
+ XRAY>! Atomic scattering factors without anomalous contribution 
+ XRAY>! Library for CNS 
+ XRAY> 
+ XRAY>! Authors: Paul Adams, Joe Jaeger, and Axel T. Brunger 
+ XRAY> 
+ XRAY>!BEWARE: 
+ XRAY>!(1) element Cf (Californium) has to be referred to as Cff 
+ XRAY>!(2) element Sm (Samarium) has to be referred to as Smm 
+ XRAY>!(3) element Np (Neptunium) has to be referred to as Npp 
+ XRAY>!(3) types of elements with ionic state (i.e., +/-) specifications have 
+ XRAY>!    to be put in double quotes in selection statements. 
+ XRAY> 
+ XRAY>set message ? end 
+ MESSage=NORM
+ XRAY>evaluate ($message_old_sclib=$result) 
+ EVALUATE: symbol $MESSAGE_OLD_SCLIB set to "NORM" (string)
+ XRAY>set echo ? end 
+ ECHO=TRUE {ON}
+ XRAY>evaluate ($echo_old_sclib=$result) 
+ EVALUATE: symbol $ECHO_OLD_SCLIB set to TRUE (logical)
+ XRAY>set echo=off message=off end 
+ XRAY>    @@CNS_XTALLIB:spacegroup.lib (sg=$sg; sgparam = $sgparam) 
+ ASSFIL: file spacegroup.lib opened.
+ XRAY>! file  libraries/xtal/spacegroup.lib 
+ XRAY>! library of symmetry operators for CNS 
+ XRAY>! Automatically generated with SgInfo Version 2.00a13 
+ XRAY> 
+ XRAY>module 
+ MODULE-DECLARATION>( 
+ MODULE-DECLARATION>  &sg=$sg; 
+ MODULE-DECLARATION>  &sgparam=$sgparam; 
+ MODULE-DECLARATION>) 
+ &_2_SG set to $_1_SG 
+ &_2_SGPARAM set to $_1_SGPARAM 
+ XRAY> 
+ XRAY>set message ? end 
+ MESSage=NORM
+ XRAY>evaluate ($message_old=$result) 
+ EVALUATE: symbol $MESSAGE_OLD set to "NORM" (string)
+ XRAY>set echo ? end 
+ ECHO=TRUE {ON}
+ XRAY>evaluate ($echo_old=$result) 
+ EVALUATE: symbol $ECHO_OLD set to TRUE (logical)
+ XRAY>set echo=off message=off end 
+SYMMETRY: found symmetry operators for space group P2(1)3 in library
+ XRAY> 
+ XRAY>  end 
+ CNSsolve> 
+ CNSsolve>  {* define dummy unit cell dimensions based on space group number 
+ CNSsolve>   *} 
+ CNSsolve>  if     ($sgparam.sg_number <=   2) then 
+ NEXTCD: condition evaluated as false
+ CNSsolve>    evaluate ($a = 5.01) 
+ CNSsolve>    evaluate ($b = 6.25) 
+ CNSsolve>    evaluate ($c = 5.47) 
+ CNSsolve>    evaluate ($alpha = 100) 
+ CNSsolve>    evaluate ($beta  =  80) 
+ CNSsolve>    evaluate ($gamma = 110) 
+ CNSsolve>  elseif ($sgparam.sg_number <=  15) then 
+ NEXTCD: condition evaluated as false
+ CNSsolve>    evaluate ($a = 5.01) 
+ CNSsolve>    evaluate ($b = 6.25) 
+ CNSsolve>    evaluate ($c = 5.47) 
+ CNSsolve>    evaluate ($alpha =  90) 
+ CNSsolve>    evaluate ($beta  =  80) 
+ CNSsolve>    evaluate ($gamma =  90) 
+ CNSsolve>  elseif ($sgparam.sg_number <=  74) then 
+ NEXTCD: condition evaluated as false
+ CNSsolve>    evaluate ($a = 5.01) 
+ CNSsolve>    evaluate ($b = 6.25) 
+ CNSsolve>    evaluate ($c = 5.47) 
+ CNSsolve>    evaluate ($alpha =  90) 
+ CNSsolve>    evaluate ($beta  =  90) 
+ CNSsolve>    evaluate ($gamma =  90) 
+ CNSsolve>  elseif ($sgparam.sg_number <= 142) then 
+ NEXTCD: condition evaluated as false
+ CNSsolve>    evaluate ($a = 5.01) 
+ CNSsolve>    evaluate ($b = $a) 
+ CNSsolve>    evaluate ($c = 5.47) 
+ CNSsolve>    evaluate ($alpha =  90) 
+ CNSsolve>    evaluate ($beta  =  90) 
+ CNSsolve>    evaluate ($gamma =  90) 
+ CNSsolve>  elseif ($sgparam.sg_number <= 194) then 
+ NEXTCD: condition evaluated as false
+ CNSsolve>    evaluate ($a = 5.01) 
+ CNSsolve>    evaluate ($b = $a) 
+ CNSsolve>    evaluate ($c = 5.47) 
+ CNSsolve>    evaluate ($alpha =  90) 
+ CNSsolve>    evaluate ($beta  =  90) 
+ CNSsolve>    evaluate ($gamma = 120) 
+ CNSsolve>  else 
+ CNSsolve>    evaluate ($a = 5.01) 
+ EVALUATE: symbol $A set to    5.01000     (real)
+ CNSsolve>    evaluate ($b = $a) 
+ EVALUATE: symbol $B set to    5.01000     (real)
+ CNSsolve>    evaluate ($c = $a) 
+ EVALUATE: symbol $C set to    5.01000     (real)
+ CNSsolve>    evaluate ($alpha =  90) 
+ EVALUATE: symbol $ALPHA set to    90.0000     (real)
+ CNSsolve>    evaluate ($beta  =  90) 
+ EVALUATE: symbol $BETA set to    90.0000     (real)
+ CNSsolve>    evaluate ($gamma =  90) 
+ EVALUATE: symbol $GAMMA set to    90.0000     (real)
+ CNSsolve>  end if 
+ CNSsolve> 
+ CNSsolve>  xray 
+ XRAY>    a=$a b=$b c=$c alpha=$alpha beta=$beta gamma=$gamma 
+ XRAY>  end 
+ CNSsolve> 
+ CNSsolve>  coordinates orthogonalize end 
+ ORTHO: transformation matrix =
+     5.010000     0.000000     0.000000
+     0.000000     5.010000     0.000000
+     0.000000     0.000000     5.010000
+ CNSsolve> 
+ CNSsolve>  xray 
+ XRAY>    {* set space-group dependent restrictions for map-grid dimensions 
+ XRAY>     *} 
+ XRAY>    fft 
+ XFFT>      grid=0.4 
+ XFFT>      xgridfactor=$sgparam.SymGrid_x 
+ XFFT>      ygridfactor=$sgparam.SymGrid_y 
+ XFFT>      zgridfactor=$sgparam.SymGrid_z 
+ XFFT>    end 
+ XRAY> 
+ XRAY>    {* generate reflections 
+ XRAY>     *} 
+ XRAY>    anomalous = false 
+ XRAY>    generate 100000. 1.0 
+ XGENER: generating reflections to produce a full set
+         for the specified resolution range.
+ XGENE2:       31 new reflections have been generated.
+ XRAY> 
+ XRAY>    {* compute dummy "fobs" 
+ XRAY>     *} 
+ XRAY>    declare name=fobs domain=reciprocal type=complex end 
+ XDECLARE: Object FOBS has been declared.
+ XRAY>    predict 
+ PREDict>      mode=reciprocal 
+ PREDict>      to=fobs 
+ PREDict>      selection=(all) 
+ Total of        31 structure factor elements were selected.
+ PREDict>      atomselection=(all) 
+ SELRPN:      2 atoms have been selected out of      2
+ PREDict>    end 
+ FOBS: #scatt.=      2 #anomalous=   0 #special pos.=  0 occupancies=1
+ XSFAL: allocating space for complex reciprocal space object.
+ XRAY> 
+ XRAY>    {* expand to P1 
+ XRAY>     *} 
+ XRAY>    expand 
+ XEXPA2:      217 new reflections have been generated.
+ XREDUC: some reflection(s) converted to CNS standard asymm. unit.
+ XRAY: data expanded and symmetry reset to P1.
+ XRAY>  end 
+ CNSsolve> 
+ CNSsolve>  xray 
+ XRAY>    {* declare maps 
+ XRAY>     *} 
+ XRAY>    declare name=patmap  domain=real end 
+ XRAY>    declare name=smfmap1 domain=real end 
+ XRAY>    declare name=smfmap2 domain=real end 
+ XRAY>  end 
+ CNSsolve> 
+ CNSsolve>  xray 
+ XRAY>    do (patmap=FT(combine(amplitude(fobs)^2, 0))) (all) 
+ XSFAL: allocating space for complex reciprocal space object.
+ Total of       248 structure factor elements were selected.
+ XMAPASU: using grid [  12,  12,  12] and sublattice [  12,  12,  12]
+ Maps will be stored in P1:
+   A=     0,...,    11  B=     0,...,    11  C=     0,...,    11
+ XMAPAL: allocating space for real space object.
+ XRAY>    show min (real(patmap)) (all) 
+ Minimum of      1728 elements =              -268.1568
+ XRAY>    show max (real(patmap)) (all) 
+ Maximum of      1728 elements =              1655.7661
+ XRAY>  end 
+ CNSsolve> 
+ CNSsolve>  xray 
+ XRAY>    {* define symmetry for flagmap 
+ XRAY>     *} 
+ XRAY>    fmap 
+ XMAPASU: using grid [  12,  12,  12] and sublattice [  12,  12,  12]
+ Minimum brick that covers asymmetric unit:
+   A=     0,...,     6  B=     0,...,     6  C=    -6,...,     6
+ FMAP>      @@CNS_XTALLIB:spacegroup.lib (sg=$sg; sgparam = $sgparam) 
+ ASSFIL: file spacegroup.lib opened.
+ FMAP>! file  libraries/xtal/spacegroup.lib 
+ FMAP>! library of symmetry operators for CNS 
+ FMAP>! Automatically generated with SgInfo Version 2.00a13 
+ FMAP> 
+ FMAP>module 
+ MODULE-DECLARATION>( 
+ MODULE-DECLARATION>  &sg=$sg; 
+ MODULE-DECLARATION>  &sgparam=$sgparam; 
+ MODULE-DECLARATION>) 
+ &_2_SG set to $_1_SG 
+ &_2_SGPARAM set to $_1_SGPARAM 
+ FMAP> 
+ FMAP>set message ? end 
+ MESSage=NORM
+ FMAP>evaluate ($message_old=$result) 
+ EVALUATE: symbol $MESSAGE_OLD set to "NORM" (string)
+ FMAP>set echo ? end 
+ ECHO=TRUE {ON}
+ FMAP>evaluate ($echo_old=$result) 
+ EVALUATE: symbol $ECHO_OLD set to TRUE (logical)
+ FMAP>set echo=off message=off end 
+SYMMETRY: found symmetry operators for space group P2(1)3 in library
+ FMAP> 
+ FMAP>      if ($sgparam.ssVM_1 # "VOID") then ssVM = $sgparam.ssVM_1 end if 
+ NEXTCD: condition evaluated as true
+ FMAP>      if ($sgparam.ssVM_2 # "VOID") then ssVM = $sgparam.ssVM_2 end if 
+ NEXTCD: condition evaluated as false
+ FMAP>      if ($sgparam.ssVM_3 # "VOID") then ssVM = $sgparam.ssVM_3 end if 
+ NEXTCD: condition evaluated as false
+ FMAP>      if ($sgparam.GenK2L # "VOID") then Addl = $sgparam.GenK2L end if 
+ NEXTCD: condition evaluated as true
+ FMAP>      ? 
+ --------------FMAP-parameters--------------------------------------------------
+ Number of symmetry operations =  12
+ Number of s.s.Vectors & Moduli =   1
+   s.s.Vector  Modulus
+     1  1  1   2
+ Number of ADDLgenerators =   1
+ USESym=FALSE
+ USE_ss=FALSE
+ USEAddl=FALSE
+ -------------------------------------------------------------------------------
+ FMAP>      Symmetry ? 
+ --------------FMAP-symmetry----------------------------------------------------
+ | SYMMetry=(X,Y,Z)
+ | SYMMetry=(Z,X,Y)
+ | SYMMetry=(Y,Z,X)
+ | SYMMetry=(-Y+1/2,-Z,X+1/2)
+ | SYMMetry=(Z+1/2,-X+1/2,-Y)
+ | SYMMetry=(-Y,Z+1/2,-X+1/2)
+ | SYMMetry=(-Z+1/2,-X,Y+1/2)
+ | SYMMetry=(-Z,X+1/2,-Y+1/2)
+ | SYMMetry=(Y+1/2,-Z+1/2,-X)
+ | SYMMetry=(-X+1/2,-Y,Z+1/2)
+ | SYMMetry=(X+1/2,-Y+1/2,-Z)
+ | SYMMetry=(-X,Y+1/2,-Z+1/2)
+ -------------------------------------------------------------------------------
+ FMAP>      AddlGenerators ? 
+ --------------FMAP-ADDLgenerators----------------------------------------------
+ | SYMMetry=(-X,-Y,-Z)
+ -------------------------------------------------------------------------------
+ FMAP>    end 
+ XRAY>  end 
+ CNSsolve> 
+ CNSsolve>  set message=all end 
+ CNSsolve> 
+ CNSsolve>  xray 
+ XRAY>    {* Build flagmap 
+ XRAY>     *} 
+ XRAY>    fmap 
+ XMAPASU: using grid [  12,  12,  12] and sublattice [  12,  12,  12]
+ Minimum brick that covers asymmetric unit:
+   A=     0,...,     6  B=     0,...,     6  C=    -6,...,     6
+ Number of deleted points in ASU=          79
+ Number of non-zero lattice points in ASU=         152
+ Number of special positions in ASU=          12
+ FMAP>      UseSym = true 
+ FMAP>      Use_ss  = true 
+ FMAP>      UseAddl = true 
+ FMAP>      Action=Build 
+ FMAP>    end 
+ FMAP: Building FlagMap
+ FMAP: Removing grid points related by symmetry operations
+ FMAP:       Total number of grid points =      1728
+ FMAP: Remaining independent grid points =       152
+ FMAP: Removing grid points related by allowed origin shifts
+ FMAP: s.s.Vector  Grid-Adjusted-Modulus
+ FMAP:   1  1  1   2
+ FMAP:       Total number of grid points =      1728
+ FMAP: Remaining independent grid points =        82
+ FMAP: Removing grid points related by operations due to ADDLgenerators
+ FMAP:       Total number of grid points =      1728
+ FMAP: Remaining independent grid points =        42
+ FMAP: Independent grid points =        42
+ XRAY> 
+ XRAY>    {* Get Harker operators from library 
+ XRAY>     *} 
+ XRAY>    @@CNS_XTALLIB:harker_ops.lib (sg=$sg; harker=$harker) 
+ ASSFIL: file harker_ops.lib opened.
+ XRAY>! file  libraries/xtal/harker.lib 
+ XRAY>! library of Harker operators for CNS 
+ XRAY>! Automatically generated with SgInfo Version 2.00a12 
+ XRAY> 
+ XRAY>module 
+ MODULE-DECLARATION>( 
+ MODULE-DECLARATION>  &sg=$sg; 
+ &_2_SG set to $_2_SG 
+ MODULE-DECLARATION>  &harker=$harker; 
+ &_2_HARKER set to $_2_HARKER 
+ MODULE-DECLARATION>) 
+ &_2_SG set to $_1_SG 
+ &_2_HARKER set to $_1_HARKER 
+ XRAY> 
+ XRAY>set message ? end 
+ MESSage=ALL 
+ XRAY>evaluate ($message_old=$result) 
+ EVALUATE: symbol $MESSAGE_OLD set to "ALL " (string)
+ XRAY>set echo ? end 
+ ECHO=TRUE {ON}
+ XRAY>evaluate ($echo_old=$result) 
+ EVALUATE: symbol $ECHO_OLD set to TRUE (logical)
+ XRAY>set echo=off message=off end 
+HARKER: found Harker operators for space group P2(1)3 in library
+ XRAY> 
+ XRAY> 
+ XRAY>    {* Compute smfmap1, all grid points, use FlagMap only for check 
+ XRAY>     *} 
+ XRAY>    smf 
+ SMF>      patmap=patmap 
+ SMF>      smfmap=smfmap1 
+ SMF>      eval($i = 0) 
+ EVALUATE: symbol $I set to    0.00000     (real)
+ SMF>      while ($i < $harker.nOps) loop HarkerOps 
+ NEXTCD: condition evaluated as true
+ SMF>        eval($i = $i + 1) 
+ EVALUATE: symbol $I set to    1.00000     (real)
+ SMF>        HarkerOperator=$harker.Op_$i 
+ SMF>      end loop HarkerOps 
+ SMF>      while ($i < $harker.nOps) loop HarkerOps 
+ NEXTCD: condition evaluated as true
+ SMF>        eval($i = $i + 1) 
+ EVALUATE: symbol $I set to    2.00000     (real)
+ SMF>        HarkerOperator=$harker.Op_$i 
+ SMF>      end loop HarkerOps 
+ SMF>      while ($i < $harker.nOps) loop HarkerOps 
+ NEXTCD: condition evaluated as true
+ SMF>        eval($i = $i + 1) 
+ EVALUATE: symbol $I set to    3.00000     (real)
+ SMF>        HarkerOperator=$harker.Op_$i 
+ SMF>      end loop HarkerOps 
+ SMF>      while ($i < $harker.nOps) loop HarkerOps 
+ NEXTCD: condition evaluated as true
+ SMF>        eval($i = $i + 1) 
+ EVALUATE: symbol $I set to    4.00000     (real)
+ SMF>        HarkerOperator=$harker.Op_$i 
+ SMF>      end loop HarkerOps 
+ SMF>      while ($i < $harker.nOps) loop HarkerOps 
+ NEXTCD: condition evaluated as true
+ SMF>        eval($i = $i + 1) 
+ EVALUATE: symbol $I set to    5.00000     (real)
+ SMF>        HarkerOperator=$harker.Op_$i 
+ SMF>      end loop HarkerOps 
+ SMF>      while ($i < $harker.nOps) loop HarkerOps 
+ NEXTCD: condition evaluated as true
+ SMF>        eval($i = $i + 1) 
+ EVALUATE: symbol $I set to    6.00000     (real)
+ SMF>        HarkerOperator=$harker.Op_$i 
+ SMF>      end loop HarkerOps 
+ SMF>      while ($i < $harker.nOps) loop HarkerOps 
+ NEXTCD: condition evaluated as true
+ SMF>        eval($i = $i + 1) 
+ EVALUATE: symbol $I set to    7.00000     (real)
+ SMF>        HarkerOperator=$harker.Op_$i 
+ SMF>      end loop HarkerOps 
+ SMF>      while ($i < $harker.nOps) loop HarkerOps 
+ NEXTCD: condition evaluated as false
+ SMF>        eval($i = $i + 1) 
+ SMF>        HarkerOperator=$harker.Op_$i 
+ SMF>      end loop HarkerOps 
+ SMF>      ChkInDep=true 
+ SMF>      {* test the debug option *} 
+ SMF>      ? 
+ --------------smf-parameters---------------------------------------------------
+ PATMap=PATMAP
+ SMFMap=SMFMAP1
+ SGORderP= 1
+ Number of unique Harker operators =  7
+ HARKerOperator=(  1  2  0  0  0  2  0  0  0  0  6  0  6)
+ HARKerOperator=(  1  0  0  0  0  2  0  0  0  2  6  6  0)
+ HARKerOperator=(  1  2  0  0  0  0  0  0  0  2  0  6  6)
+ HARKerOperator=(  1  1 -1  0  0  1 -1 -1  0  1  0  0  0)
+ HARKerOperator=(  1  1 -1  0  0  1  1  1  0  1  0  6  6)
+ HARKerOperator=(  1  1  0 -1  1  1  0  0  1  1  6  0  6)
+ HARKerOperator=(  1  1  0  1  1  1  0  0 -1  1  0  6  6)
+ UnitWeights=false
+ -------------------------------------------------------------------------------
+ SMF>    end 
+ XMAPAL: allocating space for real space object.
+ SMF: Correlation of dependent and independent grid points =  1.00000
+ SMF: PATmap min =     -268.157    
+ SMF: PATmap max =      1655.77    
+ SMF: PATmap ave =    -0.270704E-06
+ SMF: PATmap sigma =    113.572    
+ SMF: SMFmap min =     -268.157    
+ SMF: SMFmap max =      315.681    
+ SMF: SMFmap ave =     -94.0557    
+ SMF: SMFmap sigma =    101.736    
+ XRAY> 
+ XRAY>    {* Compute smfmap2, only at grid points indicated by FlagMap 
+ XRAY>     *} 
+ XRAY>    smf 
+ SMF>      patmap=patmap 
+ SMF>      smfmap=smfmap2 
+ SMF>      eval($i = 0) 
+ EVALUATE: symbol $I set to    0.00000     (real)
+ SMF>      while ($i < $harker.nOps) loop HarkerOps 
+ NEXTCD: condition evaluated as true
+ SMF>        eval($i = $i + 1) 
+ EVALUATE: symbol $I set to    1.00000     (real)
+ SMF>        HarkerOperator=$harker.Op_$i 
+ SMF>      end loop HarkerOps 
+ SMF>      while ($i < $harker.nOps) loop HarkerOps 
+ NEXTCD: condition evaluated as true
+ SMF>        eval($i = $i + 1) 
+ EVALUATE: symbol $I set to    2.00000     (real)
+ SMF>        HarkerOperator=$harker.Op_$i 
+ SMF>      end loop HarkerOps 
+ SMF>      while ($i < $harker.nOps) loop HarkerOps 
+ NEXTCD: condition evaluated as true
+ SMF>        eval($i = $i + 1) 
+ EVALUATE: symbol $I set to    3.00000     (real)
+ SMF>        HarkerOperator=$harker.Op_$i 
+ SMF>      end loop HarkerOps 
+ SMF>      while ($i < $harker.nOps) loop HarkerOps 
+ NEXTCD: condition evaluated as true
+ SMF>        eval($i = $i + 1) 
+ EVALUATE: symbol $I set to    4.00000     (real)
+ SMF>        HarkerOperator=$harker.Op_$i 
+ SMF>      end loop HarkerOps 
+ SMF>      while ($i < $harker.nOps) loop HarkerOps 
+ NEXTCD: condition evaluated as true
+ SMF>        eval($i = $i + 1) 
+ EVALUATE: symbol $I set to    5.00000     (real)
+ SMF>        HarkerOperator=$harker.Op_$i 
+ SMF>      end loop HarkerOps 
+ SMF>      while ($i < $harker.nOps) loop HarkerOps 
+ NEXTCD: condition evaluated as true
+ SMF>        eval($i = $i + 1) 
+ EVALUATE: symbol $I set to    6.00000     (real)
+ SMF>        HarkerOperator=$harker.Op_$i 
+ SMF>      end loop HarkerOps 
+ SMF>      while ($i < $harker.nOps) loop HarkerOps 
+ NEXTCD: condition evaluated as true
+ SMF>        eval($i = $i + 1) 
+ EVALUATE: symbol $I set to    7.00000     (real)
+ SMF>        HarkerOperator=$harker.Op_$i 
+ SMF>      end loop HarkerOps 
+ SMF>      while ($i < $harker.nOps) loop HarkerOps 
+ NEXTCD: condition evaluated as false
+ SMF>        eval($i = $i + 1) 
+ SMF>        HarkerOperator=$harker.Op_$i 
+ SMF>      end loop HarkerOps 
+ SMF>      ? 
+ --------------smf-parameters---------------------------------------------------
+ PATMap=PATMAP
+ SMFMap=SMFMAP2
+ SGORderP= 1
+ Number of unique Harker operators =  7
+ HARKerOperator=(  1  2  0  0  0  2  0  0  0  0  6  0  6)
+ HARKerOperator=(  1  0  0  0  0  2  0  0  0  2  6  6  0)
+ HARKerOperator=(  1  2  0  0  0  0  0  0  0  2  0  6  6)
+ HARKerOperator=(  1  1 -1  0  0  1 -1 -1  0  1  0  0  0)
+ HARKerOperator=(  1  1 -1  0  0  1  1  1  0  1  0  6  6)
+ HARKerOperator=(  1  1  0 -1  1  1  0  0  1  1  6  0  6)
+ HARKerOperator=(  1  1  0  1  1  1  0  0 -1  1  0  6  6)
+ UnitWeights=false
+ -------------------------------------------------------------------------------
+ SMF>    end 
+ XMAPAL: allocating space for real space object.
+ SMF: PATmap min =     -268.157    
+ SMF: PATmap max =      1655.77    
+ SMF: PATmap ave =    -0.270704E-06
+ SMF: PATmap sigma =    113.572    
+ SMF: SMFmap min =     -268.157    
+ SMF: SMFmap max =      315.681    
+ SMF: SMFmap ave =     -94.0557    
+ SMF: SMFmap sigma =    101.736    
+ XRAY> 
+ XRAY>    {* make sure smfmap1 and smfmap2 are exactly equal 
+ XRAY>     *} 
+ XRAY>    show max (abs(smfmap1-smfmap2)) (all) 
+ Maximum of      1728 elements =                 0.0000
+ XRAY>    if ($result # 0) then 
+ NEXTCD: condition evaluated as false
+ XRAY>      abort 
+ XRAY>    end if 
+ XRAY> 
+ XRAY>    {* list the 10 non-redundant highest peaks 
+ XRAY>     *} 
+ XRAY>    psearch 
+ PSEARCH>      From=smfmap1 
+ PSEARCH>      level = 0 
+ PSEARCH>      nList = 10 
+ PSEARCH>      Fractional = true 
+ PSEARCH>      Site=0.49900 0.00000 0.33330 
+ PSEARCH>      Site=0.42700 0.18700 0.12800 
+ PSEARCH>      Site=0.22830 0.44290 0.40670 
+ PSEARCH>      Site=0.07540 0.30950 0.15860 
+ PSEARCH>      Fractional = false 
+ PSEARCH>      ? 
+ -----------psearch-parameters--------------------------------------------------
+ FROM=SMFMAP1
+ LEVEl=  0
+ NLISt=    10
+ FRACtional=FALSE
+ Symbol=<undefined>
+ PSTOre=     0
+ SITE     2.50     0.00     1.67
+ SITE     2.14     0.94     0.64
+ SITE     1.14     2.22     2.04
+ SITE     0.38     1.55     0.79
+ -------------------------------------------------------------------------------
+ PSEARCH>      Fractional = true 
+ PSEARCH>      ? 
+ -----------psearch-parameters--------------------------------------------------
+ FROM=SMFMAP1
+ LEVEl=  0
+ NLISt=    10
+ FRACtional=TRUE
+ Symbol=<undefined>
+ PSTOre=     0
+ SITE  0.49900  0.00000  0.33330
+ SITE  0.42700  0.18700  0.12800
+ SITE  0.22830  0.44290  0.40670
+ SITE  0.07540  0.30950  0.15860
+ -------------------------------------------------------------------------------
+ PSEARCH>    end 
+ PSEARCH: DensCutOff =   -268.157    
+ PSEARCH: Number of peaks in overstore buffer =       42
+ PSEARCH: Number of peaks listed              =       10
+ PSEARCH:                                   (  Fractional Coordinates  )
+ PSEARCH:     1 Dens =    315.681     Pos = ( 0.50000, 0.50000, 0.00000)
+ PSEARCH:     2 Dens =    315.681     Pos = ( 0.25000, 0.25000, 0.25000)
+ PSEARCH:     3 Dens =    140.772     Pos = ( 0.16667, 0.16667, 0.16667)
+ PSEARCH:     4 Dens =    99.7554     Pos = ( 0.08333, 0.08333, 0.08333)
+ PSEARCH:     5 Dens =    19.5324     Pos = ( 0.50000, 0.16667, 0.00000)
+ PSEARCH:     6 Dens =    19.5324     Pos = ( 0.41667, 0.08333, 0.08333)
+ PSEARCH:     7 Dens =    19.5324     Pos = ( 0.33333, 0.16667, 0.16667)
+ PSEARCH:    -1 Dens =    19.5324     Pos = ( 0.49900, 0.00000, 0.33330)   0.501278E-02    18.5707    
+ PSEARCH:     8 Dens =   -7.72055     Pos = ( 0.16667, 0.16667, 0.08333)
+ PSEARCH:     9 Dens =   -8.09622     Pos = ( 0.16667, 0.08333, 0.08333)
+ PSEARCH:    10 Dens =   -12.7179     Pos = ( 0.33333, 0.16667, 0.08333)
+ PSEARCH:    -4 Dens =   -12.7179     Pos = ( 0.07540, 0.30950, 0.15860)   0.132176       -56.0181    
+ PSEARCH:    -2 Dens =   -45.4964     Pos = ( 0.42700, 0.18700, 0.12800)   0.224911       -85.0188    
+ PSEARCH:    -3 Dens =   -268.157     Pos = ( 0.22830, 0.44290, 0.40670)   0.177725       -163.885    
+ XRAY> 
+ XRAY>    {* again with cartesian coordinates 
+ XRAY>     *} 
+ XRAY>    psearch 
+ PSEARCH>      From=smfmap1 
+ PSEARCH>      level = 0 
+ PSEARCH>      nList = 10 
+ PSEARCH>      SITE     2.82    -0.22     1.78 
+ PSEARCH>      SITE     1.86     1.01     0.68 
+ PSEARCH>      SITE     0.58     2.33     2.17 
+ PSEARCH>      SITE    -0.13     1.71     0.85 
+ PSEARCH>      Fractional = true 
+ PSEARCH>      ? 
+ -----------psearch-parameters--------------------------------------------------
+ FROM=SMFMAP1
+ LEVEl=  0
+ NLISt=    10
+ FRACtional=TRUE
+ Symbol=<undefined>
+ PSTOre=     0
+ SITE  0.56287 -0.04391  0.35529
+ SITE  0.37126  0.20160  0.13573
+ SITE  0.11577  0.46507  0.43313
+ SITE -0.02595  0.34132  0.16966
+ -------------------------------------------------------------------------------
+ PSEARCH>      Fractional = false 
+ PSEARCH>      ? 
+ -----------psearch-parameters--------------------------------------------------
+ FROM=SMFMAP1
+ LEVEl=  0
+ NLISt=    10
+ FRACtional=FALSE
+ Symbol=<undefined>
+ PSTOre=     0
+ SITE     2.82    -0.22     1.78
+ SITE     1.86     1.01     0.68
+ SITE     0.58     2.33     2.17
+ SITE    -0.13     1.71     0.85
+ -------------------------------------------------------------------------------
+ PSEARCH>    end 
+ PSEARCH: DensCutOff =   -268.157    
+ PSEARCH: Number of peaks in overstore buffer =       42
+ PSEARCH: Number of peaks listed              =       10
+ PSEARCH:                                   (  Cartesian Coordinates   )
+ PSEARCH:     1 Dens =    315.681     Pos = (    2.50,    2.50,    0.00)
+ PSEARCH:     2 Dens =    315.681     Pos = (    1.25,    1.25,    1.25)
+ PSEARCH:     3 Dens =    140.772     Pos = (    0.83,    0.83,    0.83)
+ PSEARCH:     4 Dens =    99.7554     Pos = (    0.42,    0.42,    0.42)
+ PSEARCH:     5 Dens =    19.5324     Pos = (    2.50,    0.83,    0.00)
+ PSEARCH:     6 Dens =    19.5324     Pos = (    2.09,    0.42,    0.42)
+ PSEARCH:     7 Dens =    19.5324     Pos = (    1.67,    0.83,    0.83)
+ PSEARCH:    -2 Dens =    19.5324     Pos = (    1.86,    1.01,    0.68)   0.301247       -77.0744    
+ PSEARCH:     8 Dens =   -7.72055     Pos = (    0.83,    0.83,    0.42)
+ PSEARCH:     9 Dens =   -8.09622     Pos = (    0.83,    0.42,    0.42)
+ PSEARCH:    10 Dens =   -12.7179     Pos = (    1.67,    0.83,    0.42)
+ PSEARCH:    -1 Dens =   -26.6866     Pos = (    2.82,   -0.22,    1.78)   0.248219       -37.4161    
+ PSEARCH:    -3 Dens =   -56.4621     Pos = (    0.58,    2.33,    2.17)   0.252661       -41.4284    
+ PSEARCH:    -4 Dens =   -215.730     Pos = (   -0.13,    1.71,    0.85)   0.136839       -140.241    
+ XRAY>  end 
+ CNSsolve> 
+ CNSsolve>  set message=on end 
+ CNSsolve>end loop sg 
+ CNSsolve>for $sg in ("P1" "C2/c" "Fddd" "I-4c2" "P3(1)21" "P6(3)/mcm" "P2(1)3") loop sg 
+ CNSsolve>  do (x=0.499   ) (name=SI1) 
+ CNSsolve>  do (y=0.000   ) (name=SI1) 
+ CNSsolve>  do (z=0.333333) (name=SI1) 
+ CNSsolve>  do (q=1.0     ) (name=SI1) 
+ CNSsolve>  do (b=2.0     ) (name=SI1) 
+ CNSsolve> 
+ CNSsolve>  do (x=0.427   ) (name=O1) 
+ CNSsolve>  do (y=0.187   ) (name=O1) 
+ CNSsolve>  do (z=0.128   ) (name=O1) 
+ CNSsolve>  do (q=1.0     ) (name=O1) 
+ CNSsolve>  do (b=4.0     ) (name=O1) 
+ CNSsolve> 
+ CNSsolve>  {* reset all xray settings 
+ CNSsolve>   *} 
+ CNSsolve>  xray 
+ CNSsolve>    reset 
+ CNSsolve>  end 
+ CNSsolve> 
+ CNSsolve>  {* define some general xray settings 
+ CNSsolve>   *} 
+ CNSsolve>  xray 
+ CNSsolve>    bins=1 
+ CNSsolve>    method=direct 
+ CNSsolve> 
+ CNSsolve>    evaluate ($lr=10000.) 
+ CNSsolve>    evaluate ($hr=1) 
+ CNSsolve>    binresolution $lr $hr 
+ CNSsolve>    mapresolution $hr 
+ CNSsolve>    tselection=( $hr <= d <= $lr ) 
+ CNSsolve>  end 
+ CNSsolve> 
+ CNSsolve>  {* define scattering factors and symmetry 
+ CNSsolve>   *} 
+ CNSsolve>  xray 
+ CNSsolve>    @@CNS_XRAYLIB:scatter.lib 
+ CNSsolve>    @@CNS_XTALLIB:spacegroup.lib (sg=$sg; sgparam = $sgparam) 
+ CNSsolve>  end 
+ CNSsolve> 
+ CNSsolve>  {* define dummy unit cell dimensions based on space group number 
+ CNSsolve>   *} 
+ CNSsolve>  if     ($sgparam.sg_number <=   2) then 
+ CNSsolve>    evaluate ($a = 5.01) 
+ CNSsolve>    evaluate ($b = 6.25) 
+ CNSsolve>    evaluate ($c = 5.47) 
+ CNSsolve>    evaluate ($alpha = 100) 
+ CNSsolve>    evaluate ($beta  =  80) 
+ CNSsolve>    evaluate ($gamma = 110) 
+ CNSsolve>  elseif ($sgparam.sg_number <=  15) then 
+ CNSsolve>    evaluate ($a = 5.01) 
+ CNSsolve>    evaluate ($b = 6.25) 
+ CNSsolve>    evaluate ($c = 5.47) 
+ CNSsolve>    evaluate ($alpha =  90) 
+ CNSsolve>    evaluate ($beta  =  80) 
+ CNSsolve>    evaluate ($gamma =  90) 
+ CNSsolve>  elseif ($sgparam.sg_number <=  74) then 
+ CNSsolve>    evaluate ($a = 5.01) 
+ CNSsolve>    evaluate ($b = 6.25) 
+ CNSsolve>    evaluate ($c = 5.47) 
+ CNSsolve>    evaluate ($alpha =  90) 
+ CNSsolve>    evaluate ($beta  =  90) 
+ CNSsolve>    evaluate ($gamma =  90) 
+ CNSsolve>  elseif ($sgparam.sg_number <= 142) then 
+ CNSsolve>    evaluate ($a = 5.01) 
+ CNSsolve>    evaluate ($b = $a) 
+ CNSsolve>    evaluate ($c = 5.47) 
+ CNSsolve>    evaluate ($alpha =  90) 
+ CNSsolve>    evaluate ($beta  =  90) 
+ CNSsolve>    evaluate ($gamma =  90) 
+ CNSsolve>  elseif ($sgparam.sg_number <= 194) then 
+ CNSsolve>    evaluate ($a = 5.01) 
+ CNSsolve>    evaluate ($b = $a) 
+ CNSsolve>    evaluate ($c = 5.47) 
+ CNSsolve>    evaluate ($alpha =  90) 
+ CNSsolve>    evaluate ($beta  =  90) 
+ CNSsolve>    evaluate ($gamma = 120) 
+ CNSsolve>  else 
+ CNSsolve>    evaluate ($a = 5.01) 
+ CNSsolve>    evaluate ($b = $a) 
+ CNSsolve>    evaluate ($c = $a) 
+ CNSsolve>    evaluate ($alpha =  90) 
+ CNSsolve>    evaluate ($beta  =  90) 
+ CNSsolve>    evaluate ($gamma =  90) 
+ CNSsolve>  end if 
+ CNSsolve> 
+ CNSsolve>  xray 
+ CNSsolve>    a=$a b=$b c=$c alpha=$alpha beta=$beta gamma=$gamma 
+ CNSsolve>  end 
+ CNSsolve> 
+ CNSsolve>  coordinates orthogonalize end 
+ CNSsolve> 
+ CNSsolve>  xray 
+ CNSsolve>    {* set space-group dependent restrictions for map-grid dimensions 
+ CNSsolve>     *} 
+ CNSsolve>    fft 
+ CNSsolve>      grid=0.4 
+ CNSsolve>      xgridfactor=$sgparam.SymGrid_x 
+ CNSsolve>      ygridfactor=$sgparam.SymGrid_y 
+ CNSsolve>      zgridfactor=$sgparam.SymGrid_z 
+ CNSsolve>    end 
+ CNSsolve> 
+ CNSsolve>    {* generate reflections 
+ CNSsolve>     *} 
+ CNSsolve>    anomalous = false 
+ CNSsolve>    generate 100000. 1.0 
+ CNSsolve> 
+ CNSsolve>    {* compute dummy "fobs" 
+ CNSsolve>     *} 
+ CNSsolve>    declare name=fobs domain=reciprocal type=complex end 
+ CNSsolve>    predict 
+ CNSsolve>      mode=reciprocal 
+ CNSsolve>      to=fobs 
+ CNSsolve>      selection=(all) 
+ CNSsolve>      atomselection=(all) 
+ CNSsolve>    end 
+ CNSsolve> 
+ CNSsolve>    {* expand to P1 
+ CNSsolve>     *} 
+ CNSsolve>    expand 
+ CNSsolve>  end 
+ CNSsolve> 
+ CNSsolve>  xray 
+ CNSsolve>    {* declare maps 
+ CNSsolve>     *} 
+ CNSsolve>    declare name=patmap  domain=real end 
+ CNSsolve>    declare name=smfmap1 domain=real end 
+ CNSsolve>    declare name=smfmap2 domain=real end 
+ CNSsolve>  end 
+ CNSsolve> 
+ CNSsolve>  xray 
+ CNSsolve>    do (patmap=FT(combine(amplitude(fobs)^2, 0))) (all) 
+ CNSsolve>    show min (real(patmap)) (all) 
+ CNSsolve>    show max (real(patmap)) (all) 
+ CNSsolve>  end 
+ CNSsolve> 
+ CNSsolve>  xray 
+ CNSsolve>    {* define symmetry for flagmap 
+ CNSsolve>     *} 
+ CNSsolve>    fmap 
+ CNSsolve>      @@CNS_XTALLIB:spacegroup.lib (sg=$sg; sgparam = $sgparam) 
+ CNSsolve>      if ($sgparam.ssVM_1 # "VOID") then ssVM = $sgparam.ssVM_1 end if 
+ CNSsolve>      if ($sgparam.ssVM_2 # "VOID") then ssVM = $sgparam.ssVM_2 end if 
+ CNSsolve>      if ($sgparam.ssVM_3 # "VOID") then ssVM = $sgparam.ssVM_3 end if 
+ CNSsolve>      if ($sgparam.GenK2L # "VOID") then Addl = $sgparam.GenK2L end if 
+ CNSsolve>      ? 
+ CNSsolve>      Symmetry ? 
+ CNSsolve>      AddlGenerators ? 
+ CNSsolve>    end 
+ CNSsolve>  end 
+ CNSsolve> 
+ CNSsolve>  set message=all end 
+ CNSsolve> 
+ CNSsolve>  xray 
+ CNSsolve>    {* Build flagmap 
+ CNSsolve>     *} 
+ CNSsolve>    fmap 
+ CNSsolve>      UseSym = true 
+ CNSsolve>      Use_ss  = true 
+ CNSsolve>      UseAddl = true 
+ CNSsolve>      Action=Build 
+ CNSsolve>    end 
+ CNSsolve> 
+ CNSsolve>    {* Get Harker operators from library 
+ CNSsolve>     *} 
+ CNSsolve>    @@CNS_XTALLIB:harker_ops.lib (sg=$sg; harker=$harker) 
+ CNSsolve> 
+ CNSsolve>    {* Compute smfmap1, all grid points, use FlagMap only for check 
+ CNSsolve>     *} 
+ CNSsolve>    smf 
+ CNSsolve>      patmap=patmap 
+ CNSsolve>      smfmap=smfmap1 
+ CNSsolve>      eval($i = 0) 
+ CNSsolve>      while ($i < $harker.nOps) loop HarkerOps 
+ CNSsolve>        eval($i = $i + 1) 
+ CNSsolve>        HarkerOperator=$harker.Op_$i 
+ CNSsolve>      end loop HarkerOps 
+ CNSsolve>      ChkInDep=true 
+ CNSsolve>      {* test the debug option *} 
+ CNSsolve>      ? 
+ CNSsolve>    end 
+ CNSsolve> 
+ CNSsolve>    {* Compute smfmap2, only at grid points indicated by FlagMap 
+ CNSsolve>     *} 
+ CNSsolve>    smf 
+ CNSsolve>      patmap=patmap 
+ CNSsolve>      smfmap=smfmap2 
+ CNSsolve>      eval($i = 0) 
+ CNSsolve>      while ($i < $harker.nOps) loop HarkerOps 
+ CNSsolve>        eval($i = $i + 1) 
+ CNSsolve>        HarkerOperator=$harker.Op_$i 
+ CNSsolve>      end loop HarkerOps 
+ CNSsolve>      ? 
+ CNSsolve>    end 
+ CNSsolve> 
+ CNSsolve>    {* make sure smfmap1 and smfmap2 are exactly equal 
+ CNSsolve>     *} 
+ CNSsolve>    show max (abs(smfmap1-smfmap2)) (all) 
+ CNSsolve>    if ($result # 0) then 
+ CNSsolve>      abort 
+ CNSsolve>    end if 
+ CNSsolve> 
+ CNSsolve>    {* list the 10 non-redundant highest peaks 
+ CNSsolve>     *} 
+ CNSsolve>    psearch 
+ CNSsolve>      From=smfmap1 
+ CNSsolve>      level = 0 
+ CNSsolve>      nList = 10 
+ CNSsolve>      Fractional = true 
+ CNSsolve>      Site=0.49900 0.00000 0.33330 
+ CNSsolve>      Site=0.42700 0.18700 0.12800 
+ CNSsolve>      Site=0.22830 0.44290 0.40670 
+ CNSsolve>      Site=0.07540 0.30950 0.15860 
+ CNSsolve>      Fractional = false 
+ CNSsolve>      ? 
+ CNSsolve>      Fractional = true 
+ CNSsolve>      ? 
+ CNSsolve>    end 
+ CNSsolve> 
+ CNSsolve>    {* again with cartesian coordinates 
+ CNSsolve>     *} 
+ CNSsolve>    psearch 
+ CNSsolve>      From=smfmap1 
+ CNSsolve>      level = 0 
+ CNSsolve>      nList = 10 
+ CNSsolve>      SITE     2.82    -0.22     1.78 
+ CNSsolve>      SITE     1.86     1.01     0.68 
+ CNSsolve>      SITE     0.58     2.33     2.17 
+ CNSsolve>      SITE    -0.13     1.71     0.85 
+ CNSsolve>      Fractional = true 
+ CNSsolve>      ? 
+ CNSsolve>      Fractional = false 
+ CNSsolve>      ? 
+ CNSsolve>    end 
+ CNSsolve>  end 
+ CNSsolve> 
+ CNSsolve>  set message=on end 
+ CNSsolve>end loop sg 
+ CNSsolve> 
+ CNSsolve>stop 
+          ============================================================
+           Maximum dynamic memory allocation:     9171544 bytes
+           Maximum dynamic memory overhead:           656 bytes
+           Program started at: 16:08:07 on 05-Jul-2018
+           Program stopped at: 16:08:08 on 05-Jul-2018
+           CPU time used:      14.5155 seconds
+          ============================================================

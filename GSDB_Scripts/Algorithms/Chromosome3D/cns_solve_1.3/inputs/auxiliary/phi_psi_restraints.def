@@ -1,0 +1,149 @@
+{+ file: phi_psi_restraints.inp +}
+{+ directory: general +}
+{+ description: Creates harmonic restraints to maintain phi/psi angles of protein backbone +}
+{+ comment: 
+           This file is to be read by refinement files that modify
+           atom coordinates +}
+{+ author: Axel T. Brunger +}
+{+ copyright: Yale University +}
+
+{- Guidelines for using this file:
+   - all strings must be quoted by double-quotes
+   - logical variables (true/false) are not quoted
+   - do not remove any evaluate statements from the file -}
+
+{- begin block parameter definition -} define(
+
+{========================== atom selection ===========================}
+
+{* select atoms to be included in phi/psi restraints *}
+{===>} atom_select_phipsi=(known and not(hydrogen));
+
+{* energy constant for phi/psi restraints *}
+{===>} restraints_force=20;
+
+{* phi/psi restraint values *}
+{* phi/psi restraints will be generated from the current coordinates
+   otherwise they have to be explicitly set *}
+{+ choice: true false +}
+{===>} from_structure=true;
+
+{* phi restraint (only used if restraints are not generated from coordinates) *}
+{===>} restraints_phi=-64;
+
+{* psi restraint (only used if restraints are not generated from coordinates) *}
+{===>} restraints_psi=-41;
+
+{===========================================================================}
+{        things below this line do not normally need to be changed          }
+{===========================================================================}
+
+ ) {- end block parameter definition -}
+
+ set message ? end
+ evaluate ($message_old=$result)
+ set echo ? end
+ evaluate ($echo_old=$result)
+ if ( $log_level = verbose ) then
+   set message=normal echo=on end
+ else
+   set message=off echo=off end
+ end if
+
+ checkversion 1.3
+
+ show sum ( 1 ) ( &atom_select_phipsi and name ca ) 
+ evaluate ($nrestraints=2 * $select)
+ restraints dihedral          
+   nassign=$nrestraints
+ end
+
+ for $id in id ( &atom_select_phipsi and name ca ) loop phipsi
+
+   show (segid) (id $id)
+   evaluate ($segid=$result)
+   show (resid) (id $id)
+   evaluate ($resid=$result)
+   show (resname) (id $id)
+   evaluate ($resname=$result)
+
+   evaluate ($phi=-9999)
+   evaluate ($psi=-9999)
+
+   identity (store1) (name c and bondedto
+            (name n and resid $resid and segid $segid ))
+
+   if ( $select = 1 ) then
+
+     show element (store1) (attribute store1 > 0)
+     evaluate ($id_prev=$result)
+
+     show (segid) (id $id_prev)
+     evaluate ($segid_prev=$result)
+     show (resid) (id $id_prev)
+     evaluate ($resid_prev=$result)
+
+     if ( &from_structure=true) then
+      pick dihedral
+       (name  c and segid $segid_prev and resid $resid_prev)
+       (name  n and segid $segid and resid $resid)
+       (name ca and segid $segid and resid $resid)
+       (name  c and segid $segid and resid $resid)
+       geometry
+
+      evaluate ($restraints_phi=$result)
+     else
+      evaluate ($restraints_phi=&restraints_phi)
+     end if
+
+     restraints dihedral
+      assign
+       (name  c and segid $segid_prev and resid $resid_prev)
+       (name  n and segid $segid and resid $resid)
+       (name ca and segid $segid and resid $resid)
+       (name  c and segid $segid and resid $resid)
+       &restraints_force $restraints_phi 0.0 2
+     end
+   end if
+
+   identity (store1) (name n and bondedto
+            (name c and resid $resid and segid $segid ))
+
+   if ( $select = 1 ) then
+
+     show element (store1) (attribute store1 > 0)
+     evaluate ($id_next=$result)
+
+     show (segid) (id $id_next)
+     evaluate ($segid_next=$result)
+     show (resid) (id $id_next)
+     evaluate ($resid_next=$result)
+
+     if ( &from_structure=true) then
+      pick dihedral
+       (name  n and segid $segid and resid $resid)
+       (name ca and segid $segid and resid $resid)
+       (name  c and segid $segid and resid $resid)
+       (name  n and segid $segid_next and resid $resid_next)
+       geometry
+
+      evaluate ($restraints_psi=$result)
+     else
+      evaluate ($restraints_psi=&restraints_psi)
+     end if
+     
+     restraints dihedral
+      assign
+       (name  n and segid $segid and resid $resid)
+       (name ca and segid $segid and resid $resid)
+       (name  c and segid $segid and resid $resid)
+       (name  n and segid $segid_next and resid $resid_next)
+       &restraints_force $restraints_psi 0.0 2
+     end
+   end if
+   
+ end loop phipsi
+
+ flags include cdih end
+
+ set message=$message_old echo=$echo_old end

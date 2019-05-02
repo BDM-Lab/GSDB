@@ -1,0 +1,79 @@
+<HTML>
+<HEAD>
+   <TITLE>Crystallography & NMR System</TITLE>
+</HEAD>
+<BODY BGCOLOR=#8ebf8e>
+
+<HR WIDTH="100%">
+
+<H2>Refinement at lower than 3.5 A resolution</H2>
+
+<HR WIDTH="100%">
+<h3>General remarks</h3>
+<p>In this section we will discuss the specific settings for the CNS  task file <TT>refine.inp</TT> for refinement at lower than 3.5 A resolution. Compared to refinement for higher resolution structures it is recommended to: </p>
+<ol>
+  <LI>use torsion angle dynamics rather than Cartesian dynamics whenever possible.</LI>
+  <LI>try refinement without positional minimization, i.e., bond lengths and bond angles should be kept at fixed values.</LI>
+  <LI>try restrained grouped B-factor refinement as an alternative to standard restrained individual refinement; use the method that produces the lowest Rfree. For restrained grouped B-factor refinement, you need to relax the default target values for B-factor restraints. In this example, the target sigma values for mainchain bonds and angles are set to 15 and 20 A^2, respectively, and those for sidechain bonds and sidechain angles are set to 20 and 25 A^2 respectively. Some experimentation is recommended to determine the optimum values (as indicated by a minimum Rfree value). Note, that it is necessary to explicitly define non-standard B-factor groups, such as ligands (ADP in the particular example below). </LI>
+</ol>
+<p>However, depending on the resolution and the quality of the diffraction data, restrained individual B-factor refinement and positional (Cartesian) minimization could be beneficial. For example, for the structure of p97/VCP in complex with ADP, we obtained a slightly better Rfree value (about 1%) with restrained individual B-factor refinement and positional minimization. Thus, it is worth trying different refinement strategies and chose the one that produces the lowest Rfree value. </p>
+<h3>Example</h3>
+<p>The particular example (p97 in complex with ADP) that we discuss in this tutorial uses torsion angle dynamics and restrained grouped B-factor refinement without positional minimization (the <tt>refine.inp</tt> task file is taken fro<tt>m</tt> the CNS inputs directory<tt>, and </tt>the only differences are the particular input parameter settings): :</p>
+<PRE>
+      cns_solve &lt; <A HREF="refine.inp">refine.inp</A> &gt; refine.out
+</PRE>
+
+<P>
+<p>Note that this low resolution refinement example uses non-crystallographic symmetry (NCS) restraints as specified by the CNS NCS definition file</p>
+<PRE>
+      <a href="../data/p97/p97_adp_ncs.def">p97_adp_ncs.def</a>
+</PRE>
+This example also contains six non-standard ligands, two ADP molecules bound to each of the three protomers. In order for CNS to recognize these non-standard ligands, the topology and parameter files</PRE>
+<PRE>
+      <a href="../data/p97/p97_adp_cns.top">p97_adp_cns.top</a>
+      <a href="../data/p97/p97_adp_cns.par">p97_adp_cns.par</a>
+</PRE>
+are read.
+<P>It is generally advisable to perform many repeats (sometimes referred to as &quot;trials&quot;) of the annealing refinement with different seeds that determine the initial random velocities for the molecular dynamics simulations. For many repeats, it is convenient to setup a C Shell<TT></TT> script files that modifies the CNS <TT>refine.inp</TT> task file. A particular example is:
+<PRE>
+      ./<a href="refine.csh">refine.csh</a> 1
+</PRE>
+<p>Multiple such csh scripts can be run to set up multiple jobs (here we just run it a second time with &quot;./refine.csh 2&quot;. This approach of multiple independent jobs is particularly powerful in a distributed computing environment (see below). Generally, the coordinates with the lowest Rfree should be used for further analysis.</p>
+<h3>A note for structures that are already refined</h3>
+<p> If extensive annealing is not desired, lower the starting temperature of the slow-cooling schedule from 3000 K to 300 K. In addition, the number of macrocycles should be reduced.</p>
+<h3>Sorting the best structures obtained from multiple independent refinements</h3>
+<p>The refined coordinates from multiple independent refinements should be sorted with respect to Rfree. We use a Perl script to do this:<br>
+  <br>
+</p>
+<pre>      .<a href="sort.pl">/sort.pl</a> refine_*.pdb &gt; sort.list<br>
+</pre>
+<br>
+This Perl script creates a new directory &quot;sorted&quot; that contains the final coordinates and the corresponding Fourier coefficient map files (*.hkl files) sorted by Rfree, i.e., sorted/sort_1.pdb is the best coordinate set, the one with the lowest Rfree, and sorted/sorted_1.hkl is the corresponding Fourier coefficient file.  The  script also produces a convenient summary:<br>
+<br>
+<a href="sort.list"><br>
+</a>
+<pre>
+sort.list
+
+</pre>
+<h3>B-factor sharpening of electron density maps</h3>
+<p>B-factor sharpening of the electron density maps produced by <tt>refine.inp</tt> can be accomplished in several ways. First, the electron density map files (<tt>refine*.map</tt>) can be read by Coot and then B-factor sharpened using Calculate -&gt; Map Sharpening. This method also works when reading the CNS structure factor file that contains the coefficients for the 2Fo-Fc and Fo-Fc maps (<tt>refine.hkl</tt>) into Coot using File -&gt; Auto OpenMTZ. Second, the CNS structure factor file <tt>refine.hkl </tt>can be read by the CNS <tt>fourier_map.inp</tt> script and B-factor sharpening applied upon computing electron density maps (the coefficients for the Fo-Fc map are in the array called F1, the coefficients for the 2Fo-Fc map are in the array F2).</p>
+<h3>Averaging electron density maps obtained from multiple independent refinements</h3>
+<p>The electron density maps resulting form the best structures (i.e., lowest Rfree structures) can be averaged by using the <tt>model_map.inp</tt> script file (see section <a href="../refinement_high_resolution/data_prep/text.html">Refinement at higher than 3.5 A resolution</a>). This type of averaging can be very powerful to improve model phases (L. M. Rice, P. D. Adams, Y. Shamoo, and A. T. Brunger, Phase improvement by multi-start simulated annealing refinement and structure factor averaging, J. Appl. Crystallography 31, 798-805, 1998). The <tt>model_map.inp</tt> script file also has an option for B-factor sharpening. </p>
+<h3>Setup for distributed (grid) computing</h3>
+<p>It can be very useful to run many jobs independently on different processors. If you have <a href="http://www.apple.com/server/macosx/technology/xgrid.html">Xgrid</a> installed on your MAC OS X server, here is a script file for the <a href="http://cmgm.stanford.edu/~cparnot/xgrid-stanford/html/goodies/GridStuffer-details.html">Gridstuffer</a> program:</p>
+<p><a href="refine_xgrid_stuffer.txt"><tt>refine_xgrid_stuffer.txt</tt></a><tt></tt></p>
+<p>which uses the unix shell file <a href="refine.csh"><tt>refine.csh</tt></a> described above. A similar approach can be used in any distributed environment, not just Xgrid.</p>
+<p>&nbsp;</p>
+<p><A HREF="tutorial.csh">Script to run this tutorial</A>
+  
+</p>
+<HR WIDTH="100%">
+
+<A HREF="../text.html">Back to tutorials</A>&nbsp;&nbsp;
+<A HREF="../den_refinement/text.html">Next section</A>
+
+<HR WIDTH="100%"></P>
+
+</BODY>
+</HTML>

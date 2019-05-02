@@ -1,0 +1,81 @@
+! Module file: mergeanomalous
+!
+! CNS module
+! **********
+!
+! Authors: Piet Gros and Axel T. Brunger
+!
+! copyright Yale University
+!
+! Function:
+! Merge the anomalous phase information, i.e. join (+) and (-) phase 
+! probabilities
+!
+! Requirements:
+! 1. This module can only be called called from xray
+! 2. Probability has to be expressed in HL coefficients
+! 3. For anomalous differences ANOMalous must be TRUE and, thus, the
+!    arrays of domain=reciprocal (like structure factors) contain both
+!    the (+) and the (-) elements.
+!
+
+module {mergeanomalous}
+(
+   &pa=pa;              {Hendrickson and Lattman A array}
+   &pb=pb;              {Hendrickson and Lattman B array}
+   &pc=pc;              {Hendrickson and Lattman C array}
+   &pd=pd;              {Hendrickson and Lattman D array}
+
+   &sel=(all);          {structure factor selection}
+)
+
+checkversion 1.3
+
+declare domain=reci type=comp name=fdummy1 end   {work array for phase shifts}
+declare domain=reci type=real name=dummy1 end    {work HL coefficient A}
+declare domain=reci type=real name=dummy2 end    {work HL coefficient B}
+declare domain=reci type=real name=dummy3 end    {work HL coefficient C}
+declare domain=reci type=real name=dummy4 end    {work HL coefficient D}
+declare domain=reci type=real name=selected end {selected bijvoet pairs}
+
+                {*set flags for Bijvoet pairs*}
+
+do (selected=0) ( all )
+do (selected=1) ( friedel_pair(&sel) and acentric )
+
+		{*compute phase shifts*}
+
+do (fdummy1=combine(1.,0.)) (all)          {initialize to ampl 1, phase 0}
+do (fdummy1=friedel(fdummy1)) (selected=1) {get phase shift of friedel}
+do (dummy1=phase(fdummy1)) (selected=1)		
+do (dummy1=friedel(dummy1)) (selected=1)
+do (fdummy1=combine(1.,dummy1)) (selected=1)		
+
+		{*copy probability coefficients*}
+
+do (dummy1=&pa) (selected=1)				
+do (dummy2=&pb) (selected=1)
+do (dummy3=&pc) (selected=1)
+do (dummy4=&pd) (selected=1)
+
+		{*shift phase probabilities*}
+
+do (&pa=dummy1*cos(phase(fdummy1))-dummy2*sin(phase(fdummy1))) (selected=1)
+do (&pb=dummy1*sin(phase(fdummy1))+dummy2*cos(phase(fdummy1))) (selected=1)
+do (&pc=dummy3*cos(2*phase(fdummy1))-dummy4*sin(2*phase(fdummy1))) (selected=1)
+do (&pd=dummy3*sin(2*phase(fdummy1))+dummy4*cos(2*phase(fdummy1))) (selected=1)
+
+		{*combine probabilities*}
+
+do (&pa=dummy1+friedel(&pa)) (selected=1)   {add (+) and (-) coefficients}
+do (&pb=dummy2-friedel(&pb)) (selected=1)
+do (&pc=dummy3+friedel(&pc)) (selected=1)
+do (&pd=dummy4-friedel(&pd)) (selected=1)
+
+
+undeclare domain=reci name=fdummy1 end   {work array for phase shifts}
+undeclare domain=reci name=dummy1 end    {work HL coefficient A}
+undeclare domain=reci name=dummy2 end    {work HL coefficient B}
+undeclare domain=reci name=dummy3 end    {work HL coefficient C}
+undeclare domain=reci name=dummy4 end    {work HL coefficient D}
+undeclare domain=reci name=selected end {selected bijvoet pairs}

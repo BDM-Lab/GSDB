@@ -1,0 +1,83 @@
+coordinate <coordinate-statement> end
+
+<coordinate-statement> :==
+
+  {<coordinate-read-statement>}
+  swap [selection=<atom-selection>] 
+  --{Exchanges main and comparison coordinate sets:
+     x,y,z <--> xcomp,ycomp,zcomp; b and q remain unaffected.}
+  convert=<logical>
+  --{if true, use chain identifier (if non-blank) and copy it into
+     the segid. Should be used in conjunction with the format=pdbo
+     specification when writing coordinates with WRITE COOR.}
+  copy [selection=<atom-selection>]
+  --{Copies main set into comparison coordinate set:
+     xcomp:=x, ycomp:=y, zcomp:=z; b and q remain unaffected.}
+  init [selection=<atom-selection>]
+  --{Initializes main set: x:=9999.0, y:=9999.0, z:=9999.0}
+  rotate [center=<vector>] [selection=<atom-selection>] <matrix>
+  --{Rotates selected atoms in x,y,z coordinate set by <matrix> 
+     about the defined rotation center. Default center is (0,0,0).}
+  symmetry <symmetry-operator> [selection=<atom-selection>]
+  --{Apply symmetry operation to main set. <symmetry-operator> is
+     from the international tables, e.g. (-x,y+1/2,-z), and must include
+     parenthesis. The operator is applied in fractional space. The unit
+     cell constants must be defined.}
+  translate [selection=<atom-selection>] vector=<vector> [distance=<real>] 
+  --{Translate the main set by vector <vector> or if a distance is 
+     also specified by this distance along the vector <vector>.}
+  orient [mass=<logical>] [lsq=<logical>] [sele=<atom-selection>]
+  --{Transforms coordinates into principal axis system.}
+  fit [mass=<logical>] [lsq=<logical>] [sele=<atom-selection>]
+  --{Calculate and apply least squares fit to comparison coordinate set.}
+  rms [mass=<logical>] [sele <atom-selection>]
+  --{Show RMS difference between main and comparison coordinate sets.}
+  orthogonalize [selection=<atom-selection>]
+  --{Orthogonalize main set using unit cell dimensions defined in xray.}
+  fractionalize [selection=<atom-selection>]
+  --{Fractionalize main set using unit cell dimensions defined in xray.}
+  rgyration [mass=<logical>] [factor=<real>] [sele=<atom-selection>]
+  --{Calculate radius of gyration for selected atoms.}
+
+  <coordinate-read-statement> :== 
+
+    disposition=main|comp|reference|derivative
+    --{Destination for read coordinates.}
+    selection=<atom-selection>
+    atom <pdb-atom-record>
+    --{Brookhaven Protein Databank atomic coordinate record.}
+    remark <string>
+    --{Brookhaven Protein Databank remark statement.}
+
+    <pdb-atom-record> :==
+
+      <integer> <atom> <resname> <resid> 
+                <real> <real> <real> <real> <real> <segid>
+    
+      --{The following format is expected:
+
+      1        10        20        30        40        50        60        70
+      |        |         |         |         |         |         |         |  
+      ATOM   1223  O   GLY   153     -11.704  -9.200    .489  1.00  0.80      MOL1
+            ccccc ''''Iyyy O,,,,L   ........>>>>>>>>////////ppppppiiiiii iii  iiii
+            ^ atom number   ^ resid ^ x     ^ y     ^ z     ^ q   ^ b         ^ segid
+                  ^ atom name   ^ insertion character
+                  ^ additional character for some atom names (mostly hydrogens)
+                       ^ residue name
+                           ^ chain identifier }
+
+Notes:
+1. The atom serial number is encoded upon output with WRITE COORdinates as 
+   hybrid-36 character string if the number exceeds 99999. However, 
+   it is ignored upon reading PDB files. 
+2. The resid can be encoded within the 4-character limit as a hybrid-36
+   character string if it exceeds 9999 and is less than 2436112.  Please
+   note that CNS treats the resid in most places as 4-character string,
+   including PDB I/O, selections by RESId, and most print statements. 
+   For selection by numerical residue range (e.g., (resid 1:40)) a 
+   hybrid-36 string will be decoded into an integer in order to enable 
+   numerical comparisons. Strings that cannot be decoded into an 
+   integer are treated as zero.
+3. Hybrid-36 is base-36 (upper-case and then lower-case) 
+   plus an offset to align with plain integer numbers. For more 
+   information see http://cci.lbl.gov/hybrid_36/

@@ -1,0 +1,320 @@
+<!DOCTYPE HTML PUBLIC "-//IETF//DTD HTML 2.0//EN">
+<HTML>
+<HEAD>
+   <TITLE>Crystallography & NMR System</TITLE>
+</HEAD>
+<BODY BGCOLOR=#8ebf8e>
+
+<HR>
+
+<h2>Tools to generate topology and parameters for hetero compounds</h2>
+
+<HR>
+<P>There are many tools available to generate parameters from a single reference structure.
+These have become quite popular, are easy to use, and often produce reasonably
+good parameters for the local energy minimum. However, they may not be
+appropriate for all valid conformations of the molecule. For example, nucleic acid ring
+puckers are a commonly parameterized to a specific pucker conformation. A reasonable
+strategy is to generate parameters based on the conformation present in the crystal
+structure and use them only for refinement of the ligand in that specific conformation.</P>
+
+<P>Some refinement programs provide a large library of ligand parameters. Many of these
+have been automatically generated and suffer from local-minima biases. Do not trust
+refinement parameters simply because they come from a reliable source.</P>
+
+<h3>Common problems with generated parameters</h3>
+<P>Automatic parameter generation in imperfect, even with the best possible software.
+For optimal results, you must validate ligand restraints yourself, even for existing
+parameters distributed from a reliable source.</P>
+
+<UL>
+<LI><B>Parameters are often dependent on conformation.</B> Many flexible
+molecules have correlated geometric terms that require conformation-dependent
+parameters.  A common example is nucleic acid sugar puckers, which are
+typically tuned to a specific sugar pucker. In this case, you must use
+parameters tuned to the local minimum present in the target crystal structure.
+This is common in molecules with flexible rings, or steric interactions between
+torsionable groups.</LI>
+
+<LI><B>Bond order may be mis-detected.</B> PDB files do not define bond order,
+and programs such as XPLO2D do not consider bond order at all.  This often
+leads to incorrect determination of fixed versus flexible torsions. Even when
+it is defined (i.e. using a MOL format input file), fixed torsions due to
+delocalized bonds can be missed. PDB files with explicit hydrogens are more
+reliable. Unfortunately, many other coordinate formats do not include atom
+names. (An improved PDB LINK or CONECT would be useful.)</LI>
+
+<LI><B>Planar groups are often over-restrained.</B> Planar groups are often
+assigned huge restraint constants to enforce a nearly exact planarity.
+This is unrealistic, but often a reasonable approximation for small planar groups.
+For large or distorted groups, the constants may need to be reduced to avoid
+artifacts.
+
+<LI><B>Explicit hydrogens can influence geometries.</B> Crystallographic
+refinement normally excludes some or all hydrogens, with parameters adjusted
+for implicit hydrogens.  Parameters for explicit and implicit hydrogens are not
+always interchangeable. Explicit hydrogens can significantly influence torsions
+via 1-4 Van der Waals interactions.  Most crystallographic refinement programs,
+including CNS with the default repulsive parameter sets, use repulsive VdW with reduced 1-4 VdW interactions. This
+minimizes the influence when explicit hydrogens are used, but other non-bonded
+interactions still occur.</LI>
+
+<LI><B>Unusual or inorganic compounds are problematic.</B> Most automated
+parametrization tools are designed for common organic compounds, and 
+are much more likely to behave poorly with energy minimization of an input
+model, and may get only approximate type-based parameter assignments. Inorganic
+molecules, such as an iron-sulfur cluster, are also problematic. In this case,
+it is best to validate results by comparison to to actual small-molecule data
+from sources such as the CSD, or structure publications. If not available,
+quantum-mechanical optimization can give accurate results, but is also prone to
+artifacts and should be done by an experienced user.</LI>
+</UL>
+
+<h3>CNS/X-PLOR topology and parameter files</h3>
+<UL>
+<LI><A HREF="http://xray.bmc.uu.se/usf/xplo2d_man.html" target="xplo2d"
+>Gerard Kleywegt's XPLO2D</A>
+is the command-line tool to generate CNS topology and parameters from
+coordinates for ligands not available from <A HREF="http://xray.bmc.uu.se/hicup" target="hicup"
+>HIC-UP</A>. It does not consider bond order, so beware of misidentification
+of fixed versus torsionable bonds. <em>(Read and follow the warnings in the XPLO2D
+output files!)</em></LI>
+
+<LI> <A HREF="http://davapc1.bioch.dundee.ac.uk/prodrg/" target="prodrg">The Dundee PRODRG2 Server</A>
+can generate parameters from a MOL file, PDB file or a molecule drawn with a 2D
+Java molecule sketcher. Interestingly, it also accepts molecules drawn in ASCII
+text (see the site for details).  It optionally optimizes the input coordinates
+using GROMOS. The results are generally very good, but it only supports a
+limited set of elements, and does not support all explicit hydrogens. It can
+include polar hydrogens, but does not use hydrogen names from the input file.
+A MOL input file or drawn molecule is more reliable results because it defines
+bond orders, but it does not include atom names.</LI>
+<LI>There are also commercial packages such as AFITT (OpenEye, <a href="http://www.openeye.com">http://www.openeye.com</a>) that can produce CNS/X-PLOR topology and parameter files.</LI>
+
+</UL>
+<h3>CIF Monomer files</h3>
+These tools can be used along with the<tt> cns_import_cif</tt> utility (see <a href="import_cif.html">Next section</a>).
+<UL>
+<LI> <A HREF="http://www.phenix-online.org/documentation/elbow.htm"
+target="phenix_elbow">PHENIX eLBOW</A>
+generates CIF Monomer definitions. It generally produces good quality
+parameters, including support all-atom models with hydrogens, and generates
+sensible atom names when applicable. It accepts a variety of input formats, and
+can perform semi-empirical quantum-mechanical coordinate optimization.
+<BR>
+
+<LI> <A HREF="http://www.ccp4.ac.uk/dist/ccp4i/help/modules/sketcher.html"
+target="ccp4_sketcher">CCP4 Sketcher and LIBCHECK</A>
+generates parameters primarily using pre-determined library of force-field atom types.
+In the current release (CCP4 6.1.2), many of the distributed REFMAC ligands have errors.
+It is still in development, and may improve over time.<BR>
+<LI> <A HREF="http://davapc1.bioch.dundee.ac.uk/prodrg/" target="prodrg">The Dundee PRODRG2 Server</A>
+also outputs the CIF format.</LI>
+<LI>There are also commercial packages such as MOE (using the <tt>cif_writer</tt> application, available from <a href="http://www.chemcomp.com">http://www.chemcomp.com</a>) that can produce CIF files. </LI>
+</UL>
+<!--
+<h4>A topology file returned by the XPLO2D server</h4>
+
+<blockquote>
+<pre>
+Remarks /var/tmp/xdict_8678.top
+Remarks Created by XPLO2D V. 990106/2.8.4 at Fri Jul 2 03:17:51 1999 for root
+Remarks Auto-generated by XPLO2D from file /var/tmp/xdict_8678.pdb
+Remarks You *MUST* check/edit MASSes and CHARges !!!
+Remarks Check DONOrs and ACCEptors
+Remarks Verify IMPRopers yourself
+Remarks DIHEdrals which are not flat are commented out
+
+ set echo=false end
+
+ { edit masses if necessary }
+ MASS CX1    13.01900 ! assuming C -&gt; 12.01100 + 1.008 * 1 (Hs)
+ MASS CX2    13.01900 ! assuming C -&gt; 12.01100 + 1.008 * 1 (Hs)
+ MASS CX3    13.01900 ! assuming C -&gt; 12.01100 + 1.008 * 1 (Hs)
+ MASS CX4    13.01900 ! assuming C -&gt; 12.01100 + 1.008 * 1 (Hs)
+ MASS CX5    13.01900 ! assuming C -&gt; 12.01100 + 1.008 * 1 (Hs)
+ MASS CX6    14.02700 ! assuming C -&gt; 12.01100 + 1.008 * 2 (Hs)
+ MASS CX7    15.03500 ! assuming C -&gt; 12.01100 + 1.008 * 3 (Hs)
+ MASS OX8    15.99900 ! assuming O -&gt; 15.99900 + 1.008 * 0 (Hs)
+ MASS OX9    17.00700 ! assuming O -&gt; 15.99900 + 1.008 * 1 (Hs)
+ MASS OX10   17.00700 ! assuming O -&gt; 15.99900 + 1.008 * 1 (Hs)
+ MASS OX11   17.00700 ! assuming O -&gt; 15.99900 + 1.008 * 1 (Hs)
+ MASS OX12   15.99900 ! assuming O -&gt; 15.99900 + 1.008 * 0 (Hs)
+ MASS OX13   17.00700 ! assuming O -&gt; 15.99900 + 1.008 * 1 (Hs)
+
+ autogenerate angles=true end
+
+RESIdue MMA
+
+GROUp
+ ATOM  C1   TYPE CX1   CHARge  0.0  END ! Nr of Hs =  1
+ ATOM  C2   TYPE CX2   CHARge  0.0  END ! Nr of Hs =  1
+ ATOM  C3   TYPE CX3   CHARge  0.0  END ! Nr of Hs =  1
+ ATOM  C4   TYPE CX4   CHARge  0.0  END ! Nr of Hs =  1
+ ATOM  C5   TYPE CX5   CHARge  0.0  END ! Nr of Hs =  1
+ ATOM  C6   TYPE CX6   CHARge  0.0  END ! Nr of Hs =  2
+ ATOM  C7   TYPE CX7   CHARge  0.0  END ! Nr of Hs =  3
+ ATOM  O1   TYPE OX8   CHARge  0.0  END ! Nr of Hs =  0
+ ATOM  O2   TYPE OX9   CHARge  0.0  END ! Nr of Hs =  1
+ ATOM  O3   TYPE OX10  CHARge  0.0  END ! Nr of Hs =  1
+ ATOM  O4   TYPE OX11  CHARge  0.0  END ! Nr of Hs =  1
+ ATOM  O5   TYPE OX12  CHARge  0.0  END ! Nr of Hs =  0
+ ATOM  O6   TYPE OX13  CHARge  0.0  END ! Nr of Hs =  1
+
+ BOND  C1   C2       BOND  C1   O1       BOND  C1   O5       BOND  C2   C3
+ BOND  C2   O2       BOND  C3   C4       BOND  C3   O3       BOND  C4   C5
+ BOND  C4   O4       BOND  C5   C6       BOND  C5   O5       BOND  C6   O6
+ BOND  C7   O1
+
+ { edit these DIHEdrals if necessary }
+! DIHEdral  O1   C1   C2   C3  ! flexible dihedral ???   -68.44
+  DIHEdral  O1   C1   C2   O2  ! flat ? (180 degrees = trans)   172.04
+! DIHEdral  O5   C1   C2   C3  ! flexible dihedral ???    52.40
+! DIHEdral  O5   C1   C2   O2  ! flexible dihedral ???   -67.11
+! DIHEdral  C2   C1   O5   C5  ! flexible dihedral ???   -59.84
+! DIHEdral  O1   C1   O5   C5  ! flexible dihedral ???    58.61
+! DIHEdral  C1   C2   C3   C4  ! flexible dihedral ???   -51.56
+  DIHEdral  C1   C2   C3   O3  ! flat ? (180 degrees = trans)   188.46
+! DIHEdral  O2   C2   C3   C4  ! flexible dihedral ???    67.39
+! DIHEdral  O2   C2   C3   O3  ! flexible dihedral ???   -52.59
+! DIHEdral  C2   C3   C4   C5  ! flexible dihedral ???    51.91
+  DIHEdral  C2   C3   C4   O4  ! flat ? (180 degrees = trans)   173.78
+  DIHEdral  O3   C3   C4   C5  ! flat ? (180 degrees = trans)   171.20
+! DIHEdral  O3   C3   C4   O4  ! flexible dihedral ???   -66.93
+  DIHEdral  C3   C4   C5   C6  ! flat ? (180 degrees = trans)   185.69
+! DIHEdral  C3   C4   C5   O5  ! flexible dihedral ???   -54.04
+! DIHEdral  O4   C4   C5   C6  ! flexible dihedral ???    63.72
+  DIHEdral  O4   C4   C5   O5  ! flat ? (180 degrees = trans)   183.98
+! DIHEdral  C4   C5   C6   O6  ! flexible dihedral ???    57.85
+! DIHEdral  O5   C5   C6   O6  ! flexible dihedral ???   -63.23
+! DIHEdral  C4   C5   O5   C1  ! flexible dihedral ???    60.78
+  DIHEdral  C6   C5   O5   C1  ! flat ? (180 degrees = trans)   186.34
+
+ { edit these IMPRopers if necessary }
+ IMPRoper  C1   C2   O1   O5  ! chirality or flatness improper   -34.29
+ IMPRoper  C2   C1   C3   O2  ! chirality or flatness improper    35.51
+ IMPRoper  C3   C2   C4   O3  ! chirality or flatness improper    35.27
+ IMPRoper  C4   C3   C5   O4  ! chirality or flatness improper   -32.96
+ IMPRoper  C5   C4   C6   O5  ! chirality or flatness improper   -35.51
+
+ { edit any DONOrs and ACCEptors if necessary }
+ ACCEptor  O1   C1
+ ACCEptor  O2   C2
+ ACCEptor  O3   C3
+ ACCEptor  O4   C4
+ ACCEptor  O5   C1
+ ACCEptor  O6   C6
+
+END { RESIdue MMA }
+</pre>
+</blockquote>
+-->
+
+<!--
+<h4>A parameter file returned by the XPLO2D server</h4>
+
+<blockquote>
+<pre>
+Remarks /var/tmp/xdict_8678.par
+Remarks Created by XPLO2D V. 990106/2.8.4 at Fri Jul 2 06:12:27 1999 for root
+Remarks Auto-generated by XPLO2D from file /var/tmp/xdict_8678.pdb
+Remarks Parameters for residue type MMA
+
+ set echo=false end
+
+ { edit if necessary }
+ BOND CX1  CX2    1000.0  1.507 ! Nobs =    1
+ BOND CX1  OX8    1000.0  1.416 ! Nobs =    1
+ BOND CX1  OX12   1000.0  1.431 ! Nobs =    1
+ BOND CX2  CX3    1000.0  1.523 ! Nobs =    1
+ BOND CX2  OX9    1000.0  1.414 ! Nobs =    1
+ BOND CX3  CX4    1000.0  1.537 ! Nobs =    1
+ BOND CX3  OX10   1000.0  1.441 ! Nobs =    1
+ BOND CX4  CX5    1000.0  1.539 ! Nobs =    1
+ BOND CX4  OX11   1000.0  1.418 ! Nobs =    1
+ BOND CX5  CX6    1000.0  1.534 ! Nobs =    1
+ BOND CX5  OX12   1000.0  1.423 ! Nobs =    1
+ BOND CX6  OX13   1000.0  1.429 ! Nobs =    1
+ BOND CX7  OX8    1000.0  1.435 ! Nobs =    1
+
+ { edit if necessary }
+ ANGLe CX2  CX1  OX8     500.0   107.44 ! Nobs =    1
+ ANGLe CX2  CX1  OX12    500.0   109.20 ! Nobs =    1
+ ANGLe OX8  CX1  OX12    500.0   111.31 ! Nobs =    1
+ ANGLe CX1  CX2  CX3     500.0   111.76 ! Nobs =    1
+ ANGLe CX1  CX2  OX9     500.0   107.84 ! Nobs =    1
+ ANGLe CX3  CX2  OX9     500.0   108.78 ! Nobs =    1
+ ANGLe CX2  CX3  CX4     500.0   111.47 ! Nobs =    1
+ ANGLe CX2  CX3  OX10    500.0   108.03 ! Nobs =    1
+ ANGLe CX4  CX3  OX10    500.0   109.20 ! Nobs =    1
+ ANGLe CX3  CX4  CX5     500.0   110.01 ! Nobs =    1
+ ANGLe CX3  CX4  OX11    500.0   110.40 ! Nobs =    1
+ ANGLe CX5  CX4  OX11    500.0   110.23 ! Nobs =    1
+ ANGLe CX4  CX5  CX6     500.0   115.75 ! Nobs =    1
+ ANGLe CX4  CX5  OX12    500.0   108.52 ! Nobs =    1
+ ANGLe CX6  CX5  OX12    500.0   107.00 ! Nobs =    1
+ ANGLe CX5  CX6  OX13    500.0   109.50 ! Nobs =    1
+ ANGLe CX1  OX8  CX7     500.0   118.00 ! Nobs =    1
+ ANGLe CX1  OX12 CX5     500.0   117.07 ! Nobs =    1
+
+ { edit if necessary }
+ DIHEdral OX8  CX1  CX2  CX3     750.0 0   -60.00 ! Nobs =    1 ... Value =   -68.44
+ DIHEdral OX8  CX1  CX2  OX9     750.0 0   180.00 ! Nobs =    1 ... Value =   172.04
+ DIHEdral OX12 CX1  CX2  CX3     750.0 0    60.00 ! Nobs =    1 ... Value =    52.40
+ DIHEdral OX12 CX1  CX2  OX9     750.0 0   -60.00 ! Nobs =    1 ... Value =   -67.11
+ DIHEdral CX2  CX1  OX12 CX5     750.0 0   -60.00 ! Nobs =    1 ... Value =   -59.84
+ DIHEdral OX8  CX1  OX12 CX5     750.0 0    60.00 ! Nobs =    1 ... Value =    58.61
+ DIHEdral CX1  CX2  CX3  CX4     750.0 0   -60.00 ! Nobs =    1 ... Value =   -51.56
+ DIHEdral CX1  CX2  CX3  OX10    750.0 0   180.00 ! Nobs =    1 ... Value =  -171.54
+ DIHEdral OX9  CX2  CX3  CX4     750.0 0    60.00 ! Nobs =    1 ... Value =    67.39
+ DIHEdral OX9  CX2  CX3  OX10    750.0 0   -60.00 ! Nobs =    1 ... Value =   -52.59
+ DIHEdral CX2  CX3  CX4  CX5     750.0 0    60.00 ! Nobs =    1 ... Value =    51.91
+ DIHEdral CX2  CX3  CX4  OX11    750.0 0   180.00 ! Nobs =    1 ... Value =   173.78
+ DIHEdral OX10 CX3  CX4  CX5     750.0 0   180.00 ! Nobs =    1 ... Value =   171.20
+ DIHEdral OX10 CX3  CX4  OX11    750.0 0   -60.00 ! Nobs =    1 ... Value =   -66.93
+ DIHEdral CX3  CX4  CX5  CX6     750.0 0   180.00 ! Nobs =    1 ... Value =  -174.31
+ DIHEdral CX3  CX4  CX5  OX12    750.0 0   -60.00 ! Nobs =    1 ... Value =   -54.04
+ DIHEdral OX11 CX4  CX5  CX6     750.0 0    60.00 ! Nobs =    1 ... Value =    63.72
+ DIHEdral OX11 CX4  CX5  OX12    750.0 0   180.00 ! Nobs =    1 ... Value =  -176.02
+ DIHEdral CX4  CX5  CX6  OX13    750.0 0    60.00 ! Nobs =    1 ... Value =    57.85
+ DIHEdral OX12 CX5  CX6  OX13    750.0 0   -60.00 ! Nobs =    1 ... Value =   -63.23
+ DIHEdral CX4  CX5  OX12 CX1     750.0 0    60.00 ! Nobs =    1 ... Value =    60.78
+ DIHEdral CX6  CX5  OX12 CX1     750.0 0   180.00 ! Nobs =    1 ... Value =  -173.66
+
+ { edit if necessary }
+ IMPRoper CX1  CX2  OX8  OX12    750.0 0  -35.000 ! Nobs =    1 ... Value =  -34.293
+ IMPRoper CX2  CX1  CX3  OX9     750.0 0   35.000 ! Nobs =    1 ... Value =   35.510
+ IMPRoper CX3  CX2  CX4  OX10    750.0 0   35.000 ! Nobs =    1 ... Value =   35.268
+ IMPRoper CX4  CX3  CX5  OX11    750.0 0  -35.000 ! Nobs =    1 ... Value =  -32.958
+ IMPRoper CX5  CX4  CX6  OX12    750.0 0  -35.000 ! Nobs =    1 ... Value =  -35.506
+
+ { edit if necessary }
+ NONBonded CX1  0.1200  3.7418    0.1000  3.3854 ! assuming Carbon
+ NONBonded CX2  0.1200  3.7418    0.1000  3.3854 ! assuming Carbon
+ NONBonded CX3  0.1200  3.7418    0.1000  3.3854 ! assuming Carbon
+ NONBonded CX4  0.1200  3.7418    0.1000  3.3854 ! assuming Carbon
+ NONBonded CX5  0.1200  3.7418    0.1000  3.3854 ! assuming Carbon
+ NONBonded CX6  0.1200  3.7418    0.1000  3.3854 ! assuming Carbon
+ NONBonded CX7  0.1200  3.7418    0.1000  3.3854 ! assuming Carbon
+ NONBonded OX8  0.1591  2.8509    0.1591  2.8509 ! assuming Oxygen
+ NONBonded OX9  0.1591  2.8509    0.1591  2.8509 ! assuming Oxygen
+ NONBonded OX10 0.1591  2.8509    0.1591  2.8509 ! assuming Oxygen
+ NONBonded OX11 0.1591  2.8509    0.1591  2.8509 ! assuming Oxygen
+ NONBonded OX12 0.1591  2.8509    0.1591  2.8509 ! assuming Oxygen
+ NONBonded OX13 0.1591  2.8509    0.1591  2.8509 ! assuming Oxygen
+
+ set echo=true end
+</pre>
+</blockquote>
+-->
+
+<HR WIDTH="100%">
+
+<A HREF="../../text.html">Back to tutorials</A>&nbsp;&nbsp;
+<A HREF="coord.html">Previous section</A>&nbsp;&nbsp;
+<A HREF="import_cif.html">Next section</A>
+
+<HR WIDTH="100%">
+
+</BODY>
+</HTML>
