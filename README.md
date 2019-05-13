@@ -24,6 +24,7 @@ Over 50,000 structures from 12 start-of-the-art Hi-C data structure prediction a
 ## 1. Content of folders:
 - **src**: source code for the website
 - **GSDB_Scripts**: Contains the Algorithms and the scripts used for data extraction, data normalization, and 3D structure generation.
+- **Database Data Info.xlsx**: Contains more information about the Hi-C data and the 3D structure prediction tools
 
 
 ## 2. Algorithms Input ##
