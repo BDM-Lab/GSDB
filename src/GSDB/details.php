@@ -44,11 +44,6 @@
 	
 	<!-- include semantic ui theme  -->
 	<link rel="stylesheet" href="alertifyjs/css/themes/semantic.css">
-		
-</head>
-
-<body>
-
     <!-- Navigation -->
     <nav id="topNav" class="navbar navbar-full navbar-static-top navbar-dark bg-inverse m-b-1">
         <button class="navbar-toggler hidden-md-up pull-right" type="button" data-toggle="collapse" data-target="#navbar">
@@ -63,18 +58,16 @@
                 </li>
                
 			   <li class="nav-item">
-                    <a class="nav-link" href="search.php">Search</a>
+                    <a class="nav-link" href="browse.php">Browse</a>
                 </li>
 				
 				<li class="nav-item">
                     <a class="nav-link" href="softwaretools.html">Software Tools</a>
                 </li>				
                
-               <!--
 				<li class="nav-item">
-                    <a class="nav-link" href="viewer.php">Viewer</a>
+                    <a class="nav-link" href="evaluate.php">Structure Evaluation</a>
                 </li>
-				-->
 				<li class="nav-item">
                     <a class="nav-link" href="Tutorial.html">Tutorial</a>
                 </li>
@@ -90,9 +83,10 @@
 			 -->
             </ul>
         </div>
-    </nav>
-    
-    
+    </nav>		
+</head>
+
+<body>
 
 <div class="container-fluid">
 
@@ -127,7 +121,7 @@
 						<tr>
 							<?php 
 							
-								$dir_download = 'http://calla.rnet.missouri.edu/genome3d/GSDB/Database/' . $row['GSDB_ID'] . "/" . $row['Filename']. ".tar.gz";								 
+								$dir_download = 'http://calla.rnet.missouri.edu/genome3d/GSDB/Dataset/' . $row['GSDB_ID'] . "/" . $row['Filename']. ".tar.gz";								 
 							?>
 				
 							<td><label><a href="<?php echo $dir_download?>" class="fa fa-download" ><?php echo $row['Filename']; ?></a></label></td>		
@@ -136,7 +130,7 @@
 							
 						</tr>
 						<?php } ?>
-					</tbody>					
+					</tbody>				
 			</table>
 				</article>
 		
@@ -147,7 +141,7 @@
 				 Click on the Filename to <strong>download</strong> constructed 3D structures for multiple algorithms
 			</div>
 		
-		
+	
 	<!--/Left Column-->
 </td>
 
@@ -183,7 +177,7 @@
 					  <option value="GEM">GEM</option>
 					  <option value="ChromSDE">ChromSDE</option>
 					  <option value="SIMBA3D">SIMBA3D</option>					  
-					 <!-- <option value="InfMod3DGen">InfMod3DGen</option> --> <!--Enable when it is constructed -->
+					 <option value="InfMod3DGen">InfMod3DGen</option> 
 					 
 				  
 					</select>
@@ -257,7 +251,7 @@
 			</td>
 		    <td>
 			<!-- Inserted the Visualization here -->
-		       <iframe id="StructFrame" width=600, height=500, src="http://3dmol.csb.pitt.edu/viewer.html?url=http://sysbio.rnet.missouri.edu/3dgenome/GSDB/structures/IFList_Chr_20_1mb_1450749845157.pdb&style=line:radius~0.2:color~crimson&type=pdb;" ></iframe> 		 
+		       <iframe id="StructFrame" width=600, height=500, src="http://3dmol.csb.pitt.edu/viewer.html?url=http://sysbio.rnet.missouri.edu/3dgenome/GSDB/structures/IFList_Chr_20_1mb_1450749845157.pdb&type=pdb&select=all&style=stick:color~crimson,radius~0.05" ></iframe> 		 
 				<br>
 				<b>Structure Evaluation: </b> 	<br/>	
 				<iframe id="StructLog" width=600, height=105, src="" ></iframe> 
@@ -341,25 +335,16 @@
 			
 			$( document ).ready(function() {
 				myfunc();
-			});
 				
+			});
+		
 	</script>
 	
 	
 	<!----For Visualization -->
+		
 	<script type="text/javascript" charset="utf-8">
-		function doesFileExist(urlToFile) {
-			var xhr = new XMLHttpRequest();
-			xhr.open('HEAD', urlToFile, false);
-			xhr.send();
-			 
-			if (xhr.status == "404") {
-				return false;
-			} else {
-				return true;
-			}
-		}
-	
+
 		var prev_name="";
 		function myfunc() {	
 		        
@@ -375,6 +360,7 @@
 					 document.getElementById("Resolution").innerHTML = "";
 					 prev_name=fname;					 
 				}
+				
 				//chromosome
 				var chr_e = document.getElementById ("chr");
 				var chrp = chr_e.options [chr_e.selectedIndex] .value;
@@ -391,7 +377,7 @@
 				var fname = splitString[0];	// get id				
 				var Res = splitString[1];	//get filename
 				var splitRes = Res.split(",");				
-				
+		
 				//Resolution	  
 			  
 
@@ -416,21 +402,27 @@
 				
 				
 			 window.showAlert1 = function(){
-					alertify.alert('Chromosome structure not available', 'The selected Resolution is too high for Algorithm. ' + '<a href="algorithm_res.html" target="_blank">Click for more details</a>');
+					alertify.alert('3D structure not available', 'The selected Resolution is too high for Algorithm. ' + '<a href="resolution_message.html" target="_blank">Click for more details</a>');
 			}
 			
 			 window.showAlert2 = function(){
-					alertify.alert('Chromosome structure not available', 'Due to time and memory constraint, only chromosome structure 10 to 23 could be constructed at this resolution. \t'  + '<a href="algorithm_res.html" target="_blank">Click for more details</a>');
+					alertify.alert('3D structure not available', 'Due to time and memory constraint, only chromosome structure 10 to 23 could be constructed at this resolution. \t'  + '<a href="resolution_message.html" target="_blank">Click for more details</a>');
 				}
 				
 			  window.showAlert3 = function(){
-					alertify.alert('Chromosome structure not available', 'Mouse cell( Mouse ES cell, Mouse Cortex) has Only Chromosome 1 - 20');
+					alertify.alert('3D structure not available', 'Mouse cell( Mouse ES cell, Mouse Cortex) has Only Chromosome 1 - 20');
 				}
 			
 			 window.showAlert4 = function(){
-					alertify.alert('Chromosome structure not available', 'Only Data for Chromosome 1 - 23 is available for the Hi-C data. Note: X = Chr. 23, Y = Chr. 24  ');
+					alertify.alert('3D structure not available', 'Only Data for Chromosome 1 - 23 is available for the Hi-C data. Note: X = Chr. 23, Y = Chr. 24  ');
 				}
+			 window.showAlert5 = function(){
+					alertify.alert('3D structure under construction', '3D Structure for Hi-C dataset will be uploaded once it is available.');
+				}	
 				
+			 window.showAlert6 = function(){
+					alertify.alert('3D structure not available', 'Genome 3D Structure for this Hi-C dataset is available for LorDG, MOGEN, ShRec3D, and miniMDS tools only.');
+				}
 			 
 				//chromsome name for chromosome 23 = GM,K562,hESC,hIMR90
 				if((gsdb_id.trim()=="BB8015WF" || gsdb_id.trim()=="GG6098MH" || gsdb_id.trim()=="OO7429SF"|| gsdb_id.trim()=="EA2504YQ"|| gsdb_id.trim()=="WT9059TG") && (chrpdb =="chrX")){				
@@ -439,12 +431,15 @@
 				if((gsdb_id.trim()=="BB8015WF" || gsdb_id.trim()=="GG6098MH" || gsdb_id.trim()=="OO7429SF"|| gsdb_id.trim()=="EA2504YQ"|| gsdb_id.trim()=="WT9059TG") && (chrpdb =="chrY")){				
 					chrpdb ="chr24";					
 				}
+				if(fname.trim()=="GM06990_Genome" ){
+					chrpdb="All";	
+				}
+				
 
 				
-			   // Highest Resolution for Pastis, chromosome3D, chromSDE is 250KB
+			   // Highest Resolution for Pastis, chromosome3D, chromSDE is 250KB			   
 			   
-			   
-				if ((algo.trim()=="Pastis" || algo.trim()=="Chromosome3D" || algo.trim()=="ChromSDE"|| algo.trim()=="GEM"|| algo.trim()=="HSA"|| algo.trim()=="ChromSDE"|| algo.trim()=="ShRec3D" || algo.trim()=="InfMod3DGen" ) &&  (res.trim()=="50KB" || res.trim()=="40KB"  || res.trim()=="25KB" || res.trim()=="10KB")){
+				if ((algo.trim()=="Pastis" || algo.trim()=="Chromosome3D" || algo.trim()=="ChromSDE"|| algo.trim()=="GEM"|| algo.trim()=="HSA"|| algo.trim()=="ChromSDE"|| algo.trim()=="ShRec3D" || algo.trim()=="InfMod3DGen" ) &&  (res.trim()=="50KB" || res.trim()=="40KB"  || res.trim()=="25KB" )){
 					//alert ("The selected Resolution is too high for Algorithm. No structure available ");					
 					 window.showAlert1();
 				}
@@ -478,6 +473,12 @@
 				else if((gsdb_id.trim()=="BB8015WF" || gsdb_id.trim()=="GG6098MH"|| gsdb_id.trim()=="OO7429SF") && (chrpdb =="chr24" || chrpdb =="chrY")){
 					window.showAlert4();
 				}
+				else if((gsdb_id.trim()!="OO7429SF") && (algo.trim()=="InfMod3DGen")){
+					window.showAlert5();
+				}
+				else if(fname.trim()=="GM06990_Genome" && algo.trim()!="LorDG" && algo.trim()!="MOGEN" && algo.trim()!="ShRec3D" && algo.trim()!="miniMDS" ){
+					window.showAlert6();
+				}
 
 				else
 				{
@@ -498,6 +499,7 @@
 					
 				   if (splitRes.length == 1){
 					   link = base_link + gsdb_id + "/" + fname +  "/" + norm + "/" + algo + "/" + chrpdb  ;
+					 
 				   }
 				   else{
 						 var res = res.toLowerCase();						
@@ -506,30 +508,27 @@
 				  
 				 var pdblink  =  link + ".pdb" ;
 				 var mol_link = "http://3dmol.csb.pitt.edu/viewer.html"; 
-				 var Struct_display =  mol_link + "?url=" + pdblink + "&style=line:radius~0.2:color~crimson&type=pdb;";
-				 //alert(pdblink );
+				 if (algo.trim()=="LorDG" || algo.trim()=="MOGEN" || algo.trim()=="miniMDS" || algo.trim()=="HSA"){
+					var Struct_display =  mol_link + "?url=" + pdblink + "&type=pdb&select=all&style=stick:color~crimson,radius~0.045,";
+				 }else{
+					 var Struct_display =  mol_link + "?url=" + pdblink + "&type=pdb&select=all&style=line:color~crimson";
+				 }
+							
 				 var Struct_Log = link + ".log";
 				 
+				// Display structure and log
 				document.getElementById('StructFrame').src = Struct_display;	
-				document.getElementById('StructLog').src = Struct_Log;	
-				var result = doesFileExist(Struct_display);
-				if (result == true) {
-					
-				} else {
-					// file does not exist!
-					document.getElementById('StructLog').src="notfound.html";
-				}
-				
-				 //  alert(link);
+				document.getElementById('StructLog').src = Struct_Log;				
+		
 				
 				}
 		}
    
 
 
-
-
    </script>
+   
+ 
 	
 	<!-- Placeholder Images -->
 	<script src="js/holder.min.js"></script>

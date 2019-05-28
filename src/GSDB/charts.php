@@ -10,7 +10,7 @@
 			 // The `$arrData` array holds the chart attributes and data
             $arrData_1 = array(
                 "chart" => array(
-                    "caption" => "Lab/Contributor(s)",                    
+                    "caption" => " Hi-C data Contributors",                    
 					"plotgradientcolor"=> "",
 					"bgcolor"=> "FFFFFF",
 					"showalternatehgridcolor"=> "0",
@@ -253,7 +253,7 @@
 			 // The `$arrData` array holds the chart attributes and data
             $arrData = array(
                 "chart" => array(
-                    "caption" => "Project ",
+                    "caption" => "Hi-C data Source Project ",
 					"palette"=> "2",
 					"animation"=> "1",
 					"formatnumberscale"=> "1",					

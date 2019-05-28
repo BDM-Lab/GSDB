@@ -1,4 +1,4 @@
-<!DOCTYPE html>
+ <!DOCTYPE html>
 <!-- Template by Quackit.com -->
 <!-- Modified by oluwatosin oluwadare for Genome Structure Database -->
 <?php
@@ -37,13 +37,8 @@
 			j2sPath: "js/j2s"
 		}
 	</script>
-	
-
-</head>
-
-<body>
-    <!-- Navigation -->
-    <nav id="topNav" class="navbar navbar-full navbar-static-top navbar-dark bg-inverse m-b-1">
+	    <!-- Navigation -->
+    <nav id="topNav" class="navbar navbar-default navbar-static-top navbar-dark bg-inverse m-b-1">
         <button class="navbar-toggler hidden-md-up pull-right" type="button" data-toggle="collapse" data-target="#navbar">
             &#9776;
         </button>
@@ -56,18 +51,17 @@
                 </li>
                
 			   <li class="nav-item">
-                    <a class="nav-link" href="search.php">Search</a>
+                    <a class="nav-link" href="browse.php">Browse</a>
                 </li>
 				
 				<li class="nav-item">
                     <a class="nav-link" href="softwaretools.html">Software Tools</a>
                 </li>				
                
-               <!--
 				<li class="nav-item">
-                    <a class="nav-link" href="viewer.php">Viewer</a>
+                    <a class="nav-link" href="evaluate.php">Structure Evaluation</a>
                 </li>
-				-->
+				
 				<li class="nav-item">
                     <a class="nav-link" href="Tutorial.html">Tutorial</a>
                 </li>
@@ -83,7 +77,11 @@
 			-->
             </ul>
         </div>
-    </nav>  
+    </nav>
+
+</head>
+
+<body>
     
 
 <div class="container-fluid">
@@ -95,8 +93,8 @@
 				<br/>
 			
 				<div style=" float: left;width: 400px;">
-					   <!--<div style="text-align: center;"><img src="images/images_2.png" style='width:800px; '/></div><br/>	-->
-		           <script type="text/javascript">
+					  <div style="text-align: center;"><img src="images/genome_1.png" style='width:330px; '/></div><br/>	
+		            <!--<script type="text/javascript">
 						var rfile = 1;
 						var model = 1;
 						//var append = "APPEND";
@@ -106,16 +104,17 @@
 						Jmol.script(jsmolApplet_M23d1,"background black; load http://sysbio.rnet.missouri.edu/3dgenome/GSDB/structures/chr19.pdb;");
 						Jmol.script(jsmolApplet_M23d1, "spin on; cartoon only; color {file="+ rfile+"} group;");
 					</script>
-					   
+					 -->  
 				 </div >
 					
 				  <div style="float: none;overflow: hidden;padding: 20px"">
 				        
-						<p>GSDB  is a database of Hi-C data chromosome and genome structures. In recent years, several Hi-C datasets have been generated, likewise, several genome structure construction algorithms have been developed. However, there is no common repository for Hi-C data three dimensional (3D) genome structures. </p>	
-						<p> GSDB aims to create a comprehensive and common respository that contains 3D structures for Hi-C data from novel 3D structure prediction tools developed over the years. Our goal is that this database will enable the exploration of the dynamic architecture of the different Hi-C 3D structure in a variety of cells and tissues.</p>
+						<p>GSDB is a database of three-dimensional (3D) chromosome and genome structures reconstructed from Hi-C data by multiple 3D modeling tools in the field.  In recent years, numerous Hi-C datasets have been generated and many chromosome/genome structure construction algorithms have been developed.
+						 However, there is no public repository of 3D chromosome and genome structures available for the community to use.</p>
+						<p>GSDB aims to fill this gap by providing a comprehensive repository of 3D chromosome and genome structures reconstructed from for Hi-C data. We hope this database will enable the exploration of the dynamic architectures of chromosomes and genomes for biomedical research.</p>
 				
 						<p> <i> Over 50,000 structures from 12 start-of-the-art Hi-C data structure prediction algorithms for 32 Hi-C datasets each containing varying resolutions. </i></p>
-						<p><button  onclick="window.location='search.php'" class="btn btn-outline-primary">Get Started</button></p>	
+						<p><button  onclick="window.location='browse.php'" class="btn btn-outline-primary">Get Started</button></p>	
 				  </div>
 				  
 				

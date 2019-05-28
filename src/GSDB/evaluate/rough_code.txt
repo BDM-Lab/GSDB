@@ -1,0 +1,92 @@
+			echo $matrix_path ;
+			echo $pdb_path ;			
+			evaluate_struture($val2 , $matrix_path  , $pdb_path);	
+			$jobs_dir = "/var/www/html/3dgenome/GSDB/evaluate/jobs";
+			$job_log = $jobs_dir.log;			
+		    exec('java -jar /var/www/html/3dgenome/GSDB/evaluate/Structure_Evaluator.jar $matrix_path  $pdb_path $jobs_dir &> $job_log', $output);
+			echo $output;
+			
+			
+						if (strictEmpty($val3)){  //check if matrix link empty
+				$matrix_path = $val4; // Yes, pick file 
+			}  
+			else{ 
+				$matrix_path=  $val3;  // No, pick link
+			}
+	        if (strictEmpty($val5)){ 
+		       $pdb_path =  $val6 ;
+		   } 
+		   else { 
+			   $pdb_path =  $val5; 
+			}
+			
+					if( isset($_GET['submit']) )
+		{
+			//be sure to validate and clean your variables
+			$val1 = htmlentities($_GET['email']);
+			$val2 = htmlentities($_GET['jobid']);
+			$val3 = htmlentities($_GET['ifmatrixlink']);
+			$val4 = htmlentities($_GET['ifmatrixfile']);
+			$val5 = htmlentities($_GET['pdblink']);
+			$val6 = htmlentities($_GET['pdbfile']);
+			
+			
+			
+
+			
+			if (strictEmpty($val3)){  //check if matrix link empty
+				$matrix_path = $val4; // Yes, pick file 
+			}  
+			else{ 
+				$matrix_path=  $val3;  // No, pick link
+			}
+	        if (strictEmpty($val5)){ 
+		       $pdb_path =  $val6 ;
+		   } 
+		   else { 
+			   $pdb_path =  $val5; 
+			}			
+
+				 
+		}
+		
+		<form method="post" onsubmit="return validateForm()" action="" enctype="multipart/form-data">	
+
+
+		//=========================================================================
+		//History document: contains list of access by users
+		//=========================================================================
+		// Function to get the client ip address
+		function get_client_ip_env() {
+			$ipaddress = '';
+			if (getenv('HTTP_CLIENT_IP'))
+				$ipaddress = getenv('HTTP_CLIENT_IP');
+			else if(getenv('HTTP_X_FORWARDED_FOR'))
+				$ipaddress = getenv('HTTP_X_FORWARDED_FOR');
+			else if(getenv('HTTP_X_FORWARDED'))
+				$ipaddress = getenv('HTTP_X_FORWARDED');
+			else if(getenv('HTTP_FORWARDED_FOR'))
+				$ipaddress = getenv('HTTP_FORWARDED_FOR');
+			else if(getenv('HTTP_FORWARDED'))
+				$ipaddress = getenv('HTTP_FORWARDED');
+			else if(getenv('REMOTE_ADDR'))
+				$ipaddress = getenv('REMOTE_ADDR');
+			else
+				$ipaddress = 'UNKNOWN';
+		 
+			return $ipaddress;
+		}	
+		
+		
+		$history =  $path."history.txt";
+		// $current = file_get_contents($history);
+		$ipaddress = "IP: ". get_client_ip_env();
+	    file_put_contents($history ,$ipaddress, FILE_APPEND);
+		$Time= "Time: " . date("h:i:sa");
+		file_put_contents($history ,$Time, FILE_APPEND);
+		$ifmatrix = "IF Matrix: ".$matrix_file;
+		file_put_contents($history , $ifmatrix, FILE_APPEND);
+		$id = "Job ID: ". $jobid .'\n' ;
+		file_put_contents($history , $id,  FILE_APPEND);
+		
+	  //=========================================================================		

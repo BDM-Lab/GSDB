@@ -6,3 +6,5 @@ enter password: genomeflow
 > use gsdb
  
 >source gsdb.sql
+
+> exit
