@@ -80,7 +80,7 @@
 			Structure Evaluation 
 		</h3>
 		<hr> 	
-	  <p><font size="3">Compare <b>chromosome or genome structure </b> with a <b>IF Matrix </b> or another <b> chromosome or genome structure.</b></font><p> 	
+	  <p><font size="3">Compare a chromosome or genome structure with an interaction frequency (IF)  matrix or another chromosome or genome structure.</font><p> 	
 	<?php
 
 	//echo ini_get("upload_max_filesize");
@@ -332,20 +332,20 @@
 				
 				<form id="form1" name="form1" method="POST" onsubmit="return validateForm()" action="" enctype="multipart/form-data" ">		
 					<ul>
-					 <li> Input File 1 Type (mandatory): <br>
-						  <input type="radio" name="input_type" id="input_type_if" value="if" checked="checked"> Interaction Frequency(IF) Matrix <br> 
-						  <input type="radio" name="input_type" id="input_type_pdb" value="pdb"> Chromosome Structure in <a href="http://www.wwpdb.org/documentation/file-format-content/format33/sect9.html"><u>PDB format</u></a><br>
+					 <li> <b>Type of input file 1</b> (required): <br>
+						  <input type="radio" name="input_type" id="input_type_if" value="if" checked="checked"> Interaction frequency(IF) matrix <br> 
+						  <input type="radio" name="input_type" id="input_type_pdb" value="pdb"> Chromosome structure in <a href="http://www.wwpdb.org/documentation/file-format-content/format33/sect9.html"><u>PDB format</u></a><br>
 					<br>				
-					<li> Input File 1(mandatory): <br>
+					<li> <b>Input file 1</b> (required): <br>
 						Please copy and paste the URL of input file 1 here. <a href="javascript:copy_link_1()"><u>IF Matrix Sample input</u> </a> &nbsp;  <a href="javascript:copy_link_2()"><u>Structure Sample input</u> </a><br>
 						<textarea name="ifmatrixlink" id="ifmatrixlink" name="ifmatrixlink" rows="3" cols="100" ></textarea><br>
-						Or upload the file for input 1: <br><input type="file" id="ifmatrixfile" name="ifmatrixfile" size="70"> <br>
+						Or upload the input file 1: <br><input type="file" id="ifmatrixfile" name="ifmatrixfile" size="70"> <br>
 						
 					<br>	
-					<li> Input Chromosome Structure in <a href="http://www.wwpdb.org/documentation/file-format-content/format33/sect9.html"><u>PDB format </u></a> (mandatory): <br>	
+					<li> <b>Input chromosome structure file 2 in <a href="http://www.wwpdb.org/documentation/file-format-content/format33/sect9.html"><u>PDB format</b> </u></a> (required): <br>	
 						 Please copy and paste the URL of your structure file here. <a href="javascript:copy_link_3()"><u>Structure Sample input</u> </a><br>
 						 <textarea id="pdblink" name="pdblink" rows="3" cols="100" ></textarea></td><br>
-						 Or upload the chromosome structure file:<br>
+						 Or upload the input chromosome structure file 2:<br>
 						 <input type="file" id="pdbfile" name="pdbfile" size="70"> <br>
 						 
 						 <br><br>
