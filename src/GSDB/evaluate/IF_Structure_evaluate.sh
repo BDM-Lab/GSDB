@@ -9,17 +9,16 @@
 #==============================================================================================================
 
 
-# Specify the pawprint textfile, base_dir and dest_dir
-
-echo "==================================="
-echo "STATUS: Evaluation started"
-echo "==================================="
+echo "******************************************************************************"
+echo "Assessing the similarity between Chromosome IF Matrix and Structure "
+echo "******************************************************************************"
 echo ""
 
 if [ $# -lt 4 ]
   then
-    echo "Not enough input!. Script needs 3 input. Use the format below to execute the evaluation script."
-	echo "To execute: ./IF_Structure_evaluate.sh [matrix] [pdb] [Dest_dir] [jobid]"
+    echo "Not enough input!. function needs 2 input."
+	echo "Input 1: IF Matrix "
+	echo "Input 2: Structure in Pdb format "
 	exit
 	
 else
@@ -47,8 +46,6 @@ fi
 
 echo ""
 
-echo "==================================="
-echo "STATUS: Evaluation Completed"
-echo "==================================="
-
-
+echo "******************************************************************************"
+echo "STATUS: Task  Completed"
+echo "******************************************************************************"

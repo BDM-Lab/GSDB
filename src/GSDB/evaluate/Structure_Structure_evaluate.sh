@@ -11,15 +11,16 @@
 
 # Specify the pawprint textfile, base_dir and dest_dir
 
-echo "==================================="
-echo "STATUS: Evaluation started"
-echo "==================================="
+echo "******************************************************************************"
+echo "Assessing the similarity between two Chromosome Structures "
+echo "******************************************************************************"
 echo ""
 
 if [ $# -lt 4 ]
   then
-    echo "Not enough input!. Script needs 3 input. Use the format below to execute the evaluation script."
-	echo "To execute: ./Structure_Structure_evaluate.sh [pdb1] [pdb2] [Dest_dir] [jobid]"
+    echo "Not enough input!. function needs 2 input."
+	echo "Input 1: Structure in Pdb format "
+	echo "Input 2: Structure in Pdb format "
 	exit
 	
 else
@@ -47,8 +48,8 @@ fi
 
 echo ""
 
-echo "==================================="
-echo "STATUS: Evaluation Completed"
-echo "==================================="
+echo "******************************************************************************"
+echo "STATUS: Task  Completed"
+echo "******************************************************************************"
 
 

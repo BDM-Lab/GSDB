@@ -75,23 +75,14 @@
 <body>
 
 <div class="container-fluid">	
-		<style> 
-		input[type=button], input[type=submit], input[type=reset] {
-		  padding: 9px 22px;
-		  font-size: 14px;
-		  font-weight: bold;
 
-		}
-		</style>	 
-			
 		<h3 class="card-title">	<i class="fa fa-bar-chart" aria-hidden="true"></i> 
 			Structure Evaluation 
 		</h3>
 		<hr> 	
-	   <center><p><font size="4">Evaluate <b>pdb structure </b> by comparing with a <b>IF Matrix </b> or a <b>  pdb structure.</b></font><p> 	</center>	
+	  <p><font size="3">Compare <b>chromosome or genome structure </b> with a <b>IF Matrix </b> or another <b> chromosome or genome structure.</b></font><p> 	
 	<?php
-	
-	
+
 	//echo ini_get("upload_max_filesize");
 	 
 	 if(isset($_POST['submit']))
@@ -160,16 +151,17 @@
 
 
 	   
-	    //make directory using remote address
+	    /*make directory using remote address
 	    $ip= get_client_ip_env() ;
 		$path = $path.$ip;
 		$old_mask = umask(0);
 	    mkdir($path);
 	  	umask($old_mask);	
+		*/
 		
 		// make directory for job using Id inside Remote address
-	     $jobid =   $_POST["jobid"];		 
-		 $path  =  $path.'/'.$jobid.'/';
+	     $jobid =   substr(md5(microtime()),rand(0,26),7); // $_POST["jobid"];		 
+		 $path  =  $path.$jobid.'/';
 		
 		 if (file_exists($path )) {			
 			xrmdir($path);
@@ -179,8 +171,10 @@
 		 mkdir($path);
 		 umask($old_mask);
 		 
+		
+		 
 		//make directory for input data 1
-		  $input_data_1= $path.'/input1/';
+		  $input_data_1= $path.'input1/';
 		  if (file_exists($input_data_1 )) {			
 			xrmdir($input_data_1);
 		  } 
@@ -190,7 +184,7 @@
 		  
 		  
 	    //make directory for input data 2
-		  $input_data_2= $path.'/input2/';
+		  $input_data_2= $path.'input2/';
 		  if (file_exists($input_data_2 )) {			
 			xrmdir($input_data_2);
 		  } 
@@ -286,33 +280,44 @@
 		fwrite($jd , $space);		
 		fclose($jd);
 	  
+	  
 	    // create a shell script to execute java code 
-		$job_log = $path.$jobid.'_log.txt';		
+		$job_log = 	  $path.$jobid.'_log.txt';		
 	    //Decide based on the check box selected the shell script to call_user_func
 		$type = $_POST['input_type'];  
 		if ($type == "if") {          
 			//echo 'IF_Structure Script to be called'; 
-			shell_exec("./evaluate/IF_Structure_evaluate.sh $matrix_file $pdb_file $path $jobid > $job_log &");		
+			shell_exec("/var/www/html/3dgenome/GSDB/evaluate/IF_Structure_evaluate.sh $matrix_file $pdb_file $path $jobid > $job_log &");		
 		}
 		else {
 			//echo 'Structure_Structure Script to be called';
-			shell_exec("./evaluate/Structure_Structure_evaluate.sh $matrix_file $pdb_file $path $jobid > $job_log &");		
+			shell_exec("/var/www/html/3dgenome/GSDB/evaluate/Structure_Structure_evaluate.sh $matrix_file $pdb_file $path $jobid > $job_log &");		
+		}
+	    
+		// print output to iframe	
+		$data = '';
+		$time_elapse = 0;
+		$result =   "/var/www/html/3dgenome/GSDB/evaluate/jobs/".$jobid."/".$jobid."_Result.log";
+		while($data == '')
+		{
+			sleep(1);
+			$time_elapse++;			
+			$data = nl2br(file_get_contents($result));
+			if($time_elapse>20)
+			{
+				$data = "Evaluation failed. Please check the input and try again!";
+				
+			}
+			if($data != '' || $time_elapse>20)
+			{
+				break;
+			}
 		}
 		
-	   			
 
-		
-		
-		// print output to iframe	
-		$result =   'http://sysbio.rnet.missouri.edu/3dgenome/GSDB/evaluate/jobs/'.$ip.'/'.$jobid.'/'.$jobid.'_Result.log';
-		$joblog =   'http://sysbio.rnet.missouri.edu/3dgenome/GSDB/evaluate/jobs/'.$ip.'/'.$jobid.'/'.$jobid.'_log.txt';
-		$jobdir =   'http://sysbio.rnet.missouri.edu/3dgenome/GSDB/evaluate/jobs/'.$ip.'/'.$jobid.'/';
-
-		$output= shell_exec("php /var/www/html/3dgenome/GSDB/evaluate/status.php $result $joblog $jobdir");		
-		
-	    $url="evaluate_Result.php?output=$output";
-		
-		header("Location:$url");
+	    $url="evaluate_Result.php?output=$result";		
+        header("Location:$url");
+	
 
 	}
 		
@@ -325,71 +330,31 @@
 				  td { font-size: 17px }
 				</style>		
 				
-				<form method="POST" onsubmit="return validateForm()" action="" enctype="multipart/form-data" ">		
-				<table id="main" frame="box" width="1000" cellspacing="5" cellpadding="5" border="0" rules="none" align="center"  style="background-color:#F0F0E0;">
-					<!--<tr>
-						<td align="center"><b>E-mail</b></td><td align="left"><input id="email" name="email" size=50 placeholder='abc@abc.com'></textarea></td>
-					</tr>-->
-					<tr>	
-						<td align="center"><b>Job id</b></td><td align="left"><input id="jobid" name="jobid" size=50 placeholder='Your existing jobs matching this id will be deleted!'></textarea></td>
-					</tr><tr>	
-					
-					
-						<td align="center"><b>Specify input type</b></td>   
-								<td align="left"><input type="radio" name="input_type" id="input_type_if" value="if" checked="checked"> <b>Interaction Frequency(IF) Matrix</b><br> 
-							   <input type="radio" name="input_type" id="input_type_pdb" value="pdb"> <b>Pdb Structure</b><br> </td>
-					
-					</tr><tr>						
-					
-						<td align="center"><b>Input type file link</b></td><td align="left"><textarea id="ifmatrixlink" name="ifmatrixlink" rows="2" cols="100" placeholder='Paste a link to selected option file here'></textarea></td>
-					</tr><tr>	
-						<td></td><td align="left"><b>OR, Upload selected option file</b> <input type="file" id="ifmatrixfile" name="ifmatrixfile" size="100"></td>
-					</tr><tr>			
-						<td align="center"><b>Pdb structure file link</b></td><td align="left"><textarea id="pdblink" name="pdblink" rows="2" cols="100" placeholder='Paste a link to pdb structure file here'></textarea></td>
-					</tr><tr>				
-						<td></td><td align="left"><b>OR,Upload a pdb structure file</b> <input type="file" id="pdbfile" name="pdbfile" size="100"> </td>
-					</tr><tr>
-						<td colspan=2 align="center">(max. allowed size for uploaded files = 40mb)</td>
-								
-					</tr><tr>
-						<td colspan=2 align="center"></br><input name="submit" type="submit" style="font-size:16px" value="Evaluate" onclick="func()"  /></td>
+				<form id="form1" name="form1" method="POST" onsubmit="return validateForm()" action="" enctype="multipart/form-data" ">		
+					<ul>
+					 <li> Input File 1 Type (mandatory): <br>
+						  <input type="radio" name="input_type" id="input_type_if" value="if" checked="checked"> Interaction Frequency(IF) Matrix <br> 
+						  <input type="radio" name="input_type" id="input_type_pdb" value="pdb"> Chromosome Structure in <a href="http://www.wwpdb.org/documentation/file-format-content/format33/sect9.html"><u>PDB format</u></a><br>
+					<br>				
+					<li> Input File 1(mandatory): <br>
+						Please copy and paste the URL of input file 1 here. <a href="javascript:copy_link_1()"><u>IF Matrix Sample input</u> </a> &nbsp;  <a href="javascript:copy_link_2()"><u>Structure Sample input</u> </a><br>
+						<textarea name="ifmatrixlink" id="ifmatrixlink" name="ifmatrixlink" rows="3" cols="100" ></textarea><br>
+						Or upload the file for input 1: <br><input type="file" id="ifmatrixfile" name="ifmatrixfile" size="70"> <br>
 						
-					</tr>		
-				</table>
+					<br>	
+					<li> Input Chromosome Structure in <a href="http://www.wwpdb.org/documentation/file-format-content/format33/sect9.html"><u>PDB format </u></a> (mandatory): <br>	
+						 Please copy and paste the URL of your structure file here. <a href="javascript:copy_link_3()"><u>Structure Sample input</u> </a><br>
+						 <textarea id="pdblink" name="pdblink" rows="3" cols="100" ></textarea></td><br>
+						 Or upload the chromosome structure file:<br>
+						 <input type="file" id="pdbfile" name="pdbfile" size="70"> <br>
+						 
+						 <br><br>
+						 <li> <input name="submit" type="submit" style="font-size:16px" value="Compare" onclick="func()"  />  &nbsp; &nbsp;
+						 <INPUT TYPE="reset" style="font-size:16px" VALUE="Clear form">
+					</ul>
 				</form>				
 					<br/>
-				  <table cellspacing="5" cellpadding="5" border="0" align="center" bgcolor="#FFFFFF"> 
-				  <tr><td><b>Sample Input</b></td></tr>
-				  <tr><td>Interaction Frequency(IF) Matrix: </td> 
-				       <td><a href="http://sysbio.rnet.missouri.edu/3dgenome/GSDB/evaluate/sample/Matrix/chr1_matrix.txt">chromosome1</a> </td>
-				       <td><a href="http://sysbio.rnet.missouri.edu/3dgenome/GSDB/evaluate/sample/Matrix/chr2_matrix.txt">chromosome2</a></td>
-					   <td><a href="http://sysbio.rnet.missouri.edu/3dgenome/GSDB/evaluate/sample/Matrix/chr3_matrix.txt">chromosome3</a></td>
-				  </tr>
-				   <tr><td> <b>Pdb structure generated per method for each of the IF matrix:<b> </td>
-				  <tr>
-				    <td>3DMax:</td> 
-					<td><a href="http://sysbio.rnet.missouri.edu/3dgenome/GSDB/evaluate/sample/3DMax/chr1.pdb">chr1.pdb</a> </td>
-					<td><a href="http://sysbio.rnet.missouri.edu/3dgenome/GSDB/evaluate/sample/3DMax/chr2.pdb">chr2.pdb</a> </td>
-					<td><a href="http://sysbio.rnet.missouri.edu/3dgenome/GSDB/evaluate/sample/3DMax/chr3.pdb">chr3.pdb</a> </td>			  
-				  
-				  </tr>
-				    <tr>
-				    <td>Chromosome3D:</td> 
-					<td><a href="http://sysbio.rnet.missouri.edu/3dgenome/GSDB/evaluate/sample/Chromosome3D/chr1.pdb">chr1.pdb</a> </td>
-					<td><a href="http://sysbio.rnet.missouri.edu/3dgenome/GSDB/evaluate/sample/Chromosome3D/chr2.pdb">chr2.pdb</a> </td>
-					<td><a href="http://sysbio.rnet.missouri.edu/3dgenome/GSDB/evaluate/sample/Chromosome3D/chr3.pdb">chr3.pdb</a> </td>			  
-				  
-				  </tr>
-				    <tr>
-				    <td>LorDG:</td> 
-					<td><a href="http://sysbio.rnet.missouri.edu/3dgenome/GSDB/evaluate/sample/LorDG/chr1.pdb">chr1.pdb</a> </td>
-					<td><a href="http://sysbio.rnet.missouri.edu/3dgenome/GSDB/evaluate/sample/LorDG/chr2.pdb">chr2.pdb</a> </td>
-					<td><a href="http://sysbio.rnet.missouri.edu/3dgenome/GSDB/evaluate/sample/LorDG/chr3.pdb">chr3.pdb</a> </td>			  
-				  
-				  </tr>
-				
-		
-     
+				 
 	 
 		 <br/>
 			
@@ -401,6 +366,14 @@
 		
 	
 </div><!--/container-fluid-->
+	<footer>
+		        
+        <div class="small-print">        	
+        		<p><p>Copyright &copy; 2019 <a href="#"><a href="http://calla.rnet.missouri.edu/cheng/">BDM Lab</a> | <a href="mailto:chengji@missouri.edu">Contact</a></p>
+        		<img src="images/mu_resize.jpg" alt="">
+			
+        </div>
+	</footer>
 
 
 	
@@ -432,9 +405,37 @@
 		// Initialize popover component
 		$(function () {
 		  $('[data-toggle="popover"]').popover()
-		})   
+		})
+		
+    function copy_link_1()
+	{
+		var xvalue=IO("evaluate/file1_example.txt");
+		document.form1.ifmatrixlink.value = xvalue;
+	}
+	function copy_link_2()
+	{
+		var yvalue=IO("evaluate/file2_example.txt");
+		document.form1.ifmatrixlink.value = yvalue;
+	}
+	
+	function copy_link_3()
+	{
+		var zvalue=IO("evaluate/file3_example.txt");
+		document.form1.pdblink.value = zvalue;
+	}
+	function IO(U, V) 
+	{
+		var X = !window.XMLHttpRequest ? new ActiveXObject('Microsoft.XMLHTTP') : new XMLHttpRequest();
+		X.open(V ? 'PUT' : 'GET', U, false );
+		X.setRequestHeader('Content-Type', 'text/html')
+		X.send(V ? V : '');
+		return X.responseText;
+	}
+	
+	
+	
    </script> 
-   
+
    <!----CDN DataTable -->
 	<script type="text/javascript" charset="utf-8">			
 			$(document).ready( function () {
@@ -452,7 +453,7 @@
 		
 		
 		function validateForm(){
-			var jobid = document.getElementById("jobid").value;
+			//var jobid = document.getElementById("jobid").value;
 			//var email = document.getElementById("email").value;
 			var ifmatrixlink = document.getElementById("ifmatrixlink").value;
 			var ifmatrixfile = document.getElementById("ifmatrixfile").value;
@@ -462,12 +463,12 @@
 			/*if(email == null || email == ""){
 				alert("Please supply email address!");
 				return false;
-			}*/
+			}
 			
 			if(jobid == null || jobid == ""){
 				alert("Please supply job id!");
 				return false;
-			}
+			}*/
 			if((ifmatrixlink == null || ifmatrixlink == "") && (ifmatrixfile == null || ifmatrixfile == "")){
 				alert("Please provide a input file - IF matrix or pdb structure!");
 				return false;

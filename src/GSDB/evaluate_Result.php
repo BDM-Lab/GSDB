@@ -78,13 +78,23 @@
 	<!-- Center Column -->
 	
   <div class="col-sm-12">	
+		<h3 class="card-title">	<i class="fa fa-bar-chart" aria-hidden="true"></i> 
+			GSDB Strcuture Evaluation Result
+		</h3>
+		<hr> 	
 
+		<?php
+			$var_value = $_GET['output'];	
+			//echo '<div align="left">' . $var_value.'</div>';			
+			
+			$output= shell_exec("php /var/www/html/3dgenome/GSDB/evaluate/status.php $var_value ");
+			echo ($output);
+			
+			echo "<br/><br/>";
+			echo "<a href = \"http://sysbio.rnet.missouri.edu/3dgenome/GSDB/evaluate.php \"><u> Back to evaluation page</u> </a> <br/>" ;
+		  
+		 ?>
 
-			<?php
-				$var_value = $_GET['output'];	
-				echo '<div align="center">' . $var_value .'</div>';
-			 ?>
-	
 					
 		
   </div><!--/Center Column-->

@@ -151,7 +151,7 @@
 									<td><a href="details.php?id=<?php echo $Filename; ?>"><?php echo $Filename; ?></a></td>										
 									<td><?php echo $Title; ?></td>
 									<?php 							
-										$dir_download = 'http://calla.rnet.missouri.edu/genome3d/GSDB/Database/' . $ID . "/" . $Filename. ".tar.gz";										 
+										$dir_download = 'http://calla.rnet.missouri.edu/genome3d/GSDB/Database/' . $ID . "/" . $Filename. "_3DStructures.tar.gz";										 
 									?>
 									<td><a href="details.php?id=<?php echo $Filename; ?>">View</a> | <a href="<?php echo " "; echo $dir_download; ?>">Download </a></td>			
 									<!--<td><?php echo $Biosample_Type; ?></td>-->
