@@ -79,7 +79,7 @@
 	
   <div class="col-sm-12">	
 		<h3 class="card-title">	<i class="fa fa-bar-chart" aria-hidden="true"></i> 
-			GSDB Strcuture Evaluation Result
+			GSDB Structure Evaluation Result
 		</h3>
 		<hr> 	
 

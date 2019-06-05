@@ -247,7 +247,8 @@
 							
 				<br><br>
 				<p><input type="submit" class="btn btn-outline-primary"	 value="Display" name="submit" onclick="myfunc()" /></p> 		
-				
+				<input type="button"  class="btn btn-outline-primary" onclick="location.href='compare.php?id=<?php echo  $_GET['id']; ?>';" value="Display Multiple Structures" />
+				<!--<p><a  href="compare.php?id=<?php echo  $_GET['id']; ?>" > <u>Display Structures Side by Side </u></a><p>		-->
 			</td>
 		    <td>
 			<!-- Inserted the Visualization here -->
