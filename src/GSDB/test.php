@@ -1,13 +1,5 @@
 <?php
-
-
-$mysqli = new mysqli("localhost", "root" , "genomeflow", "gsdb");
-
-/* check connection */
-if (mysqli_connect_errno()) {
-    printf("Connect failed: %s\n", mysqli_connect_error());
-    exit();
-}
+require_once(__DIR__."/connection.php");
 
 $query = "SELECT ID,Title,Biosample_Type,Organism  FROM general_info";
 if ($stmt = $mysqli->prepare($query)) {

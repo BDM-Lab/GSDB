@@ -114,20 +114,17 @@
 					<?php
 					   $var_value = $_GET['id'];					
 						require_once('connection.php');
-						$result=$conn->prepare("SELECT * FROM data_info WHERE GSDB_ID = '$var_value' OR Filename = '$var_value'");
+						$result=$mysqli->prepare("SELECT GSDB_ID,Filename,Resolution FROM data_info WHERE GSDB_ID = ? OR Filename = ?");
+						$result->bind_param("ss",$var_value,$var_value);
 						$result->execute();
+						$result->bind_result($GSDB_ID,$Filename,$Resolution);
 						for($i=0; $row = $result->fetch(); $i++){
 					?>
 						<tr>
-							<?php 
-							
-								$dir_download = 'http://calla.rnet.missouri.edu/genome3d/GSDB/Dataset/' . $row['GSDB_ID'] . "/" . $row['Filename']. ".tar.gz";								 
-							?>
-				
-							<td><label><a href="<?php echo $dir_download?>" class="fa fa-download" ><?php echo $row['Filename']; ?></a></label></td>		
-							<td><label><?php echo $row['Resolution']; ?></label></td>
-							<td><label><?php echo $row['GSDB_ID']; ?></label></td>		
-							
+							<?php $dir_download = "http://calla.rnet.missouri.edu/genome3d/GSDB/Dataset/{$GSDB_ID}/{$Filename}.tar.gz";	?>
+							<td><label><a href="<?php echo $dir_download?>" class="fa fa-download" ><?=$Filename?></a></label></td>		
+							<td><label><?=$Resolution?></label></td>
+							<td><label><?=$GSDB_ID?></label></td>		
 						</tr>
 						<?php } ?>
 					</tbody>				
@@ -188,20 +185,17 @@
 					<select id="filename" class="dropdown-select">
 					<?php
 						   $var_value = $_GET['id'];	
-							echo  $var_value;
 							require_once('connection.php');
-							$result=$conn->prepare("SELECT * FROM data_info WHERE GSDB_ID = '$var_value' OR Filename = '$var_value'");
+							$result=$mysqli->prepare("SELECT GSDB_ID,Filename,Resolution FROM data_info WHERE GSDB_ID = ? OR Filename = ?");
+							$result->bind_param("ss",$var_value,$var_value);
 							$result->execute();
-							
-							for($i=0; $row = $result->fetch(); $i++){
-								$var_value =$row['GSDB_ID'];
-								$filevalue=$row['Filename'];								
-								$Resvalue = $row['Resolution'];
+							$result->bind_result($var_value,$filevalue,$Resvalue);
+							for($i=0;  $result->fetch(); $i++){
 								$Value= $filevalue."-".$Resvalue;
 								?>
-								<option value= <?php echo $Value; ?>> <?php echo $row['Filename']; ?> </option>;
+								<option value= <?php echo $Value; ?>> <?=$filevalue ?> </option>;
 						<?php } ?>
-						</select>				
+						</select>
 				 </div>
 				 <br>
 				 
@@ -247,8 +241,8 @@
 							
 				<br><br>
 				<p><input type="submit" class="btn btn-outline-primary"	 value="Display" name="submit" onclick="myfunc()" /></p> 		
-				<input type="button"  class="btn btn-outline-primary" onclick="location.href='compare.php?id=<?php echo  $_GET['id']; ?>';" value="Display Multiple Structures" />
-				<!--<p><a  href="compare.php?id=<?php echo  $_GET['id']; ?>" > <u>Display Structures Side by Side </u></a><p>		-->
+				<input type="button"  class="btn btn-outline-primary" onclick="location.href='compare.php?id=<?=urlencode($_GET['id'])?>';" value="Display Multiple Structures" />
+				<!--<p><a  href="compare.php?id=<?=urlencode($_GET['id'])?>" > <u>Display Structures Side by Side </u></a><p>		-->
 			</td>
 		    <td>
 			<!-- Inserted the Visualization here -->

@@ -111,15 +111,7 @@
 				
 				<tbody>
 				<?php
-				
-				
-					$mysqli = new mysqli("localhost", "root" , "genomeflow", "gsdb");
-
-					/* check connection */
-					if (mysqli_connect_errno()) {
-						printf("Connect failed: %s\n", mysqli_connect_error());
-						exit();
-					}
+					require_once(__DIR__."/connection.php");
 
 					// $query = "SELECT ID,Title,Biosample_Type,Organism,Project,Project_Id,GEO_Accesion_No  FROM general_info";
 					$query = "SELECT ID,Title,Organism,Project,Project_Id,GEO_Accesion_No  FROM general_info";

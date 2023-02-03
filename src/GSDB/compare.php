@@ -98,7 +98,7 @@
 		<hr>
 
 	
-	<h6><a  href="details.php?id=<?php echo  $_GET['id']; ?>" ><font size="5"> &larr; </font>  <u> Back to single structure view page </u></a></h6>	
+	<h6><a href="details.php?id=<?=urlencode($_GET['id']); ?>"><font size="5"> &larr; </font>  <u> Back to single structure view page </u></a></h6>	
 <table cellspacing="10" cellpadding="10">
 <tr>
 <td>
@@ -129,19 +129,17 @@
 				<div class="dropdown dropdown-dark">
 					<select id="filename" class="dropdown-select">
 					<?php
-						   $var_value = $_GET['id'];	
-							echo  $var_value;
+						  $var_value = $_GET['id'];	
 							require_once('connection.php');
-							$result=$conn->prepare("SELECT * FROM data_info WHERE GSDB_ID = '$var_value' OR Filename = '$var_value'");
+							$result=$mysqli->prepare("SELECT GSDB_ID,Filename,Resolution FROM data_info WHERE GSDB_ID = ? OR Filename = ?");
+							$result->bind_param("ss",$var_value,$var_value);
 							$result->execute();
 							
-							for($i=0; $row = $result->fetch(); $i++){
-								$var_value =$row['GSDB_ID'];
-								$filevalue=$row['Filename'];								
-								$Resvalue = $row['Resolution'];
-								$Value= $filevalue."-".$Resvalue; 
+							$result->bind_result($var_value,$filevalue,$Resvalue);
+							for($i=0; $result->fetch(); $i++){
+								$Value= $filevalue."-".$Resvalue;
 								?>
-								<option value= <?php echo $Value; ?>> <?php echo $row['Filename']; ?> </option>;
+								<option value= <?php echo $Value; ?>> <?php echo $filevalue; ?> </option>;
 						<?php } ?>
 						</select>				
 				 </div>
@@ -241,19 +239,17 @@
 				<div class="dropdown dropdown-dark">
 					<select id="filename1" class="dropdown-select">
 					<?php
-						   $var_value = $_GET['id'];	
-							echo  $var_value;
+						  $var_value = $_GET['id'];	
 							require_once('connection.php');
-							$result=$conn->prepare("SELECT * FROM data_info WHERE GSDB_ID = '$var_value' OR Filename = '$var_value'");
+							$result=$mysqli->prepare("SELECT GSDB_ID,Filename,Resolution FROM data_info WHERE GSDB_ID = ? OR Filename = ?");
+							$result->bind_param("ss",$var_value,$var_value);
 							$result->execute();
 							
-							for($i=0; $row = $result->fetch(); $i++){
-								$var_value =$row['GSDB_ID'];
-								$filevalue=$row['Filename'];								
-								$Resvalue = $row['Resolution'];
-								$Value= $filevalue."-".$Resvalue; 
+							$result->bind_result($var_value,$filevalue,$Resvalue);
+							for($i=0; $result->fetch(); $i++){
+								$Value= $filevalue."-".$Resvalue;
 								?>
-								<option value= <?php echo $Value; ?>> <?php echo $row['Filename']; ?> </option>;
+								<option value= <?php echo $Value; ?>> <?php echo $filevalue; ?> </option>;
 						<?php } ?>
 						</select>				
 				 </div>

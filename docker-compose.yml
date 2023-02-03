@@ -1,0 +1,32 @@
+version: '3.8'
+services:
+  gsdb:
+    image: gsdb
+    volumes:
+      - ./src/GSDB:/var/www
+      - ./logs:/var/log
+      - ./jobs:/var/www/evaluate/jobs #upload dir
+      - ./nginx.conf:/etc/nginx/http.d/default.conf
+    ports:
+      - 80:80
+    hostname: gsdb
+    links:
+      - mysql:mysql
+    env_file:
+      - env
+  mysql:
+    image: mysql:5
+    ports:
+      - 3306:3306
+    hostname: mysql
+    env_file:
+      - env
+  gsdb_init: # initializes the database
+    image: gsdb
+    depends_on:
+      - mysql
+    command: php /var/www/install/initdb.php
+    links:
+      - mysql:mysql
+    env_file:
+      - env

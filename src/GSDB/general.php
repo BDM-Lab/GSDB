@@ -118,14 +118,14 @@
 				?>
 					<tr>
 						<td><?php echo $i+1; ?></td>
-						<td><a href="details.php?id=<?php echo $row['ID']; ?>"><?php echo $row['ID']; ?></a></td>
-						<td><?php echo $row['Title']; ?></td>
-						<td><?php echo $row['Biosample_Type']; ?></td>
-						<td><?php echo $row['Organism']; ?></td>
-						<td><?php echo $row['Lab']; ?></td>						
-						<td><?php echo $row['Project']; ?></td>
-						<td><?php echo $row['Project_Id']; ?></td>
-						<td><a href="https://www.ncbi.nlm.nih.gov/geo/query/acc.cgi?acc=<?php echo $row['GEO_Accesion_No']; ?>"><?php echo $row['GEO_Accesion_No']; ?> </a></td>
+						<td><a href="details.php?id=<?php echo urlencode($row['ID']); ?>"><?php echo htmlspecialchars($row['ID']); ?></a></td>
+						<td><?php echo htmlspecialchars($row['Title']); ?></td>
+						<td><?php echo htmlspecialchars($row['Biosample_Type']); ?></td>
+						<td><?php echo htmlspecialchars($row['Organism']); ?></td>
+						<td><?php echo htmlspecialchars($row['Lab']); ?></td>						
+						<td><?php echo htmlspecialchars($row['Project']); ?></td>
+						<td><?php echo htmlspecialchars($row['Project_Id']); ?></td>
+						<td><a href="https://www.ncbi.nlm.nih.gov/geo/query/acc.cgi?acc=<?php echo urlencode($row['GEO_Accesion_No']); ?>"><?php echo htmlspecialchars($row['GEO_Accesion_No']); ?> </a></td>
 						
 					</tr>
 					<?php } ?>

@@ -88,7 +88,7 @@
 	 if(isset($_POST['submit']))
     {
 	    
-	    $path = "/var/www/html/3dgenome/GSDB/evaluate/jobs/";
+	    $path = __DIR__."/evaluate/jobs/";
 		
 		//=========================================================================
 		// Check if string is empty
@@ -160,7 +160,7 @@
 		*/
 		
 		// make directory for job using Id inside Remote address
-	     $jobid =   substr(md5(microtime()),rand(0,26),7); // $_POST["jobid"];		 
+	     $jobid =   substr(md5(microtime()),rand(0,25),7);	 
 		 $path  =  $path.$jobid.'/';
 		
 		 if (file_exists($path )) {			
@@ -199,14 +199,16 @@
 		 if (!strictEmpty($_POST["ifmatrixlink"]))
 		 {
 			 $matrix_url=$_POST['ifmatrixlink'];
-			 $data = file_get_contents($matrix_url);			
-			 $matrix_url = $input_data_1.basename($matrix_url);
-			 $upload =file_put_contents($matrix_url, $data);
-			 if($upload) {
-				//echo "matrix Upload Successful";
-			 }else{
-				//echo "matrix Upload Not successfull";
-			 } 
+			 if(preg_match("/^https?:\/\/.*\.(txt|pdb)$/",$matrix_url)){
+				$data = file_get_contents($matrix_url);			
+				$matrix_url = $input_data_1.basename($matrix_url);
+				$upload =file_put_contents($matrix_url, $data);
+				if($upload) {
+					//echo "matrix Upload Successful";
+				}else{
+					//echo "matrix Upload Not successfull";
+				}
+			}
 		}
 	
 	   //==================================
@@ -216,21 +218,23 @@
 		 if(  !strictEmpty($_POST["pdblink"]))
 		 {
 			 $pdb_url=$_POST['pdblink'];
-			 $data = file_get_contents($pdb_url);			
-			 $pdb_url = $input_data_2.basename($pdb_url);		 
-			 $upload =file_put_contents($pdb_url, $data);
-			 if($upload) {
-				// echo "pdb Upload Successful";
-			 }else{
-				//echo "pdb upload Not successfull";
-			 } 
+			 if(preg_match("/^https?:\/\/.*\.pdb$/",$pdb_url)){
+				$data = file_get_contents($pdb_url);			
+				$pdb_url = $input_data_2.basename($pdb_url);		 
+				$upload =file_put_contents($pdb_url, $data);
+				if($upload) {
+					// echo "pdb Upload Successful";
+				}else{
+					//echo "pdb upload Not successfull";
+				} 
+			 }
 		}		 
 		 
 		 
 		 //==================================
 		 //Uploading IF Matrix File
 		 //==================================
-		if(!empty($_FILES['ifmatrixfile']))
+		if(!empty($_FILES['ifmatrixfile']) && preg_match("/\.txt$/",$_FILES['ifmatrixfile']['name']))
 		  {
 			//$path = "/var/www/html/3dgenome/GSDB/evaluate/jobs/";			
 			$ifpath =  $input_data_1 . basename( $_FILES['ifmatrixfile']['name']);
@@ -246,7 +250,7 @@
 		//==================================
 		//Uploading the pdb structure File
 	    //================================== 
-		 if(!empty($_FILES['pdbfile']))
+		 if(!empty($_FILES['pdbfile']) && preg_match("/\.pdb$/",$_FILES['pdbfile']['name']))
 		  {
 			//$path = "/var/www/html/3dgenome/GSDB/evaluate/jobs/";
 			$pdbpath =  $input_data_2 . basename( $_FILES['pdbfile']['name']);
@@ -266,7 +270,7 @@
 		// echo $matrix_file; 	 echo $pdb_file;
 		
 		// Record Access in a history file			
-		$history =   "/var/www/html/3dgenome/GSDB/evaluate/jobs/history.txt";
+		$history =   __DIR__."/evaluate/jobs/history.txt";
 		$jd = fopen($history , 'a');
 		$ipaddress = "IP: ". get_client_ip_env().PHP_EOL;		
 	    fwrite($jd, $ipaddress);
@@ -287,17 +291,17 @@
 		$type = $_POST['input_type'];  
 		if ($type == "if") {          
 			//echo 'IF_Structure Script to be called'; 
-			shell_exec("/var/www/html/3dgenome/GSDB/evaluate/IF_Structure_evaluate.sh $matrix_file $pdb_file $path $jobid > $job_log &");		
+			shell_exec(escapeshellcmd("sh ".__DIR__."/evaluate/IF_Structure_evaluate.sh $matrix_file $pdb_file $path $jobid > $job_log &"));		
 		}
 		else {
 			//echo 'Structure_Structure Script to be called';
-			shell_exec("/var/www/html/3dgenome/GSDB/evaluate/Structure_Structure_evaluate.sh $matrix_file $pdb_file $path $jobid > $job_log &");		
+			shell_exec(escapeshellcmd("sh ".__DIR__."/evaluate/Structure_Structure_evaluate.sh $matrix_file $pdb_file $path $jobid > $job_log &"));		
 		}
 	    
-		// print output to iframe	
+		// print output to iframe
 		$data = '';
 		$time_elapse = 0;
-		$result =   "/var/www/html/3dgenome/GSDB/evaluate/jobs/".$jobid."/".$jobid."_Result.log";
+		$result =   __DIR__."/evaluate/jobs/".$jobid."/".$jobid."_Result.log";
 		while($data == '')
 		{
 			sleep(1);
@@ -315,7 +319,7 @@
 		}
 		
 
-	    $url="evaluate_Result.php?output=$result";		
+	    $url="evaluate_Result.php?jobid=$jobid";		
         header("Location:$url");
 	
 
@@ -337,7 +341,7 @@
 						  <input type="radio" name="input_type" id="input_type_pdb" value="pdb"> Chromosome structure in <a href="http://www.wwpdb.org/documentation/file-format-content/format33/sect9.html"><u>PDB format</u></a><br>
 					<br>				
 					<li> <b>Input file 1</b> (required): <br>
-						Please copy and paste the URL of input file 1 here. <a href="javascript:copy_link_1()"><u>IF Matrix Sample input</u> </a> &nbsp;  <a href="javascript:copy_link_2()"><u>Structure Sample input</u> </a><br>
+						Please copy and paste the URL of input file 1 here. File MUST have .txt or .pdb extension. <a href="javascript:copy_link_1()"><br><u>IF Matrix Sample input</u> </a> &nbsp;  <a href="javascript:copy_link_2()"><u>Structure Sample input</u> </a><br>
 						<textarea name="ifmatrixlink" id="ifmatrixlink" name="ifmatrixlink" rows="3" cols="100" ></textarea><br>
 						Or upload the input file 1: <br><input type="file" id="ifmatrixfile" name="ifmatrixfile" size="70"> <br>
 						

@@ -51,7 +51,6 @@
 			
 			
 			/*JSON Encode the data to retrieve the string containing the JSON representation of the data in the array. */
-         
 			$jsonEncodedData = json_encode($arrData_1 );				
 			/*Create an object for the column chart using the FusionCharts PHP class constructor. Syntax for the constructor is ` FusionCharts("type of chart", "unique chart id", width of the chart, height of the chart, "div id to render the chart", "data format", "data source")`. Because we are using JSON data to render the chart, the data format will be `json`. The variable `$jsonEncodeData` holds all the JSON data for the chart, and will be passed as the value for the data source parameter of the constructor.*/
             $doughnutChart = new FusionCharts("doughnut2D", "Lab-Chart" , 350, 300, "chart-2", "json", $jsonEncodedData);
@@ -100,13 +99,6 @@
 			$prim= "primary cell";
 			$x=0;   //cell line
 			$y=0;   //primary cell
-			
-			$mysqli = new mysqli("localhost", "root" , "genomeflow", "gsdb");
-			/* check connection */
-			if (mysqli_connect_errno()) {
-				printf("Connect failed: %s\n", mysqli_connect_error());
-				exit();
-			}
 
 			$query = "SELECT ID,Biosample_Type  FROM general_info";
 			if ($stmt = $mysqli->prepare($query)) {
@@ -145,8 +137,6 @@
 				/* close statement */
 				$stmt->close();
 			}
-			/* close connection */
-			$mysqli->close();
 			 // The `$arrData` array holds the chart attributes and data
             $arrData_3 = array(
                 "chart" => array(
@@ -190,7 +180,6 @@
             // Render the chart
             $doughnutChart->render();
 			
-						require_once('connection.php');
 			/*======================================================================
 			PROJECT
 			======================================================================*/
@@ -200,12 +189,6 @@
 			$x=0;   
 			$y=0;   
 			$z=0 ;    
-			$mysqli = new mysqli("localhost", "root" , "genomeflow", "gsdb");
-			/* check connection */
-			if (mysqli_connect_errno()) {
-				printf("Connect failed: %s\n", mysqli_connect_error());
-				exit();
-			}
 
 			$query = "SELECT ID,Project  FROM general_info";
 			if ($stmt = $mysqli->prepare($query)) {
@@ -280,53 +263,3 @@
             $columnChart = new FusionCharts("doughnut3D", "Project-Chart" , 350, 300, "chart-1", "json", $jsonEncodedData);
             // Render the chart
             $columnChart->render();
-			
-	/**===============================================================================================
-	 * Supplementary json_encode in case php version is < 5.2 (taken from http://gr.php.net/json_encode)
-	 */
-
-    function json_encode($a=false)
-    {
-        if (is_null($a)) return 'null';
-        if ($a === false) return 'false';
-        if ($a === true) return 'true';
-        if (is_scalar($a))
-        {
-            if (is_float($a))
-            {
-                // Always use "." for floats.
-                return floatval(str_replace(",", ".", strval($a)));
-            }
-
-            if (is_string($a))
-            {
-                static $jsonReplaces = array(array("\\", "/", "\n", "\t", "\r", "\b", "\f", '"'), array('\\\\', '\\/', '\\n', '\\t', '\\r', '\\b', '\\f', '\"'));
-                return '"' . str_replace($jsonReplaces[0], $jsonReplaces[1], $a) . '"';
-            }
-            else
-            return $a;
-        }
-        $isList = true;
-        for ($i = 0, reset($a); $i < count($a); $i++, next($a))
-        {
-            if (key($a) !== $i)
-            {
-                $isList = false;
-                break;
-            }
-        }
-        $result = array();
-        if ($isList)
-        {
-            foreach ($a as $v) $result[] = json_encode($v);
-            return '[' . join(',', $result) . ']';
-        }
-        else
-        {
-            foreach ($a as $k => $v) $result[] = json_encode($k).':'.json_encode($v);
-            return '{' . join(',', $result) . '}';
-        }
-    }
-
-			
-	?>

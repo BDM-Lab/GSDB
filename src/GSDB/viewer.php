@@ -104,15 +104,7 @@
 					</thead>
 					<tbody>
 	<?php
-				
-				
-					$mysqli = new mysqli("localhost", "root" , "genomeflow", "gsdb");
-
-					/* check connection */
-					if (mysqli_connect_errno()) {
-						printf("Connect failed: %s\n", mysqli_connect_error());
-						exit();
-					}
+		require_once(__DIR__."/connection.php");
 
 					$query = "SELECT ID FROM general_info";
 					if ($stmt = $mysqli->prepare($query)) {
@@ -154,9 +146,6 @@
 							/* close statement */
 							$stmt->close();
 					}
-
-						/* close connection */
-						$mysqli->close();
 				?>
 					</tbody>					
 			</table>
@@ -202,16 +191,6 @@
 				<div class="dropdown dropdown-dark">
 					<select id="filename" class="dropdown-select">
 						<?php
-				
-				
-					$mysqli = new mysqli("localhost", "root" , "genomeflow", "gsdb");
-
-					/* check connection */
-					if (mysqli_connect_errno()) {
-						printf("Connect failed: %s\n", mysqli_connect_error());
-						exit();
-					}
-
 					$query = "SELECT ID FROM general_info";
 					if ($stmt = $mysqli->prepare($query)) {
 						/* execute query */

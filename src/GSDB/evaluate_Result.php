@@ -84,15 +84,18 @@
 		<hr> 	
 
 		<?php
-			$var_value = $_GET['output'];	
-			//echo '<div align="left">' . $var_value.'</div>';			
-			
-			$output= shell_exec("php /var/www/html/3dgenome/GSDB/evaluate/status.php $var_value ");
-			echo ($output);
-			
-			echo "<br/><br/>";
-			echo "<a href = \"http://sysbio.rnet.missouri.edu/3dgenome/GSDB/evaluate.php \"><u> Back to evaluation page</u> </a> <br/>" ;
-		  
+			//echo '<div align="left">' . $var_value.'</div>';		
+            $jobid = $_GET['jobid'];
+            if(preg_match("/^[0124356789abcdef]{7}$/",$jobid)){ // jobid must be 7-digit hex
+                $var_value =   __DIR__."/evaluate/jobs/{$jobid}/{$jobid}_Result.log";
+                
+                $php = __DIR__."/evaluate/status.php";
+                $output= shell_exec(escapeshellcmd("php {$php} {$var_value} "));
+                echo ($output);
+                
+                echo "<br/><br/>";
+                echo "<a href = \"http://sysbio.rnet.missouri.edu/3dgenome/GSDB/evaluate.php \"><u> Back to evaluation page</u> </a> <br/>" ;
+            }
 		 ?>
 
 					

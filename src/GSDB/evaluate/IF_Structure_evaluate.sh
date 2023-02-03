@@ -30,7 +30,7 @@ else
 
 	# Loop to copy
 
-	/usr/bin/java -jar /var/www/html/3dgenome/GSDB/evaluate/IF_Structure_Evaluator.jar $matrix_file $pdb_file $dest_dir
+	/usr/bin/java -jar /var/www/evaluate/IF_Structure_Evaluator.jar $matrix_file $pdb_file $dest_dir
 
 	#Change output name to include the job id
 
