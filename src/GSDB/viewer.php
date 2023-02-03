@@ -286,7 +286,7 @@
 			</td>
 		    <td>
 			<!-- Inserted the Visualization here -->
-		       <iframe id="StructFrame" width=600, height=500, src="http://3dmol.csb.pitt.edu/viewer.html?url=http://sysbio.rnet.missouri.edu/3dgenome/GSDB/structures/IFList_Chr_20_1mb_1450749845157.pdb&style=line:radius~0.2:color~crimson&type=pdb;" ></iframe> 		 
+		       <iframe id="StructFrame" width=600, height=500, src="http://3dmol.csb.pitt.edu/viewer.html?url=https://gsdb.mu.hekademeia.org/structures/IFList_Chr_20_1mb_1450749845157.pdb&style=line:radius~0.2:color~crimson&type=pdb;" ></iframe> 		 
 				<br>
 				<b>Structure Evaluation: </b> 	<br>	
 				<iframe id="StructLog" width=600, height=105, src="" ></iframe> 		 

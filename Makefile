@@ -4,3 +4,6 @@ docker: down
 
 down:
 	docker-compose down
+
+publish:
+#	docker build src/ -t hekademeia/gsdb:latest

@@ -101,7 +101,7 @@
 						var append = "";
 						var modelfile = "./chr11_10kb_gm12878_list_125mb_135mb_1473188895655.pdb";
 						Jmol.getApplet("jsmolApplet_M23d1", Info);
-						Jmol.script(jsmolApplet_M23d1,"background black; load http://sysbio.rnet.missouri.edu/3dgenome/GSDB/structures/chr19.pdb;");
+						Jmol.script(jsmolApplet_M23d1,"background black; load https://gsdb.mu.hekademeia.org/structures/chr19.pdb;");
 						Jmol.script(jsmolApplet_M23d1, "spin on; cartoon only; color {file="+ rfile+"} group;");
 					</script>
 					 -->  

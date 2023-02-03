@@ -14,10 +14,10 @@
     <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/4.0.0-alpha.3/css/bootstrap.min.css" integrity="sha384-MIwDKRSSImVFAZCVLtU0LMDdON6KVCrZHyVQQj6e8wIEJkW4tvwqXrbMIya1vriY" crossorigin="anonymous">
      <link rel="icon" href="images/icon.PNG"> 
     <!-- Custom CSS: You can use this stylesheet to override any Bootstrap styles and/or apply your own styles -->
-    <link href="http://sysbio.rnet.missouri.edu/3dgenome/GSDB/css/custom.css" rel="stylesheet">
+    <link href="css/custom.css" rel="stylesheet">
     
     <!-- For icons -->
-    <link href="http://sysbio.rnet.missouri.edu/3dgenome/GSDB/css/font-awesome-4.6.3/css/font-awesome.min.css" rel="stylesheet">
+    <link href="css/font-awesome-4.6.3/css/font-awesome.min.css" rel="stylesheet">
 	
 	<!--- CDN DataTable-->
 	 

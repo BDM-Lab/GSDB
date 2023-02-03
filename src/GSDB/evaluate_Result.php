@@ -94,7 +94,7 @@
                 echo ($output);
                 
                 echo "<br/><br/>";
-                echo "<a href = \"http://sysbio.rnet.missouri.edu/3dgenome/GSDB/evaluate.php \"><u> Back to evaluation page</u> </a> <br/>" ;
+                echo "<a href = \"/evaluate.php\"><u> Back to evaluation page</u> </a> <br/>" ;
             }
 		 ?>
 
