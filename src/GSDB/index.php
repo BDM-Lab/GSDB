@@ -27,16 +27,6 @@
 	<script type="text/javascript" src="js/fusioncharts.charts.js"></script>
 	<script type="text/javascript" src="js/themes/fusioncharts.theme.ocean.js"></script>
 	
-	<script type="text/javascript" src="https://hekademeia-uploads.s3.us-west-2.amazonaws.com/mu/eecs/cheng/js/JSmol.min.js"></script>
-	<script type="text/javascript">
-		var Info = {
-			width: 320,
-			height: 320,
-			serverURL: "https://chemapps.stolaf.edu/jmol/jsmol/jsmol.php ",
-			use: "HTML5",
-			j2sPath: "js/j2s"
-		}
-	</script>
 	    <!-- Navigation -->
     <nav id="topNav" class="navbar navbar-default navbar-static-top navbar-dark bg-inverse m-b-1">
         <button class="navbar-toggler hidden-md-up pull-right" type="button" data-toggle="collapse" data-target="#navbar">
@@ -94,17 +84,6 @@
 			
 				<div style=" float: left;width: 400px;">
 					  <div style="text-align: center;"><img src="images/genome_1.png" style='width:330px; ' alt="a genome visual" /></div><br/>	
-		            <!--<script type="text/javascript">
-						var rfile = 1;
-						var model = 1;
-						//var append = "APPEND";
-						var append = "";
-						var modelfile = "./chr11_10kb_gm12878_list_125mb_135mb_1473188895655.pdb";
-						Jmol.getApplet("jsmolApplet_M23d1", Info);
-						Jmol.script(jsmolApplet_M23d1,"background black; load https://gsdb.mu.hekademeia.org/structures/chr19.pdb;");
-						Jmol.script(jsmolApplet_M23d1, "spin on; cartoon only; color {file="+ rfile+"} group;");
-					</script>
-					 -->  
 				 </div >
 					
 				  <div style="float: none;overflow: hidden;padding: 20px"">
