@@ -27,12 +27,12 @@
 	<script type="text/javascript" src="js/fusioncharts.charts.js"></script>
 	<script type="text/javascript" src="js/themes/fusioncharts.theme.ocean.js"></script>
 	
-	<script type="text/javascript" src="js/JSmol.min.js"></script>
+	<script type="text/javascript" src="https://hekademeia-uploads.s3.us-west-2.amazonaws.com/mu/eecs/cheng/js/JSmol.min.js"></script>
 	<script type="text/javascript">
 		var Info = {
 			width: 320,
 			height: 320,
-			serverURL: "http://chemapps.stolaf.edu/jmol/jsmol/jsmol.php ",
+			serverURL: "https://chemapps.stolaf.edu/jmol/jsmol/jsmol.php ",
 			use: "HTML5",
 			j2sPath: "js/j2s"
 		}
@@ -93,7 +93,7 @@
 				<br/>
 			
 				<div style=" float: left;width: 400px;">
-					  <div style="text-align: center;"><img src="images/genome_1.png" style='width:330px; '/></div><br/>	
+					  <div style="text-align: center;"><img src="images/genome_1.png" style='width:330px; ' alt="a genome visual" /></div><br/>	
 		            <!--<script type="text/javascript">
 						var rfile = 1;
 						var model = 1;
@@ -147,8 +147,9 @@
 		<table>
 		<tr>
 		<td>
-			<p><p>Copyright &copy; 2019 <a href="#"><a href="http://calla.rnet.missouri.edu/cheng/">BDM Lab</a> | <a href="mailto:chengji@missouri.edu">Contact</a></p>
-			<img src="images/mu_resize.jpg" alt="">
+			<p>Copyright &copy; 2019 <a href="#"><a href="http://calla.rnet.missouri.edu/cheng/">BDM Lab</a> | <a href="mailto:chengji@missouri.edu">Contact</a></p>
+			<img src="images/mu_resize.jpg" alt="University of Missouri">
+			<img src="https://relay.hekademeia.org/track/image?src=hek-host-wc" alt="Hosting by Hekademeia" style="width: 160px;">
 		</td>
 		
 		<td>

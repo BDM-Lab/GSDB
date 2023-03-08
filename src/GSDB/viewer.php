@@ -24,15 +24,15 @@
     <link rel="stylesheet" type="text/css" href="https://cdn.datatables.net/plug-ins/preview/searchPane/dataTables.searchPane.css">
 	
 	<!--- 3Dmol-->
-	<script type="" src="http://3Dmol.csb.pitt.edu/build/3Dmol-min.js"></script> 
-	<script src="http://cdn.jsdelivr.net/3dmol.js/latest/3Dmol-min.js"></script>
+	<script type="" src="https://3Dmol.csb.pitt.edu/build/3Dmol-min.js"></script> 
+	<script src="https://cdn.jsdelivr.net/3dmol.js/latest/3Dmol-min.js"></script>
     <!-- HTML5 Shim and Respond.js IE8 support of HTML5 elements and media queries -->
     <!-- WARNING: Respond.js doesn't work if you view the page via file:// -->
     <!--[if lt IE 9]>
         <script src="https://oss.maxcdn.com/libs/html5shiv/3.7.0/html5shiv.js"></script>
         <script src="https://oss.maxcdn.com/libs/respond.js/1.4.2/respond.min.js"></script>
     <![endif]-->
-	<script src="http://3Dmol.csb.pitt.edu/build/3Dmol-min.js"></script>
+	<script src="https://3Dmol.csb.pitt.edu/build/3Dmol-min.js"></script>
 	
 </head>
 
@@ -286,7 +286,7 @@
 			</td>
 		    <td>
 			<!-- Inserted the Visualization here -->
-		       <iframe id="StructFrame" width=600, height=500, src="http://3dmol.csb.pitt.edu/viewer.html?url=https://gsdb.mu.hekademeia.org/structures/IFList_Chr_20_1mb_1450749845157.pdb&style=line:radius~0.2:color~crimson&type=pdb;" ></iframe> 		 
+		       <iframe id="StructFrame" width=600, height=500, src="https://3dmol.csb.pitt.edu/viewer.html?url=https://gsdb.mu.hekademeia.org/structures/IFList_Chr_20_1mb_1450749845157.pdb&style=line:radius~0.2:color~crimson&type=pdb;" ></iframe> 		 
 				<br>
 				<b>Structure Evaluation: </b> 	<br>	
 				<iframe id="StructLog" width=600, height=105, src="" ></iframe> 		 
@@ -446,7 +446,7 @@
 				   
 				  
 				 pdblink  =  link + ".pdb" ;
-				 var mol_link = "http://3dmol.csb.pitt.edu/viewer.html"; 
+				 var mol_link = "https://3dmol.csb.pitt.edu/viewer.html"; 
 				 var Struct_display =  mol_link + "?url=" + pdblink + "&style=line:radius~0.2:color~crimson&type=pdb;";
 				 var Struct_Log = link + ".log";
 				

@@ -25,8 +25,7 @@
     <link rel="stylesheet" type="text/css" href="https://cdn.datatables.net/plug-ins/preview/searchPane/dataTables.searchPane.css">
 	
 	<!--- 3Dmol-->
-	<script type="" src="http://3Dmol.csb.pitt.edu/build/3Dmol-min.js"></script> 
-	<script src="http://cdn.jsdelivr.net/3dmol.js/latest/3Dmol-min.js"></script>
+	<script type="" src="https://3Dmol.csb.pitt.edu/build/3Dmol-min.js"></script> 
 	
 
     <!-- HTML5 Shim and Respond.js IE8 support of HTML5 elements and media queries -->
@@ -191,7 +190,7 @@
 			</td>
 		    <td>
 			<!-- Inserted the Visualization here -->
-		       <iframe id="StructFrame" width=600, height=500, src="http://3dmol.csb.pitt.edu/viewer.html?url=https://gsdb.mu.hekademeia.org/structures/IFList_Chr_20_1mb_1450749845157.pdb&type=pdb&select=all&style=stick:color~crimson,radius~0.05" ></iframe> 		 
+		       <iframe id="StructFrame" width=600, height=500, src="https://3dmol.csb.pitt.edu/viewer.html?url=https://gsdb.mu.hekademeia.org/structures/IFList_Chr_20_1mb_1450749845157.pdb&type=pdb&select=all&style=stick:color~crimson,radius~0.05" ></iframe> 		 
 				<br>
 				<b>Structure Evaluation: </b> 	<br/>	
 				<iframe id="StructLog" width=600, height=105, src="" ></iframe> 
@@ -301,7 +300,7 @@
 			</td>
 		    <td>
 			<!-- Inserted the Visualization here -->
-		       <iframe id="StructFrame1" width=600, height=500, src="http://3dmol.csb.pitt.edu/viewer.html?url=https://gsdb.mu.hekademeia.org/structures/IFList_Chr_20_1mb_1450749845157.pdb&type=pdb&select=all&style=stick:color~crimson,radius~0.05" ></iframe> 		 
+		       <iframe id="StructFrame1" width=600, height=500, src="https://3dmol.csb.pitt.edu/viewer.html?url=https://gsdb.mu.hekademeia.org/structures/IFList_Chr_20_1mb_1450749845157.pdb&type=pdb&select=all&style=stick:color~crimson,radius~0.05" ></iframe> 		 
 				<br>
 				<b>Structure Evaluation: </b> 	<br/>	
 				<iframe id="StructLog1" width=600, height=105, src="" ></iframe> 
@@ -327,7 +326,8 @@
         <div class="small-print">
         	<div >
         		<p><p>Copyright &copy; 2018 <a href="#"><a href="http://calla.rnet.missouri.edu/cheng/">BDM Lab</a> | <a href="mailto:chengji@missouri.edu">Contact</a></p>
-        		<img src="images/mu_resize.jpg" alt="">									
+        		<img src="images/mu_resize.jpg" alt="">
+						<img src="https://relay.hekademeia.org/track/image?src=hek-host-wc" alt="Hosting by Hekademeia" style="width: 160px;">					
         	</div>
         </div>
 	</center>
@@ -354,15 +354,16 @@
 <script type="text/javascript">
 			$(document).ready(function(){	
 				var zip = new JSZip();
-			zip.file("Hello.txt", "Hello world\n");
+				zip.file("Hello.txt", "Hello world\n");
 
-			jQuery("#data_uri").on("click", function () {
-				zip.generateAsync({type:"base64"}).then(function (base64) {
-					window.location = "data:application/zip;base64," + base64;
-				}, function (err) {
-					jQuery("#data_uri").text(err);
+				jQuery("#data_uri").on("click", function () {
+					zip.generateAsync({type:"base64"}).then(function (base64) {
+						window.location = "data:application/zip;base64," + base64;
+					}, function (err) {
+						jQuery("#data_uri").text(err);
+					});
 				});
-			});
+			})
 	</script>
 	<!-- Initialize Bootstrap functionality -->
     <script>

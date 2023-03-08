@@ -24,8 +24,7 @@
     <link rel="stylesheet" type="text/css" href="https://cdn.datatables.net/plug-ins/preview/searchPane/dataTables.searchPane.css">
 	
 	<!--- 3Dmol-->
-	<script type="" src="http://3Dmol.csb.pitt.edu/build/3Dmol-min.js"></script> 
-	<script src="http://cdn.jsdelivr.net/3dmol.js/latest/3Dmol-min.js"></script>
+	<script type="" src="https://3Dmol.csb.pitt.edu/build/3Dmol-min.js"></script> 
     <!-- HTML5 Shim and Respond.js IE8 support of HTML5 elements and media queries -->
     <!-- WARNING: Respond.js doesn't work if you view the page via file:// -->
     <!--[if lt IE 9]>
@@ -353,7 +352,7 @@
 						 <input type="file" id="pdbfile" name="pdbfile" size="70"> <br>
 						 
 						 <br><br>
-						 <li> <input name="submit" type="submit" style="font-size:16px" value="Compare" onclick="func()"  />  &nbsp; &nbsp;
+						 <li> <input name="submit" type="submit" style="font-size:16px" value="Compare" />  &nbsp; &nbsp;
 						 <INPUT TYPE="reset" style="font-size:16px" VALUE="Clear form">
 					</ul>
 				</form>				
@@ -375,7 +374,7 @@
         <div class="small-print">        	
         		<p><p>Copyright &copy; 2019 <a href="#"><a href="http://calla.rnet.missouri.edu/cheng/">BDM Lab</a> | <a href="mailto:chengji@missouri.edu">Contact</a></p>
         		<img src="images/mu_resize.jpg" alt="">
-			
+						<img src="https://relay.hekademeia.org/track/image?src=hek-host-wc" alt="Hosting by Hekademeia" style="width: 160px;">
         </div>
 	</footer>
 

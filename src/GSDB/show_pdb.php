@@ -10,7 +10,7 @@
 	var Info = {
 		width: 400,
 		height: 400,
-		serverURL: "http://chemapps.stolaf.edu/jmol/jsmol/jsmol.php ",
+		serverURL: "https://chemapps.stolaf.edu/jmol/jsmol/jsmol.php ",
 		use: "HTML5",
 		j2sPath: "js/j2s"
 	}
