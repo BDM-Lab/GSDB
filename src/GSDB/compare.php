@@ -465,7 +465,8 @@
 				var chrpdb = "chr" + chrp;
 				
 				
-				var base_link="http://calla.rnet.missouri.edu/genome3d/GSDB/Database/";
+				//var base_link="http://calla.rnet.missouri.edu/genome3d/GSDB/Database/";
+				var base_link="https://hekademeia-uploads.s3.us-west-2.amazonaws.com/mu/eecs/cheng/gsdb/";
 				
 				var gsdb_id = "<?php echo $var_value ?>"; 
 				
