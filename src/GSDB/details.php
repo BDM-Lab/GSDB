@@ -305,7 +305,7 @@
 						jQuery("#data_uri").text(err);
 					});
 				});
-			}
+			})
 	</script>
 	<!-- Initialize Bootstrap functionality -->
     <script>
@@ -503,7 +503,7 @@
 				   }
 				  
 				 var pdblink  =  link + ".pdb" ;
-				 var mol_link = "http://3dmol.csb.pitt.edu/viewer.html"; 
+				 var mol_link = "https://3dmol.csb.pitt.edu/viewer.html"; 
 				 if (algo.trim()=="LorDG" || algo.trim()=="MOGEN" || algo.trim()=="miniMDS" || algo.trim()=="HSA"){
 					var Struct_display =  mol_link + "?url=" + pdblink + "&type=pdb&select=all&style=stick:color~crimson,radius~0.045,";
 				 }else{
